@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+59ea7827
+ * @version   2.9.0-null+ac07da7b
  */
 
 var enifed, requireModule, require, Ember;
@@ -11124,7 +11124,13 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     };
 
     Renderer.prototype.getBounds = function getBounds(view) {
-      return view[_emberGlimmerComponent.BOUNDS];
+      var bounds = view[_emberGlimmerComponent.BOUNDS];
+
+      var parentElement = bounds.parentElement();
+      var firstNode = bounds.firstNode();
+      var lastNode = bounds.lastNode();
+
+      return { parentElement: parentElement, firstNode: firstNode, lastNode: lastNode };
     };
 
     Renderer.prototype._renderRoot = function _renderRoot(root, template, self, parentElement, dynamicScope) {
@@ -20701,35 +20707,13 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     }
   };
 
-  var ConcreteBounds = (function () {
-    function ConcreteBounds(parent, first, last) {
-      babelHelpers.classCallCheck(this, ConcreteBounds);
-
-      this.parent = parent;
-      this.first = first;
-      this.last = last;
-    }
-
-    ConcreteBounds.prototype.parentElement = function parentElement() {
-      return this.parent;
-    };
-
-    ConcreteBounds.prototype.firstNode = function firstNode() {
-      return this.first;
-    };
-
-    ConcreteBounds.prototype.lastNode = function lastNode() {
-      return this.last;
-    };
-
-    return ConcreteBounds;
-  })();
-
   Renderer.prototype.getBounds = function (view) {
-    var first = view._renderNode.firstNode;
-    var last = view._renderNode.lastNode;
-    var parent = first.parentElement;
-    return new ConcreteBounds(parent, first, last);
+    var _view$_renderNode = view._renderNode;
+    var firstNode = _view$_renderNode.firstNode;
+    var lastNode = _view$_renderNode.lastNode;
+
+    var parentElement = firstNode.parentElement;
+    return { parentElement: parentElement, firstNode: firstNode, lastNode: lastNode };
   };
 
   Renderer.prototype.register = function Renderer_register(view) {
@@ -49867,8 +49851,8 @@ enifed('ember-views/system/utils', ['exports'], function (exports) {
     var bounds = getViewBounds(view);
 
     var range = document.createRange();
-    range.setStartBefore(bounds.firstNode());
-    range.setEndAfter(bounds.lastNode());
+    range.setStartBefore(bounds.firstNode);
+    range.setEndAfter(bounds.lastNode);
 
     return range;
   }
@@ -50843,7 +50827,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+59ea7827";
+  exports.default = "2.9.0-null+ac07da7b";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

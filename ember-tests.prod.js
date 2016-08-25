@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+59ea7827
+ * @version   2.9.0-null+ac07da7b
  */
 
 var enifed, requireModule, require, Ember;
@@ -16368,10 +16368,15 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), component.element, 'a regular component should have a single node that is its element');
-      assert.equal(bounds.lastNode(), component.element, 'a regular component should have a single node that is its element');
+      var parentElement = _getViewBounds.parentElement;
+      var firstNode = _getViewBounds.firstNode;
+      var lastNode = _getViewBounds.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, component.element, 'a regular component should have a single node that is its element');
+      assert.equal(lastNode, component.element, 'a regular component should have a single node that is its element');
     };
 
     _class.prototype['@test getViewBounds on a tagless component'] = function testGetViewBoundsOnATaglessComponent(assert) {
@@ -16389,10 +16394,15 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds2 = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
-      assert.equal(bounds.lastNode(), this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
+      var parentElement = _getViewBounds2.parentElement;
+      var firstNode = _getViewBounds2.firstNode;
+      var lastNode = _getViewBounds2.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
+      assert.equal(lastNode, this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
     };
 
     _class.prototype['@test getViewClientRects'] = function testGetViewClientRects(assert) {
@@ -16417,7 +16427,7 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
       assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
     };
 
-    _class.prototype['@test getViewBoudningClientRect'] = function testGetViewBoudningClientRect(assert) {
+    _class.prototype['@test getViewBoundingClientRect'] = function testGetViewBoundingClientRect(assert) {
       if (!hasGetBoundingClientRect || !ClientRectCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
@@ -40543,10 +40553,15 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), component.element, 'a regular component should have a single node that is its element');
-      assert.equal(bounds.lastNode(), component.element, 'a regular component should have a single node that is its element');
+      var parentElement = _getViewBounds.parentElement;
+      var firstNode = _getViewBounds.firstNode;
+      var lastNode = _getViewBounds.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, component.element, 'a regular component should have a single node that is its element');
+      assert.equal(lastNode, component.element, 'a regular component should have a single node that is its element');
     };
 
     _class.prototype['@test getViewBounds on a tagless component'] = function testGetViewBoundsOnATaglessComponent(assert) {
@@ -40564,10 +40579,15 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds2 = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
-      assert.equal(bounds.lastNode(), this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
+      var parentElement = _getViewBounds2.parentElement;
+      var firstNode = _getViewBounds2.firstNode;
+      var lastNode = _getViewBounds2.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
+      assert.equal(lastNode, this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
     };
 
     _class.prototype['@test getViewClientRects'] = function testGetViewClientRects(assert) {
@@ -40592,7 +40612,7 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
       assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
     };
 
-    _class.prototype['@test getViewBoudningClientRect'] = function testGetViewBoudningClientRect(assert) {
+    _class.prototype['@test getViewBoundingClientRect'] = function testGetViewBoundingClientRect(assert) {
       if (!hasGetBoundingClientRect || !ClientRectCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
