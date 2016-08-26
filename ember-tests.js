@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+daf2a916
+ * @version   2.9.0-null+b70c72d7
  */
 
 var enifed, requireModule, require, Ember;
@@ -7763,6 +7763,181 @@ enifed('ember-glimmer/tests/integration/binding_integration_test', ['exports', '
       });
 
       this.assertText('two way: down, string: down, object: 10, string object: 10');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/components/append-to-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
+  'use strict';
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: appendTo', (function (_RenderingTest) {
+    babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars calling appendTo should append multiple roots'] = function htmlbarsCallingAppendToShouldAppendMultipleRoots() {
+      var _this = this;
+
+      this.$().html('<div id="first"></div><div id="second"></div>');
+
+      this.registerComponent('x-first', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-first'
+        }),
+
+        template: 'x-first!'
+      });
+
+      this.registerComponent('x-second', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-second'
+        }),
+
+        template: 'x-second!'
+      });
+
+      var First = this.owner._lookupFactory('component:x-first');
+      var Second = this.owner._lookupFactory('component:x-second');
+
+      this.first = First.create();
+      this.second = Second.create();
+
+      this.assert.ok(!this.first.element, 'precond - should not have an element');
+      this.assert.ok(!this.second.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this.first.appendTo('#first');
+      });
+      this.runTask(function () {
+        return _this.second.appendTo('#second');
+      });
+
+      this.assertComponentElement(this.element.querySelector('#first').firstChild, { content: 'x-first!' });
+      this.assertComponentElement(this.element.querySelector('#second').firstChild, { content: 'x-second!' });
+    };
+
+    _class.prototype['@test calling appendTo should append to the specified element'] = function testCallingAppendToShouldAppendToTheSpecifiedElement() {
+      var _this2 = this;
+
+      this.$().html('<div id="menu"></div>');
+
+      this.registerComponent('x-parent', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-parent'
+        }),
+
+        template: '{{#x-child}}x-parent block content{{/x-child}}'
+      });
+
+      this.registerComponent('x-child', {
+        template: '|{{yield}}|'
+      });
+
+      var XParent = this.owner._lookupFactory('component:x-parent');
+      this.component = XParent.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this2.component.appendTo('#menu');
+      });
+
+      this.assertComponentElement(this.firstChild.firstChild, {});
+      this.assertComponentElement(this.component.element.children[0], { content: '|x-parent block content|' });
+    };
+
+    _class.prototype['@test should append to the document.body when calling append()'] = function testShouldAppendToTheDocumentBodyWhenCallingAppend() {
+      var _this3 = this;
+
+      this.registerComponent('x-parent', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-parent'
+        }),
+
+        template: '{{#x-child}}x-parent block content{{/x-child}}'
+      });
+
+      this.registerComponent('x-child', {
+        template: '|{{yield}}|'
+      });
+
+      var XParent = this.owner._lookupFactory('component:x-parent');
+      this.component = XParent.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this3.component.append();
+      });
+
+      this.assertComponentElement(document.body.lastChild, {});
+      this.assertComponentElement(this.component.element.children[0], { content: '|x-parent block content|' });
+    };
+
+    _class.prototype['@test raises an assertion when the target does not exist in the DOM'] = function testRaisesAnAssertionWhenTheTargetDoesNotExistInTheDOM() {
+      var _this4 = this;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/foo-bar'
+        }),
+        template: 'FOO BAR!'
+      });
+
+      var FooBar = this.owner._lookupFactory('component:foo-bar');
+      this.component = FooBar.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        expectAssertion(function () {
+          _this4.component.appendTo('#does-not-exist-in-dom');
+        }, /You tried to append to \(#does-not-exist-in-dom\) but that isn't in the DOM/);
+      });
+    };
+
+    _class.prototype['@test destroying removes a component that was appended with appendTo'] = function testDestroyingRemovesAComponentThatWasAppendedWithAppendTo(assert) {
+      var _this5 = this;
+
+      var willDestroyCalled = 0;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/foo-bar',
+          willDestroyElement: function () {
+            willDestroyCalled++;
+          }
+        }),
+        template: 'FOO BAR!'
+      });
+
+      var FooBar = this.owner._lookupFactory('component:foo-bar');
+      this.component = FooBar.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this5.component.appendTo(_this5.element);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'FOO BAR!' });
+
+      this.runTask(function () {
+        return _this5.component.destroy();
+      });
+
+      if (this.isGlimmer) {
+        this.assertHTML('');
+      } else {
+        this.assertHTML('<!---->');
+      }
+
+      this.assert.equal(willDestroyCalled, 1);
     };
 
     return _class;
@@ -16323,10 +16498,15 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), component.element, 'a regular component should have a single node that is its element');
-      assert.equal(bounds.lastNode(), component.element, 'a regular component should have a single node that is its element');
+      var parentElement = _getViewBounds.parentElement;
+      var firstNode = _getViewBounds.firstNode;
+      var lastNode = _getViewBounds.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, component.element, 'a regular component should have a single node that is its element');
+      assert.equal(lastNode, component.element, 'a regular component should have a single node that is its element');
     };
 
     _class.prototype['@test getViewBounds on a tagless component'] = function testGetViewBoundsOnATaglessComponent(assert) {
@@ -16344,10 +16524,15 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds2 = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
-      assert.equal(bounds.lastNode(), this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
+      var parentElement = _getViewBounds2.parentElement;
+      var firstNode = _getViewBounds2.firstNode;
+      var lastNode = _getViewBounds2.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
+      assert.equal(lastNode, this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
     };
 
     _class.prototype['@test getViewClientRects'] = function testGetViewClientRects(assert) {
@@ -16372,7 +16557,7 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
       assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
     };
 
-    _class.prototype['@test getViewBoudningClientRect'] = function testGetViewBoudningClientRect(assert) {
+    _class.prototype['@test getViewBoundingClientRect'] = function testGetViewBoundingClientRect(assert) {
       if (!hasGetBoundingClientRect || !ClientRectCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
@@ -29968,7 +30153,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
       var attrs = _emberMetalAssign.default({}, context, {
         tagName: '',
-        template: owner.lookup('template:-top-level')
+        layoutName: '-top-level'
       });
 
       owner.register('component:-top-level', _emberGlimmerTestsUtilsHelpers.Component.extend(attrs));
@@ -30085,7 +30270,7 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-views/system/jquery', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberViewsSystemJquery, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-views/system/jquery', 'ember-glimmer/templates/root', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberViewsSystemJquery, _emberGlimmerTemplatesRoot, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString) {
   'use strict';
 
   exports.buildOwner = buildOwner;
@@ -30128,6 +30313,9 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
         return {};
       } });
     owner.inject('renderer', '_viewRegistry', '-view-registry:main');
+
+    owner.register('template:-root', _emberGlimmerTemplatesRoot.default);
+    owner.inject('renderer', 'rootTemplate', 'template:-root');
 
     return owner;
   }
@@ -32041,6 +32229,181 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
       });
 
       this.assertText('two way: down, string: down, object: 10, string object: 10');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/append-to-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers) {
+  'use strict';
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components test: appendTo', (function (_RenderingTest) {
+    babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@htmlbars calling appendTo should append multiple roots'] = function htmlbarsCallingAppendToShouldAppendMultipleRoots() {
+      var _this = this;
+
+      this.$().html('<div id="first"></div><div id="second"></div>');
+
+      this.registerComponent('x-first', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-first'
+        }),
+
+        template: 'x-first!'
+      });
+
+      this.registerComponent('x-second', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-second'
+        }),
+
+        template: 'x-second!'
+      });
+
+      var First = this.owner._lookupFactory('component:x-first');
+      var Second = this.owner._lookupFactory('component:x-second');
+
+      this.first = First.create();
+      this.second = Second.create();
+
+      this.assert.ok(!this.first.element, 'precond - should not have an element');
+      this.assert.ok(!this.second.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this.first.appendTo('#first');
+      });
+      this.runTask(function () {
+        return _this.second.appendTo('#second');
+      });
+
+      this.assertComponentElement(this.element.querySelector('#first').firstChild, { content: 'x-first!' });
+      this.assertComponentElement(this.element.querySelector('#second').firstChild, { content: 'x-second!' });
+    };
+
+    _class.prototype['@test calling appendTo should append to the specified element'] = function testCallingAppendToShouldAppendToTheSpecifiedElement() {
+      var _this2 = this;
+
+      this.$().html('<div id="menu"></div>');
+
+      this.registerComponent('x-parent', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-parent'
+        }),
+
+        template: '{{#x-child}}x-parent block content{{/x-child}}'
+      });
+
+      this.registerComponent('x-child', {
+        template: '|{{yield}}|'
+      });
+
+      var XParent = this.owner._lookupFactory('component:x-parent');
+      this.component = XParent.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this2.component.appendTo('#menu');
+      });
+
+      this.assertComponentElement(this.firstChild.firstChild, {});
+      this.assertComponentElement(this.component.element.children[0], { content: '|x-parent block content|' });
+    };
+
+    _class.prototype['@test should append to the document.body when calling append()'] = function testShouldAppendToTheDocumentBodyWhenCallingAppend() {
+      var _this3 = this;
+
+      this.registerComponent('x-parent', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/x-parent'
+        }),
+
+        template: '{{#x-child}}x-parent block content{{/x-child}}'
+      });
+
+      this.registerComponent('x-child', {
+        template: '|{{yield}}|'
+      });
+
+      var XParent = this.owner._lookupFactory('component:x-parent');
+      this.component = XParent.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this3.component.append();
+      });
+
+      this.assertComponentElement(document.body.lastChild, {});
+      this.assertComponentElement(this.component.element.children[0], { content: '|x-parent block content|' });
+    };
+
+    _class.prototype['@test raises an assertion when the target does not exist in the DOM'] = function testRaisesAnAssertionWhenTheTargetDoesNotExistInTheDOM() {
+      var _this4 = this;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/foo-bar'
+        }),
+        template: 'FOO BAR!'
+      });
+
+      var FooBar = this.owner._lookupFactory('component:foo-bar');
+      this.component = FooBar.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        expectAssertion(function () {
+          _this4.component.appendTo('#does-not-exist-in-dom');
+        }, /You tried to append to \(#does-not-exist-in-dom\) but that isn't in the DOM/);
+      });
+    };
+
+    _class.prototype['@test destroying removes a component that was appended with appendTo'] = function testDestroyingRemovesAComponentThatWasAppendedWithAppendTo(assert) {
+      var _this5 = this;
+
+      var willDestroyCalled = 0;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          layoutName: 'components/foo-bar',
+          willDestroyElement: function () {
+            willDestroyCalled++;
+          }
+        }),
+        template: 'FOO BAR!'
+      });
+
+      var FooBar = this.owner._lookupFactory('component:foo-bar');
+      this.component = FooBar.create();
+
+      this.assert.ok(!this.component.element, 'precond - should not have an element');
+
+      this.runTask(function () {
+        return _this5.component.appendTo(_this5.element);
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'FOO BAR!' });
+
+      this.runTask(function () {
+        return _this5.component.destroy();
+      });
+
+      if (this.isGlimmer) {
+        this.assertHTML('');
+      } else {
+        this.assertHTML('<!---->');
+      }
+
+      this.assert.equal(willDestroyCalled, 1);
     };
 
     return _class;
@@ -40601,10 +40964,15 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), component.element, 'a regular component should have a single node that is its element');
-      assert.equal(bounds.lastNode(), component.element, 'a regular component should have a single node that is its element');
+      var parentElement = _getViewBounds.parentElement;
+      var firstNode = _getViewBounds.firstNode;
+      var lastNode = _getViewBounds.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, component.element, 'a regular component should have a single node that is its element');
+      assert.equal(lastNode, component.element, 'a regular component should have a single node that is its element');
     };
 
     _class.prototype['@test getViewBounds on a tagless component'] = function testGetViewBoundsOnATaglessComponent(assert) {
@@ -40622,10 +40990,15 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
 
       this.render('{{hi-mom}}');
 
-      var bounds = _emberViewsSystemUtils.getViewBounds(component);
+      var _getViewBounds2 = _emberViewsSystemUtils.getViewBounds(component);
 
-      assert.equal(bounds.firstNode(), this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
-      assert.equal(bounds.lastNode(), this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
+      var parentElement = _getViewBounds2.parentElement;
+      var firstNode = _getViewBounds2.firstNode;
+      var lastNode = _getViewBounds2.lastNode;
+
+      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(firstNode, this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
+      assert.equal(lastNode, this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
     };
 
     _class.prototype['@test getViewClientRects'] = function testGetViewClientRects(assert) {
@@ -40650,7 +41023,7 @@ enifed('ember-htmlbars/tests/integration/components/utils-test', ['exports', 'em
       assert.ok(_emberViewsSystemUtils.getViewClientRects(component) instanceof ClientRectListCtor);
     };
 
-    _class.prototype['@test getViewBoudningClientRect'] = function testGetViewBoudningClientRect(assert) {
+    _class.prototype['@test getViewBoundingClientRect'] = function testGetViewBoundingClientRect(assert) {
       if (!hasGetBoundingClientRect || !ClientRectCtor) {
         assert.ok(true, 'The test environment does not support the DOM API required to run this test.');
         return;
@@ -54789,7 +55162,7 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
       var attrs = _emberMetalAssign.default({}, context, {
         tagName: '',
-        template: owner.lookup('template:-top-level')
+        layoutName: '-top-level'
       });
 
       owner.register('component:-top-level', _emberHtmlbarsTestsUtilsHelpers.Component.extend(attrs));
@@ -76594,6 +76967,35 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports
   QUnit.test('firstObject - returns first arranged object', function () {
     equal(array.get('firstObject'), '5', 'returns first arranged object');
   });
+
+  QUnit.test('arrangedContentArray{Will,Did}Change are called when the arranged content changes', function () {
+    // The behaviour covered by this test may change in the future if we decide
+    // that built-in array methods are not overridable.
+
+    var willChangeCallCount = 0;
+    var didChangeCallCount = 0;
+
+    var content = _emberRuntimeSystemNative_array.A([1, 2, 3]);
+    _emberRuntimeSystemArray_proxy.default.extend({
+      arrangedContentArrayWillChange: function () {
+        willChangeCallCount++;
+        this._super.apply(this, arguments);
+      },
+      arrangedContentArrayDidChange: function () {
+        didChangeCallCount++;
+        this._super.apply(this, arguments);
+      }
+    }).create({ content: content });
+
+    equal(willChangeCallCount, 0);
+    equal(didChangeCallCount, 0);
+
+    content.pushObject(4);
+    content.pushObject(5);
+
+    equal(willChangeCallCount, 2);
+    equal(didChangeCallCount, 2);
+  });
 });
 enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports', 'ember-metal/property_set', 'ember-runtime/computed/computed_macros', 'ember-metal/run_loop', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (exports, _emberMetalProperty_set, _emberRuntimeComputedComputed_macros, _emberMetalRun_loop, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array) {
   'use strict';
@@ -76689,6 +77091,35 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports',
     _emberMetalProperty_set.set(proxy2, 'content', proxy1);
 
     ok(true, 'No exception was raised');
+  });
+
+  QUnit.test('arrayContent{Will,Did}Change are called when the content changes', function () {
+    // The behaviour covered by this test may change in the future if we decide
+    // that built-in array methods are not overridable.
+
+    var willChangeCallCount = 0;
+    var didChangeCallCount = 0;
+
+    var content = _emberRuntimeSystemNative_array.A([1, 2, 3]);
+    _emberRuntimeSystemArray_proxy.default.extend({
+      arrayContentWillChange: function () {
+        willChangeCallCount++;
+        this._super.apply(this, arguments);
+      },
+      arrayContentDidChange: function () {
+        didChangeCallCount++;
+        this._super.apply(this, arguments);
+      }
+    }).create({ content: content });
+
+    equal(willChangeCallCount, 0);
+    equal(didChangeCallCount, 0);
+
+    content.pushObject(4);
+    content.pushObject(5);
+
+    equal(willChangeCallCount, 2);
+    equal(didChangeCallCount, 2);
   });
 });
 enifed('ember-runtime/tests/system/array_proxy/content_update_test', ['exports', 'ember-metal/computed', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (exports, _emberMetalComputed, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array) {
@@ -79465,7 +79896,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['exports', 'ember
     var owner = buildOwner();
     owner.register('template:-top-level', template);
     owner.register('component:-top-level', _emberTemplatesComponent.default.extend({
-      template: owner.lookup('template:-top-level'),
+      layoutName: '-top-level',
       firstName: 'Tobias',
       drug: 'teamocil'
     }));
@@ -81797,173 +82228,6 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
     view.instrumentDetails(payload);
 
     confirmPayload(payload, view);
-  });
-});
-enifed('ember-views/tests/views/view/append_to_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/component_lookup', 'ember-templates/component', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner', 'internal-test-helpers/tests/skip-if-glimmer', 'require'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsComponent_lookup, _emberTemplatesComponent, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner, _internalTestHelpersTestsSkipIfGlimmer, _require) {
-  'use strict';
-
-  var compile = undefined,
-      owner = undefined,
-      View = undefined,
-      view = undefined,
-      otherView = undefined,
-      willDestroyCalled = undefined;
-
-  function commonSetup() {
-    owner = _containerTestsTestHelpersBuildOwner.default();
-    owner.registerOptionsForType('component', { singleton: false });
-    owner.registerOptionsForType('view', { singleton: false });
-    owner.registerOptionsForType('template', { instantiate: false });
-    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
-
-    compile = _require.default('ember-htmlbars-template-compiler').compile;
-  }
-
-  QUnit.module('EmberView - append() and appendTo()', {
-    setup: function () {
-      commonSetup();
-      View = _emberViewsViewsView.default.extend({});
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberRuntimeTestsUtils.runDestroy(otherView);
-    }
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('can call `appendTo` for multiple views #11109', function () {
-    var elem = undefined;
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div><div id="other-menu"></div>');
-
-    view = View.create();
-    otherView = View.create();
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
-    ok(!_emberMetalProperty_get.get(otherView, 'element'), 'precond - should not have an element');
-
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#menu');
-      otherView.appendTo('#other-menu');
-    });
-
-    elem = _emberViewsSystemJquery.default('#menu').children();
-    ok(elem.length > 0, 'creates and appends the first view\'s element');
-
-    elem = _emberViewsSystemJquery.default('#other-menu').children();
-    ok(elem.length > 0, 'creates and appends the second view\'s element');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the specified element when calling appendTo()', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
-
-    view = View.create();
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.appendTo('#menu');
-    });
-
-    var viewElem = _emberViewsSystemJquery.default('#menu').children();
-    ok(viewElem.length > 0, 'creates and appends the view\'s element');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the document body when calling append()', function () {
-    view = View.create({
-      template: compile('foo bar baz')
-    });
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    var viewElem = _emberViewsSystemJquery.default(document.body).find(':contains("foo bar baz")');
-    ok(viewElem.length > 0, 'creates and appends the view\'s element');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('raises an assert when a target does not exist in the DOM', function () {
-    view = View.create();
-
-    expectAssertion(function () {
-      _emberMetalRun_loop.default(function () {
-        return view.appendTo('does-not-exist-in-dom');
-      });
-    });
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('destroy more forcibly removes the view', function () {
-    willDestroyCalled = 0;
-
-    view = View.create({
-      willDestroyElement: function () {
-        willDestroyCalled++;
-      }
-    });
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.append();
-    });
-
-    ok(_emberViewsSystemJquery.default('#' + _emberMetalProperty_get.get(view, 'elementId')).length === 1, 'precond - element was inserted');
-
-    _emberMetalRun_loop.default(function () {
-      return view.destroy();
-    });
-
-    ok(_emberViewsSystemJquery.default('#' + _emberMetalProperty_get.get(view, 'elementId')).length === 0, 'destroy removes an element from the DOM');
-    equal(_emberMetalProperty_get.get(view, 'isDestroyed'), true, 'the view is marked as destroyed');
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'the view no longer has an element');
-    equal(willDestroyCalled, 1, 'the willDestroyElement hook was called once');
-  });
-
-  QUnit.module('EmberView - append() and appendTo() in a view hierarchy', {
-    setup: function () {
-      var _Component$extend;
-
-      commonSetup();
-
-      owner.register('component:x-foo', _emberTemplatesComponent.default.extend({
-        elementId: 'child'
-      }));
-
-      View = _emberTemplatesComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = owner, _Component$extend.layout = compile('{{x-foo}}'), _Component$extend));
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-    }
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the specified element when calling appendTo()', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
-
-    view = View.create();
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
-
-    _emberMetalRun_loop.default(function () {
-      return view.appendTo('#menu');
-    });
-
-    var viewElem = _emberViewsSystemJquery.default('#menu #child');
-    ok(viewElem.length > 0, 'creates and appends the view\'s element');
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('should be added to the document body when calling append()', function () {
-    _emberViewsSystemJquery.default('#qunit-fixture').html('<div id="menu"></div>');
-
-    view = View.create();
-
-    ok(!_emberMetalProperty_get.get(view, 'element'), 'precond - should not have an element');
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var viewElem = _emberViewsSystemJquery.default('#child');
-    ok(viewElem.length > 0, 'creates and appends the view\'s element');
   });
 });
 enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'internal-test-helpers/tests/skip-if-glimmer', 'require'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _internalTestHelpersTestsSkipIfGlimmer, _require) {
