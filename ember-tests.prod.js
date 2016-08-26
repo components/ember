@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+f97598ea
+ * @version   2.9.0-null+ac93fc75
  */
 
 var enifed, requireModule, require, Ember;
@@ -14589,6 +14589,164 @@ babelHelpers.inherits(_class, _RenderingTest);
 
       this.assertElement(this.firstChild, { tagName: 'section' });
       this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/components/instrumentation-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal/instrumentation', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetalInstrumentation, _emberMetalProperty_set) {
+  'use strict';
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components instrumentation', (function (_RenderingTest) {
+    babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+      var _this = this;
+
+      _RenderingTest.call(this);
+
+      this.resetEvents();
+
+      _emberMetalInstrumentation.subscribe('render.component', {
+        before: function (name, timestamp, payload) {
+          if (payload.view !== _this.component) {
+            _this.actual.before.push(payload);
+          }
+        },
+        after: function (name, timestamp, payload) {
+          if (payload.view !== _this.component) {
+            _this.actual.after.push(payload);
+          }
+        }
+      });
+    }
+
+    _class.prototype.resetEvents = function resetEvents() {
+      this.expected = {
+        before: [],
+        after: []
+      };
+
+      this.actual = {
+        before: [],
+        after: []
+      };
+    };
+
+    _class.prototype.teardown = function teardown() {
+      this.assert.deepEqual(this.actual.before, [], 'No unexpected events (before)');
+      this.assert.deepEqual(this.actual.after, [], 'No unexpected events (after)');
+      _RenderingTest.prototype.teardown.call(this);
+      _emberMetalInstrumentation.reset();
+    };
+
+    _class.prototype['@test zomg'] = function testZomg(assert) {
+      assert.ok(true);
+    };
+
+    _class.prototype['@test it should receive an instrumentation event for both initial render and updates'] = function testItShouldReceiveAnInstrumentationEventForBothInitialRenderAndUpdates(assert) {
+      var _this2 = this;
+
+      var testCase = this;
+
+      var BaseClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: '',
+
+        willRender: function () {
+          testCase.expected.before.push(this);
+          testCase.expected.after.unshift(this);
+        }
+      });
+
+      this.registerComponent('x-bar', {
+        template: '[x-bar: {{bar}}] {{yield}}',
+        ComponentClass: BaseClass.extend()
+      });
+
+      this.registerComponent('x-baz', {
+        template: '[x-baz: {{baz}}]',
+        ComponentClass: BaseClass.extend()
+      });
+
+      this.registerComponent('x-bat', {
+        template: '[x-bat: {{bat}}]',
+        ComponentClass: BaseClass.extend()
+      });
+
+      this.render('[-top-level: {{foo}}] {{#x-bar bar=bar}}{{x-baz baz=baz}}{{/x-bar}} {{x-bat bat=bat}}', {
+        foo: 'foo', bar: 'bar', baz: 'baz', bat: 'bat'
+      });
+
+      this.assertText('[-top-level: foo] [x-bar: bar] [x-baz: baz] [x-bat: bat]');
+
+      this.assertEvents('after initial render', true);
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertEvents('after no-op rerender');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'foo', 'FOO');
+      });
+
+      this.assertEvents('after updating top-level');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'baz', 'BAZ');
+      });
+
+      this.assertEvents('after updating inner-most');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'bar', 'BAR');
+        _emberMetalProperty_set.set(_this2.context, 'bat', 'BAT');
+      });
+
+      this.assertEvents('after updating the rest');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this2.context, 'bar', 'BAR');
+        _emberMetalProperty_set.set(_this2.context, 'baz', 'BAZ');
+        _emberMetalProperty_set.set(_this2.context, 'bat', 'BAT');
+      });
+
+      this.assertEvents('after reset');
+    };
+
+    _class.prototype.assertEvents = function assertEvents(label) {
+      var initialRender = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+      var actual = this.actual;
+      var expected = this.expected;
+
+      this.assert.strictEqual(actual.before.length, actual.after.length, label + ': before and after callbacks should be balanced');
+
+      this._assertEvents(label + ' (before):', actual.before, expected.before, initialRender);
+      this._assertEvents(label + ' (after):', actual.before, expected.before, initialRender);
+
+      this.resetEvents();
+    };
+
+    _class.prototype._assertEvents = function _assertEvents(label, actual, expected, initialRender) {
+      var _this3 = this;
+
+      this.assert.equal(actual.length, expected.length, label + ': expected ' + expected.length + ' and got ' + actual.length);
+
+      actual.forEach(function (payload, i) {
+        return _this3.assertPayload(payload, expected[i], initialRender);
+      });
+    };
+
+    _class.prototype.assertPayload = function assertPayload(payload, component, initialRender) {
+      this.assert.equal(payload.object, component.toString(), 'payload.object');
+      this.assert.equal(payload.containerKey, component._debugContainerKey, 'payload.containerKey');
+      this.assert.equal(payload.view, component, 'payload.view');
+
+      if (this.isGlimmer) {
+        this.assert.strictEqual(payload.initialRender, initialRender, 'payload.initialRender');
+      }
     };
 
     return _class;
@@ -38774,6 +38932,164 @@ babelHelpers.inherits(_class, _RenderingTest);
 
       this.assertElement(this.firstChild, { tagName: 'section' });
       this.assertElement(this.firstChild.firstElementChild, { tagName: 'span' });
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-htmlbars/tests/integration/components/instrumentation-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-metal/instrumentation', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberMetalInstrumentation, _emberMetalProperty_set) {
+  'use strict';
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Components instrumentation', (function (_RenderingTest) {
+    babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+      var _this = this;
+
+      _RenderingTest.call(this);
+
+      this.resetEvents();
+
+      _emberMetalInstrumentation.subscribe('render.component', {
+        before: function (name, timestamp, payload) {
+          if (payload.view !== _this.component) {
+            _this.actual.before.push(payload);
+          }
+        },
+        after: function (name, timestamp, payload) {
+          if (payload.view !== _this.component) {
+            _this.actual.after.push(payload);
+          }
+        }
+      });
+    }
+
+    _class.prototype.resetEvents = function resetEvents() {
+      this.expected = {
+        before: [],
+        after: []
+      };
+
+      this.actual = {
+        before: [],
+        after: []
+      };
+    };
+
+    _class.prototype.teardown = function teardown() {
+      this.assert.deepEqual(this.actual.before, [], 'No unexpected events (before)');
+      this.assert.deepEqual(this.actual.after, [], 'No unexpected events (after)');
+      _RenderingTest.prototype.teardown.call(this);
+      _emberMetalInstrumentation.reset();
+    };
+
+    _class.prototype['@test zomg'] = function testZomg(assert) {
+      assert.ok(true);
+    };
+
+    _class.prototype['@test it should receive an instrumentation event for both initial render and updates'] = function testItShouldReceiveAnInstrumentationEventForBothInitialRenderAndUpdates(assert) {
+      var _this2 = this;
+
+      var testCase = this;
+
+      var BaseClass = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        tagName: '',
+
+        willRender: function () {
+          testCase.expected.before.push(this);
+          testCase.expected.after.unshift(this);
+        }
+      });
+
+      this.registerComponent('x-bar', {
+        template: '[x-bar: {{bar}}] {{yield}}',
+        ComponentClass: BaseClass.extend()
+      });
+
+      this.registerComponent('x-baz', {
+        template: '[x-baz: {{baz}}]',
+        ComponentClass: BaseClass.extend()
+      });
+
+      this.registerComponent('x-bat', {
+        template: '[x-bat: {{bat}}]',
+        ComponentClass: BaseClass.extend()
+      });
+
+      this.render('[-top-level: {{foo}}] {{#x-bar bar=bar}}{{x-baz baz=baz}}{{/x-bar}} {{x-bat bat=bat}}', {
+        foo: 'foo', bar: 'bar', baz: 'baz', bat: 'bat'
+      });
+
+      this.assertText('[-top-level: foo] [x-bar: bar] [x-baz: baz] [x-bat: bat]');
+
+      this.assertEvents('after initial render', true);
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertEvents('after no-op rerender');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'foo', 'FOO');
+      });
+
+      this.assertEvents('after updating top-level');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'baz', 'BAZ');
+      });
+
+      this.assertEvents('after updating inner-most');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'bar', 'BAR');
+        _emberMetalProperty_set.set(_this2.context, 'bat', 'BAT');
+      });
+
+      this.assertEvents('after updating the rest');
+
+      this.runTask(function () {
+        _emberMetalProperty_set.set(_this2.context, 'foo', 'FOO');
+        _emberMetalProperty_set.set(_this2.context, 'bar', 'BAR');
+        _emberMetalProperty_set.set(_this2.context, 'baz', 'BAZ');
+        _emberMetalProperty_set.set(_this2.context, 'bat', 'BAT');
+      });
+
+      this.assertEvents('after reset');
+    };
+
+    _class.prototype.assertEvents = function assertEvents(label) {
+      var initialRender = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+      var actual = this.actual;
+      var expected = this.expected;
+
+      this.assert.strictEqual(actual.before.length, actual.after.length, label + ': before and after callbacks should be balanced');
+
+      this._assertEvents(label + ' (before):', actual.before, expected.before, initialRender);
+      this._assertEvents(label + ' (after):', actual.before, expected.before, initialRender);
+
+      this.resetEvents();
+    };
+
+    _class.prototype._assertEvents = function _assertEvents(label, actual, expected, initialRender) {
+      var _this3 = this;
+
+      this.assert.equal(actual.length, expected.length, label + ': expected ' + expected.length + ' and got ' + actual.length);
+
+      actual.forEach(function (payload, i) {
+        return _this3.assertPayload(payload, expected[i], initialRender);
+      });
+    };
+
+    _class.prototype.assertPayload = function assertPayload(payload, component, initialRender) {
+      this.assert.equal(payload.object, component.toString(), 'payload.object');
+      this.assert.equal(payload.containerKey, component._debugContainerKey, 'payload.containerKey');
+      this.assert.equal(payload.view, component, 'payload.view');
+
+      if (this.isGlimmer) {
+        this.assert.strictEqual(payload.initialRender, initialRender, 'payload.initialRender');
+      }
     };
 
     return _class;
@@ -81543,57 +81859,6 @@ enifed('ember-views/tests/test-helpers/get-element-style', ['exports'], function
     return style;
   };
 });
-enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/instrumentation', 'ember-metal/run_loop', 'ember-views/views/view', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberMetalInstrumentation, _emberMetalRun_loop, _emberViewsViewsView, _internalTestHelpersTestsSkipIfGlimmer) {
-  'use strict';
-
-  var view = undefined,
-      beforeCalls = undefined,
-      afterCalls = undefined;
-
-  function confirmPayload(payload, view) {
-    equal(payload && payload.object, view.toString(), 'payload object equals view.toString()');
-    equal(payload && payload.containerKey, view._debugContainerKey, 'payload contains the containerKey');
-    equal(payload && payload.view, view, 'payload contains the view itself');
-  }
-
-  QUnit.module('EmberView#instrumentation', {
-    setup: function () {
-      beforeCalls = [];
-      afterCalls = [];
-
-      _emberMetalInstrumentation.subscribe('render', {
-        before: function (name, timestamp, payload) {
-          beforeCalls.push(payload);
-        },
-
-        after: function (name, timestamp, payload) {
-          afterCalls.push(payload);
-        }
-      });
-
-      view = _emberViewsViewsView.default.create({
-        _debugContainerKey: 'suchryzsd',
-        instrumentDisplay: 'asdfasdfmewj'
-      });
-    },
-
-    teardown: function () {
-      if (view) {
-        _emberMetalRun_loop.default(view, 'destroy');
-      }
-
-      _emberMetalInstrumentation.reset();
-    }
-  });
-
-  _internalTestHelpersTestsSkipIfGlimmer.test('generates the proper instrumentation details when called directly', function () {
-    var payload = {};
-
-    view.instrumentDetails(payload);
-
-    confirmPayload(payload, view);
-  });
-});
 enifed('ember-views/tests/views/view/render_to_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'internal-test-helpers/tests/skip-if-glimmer', 'require'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _internalTestHelpersTestsSkipIfGlimmer, _require) {
   'use strict';
 
@@ -95062,7 +95327,7 @@ enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal/run_loo
     equal(_emberViewsSystemJquery.default('#qunit-fixture > .ember-view').text(), 'hello world');
   });
 });
-enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-application/system/application', 'ember-metal/instrumentation', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberApplicationSystemApplication, _emberMetalInstrumentation, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-application/system/application', 'ember-metal/instrumentation', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/template_registry'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberApplicationSystemApplication, _emberMetalInstrumentation, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesTemplate_registry) {
   'use strict';
 
   var App = undefined,
@@ -95071,8 +95336,8 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
   function setupExample() {
     // setup templates
     _emberTemplatesTemplate_registry.set('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Node 1</h1>'));
-    _emberTemplatesTemplate_registry.set('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Node 1</h1>'));
+    _emberTemplatesTemplate_registry.set('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Index</h1>'));
+    _emberTemplatesTemplate_registry.set('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Posts</h1>'));
 
     App.Router.map(function () {
       this.route('posts');
@@ -95109,7 +95374,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
     }
   });
 
-  _internalTestHelpersTestsSkipIfGlimmer.test('Nodes without view instances are instrumented', function (assert) {
+  QUnit.test('Nodes without view instances are instrumented', function (assert) {
     var called = false;
     _emberMetalInstrumentation.subscribe('render', {
       before: function () {
@@ -95118,9 +95383,11 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
       after: function () {}
     });
     _emberMetalRun_loop.default(App, 'advanceReadiness');
+    assert.equal($fixture.text(), 'Index', 'It rendered the right template');
     assert.ok(called, 'Instrumentation called on first render');
     called = false;
     handleURL('/posts');
+    assert.equal($fixture.text(), 'Posts', 'It rendered the right template');
     assert.ok(called, 'instrumentation called on transition to non-view backed route');
   });
 });
