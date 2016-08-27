@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b7694926
+ * @version   2.9.0-null+e19a71d4
  */
 
 var enifed, requireModule, require, Ember;
@@ -1899,7 +1899,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
 
   if (true) {
     QUnit.test('can build and boot a registered engine', function (assert) {
-      assert.expect(8);
+      assert.expect(_emberMetalFeatures.default('ember-glimmer') ? 10 : 9);
 
       var ChatEngine = _emberApplicationSystemEngine.default.extend();
       var chatEngineInstance = undefined;
@@ -1915,11 +1915,22 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
       return chatEngineInstance.boot().then(function () {
         assert.ok(true, 'boot successful');
 
-        ['route:basic', 'event_dispatcher:main', 'service:-routing'].forEach(function (key) {
+        var registrations = ['route:basic', 'event_dispatcher:main', 'service:-routing'];
+
+        if (_emberMetalFeatures.default('ember-glimmer')) {
+          registrations.push('service:-glimmer-environment');
+        }
+
+        registrations.forEach(function (key) {
           assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
         });
 
-        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main', '-environment:main'].forEach(function (key) {
+        var singletons = ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main', '-environment:main'];
+
+        var env = appInstance.lookup('-environment:main');
+        singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
+
+        singletons.forEach(function (key) {
           assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
         });
       });
@@ -5301,7 +5312,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     ok(application.__container__.lookup('store:main'), 'store is still present');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-templates/component', 'ember-template-compiler/tests/utils/helpers', 'ember-templates/helper', 'ember-views/system/jquery'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberTemplatesComponent, _emberTemplateCompilerTestsUtilsHelpers, _emberTemplatesHelper, _emberViewsSystemJquery) {
   'use strict';
 
   var App = null;
@@ -5678,6 +5689,81 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     return _emberMetalRun_loop.default(App, 'visit', '/blog', { shouldRender: false }).then(function (instance) {
       assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
       assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are still no elements in the fixture element after visit');
+    });
+  });
+
+  QUnit.test('visit() on engine resolves engine component', function (assert) {
+    assert.expect(2);
+
+    _emberMetalRun_loop.default(function () {
+      createApplication();
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend({
+        init: function () {
+          for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+          }
+
+          this._super.apply(this, args);
+          this.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{cache-money}}'));
+          this.register('template:components/cache-money', _emberTemplateCompilerTestsUtilsHelpers.compile('\n          <p>Dis cache money</p>\n        '));
+          this.register('component:cache-money', _emberTemplatesComponent.default.extend({}));
+        }
+      });
+      App.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {};
+      App.register('route-map:blog', BlogMap);
+
+      App.Router.map(function () {
+        this.mount('blog');
+      });
+    });
+
+    assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+    return _emberMetalRun_loop.default(App, 'visit', '/blog', { shouldRender: true }).then(function (instance) {
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').find('p').text(), 'Dis cache money', 'Engine component is resolved');
+    });
+  });
+
+  QUnit.test('visit() on engine resolves engine helper', function (assert) {
+    assert.expect(2);
+
+    _emberMetalRun_loop.default(function () {
+      createApplication();
+
+      // Register engine
+      var BlogEngine = _emberApplicationSystemEngine.default.extend({
+        init: function () {
+          for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            args[_key2] = arguments[_key2];
+          }
+
+          this._super.apply(this, args);
+          this.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{swag}}'));
+          this.register('helper:swag', _emberTemplatesHelper.helper(function () {
+            return 'turnt up';
+          }));
+        }
+      });
+      App.register('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {};
+      App.register('route-map:blog', BlogMap);
+
+      App.Router.map(function () {
+        this.mount('blog');
+      });
+    });
+
+    assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+    return _emberMetalRun_loop.default(App, 'visit', '/blog', { shouldRender: true }).then(function (instance) {
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'turnt up', 'Engine component is resolved');
     });
   });
 
@@ -7288,6 +7374,63 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
 
   function compile(string, options) {
     return _emberGlimmerTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberGlimmerTemplateCompiler.defaultCompileOptions(), options));
+  }
+});
+enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-metal/features'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberMetalFeatures) {
+  'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      '], ['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n          <p>Component!</p>\n        '], ['\n          <p>Component!</p>\n        ']);
+
+  // only run these tests for ember-glimmer when the feature is enabled, or for
+  // ember-htmlbars when the feature is not enabled
+  var shouldRun = true && (_emberMetalFeatures.default('ember-glimmer') && _emberGlimmerTestsUtilsPackageName.default === 'glimmer' || !_emberMetalFeatures.default('ember-glimmer') && _emberGlimmerTestsUtilsPackageName.default === 'htmlbars');
+
+  if (shouldRun) {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: engine rendering', (function (_ApplicationTest) {
+babelHelpers.inherits(_class, _ApplicationTest);
+
+      function _class() {
+        _ApplicationTest.apply(this, arguments);
+      }
+
+      _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
+        var _this = this;
+
+        this.assert.expect(1);
+
+        var sharedTemplate = _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+        this.application.register('template:application', sharedTemplate);
+        this.registerController('application', _emberRuntimeControllersController.default.extend({
+          contextType: 'Application',
+          'ambiguous-curlies': 'Controller Data!'
+        }));
+
+        this.router.map(function () {
+          this.mount('blog');
+        });
+        this.application.register('route-map:blog', function () {});
+
+        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+
+            this.register('controller:application', _emberRuntimeControllersController.default.extend({
+              contextType: 'Engine'
+            }));
+            this.register('template:application', sharedTemplate);
+            this.register('template:components/ambiguous-curlies', _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2)));
+          }
+        }));
+
+        return this.visit('/blog').then(function () {
+          _this.assertText('ApplicationController Data!EngineComponent!');
+        });
+      };
+
+      return _class;
+    })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
   }
 });
 enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
@@ -29423,7 +29566,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
 
     _class.prototype.templateFor = function templateFor(content) {
       var Factory = this.compile(content);
-      return this.env.getTemplate(Factory);
+      return this.env.getTemplate(Factory, this.owner);
     };
 
     _class.prototype['@test each template is only compiled once'] = function testEachTemplateIsOnlyCompiledOnce(assert) {
@@ -29532,12 +29675,12 @@ enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-glim
       assert.equal(env._templateCache.misses, 0, 'misses 0');
       assert.equal(env._templateCache.hits, 0, 'hits 0');
 
-      var precompiled = env.getTemplate(Precompiled);
+      var precompiled = env.getTemplate(Precompiled, env.owner);
 
       assert.equal(env._templateCache.misses, 1, 'misses 1');
       assert.equal(env._templateCache.hits, 0, 'hits 0');
 
-      var compiled = env.getTemplate(Compiled);
+      var compiled = env.getTemplate(Compiled, env.owner);
 
       assert.equal(env._templateCache.misses, 2, 'misses 2');
       assert.equal(env._templateCache.hits, 0, 'hits 0');
@@ -29919,6 +30062,10 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
     AbstractApplicationTest.prototype.registerController = function registerController(name, controller) {
       this.application.register('controller:' + name, controller);
+    };
+
+    AbstractApplicationTest.prototype.registerEngine = function registerEngine(name, engine) {
+      this.application.register('engine:' + name, engine);
     };
 
     babelHelpers.createClass(AbstractApplicationTest, [{
@@ -31632,6 +31779,63 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-htmlbars/tests/u
     var output = template.render({}, env, { contextualElement: document.body }).fragment;
     _htmlbarsTestHelpers.equalHTML(output, 'ohai');
   });
+});
+enifed('ember-htmlbars/tests/integration/application/engine-test', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-metal/features'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberMetalFeatures) {
+  'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      '], ['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n          <p>Component!</p>\n        '], ['\n          <p>Component!</p>\n        ']);
+
+  // only run these tests for ember-glimmer when the feature is enabled, or for
+  // ember-htmlbars when the feature is not enabled
+  var shouldRun = true && (_emberMetalFeatures.default('ember-glimmer') && _emberHtmlbarsTestsUtilsPackageName.default === 'glimmer' || !_emberMetalFeatures.default('ember-glimmer') && _emberHtmlbarsTestsUtilsPackageName.default === 'htmlbars');
+
+  if (shouldRun) {
+    _emberHtmlbarsTestsUtilsTestCase.moduleFor('Application test: engine rendering', (function (_ApplicationTest) {
+babelHelpers.inherits(_class, _ApplicationTest);
+
+      function _class() {
+        _ApplicationTest.apply(this, arguments);
+      }
+
+      _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
+        var _this = this;
+
+        this.assert.expect(1);
+
+        var sharedTemplate = _emberHtmlbarsTestsUtilsHelpers.compile(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject));
+
+        this.application.register('template:application', sharedTemplate);
+        this.registerController('application', _emberRuntimeControllersController.default.extend({
+          contextType: 'Application',
+          'ambiguous-curlies': 'Controller Data!'
+        }));
+
+        this.router.map(function () {
+          this.mount('blog');
+        });
+        this.application.register('route-map:blog', function () {});
+
+        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+
+            this.register('controller:application', _emberRuntimeControllersController.default.extend({
+              contextType: 'Engine'
+            }));
+            this.register('template:application', sharedTemplate);
+            this.register('template:components/ambiguous-curlies', _emberHtmlbarsTestsUtilsHelpers.compile(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject2)));
+          }
+        }));
+
+        return this.visit('/blog').then(function () {
+          _this.assertText('ApplicationController Data!EngineComponent!');
+        });
+      };
+
+      return _class;
+    })(_emberHtmlbarsTestsUtilsTestCase.ApplicationTest));
+  }
 });
 enifed('ember-htmlbars/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
   'use strict';
@@ -54817,6 +55021,10 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
 
     AbstractApplicationTest.prototype.registerController = function registerController(name, controller) {
       this.application.register('controller:' + name, controller);
+    };
+
+    AbstractApplicationTest.prototype.registerEngine = function registerEngine(name, engine) {
+      this.application.register('engine:' + name, engine);
     };
 
     babelHelpers.createClass(AbstractApplicationTest, [{
