@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+e19a71d4
+ * @version   2.9.0-null+c5b10f15
  */
 
 var enifed, requireModule, require, Ember;
@@ -7458,7 +7458,7 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
     return _emberGlimmerTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberGlimmerTemplateCompiler.defaultCompileOptions(), options));
   }
 });
-enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-metal/features'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberMetalFeatures) {
+enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-metal/features'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberMetalFeatures) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      '], ['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      ']),
@@ -7510,6 +7510,41 @@ babelHelpers.classCallCheck(this, _class);
 
         return this.visit('/blog').then(function () {
           _this.assertText('ApplicationController Data!EngineComponent!');
+        });
+      };
+
+      _class.prototype['@test can use shouldRender: false'] = function testCanUseShouldRenderFalse(assert) {
+        var _this2 = this;
+
+        this.assert.expect(2);
+        var hooks = [];
+
+        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            hooks.push('application - application');
+          }
+        }));
+
+        this.router.map(function () {
+          this.mount('blog');
+        });
+        this.application.register('route-map:blog', function () {});
+
+        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+
+            this.register('route:application', _emberRoutingSystemRoute.default.extend({
+              model: function () {
+                hooks.push('engine - application');
+              }
+            }));
+          }
+        }));
+
+        return this.visit('/blog', { shouldRender: false }).then(function () {
+          _this2.assertText('');
+          _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
         });
       };
 
@@ -10933,8 +10968,24 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
-    _class.prototype['@test it can have a custom id and it is not bound'] = function testItCanHaveACustomIdAndItIsNotBound() {
+    _class.prototype['@test it can render a template only component'] = function testItCanRenderATemplateOnlyComponent() {
       var _this2 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it can have a custom id and it is not bound'] = function testItCanHaveACustomIdAndItIsNotBound() {
+      var _this3 = this;
 
       this.registerComponent('foo-bar', { template: '{{id}} {{elementId}}' });
 
@@ -10945,19 +10996,19 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
 
       this.runTask(function () {
-        return _this2.rerender();
+        return _this3.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'customId', 'bar');
+        return _emberMetalProperty_set.set(_this3.context, 'customId', 'bar');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bar bizz' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'customId', 'bizz');
+        return _emberMetalProperty_set.set(_this3.context, 'customId', 'bizz');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
@@ -11046,7 +11097,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test passing undefined elementId results in a default elementId'] = function testPassingUndefinedElementIdResultsInADefaultElementId(assert) {
-      var _this3 = this;
+      var _this4 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         tagName: 'h1'
@@ -11060,7 +11111,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.ok(/^ember/.test(foundId), 'Has a reasonable id attribute (found id=' + foundId + ').');
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this4.rerender();
       });
 
       var newFoundId = this.$('h1').attr('id');
@@ -11070,7 +11121,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test id is an alias for elementId'] = function testIdIsAnAliasForElementId(assert) {
-      var _this4 = this;
+      var _this5 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         tagName: 'h1'
@@ -11084,7 +11135,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(foundId, 'custom-id');
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this5.rerender();
       });
 
       var newFoundId = this.$('h1').attr('id');
@@ -11094,43 +11145,20 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@glimmer cannot pass both id and elementId at the same time'] = function glimmerCannotPassBothIdAndElementIdAtTheSameTime(assert) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.registerComponent('foo-bar', { template: '' });
 
       expectAssertion(function () {
-        _this5.render('{{foo-bar id="zomg" elementId="lol"}}');
+        _this6.render('{{foo-bar id="zomg" elementId="lol"}}');
       }, /You cannot invoke a component with both 'id' and 'elementId' at the same time./);
     };
 
     _class.prototype['@test it can have a custom tagName'] = function testItCanHaveACustomTagName() {
-      var _this6 = this;
-
-      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        tagName: 'foo-bar'
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
-      this.render('{{foo-bar}}');
-
-      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
-
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
-    };
-
-    _class.prototype['@test it can have a custom tagName set in the constructor'] = function testItCanHaveACustomTagNameSetInTheConstructor() {
       var _this7 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super();
-          this.tagName = 'foo-bar';
-        }
+        tagName: 'foo-bar'
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
@@ -11146,8 +11174,31 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
     };
 
-    _class.prototype['@test it can have a custom tagName from the invocation'] = function testItCanHaveACustomTagNameFromTheInvocation() {
+    _class.prototype['@test it can have a custom tagName set in the constructor'] = function testItCanHaveACustomTagNameSetInTheConstructor() {
       var _this8 = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super();
+          this.tagName = 'foo-bar';
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
+    };
+
+    _class.prototype['@test it can have a custom tagName from the invocation'] = function testItCanHaveACustomTagNameFromTheInvocation() {
+      var _this9 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11156,7 +11207,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
@@ -11178,7 +11229,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it can have custom classNames'] = function testItCanHaveCustomClassNames() {
-      var _this9 = this;
+      var _this10 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         classNames: ['foo', 'bar']
@@ -11191,14 +11242,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this10.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar') }, content: 'hello' });
     };
 
     _class.prototype['@test should not apply falsy class name'] = function testShouldNotApplyFalsyClassName() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11209,14 +11260,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
     };
 
     _class.prototype['@test should apply classes of the dasherized property name when bound property specified is true'] = function testShouldApplyClassesOfTheDasherizedPropertyNameWhenBoundPropertySpecifiedIsTrue() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11227,26 +11278,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'model.someTruth', false);
+        return _emberMetalProperty_set.set(_this12.context, 'model.someTruth', false);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'model', { someTruth: true });
+        return _emberMetalProperty_set.set(_this12.context, 'model', { someTruth: true });
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
     };
 
     _class.prototype['@test class property on components can be dynamic'] = function testClassPropertyOnComponentsCanBeDynamic() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -11257,26 +11308,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'fooBar', false);
+        return _emberMetalProperty_set.set(_this13.context, 'fooBar', false);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'fooBar', true);
+        return _emberMetalProperty_set.set(_this13.context, 'fooBar', true);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
     };
 
     _class.prototype['@test it can have custom classNames from constructor'] = function testItCanHaveCustomClassNamesFromConstructor() {
-      var _this13 = this;
+      var _this14 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -11292,14 +11343,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this14.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
     };
 
     _class.prototype['@test it can set custom classNames from the invocation'] = function testItCanSetCustomClassNamesFromTheInvocation() {
-      var _this14 = this;
+      var _this15 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         classNames: ['foo']
@@ -11314,7 +11365,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view foo bar baz') }, content: 'hello' });
@@ -11323,7 +11374,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it has an element'] = function testItHasAnElement() {
-      var _this15 = this;
+      var _this16 = this;
 
       var instance = undefined;
 
@@ -11343,7 +11394,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
 
       var element2 = instance.element;
@@ -11354,7 +11405,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
-      var _this16 = this;
+      var _this17 = this;
 
       var instance = undefined;
 
@@ -11374,7 +11425,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       var element2 = instance.$()[0];
@@ -11385,7 +11436,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
-      var _this17 = this;
+      var _this18 = this;
 
       var instance = undefined;
 
@@ -11406,7 +11457,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal($span.attr('class'), 'inner');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       $span = instance.$('span');
@@ -11416,7 +11467,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test an empty component does not have childNodes'] = function testAnEmptyComponentDoesNotHaveChildNodes(assert) {
-      var _this18 = this;
+      var _this19 = this;
 
       var fooBarInstance = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -11436,7 +11487,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'input' });
@@ -11445,7 +11496,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
-      var _this19 = this;
+      var _this20 = this;
 
       var fooBarInstance = undefined,
           fooBarBazInstance = undefined;
@@ -11477,7 +11528,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
       this.assertText('foo-bar foo-bar-baz');
 
@@ -11489,7 +11540,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it renders passed named arguments'] = function testItRendersPassedNamedArguments() {
-      var _this20 = this;
+      var _this21 = this;
 
       this.registerComponent('foo-bar', {
         template: '{{foo}}'
@@ -11504,26 +11555,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this20.context.set('model.bar', 'Hello');
+        return _this21.context.set('model.bar', 'Hello');
       });
 
       this.assertText('Hello');
 
       this.runTask(function () {
-        return _this20.context.set('model', { bar: 'Hola' });
+        return _this21.context.set('model', { bar: 'Hola' });
       });
 
       this.assertText('Hola');
     };
 
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
-      var _this21 = this;
+      var _this22 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}} - In component' });
 
@@ -11532,14 +11583,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this22.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this22 = this;
+      var _this23 = this;
 
       var instance = undefined;
 
@@ -11558,7 +11609,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this23.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -11577,7 +11628,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this23 = this;
+      var _this24 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -11586,26 +11637,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this24.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this24.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it can yield internal and external properties positionally'] = function testItCanYieldInternalAndExternalPropertiesPositionally() {
-      var _this24 = this;
+      var _this25 = this;
 
       var instance = undefined;
 
@@ -11629,13 +11680,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this25.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
+        return _emberMetalProperty_set.set(_this25.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hello' });
@@ -11648,7 +11699,7 @@ babelHelpers.classCallCheck(this, _class);
 
       this.runTask(function () {
         _emberMetalProperty_set.set(instance, 'greeting', 'hello');
-        _emberMetalProperty_set.set(_this24.context, 'person', {
+        _emberMetalProperty_set.set(_this25.context, 'person', {
           firstName: 'Joel',
           lastName: 'Kang'
         });
@@ -11658,7 +11709,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test #11519 - block param infinite loop'] = function test11519BlockParamInfiniteLoop() {
-      var _this25 = this;
+      var _this26 = this;
 
       var instance = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -11680,7 +11731,7 @@ babelHelpers.classCallCheck(this, _class);
       // Trigger a non-revalidating re-render. The yielded block will not be dirtied
       // nor will block param streams, and thus no infinite loop will occur.
       this.runTask(function () {
-        return _this25.rerender();
+        return _this26.rerender();
       });
 
       this.assertText('0');
@@ -11703,7 +11754,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
-      var _this26 = this;
+      var _this27 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -11728,13 +11779,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this27.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this26.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this27.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -11742,23 +11793,23 @@ babelHelpers.classCallCheck(this, _class);
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this26.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this26.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this27.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this26.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     _class.prototype['@test should escape HTML in normal mustaches'] = function testShouldEscapeHTMLInNormalMustaches() {
-      var _this27 = this;
+      var _this28 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -11776,7 +11827,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('you need to be more <b>bold</b>');
 
       this.runTask(function () {
-        return _this27.rerender();
+        return _this28.rerender();
       });
 
       this.assertText('you need to be more <b>bold</b>');
@@ -11793,7 +11844,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test should not escape HTML in triple mustaches'] = function testShouldNotEscapeHTMLInTripleMustaches(assert) {
-      var _this28 = this;
+      var _this29 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -11813,7 +11864,7 @@ babelHelpers.classCallCheck(this, _class);
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this28.rerender();
+        return _this29.rerender();
       });
 
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -11832,7 +11883,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test should not escape HTML if string is a htmlSafe'] = function testShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
-      var _this29 = this;
+      var _this30 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -11852,7 +11903,7 @@ babelHelpers.classCallCheck(this, _class);
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this29.rerender();
+        return _this30.rerender();
       });
 
       _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -11914,7 +11965,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
-      var _this30 = this;
+      var _this31 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -11937,7 +11988,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'true' });
 
       this.runTask(function () {
-        return _this30.rerender();
+        return _this31.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'true' });
@@ -11956,7 +12007,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
-      var _this31 = this;
+      var _this32 = this;
 
       this.registerComponent('some-component', {
         template: 'some-component'
@@ -11970,14 +12021,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('some-prop some-component');
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this32.rerender();
       });
 
       this.assertText('some-prop some-component');
     };
 
     _class.prototype['@test component without dash is not looked up'] = function testComponentWithoutDashIsNotLookedUp() {
-      var _this32 = this;
+      var _this33 = this;
 
       this.registerComponent('somecomponent', {
         template: 'somecomponent'
@@ -11990,26 +12041,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this32.rerender();
+        return _this33.rerender();
       });
 
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this32.context.set('somecomponent', 'not not notsomecomponent');
+        return _this33.context.set('somecomponent', 'not not notsomecomponent');
       });
 
       this.assertText('not not notsomecomponent');
 
       this.runTask(function () {
-        return _this32.context.set('somecomponent', 'notsomecomponent');
+        return _this33.context.set('somecomponent', 'notsomecomponent');
       });
 
       this.assertText('notsomecomponent');
     };
 
     _class.prototype['@test non-block with properties on attrs'] = function testNonBlockWithPropertiesOnAttrs() {
-      var _this33 = this;
+      var _this34 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{attrs.someProp}}'
@@ -12022,26 +12073,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this33.rerender();
+        return _this34.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this33.context.set('prop', 'other thing there');
+        return _this34.context.set('prop', 'other thing there');
       });
 
       this.assertText('In layout - someProp: other thing there');
 
       this.runTask(function () {
-        return _this33.context.set('prop', 'something here');
+        return _this34.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@glimmer non-block with properties overridden in init'] = function glimmerNonBlockWithPropertiesOverriddenInInit() {
-      var _this34 = this;
+      var _this35 = this;
 
       var instance = undefined;
       this.registerComponent('non-block', {
@@ -12062,13 +12113,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this34.rerender();
+        return _this35.rerender();
       });
 
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this34.context.set('prop', 'updated something passed when invoked');
+        return _this35.context.set('prop', 'updated something passed when invoked');
       });
 
       this.assertText('In layout - someProp: updated something passed when invoked');
@@ -12080,7 +12131,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: update value set in instance');
 
       this.runTask(function () {
-        return _this34.context.set('prop', 'something passed when invoked');
+        return _this35.context.set('prop', 'something passed when invoked');
       });
       this.runTask(function () {
         return instance.set('someProp', 'value set in instance');
@@ -12090,7 +12141,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test rerendering component with attrs from parent'] = function testRerenderingComponentWithAttrsFromParent(assert) {
-      var _this35 = this;
+      var _this36 = this;
 
       var willUpdateCount = 0;
       var didReceiveAttrsCount = 0;
@@ -12131,7 +12182,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectHooks({ willUpdate: false, didReceiveAttrs: true }, function () {
-        _this35.render('{{non-block someProp=someProp}}', {
+        _this36.render('{{non-block someProp=someProp}}', {
           someProp: 'wycats'
         });
       });
@@ -12140,16 +12191,16 @@ babelHelpers.classCallCheck(this, _class);
 
       // Note: Hooks are not fired in Glimmer for idempotent re-renders
       expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
-        _this35.runTask(function () {
-          return _this35.rerender();
+        _this36.runTask(function () {
+          return _this36.rerender();
         });
       });
 
       this.assertText('In layout - someProp: wycats');
 
       expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
-        _this35.runTask(function () {
-          return _this35.context.set('someProp', 'tomdale');
+        _this36.runTask(function () {
+          return _this36.context.set('someProp', 'tomdale');
         });
       });
 
@@ -12157,16 +12208,16 @@ babelHelpers.classCallCheck(this, _class);
 
       // Note: Hooks are not fired in Glimmer for idempotent re-renders
       expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
-        _this35.runTask(function () {
-          return _this35.rerender();
+        _this36.runTask(function () {
+          return _this36.rerender();
         });
       });
 
       this.assertText('In layout - someProp: tomdale');
 
       expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
-        _this35.runTask(function () {
-          return _this35.context.set('someProp', 'wycats');
+        _this36.runTask(function () {
+          return _this36.context.set('someProp', 'wycats');
         });
       });
 
@@ -12174,7 +12225,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
-      var _this36 = this;
+      var _this37 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -12187,61 +12238,29 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this36.rerender();
+        return _this37.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this36.context.set('prop', 'something else');
+        return _this37.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this36.context.set('prop', 'something here');
+        return _this37.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
-      var _this37 = this;
-
-      this.registerComponent('with-block', {
-        template: 'In layout - someProp: {{someProp}} - {{yield}}'
-      });
-
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
-        prop: 'something here'
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this37.rerender();
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this37.context.set('prop', 'something else');
-      });
-
-      this.assertText('In layout - someProp: something else - In template');
-
-      this.runTask(function () {
-        return _this37.context.set('prop', 'something here');
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-    };
-
-    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
       var _this38 = this;
 
       this.registerComponent('with-block', {
-        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
+        template: 'In layout - someProp: {{someProp}} - {{yield}}'
       });
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
@@ -12269,8 +12288,40 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here - In template');
     };
 
-    _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
+    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
       var _this39 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
+      var _this40 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12285,7 +12336,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this39.rerender();
+        return _this40.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -12293,7 +12344,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test arbitrary positional parameter conflict with hash parameter is reported'] = function testArbitraryPositionalParameterConflictWithHashParameterIsReported() {
-      var _this40 = this;
+      var _this41 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12303,14 +12354,14 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this40.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+        _this41.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
           numbers: [1, 2, 3]
         });
       }, 'You cannot specify positional parameters and the hash argument `names`.');
     };
 
     _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
-      var _this41 = this;
+      var _this42 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12326,38 +12377,38 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this41.rerender();
+        return _this42.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this41.context.get('things').pushObject(5);
+        return _this42.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this41.context.get('things').shiftObject();
+        return _this42.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this41.context.get('things').clear();
+        return _this42.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this41.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+        return _this42.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@test can use hash parameter instead of positional param'] = function testCanUseHashParameterInsteadOfPositionalParam(assert) {
-      var _this42 = this;
+      var _this43 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12374,7 +12425,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this43.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -12383,7 +12434,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test dynamic arbitrary number of positional parameters'] = function testDynamicArbitraryNumberOfPositionalParameters(assert) {
-      var _this43 = this;
+      var _this44 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12400,33 +12451,33 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this44.rerender();
       });
 
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this43.context.set('user1', 'Bar');
+        return _this44.context.set('user1', 'Bar');
       });
 
       this.assertText('Bar4');
 
       this.runTask(function () {
-        return _this43.context.set('user2', '5');
+        return _this44.context.set('user2', '5');
       });
 
       this.assertText('Bar5');
 
       this.runTask(function () {
-        _this43.context.set('user1', 'Foo');
-        _this43.context.set('user2', 4);
+        _this44.context.set('user1', 'Foo');
+        _this44.context.set('user2', 4);
       });
 
       this.assertText('Foo4');
     };
 
     _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
-      var _this44 = this;
+      var _this45 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -12439,26 +12490,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this45.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this44.context.set('role', 'input');
+        return _this45.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this44.context.set('role', 'main');
+        return _this45.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
-      var _this45 = this;
+      var _this46 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -12474,26 +12525,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this46.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this45.context.set('name', 'Ole, ole');
+        return _this46.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this45.context.set('name', 'Whoop, whoop!');
+        return _this46.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
-      var _this46 = this;
+      var _this47 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -12504,14 +12555,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In template');
 
       this.runTask(function () {
-        return _this46.rerender();
+        return _this47.rerender();
       });
 
       this.assertText('In template');
     };
 
     _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
-      var _this47 = this;
+      var _this48 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -12522,14 +12573,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('No Block!');
 
       this.runTask(function () {
-        return _this47.rerender();
+        return _this48.rerender();
       });
 
       this.assertText('No Block!');
     };
 
     _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
-      var _this48 = this;
+      var _this49 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12)
@@ -12540,14 +12591,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In template - In Component');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this49.rerender();
       });
 
       this.assertText('In template - In Component');
     };
 
     _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
-      var _this49 = this;
+      var _this50 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14)
@@ -12558,14 +12609,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In block No Block Param!');
 
       this.runTask(function () {
-        return _this49.rerender();
+        return _this50.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@test static named positional parameters'] = function testStaticNamedPositionalParameters() {
-      var _this50 = this;
+      var _this51 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12579,14 +12630,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this50.rerender();
+        return _this51.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test dynamic named positional parameters'] = function testDynamicNamedPositionalParameters() {
-      var _this51 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12603,33 +12654,33 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this52.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this51.context.set('myName', 'Sergio');
+        return _this52.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this51.context.set('myAge', 2);
+        return _this52.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this51.context.set('myName', 'Quint');
-        _this51.context.set('myAge', 4);
+        _this52.context.set('myName', 'Quint');
+        _this52.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test if a value is passed as a non-positional parameter, it raises an assertion'] = function testIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
-      var _this52 = this;
+      var _this53 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12639,7 +12690,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this52.render('{{sample-component notMyName name=myName}}', {
+        _this53.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -12647,7 +12698,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
-      var _this53 = this;
+      var _this54 = this;
 
       this.registerComponent('my-if', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16)
@@ -12660,19 +12711,19 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this53.rerender();
+        return _this54.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this53.context.set('activated', false);
+        return _this54.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this53.context.set('activated', true);
+        return _this54.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -12900,7 +12951,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this54 = this;
+      var _this55 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -12941,7 +12992,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this55.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -12950,7 +13001,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this55 = this;
+      var _this56 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -12980,27 +13031,27 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this56.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this55.context.set('showInner', true);
+        return _this56.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this55.context.set('showInner', false);
+        return _this56.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@test when a property is changed during children\'s rendering'] = function testWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this56 = this;
+      var _this57 = this;
 
       if (this.isHTMLBars || false) {
         expectDeprecation(/modified value twice in a single render/);
@@ -13047,7 +13098,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this57.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -13055,7 +13106,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (this.isGlimmer && !false) {
         expectAssertion(function () {
-          _this56.runTask(function () {
+          _this57.runTask(function () {
             return outer.set('value', 2);
           });
         }, /modified value twice in a single render/);
@@ -13086,7 +13137,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function testWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this57 = this;
+      var _this58 = this;
 
       if (this.isHTMLBars || false) {
         expectDeprecation(/modified wrapper.content twice in a single render/);
@@ -13123,7 +13174,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (this.isGlimmer && !false) {
         expectAssertion(function () {
-          _this57.render('{{x-outer}}');
+          _this58.render('{{x-outer}}');
         }, /modified wrapper.content twice in a single render/);
 
         return;
@@ -13135,7 +13186,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#outer-value').text(), '1', 'initial render of outer');
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this58.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 're-render of inner');
@@ -13164,7 +13215,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this58 = this;
+      var _this59 = this;
 
       this.registerComponent('non-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36)
@@ -13181,32 +13232,32 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this58.rerender();
+        return _this59.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this58.context.get('items').pushObject('Sergio');
+        return _this59.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this58.context.get('items').shiftObject();
+        return _this59.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this58.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this59.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this59 = this;
+      var _this60 = this;
 
       var clickyThing = undefined;
 
@@ -13233,7 +13284,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this59.rerender();
+        return _this60.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -13243,7 +13294,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function testSpecifyingCustomConcatenatedPropertiesAvoidsClobbering(assert) {
-      var _this60 = this;
+      var _this61 = this;
 
       var clickyThing = undefined;
       this.registerComponent('some-clicky-thing', {
@@ -13264,7 +13315,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (this.isGlimmer) {
         this.runTask(function () {
-          return _this60.rerender();
+          return _this61.rerender();
         });
 
         this.assertText('blarkporybaz- Click Me');
@@ -13272,7 +13323,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test a two way binding flows upstream when consumed in the template'] = function testATwoWayBindingFlowsUpstreamWhenConsumedInTheTemplate() {
-      var _this61 = this;
+      var _this62 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13295,7 +13346,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -13321,14 +13372,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText(' - ');
 
       this.runTask(function () {
-        _this61.component.set('localBar', 'initial value');
+        _this62.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP when consumed in the template'] = function testATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this62 = this;
+      var _this63 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13362,7 +13413,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this62.rerender();
+        return _this63.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -13374,14 +13425,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this62.component.set('localBar', 'initial value');
+        _this63.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP without template consumption'] = function testATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this63 = this;
+      var _this64 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13414,7 +13465,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this64.rerender();
       });
 
       this.assertText('initial value');
@@ -13426,14 +13477,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this63.component.set('localBar', 'initial value');
+        _this64.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
     };
 
     _class.prototype['@test services can be injected into components'] = function testServicesCanBeInjectedIntoComponents() {
-      var _this64 = this;
+      var _this65 = this;
 
       var service = undefined;
       this.registerService('name', _emberRuntimeSystemService.default.extend({
@@ -13456,7 +13507,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Jackson');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this65.rerender();
       });
 
       this.assertText('Jackson');
@@ -13475,7 +13526,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function testCanAccessActionsHashVia_actionsDEPRECATED() {
-      var _this65 = this;
+      var _this66 = this;
 
       var component = undefined;
 
@@ -13499,12 +13550,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assert.strictEqual(component.actions.derp, derp);
 
       expectDeprecation(function () {
-        _this65.assert.strictEqual(component._actions.derp, derp);
+        _this66.assert.strictEqual(component._actions.derp, derp);
       }, 'Usage of `_actions` is deprecated, use `actions` instead.');
     };
 
     _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
-      var _this66 = this;
+      var _this67 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13513,16 +13564,16 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this66.render('{{foo-bar}}');
+        _this67.render('{{foo-bar}}');
       }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function testShouldToggleVisibilityWithIsVisible(assert) {
-      var _this67 = this;
+      var _this68 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberGlimmerTestsUtilsTestHelpers.styles(expected);
-        var actual = _this67.firstChild.getAttribute('style');
+        var actual = _this68.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -13545,18 +13596,18 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this67.context, 'visible', true);
+        _emberMetalProperty_set.set(_this68.context, 'visible', true);
       });
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this67.context, 'visible', false);
+        _emberMetalProperty_set.set(_this68.context, 'visible', false);
       });
       assertStyle('display: none;');
     };
 
     _class.prototype['@test isVisible does not overwrite component style'] = function testIsVisibleDoesNotOverwriteComponentStyle(assert) {
-      var _this68 = this;
+      var _this69 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13579,7 +13630,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this68.context, 'visible', true);
+        _emberMetalProperty_set.set(_this69.context, 'visible', true);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -13588,7 +13639,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this68.context, 'visible', false);
+        _emberMetalProperty_set.set(_this69.context, 'visible', false);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -13598,11 +13649,11 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test adds isVisible binding when style binding is missing and other bindings exist'] = function testAddsIsVisibleBindingWhenStyleBindingIsMissingAndOtherBindingsExist(assert) {
-      var _this69 = this;
+      var _this70 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberGlimmerTestsUtilsTestHelpers.styles(expected);
-        var actual = _this69.firstChild.getAttribute('style');
+        var actual = _this70.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -13630,14 +13681,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this69.context, 'visible', true);
+        _emberMetalProperty_set.set(_this70.context, 'visible', true);
       });
 
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this69.context, 'visible', false);
-        _emberMetalProperty_set.set(_this69.context, 'foo', 'woo');
+        _emberMetalProperty_set.set(_this70.context, 'visible', false);
+        _emberMetalProperty_set.set(_this70.context, 'foo', 'woo');
       });
 
       assertStyle('display: none;');
@@ -13645,14 +13696,14 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
-      var _this70 = this;
+      var _this71 = this;
 
       var component = undefined;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this70.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this70.assert.equal(_this70.firstChild.value, expectedValue, 'value property is correct');
-        _this70.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this71.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this71.assert.equal(_this71.firstChild.value, expectedValue, 'value property is correct');
+        _this71.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -13681,15 +13732,15 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this70.firstChild.value = 'bar';
-        _this70.$('input').trigger('change');
+        _this71.firstChild.value = 'bar';
+        _this71.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this70.firstChild.value = 'foo';
-        _this70.$('input').trigger('change');
+        _this71.firstChild.value = 'foo';
+        _this71.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -13701,8 +13752,8 @@ babelHelpers.classCallCheck(this, _class);
       assertElement('bar');
 
       this.runTask(function () {
-        _this70.firstChild.value = 'foo';
-        _this70.$('input').trigger('change');
+        _this71.firstChild.value = 'foo';
+        _this71.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -30346,15 +30397,15 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       _emberRuntimeTestsUtils.runDestroy(this.application);
     };
 
-    AbstractApplicationTest.prototype.visit = function visit(url) {
+    AbstractApplicationTest.prototype.visit = function visit(url, options) {
       var _this2 = this;
 
       var applicationInstance = this.applicationInstance;
 
       if (applicationInstance) {
-        return _emberMetalRun_loop.default(applicationInstance, 'visit', url);
+        return _emberMetalRun_loop.default(applicationInstance, 'visit', url, options);
       } else {
-        return _emberMetalRun_loop.default(this.application, 'visit', url).then(function (instance) {
+        return _emberMetalRun_loop.default(this.application, 'visit', url, options).then(function (instance) {
           _this2.applicationInstance = instance;
         });
       }
@@ -32147,7 +32198,7 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-htmlbars/tests/u
     _htmlbarsTestHelpers.equalHTML(output, 'ohai');
   });
 });
-enifed('ember-htmlbars/tests/integration/application/engine-test', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-metal/features'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberMetalFeatures) {
+enifed('ember-htmlbars/tests/integration/application/engine-test', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/test-case', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-metal/features'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsTestCase, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberMetalFeatures) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      '], ['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      ']),
@@ -32199,6 +32250,41 @@ babelHelpers.classCallCheck(this, _class);
 
         return this.visit('/blog').then(function () {
           _this.assertText('ApplicationController Data!EngineComponent!');
+        });
+      };
+
+      _class.prototype['@test can use shouldRender: false'] = function testCanUseShouldRenderFalse(assert) {
+        var _this2 = this;
+
+        this.assert.expect(2);
+        var hooks = [];
+
+        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            hooks.push('application - application');
+          }
+        }));
+
+        this.router.map(function () {
+          this.mount('blog');
+        });
+        this.application.register('route-map:blog', function () {});
+
+        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+
+            this.register('route:application', _emberRoutingSystemRoute.default.extend({
+              model: function () {
+                hooks.push('engine - application');
+              }
+            }));
+          }
+        }));
+
+        return this.visit('/blog', { shouldRender: false }).then(function () {
+          _this2.assertText('');
+          _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
         });
       };
 
@@ -35622,8 +35708,24 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
-    _class.prototype['@test it can have a custom id and it is not bound'] = function testItCanHaveACustomIdAndItIsNotBound() {
+    _class.prototype['@test it can render a template only component'] = function testItCanRenderATemplateOnlyComponent() {
       var _this2 = this;
+
+      this.registerComponent('foo-bar', { template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+    };
+
+    _class.prototype['@test it can have a custom id and it is not bound'] = function testItCanHaveACustomIdAndItIsNotBound() {
+      var _this3 = this;
 
       this.registerComponent('foo-bar', { template: '{{id}} {{elementId}}' });
 
@@ -35634,19 +35736,19 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
 
       this.runTask(function () {
-        return _this2.rerender();
+        return _this3.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'customId', 'bar');
+        return _emberMetalProperty_set.set(_this3.context, 'customId', 'bar');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bar bizz' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this2.context, 'customId', 'bizz');
+        return _emberMetalProperty_set.set(_this3.context, 'customId', 'bizz');
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { id: 'bizz' }, content: 'bizz bizz' });
@@ -35735,7 +35837,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test passing undefined elementId results in a default elementId'] = function testPassingUndefinedElementIdResultsInADefaultElementId(assert) {
-      var _this3 = this;
+      var _this4 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         tagName: 'h1'
@@ -35749,7 +35851,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.ok(/^ember/.test(foundId), 'Has a reasonable id attribute (found id=' + foundId + ').');
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this4.rerender();
       });
 
       var newFoundId = this.$('h1').attr('id');
@@ -35759,7 +35861,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test id is an alias for elementId'] = function testIdIsAnAliasForElementId(assert) {
-      var _this4 = this;
+      var _this5 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         tagName: 'h1'
@@ -35773,7 +35875,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(foundId, 'custom-id');
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this5.rerender();
       });
 
       var newFoundId = this.$('h1').attr('id');
@@ -35783,43 +35885,20 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@glimmer cannot pass both id and elementId at the same time'] = function glimmerCannotPassBothIdAndElementIdAtTheSameTime(assert) {
-      var _this5 = this;
+      var _this6 = this;
 
       this.registerComponent('foo-bar', { template: '' });
 
       expectAssertion(function () {
-        _this5.render('{{foo-bar id="zomg" elementId="lol"}}');
+        _this6.render('{{foo-bar id="zomg" elementId="lol"}}');
       }, /You cannot invoke a component with both 'id' and 'elementId' at the same time./);
     };
 
     _class.prototype['@test it can have a custom tagName'] = function testItCanHaveACustomTagName() {
-      var _this6 = this;
-
-      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        tagName: 'foo-bar'
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
-      this.render('{{foo-bar}}');
-
-      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
-
-      this.runTask(function () {
-        return _this6.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
-    };
-
-    _class.prototype['@test it can have a custom tagName set in the constructor'] = function testItCanHaveACustomTagNameSetInTheConstructor() {
       var _this7 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
-        init: function () {
-          this._super();
-          this.tagName = 'foo-bar';
-        }
+        tagName: 'foo-bar'
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
@@ -35835,8 +35914,31 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
     };
 
-    _class.prototype['@test it can have a custom tagName from the invocation'] = function testItCanHaveACustomTagNameFromTheInvocation() {
+    _class.prototype['@test it can have a custom tagName set in the constructor'] = function testItCanHaveACustomTagNameSetInTheConstructor() {
       var _this8 = this;
+
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super();
+          this.tagName = 'foo-bar';
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{foo-bar}}');
+
+      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
+
+      this.runTask(function () {
+        return _this8.rerender();
+      });
+
+      this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
+    };
+
+    _class.prototype['@test it can have a custom tagName from the invocation'] = function testItCanHaveACustomTagNameFromTheInvocation() {
+      var _this9 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -35845,7 +35947,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'foo-bar', content: 'hello' });
@@ -35867,7 +35969,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it can have custom classNames'] = function testItCanHaveCustomClassNames() {
-      var _this9 = this;
+      var _this10 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         classNames: ['foo', 'bar']
@@ -35880,14 +35982,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this10.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar') }, content: 'hello' });
     };
 
     _class.prototype['@test should not apply falsy class name'] = function testShouldNotApplyFalsyClassName() {
-      var _this10 = this;
+      var _this11 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -35898,14 +36000,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: 'ember-view' }, content: 'hello' });
     };
 
     _class.prototype['@test should apply classes of the dasherized property name when bound property specified is true'] = function testShouldApplyClassesOfTheDasherizedPropertyNameWhenBoundPropertySpecifiedIsTrue() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -35916,26 +36018,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'model.someTruth', false);
+        return _emberMetalProperty_set.set(_this12.context, 'model.someTruth', false);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') }, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this11.context, 'model', { someTruth: true });
+        return _emberMetalProperty_set.set(_this12.context, 'model', { someTruth: true });
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { class: _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view some-truth') }, content: 'hello' });
     };
 
     _class.prototype['@test class property on components can be dynamic'] = function testClassPropertyOnComponentsCanBeDynamic() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.registerComponent('foo-bar', { template: 'hello' });
 
@@ -35946,26 +36048,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'fooBar', false);
+        return _emberMetalProperty_set.set(_this13.context, 'fooBar', false);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view') } });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this12.context, 'fooBar', true);
+        return _emberMetalProperty_set.set(_this13.context, 'fooBar', true);
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo-bar') } });
     };
 
     _class.prototype['@test it can have custom classNames from constructor'] = function testItCanHaveCustomClassNamesFromConstructor() {
-      var _this13 = this;
+      var _this14 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         init: function () {
@@ -35981,14 +36083,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this14.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar outside-baz') }, content: 'hello' });
     };
 
     _class.prototype['@test it can set custom classNames from the invocation'] = function testItCanSetCustomClassNamesFromTheInvocation() {
-      var _this14 = this;
+      var _this15 = this;
 
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
         classNames: ['foo']
@@ -36003,7 +36105,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.nthChild(2), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo') }, content: 'hello' });
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertComponentElement(this.nthChild(0), { tagName: 'div', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes('ember-view foo bar baz') }, content: 'hello' });
@@ -36012,7 +36114,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it has an element'] = function testItHasAnElement() {
-      var _this15 = this;
+      var _this16 = this;
 
       var instance = undefined;
 
@@ -36032,7 +36134,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
 
       var element2 = instance.element;
@@ -36043,7 +36145,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it has a jQuery proxy to the element'] = function testItHasAJQueryProxyToTheElement(assert) {
-      var _this16 = this;
+      var _this17 = this;
 
       var instance = undefined;
 
@@ -36063,7 +36165,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(element1, { content: 'hello' });
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       var element2 = instance.$()[0];
@@ -36074,7 +36176,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it scopes the jQuery proxy to the component element'] = function testItScopesTheJQueryProxyToTheComponentElement(assert) {
-      var _this17 = this;
+      var _this18 = this;
 
       var instance = undefined;
 
@@ -36095,7 +36197,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal($span.attr('class'), 'inner');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       $span = instance.$('span');
@@ -36105,7 +36207,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test an empty component does not have childNodes'] = function testAnEmptyComponentDoesNotHaveChildNodes(assert) {
-      var _this18 = this;
+      var _this19 = this;
 
       var fooBarInstance = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -36125,7 +36227,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.strictEqual(fooBarInstance.element.childNodes.length, 0);
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'input' });
@@ -36134,7 +36236,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it has the right parentView and childViews'] = function testItHasTheRightParentViewAndChildViews(assert) {
-      var _this19 = this;
+      var _this20 = this;
 
       var fooBarInstance = undefined,
           fooBarBazInstance = undefined;
@@ -36166,7 +36268,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.deepEqual(fooBarInstance.childViews, [fooBarBazInstance]);
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
       this.assertText('foo-bar foo-bar-baz');
 
@@ -36178,7 +36280,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it renders passed named arguments'] = function testItRendersPassedNamedArguments() {
-      var _this20 = this;
+      var _this21 = this;
 
       this.registerComponent('foo-bar', {
         template: '{{foo}}'
@@ -36193,26 +36295,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Hola');
 
       this.runTask(function () {
-        return _this20.context.set('model.bar', 'Hello');
+        return _this21.context.set('model.bar', 'Hello');
       });
 
       this.assertText('Hello');
 
       this.runTask(function () {
-        return _this20.context.set('model', { bar: 'Hola' });
+        return _this21.context.set('model', { bar: 'Hola' });
       });
 
       this.assertText('Hola');
     };
 
     _class.prototype['@test it can render a basic component with a block'] = function testItCanRenderABasicComponentWithABlock() {
-      var _this21 = this;
+      var _this22 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}} - In component' });
 
@@ -36221,14 +36323,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this22.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello - In component' });
     };
 
     _class.prototype['@test it renders the layout with the component instance as the context'] = function testItRendersTheLayoutWithTheComponentInstanceAsTheContext() {
-      var _this22 = this;
+      var _this23 = this;
 
       var instance = undefined;
 
@@ -36247,7 +36349,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this23.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
@@ -36266,7 +36368,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it preserves the outer context when yielding'] = function testItPreservesTheOuterContextWhenYielding() {
-      var _this23 = this;
+      var _this24 = this;
 
       this.registerComponent('foo-bar', { template: '{{yield}}' });
 
@@ -36275,26 +36377,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'message', 'goodbye');
+        return _emberMetalProperty_set.set(_this24.context, 'message', 'goodbye');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'goodbye' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this23.context, 'message', 'hello');
+        return _emberMetalProperty_set.set(_this24.context, 'message', 'hello');
       });
 
       this.assertComponentElement(this.firstChild, { content: 'hello' });
     };
 
     _class.prototype['@test it can yield internal and external properties positionally'] = function testItCanYieldInternalAndExternalPropertiesPositionally() {
-      var _this24 = this;
+      var _this25 = this;
 
       var instance = undefined;
 
@@ -36318,13 +36420,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this25.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Joel Kang, hello' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this24.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
+        return _emberMetalProperty_set.set(_this25.context, 'person', { firstName: 'Dora', lastName: 'the Explorer' });
       });
 
       this.assertComponentElement(this.firstChild, { content: 'Dora the Explorer, hello' });
@@ -36337,7 +36439,7 @@ babelHelpers.classCallCheck(this, _class);
 
       this.runTask(function () {
         _emberMetalProperty_set.set(instance, 'greeting', 'hello');
-        _emberMetalProperty_set.set(_this24.context, 'person', {
+        _emberMetalProperty_set.set(_this25.context, 'person', {
           firstName: 'Joel',
           lastName: 'Kang'
         });
@@ -36347,7 +36449,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test #11519 - block param infinite loop'] = function test11519BlockParamInfiniteLoop() {
-      var _this25 = this;
+      var _this26 = this;
 
       var instance = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -36369,7 +36471,7 @@ babelHelpers.classCallCheck(this, _class);
       // Trigger a non-revalidating re-render. The yielded block will not be dirtied
       // nor will block param streams, and thus no infinite loop will occur.
       this.runTask(function () {
-        return _this25.rerender();
+        return _this26.rerender();
       });
 
       this.assertText('0');
@@ -36392,7 +36494,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test the component and its child components are destroyed'] = function testTheComponentAndItsChildComponentsAreDestroyed(assert) {
-      var _this26 = this;
+      var _this27 = this;
 
       var destroyed = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
 
@@ -36417,13 +36519,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('1 2 3 4 5 6 7 8 ');
 
       this.runTask(function () {
-        return _this26.rerender();
+        return _this27.rerender();
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this26.context, 'cond5', false);
+        return _emberMetalProperty_set.set(_this27.context, 'cond5', false);
       });
 
       this.assertText('1 2 3 4 8 ');
@@ -36431,23 +36533,23 @@ babelHelpers.classCallCheck(this, _class);
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 1, 6: 1, 7: 1, 8: 0 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'cond3', false);
-        _emberMetalProperty_set.set(_this26.context, 'cond5', true);
-        _emberMetalProperty_set.set(_this26.context, 'cond4', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond3', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond5', true);
+        _emberMetalProperty_set.set(_this27.context, 'cond4', false);
       });
 
       assert.deepEqual(destroyed, { 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this26.context, 'cond2', false);
-        _emberMetalProperty_set.set(_this26.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond2', false);
+        _emberMetalProperty_set.set(_this27.context, 'cond1', false);
       });
 
       assert.deepEqual(destroyed, { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1 });
     };
 
     _class.prototype['@test should escape HTML in normal mustaches'] = function testShouldEscapeHTMLInNormalMustaches() {
-      var _this27 = this;
+      var _this28 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -36465,7 +36567,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('you need to be more <b>bold</b>');
 
       this.runTask(function () {
-        return _this27.rerender();
+        return _this28.rerender();
       });
 
       this.assertText('you need to be more <b>bold</b>');
@@ -36482,7 +36584,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test should not escape HTML in triple mustaches'] = function testShouldNotEscapeHTMLInTripleMustaches(assert) {
-      var _this28 = this;
+      var _this29 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -36502,7 +36604,7 @@ babelHelpers.classCallCheck(this, _class);
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this28.rerender();
+        return _this29.rerender();
       });
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -36521,7 +36623,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test should not escape HTML if string is a htmlSafe'] = function testShouldNotEscapeHTMLIfStringIsAHtmlSafe(assert) {
-      var _this29 = this;
+      var _this30 = this;
 
       var expectedHtmlBold = 'you need to be more <b>bold</b>';
       var expectedHtmlItalic = 'you are so <i>super</i>';
@@ -36541,7 +36643,7 @@ babelHelpers.classCallCheck(this, _class);
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
 
       this.runTask(function () {
-        return _this29.rerender();
+        return _this30.rerender();
       });
 
       _emberHtmlbarsTestsUtilsTestHelpers.equalTokens(this.firstChild, expectedHtmlBold);
@@ -36603,7 +36705,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test can use isStream property without conflict (#13271)'] = function testCanUseIsStreamPropertyWithoutConflict13271() {
-      var _this30 = this;
+      var _this31 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -36626,7 +36728,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { content: 'true' });
 
       this.runTask(function () {
-        return _this30.rerender();
+        return _this31.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { content: 'true' });
@@ -36645,7 +36747,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test lookup of component takes priority over property'] = function testLookupOfComponentTakesPriorityOverProperty() {
-      var _this31 = this;
+      var _this32 = this;
 
       this.registerComponent('some-component', {
         template: 'some-component'
@@ -36659,14 +36761,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('some-prop some-component');
 
       this.runTask(function () {
-        return _this31.rerender();
+        return _this32.rerender();
       });
 
       this.assertText('some-prop some-component');
     };
 
     _class.prototype['@test component without dash is not looked up'] = function testComponentWithoutDashIsNotLookedUp() {
-      var _this32 = this;
+      var _this33 = this;
 
       this.registerComponent('somecomponent', {
         template: 'somecomponent'
@@ -36679,26 +36781,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this32.rerender();
+        return _this33.rerender();
       });
 
       this.assertText('notsomecomponent');
 
       this.runTask(function () {
-        return _this32.context.set('somecomponent', 'not not notsomecomponent');
+        return _this33.context.set('somecomponent', 'not not notsomecomponent');
       });
 
       this.assertText('not not notsomecomponent');
 
       this.runTask(function () {
-        return _this32.context.set('somecomponent', 'notsomecomponent');
+        return _this33.context.set('somecomponent', 'notsomecomponent');
       });
 
       this.assertText('notsomecomponent');
     };
 
     _class.prototype['@test non-block with properties on attrs'] = function testNonBlockWithPropertiesOnAttrs() {
-      var _this33 = this;
+      var _this34 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{attrs.someProp}}'
@@ -36711,26 +36813,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this33.rerender();
+        return _this34.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this33.context.set('prop', 'other thing there');
+        return _this34.context.set('prop', 'other thing there');
       });
 
       this.assertText('In layout - someProp: other thing there');
 
       this.runTask(function () {
-        return _this33.context.set('prop', 'something here');
+        return _this34.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@glimmer non-block with properties overridden in init'] = function glimmerNonBlockWithPropertiesOverriddenInInit() {
-      var _this34 = this;
+      var _this35 = this;
 
       var instance = undefined;
       this.registerComponent('non-block', {
@@ -36751,13 +36853,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this34.rerender();
+        return _this35.rerender();
       });
 
       this.assertText('In layout - someProp: value set in instance');
 
       this.runTask(function () {
-        return _this34.context.set('prop', 'updated something passed when invoked');
+        return _this35.context.set('prop', 'updated something passed when invoked');
       });
 
       this.assertText('In layout - someProp: updated something passed when invoked');
@@ -36769,7 +36871,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: update value set in instance');
 
       this.runTask(function () {
-        return _this34.context.set('prop', 'something passed when invoked');
+        return _this35.context.set('prop', 'something passed when invoked');
       });
       this.runTask(function () {
         return instance.set('someProp', 'value set in instance');
@@ -36779,7 +36881,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test rerendering component with attrs from parent'] = function testRerenderingComponentWithAttrsFromParent(assert) {
-      var _this35 = this;
+      var _this36 = this;
 
       var willUpdateCount = 0;
       var didReceiveAttrsCount = 0;
@@ -36820,7 +36922,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectHooks({ willUpdate: false, didReceiveAttrs: true }, function () {
-        _this35.render('{{non-block someProp=someProp}}', {
+        _this36.render('{{non-block someProp=someProp}}', {
           someProp: 'wycats'
         });
       });
@@ -36829,16 +36931,16 @@ babelHelpers.classCallCheck(this, _class);
 
       // Note: Hooks are not fired in Glimmer for idempotent re-renders
       expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
-        _this35.runTask(function () {
-          return _this35.rerender();
+        _this36.runTask(function () {
+          return _this36.rerender();
         });
       });
 
       this.assertText('In layout - someProp: wycats');
 
       expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
-        _this35.runTask(function () {
-          return _this35.context.set('someProp', 'tomdale');
+        _this36.runTask(function () {
+          return _this36.context.set('someProp', 'tomdale');
         });
       });
 
@@ -36846,16 +36948,16 @@ babelHelpers.classCallCheck(this, _class);
 
       // Note: Hooks are not fired in Glimmer for idempotent re-renders
       expectHooks({ willUpdate: this.isHTMLBars, didReceiveAttrs: this.isHTMLBars }, function () {
-        _this35.runTask(function () {
-          return _this35.rerender();
+        _this36.runTask(function () {
+          return _this36.rerender();
         });
       });
 
       this.assertText('In layout - someProp: tomdale');
 
       expectHooks({ willUpdate: true, didReceiveAttrs: true }, function () {
-        _this35.runTask(function () {
-          return _this35.context.set('someProp', 'wycats');
+        _this36.runTask(function () {
+          return _this36.context.set('someProp', 'wycats');
         });
       });
 
@@ -36863,7 +36965,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
-      var _this36 = this;
+      var _this37 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -36876,61 +36978,29 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this36.rerender();
+        return _this37.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this36.context.set('prop', 'something else');
+        return _this37.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this36.context.set('prop', 'something here');
+        return _this37.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
-      var _this37 = this;
-
-      this.registerComponent('with-block', {
-        template: 'In layout - someProp: {{someProp}} - {{yield}}'
-      });
-
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
-        prop: 'something here'
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this37.rerender();
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this37.context.set('prop', 'something else');
-      });
-
-      this.assertText('In layout - someProp: something else - In template');
-
-      this.runTask(function () {
-        return _this37.context.set('prop', 'something here');
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-    };
-
-    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
       var _this38 = this;
 
       this.registerComponent('with-block', {
-        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
+        template: 'In layout - someProp: {{someProp}} - {{yield}}'
       });
 
       this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
@@ -36958,8 +37028,40 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here - In template');
     };
 
-    _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
+    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
       var _this39 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject4), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this39.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
+      var _this40 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -36974,7 +37076,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this39.rerender();
+        return _this40.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -36982,7 +37084,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test arbitrary positional parameter conflict with hash parameter is reported'] = function testArbitraryPositionalParameterConflictWithHashParameterIsReported() {
-      var _this40 = this;
+      var _this41 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -36992,14 +37094,14 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this40.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+        _this41.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
           numbers: [1, 2, 3]
         });
       }, 'You cannot specify positional parameters and the hash argument `names`.');
     };
 
     _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
-      var _this41 = this;
+      var _this42 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37015,38 +37117,38 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this41.rerender();
+        return _this42.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this41.context.get('things').pushObject(5);
+        return _this42.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this41.context.get('things').shiftObject();
+        return _this42.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this41.context.get('things').clear();
+        return _this42.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this41.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
+        return _this42.context.set('things', _emberRuntimeSystemNative_array.A(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@test can use hash parameter instead of positional param'] = function testCanUseHashParameterInsteadOfPositionalParam(assert) {
-      var _this42 = this;
+      var _this43 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37063,7 +37165,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this43.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -37072,7 +37174,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test dynamic arbitrary number of positional parameters'] = function testDynamicArbitraryNumberOfPositionalParameters(assert) {
-      var _this43 = this;
+      var _this44 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37089,33 +37191,33 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this44.rerender();
       });
 
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this43.context.set('user1', 'Bar');
+        return _this44.context.set('user1', 'Bar');
       });
 
       this.assertText('Bar4');
 
       this.runTask(function () {
-        return _this43.context.set('user2', '5');
+        return _this44.context.set('user2', '5');
       });
 
       this.assertText('Bar5');
 
       this.runTask(function () {
-        _this43.context.set('user1', 'Foo');
-        _this43.context.set('user2', 4);
+        _this44.context.set('user1', 'Foo');
+        _this44.context.set('user2', 4);
       });
 
       this.assertText('Foo4');
     };
 
     _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
-      var _this44 = this;
+      var _this45 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -37128,26 +37230,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this45.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this44.context.set('role', 'input');
+        return _this45.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this44.context.set('role', 'main');
+        return _this45.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
-      var _this45 = this;
+      var _this46 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -37163,26 +37265,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this46.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this45.context.set('name', 'Ole, ole');
+        return _this46.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this45.context.set('name', 'Whoop, whoop!');
+        return _this46.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
-      var _this46 = this;
+      var _this47 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -37193,14 +37295,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In template');
 
       this.runTask(function () {
-        return _this46.rerender();
+        return _this47.rerender();
       });
 
       this.assertText('In template');
     };
 
     _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
-      var _this47 = this;
+      var _this48 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10)
@@ -37211,14 +37313,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('No Block!');
 
       this.runTask(function () {
-        return _this47.rerender();
+        return _this48.rerender();
       });
 
       this.assertText('No Block!');
     };
 
     _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
-      var _this48 = this;
+      var _this49 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject12)
@@ -37229,14 +37331,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In template - In Component');
 
       this.runTask(function () {
-        return _this48.rerender();
+        return _this49.rerender();
       });
 
       this.assertText('In template - In Component');
     };
 
     _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
-      var _this49 = this;
+      var _this50 = this;
 
       this.registerComponent('with-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject14)
@@ -37247,14 +37349,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In block No Block Param!');
 
       this.runTask(function () {
-        return _this49.rerender();
+        return _this50.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@test static named positional parameters'] = function testStaticNamedPositionalParameters() {
-      var _this50 = this;
+      var _this51 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37268,14 +37370,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this50.rerender();
+        return _this51.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test dynamic named positional parameters'] = function testDynamicNamedPositionalParameters() {
-      var _this51 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37292,33 +37394,33 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this52.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this51.context.set('myName', 'Sergio');
+        return _this52.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this51.context.set('myAge', 2);
+        return _this52.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this51.context.set('myName', 'Quint');
-        _this51.context.set('myAge', 4);
+        _this52.context.set('myName', 'Quint');
+        _this52.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test if a value is passed as a non-positional parameter, it raises an assertion'] = function testIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
-      var _this52 = this;
+      var _this53 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -37328,7 +37430,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this52.render('{{sample-component notMyName name=myName}}', {
+        _this53.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -37336,7 +37438,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
-      var _this53 = this;
+      var _this54 = this;
 
       this.registerComponent('my-if', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject16)
@@ -37349,19 +37451,19 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this53.rerender();
+        return _this54.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this53.context.set('activated', false);
+        return _this54.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this53.context.set('activated', true);
+        return _this54.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -37589,7 +37691,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this54 = this;
+      var _this55 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -37630,7 +37732,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this55.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -37639,7 +37741,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this55 = this;
+      var _this56 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -37669,27 +37771,27 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this56.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this55.context.set('showInner', true);
+        return _this56.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this55.context.set('showInner', false);
+        return _this56.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@test when a property is changed during children\'s rendering'] = function testWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this56 = this;
+      var _this57 = this;
 
       if (this.isHTMLBars || false) {
         expectDeprecation(/modified value twice in a single render/);
@@ -37736,7 +37838,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this57.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -37744,7 +37846,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (this.isGlimmer && !false) {
         expectAssertion(function () {
-          _this56.runTask(function () {
+          _this57.runTask(function () {
             return outer.set('value', 2);
           });
         }, /modified value twice in a single render/);
@@ -37775,7 +37877,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function testWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this57 = this;
+      var _this58 = this;
 
       if (this.isHTMLBars || false) {
         expectDeprecation(/modified wrapper.content twice in a single render/);
@@ -37812,7 +37914,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (this.isGlimmer && !false) {
         expectAssertion(function () {
-          _this57.render('{{x-outer}}');
+          _this58.render('{{x-outer}}');
         }, /modified wrapper.content twice in a single render/);
 
         return;
@@ -37824,7 +37926,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#outer-value').text(), '1', 'initial render of outer');
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this58.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 're-render of inner');
@@ -37853,7 +37955,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this58 = this;
+      var _this59 = this;
 
       this.registerComponent('non-block', {
         template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject36)
@@ -37870,32 +37972,32 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this58.rerender();
+        return _this59.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this58.context.get('items').pushObject('Sergio');
+        return _this59.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this58.context.get('items').shiftObject();
+        return _this59.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this58.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
+        return _this59.context.set('items', _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this59 = this;
+      var _this60 = this;
 
       var clickyThing = undefined;
 
@@ -37922,7 +38024,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberHtmlbarsTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this59.rerender();
+        return _this60.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -37932,7 +38034,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function testSpecifyingCustomConcatenatedPropertiesAvoidsClobbering(assert) {
-      var _this60 = this;
+      var _this61 = this;
 
       var clickyThing = undefined;
       this.registerComponent('some-clicky-thing', {
@@ -37953,7 +38055,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (this.isGlimmer) {
         this.runTask(function () {
-          return _this60.rerender();
+          return _this61.rerender();
         });
 
         this.assertText('blarkporybaz- Click Me');
@@ -37961,7 +38063,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test a two way binding flows upstream when consumed in the template'] = function testATwoWayBindingFlowsUpstreamWhenConsumedInTheTemplate() {
-      var _this61 = this;
+      var _this62 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -37984,7 +38086,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -38010,14 +38112,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText(' - ');
 
       this.runTask(function () {
-        _this61.component.set('localBar', 'initial value');
+        _this62.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP when consumed in the template'] = function testATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this62 = this;
+      var _this63 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38051,7 +38153,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this62.rerender();
+        return _this63.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -38063,14 +38165,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this62.component.set('localBar', 'initial value');
+        _this63.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP without template consumption'] = function testATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this63 = this;
+      var _this64 = this;
 
       var component = undefined;
       var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38103,7 +38205,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this64.rerender();
       });
 
       this.assertText('initial value');
@@ -38115,14 +38217,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this63.component.set('localBar', 'initial value');
+        _this64.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
     };
 
     _class.prototype['@test services can be injected into components'] = function testServicesCanBeInjectedIntoComponents() {
-      var _this64 = this;
+      var _this65 = this;
 
       var service = undefined;
       this.registerService('name', _emberRuntimeSystemService.default.extend({
@@ -38145,7 +38247,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Jackson');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this65.rerender();
       });
 
       this.assertText('Jackson');
@@ -38164,7 +38266,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function testCanAccessActionsHashVia_actionsDEPRECATED() {
-      var _this65 = this;
+      var _this66 = this;
 
       var component = undefined;
 
@@ -38188,12 +38290,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assert.strictEqual(component.actions.derp, derp);
 
       expectDeprecation(function () {
-        _this65.assert.strictEqual(component._actions.derp, derp);
+        _this66.assert.strictEqual(component._actions.derp, derp);
       }, 'Usage of `_actions` is deprecated, use `actions` instead.');
     };
 
     _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
-      var _this66 = this;
+      var _this67 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38202,16 +38304,16 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this66.render('{{foo-bar}}');
+        _this67.render('{{foo-bar}}');
       }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function testShouldToggleVisibilityWithIsVisible(assert) {
-      var _this67 = this;
+      var _this68 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberHtmlbarsTestsUtilsTestHelpers.styles(expected);
-        var actual = _this67.firstChild.getAttribute('style');
+        var actual = _this68.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -38234,18 +38336,18 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this67.context, 'visible', true);
+        _emberMetalProperty_set.set(_this68.context, 'visible', true);
       });
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this67.context, 'visible', false);
+        _emberMetalProperty_set.set(_this68.context, 'visible', false);
       });
       assertStyle('display: none;');
     };
 
     _class.prototype['@test isVisible does not overwrite component style'] = function testIsVisibleDoesNotOverwriteComponentStyle(assert) {
-      var _this68 = this;
+      var _this69 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
@@ -38268,7 +38370,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this68.context, 'visible', true);
+        _emberMetalProperty_set.set(_this69.context, 'visible', true);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -38277,7 +38379,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this68.context, 'visible', false);
+        _emberMetalProperty_set.set(_this69.context, 'visible', false);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -38287,11 +38389,11 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test adds isVisible binding when style binding is missing and other bindings exist'] = function testAddsIsVisibleBindingWhenStyleBindingIsMissingAndOtherBindingsExist(assert) {
-      var _this69 = this;
+      var _this70 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberHtmlbarsTestsUtilsTestHelpers.styles(expected);
-        var actual = _this69.firstChild.getAttribute('style');
+        var actual = _this70.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -38319,14 +38421,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this69.context, 'visible', true);
+        _emberMetalProperty_set.set(_this70.context, 'visible', true);
       });
 
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetalProperty_set.set(_this69.context, 'visible', false);
-        _emberMetalProperty_set.set(_this69.context, 'foo', 'woo');
+        _emberMetalProperty_set.set(_this70.context, 'visible', false);
+        _emberMetalProperty_set.set(_this70.context, 'foo', 'woo');
       });
 
       assertStyle('display: none;');
@@ -38334,14 +38436,14 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
-      var _this70 = this;
+      var _this71 = this;
 
       var component = undefined;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this70.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this70.assert.equal(_this70.firstChild.value, expectedValue, 'value property is correct');
-        _this70.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this71.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this71.assert.equal(_this71.firstChild.value, expectedValue, 'value property is correct');
+        _this71.assert.equal(_emberMetalProperty_get.get(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -38370,15 +38472,15 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this70.firstChild.value = 'bar';
-        _this70.$('input').trigger('change');
+        _this71.firstChild.value = 'bar';
+        _this71.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this70.firstChild.value = 'foo';
-        _this70.$('input').trigger('change');
+        _this71.firstChild.value = 'foo';
+        _this71.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -38390,8 +38492,8 @@ babelHelpers.classCallCheck(this, _class);
       assertElement('bar');
 
       this.runTask(function () {
-        _this70.firstChild.value = 'foo';
-        _this70.$('input').trigger('change');
+        _this71.firstChild.value = 'foo';
+        _this71.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -55578,15 +55680,15 @@ enifed('ember-htmlbars/tests/utils/abstract-test-case', ['exports', 'ember-htmlb
       _emberRuntimeTestsUtils.runDestroy(this.application);
     };
 
-    AbstractApplicationTest.prototype.visit = function visit(url) {
+    AbstractApplicationTest.prototype.visit = function visit(url, options) {
       var _this2 = this;
 
       var applicationInstance = this.applicationInstance;
 
       if (applicationInstance) {
-        return _emberMetalRun_loop.default(applicationInstance, 'visit', url);
+        return _emberMetalRun_loop.default(applicationInstance, 'visit', url, options);
       } else {
-        return _emberMetalRun_loop.default(this.application, 'visit', url).then(function (instance) {
+        return _emberMetalRun_loop.default(this.application, 'visit', url, options).then(function (instance) {
           _this2.applicationInstance = instance;
         });
       }
