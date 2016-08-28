@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c5b10f15
+ * @version   2.9.0-null+8a49ddd7
  */
 
 var enifed, requireModule, require, Ember;
@@ -4633,6 +4633,43 @@ enifed('ember-metal/deprecate_property', ['exports', 'ember-metal/debug', 'ember
       }
     });
   }
+});
+enifed('ember-metal/descriptor', ['exports', 'ember-metal/properties'], function (exports, _emberMetalProperties) {
+  'use strict';
+
+  exports.default = descriptor;
+
+  function descriptor(desc) {
+    return new Descriptor(desc);
+  }
+
+  /**
+    A wrapper for a native ES5 descriptor. In an ideal world, we wouldn't need
+    this at all, however, the way we currently flatten/merge our mixins require
+    a special value to denote a descriptor.
+  
+    @class Descriptor
+    @private
+  */
+
+  var Descriptor = (function (_EmberDescriptor) {
+    babelHelpers.inherits(Descriptor, _EmberDescriptor);
+
+    function Descriptor(desc) {
+      babelHelpers.classCallCheck(this, Descriptor);
+
+      _EmberDescriptor.call(this);
+      this.desc = desc;
+    }
+
+    Descriptor.prototype.setup = function setup(obj, key) {
+      Object.defineProperty(obj, key, this.desc);
+    };
+
+    Descriptor.prototype.teardown = function teardown(obj, key) {};
+
+    return Descriptor;
+  })(_emberMetalProperties.Descriptor);
 });
 enifed('ember-metal/dictionary', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
   'use strict';
@@ -12295,7 +12332,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+c5b10f15";
+  exports.default = "2.9.0-null+8a49ddd7";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
