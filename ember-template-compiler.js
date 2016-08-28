@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ba0803de
+ * @version   2.9.0-null+5fa57d8e
  */
 
 var enifed, requireModule, require, Ember;
@@ -11909,7 +11909,7 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
     }
   }
 });
-enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal/error', 'ember-template-compiler', 'ember-templates/template_registry'], function (exports, _emberMetalError, _emberTemplateCompiler, _emberTemplatesTemplate_registry) {
+enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal/error', 'ember-template-compiler/index', 'ember-templates/template_registry'], function (exports, _emberMetalError, _emberTemplateCompilerIndex, _emberTemplatesTemplate_registry) {
   /**
   @module ember
   @submodule ember-templates
@@ -11951,7 +11951,7 @@ enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal/erro
       var templateName = script.getAttribute('data-template-name') || script.getAttribute('id') || 'application';
       var template = undefined;
 
-      template = _emberTemplateCompiler.compile(script.innerHTML, {
+      template = _emberTemplateCompilerIndex.compile(script.innerHTML, {
         moduleName: templateName
       });
 
@@ -12332,7 +12332,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+ba0803de";
+  exports.default = "2.9.0-null+5fa57d8e";
 });
 enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
