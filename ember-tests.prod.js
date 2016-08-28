@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+5fa57d8e
+ * @version   2.9.0-null+01110cb4
  */
 
 var enifed, requireModule, require, Ember;
@@ -175,7 +175,7 @@ babelHelpers = {
   defaults: defaults
 };
 
-enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember-metal/property_get', 'container/registry', 'container/tests/test-helpers/factory', 'container/owner'], function (exports, _emberEnvironment, _emberMetalProperty_get, _containerRegistry, _containerTestsTestHelpersFactory, _containerOwner) {
+enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember-metal/property_get', 'container', 'container/tests/test-helpers/factory'], function (exports, _emberEnvironment, _emberMetalProperty_get, _container, _containerTestsTestHelpersFactory) {
   'use strict';
 
   var originalModelInjections = undefined;
@@ -190,7 +190,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A registered factory returns the same instance each time', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -204,7 +204,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A registered factory is returned from lookupFactory', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -217,7 +217,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A registered factory is returned from lookupFactory is the same factory each time', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -227,7 +227,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A factory returned from lookupFactory has a debugkey', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -237,7 +237,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('fallback for to create time injections if factory has no extend', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var AppleController = _containerTestsTestHelpersFactory.default();
     var PostController = _containerTestsTestHelpersFactory.default();
@@ -255,7 +255,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('The descendants of a factory returned from lookupFactory have a container and debugkey', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var instance = undefined;
@@ -269,7 +269,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A registered factory returns a fresh instance if singleton: false is passed as an option', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -292,7 +292,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A factory type with a registered injection\'s instances receive that injection', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var Store = _containerTestsTestHelpersFactory.default();
@@ -309,7 +309,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('An individual factory with a registered injection receives the injection', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var Store = _containerTestsTestHelpersFactory.default();
@@ -329,7 +329,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A factory with both type and individual injections', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var Store = _containerTestsTestHelpersFactory.default();
@@ -351,7 +351,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A factory with both type and individual factoryInjections', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var Store = _containerTestsTestHelpersFactory.default();
@@ -373,7 +373,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A non-singleton instance is never cached', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
 
@@ -386,7 +386,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A non-instantiated property is not instantiated', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     var template = function () {};
@@ -395,14 +395,14 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A failed lookup returns undefined', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     equal(container.lookup('doesnot:exist'), undefined);
   });
 
   QUnit.test('An invalid factory throws an error', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     registry.register('controller:foo', {});
@@ -415,7 +415,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   QUnit.test('Injecting a failed lookup raises an error', function () {
     _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
 
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     var fooInstance = {};
@@ -439,7 +439,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('Injecting a falsy value does not raise an error', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var ApplicationController = _containerTestsTestHelpersFactory.default();
 
@@ -451,7 +451,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('The container returns same value each time even if the value is falsy', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     registry.register('falsy:value', null, { instantiate: false });
@@ -460,7 +460,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('Destroying the container destroys any cached singletons', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var PostView = _containerTestsTestHelpersFactory.default();
@@ -484,7 +484,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('The container can use a registry hook to resolve factories lazily', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -502,7 +502,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('The container normalizes names before resolving', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -517,7 +517,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('The container normalizes names when looking factory up', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -532,7 +532,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('Options can be registered that should be applied to a given factory', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
 
@@ -556,7 +556,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('Options can be registered that should be applied to all factories for a given type', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
 
@@ -580,7 +580,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('An injected non-singleton instance is never cached', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
     var PostViewHelper = _containerTestsTestHelpersFactory.default();
@@ -596,7 +596,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('Factory resolves are cached', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var resolveWasCalled = [];
@@ -614,7 +614,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     var resolveWasCalled = [];
@@ -632,7 +632,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = {};
     var resolveWasCalled = [];
@@ -653,7 +653,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   QUnit.test('The `_onLookup` hook is called on factories when looked up the first time', function () {
     expect(2);
 
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var Apple = _containerTestsTestHelpersFactory.default();
 
@@ -671,7 +671,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('A factory\'s lazy injections are validated when first instantiated', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var Apple = _containerTestsTestHelpersFactory.default();
     var Orange = _containerTestsTestHelpersFactory.default();
@@ -693,7 +693,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   QUnit.test('Lazy injection validations are cached', function () {
     expect(1);
 
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var Apple = _containerTestsTestHelpersFactory.default();
     var Orange = _containerTestsTestHelpersFactory.default();
@@ -714,16 +714,16 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
 
   QUnit.test('An object with its owner pre-set should be returned from ownerInjection', function () {
     var owner = {};
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container({ owner: owner });
 
     var result = container.ownerInjection();
 
-    equal(result[_containerOwner.OWNER], owner, 'owner is properly included');
+    equal(result[_container.OWNER], owner, 'owner is properly included');
   });
 
   QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
     registry.register('controller:post', PostController);
@@ -743,7 +743,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
     expect(8);
 
     var owner = {};
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container({ owner: owner });
 
     // Define a simple non-extendable factory
@@ -769,7 +769,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
       owner._lookupFactory = function (fullName) {
         equal(fullName, 'abc:two', '_lookupFactory on owner called properly');
       };
-      var foundOwner = _containerOwner.getOwner(options);
+      var foundOwner = _container.getOwner(options);
       foundOwner.lookup('abc:one');
       foundOwner._lookupFactory('abc:two');
 
@@ -793,7 +793,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
     expect(2);
 
     var owner = {};
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container({ owner: owner });
 
     // Define a non-extendable factory that is frozen after `create`
@@ -830,7 +830,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('An extendable factory can provide `container` upon create, with a deprecation', function (assert) {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     registry.register('controller:post', _containerTestsTestHelpersFactory.default());
@@ -852,7 +852,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('lookupFactory passes options through to expandlocallookup', function (assert) {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -872,7 +872,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
   });
 
   QUnit.test('lookup passes options through to expandlocallookup', function (assert) {
-    var registry = new _containerRegistry.default();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
@@ -891,7 +891,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
     assert.ok(PostControllerLookupResult instanceof PostController);
   });
 });
-enifed('container/tests/owner_test', ['exports', 'container/owner'], function (exports, _containerOwner) {
+enifed('container/tests/owner_test', ['exports', 'container'], function (exports, _container) {
   'use strict';
 
   QUnit.module('Owner', {});
@@ -900,13 +900,13 @@ enifed('container/tests/owner_test', ['exports', 'container/owner'], function (e
     var owner = {};
     var obj = {};
 
-    strictEqual(_containerOwner.getOwner(obj), undefined, 'owner has not been set');
+    strictEqual(_container.getOwner(obj), undefined, 'owner has not been set');
 
-    _containerOwner.setOwner(obj, owner);
+    _container.setOwner(obj, owner);
 
-    strictEqual(_containerOwner.getOwner(obj), owner, 'owner has been set');
+    strictEqual(_container.getOwner(obj), owner, 'owner has been set');
 
-    strictEqual(obj[_containerOwner.OWNER], owner, 'owner has been set to the OWNER symbol');
+    strictEqual(obj[_container.OWNER], owner, 'owner has been set to the OWNER symbol');
   });
 });
 enifed('container/tests/registry_test', ['exports', 'container', 'container/tests/test-helpers/factory'], function (exports, _container, _containerTestsTestHelpersFactory) {
@@ -1659,7 +1659,7 @@ enifed('container/tests/registry_test', ['exports', 'container', 'container/test
     assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
   });
 });
-enifed('container/tests/test-helpers/build-owner', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy) {
+enifed('container/tests/test-helpers/build-owner', ['exports', 'ember-runtime/system/object', 'container', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy'], function (exports, _emberRuntimeSystemObject, _container, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy) {
   'use strict';
 
   exports.default = buildOwner;
@@ -1668,7 +1668,7 @@ enifed('container/tests/test-helpers/build-owner', ['exports', 'ember-runtime/sy
     var Owner = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
       init: function () {
         this._super.apply(this, arguments);
-        var registry = new _containerRegistry.default(this._registryOptions);
+        var registry = new _container.Registry(this._registryOptions);
         this.__registry__ = registry;
         this.__container__ = registry.container({ owner: this });
       }
@@ -1747,7 +1747,7 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'ember-metal/features', 'container/registry', 'ember-runtime/system/object'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _emberMetalFeatures, _containerRegistry, _emberRuntimeSystemObject) {
+enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'ember-metal/features', 'container', 'ember-runtime/system/object'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _emberMetalFeatures, _container, _emberRuntimeSystemObject) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
@@ -1925,7 +1925,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
           assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
         });
 
-        var singletons = ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main', '-environment:main'];
+        var singletons = ['router:main', _container.privatize(_templateObject), '-view-registry:main', '-environment:main'];
 
         var env = appInstance.lookup('-environment:main');
         singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
@@ -1949,7 +1949,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     });
   }
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-templates/template_registry', 'container/registry', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberVersion, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberTemplatesTemplate_registry, _containerRegistry, _emberApplicationTestsTestHelpersRegistryCheck) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-templates/template_registry', 'container', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberVersion, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberTemplatesTemplate_registry, _container, _emberApplicationTestsTestHelpersRegistryCheck) {
   /*globals EmberDev */
   'use strict';
 
@@ -2081,10 +2081,10 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', 'target', 'router:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', 'namespace', 'application:main');
 
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _containerRegistry.privatize(_templateObject));
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'router', '_bucketCache', _containerRegistry.privatize(_templateObject));
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', '_bucketCache', _containerRegistry.privatize(_templateObject));
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _container.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'router', '_bucketCache', _container.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', '_bucketCache', _container.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', '_bucketCache', _container.privatize(_templateObject));
 
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', 'router', 'router:main');
 
@@ -2113,7 +2113,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'view:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-dom');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'renderer:-inert');
-      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _containerRegistry.privatize(_templateObject2));
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _container.privatize(_templateObject2));
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, 'template:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'view:-outlet', 'template', 'template:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'template', 'env', 'service:-glimmer-environment');
@@ -3795,7 +3795,7 @@ enifed('ember-application/tests/system/engine_parent_test', ['exports', 'ember-a
     strictEqual(engine[_emberApplicationSystemEngineParent.ENGINE_PARENT], parent, 'parent has been set to the ENGINE_PARENT symbol');
   });
 });
-enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object', 'container/registry', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _containerRegistry, _emberApplicationTestsTestHelpersRegistryCheck) {
+enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environment', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object', 'container', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberEnvironment, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _container, _emberApplicationTestsTestHelpersRegistryCheck) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']),
@@ -3842,9 +3842,9 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', 'target', 'router:main');
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', 'namespace', 'application:main');
 
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'router', '_bucketCache', _containerRegistry.privatize(_templateObject));
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', '_bucketCache', _containerRegistry.privatize(_templateObject));
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', '_bucketCache', _containerRegistry.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'router', '_bucketCache', _container.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', '_bucketCache', _container.privatize(_templateObject));
+    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', '_bucketCache', _container.privatize(_templateObject));
 
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', 'router', 'router:main');
 
@@ -3867,7 +3867,7 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-dom-changes', 'document', 'service:-document');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'service:-dom-tree-construction', 'document', 'service:-document');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'view:-outlet');
-      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, _containerRegistry.privatize(_templateObject2));
+      _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, _container.privatize(_templateObject2));
       _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(engine, 'template:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'view:-outlet', 'template', 'template:-outlet');
       _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'template', 'env', 'service:-glimmer-environment');
@@ -5071,7 +5071,7 @@ enifed('ember-application/tests/system/readiness_test', ['exports', 'ember-metal
     });
   });
 });
-enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-routing/system/router', 'ember-runtime/controllers/controller', 'container/registry'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberRoutingSystemRouter, _emberRuntimeControllersController, _containerRegistry) {
+enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-routing/system/router', 'ember-runtime/controllers/controller', 'container'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberRoutingSystemRouter, _emberRuntimeControllersController, _container) {
   'use strict';
 
   var application = undefined,
@@ -5167,8 +5167,8 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     };
 
     // this is pretty awful. We should make this less Global-ly.
-    var originalRegister = _containerRegistry.default.prototype.register;
-    _containerRegistry.default.prototype.register = function (name, type, options) {
+    var originalRegister = _container.Registry.prototype.register;
+    _container.Registry.prototype.register = function (name, type, options) {
       if (name === 'event_dispatcher:main') {
         return mock_event_dispatcher;
       } else {
@@ -5192,10 +5192,10 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
       equal(eventDispatcherWasDestroyed, 1);
       equal(eventDispatcherWasSetup, 2, 'setup called after reset');
     } catch (error) {
-      _containerRegistry.default.prototype.register = originalRegister;
+      _container.Registry.prototype.register = originalRegister;
     }
 
-    _containerRegistry.default.prototype.register = originalRegister;
+    _container.Registry.prototype.register = originalRegister;
   });
 
   QUnit.test('When an application is reset, the router URL is reset to `/`', function () {
@@ -51864,7 +51864,7 @@ enifed('ember-htmlbars/tests/integration/input-test', ['exports', 'ember-htmlbar
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/object', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'container/owner', 'ember-metal/features', 'ember-application/system/engine-parent', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberMetalRun_loop, _containerOwner, _emberMetalFeatures, _emberApplicationSystemEngineParent, _internalTestHelpersTestsSkipIfGlimmer) {
+enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/object', 'ember-htmlbars-template-compiler', 'ember-views/component_lookup', 'ember-htmlbars/component', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'container', 'ember-metal/features', 'ember-application/system/engine-parent', 'internal-test-helpers/tests/skip-if-glimmer'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemObject, _emberHtmlbarsTemplateCompiler, _emberViewsComponent_lookup, _emberHtmlbarsComponent, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberMetalRun_loop, _container, _emberMetalFeatures, _emberApplicationSystemEngineParent, _internalTestHelpersTestsSkipIfGlimmer) {
   'use strict';
 
   var App = undefined,
@@ -51921,7 +51921,7 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
 
       assert.expect(1);
 
-      var component = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_containerOwner.OWNER] = appInstance, _Component$extend.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "chat" "extra"}}'), _Component$extend)).create();
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend = {}, _Component$extend[_container.OWNER] = appInstance, _Component$extend.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "chat" "extra"}}'), _Component$extend)).create();
 
       expectAssertion(function () {
         _emberRuntimeTestsUtils.runAppend(component);
@@ -51933,7 +51933,7 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
 
       assert.expect(1);
 
-      var component = _emberHtmlbarsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_containerOwner.OWNER] = appInstance, _Component$extend2.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount chat}}'), _Component$extend2)).create();
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend2 = {}, _Component$extend2[_container.OWNER] = appInstance, _Component$extend2.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount chat}}'), _Component$extend2)).create();
 
       expectAssertion(function () {
         _emberRuntimeTestsUtils.runAppend(component);
@@ -51945,7 +51945,7 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
 
       assert.expect(1);
 
-      var component = _emberHtmlbarsComponent.default.extend((_Component$extend3 = {}, _Component$extend3[_containerOwner.OWNER] = appInstance, _Component$extend3.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "does-not-exist"}}'), _Component$extend3)).create();
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend3 = {}, _Component$extend3[_container.OWNER] = appInstance, _Component$extend3.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "does-not-exist"}}'), _Component$extend3)).create();
 
       expectAssertion(function () {
         _emberRuntimeTestsUtils.runAppend(component);
@@ -51967,12 +51967,12 @@ enifed('ember-htmlbars/tests/integration/mount_test', ['exports', 'ember-applica
 
           assert.ok(true, 'engine\'s application controller has been instantiated');
 
-          var engineInstance = _containerOwner.getOwner(this);
+          var engineInstance = _container.getOwner(this);
           assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(engineInstance), appInstance, 'engine instance has appInstance as its parent');
         }
       });
 
-      var component = _emberHtmlbarsComponent.default.extend((_Component$extend4 = {}, _Component$extend4[_containerOwner.OWNER] = appInstance, _Component$extend4.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "chat"}}'), _Component$extend4.didInsertElement = function () {
+      var component = _emberHtmlbarsComponent.default.extend((_Component$extend4 = {}, _Component$extend4[_container.OWNER] = appInstance, _Component$extend4.layout = _emberHtmlbarsTemplateCompiler.compile('{{mount "chat"}}'), _Component$extend4.didInsertElement = function () {
         assert.equal(this.$().text(), 'Chat here', 'engine\'s application template has rendered properly');
       }, _Component$extend4)).create();
 
@@ -55019,7 +55019,7 @@ enifed('ember-htmlbars/tests/streams/stream-test', ['exports', 'ember-htmlbars/s
     equal(_emberMetalProperty_get.get(stream.value(), 'message'), 'bar');
   });
 });
-enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'ember-htmlbars/helper', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _emberHtmlbarsHelper, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'ember-htmlbars/helper', 'container', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _emberHtmlbarsHelper, _container, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   function generateEnv(helpers, owner) {
@@ -55080,7 +55080,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
 
     var owner = generateOwner();
     var env = generateEnv(null, owner);
-    var view = (_view = {}, _view[_containerOwner.OWNER] = owner, _view);
+    var view = (_view = {}, _view[_container.OWNER] = owner, _view);
 
     var someName = _emberHtmlbarsHelper.default.extend();
     owner.register('helper:some-name', someName);
@@ -55095,7 +55095,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
 
     var owner = generateOwner();
     var env = generateEnv(null, owner);
-    var view = (_view2 = {}, _view2[_containerOwner.OWNER] = owner, _view2);
+    var view = (_view2 = {}, _view2[_container.OWNER] = owner, _view2);
 
     env.knownHelpers['t'] = true;
     var t = _emberHtmlbarsHelper.default.extend();
@@ -55112,7 +55112,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     expect(2);
     var owner = generateOwner();
     var env = generateEnv(null, owner);
-    var view = (_view3 = {}, _view3[_containerOwner.OWNER] = owner, _view3);
+    var view = (_view3 = {}, _view3[_container.OWNER] = owner, _view3);
     var called = undefined;
 
     function someName() {
@@ -55135,7 +55135,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     expect(1);
     var owner = generateOwner();
     var env = generateEnv(null, owner);
-    var view = (_view4 = {}, _view4[_containerOwner.OWNER] = owner, _view4);
+    var view = (_view4 = {}, _view4[_container.OWNER] = owner, _view4);
 
     function someName() {}
     owner.register('helper:some-name', someName);
@@ -55146,7 +55146,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     }, 'Expected to find an Ember.Helper with the name helper:some-name, but found an object of type function instead.');
   });
 });
-enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry) {
+enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-htmlbars/views/outlet', 'ember-routing/location/hash_location', 'ember-runtime/system/object', 'container', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-templates/template_registry'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberHtmlbarsViewsOutlet, _emberRoutingLocationHash_location, _emberRuntimeSystemObject, _container, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberTemplatesTemplate_registry) {
   'use strict';
 
   function buildAppInstance() {
@@ -55154,7 +55154,7 @@ enifed('ember-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'em
     var App = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
       init: function () {
         this._super.apply(this, arguments);
-        registry = this.__registry__ = new _containerRegistry.default();
+        registry = this.__registry__ = new _container.Registry();
         this.__container__ = registry.container({ owner: this });
       }
     });
@@ -60380,7 +60380,7 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
     }, /Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"/);
   });
 });
-enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/injected_property', 'container/owner'], function (exports, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalInjected_property, _containerOwner) {
+enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/injected_property', 'container'], function (exports, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalInjected_property, _container) {
   'use strict';
 
   QUnit.module('InjectedProperty');
@@ -60427,7 +60427,7 @@ enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/prop
 
     var obj = {};
 
-    _containerOwner.setOwner(obj, {
+    _container.setOwner(obj, {
       lookup: function (key) {
         ok(true, 'should call container.lookup');
         return key;
@@ -60442,7 +60442,7 @@ enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/prop
   QUnit.test('omitting the lookup name should default to the property name', function () {
     var obj = {};
 
-    _containerOwner.setOwner(obj, {
+    _container.setOwner(obj, {
       lookup: function (key) {
         return key;
       }
@@ -65758,7 +65758,7 @@ enifed('ember-metal/tests/weak_map_test', ['exports', 'ember-metal/weak_map'], f
     assert.strictEqual(map.toString(), '[object WeakMap]');
   });
 });
-enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/assign', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalAssign, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/assign', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/tests/test-helpers/build-owner', 'container'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalAssign, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerTestsTestHelpersBuildOwner, _container) {
   'use strict';
 
   function mockBrowserLocation(overrides) {
@@ -65793,7 +65793,7 @@ enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-met
     owner.register('location:hash', _emberRoutingLocationHash_location.default);
     owner.register('location:none', _emberRoutingLocationNone_location.default);
 
-    var autolocation = _emberRoutingLocationAuto_location.default.create((_AutoLocation$create = {}, _AutoLocation$create[_containerOwner.OWNER] = owner, _AutoLocation$create.location = location, _AutoLocation$create.history = history, _AutoLocation$create.global = {}, _AutoLocation$create));
+    var autolocation = _emberRoutingLocationAuto_location.default.create((_AutoLocation$create = {}, _AutoLocation$create[_container.OWNER] = owner, _AutoLocation$create.location = location, _AutoLocation$create.history = history, _AutoLocation$create.global = {}, _AutoLocation$create));
 
     return autolocation;
   }
@@ -66797,7 +66797,7 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   });
 });
 // A
-enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router', 'container/owner', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberRoutingSystemRouter, _containerOwner, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
+enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router', 'container', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberRoutingSystemRouter, _container, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
   'use strict';
 
   var Router = undefined;
@@ -66976,7 +66976,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
       });
 
       var router = Router.create();
-      _containerOwner.setOwner(router, engineInstance);
+      _container.setOwner(router, engineInstance);
       router._initRouterJs();
 
       assert.ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
@@ -67000,7 +67000,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
       });
 
       var router = Router.create();
-      _containerOwner.setOwner(router, engineInstance);
+      _container.setOwner(router, engineInstance);
       router._initRouterJs();
 
       assert.deepEqual(router.router.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
@@ -67024,7 +67024,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
       });
 
       var router = Router.create();
-      _containerOwner.setOwner(router, engineInstance);
+      _container.setOwner(router, engineInstance);
       router._initRouterJs();
 
       assert.deepEqual(router.router.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
@@ -67046,7 +67046,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
           return true;
         }
       });
-      _containerOwner.setOwner(router, engineInstance);
+      _container.setOwner(router, engineInstance);
       router._initRouterJs();
 
       ok(router.router.recognizer.names['chat'], 'main route was created');
@@ -67068,7 +67068,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
           return true;
         }
       });
-      _containerOwner.setOwner(router, engineInstance);
+      _container.setOwner(router, engineInstance);
       router._initRouterJs();
 
       ok(router.router.recognizer.names['shoutbox'], 'main route was created');
@@ -67086,7 +67086,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
       });
 
       var router = Router.create();
-      _containerOwner.setOwner(router, engineInstance);
+      _container.setOwner(router, engineInstance);
       router._initRouterJs(false);
 
       ok(router.router.recognizer.names['chat'], 'main route was created');
@@ -67111,7 +67111,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
           return true;
         }
       });
-      _containerOwner.setOwner(router, engineInstance);
+      _container.setOwner(router, engineInstance);
       router._initRouterJs();
 
       ok(router.router.recognizer.names['news.chat'], 'nested route was created');
@@ -67128,7 +67128,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
   }
 });
-enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject', 'container/tests/test-helpers/build-owner', 'container/owner', 'ember-metal/features'], function (exports, _emberRuntimeTestsUtils, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject, _containerTestsTestHelpersBuildOwner, _containerOwner, _emberMetalFeatures) {
+enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject', 'container/tests/test-helpers/build-owner', 'container', 'ember-metal/features'], function (exports, _emberRuntimeTestsUtils, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject, _containerTestsTestHelpersBuildOwner, _container, _emberMetalFeatures) {
   'use strict';
 
   var route = undefined,
@@ -67161,7 +67161,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
       }
     });
 
-    _containerOwner.setOwner(route, _containerTestsTestHelpersBuildOwner.default({
+    _container.setOwner(route, _containerTestsTestHelpersBuildOwner.default({
       hasRegistration: function () {
         return true;
       },
@@ -67262,7 +67262,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
     expect(1);
 
     var owner = _containerTestsTestHelpersBuildOwner.default();
-    _containerOwner.setOwner(route, owner);
+    _container.setOwner(route, owner);
 
     var foo = { name: 'foo' };
 
@@ -67409,8 +67409,8 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
       routeOne = _emberRoutingSystemRoute.default.create({ routeName: 'one' });
       routeTwo = _emberRoutingSystemRoute.default.create({ routeName: 'two' });
 
-      _containerOwner.setOwner(routeOne, owner);
-      _containerOwner.setOwner(routeTwo, owner);
+      _container.setOwner(routeOne, owner);
+      _container.setOwner(routeTwo, owner);
 
       lookupHash = {
         'route:one': routeOne,
@@ -67487,9 +67487,9 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
       var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
       var route = _emberRoutingSystemRoute.default.create({ router: router });
 
-      _containerOwner.setOwner(applicationRoute, engineInstance);
-      _containerOwner.setOwner(postsRoute, engineInstance);
-      _containerOwner.setOwner(route, engineInstance);
+      _container.setOwner(applicationRoute, engineInstance);
+      _container.setOwner(postsRoute, engineInstance);
+      _container.setOwner(route, engineInstance);
 
       assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
       assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
@@ -67530,16 +67530,16 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
       var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
       var route = _emberRoutingSystemRoute.default.create({ router: router });
 
-      _containerOwner.setOwner(applicationRoute, engineInstance);
-      _containerOwner.setOwner(postsRoute, engineInstance);
-      _containerOwner.setOwner(route, engineInstance);
+      _container.setOwner(applicationRoute, engineInstance);
+      _container.setOwner(postsRoute, engineInstance);
+      _container.setOwner(route, engineInstance);
 
       strictEqual(route.modelFor('application'), applicationModel);
       strictEqual(route.modelFor('posts'), postsModel);
     });
   }
 });
-enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container'], function (exports, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _container) {
   'use strict';
 
   var owner = undefined;
@@ -67551,7 +67551,7 @@ enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/loca
     var router = CustomRouter.create(settings);
 
     if (!options.skipOwner) {
-      _containerOwner.setOwner(router, owner);
+      _container.setOwner(router, owner);
     }
 
     if (!options.disableSetup) {
@@ -73082,7 +73082,7 @@ enifed('ember-runtime/tests/mixins/comparable_test', ['exports', 'ember-metal/pr
     equal(_emberRuntimeCompare.default(r2, r1), 1);
   });
 });
-enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'container/owner', 'container/registry', 'container/container', 'ember-runtime/mixins/container_proxy', 'ember-runtime/system/object'], function (exports, _containerOwner, _containerRegistry, _containerContainer, _emberRuntimeMixinsContainer_proxy, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'container', 'ember-runtime/mixins/container_proxy', 'ember-runtime/system/object'], function (exports, _container, _emberRuntimeMixinsContainer_proxy, _emberRuntimeSystemObject) {
   'use strict';
 
   QUnit.module('ember-runtime/mixins/container_proxy', {
@@ -73090,9 +73090,9 @@ enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'container
       this.Owner = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsContainer_proxy.default);
       this.instance = this.Owner.create();
 
-      var registry = new _containerRegistry.default();
+      var registry = new _container.Registry();
 
-      this.instance.__container__ = new _containerContainer.default(registry, {
+      this.instance.__container__ = new _container.Container(registry, {
         owner: this.instance
       });
     }
@@ -73101,7 +73101,7 @@ enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'container
   QUnit.test('provides ownerInjection helper method', function (assert) {
     var result = this.instance.ownerInjection();
 
-    assert.equal(result[_containerOwner.OWNER], this.instance, 'returns an object with the OWNER symbol');
+    assert.equal(result[_container.OWNER], this.instance, 'returns an object with the OWNER symbol');
   });
 });
 enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesCopyable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalProperty_set, _emberMetalProperty_get) {
@@ -86697,7 +86697,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
     assert.deepEqual(actions, ['#app-2', '#app-1']);
   });
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container/owner', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _containerOwner, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-templates/component', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer', 'ember-templates/template_registry'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberTemplatesComponent, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _routerTransition, _emberRuntimeCopy, _emberMetalObserver, _emberTemplatesTemplate_registry) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -88169,7 +88169,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     equal(chooseFollowed, 0, 'The choose route wasn\'t entered since a transition occurred');
     equal(_emberViewsSystemJquery.default('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal(_containerOwner.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
+    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
   });
 
   QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes', function () {
@@ -88203,7 +88203,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     handleURLAborts('/foo/bar/baz');
 
-    equal(_containerOwner.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
+    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
     equal(router.get('location').getURL(), '/home');
   });
 
@@ -88242,7 +88242,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     handleURL('/foo/bar/baz');
 
-    equal(_containerOwner.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
+    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
     equal(successCount, 1, 'transitionTo success handler was called once');
   });
 
@@ -88282,7 +88282,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     handleURLAborts('/foo/bar/1/baz');
 
-    equal(_containerOwner.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
+    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
     equal(router.get('location').getURL(), '/foo/bar/2/baz');
   });
 
@@ -88306,7 +88306,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var applicationController = _containerOwner.getOwner(router).lookup('controller:application');
+    var applicationController = _container.getOwner(router).lookup('controller:application');
 
     handleURL('/foo/bar/baz');
 
@@ -89406,7 +89406,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var appController = _containerOwner.getOwner(router).lookup('controller:application');
+    var appController = _container.getOwner(router).lookup('controller:application');
 
     function transitionAndCheck(path, expectedPath, expectedRouteName) {
       if (path) {
@@ -90436,7 +90436,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       var EngineIndexRoute = _emberRoutingSystemRoute.default.extend({
         init: function () {
           this._super.apply(this, arguments);
-          engineInstance = _containerOwner.getOwner(this);
+          engineInstance = _container.getOwner(this);
         }
       });
 
