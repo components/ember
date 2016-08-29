@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+01110cb4
+ * @version   2.9.0-null+69cedc13
  */
 
 var enifed, requireModule, require, Ember;
@@ -7478,6 +7478,34 @@ babelHelpers.classCallCheck(this, _class);
         _ApplicationTest.apply(this, arguments);
       }
 
+      _class.prototype.setupAppAndRoutableEngine = function setupAppAndRoutableEngine() {
+        var hooks = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+        this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{outlet}}'));
+
+        this.router.map(function () {
+          this.mount('blog');
+        });
+        this.application.register('route-map:blog', function () {});
+        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            hooks.push('application - application');
+          }
+        }));
+
+        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}}'));
+            this.register('route:application', _emberRoutingSystemRoute.default.extend({
+              model: function () {
+                hooks.push('engine - application');
+              }
+            }));
+          }
+        }));
+      };
+
       _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
         var _this = this;
 
@@ -7513,38 +7541,35 @@ babelHelpers.classCallCheck(this, _class);
         });
       };
 
-      _class.prototype['@test can use shouldRender: false'] = function testCanUseShouldRenderFalse(assert) {
+      _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndEngineTemplatesHaveRendered(assert) {
         var _this2 = this;
 
-        this.assert.expect(2);
+        assert.expect(2);
+
         var hooks = [];
 
-        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            hooks.push('application - application');
-          }
-        }));
+        this.setupAppAndRoutableEngine(hooks);
 
-        this.router.map(function () {
-          this.mount('blog');
+        return this.visit('/blog', { shouldRender: true }).then(function () {
+          _this2.assertText('ApplicationEngine');
+
+          _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
         });
-        this.application.register('route-map:blog', function () {});
+      };
 
-        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
-          init: function () {
-            this._super.apply(this, arguments);
+      _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
+        var _this3 = this;
 
-            this.register('route:application', _emberRoutingSystemRoute.default.extend({
-              model: function () {
-                hooks.push('engine - application');
-              }
-            }));
-          }
-        }));
+        assert.expect(2);
+
+        var hooks = [];
+
+        this.setupAppAndRoutableEngine(hooks);
 
         return this.visit('/blog', { shouldRender: false }).then(function () {
-          _this2.assertText('');
-          _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
+          _this3.assertText('');
+
+          _this3.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
         });
       };
 
@@ -32438,6 +32463,34 @@ babelHelpers.classCallCheck(this, _class);
         _ApplicationTest.apply(this, arguments);
       }
 
+      _class.prototype.setupAppAndRoutableEngine = function setupAppAndRoutableEngine() {
+        var hooks = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+        this.application.register('template:application', _emberHtmlbarsTestsUtilsHelpers.compile('Application{{outlet}}'));
+
+        this.router.map(function () {
+          this.mount('blog');
+        });
+        this.application.register('route-map:blog', function () {});
+        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            hooks.push('application - application');
+          }
+        }));
+
+        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.register('template:application', _emberHtmlbarsTestsUtilsHelpers.compile('Engine{{outlet}}'));
+            this.register('route:application', _emberRoutingSystemRoute.default.extend({
+              model: function () {
+                hooks.push('engine - application');
+              }
+            }));
+          }
+        }));
+      };
+
       _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
         var _this = this;
 
@@ -32473,38 +32526,35 @@ babelHelpers.classCallCheck(this, _class);
         });
       };
 
-      _class.prototype['@test can use shouldRender: false'] = function testCanUseShouldRenderFalse(assert) {
+      _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndEngineTemplatesHaveRendered(assert) {
         var _this2 = this;
 
-        this.assert.expect(2);
+        assert.expect(2);
+
         var hooks = [];
 
-        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            hooks.push('application - application');
-          }
-        }));
+        this.setupAppAndRoutableEngine(hooks);
 
-        this.router.map(function () {
-          this.mount('blog');
+        return this.visit('/blog', { shouldRender: true }).then(function () {
+          _this2.assertText('ApplicationEngine');
+
+          _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
         });
-        this.application.register('route-map:blog', function () {});
+      };
 
-        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
-          init: function () {
-            this._super.apply(this, arguments);
+      _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
+        var _this3 = this;
 
-            this.register('route:application', _emberRoutingSystemRoute.default.extend({
-              model: function () {
-                hooks.push('engine - application');
-              }
-            }));
-          }
-        }));
+        assert.expect(2);
+
+        var hooks = [];
+
+        this.setupAppAndRoutableEngine(hooks);
 
         return this.visit('/blog', { shouldRender: false }).then(function () {
-          _this2.assertText('');
-          _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
+          _this3.assertText('');
+
+          _this3.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
         });
       };
 
