@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+15c11d1d
+ * @version   2.9.0-null+94146e1e
  */
 
 var enifed, requireModule, require, Ember;
@@ -26397,8 +26397,30 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       this.assertTextArea({ value: 'A beautiful day in Seattle' });
     };
 
-    _class.prototype['@test should update the value for `cut` / `input` / `change` events'] = function testShouldUpdateTheValueForCutInputChangeEvents() {
+    _class.prototype['@test GH#14001 Should correctly handle an empty string bound value'] = function testGH14001ShouldCorrectlyHandleAnEmptyStringBoundValue() {
       var _this4 = this;
+
+      this.render('{{textarea value=message}}', { message: '' });
+
+      this.assert.strictEqual(this.firstChild.value, '');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'message', 'hello');
+      });
+
+      this.assert.strictEqual(this.firstChild.value, 'hello');
+
+      this.runTask(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'message', '');
+      });
+
+      this.assert.strictEqual(this.firstChild.value, '');
+    };
+
+    _class.prototype['@test should update the value for `cut` / `input` / `change` events'] = function testShouldUpdateTheValueForCutInputChangeEvents() {
+      var _this5 = this;
 
       this.render('{{textarea value=model.val}}', {
         model: { val: 'A beautiful day in Seattle' }
@@ -26408,25 +26430,25 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this4.firstChild.value = 'Auckland';
-        _this4.triggerEvent('cut');
+        _this5.firstChild.value = 'Auckland';
+        _this5.triggerEvent('cut');
       });
       this.assertTextArea({ value: 'Auckland' });
 
       this.runTask(function () {
-        _this4.firstChild.value = 'Hope';
-        _this4.triggerEvent('paste');
+        _this5.firstChild.value = 'Hope';
+        _this5.triggerEvent('paste');
       });
       this.assertTextArea({ value: 'Hope' });
 
       this.runTask(function () {
-        _this4.firstChild.value = 'Boston';
-        _this4.triggerEvent('input');
+        _this5.firstChild.value = 'Boston';
+        _this5.triggerEvent('input');
       });
       this.assertTextArea({ value: 'Boston' });
 
       this.runTask(function () {
-        return _emberMetalProperty_set.set(_this4.context, 'model', { val: 'A beautiful day in Seattle' });
+        return _emberMetalProperty_set.set(_this5.context, 'model', { val: 'A beautiful day in Seattle' });
       });
       this.assertTextArea({ value: 'A beautiful day in Seattle' });
     };
