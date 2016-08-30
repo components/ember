@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.4
+ * @version   2.8.0-beta.4+2dbde63b
  */
 
 var enifed, requireModule, require, Ember;
@@ -10844,7 +10844,8 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       _templateObject36 = _taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
       _templateObject37 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
       _templateObject38 = _taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject39 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']);
+      _templateObject39 = _taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject40 = _taggedTemplateLiteralLoose(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -13559,6 +13560,70 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       });
     };
 
+    _class.prototype['@test child triggers revalidate during parent destruction (GH#13846)'] = function testChildTriggersRevalidateDuringParentDestructionGH13846() {
+      var select = undefined;
+
+      this.registerComponent('x-select', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: 'select',
+
+          init: function () {
+            this._super();
+            this.options = _emberRuntimeSystemNative_array.A([]);
+            this.value = null;
+
+            select = this;
+          },
+
+          updateValue: function () {
+            var newValue = this.get('options.lastObject.value');
+
+            this.set('value', newValue);
+          },
+
+          registerOption: function (option) {
+            this.get('options').addObject(option);
+          },
+
+          unregisterOption: function (option) {
+            this.get('options').removeObject(option);
+
+            this.updateValue();
+          }
+        }),
+
+        template: '{{yield this}}'
+      });
+
+      this.registerComponent('x-option', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          tagName: 'option',
+          attributeBindings: ['selected'],
+
+          didInsertElement: function () {
+            this._super.apply(this, arguments);
+
+            this.get('select').registerOption(this);
+          },
+
+          selected: _emberMetalComputed.computed('select.value', function () {
+            return this.get('value') === this.get('select.value');
+          }),
+
+          willDestroyElement: function () {
+            this._super.apply(this, arguments);
+            this.get('select').unregisterOption(this);
+          }
+        })
+      });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject40));
+
+      this.teardown();
+
+      this.assert.ok(true, 'no errors during teardown');
+    };
+
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
@@ -14661,9 +14726,10 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       _templateObject4 = _taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
       _templateObject5 = _taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
       _templateObject6 = _taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
-      _templateObject7 = _taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
-      _templateObject8 = _taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
-      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
+      _templateObject7 = _taggedTemplateLiteralLoose(['\n      {{yield}}\n    '], ['\n      {{yield}}\n    ']),
+      _templateObject8 = _taggedTemplateLiteralLoose(['\n      {{#nested-item}}Item: {{count}}{{/nested-item}}\n    '], ['\n      {{#nested-item}}Item: {{count}}{{/nested-item}}\n    ']),
+      _templateObject9 = _taggedTemplateLiteralLoose(['\n      {{#nested-item}}<div>Nothing to see here</div>{{/nested-item}}\n    '], ['\n      {{#nested-item}}<div>Nothing to see here</div>{{/nested-item}}\n    ']),
+      _templateObject10 = _taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -14724,8 +14790,12 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       };
 
       var assertParentView = function (hookName, instance) {
-        if (!instance.parentView) {
-          _this.assert.ok(false, 'parentView should be present in ' + hookName);
+        _this.assert.ok(instance.parentView, 'parentView should be present in ' + hookName);
+        if (hookName === 'willDestroyElement') {
+          _this.assert.ok(instance.parentView.childViews.indexOf(instance) !== -1, 'view is still connected to parentView in ' + hookName);
+        }
+        if (_this.isHTMLBars) {
+          _this.assert.ok(instance.ownerView, 'ownerView should be present in ' + hookName);
         }
       };
 
@@ -14734,9 +14804,7 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
           return;
         }
 
-        if (!instance.element) {
-          _this.assert.ok(false, 'element property should be present on ' + instance + ' during ' + hookName);
-        }
+        _this.assert.ok(instance.element && document.body.contains(instance.element), 'element property should be present on ' + instance + ' during ' + hookName);
 
         var inDOM = _this.$('#' + instance.elementId)[0];
         if (!inDOM) {
@@ -14813,6 +14881,14 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
           pushHook('willDestroyElement');
           assertParentView('willDestroyElement', this);
           assertElement('willDestroyElement', this);
+        },
+
+        didDestroyElement: function () {
+          pushHook('didDestroyElement');
+        },
+
+        willDestroy: function () {
+          pushHook('willDestroy');
         }
       });
 
@@ -14978,7 +15054,19 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       ['the-top', 'didUpdate'], ['the-top', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']);
+
+        _this3.assert.equal(_this3.components['the-top']._state, 'preRender');
+        _this3.assert.equal(_this3.components['the-top'].isDestroying, true);
+        _this3.assert.equal(_this3.components['the-top'].isDestroyed, true);
+
+        _this3.assert.equal(_this3.components['the-middle']._state, 'preRender');
+        _this3.assert.equal(_this3.components['the-middle'].isDestroying, true);
+        _this3.assert.equal(_this3.components['the-middle'].isDestroyed, true);
+
+        _this3.assert.equal(_this3.components['the-bottom']._state, 'preRender');
+        _this3.assert.equal(_this3.components['the-bottom'].isDestroying, true);
+        _this3.assert.equal(_this3.components['the-bottom'].isDestroyed, true);
       });
     };
 
@@ -15066,7 +15154,19 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
       }
 
       this.teardownAssertions.push(function () {
-        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement']);
+        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-middle', 'willDestroyElement'], ['the-bottom', 'willDestroyElement'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']);
+
+        _this4.assert.equal(_this4.components['the-top']._state, 'preRender');
+        _this4.assert.equal(_this4.components['the-top'].isDestroying, true);
+        _this4.assert.equal(_this4.components['the-top'].isDestroyed, true);
+
+        _this4.assert.equal(_this4.components['the-middle']._state, 'preRender');
+        _this4.assert.equal(_this4.components['the-middle'].isDestroying, true);
+        _this4.assert.equal(_this4.components['the-middle'].isDestroyed, true);
+
+        _this4.assert.equal(_this4.components['the-bottom']._state, 'preRender');
+        _this4.assert.equal(_this4.components['the-bottom'].isDestroying, true);
+        _this4.assert.equal(_this4.components['the-bottom'].isDestroyed, true);
       });
     };
 
@@ -15075,36 +15175,48 @@ enifed('ember-htmlbars/tests/integration/components/life-cycle-test', ['exports'
 
       var invoke = this.boundHelpers.invoke;
 
-      this.registerComponent('an-item', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7) });
+      this.registerComponent('nested-item', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject7) });
 
-      this.registerComponent('no-items', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject8) });
+      this.registerComponent('an-item', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject8) });
 
-      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9, invoke('an-item', { count: expr('item') }), invoke('no-items')), {
+      this.registerComponent('no-items', { template: _emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject9) });
+
+      this.render(_emberHtmlbarsTestsUtilsAbstractTestCase.strip(_templateObject10, invoke('an-item', { count: expr('item') }), invoke('no-items')), {
         items: [1, 2, 3, 4, 5]
       });
 
       this.assertText('Item: 1Item: 2Item: 3Item: 4Item: 5');
 
       var initialHooks = function (count) {
-        return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender']];
+        return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender']];
       };
 
       var initialAfterRenderHooks = function (count) {
-        return [['an-item', 'didInsertElement'], ['an-item', 'didRender']];
+        return [['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['an-item', 'didInsertElement'], ['an-item', 'didRender']];
       };
 
       this.assertHooks.apply(this, ['after initial render'].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1)));
 
+      this.assert.equal(this.component.childViews.length, 5, 'childViews precond');
       this.runTask(function () {
         return _emberMetalProperty_set.set(_this5.context, 'items', []);
       });
+      this.assert.equal(this.component.childViews.length, 1, 'childViews updated');
 
       this.assertText('Nothing to see here');
 
-      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['an-item', 'willDestroyElement'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
+      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['nested-item', 'willDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'willDestroyElement'], ['nested-item', 'willDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'willDestroyElement'], ['nested-item', 'willDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'willDestroyElement'], ['nested-item', 'willDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'willDestroyElement'], ['nested-item', 'willDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']);
 
       this.teardownAssertions.push(function () {
-        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement']);
+        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['nested-item', 'willDestroyElement'], ['no-items', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['no-items', 'willDestroy'], ['nested-item', 'willDestroy']);
+
+        _this5.assert.equal(_this5.components['no-items']._state, 'preRender');
+        _this5.assert.equal(_this5.components['no-items'].isDestroying, true);
+        _this5.assert.equal(_this5.components['no-items'].isDestroyed, true);
+
+        _this5.assert.equal(_this5.components['nested-item']._state, 'preRender');
+        _this5.assert.equal(_this5.components['nested-item'].isDestroying, true);
+        _this5.assert.equal(_this5.components['nested-item'].isDestroyed, true);
       });
     };
 

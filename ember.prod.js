@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.4
+ * @version   2.8.0-beta.4+2dbde63b
  */
 
 var enifed, requireModule, require, Ember;
@@ -9649,17 +9649,37 @@ enifed('ember-htmlbars/hooks/classify', ['exports', 'ember-htmlbars/utils/is-com
     return null;
   }
 });
-enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (exports) {
+enifed('ember-htmlbars/hooks/cleanup-render-node', ['exports'], function (exports) {
   /**
   @module ember
   @submodule ember-htmlbars
   */
 
-  "use strict";
+  'use strict';
 
   exports.default = cleanupRenderNode;
 
   function cleanupRenderNode(renderNode) {
+    var view = renderNode.emberView;
+    if (view) {
+      view.renderer.willDestroyElement(view);
+      view.ownerView._destroyingSubtreeForView.push(function (env) {
+        view._transitionTo('destroying'); // unregisters view
+        // prevents rerender and scheduling
+        view._renderNode = null;
+        renderNode.emberView = null;
+
+        view.renderer.didDestroyElement(view);
+
+        if (view.parentView && view.parentView === env.view) {
+          view.parentView.removeChild(view);
+        }
+        view.parentView = null;
+
+        view._transitionTo('preRender');
+      });
+    }
+
     if (renderNode.cleanup) {
       renderNode.cleanup();
     }
@@ -9989,15 +10009,17 @@ enifed("ember-htmlbars/hooks/destroy-render-node", ["exports"], function (export
   function destroyRenderNode(renderNode) {
     var view = renderNode.emberView;
     if (view) {
-      view.renderer.remove(view, true);
+      view.ownerView._destroyingSubtreeForView.push(function () {
+        view.destroy();
+      });
     }
-
     var streamUnsubscribers = renderNode.streamUnsubscribers;
     if (streamUnsubscribers) {
       for (var i = 0; i < streamUnsubscribers.length; i++) {
         streamUnsubscribers[i]();
       }
     }
+    renderNode.streamUnsubscribers = null;
   }
 });
 enifed("ember-htmlbars/hooks/did-cleanup-tree", ["exports"], function (exports) {
@@ -10008,6 +10030,10 @@ enifed("ember-htmlbars/hooks/did-cleanup-tree", ["exports"], function (exports) 
   function didCleanupTree(env) {
     // Once we have finsihed cleaning up the render node and sub-nodes, reset
     // state tracking which view those render nodes belonged to.
+    var queue = env.view.ownerView._destroyingSubtreeForView;
+    for (var i = 0; i < queue.length; i++) {
+      queue[i](env);
+    }
     env.view.ownerView._destroyingSubtreeForView = null;
   }
 });
@@ -10492,7 +10518,7 @@ enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports)
     // the `childViews` array. Other parent/child view relationships are
     // untouched.  This view is then cleared once cleanup is complete in
     // `didCleanupTree`.
-    view.ownerView._destroyingSubtreeForView = view;
+    view.ownerView._destroyingSubtreeForView = [];
   }
 });
 enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/helpers/query-params', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/template'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsHelpersQueryParams, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsSystemTemplate) {
@@ -11560,11 +11586,7 @@ enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/ass
       // but the `{{component}}` helper can.
       state.manager = null;
 
-      for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        rest[_key - 1] = arguments[_key];
-      }
-
-      render.apply(undefined, [morph].concat(rest));
+      render.apply(undefined, arguments);
     },
 
     rerender: render
@@ -13365,13 +13387,10 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
   };
 
   ComponentNodeManager.prototype.destroy = function ComponentNodeManager_destroy() {
-    var component = this.component;
-
     // Clear component's render node. Normally this gets cleared
     // during view destruction, but in this case we're re-assigning the
     // node to a different view and it will get cleaned up automatically.
-    component._renderNode = null;
-    component.destroy();
+    this.component.destroy();
   };
 
   function createComponent(_component, props, renderNode, env) {
@@ -13900,34 +13919,13 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
     renderNode.ownerNode.emberView.scheduleRevalidate(renderNode, view.toString(), 'rerendering');
   };
 
-  Renderer.prototype.remove = function (view, shouldDestroy) {
-    var renderNode = view._renderNode;
-    view._renderNode = null;
-    if (renderNode) {
-      renderNode.emberView = null;
-      this.willDestroyElement(view);
-      view._transitionTo('destroying');
-
-      view._renderNode = null;
-      var _lastResult = renderNode.lastResult;
-      if (_lastResult) {
-        _htmlbarsRuntime.internal.clearMorph(renderNode, _lastResult.env, shouldDestroy !== false);
-      }
-
-      if (!shouldDestroy) {
-        view._transitionTo('preRender');
-      }
-      this.didDestroyElement(view);
-    }
-
-    // toplevel view removed, remove insertion point
+  Renderer.prototype.remove = function (view) {
     var lastResult = view.lastResult;
     if (lastResult) {
+      // toplevel only.
       view.lastResult = null;
       lastResult.destroy();
-    }
-
-    if (shouldDestroy && !view.isDestroying) {
+    } else {
       view.destroy();
     }
   };
@@ -41250,7 +41248,7 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
     },
 
     destroy: function (view) {
-      view.renderer.remove(view, true);
+      view.renderer.remove(view);
     },
 
     // Handle events from `Ember.EventDispatcher`
@@ -41889,7 +41887,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.4";
+  exports.default = "2.8.0-beta.4+2dbde63b";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
