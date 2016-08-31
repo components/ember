@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+27d14db6
+ * @version   2.9.0-null+675f6219
  */
 
 var enifed, requireModule, require, Ember;
@@ -9887,10 +9887,6 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       didRender = undefined,
       assertNotRendered = undefined;
 
-  if (true || false) {
-    _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender feature without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.', true);
-  }
-
   var raise = _emberMetalDebug.assert;
   if (false) {
     raise = function (message, test) {
@@ -11584,7 +11580,7 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
     }
   }
 });
-enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal/error', 'ember-template-compiler/index', 'ember-templates/template_registry'], function (exports, _emberMetalError, _emberTemplateCompilerIndex, _emberTemplatesTemplate_registry) {
+enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal/error', 'ember-template-compiler/index'], function (exports, _emberMetalError, _emberTemplateCompilerIndex) {
   /**
   @module ember
   @submodule ember-templates
@@ -11610,8 +11606,14 @@ enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal/erro
     @static
     @param ctx
   */
-  function bootstrap() {
-    var context = arguments.length <= 0 || arguments[0] === undefined ? document : arguments[0];
+  function bootstrap(_ref) {
+    var context = _ref.context;
+    var hasTemplate = _ref.hasTemplate;
+    var setTemplate = _ref.setTemplate;
+
+    if (!context) {
+      context = document;
+    }
 
     var selector = 'script[type="text/x-handlebars"]';
 
@@ -11631,12 +11633,12 @@ enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal/erro
       });
 
       // Check if template of same name already exists.
-      if (_emberTemplatesTemplate_registry.has(templateName)) {
+      if (hasTemplate(templateName)) {
         throw new _emberMetalError.default('Template named "' + templateName + '" already exists.');
       }
 
       // For templates which have a name, we save them and then remove them from the DOM.
-      _emberTemplatesTemplate_registry.set(templateName, template);
+      setTemplate(templateName, template);
 
       // Remove script tag from DOM.
       script.parentNode.removeChild(script);
@@ -11747,188 +11749,15 @@ enifed('ember-template-compiler/system/register-plugin', ['exports', 'ember-temp
   var registerPlugin = _compiler.registerPlugin;
   exports.default = registerPlugin;
 });
-enifed('ember-templates/compat', ['exports', 'ember-metal/core', 'ember-templates/template', 'ember-templates/string', 'ember-templates/dom-helper', 'ember-runtime/system/string', 'ember-metal/features', 'ember-templates/make-bound-helper'], function (exports, _emberMetalCore, _emberTemplatesTemplate, _emberTemplatesString, _emberTemplatesDomHelper, _emberRuntimeSystemString, _emberMetalFeatures, _emberTemplatesMakeBoundHelper) {
-  'use strict';
-
-  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
-  exports.EmberHandlebars = EmberHandlebars;
-  var EmberHTMLBars = _emberMetalCore.default.HTMLBars = _emberMetalCore.default.HTMLBars || {};
-  exports.EmberHTMLBars = EmberHTMLBars;
-  var EmberHandleBarsUtils = EmberHandlebars.Utils = EmberHandlebars.Utils || {};
-
-  exports.EmberHandleBarsUtils = EmberHandleBarsUtils;
-  Object.defineProperty(EmberHandlebars, 'SafeString', {
-    get: _emberTemplatesString.getSafeString
-  });
-
-  EmberHTMLBars.template = EmberHandlebars.template = _emberTemplatesTemplate.default;
-  EmberHTMLBars.DOMHelper = _emberTemplatesDomHelper.default;
-  EmberHandleBarsUtils.escapeExpression = _emberTemplatesString.escapeExpression;
-  _emberRuntimeSystemString.default.htmlSafe = _emberTemplatesString.htmlSafe;
-
-  if (true) {
-    _emberRuntimeSystemString.default.isHTMLSafe = _emberTemplatesString.isHTMLSafe;
-  }
-  EmberHTMLBars.makeBoundHelper = _emberTemplatesMakeBoundHelper.default;
-});
-// reexports
-enifed('ember-templates/component', ['exports', 'ember-glimmer/component'], function (exports, _emberGlimmerComponent) {
-  'use strict';
-
-  exports.default = _emberGlimmerComponent.default;
-});
-enifed('ember-templates/components/checkbox', ['exports', 'ember-glimmer/components/checkbox'], function (exports, _emberGlimmerComponentsCheckbox) {
-  'use strict';
-
-  exports.default = _emberGlimmerComponentsCheckbox.default;
-});
-enifed('ember-templates/components/link-to', ['exports', 'ember-glimmer/components/link-to'], function (exports, _emberGlimmerComponentsLinkTo) {
-  'use strict';
-
-  exports.default = _emberGlimmerComponentsLinkTo.default;
-});
-enifed('ember-templates/components/text_area', ['exports', 'ember-glimmer/components/text_area'], function (exports, _emberGlimmerComponentsText_area) {
-  'use strict';
-
-  exports.default = _emberGlimmerComponentsText_area.default;
-});
-enifed('ember-templates/components/text_field', ['exports', 'ember-glimmer/components/text_field'], function (exports, _emberGlimmerComponentsText_field) {
-  'use strict';
-
-  exports.default = _emberGlimmerComponentsText_field.default;
-});
-enifed('ember-templates/dom-helper', ['exports', 'ember-glimmer/dom'], function (exports, _emberGlimmerDom) {
-  'use strict';
-
-  exports.default = _emberGlimmerDom.NodeDOMTreeConstruction;
-});
-enifed('ember-templates/helper', ['exports', 'ember-glimmer/helper'], function (exports, _emberGlimmerHelper) {
-  'use strict';
-
-  exports.default = _emberGlimmerHelper.default;
-  exports.helper = _emberGlimmerHelper.helper;
-});
-enifed('ember-templates/index', ['exports', 'ember-metal/core', 'ember-templates/template_registry', 'ember-templates/renderer', 'ember-templates/component', 'ember-templates/helper', 'ember-templates/components/checkbox', 'ember-templates/components/text_field', 'ember-templates/components/text_area', 'ember-templates/components/link-to', 'ember-templates/string', 'ember-environment', 'ember-templates/compat'], function (exports, _emberMetalCore, _emberTemplatesTemplate_registry, _emberTemplatesRenderer, _emberTemplatesComponent, _emberTemplatesHelper, _emberTemplatesComponentsCheckbox, _emberTemplatesComponentsText_field, _emberTemplatesComponentsText_area, _emberTemplatesComponentsLinkTo, _emberTemplatesString, _emberEnvironment, _emberTemplatesCompat) {
-  'use strict';
-
-  _emberMetalCore.default._Renderer = _emberTemplatesRenderer.Renderer;
-  _emberMetalCore.default.Component = _emberTemplatesComponent.default;
-  _emberTemplatesHelper.default.helper = _emberTemplatesHelper.helper;
-  _emberMetalCore.default.Helper = _emberTemplatesHelper.default;
-  _emberMetalCore.default.Checkbox = _emberTemplatesComponentsCheckbox.default;
-  _emberMetalCore.default.TextField = _emberTemplatesComponentsText_field.default;
-  _emberMetalCore.default.TextArea = _emberTemplatesComponentsText_area.default;
-  _emberMetalCore.default.LinkComponent = _emberTemplatesComponentsLinkTo.default;
-
-  if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-    String.prototype.htmlSafe = function () {
-      return _emberTemplatesString.htmlSafe(this);
-    };
-  }
-
-  /**
-    Global hash of shared templates. This will automatically be populated
-    by the build tools so that you can store your Handlebars templates in
-    separate files that get loaded into JavaScript at buildtime.
-  
-    @property TEMPLATES
-    @for Ember
-    @type Object
-    @private
-  */
-  Object.defineProperty(_emberMetalCore.default, 'TEMPLATES', {
-    get: _emberTemplatesTemplate_registry.getTemplates,
-    set: _emberTemplatesTemplate_registry.setTemplates,
-    configurable: false,
-    enumerable: false
-  });
-
-  exports.default = _emberMetalCore.default;
-});
-// reexports
-enifed('ember-templates/make-bound-helper', ['exports', 'ember-glimmer/make-bound-helper'], function (exports, _emberGlimmerMakeBoundHelper) {
-  'use strict';
-
-  exports.default = _emberGlimmerMakeBoundHelper.default;
-});
-enifed('ember-templates/renderer', ['exports', 'ember-glimmer/renderer'], function (exports, _emberGlimmerRenderer) {
-  'use strict';
-
-  exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
-  exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
-  exports.Renderer = _emberGlimmerRenderer.Renderer;
-});
-enifed('ember-templates/string', ['exports', 'ember-metal/features', 'require'], function (exports, _emberMetalFeatures, _require) {
-  'use strict';
-
-  var strings = (function () {
-    if (true) {
-      return _require.default('ember-glimmer/utils/string');
-    } else {
-      return _require.default('ember-htmlbars/utils/string');
-    }
-  })();
-
-  var SafeString = strings.SafeString;
-  exports.SafeString = SafeString;
-  var escapeExpression = strings.escapeExpression;
-  exports.escapeExpression = escapeExpression;
-  var htmlSafe = strings.htmlSafe;
-  exports.htmlSafe = htmlSafe;
-  var isHTMLSafe = strings.isHTMLSafe;
-  exports.isHTMLSafe = isHTMLSafe;
-  var getSafeString = strings.getSafeString;
-  exports.getSafeString = getSafeString;
-});
-enifed('ember-templates/template', ['exports', 'ember-glimmer'], function (exports, _emberGlimmer) {
-  'use strict';
-
-  exports.default = _emberGlimmer.template;
-});
-enifed("ember-templates/template_registry", ["exports"], function (exports) {
-  // STATE within a module is frowned apon, this exists
-  // to support Ember.TEMPLATES but shield ember internals from this legacy
-  // global API.
-  "use strict";
-
-  exports.setTemplates = setTemplates;
-  exports.getTemplates = getTemplates;
-  exports.get = get;
-  exports.has = has;
-  exports.set = set;
-  var TEMPLATES = {};
-
-  function setTemplates(templates) {
-    TEMPLATES = templates;
-  }
-
-  function getTemplates() {
-    return TEMPLATES;
-  }
-
-  function get(name) {
-    if (TEMPLATES.hasOwnProperty(name)) {
-      return TEMPLATES[name];
-    }
-  }
-
-  function has(name) {
-    return TEMPLATES.hasOwnProperty(name);
-  }
-
-  function set(name, template) {
-    return TEMPLATES[name] = template;
-  }
-});
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": true, "ember-glimmer": true, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": true, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+27d14db6";
+  exports.default = "2.9.0-null+675f6219";
 });
 enifed('glimmer-compiler/index', ['exports', 'glimmer-compiler/lib/compiler', 'glimmer-compiler/lib/template-compiler', 'glimmer-compiler/lib/template-visitor'], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateCompiler, _glimmerCompilerLibTemplateVisitor) {
   'use strict';

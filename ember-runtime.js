@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+27d14db6
+ * @version   2.9.0-null+675f6219
  */
 
 var enifed, requireModule, require, Ember;
@@ -10211,10 +10211,6 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       didRender = undefined,
       assertNotRendered = undefined;
 
-  if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
-    _emberMetalDebug.assert('It appears you are trying to use the backtracking rerender feature without the "ember-glimmer" flag turned on. Please make sure that "ember-glimmer" is turned on.', _emberMetalFeatures.default('ember-glimmer'));
-  }
-
   var raise = _emberMetalDebug.assert;
   if (_emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     raise = function (message, test) {
@@ -13382,14 +13378,17 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-environment', 'ember-runti
     };
   }
 });
-enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-metal/features', 'ember-runtime/computed/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/string_registry'], function (exports, _emberMetal, _emberRuntimeIsEqual, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberMetalFeatures, _emberRuntimeComputedComputed_macros, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberRuntimeString_registry) {
+enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-metal/features', 'ember-runtime/computed/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/string_registry', 'ember-runtime/system/string'], function (exports, _emberMetal, _emberRuntimeIsEqual, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberMetalFeatures, _emberRuntimeComputedComputed_macros, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberRuntimeString_registry, _emberRuntimeSystemString) {
   /**
   @module ember
   @submodule ember-runtime
   */
 
-  // BEGIN IMPORTS
   'use strict';
+
+  exports.String = _emberRuntimeSystemString.default;
+
+  // BEGIN IMPORTS
 
   // END IMPORTS
 
@@ -13463,7 +13462,6 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
   EmComputed.collect = _emberRuntimeComputedReduce_computed_macros.collect;
 
-  _emberMetal.default.String = _emberRuntimeSystemString.default;
   _emberMetal.default.Object = _emberRuntimeSystemObject.default;
   _emberMetal.default.Container = _emberRuntimeSystemContainer.Container;
   _emberMetal.default.Registry = _emberRuntimeSystemContainer.Registry;
@@ -20148,12 +20146,12 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": true, "ember-glimmer": true, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": true, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+27d14db6";
+  exports.default = "2.9.0-null+675f6219";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
