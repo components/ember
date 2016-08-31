@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+675f6219
+ * @version   2.9.0-null+175a8d55
  */
 
 var enifed, requireModule, require, Ember;
@@ -4066,8 +4066,13 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       var _this = this;
 
       return this.boot().then(function () {
-        return _this.buildInstance().boot(options).then(function (instance) {
+        var instance = _this.buildInstance();
+
+        return instance.boot(options).then(function () {
           return instance.visit(url);
+        }).catch(function (error) {
+          _emberMetalRun_loop.default(instance, 'destroy');
+          throw error;
         });
       });
     }
@@ -7644,7 +7649,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-metal/utils', 'ember-view
         } else if (key === 'outlet') {
           return new _emberGlimmerSyntaxOutlet.OutletSyntax({ args: args });
         } else if (key === 'mount') {
-          return new _emberGlimmerSyntaxMount.MountSyntax({ args: args });
+          return _emberGlimmerSyntaxMount.MountSyntax.create(this, args, symbolTable);
         }
 
         var internalKey = builtInComponents[key];
@@ -10136,32 +10141,26 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
 enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug', 'ember-glimmer/utils/references', 'ember-routing/system/generate_controller', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug, _emberGlimmerUtilsReferences, _emberRoutingSystemGenerate_controller, _emberGlimmerSyntaxOutlet) {
   'use strict';
 
-  function makeComponentDefinition(vm) {
-    var env = vm.env;
-    var args = vm.getArgs();
-    var nameRef = args.positional.at(0);
-
-    var name = nameRef.value();
-
-    return new _glimmerReference.ConstReference(new MountDefinition(name, env));
-  }
-
   var MountSyntax = (function (_StatementSyntax) {
     babelHelpers.inherits(MountSyntax, _StatementSyntax);
 
-    function MountSyntax(_ref) {
-      var args = _ref.args;
-      var symbolTable = _ref.symbolTable;
+    MountSyntax.create = function create(env, args, symbolTable) {
 
+      var name = args.positional.at(0).inner();
+
+      var definition = new MountDefinition(name, env);
+
+      return new MountSyntax(definition, symbolTable);
+    };
+
+    function MountSyntax(definition, symbolTable) {
       _StatementSyntax.call(this);
-      this.definitionArgs = args;
-      this.definition = makeComponentDefinition;
-      this.args = _glimmerRuntime.ArgsSyntax.empty();
+      this.definition = definition;
       this.symbolTable = symbolTable;
     }
 
     MountSyntax.prototype.compile = function compile(builder) {
-      builder.component.dynamic(this.definitionArgs, this.definition, this.args, null, this.symbolTable, null);
+      builder.component.static(this.definition, _glimmerRuntime.ArgsSyntax.empty(), null, this.symbolTable, null);
     };
 
     return MountSyntax;
@@ -10176,9 +10175,9 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
       return args;
     };
 
-    MountManager.prototype.create = function create(_ref2, args, dynamicScope) {
-      var name = _ref2.name;
-      var env = _ref2.env;
+    MountManager.prototype.create = function create(_ref, args, dynamicScope) {
+      var name = _ref.name;
+      var env = _ref.env;
 
       dynamicScope.outletState = _glimmerReference.UNDEFINED_REFERENCE;
 
@@ -10189,15 +10188,15 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
       return { engine: engine };
     };
 
-    MountManager.prototype.layoutFor = function layoutFor(definition, _ref3, env) {
-      var engine = _ref3.engine;
+    MountManager.prototype.layoutFor = function layoutFor(definition, _ref2, env) {
+      var engine = _ref2.engine;
 
       var template = engine.lookup('template:application');
       return env.getCompiledBlock(_emberGlimmerSyntaxOutlet.OutletLayoutCompiler, template, engine);
     };
 
-    MountManager.prototype.getSelf = function getSelf(_ref4) {
-      var engine = _ref4.engine;
+    MountManager.prototype.getSelf = function getSelf(_ref3) {
+      var engine = _ref3.engine;
 
       var factory = engine._lookupFactory('controller:application') || _emberRoutingSystemGenerate_controller.generateControllerFactory(engine, 'application');
       return new _emberGlimmerUtilsReferences.RootReference(factory.create());
@@ -10207,8 +10206,8 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
       return null;
     };
 
-    MountManager.prototype.getDestructor = function getDestructor(_ref5) {
-      var engine = _ref5.engine;
+    MountManager.prototype.getDestructor = function getDestructor(_ref4) {
+      var engine = _ref4.engine;
 
       return engine;
     };
@@ -37838,7 +37837,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+675f6219";
+  exports.default = "2.9.0-null+175a8d55";
 });
 enifed('glimmer-node/index', ['exports', 'glimmer-node/lib/node-dom-helper'], function (exports, _glimmerNodeLibNodeDomHelper) {
   'use strict';

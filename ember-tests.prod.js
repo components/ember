@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+675f6219
+ * @version   2.9.0-null+175a8d55
  */
 
 var enifed, requireModule, require, Ember;
@@ -27327,6 +27327,111 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-metal/features', 'ember-metal/property_set', 'ember-application/system/engine', 'ember-application/system/engine-parent', 'container'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberMetalFeatures, _emberMetalProperty_set, _emberApplicationSystemEngine, _emberApplicationSystemEngineParent, _container) {
+  'use strict';
+
+  if (true) {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} assertions', (function (_RenderingTest) {
+      babelHelpers.inherits(_class, _RenderingTest);
+
+      function _class() {
+        _RenderingTest.apply(this, arguments);
+      }
+
+      _class.prototype['@test it asserts that only a single param is passed'] = function testItAssertsThatOnlyASingleParamIsPassed() {
+        var _this = this;
+
+        expectAssertion(function () {
+          _this.render('{{mount "chat" "foo"}}');
+        }, /You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}./i);
+      };
+
+      _class.prototype['@test it asserts that the engine name argument is quoted'] = function testItAssertsThatTheEngineNameArgumentIsQuoted() {
+        var _this2 = this;
+
+        expectAssertion(function () {
+          _this2.render('{{mount chat}}');
+        }, /The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}./i);
+      };
+
+      _class.prototype['@test it asserts that the specified engine is registered'] = function testItAssertsThatTheSpecifiedEngineIsRegistered() {
+        var _this3 = this;
+
+        expectAssertion(function () {
+          _this3.render('{{mount "chat"}}');
+        }, /You used `{{mount 'chat'}}`, but the engine 'chat' can not be found./i);
+      };
+
+      return _class;
+    })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+    _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} test', (function (_ApplicationTest) {
+      babelHelpers.inherits(_class2, _ApplicationTest);
+
+      function _class2() {
+        _ApplicationTest.call(this);
+
+        var engineRegistrations = this.engineRegistrations = {};
+
+        this.registerEngine('chat', _emberApplicationSystemEngine.default.extend({
+          router: null,
+
+          init: function () {
+            var _this4 = this;
+
+            this._super.apply(this, arguments);
+
+            Object.keys(engineRegistrations).forEach(function (fullName) {
+              _this4.register(fullName, engineRegistrations[fullName]);
+            });
+          }
+        }));
+
+        this.registerTemplate('index', '{{mount "chat"}}');
+      }
+
+      _class2.prototype['@test it boots an engine, instantiates its application controller, and renders its application template'] = function testItBootsAnEngineInstantiatesItsApplicationControllerAndRendersItsApplicationTemplate(assert) {
+        var _this5 = this;
+
+        this.engineRegistrations['template:application'] = _emberGlimmerTestsUtilsHelpers.compile('<h2>Chat here, {{username}}</h2>', { moduleName: 'application' });
+
+        var controller = undefined;
+
+        this.engineRegistrations['controller:application'] = _emberRuntimeControllersController.default.extend({
+          username: 'dgeb',
+
+          init: function () {
+            this._super();
+            controller = this;
+          }
+        });
+
+        return this.visit('/').then(function () {
+          assert.ok(controller, 'engine\'s application controller has been instantiated');
+
+          var engineInstance = _container.getOwner(controller);
+          assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(engineInstance), _this5.applicationInstance, 'engine instance has the application instance as its parent');
+
+          _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+
+          _this5.runTask(function () {
+            return _emberMetalProperty_set.set(controller, 'username', 'chancancode');
+          });
+
+          _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, chancancode</h2>' });
+
+          _this5.runTask(function () {
+            return _emberMetalProperty_set.set(controller, 'username', 'dgeb');
+          });
+
+          _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+        });
+      };
+
+      return _class2;
+    })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
+  }
+});
 enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
 
@@ -31806,7 +31911,7 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
     })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
   }
 });
-enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal/assign', 'ember-application/system/engine', 'ember-views/component_lookup'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetalAssign, _emberApplicationSystemEngine, _emberViewsComponent_lookup) {
+enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-views/component_lookup'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberViewsComponent_lookup) {
   'use strict';
 
   exports.TestCase = _emberGlimmerTestsUtilsAbstractTestCase.TestCase;
@@ -31819,14 +31924,6 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
       _AbstractApplicationTest.apply(this, arguments);
     }
 
-    babelHelpers.createClass(ApplicationTest, [{
-      key: 'applicationOptions',
-      get: function () {
-        var _assign;
-
-        return _emberMetalAssign.default(_AbstractApplicationTest.prototype.applicationOptions, (_assign = {}, _assign[_emberApplicationSystemEngine.GLIMMER] = true, _assign));
-      }
-    }]);
     return ApplicationTest;
   })(_emberGlimmerTestsUtilsAbstractTestCase.AbstractApplicationTest);
 
