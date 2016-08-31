@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.3
+ * @version   2.8.0-beta.4
  */
 
 var enifed, requireModule, require, Ember;
@@ -4017,18 +4017,9 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       var options = arguments.length <= 1 || arguments[1] === undefined ? new BootOptions() : arguments[1];
 
       registry.register('-environment:main', options.toEnvironment(), { instantiate: false });
-      registry.injection('view', '_environment', '-environment:main');
-      registry.injection('route', '_environment', '-environment:main');
-
       registry.register('service:-document', options.document, { instantiate: false });
 
-      if (options.isInteractive) {
-        registry.injection('view', 'renderer', 'renderer:-dom');
-        registry.injection('component', 'renderer', 'renderer:-dom');
-      } else {
-        registry.injection('view', 'renderer', 'renderer:-inert');
-        registry.injection('component', 'renderer', 'renderer:-inert');
-      }
+      this._super(registry, options);
     }
   });
 
@@ -4202,6 +4193,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     var env = _emberMetalAssign.default({}, _emberEnvironment.environment);
     // For compatibility with existing code
     env.hasDOM = this.isBrowser;
+    env.isInteractive = this.isInteractive;
     env.options = this;
     return env;
   };
@@ -4229,7 +4221,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require) {
+enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container/registry', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'require'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _containerRegistry, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _require) {
   /**
   @module ember
   @submodule ember-application
@@ -5135,7 +5127,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
   function commonSetupRegistry(registry) {
     registry.register('-view-registry:main', { create: function () {
-        return {};
+        return _emberMetalDictionary.default(null);
       } });
 
     registry.register('route:basic', _emberRoutingSystemRoute.default);
@@ -5246,10 +5238,8 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
       @param options {Object}
       @return {Promise<Ember.EngineInstance,Error>}
     */
-    boot: function () {
+    boot: function (options) {
       var _this = this;
-
-      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
       if (this._bootPromise) {
         return this._bootPromise;
@@ -5283,11 +5273,19 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
         this.cloneParentDependencies();
       }
 
+      this.setupRegistry(options);
+
       this.base.runInstanceInitializers(this);
 
       this._booted = true;
 
       return this;
+    },
+
+    setupRegistry: function () {
+      var options = arguments.length <= 0 || arguments[0] === undefined ? this.__container__.lookup('-environment:main') : arguments[0];
+
+      this.constructor.setupRegistry(this.__registry__, options);
     },
 
     /**
@@ -5309,6 +5307,32 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
     willDestroy: function () {
       this._super.apply(this, arguments);
       _emberMetalRun_loop.default(this.__container__, 'destroy');
+    }
+  });
+
+  EngineInstance.reopenClass({
+    /**
+     @private
+     @method setupRegistry
+     @param {Registry} registry
+     @param {BootOptions} options
+     */
+    setupRegistry: function (registry, options) {
+      // when no options/environment is present, do nothing
+      if (!options) {
+        return;
+      }
+
+      registry.injection('view', '_environment', '-environment:main');
+      registry.injection('route', '_environment', '-environment:main');
+
+      if (options.isInteractive) {
+        registry.injection('view', 'renderer', 'renderer:-dom');
+        registry.injection('component', 'renderer', 'renderer:-dom');
+      } else {
+        registry.injection('view', 'renderer', 'renderer:-inert');
+        registry.injection('component', 'renderer', 'renderer:-inert');
+      }
     }
   });
 
@@ -5350,11 +5374,22 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
         var parent = _emberApplicationSystemEngineParent.getEngineParent(this);
 
-        ['route:basic', 'event_dispatcher:main', 'service:-routing'].forEach(function (key) {
+        var registrations = ['route:basic', 'event_dispatcher:main', 'service:-routing'];
+
+        if (false) {
+          registrations.push('service:-glimmer-environment');
+        }
+
+        registrations.forEach(function (key) {
           return _this2.register(key, parent.resolveRegistration(key));
         });
 
-        ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main', '-environment:main'].forEach(function (key) {
+        var env = parent.lookup('-environment:main');
+        this.register('-environment:main', env, { instantiate: false });
+
+        var singletons = ['router:main', _containerRegistry.privatize(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert')];
+
+        singletons.forEach(function (key) {
           return _this2.register(key, parent.lookup(key), { instantiate: false });
         });
 
@@ -13693,7 +13728,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
 
   Renderer.prototype.revalidateTopLevelView = function Renderer_revalidateTopLevelView(view) {
     // This guard prevents revalidation on an already-destroyed view.
-    if (view._renderNode.lastResult) {
+    if (view._renderNode && view._renderNode.lastResult) {
       view._renderNode.lastResult.revalidate(view._env);
       this.dispatchLifecycleHooks(view._env);
       this.clearRenderedViews(view._env);
@@ -13878,6 +13913,7 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
       if (_lastResult) {
         _htmlbarsRuntime.internal.clearMorph(renderNode, _lastResult.env, shouldDestroy !== false);
       }
+
       if (!shouldDestroy) {
         view._transitionTo('preRender');
       }
@@ -13939,11 +13975,15 @@ enifed('ember-htmlbars/renderer', ['exports', 'ember-metal/run_loop', 'ember-met
   };
   exports.InteractiveRenderer = InteractiveRenderer;
 });
-enifed('ember-htmlbars/setup-registry', ['exports', 'ember-htmlbars/renderer', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/templates/top-level-view', 'ember-htmlbars/views/outlet', 'ember-views/views/view', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/link-to', 'ember-views/mixins/template_support'], function (exports, _emberHtmlbarsRenderer, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsTemplatesTopLevelView, _emberHtmlbarsViewsOutlet, _emberViewsViewsView, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsLinkTo, _emberViewsMixinsTemplate_support) {
+enifed('ember-htmlbars/setup-registry', ['exports', 'container/registry', 'ember-htmlbars/renderer', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/templates/top-level-view', 'ember-htmlbars/views/outlet', 'ember-views/views/view', 'ember-htmlbars/component', 'ember-htmlbars/components/text_field', 'ember-htmlbars/components/text_area', 'ember-htmlbars/components/checkbox', 'ember-htmlbars/components/link-to', 'ember-views/mixins/template_support'], function (exports, _containerRegistry, _emberHtmlbarsRenderer, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsTemplatesTopLevelView, _emberHtmlbarsViewsOutlet, _emberViewsViewsView, _emberHtmlbarsComponent, _emberHtmlbarsComponentsText_field, _emberHtmlbarsComponentsText_area, _emberHtmlbarsComponentsCheckbox, _emberHtmlbarsComponentsLinkTo, _emberViewsMixinsTemplate_support) {
   'use strict';
 
   exports.setupApplicationRegistry = setupApplicationRegistry;
   exports.setupEngineRegistry = setupEngineRegistry;
+
+  var _templateObject = _taggedTemplateLiteralLoose(['component:-default'], ['component:-default']);
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
   function setupApplicationRegistry(registry) {
     registry.register('renderer:-dom', _emberHtmlbarsRenderer.InteractiveRenderer);
@@ -13968,6 +14008,8 @@ enifed('ember-htmlbars/setup-registry', ['exports', 'ember-htmlbars/renderer', '
     registry.register('component:-text-area', _emberHtmlbarsComponentsText_area.default);
     registry.register('component:-checkbox', _emberHtmlbarsComponentsCheckbox.default);
     registry.register('component:link-to', _emberHtmlbarsComponentsLinkTo.default);
+
+    registry.register(_containerRegistry.privatize(_templateObject), _emberHtmlbarsComponent.default);
   }
 });
 enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-htmlbars/streams/stream', 'ember-htmlbars/streams/utils'], function (exports, _emberHtmlbarsStreamsStream, _emberHtmlbarsStreamsUtils) {
@@ -16308,7 +16350,14 @@ enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-htmlbars/streams/uti
         node.shouldReceiveAttrs = true;
       }
 
-      node.ownerNode.emberView.scheduleRevalidate(node, _emberHtmlbarsStreamsUtils.labelFor(stream));
+      // When the toplevelView (aka ownerView) is being torn
+      // down (generally in tests), `ownerNode.emberView` will be
+      // set to `null` (to prevent further work while tearing down)
+      // so we need to guard against that case here
+      var ownerView = node.ownerNode.emberView;
+      if (ownerView) {
+        ownerView.scheduleRevalidate(node, _emberHtmlbarsStreamsUtils.labelFor(stream));
+      }
     }));
   }
 });
@@ -27911,7 +27960,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
        The string values provided for the template name, and controller
       will eventually pass through to the resolver for lookup. See
       Ember.Resolver for how these are mapped to JavaScript objects in your
-      application.
+      application. The template to render into needs to be related to  either the
+      current route or one of its ancestors.
        Not all options need to be passed to `render`. Default values will be used
       based on the name of the route specified in the router or the Route's
       `controllerName` and `templateName` properties.
@@ -28478,6 +28528,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
         this._engineInstances = new _emberMetalEmpty_object.default();
         this._engineInfoByRoute = new _emberMetalEmpty_object.default();
       }
+
+      // avoid shaping issues with checks during `_setOutlets`
+      this.isDestroyed = false;
+      this.isDestroying = false;
     },
 
     /*
@@ -28601,6 +28655,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     },
 
     _setOutlets: function () {
+      // This is triggered async during Ember.Route#willDestroy.
+      // If the router is also being destroyed we do not want to
+      // to create another this._toplevelView (and leak the renderer)
+      if (this.isDestroying || this.isDestroyed) {
+        return;
+      }
+
       var handlerInfos = this.router.currentHandlerInfos;
       var route = undefined;
       var defaultParentState = undefined;
@@ -28784,12 +28845,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     },
 
     willDestroy: function () {
-      if (this._toplevelView) {
-        this._toplevelView.destroy();
-        this._toplevelView = null;
-      }
-      this._super.apply(this, arguments);
-
       if (true) {
         var instances = this._engineInstances;
         for (var _name in instances) {
@@ -28798,6 +28853,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
           }
         }
       }
+
+      if (this._toplevelView) {
+        this._toplevelView.destroy();
+        this._toplevelView = null;
+      }
+      this._super.apply(this, arguments);
 
       this.reset();
     },
@@ -29405,7 +29466,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
       handlerInfo = handlerInfos[i];
       handler = handlerInfo.handler;
 
-      if (handler.actions && handler.actions[name]) {
+      if (handler && handler.actions && handler.actions[name]) {
         if (handler.actions[name].apply(handler, args) === true) {
           eventWasHandled = true;
         } else {
@@ -36714,11 +36775,11 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
     },
 
     arrangedContentArrayWillChange: function (item, idx, removedCnt, addedCnt) {
-      _emberRuntimeMixinsArray.arrayContentWillChange(this, idx, removedCnt, addedCnt);
+      this.arrayContentWillChange(idx, removedCnt, addedCnt);
     },
 
     arrangedContentArrayDidChange: function (item, idx, removedCnt, addedCnt) {
-      _emberRuntimeMixinsArray.arrayContentDidChange(this, idx, removedCnt, addedCnt);
+      this.arrayContentDidChange(idx, removedCnt, addedCnt);
     },
 
     init: function () {
@@ -40905,17 +40966,26 @@ enifed('ember-views/system/utils', ['exports'], function (exports) {
     return range.getBoundingClientRect();
   }
 });
-enifed('ember-views/utils/lookup-component', ['exports'], function (exports) {
+enifed('ember-views/utils/lookup-component', ['exports', 'container/registry'], function (exports, _containerRegistry) {
   'use strict';
 
   exports.default = lookupComponent;
+
+  var _templateObject = _taggedTemplateLiteralLoose(['component:-default'], ['component:-default']);
+
+  function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
+
   function lookupComponentPair(componentLookup, owner, name, options) {
     var component = componentLookup.componentFor(name, owner, options);
     var layout = componentLookup.layoutFor(name, owner, options);
-    return {
-      component: component,
-      layout: layout
-    };
+
+    var result = { layout: layout, component: component };
+
+    if (layout && !component) {
+      result.component = owner._lookupFactory(_containerRegistry.privatize(_templateObject));
+    }
+
+    return result;
   }
 
   function lookupComponent(owner, name, options) {
@@ -41819,7 +41889,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.3";
+  exports.default = "2.8.0-beta.4";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -45028,11 +45098,145 @@ enifed("morph-range/utils", ["exports"], function (exports) {
     } while (node);
   }
 });
-enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer/normalizer'], function (exports, _routeRecognizerDsl, _routeRecognizerNormalizer) {
-  'use strict';
+enifed("route-recognizer", ["exports"], function (exports) {
+  "use strict";
 
-  var normalizePath = _routeRecognizerNormalizer.default.normalizePath;
-  var normalizeSegment = _routeRecognizerNormalizer.default.normalizeSegment;
+  function Target(path, matcher, delegate) {
+    this.path = path;
+    this.matcher = matcher;
+    this.delegate = delegate;
+  }
+
+  Target.prototype = {
+    to: function (target, callback) {
+      var delegate = this.delegate;
+
+      if (delegate && delegate.willAddRoute) {
+        target = delegate.willAddRoute(this.matcher.target, target);
+      }
+
+      this.matcher.add(this.path, target);
+
+      if (callback) {
+        if (callback.length === 0) {
+          throw new Error("You must have an argument in the function passed to `to`");
+        }
+        this.matcher.addChild(this.path, target, callback, this.delegate);
+      }
+      return this;
+    }
+  };
+
+  function Matcher(target) {
+    this.routes = {};
+    this.children = {};
+    this.target = target;
+  }
+
+  Matcher.prototype = {
+    add: function (path, handler) {
+      this.routes[path] = handler;
+    },
+
+    addChild: function (path, target, callback, delegate) {
+      var matcher = new Matcher(target);
+      this.children[path] = matcher;
+
+      var match = generateMatch(path, matcher, delegate);
+
+      if (delegate && delegate.contextEntered) {
+        delegate.contextEntered(target, match);
+      }
+
+      callback(match);
+    }
+  };
+
+  function generateMatch(startingPath, matcher, delegate) {
+    return function (path, nestedCallback) {
+      var fullPath = startingPath + path;
+
+      if (nestedCallback) {
+        nestedCallback(generateMatch(fullPath, matcher, delegate));
+      } else {
+        return new Target(startingPath + path, matcher, delegate);
+      }
+    };
+  }
+
+  function addRoute(routeArray, path, handler) {
+    var len = 0;
+    for (var i = 0; i < routeArray.length; i++) {
+      len += routeArray[i].path.length;
+    }
+
+    path = path.substr(len);
+    var route = { path: path, handler: handler };
+    routeArray.push(route);
+  }
+
+  function eachRoute(baseRoute, matcher, callback, binding) {
+    var routes = matcher.routes;
+
+    for (var path in routes) {
+      if (routes.hasOwnProperty(path)) {
+        var routeArray = baseRoute.slice();
+        addRoute(routeArray, path, routes[path]);
+
+        if (matcher.children[path]) {
+          eachRoute(routeArray, matcher.children[path], callback, binding);
+        } else {
+          callback.call(binding, routeArray);
+        }
+      }
+    }
+  }
+
+  function map(callback, addRouteCallback) {
+    var matcher = new Matcher();
+
+    callback(generateMatch("", matcher, this.delegate));
+
+    eachRoute([], matcher, function (route) {
+      if (addRouteCallback) {
+        addRouteCallback(this, route);
+      } else {
+        this.add(route);
+      }
+    }, this);
+  }
+
+  // Normalizes percent-encoded values in `path` to upper-case and decodes percent-encoded
+  // values that are not reserved (i.e., unicode characters, emoji, etc). The reserved
+  // chars are "/" and "%".
+  // Safe to call multiple times on the same path.
+  function normalizePath(path) {
+    return path.split('/').map(normalizeSegment).join('/');
+  }
+
+  // We want to ensure the characters "%" and "/" remain in percent-encoded
+  // form when normalizing paths, so replace them with their encoded form after
+  // decoding the rest of the path
+  var SEGMENT_RESERVED_CHARS = /%|\//g;
+  function normalizeSegment(segment) {
+    return decodeURIComponent(segment).replace(SEGMENT_RESERVED_CHARS, encodeURIComponent);
+  }
+
+  // We do not want to encode these characters when generating dynamic path segments
+  // See https://tools.ietf.org/html/rfc3986#section-3.3
+  // sub-delims: "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
+  // others allowed by RFC 3986: ":", "@"
+  //
+  // First encode the entire path segment, then decode any of the encoded special chars.
+  //
+  // The chars "!", "'", "(", ")", "*" do not get changed by `encodeURIComponent`,
+  // so the possible encoded chars are:
+  // ['%24', '%26', '%2B', '%2C', '%3B', '%3D', '%3A', '%40'].
+  var PATH_SEGMENT_ENCODINGS = /%(?:24|26|2B|2C|3B|3D|3A|40)/g;
+
+  function encodePathSegment(str) {
+    return encodeURIComponent(str).replace(PATH_SEGMENT_ENCODINGS, decodeURIComponent);
+  }
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
@@ -45098,7 +45302,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
     generate: function (params) {
       if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-        return encodeURIComponent(params[this.name]);
+        return encodePathSegment(params[this.name]);
       } else {
         return params[this.name];
       }
@@ -45138,7 +45342,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
   // The `names` will be populated with the paramter name for each dynamic/star
   // segment. `shouldDecodes` will be populated with a boolean for each dyanamic/star
   // segment, indicating whether it should be decoded during recognition.
-  function parse(route, names, specificity, shouldDecodes) {
+  function parse(route, names, types, shouldDecodes) {
     // normalize route as not starting with a "/". Recognition will
     // also normalize.
     if (route.charAt(0) === "/") {
@@ -45148,24 +45352,6 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     var segments = route.split("/");
     var results = new Array(segments.length);
 
-    // A routes has specificity determined by the order that its different segments
-    // appear in. This system mirrors how the magnitude of numbers written as strings
-    // works.
-    // Consider a number written as: "abc". An example would be "200". Any other number written
-    // "xyz" will be smaller than "abc" so long as `a > x`. For instance, "199" is smaller
-    // then "200", even though "y" and "z" (which are both 9) are larger than "0" (the value
-    // of (`b` and `c`). This is because the leading symbol, "2", is larger than the other
-    // leading symbol, "1".
-    // The rule is that symbols to the left carry more weight than symbols to the right
-    // when a number is written out as a string. In the above strings, the leading digit
-    // represents how many 100's are in the number, and it carries more weight than the middle
-    // number which represents how many 10's are in the number.
-    // This system of number magnitude works well for route specificity, too. A route written as
-    // `a/b/c` will be more specific than `x/y/z` as long as `a` is more specific than
-    // `x`, irrespective of the other parts.
-    // Because of this similarity, we assign each type of segment a number value written as a
-    // string. We can find the specificity of compound routes by concatenating these strings
-    // together, from left to right.
     for (var i = 0; i < segments.length; i++) {
       var segment = segments[i],
           match;
@@ -45174,18 +45360,17 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
         results[i] = new DynamicSegment(match[1]);
         names.push(match[1]);
         shouldDecodes.push(true);
-        specificity.val += '3';
+        types.dynamics++;
       } else if (match = segment.match(/^\*([^\/]+)$/)) {
         results[i] = new StarSegment(match[1]);
         names.push(match[1]);
         shouldDecodes.push(false);
-        specificity.val += '1';
+        types.stars++;
       } else if (segment === "") {
         results[i] = new EpsilonSegment();
-        specificity.val += '2';
       } else {
         results[i] = new StaticSegment(segment);
-        specificity.val += '4';
+        types.statics++;
       }
     }
 
@@ -45289,10 +45474,39 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     }
   };
 
-  // Sort the routes by specificity
+  // This is a somewhat naive strategy, but should work in a lot of cases
+  // A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
+  //
+  // This strategy generally prefers more static and less dynamic matching.
+  // Specifically, it
+  //
+  //  * prefers fewer stars to more, then
+  //  * prefers using stars for less of the match to more, then
+  //  * prefers fewer dynamic segments to more, then
+  //  * prefers more static segments to more
   function sortSolutions(states) {
     return states.sort(function (a, b) {
-      return b.specificity.val < a.specificity.val ? -1 : b.specificity.val === a.specificity.val ? 0 : 1;
+      if (a.types.stars !== b.types.stars) {
+        return a.types.stars - b.types.stars;
+      }
+
+      if (a.types.stars) {
+        if (a.types.statics !== b.types.statics) {
+          return b.types.statics - a.types.statics;
+        }
+        if (a.types.dynamics !== b.types.dynamics) {
+          return b.types.dynamics - a.types.dynamics;
+        }
+      }
+
+      if (a.types.dynamics !== b.types.dynamics) {
+        return a.types.dynamics - b.types.dynamics;
+      }
+      if (a.types.statics !== b.types.statics) {
+        return b.types.statics - a.types.statics;
+      }
+
+      return 0;
     });
   }
 
@@ -45386,7 +45600,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     add: function (routes, options) {
       var currentState = this.rootState,
           regex = "^",
-          specificity = { val: '' },
+          types = { statics: 0, dynamics: 0, stars: 0 },
           handlers = new Array(routes.length),
           allSegments = [],
           name;
@@ -45398,7 +45612,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
             names = [],
             shouldDecodes = [];
 
-        var segments = parse(route.path, names, specificity, shouldDecodes);
+        var segments = parse(route.path, names, types, shouldDecodes);
 
         allSegments = allSegments.concat(segments);
 
@@ -45430,7 +45644,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
 
       currentState.handlers = handlers;
       currentState.regex = new RegExp(regex + "$");
-      currentState.specificity = specificity;
+      currentState.types = types;
 
       if (name = options && options.as) {
         this.names[name] = {
@@ -45491,7 +45705,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
       return output;
     },
 
-    generateQueryString: function (params, handlers) {
+    generateQueryString: function (params) {
       var pairs = [];
       var keys = [];
       for (var key in params) {
@@ -45560,7 +45774,6 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
       var states = [this.rootState],
           pathLen,
           i,
-          l,
           queryStart,
           queryParams = {},
           hashStart,
@@ -45626,213 +45839,21 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     }
   };
 
-  RouteRecognizer.prototype.map = _routeRecognizerDsl.default;
+  RouteRecognizer.prototype.map = map;
 
-  RouteRecognizer.VERSION = '0.2.0';
+  RouteRecognizer.VERSION = '0.2.6';
 
   // Set to false to opt-out of encoding and decoding path segments.
   // See https://github.com/tildeio/route-recognizer/pull/55
   RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
 
-  RouteRecognizer.Normalizer = _routeRecognizerNormalizer.default;
+  RouteRecognizer.Normalizer = {
+    normalizeSegment: normalizeSegment,
+    normalizePath: normalizePath,
+    encodePathSegment: encodePathSegment
+  };
 
   exports.default = RouteRecognizer;
-});
-enifed("route-recognizer/dsl", ["exports"], function (exports) {
-  "use strict";
-
-  function Target(path, matcher, delegate) {
-    this.path = path;
-    this.matcher = matcher;
-    this.delegate = delegate;
-  }
-
-  Target.prototype = {
-    to: function (target, callback) {
-      var delegate = this.delegate;
-
-      if (delegate && delegate.willAddRoute) {
-        target = delegate.willAddRoute(this.matcher.target, target);
-      }
-
-      this.matcher.add(this.path, target);
-
-      if (callback) {
-        if (callback.length === 0) {
-          throw new Error("You must have an argument in the function passed to `to`");
-        }
-        this.matcher.addChild(this.path, target, callback, this.delegate);
-      }
-      return this;
-    }
-  };
-
-  function Matcher(target) {
-    this.routes = {};
-    this.children = {};
-    this.target = target;
-  }
-
-  Matcher.prototype = {
-    add: function (path, handler) {
-      this.routes[path] = handler;
-    },
-
-    addChild: function (path, target, callback, delegate) {
-      var matcher = new Matcher(target);
-      this.children[path] = matcher;
-
-      var match = generateMatch(path, matcher, delegate);
-
-      if (delegate && delegate.contextEntered) {
-        delegate.contextEntered(target, match);
-      }
-
-      callback(match);
-    }
-  };
-
-  function generateMatch(startingPath, matcher, delegate) {
-    return function (path, nestedCallback) {
-      var fullPath = startingPath + path;
-
-      if (nestedCallback) {
-        nestedCallback(generateMatch(fullPath, matcher, delegate));
-      } else {
-        return new Target(startingPath + path, matcher, delegate);
-      }
-    };
-  }
-
-  function addRoute(routeArray, path, handler) {
-    var len = 0;
-    for (var i = 0; i < routeArray.length; i++) {
-      len += routeArray[i].path.length;
-    }
-
-    path = path.substr(len);
-    var route = { path: path, handler: handler };
-    routeArray.push(route);
-  }
-
-  function eachRoute(baseRoute, matcher, callback, binding) {
-    var routes = matcher.routes;
-
-    for (var path in routes) {
-      if (routes.hasOwnProperty(path)) {
-        var routeArray = baseRoute.slice();
-        addRoute(routeArray, path, routes[path]);
-
-        if (matcher.children[path]) {
-          eachRoute(routeArray, matcher.children[path], callback, binding);
-        } else {
-          callback.call(binding, routeArray);
-        }
-      }
-    }
-  }
-
-  exports.default = function (callback, addRouteCallback) {
-    var matcher = new Matcher();
-
-    callback(generateMatch("", matcher, this.delegate));
-
-    eachRoute([], matcher, function (route) {
-      if (addRouteCallback) {
-        addRouteCallback(this, route);
-      } else {
-        this.add(route);
-      }
-    }, this);
-  };
-});
-enifed('route-recognizer/normalizer', ['exports'], function (exports) {
-  // Match percent-encoded values (e.g. %3a, %3A, %25)
-  'use strict';
-
-  var PERCENT_ENCODED_VALUES = /%[a-fA-F0-9]{2}/g;
-
-  function toUpper(str) {
-    return str.toUpperCase();
-  }
-
-  // Turn percent-encoded values to upper case ("%3a" -> "%3A")
-  function percentEncodedValuesToUpper(string) {
-    return string.replace(PERCENT_ENCODED_VALUES, toUpper);
-  }
-
-  // Normalizes percent-encoded values to upper-case and decodes percent-encoded
-  // values that are not reserved (like unicode characters).
-  // Safe to call multiple times on the same path.
-  function normalizePath(path) {
-    return path.split('/').map(normalizeSegment).join('/');
-  }
-
-  function percentEncode(char) {
-    return '%' + charToHex(char);
-  }
-
-  function charToHex(char) {
-    return char.charCodeAt(0).toString(16).toUpperCase();
-  }
-
-  // Decodes percent-encoded values in the string except those
-  // characters in `reservedHex`, where `reservedHex` is an array of 2-character
-  // percent-encodings
-  function decodeURIComponentExcept(string, reservedHex) {
-    if (string.indexOf('%') === -1) {
-      // If there is no percent char, there is no decoding that needs to
-      // be done and we exit early
-      return string;
-    }
-    string = percentEncodedValuesToUpper(string);
-
-    var result = '';
-    var buffer = '';
-    var idx = 0;
-    while (idx < string.length) {
-      var pIdx = string.indexOf('%', idx);
-
-      if (pIdx === -1) {
-        // no percent char
-        buffer += string.slice(idx);
-        break;
-      } else {
-        // found percent char
-        buffer += string.slice(idx, pIdx);
-        idx = pIdx + 3;
-
-        var hex = string.slice(pIdx + 1, pIdx + 3);
-        var encoded = '%' + hex;
-
-        if (reservedHex.indexOf(hex) === -1) {
-          // encoded is not in reserved set, add to buffer
-          buffer += encoded;
-        } else {
-          result += decodeURIComponent(buffer);
-          buffer = '';
-          result += encoded;
-        }
-      }
-    }
-    result += decodeURIComponent(buffer);
-    return result;
-  }
-
-  // Leave these characters in encoded state in segments
-  var reservedSegmentChars = ['%', '/'];
-  var reservedHex = reservedSegmentChars.map(charToHex);
-
-  function normalizeSegment(segment) {
-    return decodeURIComponentExcept(segment, reservedHex);
-  }
-
-  var Normalizer = {
-    normalizeSegment: normalizeSegment,
-    normalizePath: normalizePath
-  };
-
-  exports.default = Normalizer;
 });
 enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
   'use strict';
