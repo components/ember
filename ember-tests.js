@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+0cae283b
+ * @version   2.9.0-null+3ec11452
  */
 
 var enifed, requireModule, require, Ember;
@@ -11084,7 +11084,7 @@ babelHelpers.classCallCheck(this, MutableParamTestGenerator);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeSystemObject, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/events', 'ember-runtime/system/object', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/system/native_array', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-runtime/inject', 'ember-runtime/system/service'], function (exports, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalMixin, _emberMetalEvents, _emberRuntimeSystemObject, _emberGlimmerTestsUtilsHelpers, _emberRuntimeSystemNative_array, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberMetalComputed, _emberMetalRun_loop, _emberRuntimeInject, _emberRuntimeSystemService) {
   /* globals EmberDev */
   'use strict';
 
@@ -14035,6 +14035,22 @@ babelHelpers.classCallCheck(this, _class);
       this.teardown();
 
       this.assert.ok(true, 'no errors during teardown');
+    };
+
+    _class.prototype['@test using didInitAttrs as an event is deprecated'] = function testUsingDidInitAttrsAsAnEventIsDeprecated(assert) {
+      var _this72 = this;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          foo: _emberMetalEvents.on('didInitAttrs', function () {
+            assert.ok(true, 'should fire `didInitAttrs` event');
+          })
+        })
+      });
+
+      expectDeprecation(function () {
+        _this72.render('{{foo-bar}}');
+      }, /didInitAttrs called/);
     };
 
     return _class;
@@ -19320,9 +19336,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         _RenderingTest.apply(this, arguments);
       }
 
-      // Skipped since features flags during tests are tricky.
-
-      _class.prototype['@skip action should fire interaction event'] = function skipActionShouldFireInteractionEvent() {
+      _class.prototype['@test action should fire interaction event'] = function testActionShouldFireInteractionEvent() {
         var _this = this;
 
         var subscriberCalled = false;
@@ -25792,7 +25806,7 @@ enifed('ember-glimmer/tests/integration/helpers/readonly-test', ['exports', 'emb
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-routing/system/router'], function (exports, _emberMetalMixin, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberRoutingSystemRouter) {
+enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberMetalMixin, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{render}}', (function (_RenderingTest) {
@@ -26109,20 +26123,8 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       }, 'The second argument of {{render}} must be a path, e.g. {{render "post" post}}.');
     };
 
-    _class.prototype['@skip should render a template without a model only once'] = function skipShouldRenderATemplateWithoutAModelOnlyOnce() {
-      var _this12 = this;
-
-      this.owner.register('controller:home', _emberRuntimeControllersController.default.extend());
-      this.owner.register('router:main', _emberRoutingSystemRouter.default.extend());
-      this.registerTemplate('home', '<p>BYE</p>');
-
-      expectAssertion(function () {
-        _this12.render('<h1>HI</h1>{{render \'home\'}}<hr/>{{render \'home\'}}');
-      }, /\{\{render\}\} helper once/i);
-    };
-
     _class.prototype['@test should set router as target when action not found on parentController is not found'] = function testShouldSetRouterAsTargetWhenActionNotFoundOnParentControllerIsNotFound(assert) {
-      var _this13 = this;
+      var _this12 = this;
 
       var postController = undefined;
       this.registerTemplate('post', 'post template');
@@ -26143,7 +26145,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       this.owner.register('router:main', routerStub, { instantiate: false });
 
       expectDeprecation(function () {
-        _this13.render('{{render \'post\' post1}}');
+        _this12.render('{{render \'post\' post1}}');
       }, /Please refactor [\w\{\}"` ]+ to a component/);
 
       postController.send('someAction');
@@ -35408,7 +35410,7 @@ enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], functio
     }, 'the assigned message was displayed');
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-glimmer', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberGlimmer, _emberMetalEvents) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberMetalEvents) {
   'use strict';
 
   QUnit.module('system/props/events_test');
@@ -35675,14 +35677,6 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
 
     _emberMetalEvents.sendEvent(obj, 'baz');
     equal(triggered, 1, 'should invoke from subclass property');
-  });
-
-  QUnit.skip('DEPRECATED: adding didInitAttrs as a listener is deprecated', function () {
-    var obj = _emberGlimmer.Component.create();
-
-    expectDeprecation(function () {
-      _emberMetalEvents.addListener(obj, 'didInitAttrs');
-    }, /didInitAttrs called in <\Ember.Component\:ember[\d+]+>\./);
   });
 });
 enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expand_properties'], function (exports, _emberMetalExpand_properties) {
