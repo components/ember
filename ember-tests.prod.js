@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6dda0444
+ * @version   2.9.0-null+6c2b702d
  */
 
 var enifed, requireModule, require, Ember;
@@ -27749,6 +27749,58 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       });
 
       this.assertText('HIBAR');
+    };
+
+    _class.prototype['@test outletState can pass through user code (liquid-fire initimate API) '] = function testOutletStateCanPassThroughUserCodeLiquidFireInitimateAPI() {
+      var _this7 = this;
+
+      this.registerTemplate('outer', 'A{{#-with-dynamic-vars outletState=(identity (-get-dynamic-var "outletState"))}}B{{outlet}}D{{/-with-dynamic-vars}}E');
+      this.registerTemplate('inner', 'C');
+
+      // This looks like it doesn't do anything, but its presence
+      // guarantees that the outletState gets converted from a reference
+      // to a value and then back to a reference. That is what we're
+      // testing here.
+      this.registerHelper('identity', function (_ref) {
+        var a = _ref[0];
+        return a;
+      });
+
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'outer',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:outer')
+        },
+        outlets: {
+          main: {
+            render: {
+              owner: this.owner,
+              into: undefined,
+              outlet: 'main',
+              name: 'inner',
+              controller: {},
+              ViewClass: undefined,
+              template: this.owner.lookup('template:inner')
+            },
+            outlets: Object.create(null)
+          }
+        }
+      };
+
+      this.runTask(function () {
+        return _this7.component.setOutletState({ render: {}, outlets: { main: outletState } });
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('ABCDE');
+
+      this.assertStableRerender();
     };
 
     return _class;
