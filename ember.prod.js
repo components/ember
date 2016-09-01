@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6c2b702d
+ * @version   2.9.0-null+b46f3916
  */
 
 var enifed, requireModule, require, Ember;
@@ -9165,8 +9165,8 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
   if (false || false) {
     runInTransaction = _emberMetalTransaction.default;
   } else {
-    runInTransaction = function (callback) {
-      callback();
+    runInTransaction = function (context, methodName) {
+      context[methodName]();
       return false;
     };
   }
@@ -9196,6 +9196,51 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     };
 
     return DynamicScope;
+  })();
+
+  var RootState = (function () {
+    function RootState(root, env, template, self, parentElement, dynamicScope) {
+      var _this = this;
+
+      this.id = _emberViewsSystemUtils.getViewId(root);
+      this.root = root;
+      this.result = undefined;
+      this.shouldReflush = false;
+
+      var options = this.options = {
+        alwaysRevalidate: false
+      };
+
+      this.render = function () {
+        var result = _this.result = template.asEntryPoint().render(self, env, {
+          appendTo: parentElement,
+          dynamicScope: dynamicScope
+        });
+
+        // override .render function after initial render
+        _this.render = function () {
+          result.rerender(options);
+        };
+      };
+    }
+
+    RootState.prototype.isFor = function isFor(possibleRoot) {
+      return this.root === possibleRoot;
+    };
+
+    RootState.prototype.destroy = function destroy() {
+      var result = this.result;
+
+      this.root = null;
+      this.result = null;
+      this.render = null;
+
+      if (result) {
+        result.destroy();
+      }
+    };
+
+    return RootState;
   })();
 
   var renderers = [];
@@ -9253,10 +9298,8 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       this._viewRegistry = _viewRegistry;
       this._destinedForDOM = destinedForDOM;
       this._destroyed = false;
-      this._root = null;
-      this._result = null;
+      this._roots = [];
       this._lastRevision = null;
-      this._transaction = null;
     }
 
     // renderer HOOKS
@@ -9266,14 +9309,18 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var targetObject = view.outletState.render.controller;
       var ref = view.toReference();
       var dynamicScope = new DynamicScope(null, ref, ref, true, targetObject);
-      this._renderRoot(view, view.template, self, target, dynamicScope);
+      var root = new RootState(view, this._env, view.template, self, target, dynamicScope);
+
+      this._renderRoot(root);
     };
 
     Renderer.prototype.appendTo = function appendTo(view, target) {
       var rootDef = new _emberGlimmerSyntaxCurlyComponent.RootComponentDefinition(view);
       var self = new _emberGlimmerUtilsReferences.RootReference(rootDef);
       var dynamicScope = new DynamicScope(null, _glimmerReference.UNDEFINED_REFERENCE, _glimmerReference.UNDEFINED_REFERENCE, true, null);
-      this._renderRoot(view, this._rootTemplate, self, target, dynamicScope);
+      var root = new RootState(view, this._env, this._rootTemplate, self, target, dynamicScope);
+
+      this._renderRoot(root);
     };
 
     Renderer.prototype.rerender = function rerender(view) {
@@ -9304,8 +9351,22 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       view.trigger('willClearRender');
       view._transitionTo('destroying');
 
-      if (this._root === view) {
-        this._clearRoot();
+      var roots = this._roots;
+
+      // traverse in reverse so we can remove items
+      // without mucking up the index
+      var i = this._roots.length;
+      while (i--) {
+        var root = roots[i];
+        // check if the view being removed is a root view
+        if (root.isFor(view)) {
+          root.destroy();
+          roots.splice(i, 1);
+        }
+      }
+
+      if (this._roots.length === 0) {
+        deregister(this);
       }
 
       if (!view.isDestroying) {
@@ -9318,7 +9379,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         return;
       }
       this._destroyed = true;
-      this._clearRoot();
+      this._clearAllRoots();
     };
 
     Renderer.prototype.getBounds = function getBounds(view) {
@@ -9335,68 +9396,77 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       return this._env.getAppendOperations().createElement(tagName);
     };
 
-    Renderer.prototype._renderRoot = function _renderRoot(root, template, self, parentElement, dynamicScope) {
-      var _this = this;
+    Renderer.prototype._renderRoot = function _renderRoot(root) {
+      var roots = this._roots;
 
-      this._root = root;
-      register(this);
+      roots.push(root);
 
-      var options = {
-        alwaysRevalidate: false
-      };
-      var env = this._env;
-
-      var render = function () {
-
-        var result = template.asEntryPoint().render(self, env, {
-          appendTo: parentElement,
-          dynamicScope: dynamicScope
-        });
-        _this._result = result;
-        _this._lastRevision = _glimmerReference.CURRENT_TAG.value();
-
-        render = function () {
-          result.rerender(options);
-          _this._lastRevision = _glimmerReference.CURRENT_TAG.value();
-        };
-      };
-
-      var transaction = function () {
-        var shouldReflush = false;
-        do {
-          env.begin();
-          options.alwaysRevalidate = shouldReflush;
-          shouldReflush = runInTransaction(render);
-          env.commit();
-        } while (shouldReflush);
-      };
-
-      this._transaction = function () {
-        try {
-          transaction();
-        } catch (e) {
-          _this.destroy();
-          throw e;
-        }
-      };
-
-      this._transaction();
-    };
-
-    Renderer.prototype._clearRoot = function _clearRoot() {
-      var root = this._root;
-      var result = this._result;
-      this._root = null;
-      this._result = null;
-      this._lastRevision = null;
-      this._transaction = null;
-
-      if (root) {
-        deregister(this);
+      if (roots.length === 1) {
+        register(this);
       }
 
-      if (result) {
-        result.destroy();
+      this._renderRootsTransaction();
+    };
+
+    Renderer.prototype._renderRoots = function _renderRoots() {
+      var roots = this._roots;
+      var env = this._env;
+
+      var globalShouldReflush = undefined;
+
+      // ensure that for the first iteration of the loop
+      // each root is processed
+      var initial = true;
+
+      do {
+        env.begin();
+        globalShouldReflush = false;
+
+        for (var i = 0; i < roots.length; i++) {
+          var root = roots[i];
+          var shouldReflush = root.shouldReflush;
+
+          // when processing non-initial reflush loops,
+          // do not process more roots than needed
+          if (!initial && !shouldReflush) {
+            continue;
+          }
+
+          root.options.alwaysRevalidate = shouldReflush;
+          // track shouldReflush based on this roots render result
+          shouldReflush = root.shouldReflush = runInTransaction(root, 'render');
+
+          // globalShouldReflush should be `true` if *any* of
+          // the roots need to reflush
+          globalShouldReflush = globalShouldReflush || shouldReflush;
+        }
+
+        this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+        env.commit();
+
+        initial = false;
+      } while (globalShouldReflush);
+    };
+
+    Renderer.prototype._renderRootsTransaction = function _renderRootsTransaction() {
+      try {
+        this._renderRoots();
+      } catch (e) {
+        this.destroy();
+        throw e;
+      }
+    };
+
+    Renderer.prototype._clearAllRoots = function _clearAllRoots() {
+      var roots = this._roots;
+      for (var i = 0; i < roots.length; i++) {
+        var root = roots[i];
+        root.destroy();
+      }
+      this._roots = null;
+
+      if (roots.length) {
+        deregister(this);
       }
     };
 
@@ -9405,14 +9475,14 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     };
 
     Renderer.prototype._isValid = function _isValid() {
-      return !this._root || _glimmerReference.CURRENT_TAG.validate(this._lastRevision);
+      return this._destroyed || this._roots.length === 0 || _glimmerReference.CURRENT_TAG.validate(this._lastRevision);
     };
 
     Renderer.prototype._revalidate = function _revalidate() {
       if (this._isValid()) {
         return;
       }
-      this._transaction();
+      this._renderRootsTransaction();
     };
 
     return Renderer;
@@ -19557,10 +19627,10 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       var inTransaction = false;
       var shouldReflush = undefined;
 
-      exports.default = runInTransaction = function (callback) {
+      exports.default = runInTransaction = function (context, methodName) {
         shouldReflush = false;
         inTransaction = true;
-        callback();
+        context[methodName]();
         inTransaction = false;
         counter++;
         return shouldReflush;
@@ -37828,7 +37898,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+6c2b702d";
+  exports.default = "2.9.0-null+b46f3916";
 });
 enifed('glimmer-node/index', ['exports', 'glimmer-node/lib/node-dom-helper'], function (exports, _glimmerNodeLibNodeDomHelper) {
   'use strict';

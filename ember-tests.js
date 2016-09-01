@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6c2b702d
+ * @version   2.9.0-null+b46f3916
  */
 
 var enifed, requireModule, require, Ember;
@@ -8099,7 +8099,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
       this.assert.equal(willDestroyCalled, 1);
     };
 
-    AbstractAppendTest.prototype['@skip appending, updating and destroying multiple components'] = function skipAppendingUpdatingAndDestroyingMultipleComponents(assert) {
+    AbstractAppendTest.prototype['@test appending, updating and destroying multiple components'] = function testAppendingUpdatingAndDestroyingMultipleComponents(assert) {
       var _this3 = this;
 
       var willDestroyCalled = 0;
@@ -32418,17 +32418,6 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
       owner.registerOptionsForType('helper', { instantiate: false });
       owner.registerOptionsForType('component', { singleton: false });
     }
-
-    RenderingTest.prototype.render = function render() {
-      var _AbstractRenderingTest$prototype$render;
-
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      (_AbstractRenderingTest$prototype$render = _AbstractRenderingTest.prototype.render).call.apply(_AbstractRenderingTest$prototype$render, [this].concat(args));
-      this.renderer._root = this.component;
-    };
 
     return RenderingTest;
   })(_emberGlimmerTestsUtilsAbstractTestCase.AbstractRenderingTest);

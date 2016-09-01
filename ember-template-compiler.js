@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6c2b702d
+ * @version   2.9.0-null+b46f3916
  */
 
 var enifed, requireModule, require, Ember;
@@ -9907,10 +9907,10 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       var inTransaction = false;
       var shouldReflush = undefined;
 
-      exports.default = runInTransaction = function (callback) {
+      exports.default = runInTransaction = function (context, methodName) {
         shouldReflush = false;
         inTransaction = true;
-        callback();
+        context[methodName]();
         inTransaction = false;
         counter++;
         return shouldReflush;
@@ -11757,7 +11757,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+6c2b702d";
+  exports.default = "2.9.0-null+b46f3916";
 });
 enifed('glimmer-compiler/index', ['exports', 'glimmer-compiler/lib/compiler', 'glimmer-compiler/lib/template-compiler', 'glimmer-compiler/lib/template-visitor'], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateCompiler, _glimmerCompilerLibTemplateVisitor) {
   'use strict';
