@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c64433cb
+ * @version   2.9.0-null+6dda0444
  */
 
 var enifed, requireModule, require, Ember;
@@ -19149,62 +19149,24 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         _RenderingTest.apply(this, arguments);
       }
 
-      _class.prototype['@test action should fire interaction event'] = function testActionShouldFireInteractionEvent() {
-        var _this = this;
-
-        var subscriberCalled = false;
-        var actionCalled = false;
-
-        var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-          actions: {
-            fireAction: function () {
-              this.attrs.submit();
-            }
-          }
-        });
-
-        var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-          outerSubmit: function () {
-            actionCalled = true;
-          }
-        });
-
-        this.registerComponent('inner-component', {
-          ComponentClass: InnerComponent,
-          template: '<button id="instrument-button" {{action "fireAction"}}>What it do</button>'
-        });
-
-        this.registerComponent('outer-component', {
-          ComponentClass: OuterComponent,
-          template: '{{inner-component submit=(action outerSubmit)}}'
-        });
-
-        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
-          before: function () {
-            subscriberCalled = true;
-          }
-        });
-
-        this.render('{{outer-component}}');
-
-        this.runTask(function () {
-          _this.$('#instrument-button').trigger('click');
-        });
-
-        this.assert.ok(subscriberCalled, 'instrumentation subscriber was called');
-        this.assert.ok(actionCalled, 'action is called');
-
-        _emberMetalInstrumentation.unsubscribe(subscriber);
+      _class.prototype.subscribe = function subscribe(eventName, options) {
+        this.subscriber = _emberMetalInstrumentation.subscribe(eventName, options);
       };
 
-      // Skipped since features flags during tests are tricky.
+      _class.prototype.teardown = function teardown() {
+        if (this.subscriber) {
+          _emberMetalInstrumentation.unsubscribe(this.subscriber);
+        }
 
-      _class.prototype['@skip interaction event subscriber should be passed parameters'] = function skipInteractionEventSubscriberShouldBePassedParameters() {
-        var _this2 = this;
+        _RenderingTest.prototype.teardown.call(this);
+      };
+
+      _class.prototype['@test interaction event subscriber should be passed parameters'] = function testInteractionEventSubscriberShouldBePassedParameters() {
+        var _this = this;
 
         var actionParam = 'So krispy';
-        var beforeParameter = undefined;
-        var afterParameter = undefined;
+        var beforeParameters = [];
+        var afterParameters = [];
 
         var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
           actions: {
@@ -19228,34 +19190,30 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
           template: '{{inner-component submit=(action outerSubmit)}}'
         });
 
-        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+        this.subscribe('interaction.ember-action', {
           before: function (name, timestamp, payload) {
-            beforeParameter = payload.args[0];
+            beforeParameters.push(payload.args);
           },
           after: function (name, timestamp, payload) {
-            afterParameter = payload.args[0];
+            afterParameters.push(payload.args);
           }
         });
 
         this.render('{{outer-component}}');
 
         this.runTask(function () {
-          _this2.$('#instrument-button').trigger('click');
+          _this.$('#instrument-button').trigger('click');
         });
 
-        this.assert.equal(beforeParameter, actionParam, 'instrumentation subscriber before function was passed closure action parameters');
-        this.assert.equal(afterParameter, actionParam, 'instrumentation subscriber after function was passed closure action parameters');
-
-        _emberMetalInstrumentation.unsubscribe(subscriber);
+        this.assert.deepEqual(beforeParameters, [[], [actionParam]], 'instrumentation subscriber before function was passed closure action parameters');
+        this.assert.deepEqual(afterParameters, [[actionParam], []], 'instrumentation subscriber after function was passed closure action parameters');
       };
 
-      // Skipped since features flags during tests are tricky.
+      _class.prototype['@test interaction event subscriber should be passed target'] = function testInteractionEventSubscriberShouldBePassedTarget() {
+        var _this2 = this;
 
-      _class.prototype['@skip interaction event subscriber should be passed target'] = function skipInteractionEventSubscriberShouldBePassedTarget() {
-        var _this3 = this;
-
-        var beforeParameter = undefined;
-        var afterParameter = undefined;
+        var beforeParameters = [];
+        var afterParameters = [];
 
         var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
           myProperty: 'inner-thing',
@@ -19281,29 +19239,27 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
           template: '{{inner-component submit=(action outerSubmit)}}'
         });
 
-        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+        this.subscribe('interaction.ember-action', {
           before: function (name, timestamp, payload) {
-            beforeParameter = payload.target.get('myProperty');
+            beforeParameters.push(payload.target.get('myProperty'));
           },
           after: function (name, timestamp, payload) {
-            afterParameter = payload.target.get('myProperty');
+            afterParameters.push(payload.target.get('myProperty'));
           }
         });
 
         this.render('{{outer-component}}');
 
         this.runTask(function () {
-          _this3.$('#instrument-button').trigger('click');
+          _this2.$('#instrument-button').trigger('click');
         });
 
-        this.assert.equal(beforeParameter, 'outer-thing', 'instrumentation subscriber before function was passed target');
-        this.assert.equal(afterParameter, 'outer-thing', 'instrumentation subscriber after function was passed target');
-
-        _emberMetalInstrumentation.unsubscribe(subscriber);
+        this.assert.deepEqual(beforeParameters, ['inner-thing', 'outer-thing'], 'instrumentation subscriber before function was passed target');
+        this.assert.deepEqual(afterParameters, ['outer-thing', 'inner-thing'], 'instrumentation subscriber after function was passed target');
       };
 
       _class.prototype['@test instrumented action should return value'] = function testInstrumentedActionShouldReturnValue() {
-        var _this4 = this;
+        var _this3 = this;
 
         var returnedValue = 'Chris P is so krispy';
         var beforeParameter = undefined;
@@ -19334,7 +19290,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
           template: '{{inner-component submit=(action outerSubmit)}}'
         });
 
-        var subscriber = _emberMetalInstrumentation.subscribe('interaction.ember-action', {
+        this.subscribe('interaction.ember-action', {
           before: function (name, timestamp, payload) {
             beforeParameter = payload.target.get('myProperty');
           },
@@ -19346,12 +19302,10 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         this.render('{{outer-component}}');
 
         this.runTask(function () {
-          _this4.$('#instrument-button').trigger('click');
+          _this3.$('#instrument-button').trigger('click');
         });
 
         this.assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
-
-        _emberMetalInstrumentation.unsubscribe(subscriber);
       };
 
       return _class;
@@ -19401,7 +19355,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
     };
 
     _class2.prototype['@test an error is triggered when bound action function is undefined'] = function testAnErrorIsTriggeredWhenBoundActionFunctionIsUndefined() {
-      var _this5 = this;
+      var _this4 = this;
 
       this.registerComponent('inner-component', {
         template: 'inner'
@@ -19411,12 +19365,12 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       });
 
       this.assert.throws(function () {
-        _this5.render('{{outer-component}}');
+        _this4.render('{{outer-component}}');
       }, /Action passed is null or undefined in \(action[^)]*\) from .*\./);
     };
 
     _class2.prototype['@test an error is triggered when bound action being passed in is a non-function'] = function testAnErrorIsTriggeredWhenBoundActionBeingPassedInIsANonFunction() {
-      var _this6 = this;
+      var _this5 = this;
 
       this.registerComponent('inner-component', {
         template: 'inner'
@@ -19429,12 +19383,12 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       });
 
       this.assert.throws(function () {
-        _this6.render('{{outer-component}}');
+        _this5.render('{{outer-component}}');
       }, /An action could not be made for `.*` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action '.*'\)`\) or a function available in .*\./);
     };
 
     _class2.prototype['@test [#12718] a nice error is shown when a bound action function is undefined and it is passed as attrs.foo'] = function test12718ANiceErrorIsShownWhenABoundActionFunctionIsUndefinedAndItIsPassedAsAttrsFoo() {
-      var _this7 = this;
+      var _this6 = this;
 
       this.registerComponent('inner-component', {
         template: '<button id="inner-button" {{action (action attrs.external-action)}}>Click me</button>'
@@ -19445,7 +19399,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       });
 
       this.assert.throws(function () {
-        _this7.render('{{outer-component}}');
+        _this6.render('{{outer-component}}');
       }, /Action passed is null or undefined in \(action[^)]*\) from .*\./);
     };
 
@@ -19883,7 +19837,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
     };
 
     _class2.prototype['@test provides a helpful error if an action is not present'] = function testProvidesAHelpfulErrorIfAnActionIsNotPresent() {
-      var _this8 = this;
+      var _this7 = this;
 
       var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
 
@@ -19908,12 +19862,12 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       });
 
       this.assert.throws(function () {
-        _this8.render('{{outer-component}}');
+        _this7.render('{{outer-component}}');
       }, /An action named 'doesNotExist' was not found in /);
     };
 
     _class2.prototype['@test provides a helpful error if actions hash is not present'] = function testProvidesAHelpfulErrorIfActionsHashIsNotPresent() {
-      var _this9 = this;
+      var _this8 = this;
 
       var InnerComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
 
@@ -19930,7 +19884,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       });
 
       this.assert.throws(function () {
-        _this9.render('{{outer-component}}');
+        _this8.render('{{outer-component}}');
       }, /An action named 'doesNotExist' was not found in /);
     };
 
@@ -20232,7 +20186,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         foo: 123,
         submitTask: _emberMetalComputed.computed(function () {
           var _ref,
-              _this10 = this;
+              _this9 = this;
 
           return _ref = {}, _ref[_emberGlimmerTestsUtilsHelpers.INVOKE] = function () {
             for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -20240,7 +20194,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
             }
 
             invokableArgs = args;
-            return _this10.foo;
+            return _this9.foo;
           }, _ref;
         })
       });
@@ -20266,7 +20220,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
     };
 
     _class2.prototype['@test closure action with `(mut undefinedThing)` works properly [GH#13959]'] = function testClosureActionWithMutUndefinedThingWorksProperlyGH13959() {
-      var _this11 = this;
+      var _this10 = this;
 
       var component = undefined;
 
@@ -20290,7 +20244,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this11.$('button').click();
+        _this10.$('button').click();
       });
 
       this.assertText('Clicked!');
@@ -20302,7 +20256,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       this.assertText('Dun clicked');
 
       this.runTask(function () {
-        _this11.$('button').click();
+        _this10.$('button').click();
       });
 
       this.assertText('Clicked!');
