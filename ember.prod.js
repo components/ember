@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+3ec11452
+ * @version   2.9.0-null+c64433cb
  */
 
 var enifed, requireModule, require, Ember;
@@ -10158,7 +10158,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
     return MountDefinition;
   })(_glimmerRuntime.ComponentDefinition);
 });
-enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-metal/utils', 'ember-metal/instrumentation', 'ember-glimmer/utils/references'], function (exports, _glimmerRuntime, _emberMetalUtils, _emberMetalInstrumentation, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-metal/utils', 'ember-metal/instrumentation', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _glimmerRuntime, _emberMetalUtils, _emberMetalInstrumentation, _emberGlimmerUtilsReferences, _glimmerReference) {
   'use strict';
 
   function outletComponentFor(vm) {
@@ -10171,8 +10171,14 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
       return new TopLevelOutletComponentReference(outletState);
     } else {
       var args = vm.getArgs();
-      var outletName = args.positional.at(0).value() || 'main';
-      return new OutletComponentReference(outletName, outletState.get(outletName));
+      var outletNameRef = undefined;
+      if (args.positional.length === 0) {
+        outletNameRef = new _glimmerReference.ConstReference('main');
+      } else {
+        outletNameRef = args.positional.at(0);
+      }
+
+      return new OutletComponentReference(outletNameRef, outletState);
     }
   }
 
@@ -10180,7 +10186,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
     babelHelpers.inherits(OutletSyntax, _StatementSyntax);
 
     OutletSyntax.create = function create(environment, args, templates, symbolTable) {
-      return new this(environment, args, templates, symbolTable);
+      var definitionArgs = _glimmerRuntime.ArgsSyntax.fromPositionalArgs(args.positional.slice(0, 1));
+
+      return new this(environment, definitionArgs, templates, symbolTable);
     };
 
     function OutletSyntax(environment, args, templates, symbolTable) {
@@ -10212,10 +10220,17 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
 
     TopLevelOutletComponentReference.prototype.value = function value() {
       var lastState = this.lastState;
-      var newState = this.outletReference.value();
+      var outletReference = this.outletReference;
+      var definition = this.definition;
 
-      if (lastState.render.name !== newState.render.name) {
-        return new TopLevelOutletComponentDefinition(newState.outlets.main.render.template);
+      var newState = outletReference.value();
+
+      definition = revalidate(definition, lastState, newState);
+
+      if (definition) {
+        return definition;
+      } else {
+        return new TopLevelOutletComponentDefinition(newState.render.template);
       }
 
       return this.definition;
@@ -10225,21 +10240,27 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
   })();
 
   var OutletComponentReference = (function () {
-    function OutletComponentReference(outletName, reference) {
-      this.outletName = outletName;
-      this.reference = reference;
+    function OutletComponentReference(outletNameRef, parentOutletStateRef) {
+      this.outletNameRef = outletNameRef;
+      this.parentOutletStateRef = parentOutletStateRef;
       this.definition = null;
       this.lastState = null;
-      this.tag = reference.tag;
+      var outletStateTag = this.outletStateTag = new _glimmerReference.UpdatableTag(parentOutletStateRef.tag);
+      this.tag = _glimmerReference.combine([outletStateTag.tag, outletNameRef.tag]);
     }
 
     OutletComponentReference.prototype.value = function value() {
-      var outletName = this.outletName;
-      var reference = this.reference;
+      var outletNameRef = this.outletNameRef;
+      var parentOutletStateRef = this.parentOutletStateRef;
       var definition = this.definition;
       var lastState = this.lastState;
 
-      var newState = this.lastState = reference.value();
+      var outletName = outletNameRef.value();
+      var outletStateRef = parentOutletStateRef.get(outletName);
+      var newState = this.lastState = outletStateRef.value();
+
+      this.outletStateTag.update(outletStateRef.tag);
+
       definition = revalidate(definition, lastState, newState);
 
       var hasTemplate = newState && newState.render.template;
@@ -10357,7 +10378,13 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'glimmer-runtime', 'ember-meta
     };
 
     TopLevelOutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      return env.getCompiledBlock(TopLevelOutletLayoutCompiler, definition.template);
+      var template = definition.template;
+
+      if (!template) {
+        template = env.owner.lookup('template:-outlet');
+      }
+
+      return env.getCompiledBlock(TopLevelOutletLayoutCompiler, template);
     };
 
     return TopLevelOutletComponentManager;
@@ -37780,7 +37807,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+3ec11452";
+  exports.default = "2.9.0-null+c64433cb";
 });
 enifed('glimmer-node/index', ['exports', 'glimmer-node/lib/node-dom-helper'], function (exports, _glimmerNodeLibNodeDomHelper) {
   'use strict';

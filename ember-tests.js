@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+3ec11452
+ * @version   2.9.0-null+c64433cb
  */
 
 var enifed, requireModule, require, Ember;
@@ -27755,11 +27755,9 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       this.component = CoreOutlet.create();
     }
 
-    _class.prototype['@skip should render the outlet when set after DOM insertion'] = function skipShouldRenderTheOutletWhenSetAfterDOMInsertion() {
+    _class.prototype['@test should not error when initial rendered template is undefined'] = function testShouldNotErrorWhenInitialRenderedTemplateIsUndefined() {
       var _this = this;
 
-      // fails in glimmer because of an attempt to access `.id` on
-      // the provided template (which is undefined)
       var outletState = {
         render: {
           owner: this.owner,
@@ -27781,6 +27779,32 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       _emberRuntimeTestsUtils.runAppend(this.component);
 
       this.assertText('');
+    };
+
+    _class.prototype['@test should render the outlet when set after DOM insertion'] = function testShouldRenderTheOutletWhenSetAfterDOMInsertion() {
+      var _this2 = this;
+
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: undefined,
+          ViewClass: undefined,
+          template: undefined
+        },
+
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this2.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('');
 
       this.registerTemplate('application', 'HI{{outlet}}');
       outletState = {
@@ -27797,7 +27821,7 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this.component.setOutletState(outletState);
+        return _this2.component.setOutletState(outletState);
       });
 
       this.assertText('HI');
@@ -27819,14 +27843,14 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this.component.setOutletState(outletState);
+        return _this2.component.setOutletState(outletState);
       });
 
       this.assertText('HIBYE');
     };
 
     _class.prototype['@test should render the outlet when set before DOM insertion'] = function testShouldRenderTheOutletWhenSetBeforeDOMInsertion() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.registerTemplate('application', 'HI{{outlet}}');
       var outletState = {
@@ -27843,7 +27867,7 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this2.component.setOutletState(outletState);
+        return _this3.component.setOutletState(outletState);
       });
 
       _emberRuntimeTestsUtils.runAppend(this.component);
@@ -27867,14 +27891,14 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this2.component.setOutletState(outletState);
+        return _this3.component.setOutletState(outletState);
       });
 
       this.assertText('HIBYE');
     };
 
     _class.prototype['@test should support an optional name'] = function testShouldSupportAnOptionalName() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.registerTemplate('application', '<h1>HI</h1>{{outlet "special"}}');
       var outletState = {
@@ -27891,7 +27915,7 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this3.component.setOutletState(outletState);
+        return _this4.component.setOutletState(outletState);
       });
 
       _emberRuntimeTestsUtils.runAppend(this.component);
@@ -27915,14 +27939,62 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this3.component.setOutletState(outletState);
+        return _this4.component.setOutletState(outletState);
       });
 
       this.assertText('HIBYE');
     };
 
-    _class.prototype['@skip should support bound outlet name'] = function skipShouldSupportBoundOutletName() {
-      var _this4 = this;
+    _class.prototype['@test does not default outlet name when positional argument is present'] = function testDoesNotDefaultOutletNameWhenPositionalArgumentIsPresent() {
+      var _this5 = this;
+
+      this.registerTemplate('application', '<h1>HI</h1>{{outlet someUndefinedThing}}');
+      var outletState = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'application',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:application')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this5.component.setOutletState(outletState);
+      });
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+
+      this.assertText('HI');
+
+      this.assertStableRerender();
+
+      this.registerTemplate('special', '<p>BYE</p>');
+      outletState.outlets.main = {
+        render: {
+          owner: this.owner,
+          into: undefined,
+          outlet: 'main',
+          name: 'special',
+          controller: {},
+          ViewClass: undefined,
+          template: this.owner.lookup('template:special')
+        },
+        outlets: Object.create(null)
+      };
+
+      this.runTask(function () {
+        return _this5.component.setOutletState(outletState);
+      });
+
+      this.assertText('HI');
+    };
+
+    _class.prototype['@test should support bound outlet name'] = function testShouldSupportBoundOutletName() {
+      var _this6 = this;
 
       var controller = { outletName: 'foo' };
       this.registerTemplate('application', '<h1>HI</h1>{{outlet outletName}}');
@@ -27940,7 +28012,7 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this4.component.setOutletState(outletState);
+        return _this6.component.setOutletState(outletState);
       });
 
       _emberRuntimeTestsUtils.runAppend(this.component);
@@ -27978,7 +28050,7 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this4.component.setOutletState(outletState);
+        return _this6.component.setOutletState(outletState);
       });
 
       this.assertText('HIFOO');
