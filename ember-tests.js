@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+8414c300
+ * @version   2.9.0-null+63d9c840
  */
 
 var enifed, requireModule, require, Ember;
@@ -5643,6 +5643,23 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     return _emberMetalRun_loop.default(App, 'visit', '/', { shouldRender: false }).then(function (instance) {
       assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
       assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are still no elements in the fixture element after visit');
+    });
+  });
+
+  QUnit.test('visit() renders a template when shouldRender is set to true', function (assert) {
+    assert.expect(3);
+
+    _emberMetalRun_loop.default(function () {
+      createApplication();
+
+      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello world</h1>'));
+    });
+
+    assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+    return _emberMetalRun_loop.default(App, 'visit', '/', { shouldRender: true }).then(function (instance) {
+      assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 1, 'there is 1 element in the fixture element after visit');
     });
   });
 
