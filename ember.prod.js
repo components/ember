@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6c8abeb9
+ * @version   2.9.0-null+ec65dcad
  */
 
 var enifed, requireModule, require, Ember;
@@ -14270,7 +14270,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
     var stack = error.stack;
     var message = error.message;
 
-    if (stack.indexOf(message) === -1) {
+    if (stack && stack.indexOf(message) === -1) {
       stack = message + '\n' + stack;
     }
 
@@ -37913,7 +37913,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+6c8abeb9";
+  exports.default = "2.9.0-null+ec65dcad";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
   'use strict';
