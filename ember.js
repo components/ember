@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+aea269c4
+ * @version   2.9.0-null+9852f753
  */
 
 var enifed, requireModule, require, Ember;
@@ -15838,7 +15838,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember/version', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/assign', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-console', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'backburner', 'ember-metal/computed', 'ember-metal/alias'], function (exports, _require, _emberEnvironment, _emberVersion, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalAssign, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberConsole, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalTesting, _emberMetalError_handler, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _backburner, _emberMetalComputed, _emberMetalAlias) {
+enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalDebug, _emberMetalAssign, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache) {
   /**
   @module ember
   @submodule ember-metal
@@ -15846,318 +15846,120 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember/v
 
   'use strict';
 
+  exports.default = _emberMetalCore.default;
+  // reexports
   exports.computed = _emberMetalComputed.default;
   exports.cacheFor = _emberMetalComputed.cacheFor;
   exports.ComputedProperty = _emberMetalComputed.ComputedProperty;
   exports.alias = _emberMetalAlias.default;
+  exports.deprecate = _emberMetalDebug.deprecate;
+  exports.assign = _emberMetalAssign.default;
+  exports.merge = _emberMetalMerge.default;
+  exports.assert = _emberMetalDebug.assert;
+  exports.warn = _emberMetalDebug.warn;
+  exports.debug = _emberMetalDebug.debug;
+  exports.deprecate = _emberMetalDebug.deprecate;
+  exports.deprecateFunc = _emberMetalDebug.deprecateFunc;
+  exports.runInDebug = _emberMetalDebug.runInDebug;
+  exports.instrument = _emberMetalInstrumentation.instrument;
+  exports.instrumentationReset = _emberMetalInstrumentation.reset;
+  exports.instrumentationSubscribe = _emberMetalInstrumentation.subscribe;
+  exports.instrumentationUnsubscribe = _emberMetalInstrumentation.unsubscribe;
+  exports.GUID_KEY = _emberMetalUtils.GUID_KEY;
+  exports.apply = _emberMetalUtils.apply;
+  exports.applyStr = _emberMetalUtils.applyStr;
+  exports.canInvoke = _emberMetalUtils.canInvoke;
+  exports.generateGuid = _emberMetalUtils.generateGuid;
+  exports.guidFor = _emberMetalUtils.guidFor;
+  exports.inspect = _emberMetalUtils.inspect;
+  exports.makeArray = _emberMetalUtils.makeArray;
+  exports.deprecatedTryCatchFinally = _emberMetalUtils.deprecatedTryCatchFinally;
+  exports.tryInvoke = _emberMetalUtils.tryInvoke;
+  exports.uuid = _emberMetalUtils.uuid;
+  exports.wrap = _emberMetalUtils.wrap;
+  exports.isTesting = _emberMetalTesting.isTesting;
+  exports.setTesting = _emberMetalTesting.setTesting;
+  exports.getOnerror = _emberMetalError_handler.getOnerror;
+  exports.setOnerror = _emberMetalError_handler.setOnerror;
+  exports.META_DESC = _emberMetalMeta.META_DESC;
+  exports.meta = _emberMetalMeta.meta;
+  exports.Error = _emberMetalError.default;
+  exports.Cache = _emberMetalCache.default;
+  exports.isFeatureEnabled = _emberMetalFeatures.default;
+  exports.FEATURES = _emberMetalFeatures.FEATURES;
+  exports._getPath = _emberMetalProperty_get._getPath;
+  exports.get = _emberMetalProperty_get.get;
+  exports.getWithDefault = _emberMetalProperty_get.getWithDefault;
+  exports.set = _emberMetalProperty_set.set;
+  exports.trySet = _emberMetalProperty_set.trySet;
+  exports.WeakMap = _emberMetalWeak_map.default;
+  exports.accumulateListeners = _emberMetalEvents.accumulateListeners;
+  exports.addListener = _emberMetalEvents.addListener;
+  exports.hasListeners = _emberMetalEvents.hasListeners;
+  exports.listenersFor = _emberMetalEvents.listenersFor;
+  exports.on = _emberMetalEvents.on;
+  exports.removeListener = _emberMetalEvents.removeListener;
+  exports.sendEvent = _emberMetalEvents.sendEvent;
+  exports.suspendListener = _emberMetalEvents.suspendListener;
+  exports.suspendListeners = _emberMetalEvents.suspendListeners;
+  exports.watchedEvents = _emberMetalEvents.watchedEvents;
+  exports.isNone = _emberMetalIs_none.default;
+  exports.isEmpty = _emberMetalIs_empty.default;
+  exports.isBlank = _emberMetalIs_blank.default;
+  exports.isPresent = _emberMetalIs_present.default;
+  exports.run = _emberMetalRun_loop.default;
+  exports.ObserverSet = _emberMetalObserver_set.default;
+  exports.beginPropertyChanges = _emberMetalProperty_events.beginPropertyChanges;
+  exports.changeProperties = _emberMetalProperty_events.changeProperties;
+  exports.endPropertyChanges = _emberMetalProperty_events.endPropertyChanges;
+  exports.overrideChains = _emberMetalProperty_events.overrideChains;
+  exports.propertyDidChange = _emberMetalProperty_events.propertyDidChange;
+  exports.propertyWillChange = _emberMetalProperty_events.propertyWillChange;
+  exports.defineProperty = _emberMetalProperties.defineProperty;
+  exports.watchKey = _emberMetalWatch_key.watchKey;
+  exports.unwatchKey = _emberMetalWatch_key.unwatchKey;
+  exports.ChainNode = _emberMetalChains.ChainNode;
+  exports.finishChains = _emberMetalChains.finishChains;
+  exports.removeChainWatcher = _emberMetalChains.removeChainWatcher;
+  exports.watchPath = _emberMetalWatch_path.watchPath;
+  exports.unwatchPath = _emberMetalWatch_path.unwatchPath;
+  exports.destroy = _emberMetalWatching.destroy;
+  exports.isWatching = _emberMetalWatching.isWatching;
+  exports.rewatch = _emberMetalWatching.rewatch;
+  exports.unwatch = _emberMetalWatching.unwatch;
+  exports.watch = _emberMetalWatching.watch;
+  exports.libraries = _emberMetalLibraries.default;
+  exports.Map = _emberMetalMap.Map;
+  exports.MapWithDefault = _emberMetalMap.MapWithDefault;
+  exports.OrderedSet = _emberMetalMap.OrderedSet;
+  exports.getProperties = _emberMetalGet_properties.default;
+  exports.setProperties = _emberMetalSet_properties.default;
+  exports.expandProperties = _emberMetalExpand_properties.default;
+  exports._suspendObserver = _emberMetalObserver._suspendObserver;
+  exports._suspendObservers = _emberMetalObserver._suspendObservers;
+  exports.addObserver = _emberMetalObserver.addObserver;
+  exports.observersFor = _emberMetalObserver.observersFor;
+  exports.removeObserver = _emberMetalObserver.removeObserver;
+  exports.NAME_KEY = _emberMetalMixin.NAME_KEY;
+  exports.Mixin = _emberMetalMixin.Mixin;
+  exports.aliasMethod = _emberMetalMixin.aliasMethod;
+  exports._immediateObserver = _emberMetalMixin._immediateObserver;
+  exports.mixin = _emberMetalMixin.mixin;
+  exports.observer = _emberMetalMixin.observer;
+  exports.required = _emberMetalMixin.required;
+  exports.Binding = _emberMetalBinding.Binding;
+  exports.bind = _emberMetalBinding.bind;
+  exports.isGlobalPath = _emberMetalPath_cache.isGlobalPath;
 
-  // BEGIN IMPORTS
-
-  // END IMPORTS
-
-  // BEGIN EXPORTS
-  var EmberInstrumentation = _emberMetalCore.default.Instrumentation = {};
-  EmberInstrumentation.instrument = _emberMetalInstrumentation.instrument;
-  EmberInstrumentation.subscribe = _emberMetalInstrumentation.subscribe;
-  EmberInstrumentation.unsubscribe = _emberMetalInstrumentation.unsubscribe;
-  EmberInstrumentation.reset = _emberMetalInstrumentation.reset;
-
-  _emberMetalCore.default.instrument = _emberMetalInstrumentation.instrument;
-  _emberMetalCore.default.subscribe = _emberMetalInstrumentation.subscribe;
-
-  _emberMetalCore.default._Cache = _emberMetalCache.default;
-
-  _emberMetalCore.default.generateGuid = _emberMetalUtils.generateGuid;
-  _emberMetalCore.default.GUID_KEY = _emberMetalUtils.GUID_KEY;
-  _emberMetalCore.default.NAME_KEY = _emberMetalMixin.NAME_KEY;
-  _emberMetalCore.default.platform = {
-    defineProperty: true,
-    hasPropertyAccessors: true
-  };
-
-  _emberMetalCore.default.Error = _emberMetalError.default;
-  _emberMetalCore.default.guidFor = _emberMetalUtils.guidFor;
-  _emberMetalCore.default.META_DESC = _emberMetalMeta.META_DESC;
-  _emberMetalCore.default.meta = _emberMetalMeta.meta;
-  _emberMetalCore.default.inspect = _emberMetalUtils.inspect;
-
-  _emberMetalCore.default.tryCatchFinally = _emberMetalUtils.deprecatedTryCatchFinally;
-  _emberMetalCore.default.makeArray = _emberMetalUtils.makeArray;
-  _emberMetalCore.default.canInvoke = _emberMetalUtils.canInvoke;
-  _emberMetalCore.default.tryInvoke = _emberMetalUtils.tryInvoke;
-  _emberMetalCore.default.wrap = _emberMetalUtils.wrap;
-  _emberMetalCore.default.apply = _emberMetalUtils.apply;
-  _emberMetalCore.default.applyStr = _emberMetalUtils.applyStr;
-  _emberMetalCore.default.uuid = _emberMetalUtils.uuid;
-
-  _emberMetalCore.default.Logger = _emberConsole.default;
-
-  _emberMetalCore.default.get = _emberMetalProperty_get.get;
-  _emberMetalCore.default.getWithDefault = _emberMetalProperty_get.getWithDefault;
-  _emberMetalCore.default._getPath = _emberMetalProperty_get._getPath;
-
-  _emberMetalCore.default.on = _emberMetalEvents.on;
-  _emberMetalCore.default.addListener = _emberMetalEvents.addListener;
-  _emberMetalCore.default.removeListener = _emberMetalEvents.removeListener;
-  _emberMetalCore.default._suspendListener = _emberMetalEvents.suspendListener;
-  _emberMetalCore.default._suspendListeners = _emberMetalEvents.suspendListeners;
-  _emberMetalCore.default.sendEvent = _emberMetalEvents.sendEvent;
-  _emberMetalCore.default.hasListeners = _emberMetalEvents.hasListeners;
-  _emberMetalCore.default.watchedEvents = _emberMetalEvents.watchedEvents;
-  _emberMetalCore.default.listenersFor = _emberMetalEvents.listenersFor;
-  _emberMetalCore.default.accumulateListeners = _emberMetalEvents.accumulateListeners;
-
-  _emberMetalCore.default._ObserverSet = _emberMetalObserver_set.default;
-
-  _emberMetalCore.default.propertyWillChange = _emberMetalProperty_events.propertyWillChange;
-  _emberMetalCore.default.propertyDidChange = _emberMetalProperty_events.propertyDidChange;
-  _emberMetalCore.default.overrideChains = _emberMetalProperty_events.overrideChains;
-  _emberMetalCore.default.beginPropertyChanges = _emberMetalProperty_events.beginPropertyChanges;
-  _emberMetalCore.default.endPropertyChanges = _emberMetalProperty_events.endPropertyChanges;
-  _emberMetalCore.default.changeProperties = _emberMetalProperty_events.changeProperties;
-
-  _emberMetalCore.default.defineProperty = _emberMetalProperties.defineProperty;
-
-  _emberMetalCore.default.set = _emberMetalProperty_set.set;
-  _emberMetalCore.default.trySet = _emberMetalProperty_set.trySet;
-
-  if (_emberMetalFeatures.default('ember-metal-weakmap')) {
-    _emberMetalCore.default.WeakMap = _emberMetalWeak_map.default;
-  }
-  _emberMetalCore.default.OrderedSet = _emberMetalMap.OrderedSet;
-  _emberMetalCore.default.Map = _emberMetalMap.Map;
-  _emberMetalCore.default.MapWithDefault = _emberMetalMap.MapWithDefault;
-
-  _emberMetalCore.default.getProperties = _emberMetalGet_properties.default;
-  _emberMetalCore.default.setProperties = _emberMetalSet_properties.default;
-
-  _emberMetalCore.default.watchKey = _emberMetalWatch_key.watchKey;
-  _emberMetalCore.default.unwatchKey = _emberMetalWatch_key.unwatchKey;
-
-  _emberMetalCore.default.removeChainWatcher = _emberMetalChains.removeChainWatcher;
-  _emberMetalCore.default._ChainNode = _emberMetalChains.ChainNode;
-  _emberMetalCore.default.finishChains = _emberMetalChains.finishChains;
-
-  _emberMetalCore.default.watchPath = _emberMetalWatch_path.watchPath;
-  _emberMetalCore.default.unwatchPath = _emberMetalWatch_path.unwatchPath;
-
-  _emberMetalCore.default.watch = _emberMetalWatching.watch;
-  _emberMetalCore.default.isWatching = _emberMetalWatching.isWatching;
-  _emberMetalCore.default.unwatch = _emberMetalWatching.unwatch;
-  _emberMetalCore.default.rewatch = _emberMetalWatching.rewatch;
-  _emberMetalCore.default.destroy = _emberMetalWatching.destroy;
-
-  _emberMetalCore.default.expandProperties = _emberMetalExpand_properties.default;
-
-  _emberMetalCore.default.addObserver = _emberMetalObserver.addObserver;
-  _emberMetalCore.default.observersFor = _emberMetalObserver.observersFor;
-  _emberMetalCore.default.removeObserver = _emberMetalObserver.removeObserver;
-  _emberMetalCore.default._suspendObserver = _emberMetalObserver._suspendObserver;
-  _emberMetalCore.default._suspendObservers = _emberMetalObserver._suspendObservers;
-
-  _emberMetalCore.default.required = _emberMetalMixin.required;
-  _emberMetalCore.default.aliasMethod = _emberMetalMixin.aliasMethod;
-  _emberMetalCore.default.observer = _emberMetalMixin.observer;
-  _emberMetalCore.default.immediateObserver = _emberMetalMixin._immediateObserver;
-  _emberMetalCore.default.mixin = _emberMetalMixin.mixin;
-  _emberMetalCore.default.Mixin = _emberMetalMixin.Mixin;
-
-  _emberMetalCore.default.bind = _emberMetalBinding.bind;
-  _emberMetalCore.default.Binding = _emberMetalBinding.Binding;
-  _emberMetalCore.default.isGlobalPath = _emberMetalPath_cache.isGlobalPath;
-
-  _emberMetalCore.default.run = _emberMetalRun_loop.default;
-
-  /**
-  @class Backburner
-  @for Ember
-  @private
-  */
-  _emberMetalCore.default.Backburner = function () {
-    _emberMetalDebug.deprecate('Usage of Ember.Backburner is deprecated.', false, {
-      id: 'ember-metal.ember-backburner',
-      until: '2.8.0',
-      url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-backburner'
-    });
-
-    function BackburnerAlias(args) {
-      return _backburner.default.apply(this, args);
-    }
-
-    BackburnerAlias.prototype = _backburner.default.prototype;
-
-    return new BackburnerAlias(arguments);
-  };
-
-  _emberMetalCore.default._Backburner = _backburner.default;
-
-  /**
-    The semantic version
-    @property VERSION
-    @type String
-    @public
-   */
-  _emberMetalCore.default.VERSION = _emberVersion.default;
-
-  _emberMetalCore.default.libraries = _emberMetalLibraries.default;
-
-  _emberMetalLibraries.default.registerCoreLibrary('Ember', _emberMetalCore.default.VERSION);
-
-  _emberMetalCore.default.isNone = _emberMetalIs_none.default;
-  _emberMetalCore.default.isEmpty = _emberMetalIs_empty.default;
-  _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
-  _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
-
-  _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-  _emberMetalCore.default.merge = _emberMetalMerge.default;
-
-  _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
-  _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
-
-  _emberMetalCore.default.EXTEND_PROTOTYPES = _emberEnvironment.ENV.EXTEND_PROTOTYPES;
-
-  // BACKWARDS COMPAT ACCESSORS FOR ENV FLAGS
-  Object.defineProperty(_emberMetalCore.default, 'LOG_STACKTRACE_ON_DEPRECATION', {
-    get: function () {
-      return _emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION;
-    },
-    set: function (value) {
-      _emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION = !!value;
-    },
-    enumerable: false
-  });
-
-  Object.defineProperty(_emberMetalCore.default, 'LOG_VERSION', {
-    get: function () {
-      return _emberEnvironment.ENV.LOG_VERSION;
-    },
-    set: function (value) {
-      _emberEnvironment.ENV.LOG_VERSION = !!value;
-    },
-    enumerable: false
-  });
-
-  Object.defineProperty(_emberMetalCore.default, 'MODEL_FACTORY_INJECTIONS', {
-    get: function () {
-      return _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-    },
-    set: function (value) {
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = !!value;
-    },
-    enumerable: false
-  });
-
-  Object.defineProperty(_emberMetalCore.default, 'LOG_BINDINGS', {
-    get: function () {
-      return _emberEnvironment.ENV.LOG_BINDINGS;
-    },
-    set: function (value) {
-      _emberEnvironment.ENV.LOG_BINDINGS = !!value;
-    },
-    enumerable: false
-  });
-
-  Object.defineProperty(_emberMetalCore.default, 'ENV', {
-    get: function () {
-      return _emberEnvironment.ENV;
-    },
-    enumerable: false
-  });
-
-  /**
-    The context that Ember searches for namespace instances on.
-  
-    @private
-   */
-  Object.defineProperty(_emberMetalCore.default, 'lookup', {
-    get: function () {
-      return _emberEnvironment.context.lookup;
-    },
-    set: function (value) {
-      _emberEnvironment.context.lookup = value;
-    },
-    enumerable: false
-  });
-
-  Object.defineProperty(_emberMetalCore.default, 'testing', {
-    get: _emberMetalTesting.isTesting,
-    set: _emberMetalTesting.setTesting,
-    enumerable: false
-  });
-
-  /**
-    A function may be assigned to `Ember.onerror` to be called when Ember
-    internals encounter an error. This is useful for specialized error handling
-    and reporting code.
-  
-    ```javascript
-    Ember.onerror = function(error) {
-      Em.$.ajax('/report-error', 'POST', {
-        stack: error.stack,
-        otherInformation: 'whatever app state you want to provide'
-      });
-    };
-    ```
-  
-    Internally, `Ember.onerror` is used as Backburner's error handler.
-  
-    @event onerror
-    @for Ember
-    @param {Exception} error the error object
-    @public
-  */
-  Object.defineProperty(_emberMetalCore.default, 'onerror', {
-    get: _emberMetalError_handler.getOnerror,
-    set: _emberMetalError_handler.setOnerror,
-    enumerable: false
-  });
-
-  /**
-    An empty function useful for some operations. Always returns `this`.
-  
-    @method K
-    @return {Object}
-    @public
-  */
-  _emberMetalCore.default.K = function K() {
-    return this;
-  };
-
-  // The debug functions are exported to globals with `require` to
-  // prevent babel-plugin-filter-imports from removing them.
-  var debugModule = _require.default('ember-metal/debug');
-  _emberMetalCore.default.assert = debugModule.assert;
-  _emberMetalCore.default.warn = debugModule.warn;
-  _emberMetalCore.default.debug = debugModule.debug;
-  _emberMetalCore.default.deprecate = debugModule.deprecate;
-  _emberMetalCore.default.deprecateFunc = debugModule.deprecateFunc;
-  _emberMetalCore.default.runInDebug = debugModule.runInDebug;
-  // END EXPORTS
-
+  // TODO: this needs to be deleted once we refactor the build tooling
   // do this for side-effects of updating Ember.assert, warn, etc when
   // ember-debug is present
   // This needs to be called before any deprecateFunc
+
   if (_require.has('ember-debug')) {
     _require.default('ember-debug');
-  } else {
-    _emberMetalCore.default.Debug = {};
-    _emberMetalCore.default.Debug.registerDeprecationHandler = function () {};
-    _emberMetalCore.default.Debug.registerWarnHandler = function () {};
   }
-
-  _emberMetalCore.default.create = _emberMetalDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
-  _emberMetalCore.default.keys = _emberMetalDebug.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
-
-  /* globals module */
-  if (typeof module === 'object' && module.exports) {
-    module.exports = _emberMetalCore.default;
-  } else {
-    _emberEnvironment.context.exports.Ember = _emberEnvironment.context.exports.Em = _emberMetalCore.default;
-  }
-
-  exports.default = _emberMetalCore.default;
 });
-// reexports
 enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/properties', 'container'], function (exports, _emberMetalDebug, _emberMetalComputed, _emberMetalAlias, _emberMetalProperties, _container) {
   'use strict';
 
@@ -40632,18 +40434,270 @@ enifed("ember/features", ["exports"], function (exports) {
 
   exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-application-engines": true, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
-enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-environment', 'ember-metal', 'container', 'ember-runtime', 'ember-glimmer', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberMetalFeatures, _emberEnvironment, _emberMetal, _container, _emberRuntime, _emberGlimmer, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
+enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-environment', 'ember-metal', 'backburner', 'container', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberMetalFeatures, _emberEnvironment, _emberMetal, _backburner, _container, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
 
-  _emberMetal.computed.alias = _emberMetal.alias;
-  _emberMetal.default.computed = _emberMetal.computed;
+  var computed = _emberMetal.computed;
+  computed.alias = _emberMetal.alias;
+  _emberMetal.default.computed = computed;
   _emberMetal.default.ComputedProperty = _emberMetal.ComputedProperty;
   _emberMetal.default.cacheFor = _emberMetal.cacheFor;
+
+  _emberMetal.default.assert = _emberMetal.assert;
+  _emberMetal.default.warn = _emberMetal.warn;
+  _emberMetal.default.debug = _emberMetal.debug;
+  _emberMetal.default.deprecate = _emberMetal.deprecate;
+  _emberMetal.default.deprecateFunc = _emberMetal.deprecateFunc;
+  _emberMetal.default.runInDebug = _emberMetal.runInDebug;
+  _emberMetal.default.assign = Object.assign || _emberMetal.assign;
+  _emberMetal.default.merge = _emberMetal.merge;
+
+  _emberMetal.default.instrument = _emberMetal.instrument;
+  _emberMetal.default.subscribe = _emberMetal.instrumentationSubscribe;
+  _emberMetal.default.Instrumentation = {
+    instrument: _emberMetal.instrument,
+    subscribe: _emberMetal.instrumentationSubscribe,
+    unsubscribe: _emberMetal.instrumentationUnsubscribe,
+    reset: _emberMetal.instrumentationReset
+  };
+
+  _emberMetal.default.generateGuid = _emberMetal.generateGuid;
+  _emberMetal.default.GUID_KEY = _emberMetal.GUID_KEY;
+  _emberMetal.default.guidFor = _emberMetal.guidFor;
+  _emberMetal.default.inspect = _emberMetal.inspect;
+
+  _emberMetal.default.tryCatchFinally = _emberMetal.deprecatedTryCatchFinally;
+  _emberMetal.default.makeArray = _emberMetal.makeArray;
+  _emberMetal.default.canInvoke = _emberMetal.canInvoke;
+  _emberMetal.default.tryInvoke = _emberMetal.tryInvoke;
+  _emberMetal.default.wrap = _emberMetal.wrap;
+  _emberMetal.default.apply = _emberMetal.apply;
+  _emberMetal.default.applyStr = _emberMetal.applyStr;
+  _emberMetal.default.uuid = _emberMetal.uuid;
+  _emberMetal.default.Error = _emberMetal.Error;
+  _emberMetal.default.META_DESC = _emberMetal.META_DESC;
+  _emberMetal.default.meta = _emberMetal.meta;
+  _emberMetal.default.get = _emberMetal.get;
+  _emberMetal.default.getWithDefault = _emberMetal.getWithDefault;
+  _emberMetal.default._getPath = _emberMetal._getPath;
+  _emberMetal.default.set = _emberMetal.set;
+  _emberMetal.default.trySet = _emberMetal.trySet;
+  _emberMetal.default.FEATURES = _emberMetal.FEATURES;
+  _emberMetal.default.FEATURES.isEnabled = _emberMetal.isFeatureEnabled;
+  _emberMetal.default._Cache = _emberMetal.Cache;
+  _emberMetal.default.on = _emberMetal.on;
+  _emberMetal.default.addListener = _emberMetal.addListener;
+  _emberMetal.default.removeListener = _emberMetal.removeListener;
+  _emberMetal.default._suspendListener = _emberMetal.suspendListener;
+  _emberMetal.default._suspendListeners = _emberMetal.suspendListeners;
+  _emberMetal.default.sendEvent = _emberMetal.sendEvent;
+  _emberMetal.default.hasListeners = _emberMetal.hasListeners;
+  _emberMetal.default.watchedEvents = _emberMetal.watchedEvents;
+  _emberMetal.default.listenersFor = _emberMetal.listenersFor;
+  _emberMetal.default.accumulateListeners = _emberMetal.accumulateListeners;
+  _emberMetal.default.isNone = _emberMetal.isNone;
+  _emberMetal.default.isEmpty = _emberMetal.isEmpty;
+  _emberMetal.default.isBlank = _emberMetal.isBlank;
+  _emberMetal.default.isPresent = _emberMetal.isPresent;
+  _emberMetal.default.run = _emberMetal.run;
+  _emberMetal.default._ObserverSet = _emberMetal.ObserverSet;
+  _emberMetal.default.propertyWillChange = _emberMetal.propertyWillChange;
+  _emberMetal.default.propertyDidChange = _emberMetal.propertyDidChange;
+  _emberMetal.default.overrideChains = _emberMetal.overrideChains;
+  _emberMetal.default.beginPropertyChanges = _emberMetal.beginPropertyChanges;
+  _emberMetal.default.endPropertyChanges = _emberMetal.endPropertyChanges;
+  _emberMetal.default.changeProperties = _emberMetal.changeProperties;
+  _emberMetal.default.platform = {
+    defineProperty: true,
+    hasPropertyAccessors: true
+  };
+  _emberMetal.default.defineProperty = _emberMetal.defineProperty;
+  _emberMetal.default.watchKey = _emberMetal.watchKey;
+  _emberMetal.default.unwatchKey = _emberMetal.unwatchKey;
+  _emberMetal.default.removeChainWatcher = _emberMetal.removeChainWatcher;
+  _emberMetal.default._ChainNode = _emberMetal.ChainNode;
+  _emberMetal.default.finishChains = _emberMetal.finishChains;
+  _emberMetal.default.watchPath = _emberMetal.watchPath;
+  _emberMetal.default.unwatchPath = _emberMetal.unwatchPath;
+  _emberMetal.default.watch = _emberMetal.watch;
+  _emberMetal.default.isWatching = _emberMetal.isWatching;
+  _emberMetal.default.unwatch = _emberMetal.unwatch;
+  _emberMetal.default.rewatch = _emberMetal.rewatch;
+  _emberMetal.default.destroy = _emberMetal.destroy;
+  _emberMetal.default.libraries = _emberMetal.libraries;
+  _emberMetal.default.OrderedSet = _emberMetal.OrderedSet;
+  _emberMetal.default.Map = _emberMetal.Map;
+  _emberMetal.default.MapWithDefault = _emberMetal.MapWithDefault;
+  _emberMetal.default.getProperties = _emberMetal.getProperties;
+  _emberMetal.default.setProperties = _emberMetal.setProperties;
+  _emberMetal.default.expandProperties = _emberMetal.expandProperties;
+  _emberMetal.default.NAME_KEY = _emberMetal.NAME_KEY;
+  _emberMetal.default.addObserver = _emberMetal.addObserver;
+  _emberMetal.default.observersFor = _emberMetal.observersFor;
+  _emberMetal.default.removeObserver = _emberMetal.removeObserver;
+  _emberMetal.default._suspendObserver = _emberMetal._suspendObserver;
+  _emberMetal.default._suspendObservers = _emberMetal._suspendObservers;
+  _emberMetal.default.required = _emberMetal.required;
+  _emberMetal.default.aliasMethod = _emberMetal.aliasMethod;
+  _emberMetal.default.observer = _emberMetal.observer;
+  _emberMetal.default.immediateObserver = _emberMetal._immediateObserver;
+  _emberMetal.default.mixin = _emberMetal.mixin;
+  _emberMetal.default.Mixin = _emberMetal.Mixin;
+  _emberMetal.default.bind = _emberMetal.bind;
+  _emberMetal.default.Binding = _emberMetal.Binding;
+  _emberMetal.default.isGlobalPath = _emberMetal.isGlobalPath;
+
+  if (_emberMetalFeatures.default('ember-metal-weakmap')) {
+    _emberMetal.default.WeakMap = _emberMetal.WeakMap;
+  }
+
+  Object.defineProperty(_emberMetal.default, 'ENV', {
+    get: function () {
+      return _emberEnvironment.ENV;
+    },
+    enumerable: false
+  });
+
+  /**
+   The context that Ember searches for namespace instances on.
+  
+   @private
+   */
+  Object.defineProperty(_emberMetal.default, 'lookup', {
+    get: function () {
+      return _emberEnvironment.context.lookup;
+    },
+    set: function (value) {
+      _emberEnvironment.context.lookup = value;
+    },
+    enumerable: false
+  });
+
+  _emberMetal.default.EXTEND_PROTOTYPES = _emberEnvironment.ENV.EXTEND_PROTOTYPES;
+
+  // BACKWARDS COMPAT ACCESSORS FOR ENV FLAGS
+  Object.defineProperty(_emberMetal.default, 'LOG_STACKTRACE_ON_DEPRECATION', {
+    get: function () {
+      return _emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION;
+    },
+    set: function (value) {
+      _emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION = !!value;
+    },
+    enumerable: false
+  });
+
+  Object.defineProperty(_emberMetal.default, 'LOG_VERSION', {
+    get: function () {
+      return _emberEnvironment.ENV.LOG_VERSION;
+    },
+    set: function (value) {
+      _emberEnvironment.ENV.LOG_VERSION = !!value;
+    },
+    enumerable: false
+  });
+
+  Object.defineProperty(_emberMetal.default, 'MODEL_FACTORY_INJECTIONS', {
+    get: function () {
+      return _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
+    },
+    set: function (value) {
+      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = !!value;
+    },
+    enumerable: false
+  });
+
+  Object.defineProperty(_emberMetal.default, 'LOG_BINDINGS', {
+    get: function () {
+      return _emberEnvironment.ENV.LOG_BINDINGS;
+    },
+    set: function (value) {
+      _emberEnvironment.ENV.LOG_BINDINGS = !!value;
+    },
+    enumerable: false
+  });
+
+  /**
+    A function may be assigned to `Ember.onerror` to be called when Ember
+    internals encounter an error. This is useful for specialized error handling
+    and reporting code.
+  
+    ```javascript
+    Ember.onerror = function(error) {
+      Em.$.ajax('/report-error', 'POST', {
+        stack: error.stack,
+        otherInformation: 'whatever app state you want to provide'
+      });
+    };
+    ```
+  
+    Internally, `Ember.onerror` is used as Backburner's error handler.
+  
+    @event onerror
+    @for Ember
+    @param {Exception} error the error object
+    @public
+  */
+  Object.defineProperty(_emberMetal.default, 'onerror', {
+    get: _emberMetal.getOnerror,
+    set: _emberMetal.setOnerror,
+    enumerable: false
+  });
+
+  /**
+    An empty function useful for some operations. Always returns `this`.
+  
+    @method K
+    @return {Object}
+    @public
+  */
+  _emberMetal.default.K = function K() {
+    return this;
+  };
+
+  Object.defineProperty(_emberMetal.default, 'testing', {
+    get: _emberMetal.isTesting,
+    set: _emberMetal.setTesting,
+    enumerable: false
+  });
+
+  if (!_require.has('ember-debug')) {
+    _emberMetal.default.Debug = {
+      registerDeprecationHandler: function () {},
+      registerWarnHandler: function () {}
+    };
+  }
+
+  /**
+   @class Backburner
+   @for Ember
+   @private
+   */
+  _emberMetal.default.Backburner = function () {
+    _emberMetal.deprecate('Usage of Ember.Backburner is deprecated.', false, {
+      id: 'ember-metal.ember-backburner',
+      until: '2.8.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-backburner'
+    });
+
+    function BackburnerAlias(args) {
+      return _backburner.default.apply(this, args);
+    }
+
+    BackburnerAlias.prototype = _backburner.default.prototype;
+
+    return new BackburnerAlias(arguments);
+  };
+
+  _emberMetal.default._Backburner = _backburner.default;
 
   _emberMetal.default.Container = _container.Container;
   _emberMetal.default.Registry = _container.Registry;
   _emberMetal.default.getOwner = _container.getOwner;
   _emberMetal.default.setOwner = _container.setOwner;
+
+  _emberMetal.default.Logger = _emberConsole.default;
+
+  // ****ember-runtime****
 
   _emberMetal.default.String = _emberRuntime.String;
   _emberMetal.default.Object = _emberRuntime.Object;
@@ -40683,43 +40737,43 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
   _emberMetal.default.Namespace = _emberRuntime.Namespace;
 
   // ES6TODO: this seems a less than ideal way/place to add properties to Ember.computed
-  _emberMetal.computed.empty = _emberRuntime.empty;
-  _emberMetal.computed.notEmpty = _emberRuntime.notEmpty;
-  _emberMetal.computed.none = _emberRuntime.none;
-  _emberMetal.computed.not = _emberRuntime.not;
-  _emberMetal.computed.bool = _emberRuntime.bool;
-  _emberMetal.computed.match = _emberRuntime.match;
-  _emberMetal.computed.equal = _emberRuntime.equal;
-  _emberMetal.computed.gt = _emberRuntime.gt;
-  _emberMetal.computed.gte = _emberRuntime.gte;
-  _emberMetal.computed.lt = _emberRuntime.lt;
-  _emberMetal.computed.lte = _emberRuntime.lte;
-  _emberMetal.computed.oneWay = _emberRuntime.oneWay;
-  _emberMetal.computed.reads = _emberRuntime.oneWay;
-  _emberMetal.computed.readOnly = _emberRuntime.readOnly;
-  _emberMetal.computed.defaultTo = _emberRuntime.defaultTo;
-  _emberMetal.computed.deprecatingAlias = _emberRuntime.deprecatingAlias;
-  _emberMetal.computed.and = _emberRuntime.and;
-  _emberMetal.computed.or = _emberRuntime.or;
-  _emberMetal.computed.any = _emberRuntime.any;
+  computed.empty = _emberRuntime.empty;
+  computed.notEmpty = _emberRuntime.notEmpty;
+  computed.none = _emberRuntime.none;
+  computed.not = _emberRuntime.not;
+  computed.bool = _emberRuntime.bool;
+  computed.match = _emberRuntime.match;
+  computed.equal = _emberRuntime.equal;
+  computed.gt = _emberRuntime.gt;
+  computed.gte = _emberRuntime.gte;
+  computed.lt = _emberRuntime.lt;
+  computed.lte = _emberRuntime.lte;
+  computed.oneWay = _emberRuntime.oneWay;
+  computed.reads = _emberRuntime.oneWay;
+  computed.readOnly = _emberRuntime.readOnly;
+  computed.defaultTo = _emberRuntime.defaultTo;
+  computed.deprecatingAlias = _emberRuntime.deprecatingAlias;
+  computed.and = _emberRuntime.and;
+  computed.or = _emberRuntime.or;
+  computed.any = _emberRuntime.any;
 
-  _emberMetal.computed.sum = _emberRuntime.sum;
-  _emberMetal.computed.min = _emberRuntime.min;
-  _emberMetal.computed.max = _emberRuntime.max;
-  _emberMetal.computed.map = _emberRuntime.map;
-  _emberMetal.computed.sort = _emberRuntime.sort;
-  _emberMetal.computed.setDiff = _emberRuntime.setDiff;
-  _emberMetal.computed.mapBy = _emberRuntime.mapBy;
-  _emberMetal.computed.filter = _emberRuntime.filter;
-  _emberMetal.computed.filterBy = _emberRuntime.filterBy;
-  _emberMetal.computed.uniq = _emberRuntime.uniq;
+  computed.sum = _emberRuntime.sum;
+  computed.min = _emberRuntime.min;
+  computed.max = _emberRuntime.max;
+  computed.map = _emberRuntime.map;
+  computed.sort = _emberRuntime.sort;
+  computed.setDiff = _emberRuntime.setDiff;
+  computed.mapBy = _emberRuntime.mapBy;
+  computed.filter = _emberRuntime.filter;
+  computed.filterBy = _emberRuntime.filterBy;
+  computed.uniq = _emberRuntime.uniq;
 
   if (true) {
-    _emberMetal.computed.uniqBy = _emberRuntime.uniqBy;
+    computed.uniqBy = _emberRuntime.uniqBy;
   }
-  _emberMetal.computed.union = _emberRuntime.union;
-  _emberMetal.computed.intersect = _emberRuntime.intersect;
-  _emberMetal.computed.collect = _emberRuntime.collect;
+  computed.union = _emberRuntime.union;
+  computed.intersect = _emberRuntime.intersect;
+  computed.collect = _emberRuntime.collect;
 
   /**
    Defines the hash of localized strings for the current language. Used by
@@ -40807,6 +40861,19 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
     enumerable: false
   });
 
+  /**
+   The semantic version
+   @property VERSION
+   @type String
+   @public
+   */
+  _emberMetal.default.VERSION = _emberVersion.default;
+
+  _emberMetal.libraries.registerCoreLibrary('Ember', _emberVersion.default);
+
+  _emberMetal.default.create = _emberMetal.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
+  _emberMetal.default.keys = _emberMetal.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
+
   // require the main entry points for each of these packages
   // this is so that the global exports occur properly
 
@@ -40826,7 +40893,18 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
   @module ember
   */
   exports.default = _emberMetal.default;
+
+  /* globals module */
+  if (typeof module === 'object' && module.exports) {
+    module.exports = _emberMetal.default;
+  } else {
+    _emberEnvironment.context.exports.Ember = _emberEnvironment.context.exports.Em = _emberMetal.default;
+  }
 });
+
+// ****ember-environment****
+
+// ****ember-metal****
 
 // computed macros
 
@@ -40834,7 +40912,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+aea269c4";
+  exports.default = "2.9.0-null+9852f753";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
   'use strict';
