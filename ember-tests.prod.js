@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+9852f753
+ * @version   2.9.0-null+7a3faa47
  */
 
 var enifed, requireModule, require, Ember;
@@ -1747,7 +1747,7 @@ enifed('container/tests/test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'ember-metal/features', 'container', 'ember-runtime/system/object'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _emberMetalFeatures, _container, _emberRuntimeSystemObject) {
+enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory', 'container', 'ember-runtime/system/object'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory, _container, _emberRuntimeSystemObject) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
@@ -1897,53 +1897,51 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 
-  if (true) {
-    QUnit.test('can build and boot a registered engine', function (assert) {
-      assert.expect(10);
+  QUnit.test('can build and boot a registered engine', function (assert) {
+    assert.expect(10);
 
-      var ChatEngine = _emberApplicationSystemEngine.default.extend();
-      var chatEngineInstance = undefined;
+    var ChatEngine = _emberApplicationSystemEngine.default.extend();
+    var chatEngineInstance = undefined;
 
-      application.register('engine:chat', ChatEngine);
+    application.register('engine:chat', ChatEngine);
 
-      _emberMetalRun_loop.default(function () {
-        appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: application });
-        appInstance.setupRegistry();
-        chatEngineInstance = appInstance.buildChildEngineInstance('chat');
-      });
-
-      return chatEngineInstance.boot().then(function () {
-        assert.ok(true, 'boot successful');
-
-        var registrations = ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'];
-
-        registrations.forEach(function (key) {
-          assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
-        });
-
-        var singletons = ['router:main', _container.privatize(_templateObject), '-view-registry:main', '-environment:main'];
-
-        var env = appInstance.lookup('-environment:main');
-        singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
-
-        singletons.forEach(function (key) {
-          assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
-        });
-      });
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: application });
+      appInstance.setupRegistry();
+      chatEngineInstance = appInstance.buildChildEngineInstance('chat');
     });
 
-    QUnit.test('can build a registry via Ember.ApplicationInstance.setupRegistry() -- simulates ember-test-helpers', function (assert) {
-      var namespace = _emberRuntimeSystemObject.default.create({
-        Resolver: { create: function () {} }
+    return chatEngineInstance.boot().then(function () {
+      assert.ok(true, 'boot successful');
+
+      var registrations = ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'];
+
+      registrations.forEach(function (key) {
+        assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
       });
 
-      var registry = _emberApplicationSystemApplication.default.buildRegistry(namespace);
+      var singletons = ['router:main', _container.privatize(_templateObject), '-view-registry:main', '-environment:main'];
 
-      _emberApplicationSystemApplicationInstance.default.setupRegistry(registry);
+      var env = appInstance.lookup('-environment:main');
+      singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
 
-      assert.equal(registry.resolve('service:-document'), document);
+      singletons.forEach(function (key) {
+        assert.strictEqual(chatEngineInstance.lookup(key), appInstance.lookup(key), 'Engine and parent app share singleton \'' + key + '\'');
+      });
     });
-  }
+  });
+
+  QUnit.test('can build a registry via Ember.ApplicationInstance.setupRegistry() -- simulates ember-test-helpers', function (assert) {
+    var namespace = _emberRuntimeSystemObject.default.create({
+      Resolver: { create: function () {} }
+    });
+
+    var registry = _emberApplicationSystemApplication.default.buildRegistry(namespace);
+
+    _emberApplicationSystemApplicationInstance.default.setupRegistry(registry);
+
+    assert.equal(registry.resolve('service:-document'), document);
+  });
 });
 enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberVersion, _emberEnvironment, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberGlimmer, _container, _emberApplicationTestsTestHelpersRegistryCheck) {
   /*globals EmberDev */
@@ -3655,7 +3653,7 @@ enifed('ember-application/tests/system/engine_instance_initializers_test', ['exp
     return myEngineInstance.boot();
   });
 });
-enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-metal/run_loop', 'container/tests/test-helpers/factory', 'ember-metal/features'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationSystemEngineParent, _emberMetalRun_loop, _containerTestsTestHelpersFactory, _emberMetalFeatures) {
+enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-metal/run_loop', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationSystemEngineParent, _emberMetalRun_loop, _containerTestsTestHelpersFactory) {
   'use strict';
 
   var engine = undefined,
@@ -3711,54 +3709,52 @@ enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember
     assert.notStrictEqual(postComponent1, postComponent2, 'lookup creates a brand new instance because previous one was reset');
   });
 
-  if (true) {
-    QUnit.test('can be booted when its parent has been set', function (assert) {
-      assert.expect(3);
+  QUnit.test('can be booted when its parent has been set', function (assert) {
+    assert.expect(3);
 
-      engineInstance = _emberMetalRun_loop.default(function () {
-        return _emberApplicationSystemEngineInstance.default.create({ base: engine });
-      });
-
-      expectAssertion(function () {
-        engineInstance._bootSync();
-      }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
-
-      _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {});
-
-      // Stub `cloneParentDependencies`, the internals of which are tested along
-      // with application instances.
-      engineInstance.cloneParentDependencies = function () {
-        assert.ok(true, 'parent dependencies are cloned');
-      };
-
-      return engineInstance.boot().then(function () {
-        assert.ok(true, 'boot successful');
-      });
+    engineInstance = _emberMetalRun_loop.default(function () {
+      return _emberApplicationSystemEngineInstance.default.create({ base: engine });
     });
 
-    QUnit.test('can build a child instance of a registered engine', function (assert) {
-      var ChatEngine = _emberApplicationSystemEngine.default.extend();
-      var chatEngineInstance = undefined;
+    expectAssertion(function () {
+      engineInstance._bootSync();
+    }, 'An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.');
 
-      engine.register('engine:chat', ChatEngine);
+    _emberApplicationSystemEngineParent.setEngineParent(engineInstance, {});
 
-      _emberMetalRun_loop.default(function () {
-        engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
+    // Stub `cloneParentDependencies`, the internals of which are tested along
+    // with application instances.
+    engineInstance.cloneParentDependencies = function () {
+      assert.ok(true, 'parent dependencies are cloned');
+    };
 
-        // Try to build an unregistered engine.
-        throws(function () {
-          engineInstance.buildChildEngineInstance('fake');
-        }, 'You attempted to mount the engine \'fake\', but it is not registered with its parent.');
-
-        // Build the `chat` engine, registered above.
-        chatEngineInstance = engineInstance.buildChildEngineInstance('chat');
-      });
-
-      assert.ok(chatEngineInstance, 'child engine instance successfully created');
-
-      assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(chatEngineInstance), engineInstance, 'child engine instance is assigned the correct parent');
+    return engineInstance.boot().then(function () {
+      assert.ok(true, 'boot successful');
     });
-  }
+  });
+
+  QUnit.test('can build a child instance of a registered engine', function (assert) {
+    var ChatEngine = _emberApplicationSystemEngine.default.extend();
+    var chatEngineInstance = undefined;
+
+    engine.register('engine:chat', ChatEngine);
+
+    _emberMetalRun_loop.default(function () {
+      engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
+
+      // Try to build an unregistered engine.
+      throws(function () {
+        engineInstance.buildChildEngineInstance('fake');
+      }, 'You attempted to mount the engine \'fake\', but it is not registered with its parent.');
+
+      // Build the `chat` engine, registered above.
+      chatEngineInstance = engineInstance.buildChildEngineInstance('chat');
+    });
+
+    assert.ok(chatEngineInstance, 'child engine instance successfully created');
+
+    assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(chatEngineInstance), engineInstance, 'child engine instance is assigned the correct parent');
+  });
 });
 enifed('ember-application/tests/system/engine_parent_test', ['exports', 'ember-application/system/engine-parent'], function (exports, _emberApplicationSystemEngineParent) {
   'use strict';
@@ -7365,158 +7361,154 @@ enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember
     return _emberGlimmerTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberGlimmerTemplateCompiler.defaultCompileOptions(), options));
   }
 });
-enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-metal/features'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberMetalFeatures) {
+enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-routing/system/route'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberRoutingSystemRoute) {
   'use strict';
 
-  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      '], ['\n        <h1>{{contextType}}</h1>\n        {{ambiguous-curlies}}\n\n        {{outlet}}\n      ']),
-      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n          <p>Component!</p>\n        '], ['\n          <p>Component!</p>\n        ']);
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    '], ['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n        <p>Component!</p>\n      '], ['\n        <p>Component!</p>\n      ']);
 
-  var shouldRun = true;
-
-  if (shouldRun) {
-    _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: engine rendering', (function (_ApplicationTest) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: engine rendering', (function (_ApplicationTest) {
 babelHelpers.inherits(_class, _ApplicationTest);
 
-      function _class() {
-        _ApplicationTest.apply(this, arguments);
-      }
+    function _class() {
+      _ApplicationTest.apply(this, arguments);
+    }
 
-      _class.prototype.setupAppAndRoutableEngine = function setupAppAndRoutableEngine() {
-        var hooks = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+    _class.prototype.setupAppAndRoutableEngine = function setupAppAndRoutableEngine() {
+      var hooks = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
-        this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{outlet}}'));
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{outlet}}'));
 
-        this.router.map(function () {
-          this.mount('blog');
-        });
-        this.application.register('route-map:blog', function () {});
-        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            hooks.push('application - application');
-          }
-        }));
+      this.router.map(function () {
+        this.mount('blog');
+      });
+      this.application.register('route-map:blog', function () {});
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          hooks.push('application - application');
+        }
+      }));
 
-        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}}'));
-            this.register('route:application', _emberRoutingSystemRoute.default.extend({
-              model: function () {
-                hooks.push('engine - application');
-              }
-            }));
-          }
-        }));
-      };
+      this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}}'));
+          this.register('route:application', _emberRoutingSystemRoute.default.extend({
+            model: function () {
+              hooks.push('engine - application');
+            }
+          }));
+        }
+      }));
+    };
 
-      _class.prototype.setupAppAndRoutelessEngine = function setupAppAndRoutelessEngine(hooks) {
-        this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{mount "chat-engine"}}'));
-        this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            hooks.push('application - application');
-          }
-        }));
+    _class.prototype.setupAppAndRoutelessEngine = function setupAppAndRoutelessEngine(hooks) {
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{mount "chat-engine"}}'));
+      this.registerRoute('application', _emberRoutingSystemRoute.default.extend({
+        model: function () {
+          hooks.push('application - application');
+        }
+      }));
 
-        this.registerEngine('chat-engine', _emberApplicationSystemEngine.default.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine'));
-            this.register('controller:application', _emberRuntimeControllersController.default.extend({
-              init: function () {
-                this._super.apply(this, arguments);
-                hooks.push('engine - application');
-              }
-            }));
-          }
-        }));
-      };
+      this.registerEngine('chat-engine', _emberApplicationSystemEngine.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine'));
+          this.register('controller:application', _emberRuntimeControllersController.default.extend({
+            init: function () {
+              this._super.apply(this, arguments);
+              hooks.push('engine - application');
+            }
+          }));
+        }
+      }));
+    };
 
-      _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
-        var _this = this;
+    _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
+      var _this = this;
 
-        this.assert.expect(1);
+      this.assert.expect(1);
 
-        var sharedTemplate = _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+      var sharedTemplate = _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
 
-        this.application.register('template:application', sharedTemplate);
-        this.registerController('application', _emberRuntimeControllersController.default.extend({
-          contextType: 'Application',
-          'ambiguous-curlies': 'Controller Data!'
-        }));
+      this.application.register('template:application', sharedTemplate);
+      this.registerController('application', _emberRuntimeControllersController.default.extend({
+        contextType: 'Application',
+        'ambiguous-curlies': 'Controller Data!'
+      }));
 
-        this.router.map(function () {
-          this.mount('blog');
-        });
-        this.application.register('route-map:blog', function () {});
+      this.router.map(function () {
+        this.mount('blog');
+      });
+      this.application.register('route-map:blog', function () {});
 
-        this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
-          init: function () {
-            this._super.apply(this, arguments);
+      this.registerEngine('blog', _emberApplicationSystemEngine.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
 
-            this.register('controller:application', _emberRuntimeControllersController.default.extend({
-              contextType: 'Engine'
-            }));
-            this.register('template:application', sharedTemplate);
-            this.register('template:components/ambiguous-curlies', _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2)));
-          }
-        }));
+          this.register('controller:application', _emberRuntimeControllersController.default.extend({
+            contextType: 'Engine'
+          }));
+          this.register('template:application', sharedTemplate);
+          this.register('template:components/ambiguous-curlies', _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2)));
+        }
+      }));
 
-        return this.visit('/blog').then(function () {
-          _this.assertText('ApplicationController Data!EngineComponent!');
-        });
-      };
+      return this.visit('/blog').then(function () {
+        _this.assertText('ApplicationController Data!EngineComponent!');
+      });
+    };
 
-      _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndEngineTemplatesHaveRendered(assert) {
-        var _this2 = this;
+    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndEngineTemplatesHaveRendered(assert) {
+      var _this2 = this;
 
-        assert.expect(2);
+      assert.expect(2);
 
-        var hooks = [];
+      var hooks = [];
 
-        this.setupAppAndRoutableEngine(hooks);
+      this.setupAppAndRoutableEngine(hooks);
 
-        return this.visit('/blog', { shouldRender: true }).then(function () {
-          _this2.assertText('ApplicationEngine');
+      return this.visit('/blog', { shouldRender: true }).then(function () {
+        _this2.assertText('ApplicationEngine');
 
-          _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
-        });
-      };
+        _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
+      });
+    };
 
-      _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
-        var _this3 = this;
+    _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
+      var _this3 = this;
 
-        assert.expect(2);
+      assert.expect(2);
 
-        var hooks = [];
+      var hooks = [];
 
-        this.setupAppAndRoutableEngine(hooks);
+      this.setupAppAndRoutableEngine(hooks);
 
-        return this.visit('/blog', { shouldRender: false }).then(function () {
-          _this3.assertText('');
+      return this.visit('/blog', { shouldRender: false }).then(function () {
+        _this3.assertText('');
 
-          _this3.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
-        });
-      };
+        _this3.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
+      });
+    };
 
-      _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and routeless engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndRoutelessEngineTemplatesHaveRendered(assert) {
-        var _this4 = this;
+    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and routeless engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndRoutelessEngineTemplatesHaveRendered(assert) {
+      var _this4 = this;
 
-        assert.expect(2);
+      assert.expect(2);
 
-        var hooks = [];
+      var hooks = [];
 
-        this.setupAppAndRoutelessEngine(hooks);
+      this.setupAppAndRoutelessEngine(hooks);
 
-        return this.visit('/', { shouldRender: true }).then(function () {
-          _this4.assertText('ApplicationEngine');
+      return this.visit('/', { shouldRender: true }).then(function () {
+        _this4.assertText('ApplicationEngine');
 
-          _this4.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
-        });
-      };
+        _this4.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+      });
+    };
 
-      return _class;
-    })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
-  }
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
 enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime/controllers/controller', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing/system/route'], function (exports, _emberRuntimeControllersController, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRoutingSystemRoute) {
   'use strict';
@@ -27343,110 +27335,108 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-metal/features', 'ember-metal/property_set', 'ember-application/system/engine', 'ember-application/system/engine-parent', 'container'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberMetalFeatures, _emberMetalProperty_set, _emberApplicationSystemEngine, _emberApplicationSystemEngineParent, _container) {
+enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-application/system/engine', 'ember-application/system/engine-parent', 'container'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberMetalProperty_set, _emberApplicationSystemEngine, _emberApplicationSystemEngineParent, _container) {
   'use strict';
 
-  if (true) {
-    _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} assertions', (function (_RenderingTest) {
-      babelHelpers.inherits(_class, _RenderingTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} assertions', (function (_RenderingTest) {
+    babelHelpers.inherits(_class, _RenderingTest);
 
-      function _class() {
-        _RenderingTest.apply(this, arguments);
-      }
+    function _class() {
+      _RenderingTest.apply(this, arguments);
+    }
 
-      _class.prototype['@test it asserts that only a single param is passed'] = function testItAssertsThatOnlyASingleParamIsPassed() {
-        var _this = this;
+    _class.prototype['@test it asserts that only a single param is passed'] = function testItAssertsThatOnlyASingleParamIsPassed() {
+      var _this = this;
 
-        expectAssertion(function () {
-          _this.render('{{mount "chat" "foo"}}');
-        }, /You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}./i);
-      };
+      expectAssertion(function () {
+        _this.render('{{mount "chat" "foo"}}');
+      }, /You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}./i);
+    };
 
-      _class.prototype['@test it asserts that the engine name argument is quoted'] = function testItAssertsThatTheEngineNameArgumentIsQuoted() {
-        var _this2 = this;
+    _class.prototype['@test it asserts that the engine name argument is quoted'] = function testItAssertsThatTheEngineNameArgumentIsQuoted() {
+      var _this2 = this;
 
-        expectAssertion(function () {
-          _this2.render('{{mount chat}}');
-        }, /The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}./i);
-      };
+      expectAssertion(function () {
+        _this2.render('{{mount chat}}');
+      }, /The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}./i);
+    };
 
-      _class.prototype['@test it asserts that the specified engine is registered'] = function testItAssertsThatTheSpecifiedEngineIsRegistered() {
-        var _this3 = this;
+    _class.prototype['@test it asserts that the specified engine is registered'] = function testItAssertsThatTheSpecifiedEngineIsRegistered() {
+      var _this3 = this;
 
-        expectAssertion(function () {
-          _this3.render('{{mount "chat"}}');
-        }, /You used `{{mount 'chat'}}`, but the engine 'chat' can not be found./i);
-      };
+      expectAssertion(function () {
+        _this3.render('{{mount "chat"}}');
+      }, /You used `{{mount 'chat'}}`, but the engine 'chat' can not be found./i);
+    };
 
-      return _class;
-    })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-    _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} test', (function (_ApplicationTest) {
-      babelHelpers.inherits(_class2, _ApplicationTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} test', (function (_ApplicationTest) {
+    babelHelpers.inherits(_class2, _ApplicationTest);
 
-      function _class2() {
-        _ApplicationTest.call(this);
+    function _class2() {
+      _ApplicationTest.call(this);
 
-        var engineRegistrations = this.engineRegistrations = {};
+      var engineRegistrations = this.engineRegistrations = {};
 
-        this.registerEngine('chat', _emberApplicationSystemEngine.default.extend({
-          router: null,
+      this.registerEngine('chat', _emberApplicationSystemEngine.default.extend({
+        router: null,
 
-          init: function () {
-            var _this4 = this;
+        init: function () {
+          var _this4 = this;
 
-            this._super.apply(this, arguments);
+          this._super.apply(this, arguments);
 
-            Object.keys(engineRegistrations).forEach(function (fullName) {
-              _this4.register(fullName, engineRegistrations[fullName]);
-            });
-          }
-        }));
+          Object.keys(engineRegistrations).forEach(function (fullName) {
+            _this4.register(fullName, engineRegistrations[fullName]);
+          });
+        }
+      }));
 
-        this.registerTemplate('index', '{{mount "chat"}}');
-      }
+      this.registerTemplate('index', '{{mount "chat"}}');
+    }
 
-      _class2.prototype['@test it boots an engine, instantiates its application controller, and renders its application template'] = function testItBootsAnEngineInstantiatesItsApplicationControllerAndRendersItsApplicationTemplate(assert) {
-        var _this5 = this;
+    _class2.prototype['@test it boots an engine, instantiates its application controller, and renders its application template'] = function testItBootsAnEngineInstantiatesItsApplicationControllerAndRendersItsApplicationTemplate(assert) {
+      var _this5 = this;
 
-        this.engineRegistrations['template:application'] = _emberGlimmerTestsUtilsHelpers.compile('<h2>Chat here, {{username}}</h2>', { moduleName: 'application' });
+      this.engineRegistrations['template:application'] = _emberGlimmerTestsUtilsHelpers.compile('<h2>Chat here, {{username}}</h2>', { moduleName: 'application' });
 
-        var controller = undefined;
+      var controller = undefined;
 
-        this.engineRegistrations['controller:application'] = _emberRuntimeControllersController.default.extend({
-          username: 'dgeb',
+      this.engineRegistrations['controller:application'] = _emberRuntimeControllersController.default.extend({
+        username: 'dgeb',
 
-          init: function () {
-            this._super();
-            controller = this;
-          }
+        init: function () {
+          this._super();
+          controller = this;
+        }
+      });
+
+      return this.visit('/').then(function () {
+        assert.ok(controller, 'engine\'s application controller has been instantiated');
+
+        var engineInstance = _container.getOwner(controller);
+        assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(engineInstance), _this5.applicationInstance, 'engine instance has the application instance as its parent');
+
+        _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+
+        _this5.runTask(function () {
+          return _emberMetalProperty_set.set(controller, 'username', 'chancancode');
         });
 
-        return this.visit('/').then(function () {
-          assert.ok(controller, 'engine\'s application controller has been instantiated');
+        _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, chancancode</h2>' });
 
-          var engineInstance = _container.getOwner(controller);
-          assert.strictEqual(_emberApplicationSystemEngineParent.getEngineParent(engineInstance), _this5.applicationInstance, 'engine instance has the application instance as its parent');
-
-          _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
-
-          _this5.runTask(function () {
-            return _emberMetalProperty_set.set(controller, 'username', 'chancancode');
-          });
-
-          _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, chancancode</h2>' });
-
-          _this5.runTask(function () {
-            return _emberMetalProperty_set.set(controller, 'username', 'dgeb');
-          });
-
-          _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+        _this5.runTask(function () {
+          return _emberMetalProperty_set.set(controller, 'username', 'dgeb');
         });
-      };
 
-      return _class2;
-    })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
-  }
+        _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
+      });
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
 enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
   'use strict';
@@ -41876,7 +41866,7 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   });
 });
 // A
-enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router', 'container', 'container/tests/test-helpers/build-owner', 'ember-metal/features'], function (exports, _emberRoutingSystemRouter, _container, _containerTestsTestHelpersBuildOwner, _emberMetalFeatures) {
+enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router', 'container', 'container/tests/test-helpers/build-owner'], function (exports, _emberRoutingSystemRouter, _container, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var Router = undefined;
@@ -42021,193 +42011,191 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     ok(!router.router.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
   });
 
-  if (true) {
-    QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
-      Router.map(function () {
-        var _this = this;
+  QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
+    Router.map(function () {
+      var _this = this;
 
-        throws(function () {
-          _this.route('posts', { serialize: function () {} });
-        }, /Defining a route serializer on route 'posts' outside an Engine is not allowed/);
-      });
-
-      Router.create()._initRouterJs();
+      throws(function () {
+        _this.route('posts', { serialize: function () {} });
+      }, /Defining a route serializer on route 'posts' outside an Engine is not allowed/);
     });
 
-    QUnit.module('Ember Router DSL with engines', {
-      setup: setup,
-      teardown: teardown
-    });
+    Router.create()._initRouterJs();
+  });
 
-    QUnit.test('should allow mounting of engines', function (assert) {
-      assert.expect(3);
+  QUnit.module('Ember Router DSL with engines', {
+    setup: setup,
+    teardown: teardown
+  });
 
-      Router = Router.map(function () {
-        this.route('bleep', function () {
-          this.route('bloop', function () {
-            this.mount('chat');
-          });
-        });
-      });
+  QUnit.test('should allow mounting of engines', function (assert) {
+    assert.expect(3);
 
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true
-      });
-
-      var router = Router.create();
-      _container.setOwner(router, engineInstance);
-      router._initRouterJs();
-
-      assert.ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-      assert.ok(router.router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-      assert.ok(router.router.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
-    });
-
-    QUnit.test('should allow mounting of engines at a custom path', function (assert) {
-      assert.expect(1);
-
-      Router = Router.map(function () {
-        this.route('bleep', function () {
-          this.route('bloop', function () {
-            this.mount('chat', { path: 'custom-chat' });
-          });
-        });
-      });
-
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true
-      });
-
-      var router = Router.create();
-      _container.setOwner(router, engineInstance);
-      router._initRouterJs();
-
-      assert.deepEqual(router.router.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
-        return s.string;
-      }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
-    });
-
-    QUnit.test('should allow aliasing of engine names with `as`', function (assert) {
-      assert.expect(1);
-
-      Router = Router.map(function () {
-        this.route('bleep', function () {
-          this.route('bloop', function () {
-            this.mount('chat', { as: 'blork' });
-          });
-        });
-      });
-
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true
-      });
-
-      var router = Router.create();
-      _container.setOwner(router, engineInstance);
-      router._initRouterJs();
-
-      assert.deepEqual(router.router.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
-        return s.string;
-      }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
-    });
-
-    QUnit.test('should add loading and error routes to a mount if _isRouterMapResult is true', function () {
-      Router.map(function () {
-        this.mount('chat');
-      });
-
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true
-      });
-
-      var router = Router.create({
-        _hasModuleBasedResolver: function () {
-          return true;
-        }
-      });
-      _container.setOwner(router, engineInstance);
-      router._initRouterJs();
-
-      ok(router.router.recognizer.names['chat'], 'main route was created');
-      ok(router.router.recognizer.names['chat_loading'], 'loading route was added');
-      ok(router.router.recognizer.names['chat_error'], 'error route was added');
-    });
-
-    QUnit.test('should add loading and error routes to a mount alias if _isRouterMapResult is true', function () {
-      Router.map(function () {
-        this.mount('chat', { as: 'shoutbox' });
-      });
-
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true
-      });
-
-      var router = Router.create({
-        _hasModuleBasedResolver: function () {
-          return true;
-        }
-      });
-      _container.setOwner(router, engineInstance);
-      router._initRouterJs();
-
-      ok(router.router.recognizer.names['shoutbox'], 'main route was created');
-      ok(router.router.recognizer.names['shoutbox_loading'], 'loading route was added');
-      ok(router.router.recognizer.names['shoutbox_error'], 'error route was added');
-    });
-
-    QUnit.test('should not add loading and error routes to a mount if _isRouterMapResult is false', function () {
-      Router.map(function () {
-        this.mount('chat');
-      });
-
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true
-      });
-
-      var router = Router.create();
-      _container.setOwner(router, engineInstance);
-      router._initRouterJs(false);
-
-      ok(router.router.recognizer.names['chat'], 'main route was created');
-      ok(!router.router.recognizer.names['chat_loading'], 'loading route was not added');
-      ok(!router.router.recognizer.names['chat_error'], 'error route was not added');
-    });
-
-    QUnit.test('should reset namespace of loading and error routes for mounts with resetNamespace', function () {
-      Router.map(function () {
-        this.route('news', function () {
+    Router = Router.map(function () {
+      this.route('bleep', function () {
+        this.route('bloop', function () {
           this.mount('chat');
-          this.mount('blog', { resetNamespace: true });
         });
       });
-
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true
-      });
-
-      var router = Router.create({
-        _hasModuleBasedResolver: function () {
-          return true;
-        }
-      });
-      _container.setOwner(router, engineInstance);
-      router._initRouterJs();
-
-      ok(router.router.recognizer.names['news.chat'], 'nested route was created');
-      ok(router.router.recognizer.names['news.chat_loading'], 'nested loading route was added');
-      ok(router.router.recognizer.names['news.chat_error'], 'nested error route was added');
-
-      ok(router.router.recognizer.names['blog'], 'reset route was created');
-      ok(router.router.recognizer.names['blog_loading'], 'reset loading route was added');
-      ok(router.router.recognizer.names['blog_error'], 'reset error route was added');
-
-      ok(!router.router.recognizer.names['news.blog'], 'nested reset route was not created');
-      ok(!router.router.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
-      ok(!router.router.recognizer.names['news.blog_error'], 'nested reset error route was not added');
     });
-  }
+
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true
+    });
+
+    var router = Router.create();
+    _container.setOwner(router, engineInstance);
+    router._initRouterJs();
+
+    assert.ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+    assert.ok(router.router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+    assert.ok(router.router.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
+  });
+
+  QUnit.test('should allow mounting of engines at a custom path', function (assert) {
+    assert.expect(1);
+
+    Router = Router.map(function () {
+      this.route('bleep', function () {
+        this.route('bloop', function () {
+          this.mount('chat', { path: 'custom-chat' });
+        });
+      });
+    });
+
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true
+    });
+
+    var router = Router.create();
+    _container.setOwner(router, engineInstance);
+    router._initRouterJs();
+
+    assert.deepEqual(router.router.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
+      return s.string;
+    }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
+  });
+
+  QUnit.test('should allow aliasing of engine names with `as`', function (assert) {
+    assert.expect(1);
+
+    Router = Router.map(function () {
+      this.route('bleep', function () {
+        this.route('bloop', function () {
+          this.mount('chat', { as: 'blork' });
+        });
+      });
+    });
+
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true
+    });
+
+    var router = Router.create();
+    _container.setOwner(router, engineInstance);
+    router._initRouterJs();
+
+    assert.deepEqual(router.router.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
+      return s.string;
+    }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
+  });
+
+  QUnit.test('should add loading and error routes to a mount if _isRouterMapResult is true', function () {
+    Router.map(function () {
+      this.mount('chat');
+    });
+
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true
+    });
+
+    var router = Router.create({
+      _hasModuleBasedResolver: function () {
+        return true;
+      }
+    });
+    _container.setOwner(router, engineInstance);
+    router._initRouterJs();
+
+    ok(router.router.recognizer.names['chat'], 'main route was created');
+    ok(router.router.recognizer.names['chat_loading'], 'loading route was added');
+    ok(router.router.recognizer.names['chat_error'], 'error route was added');
+  });
+
+  QUnit.test('should add loading and error routes to a mount alias if _isRouterMapResult is true', function () {
+    Router.map(function () {
+      this.mount('chat', { as: 'shoutbox' });
+    });
+
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true
+    });
+
+    var router = Router.create({
+      _hasModuleBasedResolver: function () {
+        return true;
+      }
+    });
+    _container.setOwner(router, engineInstance);
+    router._initRouterJs();
+
+    ok(router.router.recognizer.names['shoutbox'], 'main route was created');
+    ok(router.router.recognizer.names['shoutbox_loading'], 'loading route was added');
+    ok(router.router.recognizer.names['shoutbox_error'], 'error route was added');
+  });
+
+  QUnit.test('should not add loading and error routes to a mount if _isRouterMapResult is false', function () {
+    Router.map(function () {
+      this.mount('chat');
+    });
+
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true
+    });
+
+    var router = Router.create();
+    _container.setOwner(router, engineInstance);
+    router._initRouterJs(false);
+
+    ok(router.router.recognizer.names['chat'], 'main route was created');
+    ok(!router.router.recognizer.names['chat_loading'], 'loading route was not added');
+    ok(!router.router.recognizer.names['chat_error'], 'error route was not added');
+  });
+
+  QUnit.test('should reset namespace of loading and error routes for mounts with resetNamespace', function () {
+    Router.map(function () {
+      this.route('news', function () {
+        this.mount('chat');
+        this.mount('blog', { resetNamespace: true });
+      });
+    });
+
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true
+    });
+
+    var router = Router.create({
+      _hasModuleBasedResolver: function () {
+        return true;
+      }
+    });
+    _container.setOwner(router, engineInstance);
+    router._initRouterJs();
+
+    ok(router.router.recognizer.names['news.chat'], 'nested route was created');
+    ok(router.router.recognizer.names['news.chat_loading'], 'nested loading route was added');
+    ok(router.router.recognizer.names['news.chat_error'], 'nested error route was added');
+
+    ok(router.router.recognizer.names['blog'], 'reset route was created');
+    ok(router.router.recognizer.names['blog_loading'], 'reset loading route was added');
+    ok(router.router.recognizer.names['blog_error'], 'reset error route was added');
+
+    ok(!router.router.recognizer.names['news.blog'], 'nested reset route was not created');
+    ok(!router.router.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
+    ok(!router.router.recognizer.names['news.blog_error'], 'nested reset error route was not added');
+  });
 });
-enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject', 'container/tests/test-helpers/build-owner', 'container', 'ember-metal/features'], function (exports, _emberRuntimeTestsUtils, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject, _containerTestsTestHelpersBuildOwner, _container, _emberMetalFeatures) {
+enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject', 'container/tests/test-helpers/build-owner', 'container'], function (exports, _emberRuntimeTestsUtils, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject, _containerTestsTestHelpersBuildOwner, _container) {
   'use strict';
 
   var route = undefined,
@@ -42529,94 +42517,92 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
     equal(authService, appRoute.get('authService'), 'service.auth is injected');
   });
 
-  if (true) {
-    QUnit.module('Ember.Route with engines');
+  QUnit.module('Ember.Route with engines');
 
-    QUnit.test('paramsFor considers an engine\'s mountPoint', function (assert) {
-      expect(2);
+  QUnit.test('paramsFor considers an engine\'s mountPoint', function (assert) {
+    expect(2);
 
-      var router = {
-        _deserializeQueryParams: function () {},
-        router: {
-          state: {
-            handlerInfos: [{ name: 'posts' }],
-            params: {
-              'foo.bar': { a: 'b' },
-              'foo.bar.posts': { c: 'd' }
-            }
+    var router = {
+      _deserializeQueryParams: function () {},
+      router: {
+        state: {
+          handlerInfos: [{ name: 'posts' }],
+          params: {
+            'foo.bar': { a: 'b' },
+            'foo.bar.posts': { c: 'd' }
           }
         }
-      };
+      }
+    };
 
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true,
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true,
 
-        mountPoint: 'foo.bar',
+      mountPoint: 'foo.bar',
 
-        lookup: function (name) {
-          if (name === 'route:posts') {
-            return postsRoute;
-          } else if (name === 'route:application') {
-            return applicationRoute;
-          }
+      lookup: function (name) {
+        if (name === 'route:posts') {
+          return postsRoute;
+        } else if (name === 'route:application') {
+          return applicationRoute;
         }
-      });
-
-      var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application' });
-      var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
-      var route = _emberRoutingSystemRoute.default.create({ router: router });
-
-      _container.setOwner(applicationRoute, engineInstance);
-      _container.setOwner(postsRoute, engineInstance);
-      _container.setOwner(route, engineInstance);
-
-      assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
-      assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
+      }
     });
 
-    QUnit.test('modelFor considers an engine\'s mountPoint', function () {
-      expect(2);
+    var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application' });
+    var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
+    var route = _emberRoutingSystemRoute.default.create({ router: router });
 
-      var applicationModel = { id: '1' };
-      var postsModel = { id: '2' };
+    _container.setOwner(applicationRoute, engineInstance);
+    _container.setOwner(postsRoute, engineInstance);
+    _container.setOwner(route, engineInstance);
 
-      var router = {
-        router: {
-          activeTransition: {
-            resolvedModels: {
-              'foo.bar': applicationModel,
-              'foo.bar.posts': postsModel
-            }
+    assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
+    assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
+  });
+
+  QUnit.test('modelFor considers an engine\'s mountPoint', function () {
+    expect(2);
+
+    var applicationModel = { id: '1' };
+    var postsModel = { id: '2' };
+
+    var router = {
+      router: {
+        activeTransition: {
+          resolvedModels: {
+            'foo.bar': applicationModel,
+            'foo.bar.posts': postsModel
           }
         }
-      };
+      }
+    };
 
-      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
-        routable: true,
+    var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+      routable: true,
 
-        mountPoint: 'foo.bar',
+      mountPoint: 'foo.bar',
 
-        lookup: function (name) {
-          if (name === 'route:posts') {
-            return postsRoute;
-          } else if (name === 'route:application') {
-            return applicationRoute;
-          }
+      lookup: function (name) {
+        if (name === 'route:posts') {
+          return postsRoute;
+        } else if (name === 'route:application') {
+          return applicationRoute;
         }
-      });
-
-      var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application' });
-      var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
-      var route = _emberRoutingSystemRoute.default.create({ router: router });
-
-      _container.setOwner(applicationRoute, engineInstance);
-      _container.setOwner(postsRoute, engineInstance);
-      _container.setOwner(route, engineInstance);
-
-      strictEqual(route.modelFor('application'), applicationModel);
-      strictEqual(route.modelFor('posts'), postsModel);
+      }
     });
-  }
+
+    var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application' });
+    var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
+    var route = _emberRoutingSystemRoute.default.create({ router: router });
+
+    _container.setOwner(applicationRoute, engineInstance);
+    _container.setOwner(postsRoute, engineInstance);
+    _container.setOwner(route, engineInstance);
+
+    strictEqual(route.modelFor('application'), applicationModel);
+    strictEqual(route.modelFor('posts'), postsModel);
+  });
 });
 enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container'], function (exports, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _container) {
   'use strict';
@@ -61647,7 +61633,7 @@ enifed('ember/tests/reexports_test', ['exports', 'ember', 'ember-metal/features'
     return Object.getOwnPropertyDescriptor(value, last);
   }
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router', 'ember-runtime/copy', 'ember-metal/observer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _router, _emberRuntimeCopy, _emberMetalObserver) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router', 'ember-runtime/copy', 'ember-metal/observer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _router, _emberRuntimeCopy, _emberMetalObserver) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -65320,106 +65306,104 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     }, /You passed undefined as the outlet name/);
   });
 
-  if (true) {
-    QUnit.test('Route serializers work for Engines', function () {
-      expect(2);
+  QUnit.test('Route serializers work for Engines', function () {
+    expect(2);
 
-      // Register engine
-      var BlogEngine = _emberApplicationSystemEngine.default.extend();
-      registry.register('engine:blog', BlogEngine);
+    // Register engine
+    var BlogEngine = _emberApplicationSystemEngine.default.extend();
+    registry.register('engine:blog', BlogEngine);
 
-      // Register engine route map
-      var postSerialize = function (params) {
-        ok(true, 'serialize hook runs');
-        return {
-          post_id: params.id
-        };
+    // Register engine route map
+    var postSerialize = function (params) {
+      ok(true, 'serialize hook runs');
+      return {
+        post_id: params.id
       };
-      var BlogMap = function () {
-        this.route('post', { path: '/post/:post_id', serialize: postSerialize });
-      };
-      registry.register('route-map:blog', BlogMap);
+    };
+    var BlogMap = function () {
+      this.route('post', { path: '/post/:post_id', serialize: postSerialize });
+    };
+    registry.register('route-map:blog', BlogMap);
 
-      Router.map(function () {
-        this.mount('blog');
-      });
-
-      bootApplication();
-
-      equal(router.router.generate('blog.post', { id: '13' }), '/blog/post/13', 'url is generated properly');
+    Router.map(function () {
+      this.mount('blog');
     });
 
-    QUnit.test('Defining a Route#serialize method in an Engine throws an error', function () {
-      expect(1);
+    bootApplication();
 
-      // Register engine
-      var BlogEngine = _emberApplicationSystemEngine.default.extend();
-      registry.register('engine:blog', BlogEngine);
+    equal(router.router.generate('blog.post', { id: '13' }), '/blog/post/13', 'url is generated properly');
+  });
 
-      // Register engine route map
-      var BlogMap = function () {
-        this.route('post');
-      };
-      registry.register('route-map:blog', BlogMap);
+  QUnit.test('Defining a Route#serialize method in an Engine throws an error', function () {
+    expect(1);
 
-      Router.map(function () {
-        this.mount('blog');
-      });
+    // Register engine
+    var BlogEngine = _emberApplicationSystemEngine.default.extend();
+    registry.register('engine:blog', BlogEngine);
 
-      bootApplication();
+    // Register engine route map
+    var BlogMap = function () {
+      this.route('post');
+    };
+    registry.register('route-map:blog', BlogMap);
 
-      var PostRoute = _emberRoutingSystemRoute.default.extend({ serialize: function () {} });
-      container.lookup('engine:blog').register('route:post', PostRoute);
-
-      throws(function () {
-        return router.transitionTo('blog.post');
-      }, /Defining a custom serialize method on an Engine route is not supported/);
+    Router.map(function () {
+      this.mount('blog');
     });
 
-    QUnit.test('App.destroy does not leave undestroyed views after clearing engines', function () {
-      expect(4);
+    bootApplication();
 
-      var engineInstance = undefined;
-      // Register engine
-      var BlogEngine = _emberApplicationSystemEngine.default.extend();
-      registry.register('engine:blog', BlogEngine);
-      var EngineIndexRoute = _emberRoutingSystemRoute.default.extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          engineInstance = _container.getOwner(this);
-        }
-      });
+    var PostRoute = _emberRoutingSystemRoute.default.extend({ serialize: function () {} });
+    container.lookup('engine:blog').register('route:post', PostRoute);
 
-      // Register engine route map
-      var BlogMap = function () {
-        this.route('post');
-      };
-      registry.register('route-map:blog', BlogMap);
+    throws(function () {
+      return router.transitionTo('blog.post');
+    }, /Defining a custom serialize method on an Engine route is not supported/);
+  });
 
-      Router.map(function () {
-        this.mount('blog');
-      });
+  QUnit.test('App.destroy does not leave undestroyed views after clearing engines', function () {
+    expect(4);
 
-      bootApplication();
-
-      var engine = container.lookup('engine:blog');
-      engine.register('route:index', EngineIndexRoute);
-      engine.register('template:index', _emberTemplateCompilerTestsUtilsHelpers.compile('Engine Post!'));
-
-      handleURL('/blog');
-
-      var route = engineInstance.lookup('route:index');
-
-      _emberMetalRun_loop.default(router, 'destroy');
-      equal(router._toplevelView, null, 'the toplevelView was cleared');
-
-      _emberMetalRun_loop.default(route, 'destroy');
-      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
-
-      _emberMetalRun_loop.default(App, 'destroy');
-      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+    var engineInstance = undefined;
+    // Register engine
+    var BlogEngine = _emberApplicationSystemEngine.default.extend();
+    registry.register('engine:blog', BlogEngine);
+    var EngineIndexRoute = _emberRoutingSystemRoute.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        engineInstance = _container.getOwner(this);
+      }
     });
-  }
+
+    // Register engine route map
+    var BlogMap = function () {
+      this.route('post');
+    };
+    registry.register('route-map:blog', BlogMap);
+
+    Router.map(function () {
+      this.mount('blog');
+    });
+
+    bootApplication();
+
+    var engine = container.lookup('engine:blog');
+    engine.register('route:index', EngineIndexRoute);
+    engine.register('template:index', _emberTemplateCompilerTestsUtilsHelpers.compile('Engine Post!'));
+
+    handleURL('/blog');
+
+    var route = engineInstance.lookup('route:index');
+
+    _emberMetalRun_loop.default(router, 'destroy');
+    equal(router._toplevelView, null, 'the toplevelView was cleared');
+
+    _emberMetalRun_loop.default(route, 'destroy');
+    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+
+    _emberMetalRun_loop.default(App, 'destroy');
+    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+  });
 });
 enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-glimmer', 'ember-runtime/system/string', 'ember-metal/mixin', 'ember-metal/meta'], function (exports, _emberRuntimeControllersController, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberGlimmer, _emberRuntimeSystemString, _emberMetalMixin, _emberMetalMeta) {
   'use strict';
@@ -70223,7 +70207,7 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/run_loop'
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
   });
 });
-enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-glimmer', 'ember-metal/features'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberGlimmer, _emberMetalFeatures) {
+enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-glimmer'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberGlimmer) {
   'use strict';
 
   var Router = undefined,
@@ -71284,112 +71268,110 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
     equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
-  if (true) {
-    QUnit.test('Slow Promise from an Engine application route enters the mounts loading state', function () {
-      expect(1);
+  QUnit.test('Slow Promise from an Engine application route enters the mounts loading state', function () {
+    expect(1);
 
-      templates['news/blog_loading'] = 'BLOG LOADING';
+    templates['news/blog_loading'] = 'BLOG LOADING';
 
-      // Register engine
-      var BlogEngine = _emberApplicationSystemEngine.default.extend();
-      registry.register('engine:blog', BlogEngine);
+    // Register engine
+    var BlogEngine = _emberApplicationSystemEngine.default.extend();
+    registry.register('engine:blog', BlogEngine);
 
-      // Register engine route map
-      var BlogMap = function () {};
-      registry.register('route-map:blog', BlogMap);
+    // Register engine route map
+    var BlogMap = function () {};
+    registry.register('route-map:blog', BlogMap);
 
-      Router.map(function () {
-        this.route('news', function () {
-          this.mount('blog');
-        });
+    Router.map(function () {
+      this.route('news', function () {
+        this.mount('blog');
       });
-
-      var deferred = _emberRuntimeExtRsvp.default.defer();
-      var BlogRoute = _emberRoutingSystemRoute.default.extend({
-        model: function () {
-          return deferred.promise;
-        }
-      });
-
-      var blog = container.lookup('engine:blog');
-      blog.register('route:application', BlogRoute);
-
-      bootApplication('/news/blog');
-
-      equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
-
-      _emberMetalRun_loop.default(deferred, 'resolve');
     });
 
-    QUnit.test('Rejected Promise from an Engine application route enters the mounts error state', function () {
-      expect(1);
-
-      templates['news/blog_error'] = 'BLOG ERROR';
-
-      // Register engine
-      var BlogEngine = _emberApplicationSystemEngine.default.extend();
-      registry.register('engine:blog', BlogEngine);
-
-      // Register engine route map
-      var BlogMap = function () {};
-      registry.register('route-map:blog', BlogMap);
-
-      Router.map(function () {
-        this.route('news', function () {
-          this.mount('blog');
-        });
-      });
-
-      var BlogRoute = _emberRoutingSystemRoute.default.extend({
-        model: function () {
-          return _emberRuntimeExtRsvp.default.Promise.reject();
-        }
-      });
-
-      var blog = container.lookup('engine:blog');
-      blog.register('route:application', BlogRoute);
-
-      bootApplication('/news/blog');
-
-      equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG ERROR', 'news/blog_loading was entered');
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+    var BlogRoute = _emberRoutingSystemRoute.default.extend({
+      model: function () {
+        return deferred.promise;
+      }
     });
 
-    QUnit.test('Slow Promise from an Engine application route enters the mounts loading state with resetNamespace', function () {
-      expect(1);
+    var blog = container.lookup('engine:blog');
+    blog.register('route:application', BlogRoute);
 
-      templates['blog_loading'] = 'BLOG LOADING';
+    bootApplication('/news/blog');
 
-      // Register engine
-      var BlogEngine = _emberApplicationSystemEngine.default.extend();
-      registry.register('engine:blog', BlogEngine);
+    equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
 
-      // Register engine route map
-      var BlogMap = function () {};
-      registry.register('route-map:blog', BlogMap);
+    _emberMetalRun_loop.default(deferred, 'resolve');
+  });
 
-      Router.map(function () {
-        this.route('news', function () {
-          this.mount('blog', { resetNamespace: true });
-        });
+  QUnit.test('Rejected Promise from an Engine application route enters the mounts error state', function () {
+    expect(1);
+
+    templates['news/blog_error'] = 'BLOG ERROR';
+
+    // Register engine
+    var BlogEngine = _emberApplicationSystemEngine.default.extend();
+    registry.register('engine:blog', BlogEngine);
+
+    // Register engine route map
+    var BlogMap = function () {};
+    registry.register('route-map:blog', BlogMap);
+
+    Router.map(function () {
+      this.route('news', function () {
+        this.mount('blog');
       });
-
-      var deferred = _emberRuntimeExtRsvp.default.defer();
-      var BlogRoute = _emberRoutingSystemRoute.default.extend({
-        model: function () {
-          return deferred.promise;
-        }
-      });
-
-      var blog = container.lookup('engine:blog');
-      blog.register('route:application', BlogRoute);
-
-      bootApplication('/news/blog');
-
-      equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
-
-      _emberMetalRun_loop.default(deferred, 'resolve');
     });
-  }
+
+    var BlogRoute = _emberRoutingSystemRoute.default.extend({
+      model: function () {
+        return _emberRuntimeExtRsvp.default.Promise.reject();
+      }
+    });
+
+    var blog = container.lookup('engine:blog');
+    blog.register('route:application', BlogRoute);
+
+    bootApplication('/news/blog');
+
+    equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG ERROR', 'news/blog_loading was entered');
+  });
+
+  QUnit.test('Slow Promise from an Engine application route enters the mounts loading state with resetNamespace', function () {
+    expect(1);
+
+    templates['blog_loading'] = 'BLOG LOADING';
+
+    // Register engine
+    var BlogEngine = _emberApplicationSystemEngine.default.extend();
+    registry.register('engine:blog', BlogEngine);
+
+    // Register engine route map
+    var BlogMap = function () {};
+    registry.register('route-map:blog', BlogMap);
+
+    Router.map(function () {
+      this.route('news', function () {
+        this.mount('blog', { resetNamespace: true });
+      });
+    });
+
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+    var BlogRoute = _emberRoutingSystemRoute.default.extend({
+      model: function () {
+        return deferred.promise;
+      }
+    });
+
+    var blog = container.lookup('engine:blog');
+    blog.register('route:application', BlogRoute);
+
+    bootApplication('/news/blog');
+
+    equal(_emberViewsSystemJquery.default('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
+
+    _emberMetalRun_loop.default(deferred, 'resolve');
+  });
 });
 enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer) {
   'use strict';
