@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+63d9c840
+ * @version   2.9.0-null+e96185b6
  */
 
 var enifed, requireModule, require, Ember;
@@ -10849,11 +10849,10 @@ babelHelpers.classCallCheck(this, CurlyComponentLayoutCompiler);
 enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal/debug'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetalDebug) {
   'use strict';
 
-  function dynamicComponentFor(vm) {
+  function dynamicComponentFor(vm, symbolTable) {
     var env = vm.env;
     var args = vm.getArgs();
     var nameRef = args.positional.at(0);
-    var symbolTable = this.symbolTable;
 
     return new DynamicComponentReference({ nameRef: nameRef, env: env, symbolTable: symbolTable });
   }
@@ -10885,7 +10884,7 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
       babelHelpers.classCallCheck(this, DynamicComponentSyntax);
 
       _StatementSyntax.call(this);
-      this.definition = dynamicComponentFor.bind(this);
+      this.definition = dynamicComponentFor;
       this.definitionArgs = definitionArgs;
       this.args = args;
       this.templates = templates;
@@ -40820,7 +40819,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+63d9c840";
+  exports.default = "2.9.0-null+e96185b6";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
   'use strict';
