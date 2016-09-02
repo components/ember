@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c484192f
+ * @version   2.9.0-null+aea269c4
  */
 
 var enifed, requireModule, require, Ember;
@@ -62026,7 +62026,7 @@ enifed('ember/tests/reexports_test', ['exports', 'ember', 'ember-metal/features'
     return Object.getOwnPropertyDescriptor(value, last);
   }
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router/transition', 'ember-runtime/copy', 'ember-metal/observer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _routerTransition, _emberRuntimeCopy, _emberMetalObserver) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router', 'ember-runtime/copy', 'ember-metal/observer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _router, _emberRuntimeCopy, _emberMetalObserver) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -64697,7 +64697,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       return router.transitionTo('bar');
     });
 
-    equal(transition instanceof _routerTransition.Transition, true);
+    equal(transition instanceof _router.Transition, true);
   });
 
   QUnit.test('transitionTo returns Transition when passed a url', function () {
@@ -64715,7 +64715,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       return router.transitionTo('/bar/baz');
     });
 
-    equal(transition instanceof _routerTransition.Transition, true);
+    equal(transition instanceof _router.Transition, true);
   });
 
   QUnit.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo', function () {

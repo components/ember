@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c484192f
+ * @version   2.9.0-null+aea269c4
  */
 
 var enifed, requireModule, require, Ember;
@@ -25642,7 +25642,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
 
   exports.default = Route;
 });
-enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-metal/utils', 'ember-routing/system/router_state', 'container', 'ember-metal/dictionary', 'router', 'router/transition'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalError, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalAssign, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberMetalUtils, _emberRoutingSystemRouter_state, _container, _emberMetalDictionary, _router4, _routerTransition) {
+enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-metal/utils', 'ember-routing/system/router_state', 'container', 'ember-metal/dictionary', 'router'], function (exports, _emberConsole, _emberMetalDebug, _emberMetalError, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalAssign, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberMetalUtils, _emberRoutingSystemRouter_state, _container, _emberMetalDictionary, _router4) {
   'use strict';
 
   exports.triggerEvent = triggerEvent;
@@ -40834,7 +40834,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+c484192f";
+  exports.default = "2.9.0-null+aea269c4";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
   'use strict';
@@ -51514,5622 +51514,5320 @@ enifed('glimmer/index', ['exports', 'glimmer-compiler'], function (exports, _gli
   exports.compileSpec = _glimmerCompiler.compileSpec;
 });
 //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXIvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7OztVQU9TLFdBQVcsb0JBQVgsV0FBVyIsImZpbGUiOiJpbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbIi8qXG4gKiBAb3ZlcnZpZXcgIEdsaW1tZXJcbiAqIEBjb3B5cmlnaHQgQ29weXJpZ2h0IDIwMTEtMjAxNSBUaWxkZSBJbmMuIGFuZCBjb250cmlidXRvcnNcbiAqIEBsaWNlbnNlICAgTGljZW5zZWQgdW5kZXIgTUlUIGxpY2Vuc2VcbiAqICAgICAgICAgICAgU2VlIGh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS90aWxkZWlvL2dsaW1tZXIvbWFzdGVyL0xJQ0VOU0VcbiAqIEB2ZXJzaW9uICAgVkVSU0lPTl9TVFJJTkdfUExBQ0VIT0xERVJcbiAqL1xuZXhwb3J0IHsgY29tcGlsZVNwZWMgfSBmcm9tICdnbGltbWVyLWNvbXBpbGVyJztcbiJdfQ==
-enifed("route-recognizer", ["exports"], function (exports) {
-  "use strict";
+enifed('route-recognizer', ['exports'], function (exports) { 'use strict';
 
-  function Target(path, matcher, delegate) {
-    this.path = path;
-    this.matcher = matcher;
-    this.delegate = delegate;
+function Target(path, matcher, delegate) {
+  this.path = path;
+  this.matcher = matcher;
+  this.delegate = delegate;
+}
+
+Target.prototype = {
+  to: function(target, callback) {
+    var delegate = this.delegate;
+
+    if (delegate && delegate.willAddRoute) {
+      target = delegate.willAddRoute(this.matcher.target, target);
+    }
+
+    this.matcher.add(this.path, target);
+
+    if (callback) {
+      if (callback.length === 0) { throw new Error("You must have an argument in the function passed to `to`"); }
+      this.matcher.addChild(this.path, target, callback, this.delegate);
+    }
+    return this;
   }
+};
 
-  Target.prototype = {
-    to: function (target, callback) {
-      var delegate = this.delegate;
+function Matcher(target) {
+  this.routes = {};
+  this.children = {};
+  this.target = target;
+}
 
-      if (delegate && delegate.willAddRoute) {
-        target = delegate.willAddRoute(this.matcher.target, target);
-      }
+Matcher.prototype = {
+  add: function(path, handler) {
+    this.routes[path] = handler;
+  },
 
-      this.matcher.add(this.path, target);
+  addChild: function(path, target, callback, delegate) {
+    var matcher = new Matcher(target);
+    this.children[path] = matcher;
 
-      if (callback) {
-        if (callback.length === 0) {
-          throw new Error("You must have an argument in the function passed to `to`");
-        }
-        this.matcher.addChild(this.path, target, callback, this.delegate);
-      }
-      return this;
+    var match = generateMatch(path, matcher, delegate);
+
+    if (delegate && delegate.contextEntered) {
+      delegate.contextEntered(target, match);
+    }
+
+    callback(match);
+  }
+};
+
+function generateMatch(startingPath, matcher, delegate) {
+  return function(path, nestedCallback) {
+    var fullPath = startingPath + path;
+
+    if (nestedCallback) {
+      nestedCallback(generateMatch(fullPath, matcher, delegate));
+    } else {
+      return new Target(startingPath + path, matcher, delegate);
     }
   };
+}
 
-  function Matcher(target) {
-    this.routes = {};
-    this.children = {};
-    this.target = target;
+function addRoute(routeArray, path, handler) {
+  var len = 0;
+  for (var i=0; i<routeArray.length; i++) {
+    len += routeArray[i].path.length;
   }
 
-  Matcher.prototype = {
-    add: function (path, handler) {
-      this.routes[path] = handler;
-    },
+  path = path.substr(len);
+  var route = { path: path, handler: handler };
+  routeArray.push(route);
+}
 
-    addChild: function (path, target, callback, delegate) {
-      var matcher = new Matcher(target);
-      this.children[path] = matcher;
+function eachRoute(baseRoute, matcher, callback, binding) {
+  var routes = matcher.routes;
 
-      var match = generateMatch(path, matcher, delegate);
+  for (var path in routes) {
+    if (routes.hasOwnProperty(path)) {
+      var routeArray = baseRoute.slice();
+      addRoute(routeArray, path, routes[path]);
 
-      if (delegate && delegate.contextEntered) {
-        delegate.contextEntered(target, match);
-      }
-
-      callback(match);
-    }
-  };
-
-  function generateMatch(startingPath, matcher, delegate) {
-    return function (path, nestedCallback) {
-      var fullPath = startingPath + path;
-
-      if (nestedCallback) {
-        nestedCallback(generateMatch(fullPath, matcher, delegate));
+      if (matcher.children[path]) {
+        eachRoute(routeArray, matcher.children[path], callback, binding);
       } else {
-        return new Target(startingPath + path, matcher, delegate);
-      }
-    };
-  }
-
-  function addRoute(routeArray, path, handler) {
-    var len = 0;
-    for (var i = 0; i < routeArray.length; i++) {
-      len += routeArray[i].path.length;
-    }
-
-    path = path.substr(len);
-    var route = { path: path, handler: handler };
-    routeArray.push(route);
-  }
-
-  function eachRoute(baseRoute, matcher, callback, binding) {
-    var routes = matcher.routes;
-
-    for (var path in routes) {
-      if (routes.hasOwnProperty(path)) {
-        var routeArray = baseRoute.slice();
-        addRoute(routeArray, path, routes[path]);
-
-        if (matcher.children[path]) {
-          eachRoute(routeArray, matcher.children[path], callback, binding);
-        } else {
-          callback.call(binding, routeArray);
-        }
+        callback.call(binding, routeArray);
       }
     }
   }
+}
 
-  function map(callback, addRouteCallback) {
-    var matcher = new Matcher();
+function map(callback, addRouteCallback) {
+  var matcher = new Matcher();
 
-    callback(generateMatch("", matcher, this.delegate));
+  callback(generateMatch("", matcher, this.delegate));
 
-    eachRoute([], matcher, function (route) {
-      if (addRouteCallback) {
-        addRouteCallback(this, route);
-      } else {
-        this.add(route);
-      }
-    }, this);
-  }
+  eachRoute([], matcher, function(route) {
+    if (addRouteCallback) { addRouteCallback(this, route); }
+    else { this.add(route); }
+  }, this);
+}
 
-  // Normalizes percent-encoded values in `path` to upper-case and decodes percent-encoded
-  // values that are not reserved (i.e., unicode characters, emoji, etc). The reserved
-  // chars are "/" and "%".
-  // Safe to call multiple times on the same path.
-  function normalizePath(path) {
-    return path.split('/').map(normalizeSegment).join('/');
-  }
+// Normalizes percent-encoded values in `path` to upper-case and decodes percent-encoded
+// values that are not reserved (i.e., unicode characters, emoji, etc). The reserved
+// chars are "/" and "%".
+// Safe to call multiple times on the same path.
+function normalizePath(path) {
+  return path.split('/')
+             .map(normalizeSegment)
+             .join('/');
+}
 
-  // We want to ensure the characters "%" and "/" remain in percent-encoded
-  // form when normalizing paths, so replace them with their encoded form after
-  // decoding the rest of the path
-  var SEGMENT_RESERVED_CHARS = /%|\//g;
-  function normalizeSegment(segment) {
-    return decodeURIComponent(segment).replace(SEGMENT_RESERVED_CHARS, encodeURIComponent);
-  }
+// We want to ensure the characters "%" and "/" remain in percent-encoded
+// form when normalizing paths, so replace them with their encoded form after
+// decoding the rest of the path
+var SEGMENT_RESERVED_CHARS = /%|\//g;
+function normalizeSegment(segment) {
+  return decodeURIComponent(segment).replace(SEGMENT_RESERVED_CHARS, encodeURIComponent);
+}
 
-  // We do not want to encode these characters when generating dynamic path segments
-  // See https://tools.ietf.org/html/rfc3986#section-3.3
-  // sub-delims: "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
-  // others allowed by RFC 3986: ":", "@"
-  //
-  // First encode the entire path segment, then decode any of the encoded special chars.
-  //
-  // The chars "!", "'", "(", ")", "*" do not get changed by `encodeURIComponent`,
-  // so the possible encoded chars are:
-  // ['%24', '%26', '%2B', '%2C', '%3B', '%3D', '%3A', '%40'].
-  var PATH_SEGMENT_ENCODINGS = /%(?:24|26|2B|2C|3B|3D|3A|40)/g;
+// We do not want to encode these characters when generating dynamic path segments
+// See https://tools.ietf.org/html/rfc3986#section-3.3
+// sub-delims: "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
+// others allowed by RFC 3986: ":", "@"
+//
+// First encode the entire path segment, then decode any of the encoded special chars.
+//
+// The chars "!", "'", "(", ")", "*" do not get changed by `encodeURIComponent`,
+// so the possible encoded chars are:
+// ['%24', '%26', '%2B', '%2C', '%3B', '%3D', '%3A', '%40'].
+var PATH_SEGMENT_ENCODINGS = /%(?:24|26|2B|2C|3B|3D|3A|40)/g;
 
-  function encodePathSegment(str) {
-    return encodeURIComponent(str).replace(PATH_SEGMENT_ENCODINGS, decodeURIComponent);
-  }
+function encodePathSegment(str) {
+  return encodeURIComponent(str).replace(PATH_SEGMENT_ENCODINGS, decodeURIComponent);
+}
 
-  var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
+var specials = [
+  '/', '.', '*', '+', '?', '|',
+  '(', ')', '[', ']', '{', '}', '\\'
+];
 
-  var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
+var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
-  function isArray(test) {
-    return Object.prototype.toString.call(test) === "[object Array]";
-  }
+function isArray(test) {
+  return Object.prototype.toString.call(test) === "[object Array]";
+}
 
-  // A Segment represents a segment in the original route description.
-  // Each Segment type provides an `eachChar` and `regex` method.
-  //
-  // The `eachChar` method invokes the callback with one or more character
-  // specifications. A character specification consumes one or more input
-  // characters.
-  //
-  // The `regex` method returns a regex fragment for the segment. If the
-  // segment is a dynamic of star segment, the regex fragment also includes
-  // a capture.
-  //
-  // A character specification contains:
-  //
-  // * `validChars`: a String with a list of all valid characters, or
-  // * `invalidChars`: a String with a list of all invalid characters
-  // * `repeat`: true if the character specification can repeat
 
-  function StaticSegment(string) {
-    this.string = normalizeSegment(string);
-  }
-  StaticSegment.prototype = {
-    eachChar: function (currentState) {
-      var string = this.string,
-          ch;
+// A Segment represents a segment in the original route description.
+// Each Segment type provides an `eachChar` and `regex` method.
+//
+// The `eachChar` method invokes the callback with one or more character
+// specifications. A character specification consumes one or more input
+// characters.
+//
+// The `regex` method returns a regex fragment for the segment. If the
+// segment is a dynamic of star segment, the regex fragment also includes
+// a capture.
+//
+// A character specification contains:
+//
+// * `validChars`: a String with a list of all valid characters, or
+// * `invalidChars`: a String with a list of all invalid characters
+// * `repeat`: true if the character specification can repeat
 
-      for (var i = 0; i < string.length; i++) {
-        ch = string.charAt(i);
-        currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: ch });
-      }
+function StaticSegment(string) { this.string = normalizeSegment(string); }
+StaticSegment.prototype = {
+  eachChar: function(currentState) {
+    var string = this.string, ch;
 
-      return currentState;
-    },
-
-    regex: function () {
-      return this.string.replace(escapeRegex, '\\$1');
-    },
-
-    generate: function () {
-      return this.string;
+    for (var i=0; i<string.length; i++) {
+      ch = string.charAt(i);
+      currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: ch });
     }
-  };
 
-  function DynamicSegment(name) {
-    this.name = normalizeSegment(name);
+    return currentState;
+  },
+
+  regex: function() {
+    return this.string.replace(escapeRegex, '\\$1');
+  },
+
+  generate: function() {
+    return this.string;
   }
-  DynamicSegment.prototype = {
-    eachChar: function (currentState) {
-      return currentState.put({ invalidChars: "/", repeat: true, validChars: undefined });
-    },
+};
 
-    regex: function () {
-      return "([^/]+)";
-    },
+function DynamicSegment(name) { this.name = normalizeSegment(name); }
+DynamicSegment.prototype = {
+  eachChar: function(currentState) {
+    return currentState.put({ invalidChars: "/", repeat: true, validChars: undefined });
+  },
 
-    generate: function (params) {
-      if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-        return encodePathSegment(params[this.name]);
-      } else {
-        return params[this.name];
-      }
-    }
-  };
+  regex: function() {
+    return "([^/]+)";
+  },
 
-  function StarSegment(name) {
-    this.name = name;
-  }
-  StarSegment.prototype = {
-    eachChar: function (currentState) {
-      return currentState.put({ invalidChars: "", repeat: true, validChars: undefined });
-    },
-
-    regex: function () {
-      return "(.+)";
-    },
-
-    generate: function (params) {
+  generate: function(params) {
+    if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
+      return encodePathSegment(params[this.name]);
+    } else {
       return params[this.name];
     }
-  };
+  }
+};
 
-  function EpsilonSegment() {}
-  EpsilonSegment.prototype = {
-    eachChar: function (currentState) {
-      return currentState;
-    },
-    regex: function () {
-      return "";
-    },
-    generate: function () {
-      return "";
+function StarSegment(name) { this.name = name; }
+StarSegment.prototype = {
+  eachChar: function(currentState) {
+    return currentState.put({ invalidChars: "", repeat: true, validChars: undefined });
+  },
+
+  regex: function() {
+    return "(.+)";
+  },
+
+  generate: function(params) {
+    return params[this.name];
+  }
+};
+
+function EpsilonSegment() {}
+EpsilonSegment.prototype = {
+  eachChar: function(currentState) {
+    return currentState;
+  },
+  regex: function() { return ""; },
+  generate: function() { return ""; }
+};
+
+// The `names` will be populated with the paramter name for each dynamic/star
+// segment. `shouldDecodes` will be populated with a boolean for each dyanamic/star
+// segment, indicating whether it should be decoded during recognition.
+function parse(route, names, types, shouldDecodes) {
+  // normalize route as not starting with a "/". Recognition will
+  // also normalize.
+  if (route.charAt(0) === "/") { route = route.substr(1); }
+
+  var segments = route.split("/");
+  var results = new Array(segments.length);
+
+  for (var i=0; i<segments.length; i++) {
+    var segment = segments[i], match;
+
+    if (match = segment.match(/^:([^\/]+)$/)) {
+      results[i] = new DynamicSegment(match[1]);
+      names.push(match[1]);
+      shouldDecodes.push(true);
+      types.dynamics++;
+    } else if (match = segment.match(/^\*([^\/]+)$/)) {
+      results[i] = new StarSegment(match[1]);
+      names.push(match[1]);
+      shouldDecodes.push(false);
+      types.stars++;
+    } else if(segment === "") {
+      results[i] = new EpsilonSegment();
+    } else {
+      results[i] = new StaticSegment(segment);
+      types.statics++;
     }
-  };
-
-  // The `names` will be populated with the paramter name for each dynamic/star
-  // segment. `shouldDecodes` will be populated with a boolean for each dyanamic/star
-  // segment, indicating whether it should be decoded during recognition.
-  function parse(route, names, types, shouldDecodes) {
-    // normalize route as not starting with a "/". Recognition will
-    // also normalize.
-    if (route.charAt(0) === "/") {
-      route = route.substr(1);
-    }
-
-    var segments = route.split("/");
-    var results = new Array(segments.length);
-
-    for (var i = 0; i < segments.length; i++) {
-      var segment = segments[i],
-          match;
-
-      if (match = segment.match(/^:([^\/]+)$/)) {
-        results[i] = new DynamicSegment(match[1]);
-        names.push(match[1]);
-        shouldDecodes.push(true);
-        types.dynamics++;
-      } else if (match = segment.match(/^\*([^\/]+)$/)) {
-        results[i] = new StarSegment(match[1]);
-        names.push(match[1]);
-        shouldDecodes.push(false);
-        types.stars++;
-      } else if (segment === "") {
-        results[i] = new EpsilonSegment();
-      } else {
-        results[i] = new StaticSegment(segment);
-        types.statics++;
-      }
-    }
-
-    return results;
   }
 
-  function isEqualCharSpec(specA, specB) {
-    return specA.validChars === specB.validChars && specA.invalidChars === specB.invalidChars;
-  }
+  return results;
+}
 
-  // A State has a character specification and (`charSpec`) and a list of possible
-  // subsequent states (`nextStates`).
-  //
-  // If a State is an accepting state, it will also have several additional
-  // properties:
-  //
-  // * `regex`: A regular expression that is used to extract parameters from paths
-  //   that reached this accepting state.
-  // * `handlers`: Information on how to convert the list of captures into calls
-  //   to registered handlers with the specified parameters
-  // * `types`: How many static, dynamic or star segments in this route. Used to
-  //   decide which route to use if multiple registered routes match a path.
-  //
-  // Currently, State is implemented naively by looping over `nextStates` and
-  // comparing a character specification against a character. A more efficient
-  // implementation would use a hash of keys pointing at one or more next states.
+function isEqualCharSpec(specA, specB) {
+  return specA.validChars === specB.validChars &&
+         specA.invalidChars === specB.invalidChars;
+}
 
-  function State(charSpec) {
-    this.charSpec = charSpec;
-    this.nextStates = [];
-    this.regex = undefined;
-    this.handlers = undefined;
-    this.specificity = undefined;
-  }
+// A State has a character specification and (`charSpec`) and a list of possible
+// subsequent states (`nextStates`).
+//
+// If a State is an accepting state, it will also have several additional
+// properties:
+//
+// * `regex`: A regular expression that is used to extract parameters from paths
+//   that reached this accepting state.
+// * `handlers`: Information on how to convert the list of captures into calls
+//   to registered handlers with the specified parameters
+// * `types`: How many static, dynamic or star segments in this route. Used to
+//   decide which route to use if multiple registered routes match a path.
+//
+// Currently, State is implemented naively by looping over `nextStates` and
+// comparing a character specification against a character. A more efficient
+// implementation would use a hash of keys pointing at one or more next states.
 
-  State.prototype = {
-    get: function (charSpec) {
-      var nextStates = this.nextStates;
+function State(charSpec) {
+  this.charSpec = charSpec;
+  this.nextStates = [];
+  this.regex = undefined;
+  this.handlers = undefined;
+  this.specificity = undefined;
+}
 
-      for (var i = 0; i < nextStates.length; i++) {
-        var child = nextStates[i];
+State.prototype = {
+  get: function(charSpec) {
+    var nextStates = this.nextStates;
 
-        if (isEqualCharSpec(child.charSpec, charSpec)) {
-          return child;
-        }
+    for (var i=0; i<nextStates.length; i++) {
+      var child = nextStates[i];
+
+      if (isEqualCharSpec(child.charSpec, charSpec)) {
+        return child;
       }
-    },
-
-    put: function (charSpec) {
-      var state;
-
-      // If the character specification already exists in a child of the current
-      // state, just return that state.
-      if (state = this.get(charSpec)) {
-        return state;
-      }
-
-      // Make a new state for the character spec
-      state = new State(charSpec);
-
-      // Insert the new state as a child of the current state
-      this.nextStates.push(state);
-
-      // If this character specification repeats, insert the new state as a child
-      // of itself. Note that this will not trigger an infinite loop because each
-      // transition during recognition consumes a character.
-      if (charSpec.repeat) {
-        state.nextStates.push(state);
-      }
-
-      // Return the new state
-      return state;
-    },
-
-    // Find a list of child states matching the next character
-    match: function (ch) {
-      var nextStates = this.nextStates,
-          child,
-          charSpec,
-          chars;
-
-      var returned = [];
-
-      for (var i = 0; i < nextStates.length; i++) {
-        child = nextStates[i];
-
-        charSpec = child.charSpec;
-
-        if (typeof (chars = charSpec.validChars) !== 'undefined') {
-          if (chars.indexOf(ch) !== -1) {
-            returned.push(child);
-          }
-        } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-          if (chars.indexOf(ch) === -1) {
-            returned.push(child);
-          }
-        }
-      }
-
-      return returned;
     }
-  };
+  },
 
-  // This is a somewhat naive strategy, but should work in a lot of cases
-  // A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
-  //
-  // This strategy generally prefers more static and less dynamic matching.
-  // Specifically, it
-  //
-  //  * prefers fewer stars to more, then
-  //  * prefers using stars for less of the match to more, then
-  //  * prefers fewer dynamic segments to more, then
-  //  * prefers more static segments to more
-  function sortSolutions(states) {
-    return states.sort(function (a, b) {
-      if (a.types.stars !== b.types.stars) {
-        return a.types.stars - b.types.stars;
-      }
+  put: function(charSpec) {
+    var state;
 
-      if (a.types.stars) {
-        if (a.types.statics !== b.types.statics) {
-          return b.types.statics - a.types.statics;
-        }
-        if (a.types.dynamics !== b.types.dynamics) {
-          return b.types.dynamics - a.types.dynamics;
-        }
-      }
+    // If the character specification already exists in a child of the current
+    // state, just return that state.
+    if (state = this.get(charSpec)) { return state; }
 
-      if (a.types.dynamics !== b.types.dynamics) {
-        return a.types.dynamics - b.types.dynamics;
-      }
-      if (a.types.statics !== b.types.statics) {
-        return b.types.statics - a.types.statics;
-      }
+    // Make a new state for the character spec
+    state = new State(charSpec);
 
-      return 0;
-    });
-  }
+    // Insert the new state as a child of the current state
+    this.nextStates.push(state);
 
-  function recognizeChar(states, ch) {
-    var nextStates = [];
-
-    for (var i = 0, l = states.length; i < l; i++) {
-      var state = states[i];
-
-      nextStates = nextStates.concat(state.match(ch));
+    // If this character specification repeats, insert the new state as a child
+    // of itself. Note that this will not trigger an infinite loop because each
+    // transition during recognition consumes a character.
+    if (charSpec.repeat) {
+      state.nextStates.push(state);
     }
 
-    return nextStates;
-  }
+    // Return the new state
+    return state;
+  },
 
-  var oCreate = Object.create || function (proto) {
-    function F() {}
-    F.prototype = proto;
-    return new F();
-  };
+  // Find a list of child states matching the next character
+  match: function(ch) {
+    var nextStates = this.nextStates,
+        child, charSpec, chars;
 
-  function RecognizeResults(queryParams) {
-    this.queryParams = queryParams || {};
+    var returned = [];
+
+    for (var i=0; i<nextStates.length; i++) {
+      child = nextStates[i];
+
+      charSpec = child.charSpec;
+
+      if (typeof (chars = charSpec.validChars) !== 'undefined') {
+        if (chars.indexOf(ch) !== -1) { returned.push(child); }
+      } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
+        if (chars.indexOf(ch) === -1) { returned.push(child); }
+      }
+    }
+
+    return returned;
   }
-  RecognizeResults.prototype = oCreate({
-    splice: Array.prototype.splice,
-    slice: Array.prototype.slice,
-    push: Array.prototype.push,
-    length: 0,
-    queryParams: null
+};
+
+// This is a somewhat naive strategy, but should work in a lot of cases
+// A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
+//
+// This strategy generally prefers more static and less dynamic matching.
+// Specifically, it
+//
+//  * prefers fewer stars to more, then
+//  * prefers using stars for less of the match to more, then
+//  * prefers fewer dynamic segments to more, then
+//  * prefers more static segments to more
+function sortSolutions(states) {
+  return states.sort(function(a, b) {
+    if (a.types.stars !== b.types.stars) { return a.types.stars - b.types.stars; }
+
+    if (a.types.stars) {
+      if (a.types.statics !== b.types.statics) { return b.types.statics - a.types.statics; }
+      if (a.types.dynamics !== b.types.dynamics) { return b.types.dynamics - a.types.dynamics; }
+    }
+
+    if (a.types.dynamics !== b.types.dynamics) { return a.types.dynamics - b.types.dynamics; }
+    if (a.types.statics !== b.types.statics) { return b.types.statics - a.types.statics; }
+
+    return 0;
   });
+}
 
-  function findHandler(state, originalPath, queryParams) {
-    var handlers = state.handlers,
-        regex = state.regex;
-    var captures = originalPath.match(regex),
-        currentCapture = 1;
-    var result = new RecognizeResults(queryParams);
+function recognizeChar(states, ch) {
+  var nextStates = [];
 
-    result.length = handlers.length;
+  for (var i=0, l=states.length; i<l; i++) {
+    var state = states[i];
 
-    for (var i = 0; i < handlers.length; i++) {
-      var handler = handlers[i],
-          names = handler.names,
-          shouldDecodes = handler.shouldDecodes,
-          params = {};
-      var name, shouldDecode, capture;
+    nextStates = nextStates.concat(state.match(ch));
+  }
 
-      for (var j = 0; j < names.length; j++) {
-        name = names[j];
-        shouldDecode = shouldDecodes[j];
-        capture = captures[currentCapture++];
+  return nextStates;
+}
 
-        if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-          if (shouldDecode) {
-            params[name] = decodeURIComponent(capture);
-          } else {
-            params[name] = capture;
-          }
+var oCreate = Object.create || function(proto) {
+  function F() {}
+  F.prototype = proto;
+  return new F();
+};
+
+function RecognizeResults(queryParams) {
+  this.queryParams = queryParams || {};
+}
+RecognizeResults.prototype = oCreate({
+  splice: Array.prototype.splice,
+  slice:  Array.prototype.slice,
+  push:   Array.prototype.push,
+  length: 0,
+  queryParams: null
+});
+
+function findHandler(state, originalPath, queryParams) {
+  var handlers = state.handlers, regex = state.regex;
+  var captures = originalPath.match(regex), currentCapture = 1;
+  var result = new RecognizeResults(queryParams);
+
+  result.length = handlers.length;
+
+  for (var i=0; i<handlers.length; i++) {
+    var handler = handlers[i], names = handler.names,
+      shouldDecodes = handler.shouldDecodes, params = {};
+    var name, shouldDecode, capture;
+
+    for (var j=0; j<names.length; j++) {
+      name = names[j];
+      shouldDecode = shouldDecodes[j];
+      capture = captures[currentCapture++];
+
+      if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
+        if (shouldDecode) {
+          params[name] = decodeURIComponent(capture);
         } else {
           params[name] = capture;
         }
+      } else {
+        params[name] = capture;
       }
-
-      result[i] = { handler: handler.handler, params: params, isDynamic: !!names.length };
     }
 
-    return result;
+    result[i] = { handler: handler.handler, params: params, isDynamic: !!names.length };
   }
 
-  function decodeQueryParamPart(part) {
-    // http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
-    part = part.replace(/\+/gm, '%20');
-    var result;
-    try {
-      result = decodeURIComponent(part);
-    } catch (error) {
-      result = '';
-    }
-    return result;
-  }
+  return result;
+}
 
-  // The main interface
+function decodeQueryParamPart(part) {
+  // http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
+  part = part.replace(/\+/gm, '%20');
+  var result;
+  try {
+    result = decodeURIComponent(part);
+  } catch(error) {result = '';}
+  return result;
+}
 
-  var RouteRecognizer = function () {
-    this.rootState = new State();
-    this.names = {};
-  };
+// The main interface
 
-  RouteRecognizer.prototype = {
-    add: function (routes, options) {
-      var currentState = this.rootState,
-          regex = "^",
-          types = { statics: 0, dynamics: 0, stars: 0 },
-          handlers = new Array(routes.length),
-          allSegments = [],
-          name;
+var RouteRecognizer = function() {
+  this.rootState = new State();
+  this.names = {};
+};
 
-      var isEmpty = true;
 
-      for (var i = 0; i < routes.length; i++) {
-        var route = routes[i],
-            names = [],
-            shouldDecodes = [];
+RouteRecognizer.prototype = {
+  add: function(routes, options) {
+    var currentState = this.rootState, regex = "^",
+        types = { statics: 0, dynamics: 0, stars: 0 },
+        handlers = new Array(routes.length), allSegments = [], name;
 
-        var segments = parse(route.path, names, types, shouldDecodes);
+    var isEmpty = true;
 
-        allSegments = allSegments.concat(segments);
+    for (var i=0; i<routes.length; i++) {
+      var route = routes[i], names = [], shouldDecodes = [];
 
-        for (var j = 0; j < segments.length; j++) {
-          var segment = segments[j];
+      var segments = parse(route.path, names, types, shouldDecodes);
 
-          if (segment instanceof EpsilonSegment) {
-            continue;
-          }
+      allSegments = allSegments.concat(segments);
 
-          isEmpty = false;
+      for (var j=0; j<segments.length; j++) {
+        var segment = segments[j];
 
-          // Add a "/" for the new segment
-          currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: "/" });
-          regex += "/";
+        if (segment instanceof EpsilonSegment) { continue; }
 
-          // Add a representation of the segment to the NFA and regex
-          currentState = segment.eachChar(currentState);
-          regex += segment.regex();
-        }
-        var handler = { handler: route.handler, names: names, shouldDecodes: shouldDecodes };
-        handlers[i] = handler;
-      }
+        isEmpty = false;
 
-      if (isEmpty) {
+        // Add a "/" for the new segment
         currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: "/" });
         regex += "/";
+
+        // Add a representation of the segment to the NFA and regex
+        currentState = segment.eachChar(currentState);
+        regex += segment.regex();
       }
-
-      currentState.handlers = handlers;
-      currentState.regex = new RegExp(regex + "$");
-      currentState.types = types;
-
-      if (name = options && options.as) {
-        this.names[name] = {
-          segments: allSegments,
-          handlers: handlers
-        };
-      }
-    },
-
-    handlersFor: function (name) {
-      var route = this.names[name];
-
-      if (!route) {
-        throw new Error("There is no route named " + name);
-      }
-
-      var result = new Array(route.handlers.length);
-
-      for (var i = 0; i < route.handlers.length; i++) {
-        result[i] = route.handlers[i];
-      }
-
-      return result;
-    },
-
-    hasRoute: function (name) {
-      return !!this.names[name];
-    },
-
-    generate: function (name, params) {
-      var route = this.names[name],
-          output = "";
-      if (!route) {
-        throw new Error("There is no route named " + name);
-      }
-
-      var segments = route.segments;
-
-      for (var i = 0; i < segments.length; i++) {
-        var segment = segments[i];
-
-        if (segment instanceof EpsilonSegment) {
-          continue;
-        }
-
-        output += "/";
-        output += segment.generate(params);
-      }
-
-      if (output.charAt(0) !== '/') {
-        output = '/' + output;
-      }
-
-      if (params && params.queryParams) {
-        output += this.generateQueryString(params.queryParams, route.handlers);
-      }
-
-      return output;
-    },
-
-    generateQueryString: function (params) {
-      var pairs = [];
-      var keys = [];
-      for (var key in params) {
-        if (params.hasOwnProperty(key)) {
-          keys.push(key);
-        }
-      }
-      keys.sort();
-      for (var i = 0; i < keys.length; i++) {
-        key = keys[i];
-        var value = params[key];
-        if (value == null) {
-          continue;
-        }
-        var pair = encodeURIComponent(key);
-        if (isArray(value)) {
-          for (var j = 0; j < value.length; j++) {
-            var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
-            pairs.push(arrayPair);
-          }
-        } else {
-          pair += "=" + encodeURIComponent(value);
-          pairs.push(pair);
-        }
-      }
-
-      if (pairs.length === 0) {
-        return '';
-      }
-
-      return "?" + pairs.join("&");
-    },
-
-    parseQueryString: function (queryString) {
-      var pairs = queryString.split("&"),
-          queryParams = {};
-      for (var i = 0; i < pairs.length; i++) {
-        var pair = pairs[i].split('='),
-            key = decodeQueryParamPart(pair[0]),
-            keyLength = key.length,
-            isArray = false,
-            value;
-        if (pair.length === 1) {
-          value = 'true';
-        } else {
-          //Handle arrays
-          if (keyLength > 2 && key.slice(keyLength - 2) === '[]') {
-            isArray = true;
-            key = key.slice(0, keyLength - 2);
-            if (!queryParams[key]) {
-              queryParams[key] = [];
-            }
-          }
-          value = pair[1] ? decodeQueryParamPart(pair[1]) : '';
-        }
-        if (isArray) {
-          queryParams[key].push(value);
-        } else {
-          queryParams[key] = value;
-        }
-      }
-      return queryParams;
-    },
-
-    recognize: function (path) {
-      var states = [this.rootState],
-          pathLen,
-          i,
-          queryStart,
-          queryParams = {},
-          hashStart,
-          isSlashDropped = false;
-
-      hashStart = path.indexOf('#');
-      if (hashStart !== -1) {
-        path = path.substr(0, hashStart);
-      }
-
-      queryStart = path.indexOf('?');
-      if (queryStart !== -1) {
-        var queryString = path.substr(queryStart + 1, path.length);
-        path = path.substr(0, queryStart);
-        queryParams = this.parseQueryString(queryString);
-      }
-
-      if (path.charAt(0) !== "/") {
-        path = "/" + path;
-      }
-      var originalPath = path;
-
-      if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-        path = normalizePath(path);
-      } else {
-        path = decodeURI(path);
-        originalPath = decodeURI(originalPath);
-      }
-
-      pathLen = path.length;
-      if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
-        path = path.substr(0, pathLen - 1);
-        originalPath = originalPath.substr(0, pathLen - 1);
-        isSlashDropped = true;
-      }
-
-      for (i = 0; i < path.length; i++) {
-        states = recognizeChar(states, path.charAt(i));
-        if (!states.length) {
-          break;
-        }
-      }
-
-      var solutions = [];
-      for (i = 0; i < states.length; i++) {
-        if (states[i].handlers) {
-          solutions.push(states[i]);
-        }
-      }
-
-      states = sortSolutions(solutions);
-
-      var state = solutions[0];
-
-      if (state && state.handlers) {
-        // if a trailing slash was dropped and a star segment is the last segment
-        // specified, put the trailing slash back
-        if (isSlashDropped && state.regex.source.slice(-5) === "(.+)$") {
-          originalPath = originalPath + "/";
-        }
-        return findHandler(state, originalPath, queryParams);
-      }
-    }
-  };
-
-  RouteRecognizer.prototype.map = map;
-
-  RouteRecognizer.VERSION = '0.2.6';
-
-  // Set to false to opt-out of encoding and decoding path segments.
-  // See https://github.com/tildeio/route-recognizer/pull/55
-  RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
-
-  RouteRecognizer.Normalizer = {
-    normalizeSegment: normalizeSegment,
-    normalizePath: normalizePath,
-    encodePathSegment: encodePathSegment
-  };
-
-  exports.default = RouteRecognizer;
-});
-enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
-  'use strict';
-
-  exports.default = _routerRouter.default;
-});
-enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], function (exports, _routerUtils, _rsvpPromise) {
-  'use strict';
-
-  var DEFAULT_HANDLER = Object.freeze({});
-
-  function HandlerInfo(_props) {
-    var props = _props || {};
-
-    // Set a default handler to ensure consistent object shape
-    this._handler = DEFAULT_HANDLER;
-
-    if (props.handler) {
-      var name = props.name;
-
-      // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
-      this.handlerPromise = _rsvpPromise.default.resolve(props.handler);
-
-      // Wait until the 'handler' property has been updated when chaining to a handler
-      // that is a promise
-      if (_routerUtils.isPromise(props.handler)) {
-        this.handlerPromise = this.handlerPromise.then(_routerUtils.bind(this, this.updateHandler));
-        props.handler = undefined;
-      } else if (props.handler) {
-        // Store the name of the handler on the handler for easy checks later
-        props.handler._handlerName = name;
-      }
+      var handler = { handler: route.handler, names: names, shouldDecodes: shouldDecodes };
+      handlers[i] = handler;
     }
 
-    _routerUtils.merge(this, props);
-    this.initialize(props);
-  }
-
-  HandlerInfo.prototype = {
-    name: null,
-
-    getHandler: function () {},
-
-    fetchHandler: function () {
-      var handler = this.getHandler(this.name);
-
-      // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
-      this.handlerPromise = _rsvpPromise.default.resolve(handler);
-
-      // Wait until the 'handler' property has been updated when chaining to a handler
-      // that is a promise
-      if (_routerUtils.isPromise(handler)) {
-        this.handlerPromise = this.handlerPromise.then(_routerUtils.bind(this, this.updateHandler));
-      } else if (handler) {
-        // Store the name of the handler on the handler for easy checks later
-        handler._handlerName = this.name;
-        return this.handler = handler;
-      }
-
-      return this.handler = undefined;
-    },
-
-    _handlerPromise: undefined,
-
-    params: null,
-    context: null,
-
-    // Injected by the handler info factory.
-    factory: null,
-
-    initialize: function () {},
-
-    log: function (payload, message) {
-      if (payload.log) {
-        payload.log(this.name + ': ' + message);
-      }
-    },
-
-    promiseLabel: function (label) {
-      return _routerUtils.promiseLabel("'" + this.name + "' " + label);
-    },
-
-    getUnresolved: function () {
-      return this;
-    },
-
-    serialize: function () {
-      return this.params || {};
-    },
-
-    updateHandler: function (handler) {
-      // Store the name of the handler on the handler for easy checks later
-      handler._handlerName = this.name;
-      return this.handler = handler;
-    },
-
-    resolve: function (shouldContinue, payload) {
-      var checkForAbort = _routerUtils.bind(this, this.checkForAbort, shouldContinue),
-          beforeModel = _routerUtils.bind(this, this.runBeforeModelHook, payload),
-          model = _routerUtils.bind(this, this.getModel, payload),
-          afterModel = _routerUtils.bind(this, this.runAfterModelHook, payload),
-          becomeResolved = _routerUtils.bind(this, this.becomeResolved, payload),
-          self = this;
-
-      return _rsvpPromise.default.resolve(this.handlerPromise, this.promiseLabel("Start handler")).then(function (handler) {
-        // We nest this chain in case the handlerPromise has an error so that
-        // we don't have to bubble it through every step
-        return _rsvpPromise.default.resolve(handler).then(checkForAbort, null, self.promiseLabel("Check for abort")).then(beforeModel, null, self.promiseLabel("Before model")).then(checkForAbort, null, self.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, self.promiseLabel("Model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, self.promiseLabel("After model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, self.promiseLabel("Become resolved"));
-      }, function (error) {
-        throw error;
-      });
-    },
-
-    runBeforeModelHook: function (payload) {
-      if (payload.trigger) {
-        payload.trigger(true, 'willResolveModel', payload, this.handler);
-      }
-      return this.runSharedModelHook(payload, 'beforeModel', []);
-    },
-
-    runAfterModelHook: function (payload, resolvedModel) {
-      // Stash the resolved model on the payload.
-      // This makes it possible for users to swap out
-      // the resolved model in afterModel.
-      var name = this.name;
-      this.stashResolvedModel(payload, resolvedModel);
-
-      return this.runSharedModelHook(payload, 'afterModel', [resolvedModel]).then(function () {
-        // Ignore the fulfilled value returned from afterModel.
-        // Return the value stashed in resolvedModels, which
-        // might have been swapped out in afterModel.
-        return payload.resolvedModels[name];
-      }, null, this.promiseLabel("Ignore fulfillment value and return model value"));
-    },
-
-    runSharedModelHook: function (payload, hookName, args) {
-      this.log(payload, "calling " + hookName + " hook");
-
-      if (this.queryParams) {
-        args.push(this.queryParams);
-      }
-      args.push(payload);
-
-      var result = _routerUtils.applyHook(this.handler, hookName, args);
-
-      if (result && result.isTransition) {
-        result = null;
-      }
-
-      return _rsvpPromise.default.resolve(result, this.promiseLabel("Resolve value returned from one of the model hooks"));
-    },
-
-    // overridden by subclasses
-    getModel: null,
-
-    checkForAbort: function (shouldContinue, promiseValue) {
-      return _rsvpPromise.default.resolve(shouldContinue(), this.promiseLabel("Check for abort")).then(function () {
-        // We don't care about shouldContinue's resolve value;
-        // pass along the original value passed to this fn.
-        return promiseValue;
-      }, null, this.promiseLabel("Ignore fulfillment value and continue"));
-    },
-
-    stashResolvedModel: function (payload, resolvedModel) {
-      payload.resolvedModels = payload.resolvedModels || {};
-      payload.resolvedModels[this.name] = resolvedModel;
-    },
-
-    becomeResolved: function (payload, resolvedContext) {
-      var params = this.serialize(resolvedContext);
-
-      if (payload) {
-        this.stashResolvedModel(payload, resolvedContext);
-        payload.params = payload.params || {};
-        payload.params[this.name] = params;
-      }
-
-      return this.factory('resolved', {
-        context: resolvedContext,
-        name: this.name,
-        handler: this.handler,
-        params: params
-      });
-    },
-
-    shouldSupercede: function (other) {
-      // Prefer this newer handlerInfo over `other` if:
-      // 1) The other one doesn't exist
-      // 2) The names don't match
-      // 3) This handler has a context that doesn't match
-      //    the other one (or the other one doesn't have one).
-      // 4) This handler has parameters that don't match the other.
-      if (!other) {
-        return true;
-      }
-
-      var contextsMatch = other.context === this.context;
-      return other.name !== this.name || this.hasOwnProperty('context') && !contextsMatch || this.hasOwnProperty('params') && !paramsMatch(this.params, other.params);
-    }
-  };
-
-  Object.defineProperty(HandlerInfo.prototype, 'handler', {
-    get: function () {
-      // _handler could be set to either a handler object or undefined, so we
-      // compare against a default reference to know when it's been set
-      if (this._handler !== DEFAULT_HANDLER) {
-        return this._handler;
-      }
-
-      return this.fetchHandler();
-    },
-
-    set: function (handler) {
-      return this._handler = handler;
-    }
-  });
-
-  Object.defineProperty(HandlerInfo.prototype, 'handlerPromise', {
-    get: function () {
-      if (this._handlerPromise) {
-        return this._handlerPromise;
-      }
-
-      this.fetchHandler();
-
-      return this._handlerPromise;
-    },
-
-    set: function (handlerPromise) {
-      return this._handlerPromise = handlerPromise;
-    }
-  });
-
-  function paramsMatch(a, b) {
-    if (!a ^ !b) {
-      // Only one is null.
-      return false;
+    if (isEmpty) {
+      currentState = currentState.put({ invalidChars: undefined, repeat: false, validChars: "/" });
+      regex += "/";
     }
 
-    if (!a) {
-      // Both must be null.
-      return true;
-    }
-
-    // Note: this assumes that both params have the same
-    // number of keys, but since we're comparing the
-    // same handlers, they should.
-    for (var k in a) {
-      if (a.hasOwnProperty(k) && a[k] !== b[k]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  exports.default = HandlerInfo;
-});
-enifed('router/handler-info/factory', ['exports', 'router/handler-info/resolved-handler-info', 'router/handler-info/unresolved-handler-info-by-object', 'router/handler-info/unresolved-handler-info-by-param'], function (exports, _routerHandlerInfoResolvedHandlerInfo, _routerHandlerInfoUnresolvedHandlerInfoByObject, _routerHandlerInfoUnresolvedHandlerInfoByParam) {
-  'use strict';
-
-  handlerInfoFactory.klasses = {
-    resolved: _routerHandlerInfoResolvedHandlerInfo.default,
-    param: _routerHandlerInfoUnresolvedHandlerInfoByParam.default,
-    object: _routerHandlerInfoUnresolvedHandlerInfoByObject.default
-  };
-
-  function handlerInfoFactory(name, props) {
-    var Ctor = handlerInfoFactory.klasses[name],
-        handlerInfo = new Ctor(props || {});
-    handlerInfo.factory = handlerInfoFactory;
-    return handlerInfo;
-  }
-
-  exports.default = handlerInfoFactory;
-});
-enifed('router/handler-info/resolved-handler-info', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
-  'use strict';
-
-  var ResolvedHandlerInfo = _routerUtils.subclass(_routerHandlerInfo.default, {
-    resolve: function (shouldContinue, payload) {
-      // A ResolvedHandlerInfo just resolved with itself.
-      if (payload && payload.resolvedModels) {
-        payload.resolvedModels[this.name] = this.context;
-      }
-      return _rsvpPromise.default.resolve(this, this.promiseLabel("Resolve"));
-    },
-
-    getUnresolved: function () {
-      return this.factory('param', {
-        name: this.name,
-        handler: this.handler,
-        params: this.params
-      });
-    },
-
-    isResolved: true
-  });
-
-  exports.default = ResolvedHandlerInfo;
-});
-enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
-  'use strict';
-
-  var UnresolvedHandlerInfoByObject = _routerUtils.subclass(_routerHandlerInfo.default, {
-    getModel: function (payload) {
-      this.log(payload, this.name + ": resolving provided model");
-      return _rsvpPromise.default.resolve(this.context);
-    },
-
-    initialize: function (props) {
-      this.names = props.names || [];
-      this.context = props.context;
-    },
-
-    /**
-      @private
-       Serializes a handler using its custom `serialize` method or
-      by a default that looks up the expected property name from
-      the dynamic segment.
-       @param {Object} model the model to be serialized for this handler
-    */
-    serialize: function (_model) {
-      var model = _model || this.context,
-          names = this.names,
-          serializer = this.serializer || this.handler && this.handler.serialize;
-
-      var object = {};
-      if (_routerUtils.isParam(model)) {
-        object[names[0]] = model;
-        return object;
-      }
-
-      // Use custom serialize if it exists.
-      if (serializer) {
-        return serializer(model, names);
-      }
-
-      if (names.length !== 1) {
-        return;
-      }
-
-      var name = names[0];
-
-      if (/_id$/.test(name)) {
-        object[name] = model.id;
-      } else {
-        object[name] = model;
-      }
-      return object;
-    }
-  });
-
-  exports.default = UnresolvedHandlerInfoByObject;
-});
-enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', 'router/handler-info', 'router/utils'], function (exports, _routerHandlerInfo, _routerUtils) {
-  'use strict';
-
-  // Generated by URL transitions and non-dynamic route segments in named Transitions.
-  var UnresolvedHandlerInfoByParam = _routerUtils.subclass(_routerHandlerInfo.default, {
-    initialize: function (props) {
-      this.params = props.params || {};
-    },
-
-    getModel: function (payload) {
-      var fullParams = this.params;
-      if (payload && payload.queryParams) {
-        fullParams = {};
-        _routerUtils.merge(fullParams, this.params);
-        fullParams.queryParams = payload.queryParams;
-      }
-
-      var handler = this.handler;
-      var hookName = _routerUtils.resolveHook(handler, 'deserialize') || _routerUtils.resolveHook(handler, 'model');
-
-      return this.runSharedModelHook(payload, hookName, [fullParams]);
-    }
-  });
-
-  exports.default = UnresolvedHandlerInfoByParam;
-});
-enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/utils', 'router/transition-state', 'router/transition', 'router/transition-intent/named-transition-intent', 'router/transition-intent/url-transition-intent'], function (exports, _routeRecognizer, _rsvpPromise, _routerUtils, _routerTransitionState, _routerTransition, _routerTransitionIntentNamedTransitionIntent, _routerTransitionIntentUrlTransitionIntent) {
-  'use strict';
-
-  var pop = Array.prototype.pop;
-
-  function Router(_options) {
-    var options = _options || {};
-    this.getHandler = options.getHandler || this.getHandler;
-    this.getSerializer = options.getSerializer || this.getSerializer;
-    this.updateURL = options.updateURL || this.updateURL;
-    this.replaceURL = options.replaceURL || this.replaceURL;
-    this.didTransition = options.didTransition || this.didTransition;
-    this.willTransition = options.willTransition || this.willTransition;
-    this.delegate = options.delegate || this.delegate;
-    this.triggerEvent = options.triggerEvent || this.triggerEvent;
-    this.log = options.log || this.log;
-    this.dslCallBacks = []; // NOTE: set by Ember
-    this.state = undefined;
-    this.activeTransition = undefined;
-    this._changedQueryParams = undefined;
-    this.oldState = undefined;
-    this.currentHandlerInfos = undefined;
-    this.state = undefined;
-
-    this.recognizer = new _routeRecognizer.default();
-    this.reset();
-  }
-
-  function getTransitionByIntent(intent, isIntermediate) {
-    var wasTransitioning = !!this.activeTransition;
-    var oldState = wasTransitioning ? this.activeTransition.state : this.state;
-    var newTransition;
-
-    var newState = intent.applyToState(oldState, this.recognizer, this.getHandler, isIntermediate, this.getSerializer);
-    var queryParamChangelist = _routerUtils.getChangelist(oldState.queryParams, newState.queryParams);
-
-    if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
-
-      // This is a no-op transition. See if query params changed.
-      if (queryParamChangelist) {
-        newTransition = this.queryParamsTransition(queryParamChangelist, wasTransitioning, oldState, newState);
-        if (newTransition) {
-          return newTransition;
-        }
-      }
-
-      // No-op. No need to create a new transition.
-      return this.activeTransition || new _routerTransition.Transition(this);
-    }
-
-    if (isIntermediate) {
-      setupContexts(this, newState);
-      return;
-    }
-
-    // Create a new transition to the destination route.
-    newTransition = new _routerTransition.Transition(this, intent, newState);
-
-    // Abort and usurp any previously active transition.
-    if (this.activeTransition) {
-      this.activeTransition.abort();
-    }
-    this.activeTransition = newTransition;
-
-    // Transition promises by default resolve with resolved state.
-    // For our purposes, swap out the promise to resolve
-    // after the transition has been finalized.
-    newTransition.promise = newTransition.promise.then(function (result) {
-      return finalizeTransition(newTransition, result.state);
-    }, null, _routerUtils.promiseLabel("Settle transition promise when transition is finalized"));
-
-    if (!wasTransitioning) {
-      notifyExistingHandlers(this, newState, newTransition);
-    }
-
-    fireQueryParamDidChange(this, newState, queryParamChangelist);
-
-    return newTransition;
-  }
-
-  Router.prototype = {
-
-    /**
-      The main entry point into the router. The API is essentially
-      the same as the `map` method in `route-recognizer`.
-       This method extracts the String handler at the last `.to()`
-      call and uses it as the name of the whole route.
-       @param {Function} callback
-    */
-    map: function (callback) {
-      this.recognizer.delegate = this.delegate;
-
-      this.recognizer.map(callback, function (recognizer, routes) {
-        for (var i = routes.length - 1, proceed = true; i >= 0 && proceed; --i) {
-          var route = routes[i];
-          recognizer.add(routes, { as: route.handler });
-          proceed = route.path === '/' || route.path === '' || route.handler.slice(-6) === '.index';
-        }
-      });
-    },
-
-    hasRoute: function (route) {
-      return this.recognizer.hasRoute(route);
-    },
-
-    getHandler: function () {},
-
-    getSerializer: function () {},
-
-    queryParamsTransition: function (changelist, wasTransitioning, oldState, newState) {
-      var router = this;
-
-      fireQueryParamDidChange(this, newState, changelist);
-
-      if (!wasTransitioning && this.activeTransition) {
-        // One of the handlers in queryParamsDidChange
-        // caused a transition. Just return that transition.
-        return this.activeTransition;
-      } else {
-        // Running queryParamsDidChange didn't change anything.
-        // Just update query params and be on our way.
-
-        // We have to return a noop transition that will
-        // perform a URL update at the end. This gives
-        // the user the ability to set the url update
-        // method (default is replaceState).
-        var newTransition = new _routerTransition.Transition(this);
-        newTransition.queryParamsOnly = true;
-
-        oldState.queryParams = finalizeQueryParamChange(this, newState.handlerInfos, newState.queryParams, newTransition);
-
-        newTransition.promise = newTransition.promise.then(function (result) {
-          updateURL(newTransition, oldState, true);
-          if (router.didTransition) {
-            router.didTransition(router.currentHandlerInfos);
-          }
-          return result;
-        }, null, _routerUtils.promiseLabel("Transition complete"));
-        return newTransition;
-      }
-    },
-
-    // NOTE: this doesn't really belong here, but here
-    // it shall remain until our ES6 transpiler can
-    // handle cyclical deps.
-    transitionByIntent: function (intent /*, isIntermediate*/) {
-      try {
-        return getTransitionByIntent.apply(this, arguments);
-      } catch (e) {
-        return new _routerTransition.Transition(this, intent, null, e);
-      }
-    },
-
-    /**
-      Clears the current and target route handlers and triggers exit
-      on each of them starting at the leaf and traversing up through
-      its ancestors.
-    */
-    reset: function () {
-      if (this.state) {
-        _routerUtils.forEach(this.state.handlerInfos.slice().reverse(), function (handlerInfo) {
-          var handler = handlerInfo.handler;
-          _routerUtils.callHook(handler, 'exit');
-        });
-      }
-
-      this.oldState = undefined;
-      this.state = new _routerTransitionState.default();
-      this.currentHandlerInfos = null;
-    },
-
-    activeTransition: null,
-
-    /**
-      var handler = handlerInfo.handler;
-      The entry point for handling a change to the URL (usually
-      via the back and forward button).
-       Returns an Array of handlers and the parameters associated
-      with those parameters.
-       @param {String} url a URL to process
-       @return {Array} an Array of `[handler, parameter]` tuples
-    */
-    handleURL: function (url) {
-      // Perform a URL-based transition, but don't change
-      // the URL afterward, since it already happened.
-      var args = _routerUtils.slice.call(arguments);
-      if (url.charAt(0) !== '/') {
-        args[0] = '/' + url;
-      }
-
-      return doTransition(this, args).method(null);
-    },
-
-    /**
-      Hook point for updating the URL.
-       @param {String} url a URL to update to
-    */
-    updateURL: function () {
-      throw new Error("updateURL is not implemented");
-    },
-
-    /**
-      Hook point for replacing the current URL, i.e. with replaceState
-       By default this behaves the same as `updateURL`
-       @param {String} url a URL to update to
-    */
-    replaceURL: function (url) {
-      this.updateURL(url);
-    },
-
-    /**
-      Transition into the specified named route.
-       If necessary, trigger the exit callback on any handlers
-      that are no longer represented by the target route.
-       @param {String} name the name of the route
-    */
-    transitionTo: function () /*name*/{
-      return doTransition(this, arguments);
-    },
-
-    intermediateTransitionTo: function () /*name*/{
-      return doTransition(this, arguments, true);
-    },
-
-    refresh: function (pivotHandler) {
-      var state = this.activeTransition ? this.activeTransition.state : this.state;
-      var handlerInfos = state.handlerInfos;
-      var params = {};
-      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-        var handlerInfo = handlerInfos[i];
-        params[handlerInfo.name] = handlerInfo.params || {};
-      }
-
-      _routerUtils.log(this, "Starting a refresh transition");
-      var intent = new _routerTransitionIntentNamedTransitionIntent.default({
-        name: handlerInfos[handlerInfos.length - 1].name,
-        pivotHandler: pivotHandler || handlerInfos[0].handler,
-        contexts: [], // TODO collect contexts...?
-        queryParams: this._changedQueryParams || state.queryParams || {}
-      });
-
-      return this.transitionByIntent(intent, false);
-    },
-
-    /**
-      Identical to `transitionTo` except that the current URL will be replaced
-      if possible.
-       This method is intended primarily for use with `replaceState`.
-       @param {String} name the name of the route
-    */
-    replaceWith: function () /*name*/{
-      return doTransition(this, arguments).method('replace');
-    },
-
-    /**
-      Take a named route and context objects and generate a
-      URL.
-       @param {String} name the name of the route to generate
-        a URL for
-      @param {...Object} objects a list of objects to serialize
-       @return {String} a URL
-    */
-    generate: function (handlerName) {
-
-      var partitionedArgs = _routerUtils.extractQueryParams(_routerUtils.slice.call(arguments, 1)),
-          suppliedParams = partitionedArgs[0],
-          queryParams = partitionedArgs[1];
-
-      // Construct a TransitionIntent with the provided params
-      // and apply it to the present state of the router.
-      var intent = new _routerTransitionIntentNamedTransitionIntent.default({ name: handlerName, contexts: suppliedParams });
-      var state = intent.applyToState(this.state, this.recognizer, this.getHandler, null, this.getSerializer);
-      var params = {};
-
-      for (var i = 0, len = state.handlerInfos.length; i < len; ++i) {
-        var handlerInfo = state.handlerInfos[i];
-        var handlerParams = handlerInfo.serialize();
-        _routerUtils.merge(params, handlerParams);
-      }
-      params.queryParams = queryParams;
-
-      return this.recognizer.generate(handlerName, params);
-    },
-
-    applyIntent: function (handlerName, contexts) {
-      var intent = new _routerTransitionIntentNamedTransitionIntent.default({
-        name: handlerName,
-        contexts: contexts
-      });
-
-      var state = this.activeTransition && this.activeTransition.state || this.state;
-      return intent.applyToState(state, this.recognizer, this.getHandler, null, this.getSerializer);
-    },
-
-    isActiveIntent: function (handlerName, contexts, queryParams, _state) {
-      var state = _state || this.state,
-          targetHandlerInfos = state.handlerInfos,
-          handlerInfo,
-          len;
-
-      if (!targetHandlerInfos.length) {
-        return false;
-      }
-
-      var targetHandler = targetHandlerInfos[targetHandlerInfos.length - 1].name;
-      var recogHandlers = this.recognizer.handlersFor(targetHandler);
-
-      var index = 0;
-      for (len = recogHandlers.length; index < len; ++index) {
-        handlerInfo = targetHandlerInfos[index];
-        if (handlerInfo.name === handlerName) {
-          break;
-        }
-      }
-
-      if (index === recogHandlers.length) {
-        // The provided route name isn't even in the route hierarchy.
-        return false;
-      }
-
-      var testState = new _routerTransitionState.default();
-      testState.handlerInfos = targetHandlerInfos.slice(0, index + 1);
-      recogHandlers = recogHandlers.slice(0, index + 1);
-
-      var intent = new _routerTransitionIntentNamedTransitionIntent.default({
-        name: targetHandler,
-        contexts: contexts
-      });
-
-      var newState = intent.applyToHandlers(testState, recogHandlers, this.getHandler, targetHandler, true, true, this.getSerializer);
-
-      var handlersEqual = handlerInfosEqual(newState.handlerInfos, testState.handlerInfos);
-      if (!queryParams || !handlersEqual) {
-        return handlersEqual;
-      }
-
-      // Get a hash of QPs that will still be active on new route
-      var activeQPsOnNewHandler = {};
-      _routerUtils.merge(activeQPsOnNewHandler, queryParams);
-
-      var activeQueryParams = state.queryParams;
-      for (var key in activeQueryParams) {
-        if (activeQueryParams.hasOwnProperty(key) && activeQPsOnNewHandler.hasOwnProperty(key)) {
-          activeQPsOnNewHandler[key] = activeQueryParams[key];
-        }
-      }
-
-      return handlersEqual && !_routerUtils.getChangelist(activeQPsOnNewHandler, queryParams);
-    },
-
-    isActive: function (handlerName) {
-      var partitionedArgs = _routerUtils.extractQueryParams(_routerUtils.slice.call(arguments, 1));
-      return this.isActiveIntent(handlerName, partitionedArgs[0], partitionedArgs[1]);
-    },
-
-    trigger: function () /*name*/{
-      var args = _routerUtils.slice.call(arguments);
-      _routerUtils.trigger(this, this.currentHandlerInfos, false, args);
-    },
-
-    /**
-      Hook point for logging transition status updates.
-       @param {String} message The message to log.
-    */
-    log: null
-  };
-
-  /**
-    @private
-  
-    Fires queryParamsDidChange event
-  */
-  function fireQueryParamDidChange(router, newState, queryParamChangelist) {
-    // If queryParams changed trigger event
-    if (queryParamChangelist) {
-
-      // This is a little hacky but we need some way of storing
-      // changed query params given that no activeTransition
-      // is guaranteed to have occurred.
-      router._changedQueryParams = queryParamChangelist.all;
-      _routerUtils.trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
-      router._changedQueryParams = null;
-    }
-  }
-
-  /**
-    @private
-  
-    Takes an Array of `HandlerInfo`s, figures out which ones are
-    exiting, entering, or changing contexts, and calls the
-    proper handler hooks.
-  
-    For example, consider the following tree of handlers. Each handler is
-    followed by the URL segment it handles.
-  
-    ```
-    |~index ("/")
-    | |~posts ("/posts")
-    | | |-showPost ("/:id")
-    | | |-newPost ("/new")
-    | | |-editPost ("/edit")
-    | |~about ("/about/:id")
-    ```
-  
-    Consider the following transitions:
-  
-    1. A URL transition to `/posts/1`.
-       1. Triggers the `*model` callbacks on the
-          `index`, `posts`, and `showPost` handlers
-       2. Triggers the `enter` callback on the same
-       3. Triggers the `setup` callback on the same
-    2. A direct transition to `newPost`
-       1. Triggers the `exit` callback on `showPost`
-       2. Triggers the `enter` callback on `newPost`
-       3. Triggers the `setup` callback on `newPost`
-    3. A direct transition to `about` with a specified
-       context object
-       1. Triggers the `exit` callback on `newPost`
-          and `posts`
-       2. Triggers the `serialize` callback on `about`
-       3. Triggers the `enter` callback on `about`
-       4. Triggers the `setup` callback on `about`
-  
-    @param {Router} transition
-    @param {TransitionState} newState
-  */
-  function setupContexts(router, newState, transition) {
-    var partition = partitionHandlers(router.state, newState);
-    var i, l, handler;
-
-    for (i = 0, l = partition.exited.length; i < l; i++) {
-      handler = partition.exited[i].handler;
-      delete handler.context;
-
-      _routerUtils.callHook(handler, 'reset', true, transition);
-      _routerUtils.callHook(handler, 'exit', transition);
-    }
-
-    var oldState = router.oldState = router.state;
-    router.state = newState;
-    var currentHandlerInfos = router.currentHandlerInfos = partition.unchanged.slice();
-
-    try {
-      for (i = 0, l = partition.reset.length; i < l; i++) {
-        handler = partition.reset[i].handler;
-        _routerUtils.callHook(handler, 'reset', false, transition);
-      }
-
-      for (i = 0, l = partition.updatedContext.length; i < l; i++) {
-        handlerEnteredOrUpdated(currentHandlerInfos, partition.updatedContext[i], false, transition);
-      }
-
-      for (i = 0, l = partition.entered.length; i < l; i++) {
-        handlerEnteredOrUpdated(currentHandlerInfos, partition.entered[i], true, transition);
-      }
-    } catch (e) {
-      router.state = oldState;
-      router.currentHandlerInfos = oldState.handlerInfos;
-      throw e;
-    }
-
-    router.state.queryParams = finalizeQueryParamChange(router, currentHandlerInfos, newState.queryParams, transition);
-  }
-
-  /**
-    @private
-  
-    Helper method used by setupContexts. Handles errors or redirects
-    that may happen in enter/setup.
-  */
-  function handlerEnteredOrUpdated(currentHandlerInfos, handlerInfo, enter, transition) {
-    var handler = handlerInfo.handler,
-        context = handlerInfo.context;
-
-    function _handlerEnteredOrUpdated(handler) {
-      if (enter) {
-        _routerUtils.callHook(handler, 'enter', transition);
-      }
-
-      if (transition && transition.isAborted) {
-        throw new _routerTransition.TransitionAborted();
-      }
-
-      handler.context = context;
-      _routerUtils.callHook(handler, 'contextDidChange');
-
-      _routerUtils.callHook(handler, 'setup', context, transition);
-      if (transition && transition.isAborted) {
-        throw new _routerTransition.TransitionAborted();
-      }
-
-      currentHandlerInfos.push(handlerInfo);
-    }
-
-    // If the handler doesn't exist, it means we haven't resolved the handler promise yet
-    if (!handler) {
-      handlerInfo.handlerPromise = handlerInfo.handlerPromise.then(_handlerEnteredOrUpdated);
-    } else {
-      _handlerEnteredOrUpdated(handler);
-    }
-
-    return true;
-  }
-
-  /**
-    @private
-  
-    This function is called when transitioning from one URL to
-    another to determine which handlers are no longer active,
-    which handlers are newly active, and which handlers remain
-    active but have their context changed.
-  
-    Take a list of old handlers and new handlers and partition
-    them into four buckets:
-  
-    * unchanged: the handler was active in both the old and
-      new URL, and its context remains the same
-    * updated context: the handler was active in both the
-      old and new URL, but its context changed. The handler's
-      `setup` method, if any, will be called with the new
-      context.
-    * exited: the handler was active in the old URL, but is
-      no longer active.
-    * entered: the handler was not active in the old URL, but
-      is now active.
-  
-    The PartitionedHandlers structure has four fields:
-  
-    * `updatedContext`: a list of `HandlerInfo` objects that
-      represent handlers that remain active but have a changed
-      context
-    * `entered`: a list of `HandlerInfo` objects that represent
-      handlers that are newly active
-    * `exited`: a list of `HandlerInfo` objects that are no
-      longer active.
-    * `unchanged`: a list of `HanderInfo` objects that remain active.
-  
-    @param {Array[HandlerInfo]} oldHandlers a list of the handler
-      information for the previous URL (or `[]` if this is the
-      first handled transition)
-    @param {Array[HandlerInfo]} newHandlers a list of the handler
-      information for the new URL
-  
-    @return {Partition}
-  */
-  function partitionHandlers(oldState, newState) {
-    var oldHandlers = oldState.handlerInfos;
-    var newHandlers = newState.handlerInfos;
-
-    var handlers = {
-      updatedContext: [],
-      exited: [],
-      entered: [],
-      unchanged: [],
-      reset: undefined
-    };
-
-    var handlerChanged,
-        contextChanged = false,
-        i,
-        l;
-
-    for (i = 0, l = newHandlers.length; i < l; i++) {
-      var oldHandler = oldHandlers[i],
-          newHandler = newHandlers[i];
-
-      if (!oldHandler || oldHandler.handler !== newHandler.handler) {
-        handlerChanged = true;
-      }
-
-      if (handlerChanged) {
-        handlers.entered.push(newHandler);
-        if (oldHandler) {
-          handlers.exited.unshift(oldHandler);
-        }
-      } else if (contextChanged || oldHandler.context !== newHandler.context) {
-        contextChanged = true;
-        handlers.updatedContext.push(newHandler);
-      } else {
-        handlers.unchanged.push(oldHandler);
-      }
-    }
-
-    for (i = newHandlers.length, l = oldHandlers.length; i < l; i++) {
-      handlers.exited.unshift(oldHandlers[i]);
-    }
-
-    handlers.reset = handlers.updatedContext.slice();
-    handlers.reset.reverse();
-
-    return handlers;
-  }
-
-  function updateURL(transition, state /*, inputUrl*/) {
-    var urlMethod = transition.urlMethod;
-
-    if (!urlMethod) {
-      return;
-    }
-
-    var router = transition.router,
-        handlerInfos = state.handlerInfos,
-        handlerName = handlerInfos[handlerInfos.length - 1].name,
-        params = {};
-
-    for (var i = handlerInfos.length - 1; i >= 0; --i) {
-      var handlerInfo = handlerInfos[i];
-      _routerUtils.merge(params, handlerInfo.params);
-      if (handlerInfo.handler.inaccessibleByURL) {
-        urlMethod = null;
-      }
-    }
-
-    if (urlMethod) {
-      params.queryParams = transition._visibleQueryParams || state.queryParams;
-      var url = router.recognizer.generate(handlerName, params);
-
-      if (urlMethod === 'replace') {
-        router.replaceURL(url);
-      } else {
-        router.updateURL(url);
-      }
-    }
-  }
-
-  /**
-    @private
-  
-    Updates the URL (if necessary) and calls `setupContexts`
-    to update the router's array of `currentHandlerInfos`.
-   */
-  function finalizeTransition(transition, newState) {
-
-    try {
-      _routerUtils.log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
-
-      var router = transition.router,
-          handlerInfos = newState.handlerInfos;
-
-      // Run all the necessary enter/setup/exit hooks
-      setupContexts(router, newState, transition);
-
-      // Check if a redirect occurred in enter/setup
-      if (transition.isAborted) {
-        // TODO: cleaner way? distinguish b/w targetHandlerInfos?
-        router.state.handlerInfos = router.currentHandlerInfos;
-        return _rsvpPromise.default.reject(_routerTransition.logAbort(transition));
-      }
-
-      updateURL(transition, newState, transition.intent.url);
-
-      transition.isActive = false;
-      router.activeTransition = null;
-
-      _routerUtils.trigger(router, router.currentHandlerInfos, true, ['didTransition']);
-
-      if (router.didTransition) {
-        router.didTransition(router.currentHandlerInfos);
-      }
-
-      _routerUtils.log(router, transition.sequence, "TRANSITION COMPLETE.");
-
-      // Resolve with the final handler.
-      return handlerInfos[handlerInfos.length - 1].handler;
-    } catch (e) {
-      if (!(e instanceof _routerTransition.TransitionAborted)) {
-        //var erroneousHandler = handlerInfos.pop();
-        var infos = transition.state.handlerInfos;
-        transition.trigger(true, 'error', e, transition, infos[infos.length - 1].handler);
-        transition.abort();
-      }
-
-      throw e;
-    }
-  }
-
-  /**
-    @private
-  
-    Begins and returns a Transition based on the provided
-    arguments. Accepts arguments in the form of both URL
-    transitions and named transitions.
-  
-    @param {Router} router
-    @param {Array[Object]} args arguments passed to transitionTo,
-      replaceWith, or handleURL
-  */
-  function doTransition(router, args, isIntermediate) {
-    // Normalize blank transitions to root URL transitions.
-    var name = args[0] || '/';
-
-    var lastArg = args[args.length - 1];
-    var queryParams = {};
-    if (lastArg && lastArg.hasOwnProperty('queryParams')) {
-      queryParams = pop.call(args).queryParams;
-    }
-
-    var intent;
-    if (args.length === 0) {
-
-      _routerUtils.log(router, "Updating query params");
-
-      // A query param update is really just a transition
-      // into the route you're already on.
-      var handlerInfos = router.state.handlerInfos;
-      intent = new _routerTransitionIntentNamedTransitionIntent.default({
-        name: handlerInfos[handlerInfos.length - 1].name,
-        contexts: [],
-        queryParams: queryParams
-      });
-    } else if (name.charAt(0) === '/') {
-
-      _routerUtils.log(router, "Attempting URL transition to " + name);
-      intent = new _routerTransitionIntentUrlTransitionIntent.default({ url: name });
-    } else {
-
-      _routerUtils.log(router, "Attempting transition to " + name);
-      intent = new _routerTransitionIntentNamedTransitionIntent.default({
-        name: args[0],
-        contexts: _routerUtils.slice.call(args, 1),
-        queryParams: queryParams
-      });
-    }
-
-    return router.transitionByIntent(intent, isIntermediate);
-  }
-
-  function handlerInfosEqual(handlerInfos, otherHandlerInfos) {
-    if (handlerInfos.length !== otherHandlerInfos.length) {
-      return false;
-    }
-
-    for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-      if (handlerInfos[i] !== otherHandlerInfos[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function finalizeQueryParamChange(router, resolvedHandlers, newQueryParams, transition) {
-    // We fire a finalizeQueryParamChange event which
-    // gives the new route hierarchy a chance to tell
-    // us which query params it's consuming and what
-    // their final values are. If a query param is
-    // no longer consumed in the final route hierarchy,
-    // its serialized segment will be removed
-    // from the URL.
-
-    for (var k in newQueryParams) {
-      if (newQueryParams.hasOwnProperty(k) && newQueryParams[k] === null) {
-        delete newQueryParams[k];
-      }
-    }
-
-    var finalQueryParamsArray = [];
-    _routerUtils.trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
-
-    if (transition) {
-      transition._visibleQueryParams = {};
-    }
-
-    var finalQueryParams = {};
-    for (var i = 0, len = finalQueryParamsArray.length; i < len; ++i) {
-      var qp = finalQueryParamsArray[i];
-      finalQueryParams[qp.key] = qp.value;
-      if (transition && qp.visible !== false) {
-        transition._visibleQueryParams[qp.key] = qp.value;
-      }
-    }
-    return finalQueryParams;
-  }
-
-  function notifyExistingHandlers(router, newState, newTransition) {
-    var oldHandlers = router.state.handlerInfos,
-        changing = [],
-        leavingIndex = null,
-        leaving,
-        leavingChecker,
-        i,
-        oldHandlerLen,
-        oldHandler,
-        newHandler;
-
-    oldHandlerLen = oldHandlers.length;
-    for (i = 0; i < oldHandlerLen; i++) {
-      oldHandler = oldHandlers[i];
-      newHandler = newState.handlerInfos[i];
-
-      if (!newHandler || oldHandler.name !== newHandler.name) {
-        leavingIndex = i;
-        break;
-      }
-
-      if (!newHandler.isResolved) {
-        changing.push(oldHandler);
-      }
-    }
-
-    if (leavingIndex !== null) {
-      leaving = oldHandlers.slice(leavingIndex, oldHandlerLen);
-      leavingChecker = function (name) {
-        for (var h = 0, len = leaving.length; h < len; h++) {
-          if (leaving[h].name === name) {
-            return true;
-          }
-        }
-        return false;
+    currentState.handlers = handlers;
+    currentState.regex = new RegExp(regex + "$");
+    currentState.types = types;
+
+    if (name = options && options.as) {
+      this.names[name] = {
+        segments: allSegments,
+        handlers: handlers
       };
     }
+  },
 
-    _routerUtils.trigger(router, oldHandlers, true, ['willTransition', newTransition]);
+  handlersFor: function(name) {
+    var route = this.names[name];
 
-    if (router.willTransition) {
-      router.willTransition(oldHandlers, newState.handlerInfos, newTransition);
+    if (!route) { throw new Error("There is no route named " + name); }
+
+    var result = new Array(route.handlers.length);
+
+    for (var i=0; i<route.handlers.length; i++) {
+      result[i] = route.handlers[i];
+    }
+
+    return result;
+  },
+
+  hasRoute: function(name) {
+    return !!this.names[name];
+  },
+
+  generate: function(name, params) {
+    var route = this.names[name], output = "";
+    if (!route) { throw new Error("There is no route named " + name); }
+
+    var segments = route.segments;
+
+    for (var i=0; i<segments.length; i++) {
+      var segment = segments[i];
+
+      if (segment instanceof EpsilonSegment) { continue; }
+
+      output += "/";
+      output += segment.generate(params);
+    }
+
+    if (output.charAt(0) !== '/') { output = '/' + output; }
+
+    if (params && params.queryParams) {
+      output += this.generateQueryString(params.queryParams, route.handlers);
+    }
+
+    return output;
+  },
+
+  generateQueryString: function(params) {
+    var pairs = [];
+    var keys = [];
+    for(var key in params) {
+      if (params.hasOwnProperty(key)) {
+        keys.push(key);
+      }
+    }
+    keys.sort();
+    for (var i = 0; i < keys.length; i++) {
+      key = keys[i];
+      var value = params[key];
+      if (value == null) {
+        continue;
+      }
+      var pair = encodeURIComponent(key);
+      if (isArray(value)) {
+        for (var j = 0; j < value.length; j++) {
+          var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
+          pairs.push(arrayPair);
+        }
+      } else {
+        pair += "=" + encodeURIComponent(value);
+        pairs.push(pair);
+      }
+    }
+
+    if (pairs.length === 0) { return ''; }
+
+    return "?" + pairs.join("&");
+  },
+
+  parseQueryString: function(queryString) {
+    var pairs = queryString.split("&"), queryParams = {};
+    for(var i=0; i < pairs.length; i++) {
+      var pair      = pairs[i].split('='),
+          key       = decodeQueryParamPart(pair[0]),
+          keyLength = key.length,
+          isArray = false,
+          value;
+      if (pair.length === 1) {
+        value = 'true';
+      } else {
+        //Handle arrays
+        if (keyLength > 2 && key.slice(keyLength -2) === '[]') {
+          isArray = true;
+          key = key.slice(0, keyLength - 2);
+          if(!queryParams[key]) {
+            queryParams[key] = [];
+          }
+        }
+        value = pair[1] ? decodeQueryParamPart(pair[1]) : '';
+      }
+      if (isArray) {
+        queryParams[key].push(value);
+      } else {
+        queryParams[key] = value;
+      }
+    }
+    return queryParams;
+  },
+
+  recognize: function(path) {
+    var states = [ this.rootState ],
+        pathLen, i, queryStart, queryParams = {},
+        hashStart,
+        isSlashDropped = false;
+
+    hashStart = path.indexOf('#');
+    if (hashStart !== -1) {
+      path = path.substr(0, hashStart);
+    }
+
+    queryStart = path.indexOf('?');
+    if (queryStart !== -1) {
+      var queryString = path.substr(queryStart + 1, path.length);
+      path = path.substr(0, queryStart);
+      queryParams = this.parseQueryString(queryString);
+    }
+
+    if (path.charAt(0) !== "/") { path = "/" + path; }
+    var originalPath = path;
+
+    if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
+      path = normalizePath(path);
+    } else {
+      path = decodeURI(path);
+      originalPath = decodeURI(originalPath);
+    }
+
+    pathLen = path.length;
+    if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
+      path = path.substr(0, pathLen - 1);
+      originalPath = originalPath.substr(0, pathLen - 1);
+      isSlashDropped = true;
+    }
+
+    for (i=0; i<path.length; i++) {
+      states = recognizeChar(states, path.charAt(i));
+      if (!states.length) { break; }
+    }
+
+    var solutions = [];
+    for (i=0; i<states.length; i++) {
+      if (states[i].handlers) { solutions.push(states[i]); }
+    }
+
+    states = sortSolutions(solutions);
+
+    var state = solutions[0];
+
+    if (state && state.handlers) {
+      // if a trailing slash was dropped and a star segment is the last segment
+      // specified, put the trailing slash back
+      if (isSlashDropped && state.regex.source.slice(-5) === "(.+)$") {
+         originalPath = originalPath + "/";
+       }
+      return findHandler(state, originalPath, queryParams);
+    }
+  }
+};
+
+RouteRecognizer.prototype.map = map;
+
+RouteRecognizer.VERSION = '0.2.6';
+
+// Set to false to opt-out of encoding and decoding path segments.
+// See https://github.com/tildeio/route-recognizer/pull/55
+RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
+
+RouteRecognizer.Normalizer = {
+  normalizeSegment: normalizeSegment,
+  normalizePath: normalizePath,
+  encodePathSegment: encodePathSegment
+};
+
+exports['default'] = RouteRecognizer;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+});
+enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, RouteRecognizer, rsvp) { 'use strict';
+
+RouteRecognizer = 'default' in RouteRecognizer ? RouteRecognizer['default'] : RouteRecognizer;
+
+var slice = Array.prototype.slice;
+
+var _isArray;
+if (!Array.isArray) {
+  _isArray = function (x) {
+    return Object.prototype.toString.call(x) === "[object Array]";
+  };
+} else {
+  _isArray = Array.isArray;
+}
+
+var isArray = _isArray;
+
+/**
+  Determines if an object is Promise by checking if it is "thenable".
+**/
+function isPromise(obj) {
+  return ((typeof obj === 'object' && obj !== null) || typeof obj === 'function') && typeof obj.then === 'function';
+}
+
+function merge(hash, other) {
+  for (var prop in other) {
+    if (other.hasOwnProperty(prop)) { hash[prop] = other[prop]; }
+  }
+}
+
+var oCreate = Object.create || function(proto) {
+  function F() {}
+  F.prototype = proto;
+  return new F();
+};
+
+/**
+  @private
+
+  Extracts query params from the end of an array
+**/
+function extractQueryParams(array) {
+  var len = (array && array.length), head, queryParams;
+
+  if(len && len > 0 && array[len - 1] && array[len - 1].hasOwnProperty('queryParams')) {
+    queryParams = array[len - 1].queryParams;
+    head = slice.call(array, 0, len - 1);
+    return [head, queryParams];
+  } else {
+    return [array, null];
+  }
+}
+
+/**
+  @private
+
+  Coerces query param properties and array elements into strings.
+**/
+function coerceQueryParamsToString(queryParams) {
+  for (var key in queryParams) {
+    if (typeof queryParams[key] === 'number') {
+      queryParams[key] = '' + queryParams[key];
+    } else if (isArray(queryParams[key])) {
+      for (var i = 0, l = queryParams[key].length; i < l; i++) {
+        queryParams[key][i] = '' + queryParams[key][i];
+      }
+    }
+  }
+}
+/**
+  @private
+ */
+function log(router, sequence, msg) {
+  if (!router.log) { return; }
+
+  if (arguments.length === 3) {
+    router.log("Transition #" + sequence + ": " + msg);
+  } else {
+    msg = sequence;
+    router.log(msg);
+  }
+}
+
+function bind(context, fn) {
+  var boundArgs = arguments;
+  return function(value) {
+    var args = slice.call(boundArgs, 2);
+    args.push(value);
+    return fn.apply(context, args);
+  };
+}
+
+function isParam(object) {
+  return (typeof object === "string" || object instanceof String || typeof object === "number" || object instanceof Number);
+}
+
+
+function forEach(array, callback) {
+  for (var i=0, l=array.length; i < l && false !== callback(array[i]); i++) { }
+}
+
+function trigger(router, handlerInfos, ignoreFailure, args) {
+  if (router.triggerEvent) {
+    router.triggerEvent(handlerInfos, ignoreFailure, args);
+    return;
+  }
+
+  var name = args.shift();
+
+  if (!handlerInfos) {
+    if (ignoreFailure) { return; }
+    throw new Error("Could not trigger event '" + name + "'. There are no active handlers");
+  }
+
+  var eventWasHandled = false;
+
+  function delayedEvent(name, args, handler) {
+    handler.events[name].apply(handler, args);
+  }
+
+  for (var i=handlerInfos.length-1; i>=0; i--) {
+    var handlerInfo = handlerInfos[i],
+        handler = handlerInfo.handler;
+
+    // If there is no handler, it means the handler hasn't resolved yet which
+    // means that we should trigger the event later when the handler is available
+    if (!handler) {
+      handlerInfo.handlerPromise.then(bind(null, delayedEvent, name, args));
+      continue;
+    }
+
+    if (handler.events && handler.events[name]) {
+      if (handler.events[name].apply(handler, args) === true) {
+        eventWasHandled = true;
+      } else {
+        return;
+      }
     }
   }
 
-  exports.default = Router;
-});
-enifed("router/transition-intent", ["exports"], function (exports) {
-  "use strict";
-
-  function TransitionIntent(props) {
-    this.initialize(props);
-
-    // TODO: wat
-    this.data = this.data || {};
+  // In the case that we got an UnrecognizedURLError as an event with no handler,
+  // let it bubble up
+  if (name === 'error' && args[0].name === 'UnrecognizedURLError') {
+    throw args[0];
+  } else if (!eventWasHandled && !ignoreFailure) {
+    throw new Error("Nothing handled the event '" + name + "'.");
   }
+}
 
-  TransitionIntent.prototype = {
-    initialize: null,
-    applyToState: null
+function getChangelist(oldObject, newObject) {
+  var key;
+  var results = {
+    all: {},
+    changed: {},
+    removed: {}
   };
 
-  exports.default = TransitionIntent;
-});
-enifed('router/transition-intent/named-transition-intent', ['exports', 'router/transition-intent', 'router/transition-state', 'router/handler-info/factory', 'router/utils'], function (exports, _routerTransitionIntent, _routerTransitionState, _routerHandlerInfoFactory, _routerUtils) {
-  'use strict';
+  merge(results.all, newObject);
 
-  exports.default = _routerUtils.subclass(_routerTransitionIntent.default, {
-    name: null,
-    pivotHandler: null,
-    contexts: null,
-    queryParams: null,
+  var didChange = false;
+  coerceQueryParamsToString(oldObject);
+  coerceQueryParamsToString(newObject);
 
-    initialize: function (props) {
-      this.name = props.name;
-      this.pivotHandler = props.pivotHandler;
-      this.contexts = props.contexts || [];
-      this.queryParams = props.queryParams;
-    },
-
-    applyToState: function (oldState, recognizer, getHandler, isIntermediate, getSerializer) {
-
-      var partitionedArgs = _routerUtils.extractQueryParams([this.name].concat(this.contexts)),
-          pureArgs = partitionedArgs[0],
-          handlers = recognizer.handlersFor(pureArgs[0]);
-
-      var targetRouteName = handlers[handlers.length - 1].handler;
-
-      return this.applyToHandlers(oldState, handlers, getHandler, targetRouteName, isIntermediate, null, getSerializer);
-    },
-
-    applyToHandlers: function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
-
-      var i, len;
-      var newState = new _routerTransitionState.default();
-      var objects = this.contexts.slice(0);
-
-      var invalidateIndex = handlers.length;
-
-      // Pivot handlers are provided for refresh transitions
-      if (this.pivotHandler) {
-        for (i = 0, len = handlers.length; i < len; ++i) {
-          if (handlers[i].handler === this.pivotHandler._handlerName) {
-            invalidateIndex = i;
-            break;
-          }
-        }
+  // Calculate removals
+  for (key in oldObject) {
+    if (oldObject.hasOwnProperty(key)) {
+      if (!newObject.hasOwnProperty(key)) {
+        didChange = true;
+        results.removed[key] = oldObject[key];
       }
+    }
+  }
 
-      for (i = handlers.length - 1; i >= 0; --i) {
-        var result = handlers[i];
-        var name = result.handler;
-
-        var oldHandlerInfo = oldState.handlerInfos[i];
-        var newHandlerInfo = null;
-
-        if (result.names.length > 0) {
-          if (i >= invalidateIndex) {
-            newHandlerInfo = this.createParamHandlerInfo(name, getHandler, result.names, objects, oldHandlerInfo);
-          } else {
-            var serializer = getSerializer(name);
-            newHandlerInfo = this.getHandlerInfoForDynamicSegment(name, getHandler, result.names, objects, oldHandlerInfo, targetRouteName, i, serializer);
-          }
+  // Calculate changes
+  for (key in newObject) {
+    if (newObject.hasOwnProperty(key)) {
+      if (isArray(oldObject[key]) && isArray(newObject[key])) {
+        if (oldObject[key].length !== newObject[key].length) {
+          results.changed[key] = newObject[key];
+          didChange = true;
         } else {
-          // This route has no dynamic segment.
-          // Therefore treat as a param-based handlerInfo
-          // with empty params. This will cause the `model`
-          // hook to be called with empty params, which is desirable.
-          newHandlerInfo = this.createParamHandlerInfo(name, getHandler, result.names, objects, oldHandlerInfo);
-        }
-
-        if (checkingIfActive) {
-          // If we're performing an isActive check, we want to
-          // serialize URL params with the provided context, but
-          // ignore mismatches between old and new context.
-          newHandlerInfo = newHandlerInfo.becomeResolved(null, newHandlerInfo.context);
-          var oldContext = oldHandlerInfo && oldHandlerInfo.context;
-          if (result.names.length > 0 && newHandlerInfo.context === oldContext) {
-            // If contexts match in isActive test, assume params also match.
-            // This allows for flexibility in not requiring that every last
-            // handler provide a `serialize` method
-            newHandlerInfo.params = oldHandlerInfo && oldHandlerInfo.params;
+          for (var i = 0, l = oldObject[key].length; i < l; i++) {
+            if (oldObject[key][i] !== newObject[key][i]) {
+              results.changed[key] = newObject[key];
+              didChange = true;
+            }
           }
-          newHandlerInfo.context = oldContext;
         }
-
-        var handlerToUse = oldHandlerInfo;
-        if (i >= invalidateIndex || newHandlerInfo.shouldSupercede(oldHandlerInfo)) {
-          invalidateIndex = Math.min(i, invalidateIndex);
-          handlerToUse = newHandlerInfo;
+      }
+      else {
+        if (oldObject[key] !== newObject[key]) {
+          results.changed[key] = newObject[key];
+          didChange = true;
         }
+      }
+    }
+  }
 
-        if (isIntermediate && !checkingIfActive) {
-          handlerToUse = handlerToUse.becomeResolved(null, handlerToUse.context);
-        }
+  return didChange && results;
+}
 
-        newState.handlerInfos.unshift(handlerToUse);
+function promiseLabel(label) {
+  return 'Router: ' + label;
+}
+
+function subclass(parentConstructor, proto) {
+  function C(props) {
+    parentConstructor.call(this, props || {});
+  }
+  C.prototype = oCreate(parentConstructor.prototype);
+  merge(C.prototype, proto);
+  return C;
+}
+
+function resolveHook(obj, hookName) {
+  if (!obj) { return; }
+  var underscored = "_" + hookName;
+  return obj[underscored] && underscored ||
+         obj[hookName] && hookName;
+}
+
+function callHook(obj, _hookName, arg1, arg2) {
+  var hookName = resolveHook(obj, _hookName);
+  return hookName && obj[hookName].call(obj, arg1, arg2);
+}
+
+function applyHook(obj, _hookName, args) {
+  var hookName = resolveHook(obj, _hookName);
+  if (hookName) {
+    if (args.length === 0) {
+      return obj[hookName].call(obj);
+    } else if (args.length === 1) {
+      return obj[hookName].call(obj, args[0]);
+    } else if (args.length === 2) {
+      return obj[hookName].call(obj, args[0], args[1]);
+    } else {
+      return obj[hookName].apply(obj, args);
+    }
+  }
+}
+
+function TransitionState() {
+  this.handlerInfos = [];
+  this.queryParams = {};
+  this.params = {};
+}
+
+TransitionState.prototype = {
+  promiseLabel: function(label) {
+    var targetName = '';
+    forEach(this.handlerInfos, function(handlerInfo) {
+      if (targetName !== '') {
+        targetName += '.';
+      }
+      targetName += handlerInfo.name;
+    });
+    return promiseLabel("'" + targetName + "': " + label);
+  },
+
+  resolve: function(shouldContinue, payload) {
+    // First, calculate params for this state. This is useful
+    // information to provide to the various route hooks.
+    var params = this.params;
+    forEach(this.handlerInfos, function(handlerInfo) {
+      params[handlerInfo.name] = handlerInfo.params || {};
+    });
+
+    payload = payload || {};
+    payload.resolveIndex = 0;
+
+    var currentState = this;
+    var wasAborted = false;
+
+    // The prelude RSVP.resolve() asyncs us into the promise land.
+    return rsvp.Promise.resolve(null, this.promiseLabel("Start transition"))
+    .then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler'))['catch'](handleError, this.promiseLabel('Handle error'));
+
+    function innerShouldContinue() {
+      return rsvp.Promise.resolve(shouldContinue(), currentState.promiseLabel("Check if should continue"))['catch'](function(reason) {
+        // We distinguish between errors that occurred
+        // during resolution (e.g. beforeModel/model/afterModel),
+        // and aborts due to a rejecting promise from shouldContinue().
+        wasAborted = true;
+        return rsvp.Promise.reject(reason);
+      }, currentState.promiseLabel("Handle abort"));
+    }
+
+    function handleError(error) {
+      // This is the only possible
+      // reject value of TransitionState#resolve
+      var handlerInfos = currentState.handlerInfos;
+      var errorHandlerIndex = payload.resolveIndex >= handlerInfos.length ?
+                              handlerInfos.length - 1 : payload.resolveIndex;
+      return rsvp.Promise.reject({
+        error: error,
+        handlerWithError: currentState.handlerInfos[errorHandlerIndex].handler,
+        wasAborted: wasAborted,
+        state: currentState
+      });
+    }
+
+    function proceed(resolvedHandlerInfo) {
+      var wasAlreadyResolved = currentState.handlerInfos[payload.resolveIndex].isResolved;
+
+      // Swap the previously unresolved handlerInfo with
+      // the resolved handlerInfo
+      currentState.handlerInfos[payload.resolveIndex++] = resolvedHandlerInfo;
+
+      if (!wasAlreadyResolved) {
+        // Call the redirect hook. The reason we call it here
+        // vs. afterModel is so that redirects into child
+        // routes don't re-run the model hooks for this
+        // already-resolved route.
+        var handler = resolvedHandlerInfo.handler;
+        callHook(handler, 'redirect', resolvedHandlerInfo.context, payload);
       }
 
-      if (objects.length > 0) {
-        throw new Error("More context objects were passed than there are dynamic segments for the route: " + targetRouteName);
+      // Proceed after ensuring that the redirect hook
+      // didn't abort this transition by transitioning elsewhere.
+      return innerShouldContinue().then(resolveOneHandlerInfo, null, currentState.promiseLabel('Resolve handler'));
+    }
+
+    function resolveOneHandlerInfo() {
+      if (payload.resolveIndex === currentState.handlerInfos.length) {
+        // This is is the only possible
+        // fulfill value of TransitionState#resolve
+        return {
+          error: null,
+          state: currentState
+        };
       }
 
-      if (!isIntermediate) {
-        this.invalidateChildren(newState.handlerInfos, invalidateIndex);
-      }
+      var handlerInfo = currentState.handlerInfos[payload.resolveIndex];
 
-      _routerUtils.merge(newState.queryParams, this.queryParams || {});
+      return handlerInfo.resolve(innerShouldContinue, payload)
+                        .then(proceed, null, currentState.promiseLabel('Proceed'));
+    }
+  }
+};
 
-      return newState;
-    },
+/**
+  A Transition is a thennable (a promise-like object) that represents
+  an attempt to transition to another route. It can be aborted, either
+  explicitly via `abort` or by attempting another transition while a
+  previous one is still underway. An aborted transition can also
+  be `retry()`d later.
 
-    invalidateChildren: function (handlerInfos, invalidateIndex) {
-      for (var i = invalidateIndex, l = handlerInfos.length; i < l; ++i) {
-        var handlerInfo = handlerInfos[i];
-        handlerInfos[i] = handlerInfo.getUnresolved();
-      }
-    },
+  @class Transition
+  @constructor
+  @param {Object} router
+  @param {Object} intent
+  @param {Object} state
+  @param {Object} error
+  @private
+ */
+function Transition(router, intent, state, error) {
+  var transition = this;
+  this.state = state || router.state;
+  this.intent = intent;
+  this.router = router;
+  this.data = this.intent && this.intent.data || {};
+  this.resolvedModels = {};
+  this.queryParams = {};
+  this.promise = undefined;
+  this.error = undefined;
+  this.params = undefined;
+  this.handlerInfos = undefined;
+  this.targetName = undefined;
+  this.pivotHandler = undefined;
+  this.sequence = undefined;
+  this.isAborted = undefined;
+  this.isActive = undefined;
 
-    getHandlerInfoForDynamicSegment: function (name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
-      var objectToUse;
-      if (objects.length > 0) {
+  if (error) {
+    this.promise = rsvp.Promise.reject(error);
+    this.error = error;
+    return;
+  }
 
-        // Use the objects provided for this transition.
-        objectToUse = objects[objects.length - 1];
-        if (_routerUtils.isParam(objectToUse)) {
-          return this.createParamHandlerInfo(name, getHandler, names, objects, oldHandlerInfo);
-        } else {
-          objects.pop();
-        }
-      } else if (oldHandlerInfo && oldHandlerInfo.name === name) {
-        // Reuse the matching oldHandlerInfo
-        return oldHandlerInfo;
+  if (state) {
+    this.params = state.params;
+    this.queryParams = state.queryParams;
+    this.handlerInfos = state.handlerInfos;
+
+    var len = state.handlerInfos.length;
+    if (len) {
+      this.targetName = state.handlerInfos[len-1].name;
+    }
+
+    for (var i = 0; i < len; ++i) {
+      var handlerInfo = state.handlerInfos[i];
+
+      // TODO: this all seems hacky
+      if (!handlerInfo.isResolved) { break; }
+      this.pivotHandler = handlerInfo.handler;
+    }
+
+    this.sequence = Transition.currentSequence++;
+    this.promise = state.resolve(checkForAbort, this)['catch'](function(result) {
+      if (result.wasAborted || transition.isAborted) {
+        return rsvp.Promise.reject(logAbort(transition));
       } else {
-        if (this.preTransitionState) {
-          var preTransitionHandlerInfo = this.preTransitionState.handlerInfos[i];
-          objectToUse = preTransitionHandlerInfo && preTransitionHandlerInfo.context;
-        } else {
-          // Ideally we should throw this error to provide maximal
-          // information to the user that not enough context objects
-          // were provided, but this proves too cumbersome in Ember
-          // in cases where inner template helpers are evaluated
-          // before parent helpers un-render, in which cases this
-          // error somewhat prematurely fires.
-          //throw new Error("Not enough context objects were provided to complete a transition to " + targetRouteName + ". Specifically, the " + name + " route needs an object that can be serialized into its dynamic URL segments [" + names.join(', ') + "]");
-          return oldHandlerInfo;
-        }
+        transition.trigger('error', result.error, transition, result.handlerWithError);
+        transition.abort();
+        return rsvp.Promise.reject(result.error);
       }
-
-      return _routerHandlerInfoFactory.default('object', {
-        name: name,
-        getHandler: getHandler,
-        serializer: serializer,
-        context: objectToUse,
-        names: names
-      });
-    },
-
-    createParamHandlerInfo: function (name, getHandler, names, objects, oldHandlerInfo) {
-      var params = {};
-
-      // Soak up all the provided string/numbers
-      var numNames = names.length;
-      while (numNames--) {
-
-        // Only use old params if the names match with the new handler
-        var oldParams = oldHandlerInfo && name === oldHandlerInfo.name && oldHandlerInfo.params || {};
-
-        var peek = objects[objects.length - 1];
-        var paramName = names[numNames];
-        if (_routerUtils.isParam(peek)) {
-          params[paramName] = "" + objects.pop();
-        } else {
-          // If we're here, this means only some of the params
-          // were string/number params, so try and use a param
-          // value from a previous handler.
-          if (oldParams.hasOwnProperty(paramName)) {
-            params[paramName] = oldParams[paramName];
-          } else {
-            throw new Error("You didn't provide enough string/numeric parameters to satisfy all of the dynamic segments for route " + name);
-          }
-        }
-      }
-
-      return _routerHandlerInfoFactory.default('param', {
-        name: name,
-        getHandler: getHandler,
-        params: params
-      });
-    }
-  });
-});
-enifed('router/transition-intent/url-transition-intent', ['exports', 'router/transition-intent', 'router/transition-state', 'router/handler-info/factory', 'router/utils', 'router/unrecognized-url-error'], function (exports, _routerTransitionIntent, _routerTransitionState, _routerHandlerInfoFactory, _routerUtils, _routerUnrecognizedUrlError) {
-  'use strict';
-
-  exports.default = _routerUtils.subclass(_routerTransitionIntent.default, {
-    url: null,
-
-    initialize: function (props) {
-      this.url = props.url;
-    },
-
-    applyToState: function (oldState, recognizer, getHandler) {
-      var newState = new _routerTransitionState.default();
-
-      var results = recognizer.recognize(this.url),
-          i,
-          len;
-
-      if (!results) {
-        throw new _routerUnrecognizedUrlError.default(this.url);
-      }
-
-      var statesDiffer = false;
-      var url = this.url;
-
-      // Checks if a handler is accessible by URL. If it is not, an error is thrown.
-      // For the case where the handler is loaded asynchronously, the error will be
-      // thrown once it is loaded.
-      function checkHandlerAccessibility(handler) {
-        if (handler && handler.inaccessibleByURL) {
-          throw new _routerUnrecognizedUrlError.default(url);
-        }
-
-        return handler;
-      }
-
-      for (i = 0, len = results.length; i < len; ++i) {
-        var result = results[i];
-        var name = result.handler;
-        var newHandlerInfo = _routerHandlerInfoFactory.default('param', {
-          name: name,
-          getHandler: getHandler,
-          params: result.params
-        });
-        var handler = newHandlerInfo.handler;
-
-        if (handler) {
-          checkHandlerAccessibility(handler);
-        } else {
-          // If the hanlder is being loaded asynchronously, check if we can
-          // access it after it has resolved
-          newHandlerInfo.handlerPromise = newHandlerInfo.handlerPromise.then(checkHandlerAccessibility);
-        }
-
-        var oldHandlerInfo = oldState.handlerInfos[i];
-        if (statesDiffer || newHandlerInfo.shouldSupercede(oldHandlerInfo)) {
-          statesDiffer = true;
-          newState.handlerInfos[i] = newHandlerInfo;
-        } else {
-          newState.handlerInfos[i] = oldHandlerInfo;
-        }
-      }
-
-      _routerUtils.merge(newState.queryParams, results.queryParams);
-
-      return newState;
-    }
-  });
-});
-enifed('router/transition-state', ['exports', 'router/utils', 'rsvp/promise'], function (exports, _routerUtils, _rsvpPromise) {
-  'use strict';
-
-  function TransitionState() {
-    this.handlerInfos = [];
-    this.queryParams = {};
+    }, promiseLabel('Handle Abort'));
+  } else {
+    this.promise = rsvp.Promise.resolve(this.state);
     this.params = {};
   }
 
-  TransitionState.prototype = {
-    promiseLabel: function (label) {
-      var targetName = '';
-      _routerUtils.forEach(this.handlerInfos, function (handlerInfo) {
-        if (targetName !== '') {
-          targetName += '.';
-        }
-        targetName += handlerInfo.name;
-      });
-      return _routerUtils.promiseLabel("'" + targetName + "': " + label);
-    },
+  function checkForAbort() {
+    if (transition.isAborted) {
+      return rsvp.Promise.reject(undefined, promiseLabel("Transition aborted - reject"));
+    }
+  }
+}
 
-    resolve: function (shouldContinue, payload) {
-      // First, calculate params for this state. This is useful
-      // information to provide to the various route hooks.
-      var params = this.params;
-      _routerUtils.forEach(this.handlerInfos, function (handlerInfo) {
-        params[handlerInfo.name] = handlerInfo.params || {};
-      });
+Transition.currentSequence = 0;
 
-      payload = payload || {};
-      payload.resolveIndex = 0;
+Transition.prototype = {
+  targetName: null,
+  urlMethod: 'update',
+  intent: null,
+  pivotHandler: null,
+  resolveIndex: 0,
+  resolvedModels: null,
+  isActive: true,
+  state: null,
+  queryParamsOnly: false,
 
-      var currentState = this;
-      var wasAborted = false;
+  isTransition: true,
 
-      // The prelude RSVP.resolve() asyncs us into the promise land.
-      return _rsvpPromise.default.resolve(null, this.promiseLabel("Start transition")).then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler'))['catch'](handleError, this.promiseLabel('Handle error'));
-
-      function innerShouldContinue() {
-        return _rsvpPromise.default.resolve(shouldContinue(), currentState.promiseLabel("Check if should continue"))['catch'](function (reason) {
-          // We distinguish between errors that occurred
-          // during resolution (e.g. beforeModel/model/afterModel),
-          // and aborts due to a rejecting promise from shouldContinue().
-          wasAborted = true;
-          return _rsvpPromise.default.reject(reason);
-        }, currentState.promiseLabel("Handle abort"));
-      }
-
-      function handleError(error) {
-        // This is the only possible
-        // reject value of TransitionState#resolve
-        var handlerInfos = currentState.handlerInfos;
-        var errorHandlerIndex = payload.resolveIndex >= handlerInfos.length ? handlerInfos.length - 1 : payload.resolveIndex;
-        return _rsvpPromise.default.reject({
-          error: error,
-          handlerWithError: currentState.handlerInfos[errorHandlerIndex].handler,
-          wasAborted: wasAborted,
-          state: currentState
-        });
-      }
-
-      function proceed(resolvedHandlerInfo) {
-        var wasAlreadyResolved = currentState.handlerInfos[payload.resolveIndex].isResolved;
-
-        // Swap the previously unresolved handlerInfo with
-        // the resolved handlerInfo
-        currentState.handlerInfos[payload.resolveIndex++] = resolvedHandlerInfo;
-
-        if (!wasAlreadyResolved) {
-          // Call the redirect hook. The reason we call it here
-          // vs. afterModel is so that redirects into child
-          // routes don't re-run the model hooks for this
-          // already-resolved route.
-          var handler = resolvedHandlerInfo.handler;
-          _routerUtils.callHook(handler, 'redirect', resolvedHandlerInfo.context, payload);
-        }
-
-        // Proceed after ensuring that the redirect hook
-        // didn't abort this transition by transitioning elsewhere.
-        return innerShouldContinue().then(resolveOneHandlerInfo, null, currentState.promiseLabel('Resolve handler'));
-      }
-
-      function resolveOneHandlerInfo() {
-        if (payload.resolveIndex === currentState.handlerInfos.length) {
-          // This is is the only possible
-          // fulfill value of TransitionState#resolve
-          return {
-            error: null,
-            state: currentState
-          };
-        }
-
-        var handlerInfo = currentState.handlerInfos[payload.resolveIndex];
-
-        return handlerInfo.resolve(innerShouldContinue, payload).then(proceed, null, currentState.promiseLabel('Proceed'));
+  isExiting: function(handler) {
+    var handlerInfos = this.handlerInfos;
+    for (var i = 0, len = handlerInfos.length; i < len; ++i) {
+      var handlerInfo = handlerInfos[i];
+      if (handlerInfo.name === handler || handlerInfo.handler === handler) {
+        return false;
       }
     }
-  };
-
-  exports.default = TransitionState;
-});
-enifed('router/transition', ['exports', 'rsvp/promise', 'router/utils'], function (exports, _rsvpPromise, _routerUtils) {
-  'use strict';
+    return true;
+  },
 
   /**
-    A Transition is a thennable (a promise-like object) that represents
-    an attempt to transition to another route. It can be aborted, either
-    explicitly via `abort` or by attempting another transition while a
-    previous one is still underway. An aborted transition can also
-    be `retry()`d later.
-  
-    @class Transition
-    @constructor
-    @param {Object} router
-    @param {Object} intent
-    @param {Object} state
-    @param {Object} error
-    @private
+    The Transition's internal promise. Calling `.then` on this property
+    is that same as calling `.then` on the Transition object itself, but
+    this property is exposed for when you want to pass around a
+    Transition's promise, but not the Transition object itself, since
+    Transition object can be externally `abort`ed, while the promise
+    cannot.
+
+    @property promise
+    @type {Object}
+    @public
    */
-  function Transition(router, intent, state, error) {
-    var transition = this;
-    this.state = state || router.state;
-    this.intent = intent;
-    this.router = router;
-    this.data = this.intent && this.intent.data || {};
-    this.resolvedModels = {};
-    this.queryParams = {};
-    this.promise = undefined;
-    this.error = undefined;
-    this.params = undefined;
-    this.handlerInfos = undefined;
-    this.targetName = undefined;
-    this.pivotHandler = undefined;
-    this.sequence = undefined;
-    this.isAborted = undefined;
-    this.isActive = undefined;
-
-    if (error) {
-      this.promise = _rsvpPromise.default.reject(error);
-      this.error = error;
-      return;
-    }
-
-    if (state) {
-      this.params = state.params;
-      this.queryParams = state.queryParams;
-      this.handlerInfos = state.handlerInfos;
-
-      var len = state.handlerInfos.length;
-      if (len) {
-        this.targetName = state.handlerInfos[len - 1].name;
-      }
-
-      for (var i = 0; i < len; ++i) {
-        var handlerInfo = state.handlerInfos[i];
-
-        // TODO: this all seems hacky
-        if (!handlerInfo.isResolved) {
-          break;
-        }
-        this.pivotHandler = handlerInfo.handler;
-      }
-
-      this.sequence = Transition.currentSequence++;
-      this.promise = state.resolve(checkForAbort, this)['catch'](function (result) {
-        if (result.wasAborted || transition.isAborted) {
-          return _rsvpPromise.default.reject(logAbort(transition));
-        } else {
-          transition.trigger('error', result.error, transition, result.handlerWithError);
-          transition.abort();
-          return _rsvpPromise.default.reject(result.error);
-        }
-      }, _routerUtils.promiseLabel('Handle Abort'));
-    } else {
-      this.promise = _rsvpPromise.default.resolve(this.state);
-      this.params = {};
-    }
-
-    function checkForAbort() {
-      if (transition.isAborted) {
-        return _rsvpPromise.default.reject(undefined, _routerUtils.promiseLabel("Transition aborted - reject"));
-      }
-    }
-  }
-
-  Transition.currentSequence = 0;
-
-  Transition.prototype = {
-    targetName: null,
-    urlMethod: 'update',
-    intent: null,
-    pivotHandler: null,
-    resolveIndex: 0,
-    resolvedModels: null,
-    isActive: true,
-    state: null,
-    queryParamsOnly: false,
-
-    isTransition: true,
-
-    isExiting: function (handler) {
-      var handlerInfos = this.handlerInfos;
-      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-        var handlerInfo = handlerInfos[i];
-        if (handlerInfo.name === handler || handlerInfo.handler === handler) {
-          return false;
-        }
-      }
-      return true;
-    },
-
-    /**
-      The Transition's internal promise. Calling `.then` on this property
-      is that same as calling `.then` on the Transition object itself, but
-      this property is exposed for when you want to pass around a
-      Transition's promise, but not the Transition object itself, since
-      Transition object can be externally `abort`ed, while the promise
-      cannot.
-       @property promise
-      @type {Object}
-      @public
-     */
-    promise: null,
-
-    /**
-      Custom state can be stored on a Transition's `data` object.
-      This can be useful for decorating a Transition within an earlier
-      hook and shared with a later hook. Properties set on `data` will
-      be copied to new transitions generated by calling `retry` on this
-      transition.
-       @property data
-      @type {Object}
-      @public
-     */
-    data: null,
-
-    /**
-      A standard promise hook that resolves if the transition
-      succeeds and rejects if it fails/redirects/aborts.
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method then
-      @param {Function} onFulfilled
-      @param {Function} onRejected
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    then: function (onFulfilled, onRejected, label) {
-      return this.promise.then(onFulfilled, onRejected, label);
-    },
-
-    /**
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method catch
-      @param {Function} onRejection
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    catch: function (onRejection, label) {
-      return this.promise.catch(onRejection, label);
-    },
-
-    /**
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method finally
-      @param {Function} callback
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    finally: function (callback, label) {
-      return this.promise.finally(callback, label);
-    },
-
-    /**
-      Aborts the Transition. Note you can also implicitly abort a transition
-      by initiating another transition while a previous one is underway.
-       @method abort
-      @return {Transition} this transition
-      @public
-     */
-    abort: function () {
-      if (this.isAborted) {
-        return this;
-      }
-      _routerUtils.log(this.router, this.sequence, this.targetName + ": transition was aborted");
-      this.intent.preTransitionState = this.router.state;
-      this.isAborted = true;
-      this.isActive = false;
-      this.router.activeTransition = null;
-      return this;
-    },
-
-    /**
-       Retries a previously-aborted transition (making sure to abort the
-      transition if it's still active). Returns a new transition that
-      represents the new attempt to transition.
-       @method retry
-      @return {Transition} new transition
-      @public
-     */
-    retry: function () {
-      // TODO: add tests for merged state retry()s
-      this.abort();
-      return this.router.transitionByIntent(this.intent, false);
-    },
-
-    /**
-       Sets the URL-changing method to be employed at the end of a
-      successful transition. By default, a new Transition will just
-      use `updateURL`, but passing 'replace' to this method will
-      cause the URL to update using 'replaceWith' instead. Omitting
-      a parameter will disable the URL change, allowing for transitions
-      that don't update the URL at completion (this is also used for
-      handleURL, since the URL has already changed before the
-      transition took place).
-       @method method
-      @param {String} method the type of URL-changing method to use
-        at the end of a transition. Accepted values are 'replace',
-        falsy values, or any other non-falsy value (which is
-        interpreted as an updateURL transition).
-       @return {Transition} this transition
-      @public
-     */
-    method: function (method) {
-      this.urlMethod = method;
-      return this;
-    },
-
-    /**
-       Fires an event on the current list of resolved/resolving
-      handlers within this transition. Useful for firing events
-      on route hierarchies that haven't fully been entered yet.
-       Note: This method is also aliased as `send`
-       @method trigger
-      @param {Boolean} [ignoreFailure=false] a boolean specifying whether unhandled events throw an error
-      @param {String} name the name of the event to fire
-      @public
-     */
-    trigger: function (ignoreFailure) {
-      var args = _routerUtils.slice.call(arguments);
-      if (typeof ignoreFailure === 'boolean') {
-        args.shift();
-      } else {
-        // Throw errors on unhandled trigger events by default
-        ignoreFailure = false;
-      }
-      _routerUtils.trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
-    },
-
-    /**
-      Transitions are aborted and their promises rejected
-      when redirects occur; this method returns a promise
-      that will follow any redirects that occur and fulfill
-      with the value fulfilled by any redirecting transitions
-      that occur.
-       @method followRedirects
-      @return {Promise} a promise that fulfills with the same
-        value that the final redirecting transition fulfills with
-      @public
-     */
-    followRedirects: function () {
-      var router = this.router;
-      return this.promise['catch'](function (reason) {
-        if (router.activeTransition) {
-          return router.activeTransition.followRedirects();
-        }
-        return _rsvpPromise.default.reject(reason);
-      });
-    },
-
-    toString: function () {
-      return "Transition (sequence " + this.sequence + ")";
-    },
-
-    /**
-      @private
-     */
-    log: function (message) {
-      _routerUtils.log(this.router, this.sequence, message);
-    }
-  };
-
-  // Alias 'trigger' as 'send'
-  Transition.prototype.send = Transition.prototype.trigger;
+  promise: null,
 
   /**
-    @private
-  
-    Logs and returns a TransitionAborted error.
+    Custom state can be stored on a Transition's `data` object.
+    This can be useful for decorating a Transition within an earlier
+    hook and shared with a later hook. Properties set on `data` will
+    be copied to new transitions generated by calling `retry` on this
+    transition.
+
+    @property data
+    @type {Object}
+    @public
    */
-  function logAbort(transition) {
-    _routerUtils.log(transition.router, transition.sequence, "detected abort.");
-    return new TransitionAborted();
-  }
-
-  function TransitionAborted(message) {
-    this.message = message || "TransitionAborted";
-    this.name = "TransitionAborted";
-  }
-
-  exports.Transition = Transition;
-  exports.logAbort = logAbort;
-  exports.TransitionAborted = TransitionAborted;
-});
-enifed("router/unrecognized-url-error", ["exports", "router/utils"], function (exports, _routerUtils) {
-  "use strict";
+  data: null,
 
   /**
-    Promise reject reasons passed to promise rejection
-    handlers for failed transitions.
-   */
-  function UnrecognizedURLError(message) {
-    this.message = message || "UnrecognizedURLError";
-    this.name = "UnrecognizedURLError";
-    Error.call(this);
-  }
-
-  UnrecognizedURLError.prototype = _routerUtils.oCreate(Error.prototype);
-
-  exports.default = UnrecognizedURLError;
-});
-enifed('router/utils', ['exports'], function (exports) {
-  'use strict';
-
-  exports.isPromise = isPromise;
-  exports.extractQueryParams = extractQueryParams;
-  exports.log = log;
-  exports.bind = bind;
-  exports.forEach = forEach;
-  exports.trigger = trigger;
-  exports.getChangelist = getChangelist;
-  exports.promiseLabel = promiseLabel;
-  exports.subclass = subclass;
-  var slice = Array.prototype.slice;
-
-  var _isArray;
-  if (!Array.isArray) {
-    _isArray = function (x) {
-      return Object.prototype.toString.call(x) === "[object Array]";
-    };
-  } else {
-    _isArray = Array.isArray;
-  }
-
-  var isArray = _isArray;
-
-  exports.isArray = isArray;
-  /**
-    Determines if an object is Promise by checking if it is "thenable".
-  **/
-
-  function isPromise(obj) {
-    return (typeof obj === 'object' && obj !== null || typeof obj === 'function') && typeof obj.then === 'function';
-  }
-
-  function merge(hash, other) {
-    for (var prop in other) {
-      if (other.hasOwnProperty(prop)) {
-        hash[prop] = other[prop];
-      }
-    }
-  }
-
-  var oCreate = Object.create || function (proto) {
-    function F() {}
-    F.prototype = proto;
-    return new F();
-  };
-
-  exports.oCreate = oCreate;
-  /**
-    @private
-  
-    Extracts query params from the end of an array
-  **/
-
-  function extractQueryParams(array) {
-    var len = array && array.length,
-        head,
-        queryParams;
-
-    if (len && len > 0 && array[len - 1] && array[len - 1].hasOwnProperty('queryParams')) {
-      queryParams = array[len - 1].queryParams;
-      head = slice.call(array, 0, len - 1);
-      return [head, queryParams];
-    } else {
-      return [array, null];
-    }
-  }
-
-  /**
-    @private
-  
-    Coerces query param properties and array elements into strings.
-  **/
-  function coerceQueryParamsToString(queryParams) {
-    for (var key in queryParams) {
-      if (typeof queryParams[key] === 'number') {
-        queryParams[key] = '' + queryParams[key];
-      } else if (isArray(queryParams[key])) {
-        for (var i = 0, l = queryParams[key].length; i < l; i++) {
-          queryParams[key][i] = '' + queryParams[key][i];
-        }
-      }
-    }
-  }
-  /**
-    @private
-   */
-
-  function log(router, sequence, msg) {
-    if (!router.log) {
-      return;
-    }
-
-    if (arguments.length === 3) {
-      router.log("Transition #" + sequence + ": " + msg);
-    } else {
-      msg = sequence;
-      router.log(msg);
-    }
-  }
-
-  function bind(context, fn) {
-    var boundArgs = arguments;
-    return function (value) {
-      var args = slice.call(boundArgs, 2);
-      args.push(value);
-      return fn.apply(context, args);
-    };
-  }
-
-  function isParam(object) {
-    return typeof object === "string" || object instanceof String || typeof object === "number" || object instanceof Number;
-  }
-
-  function forEach(array, callback) {
-    for (var i = 0, l = array.length; i < l && false !== callback(array[i]); i++) {}
-  }
-
-  function trigger(router, handlerInfos, ignoreFailure, args) {
-    if (router.triggerEvent) {
-      router.triggerEvent(handlerInfos, ignoreFailure, args);
-      return;
-    }
-
-    var name = args.shift();
-
-    if (!handlerInfos) {
-      if (ignoreFailure) {
-        return;
-      }
-      throw new Error("Could not trigger event '" + name + "'. There are no active handlers");
-    }
-
-    var eventWasHandled = false;
-
-    function delayedEvent(name, args, handler) {
-      handler.events[name].apply(handler, args);
-    }
-
-    for (var i = handlerInfos.length - 1; i >= 0; i--) {
-      var handlerInfo = handlerInfos[i],
-          handler = handlerInfo.handler;
-
-      // If there is no handler, it means the handler hasn't resolved yet which
-      // means that we should trigger the event later when the handler is available
-      if (!handler) {
-        handlerInfo.handlerPromise.then(bind(null, delayedEvent, name, args));
-        continue;
-      }
-
-      if (handler.events && handler.events[name]) {
-        if (handler.events[name].apply(handler, args) === true) {
-          eventWasHandled = true;
-        } else {
-          return;
-        }
-      }
-    }
-
-    // In the case that we got an UnrecognizedURLError as an event with no handler,
-    // let it bubble up
-    if (name === 'error' && args[0].name === 'UnrecognizedURLError') {
-      throw args[0];
-    } else if (!eventWasHandled && !ignoreFailure) {
-      throw new Error("Nothing handled the event '" + name + "'.");
-    }
-  }
-
-  function getChangelist(oldObject, newObject) {
-    var key;
-    var results = {
-      all: {},
-      changed: {},
-      removed: {}
-    };
-
-    merge(results.all, newObject);
-
-    var didChange = false;
-    coerceQueryParamsToString(oldObject);
-    coerceQueryParamsToString(newObject);
-
-    // Calculate removals
-    for (key in oldObject) {
-      if (oldObject.hasOwnProperty(key)) {
-        if (!newObject.hasOwnProperty(key)) {
-          didChange = true;
-          results.removed[key] = oldObject[key];
-        }
-      }
-    }
-
-    // Calculate changes
-    for (key in newObject) {
-      if (newObject.hasOwnProperty(key)) {
-        if (isArray(oldObject[key]) && isArray(newObject[key])) {
-          if (oldObject[key].length !== newObject[key].length) {
-            results.changed[key] = newObject[key];
-            didChange = true;
-          } else {
-            for (var i = 0, l = oldObject[key].length; i < l; i++) {
-              if (oldObject[key][i] !== newObject[key][i]) {
-                results.changed[key] = newObject[key];
-                didChange = true;
-              }
-            }
-          }
-        } else {
-          if (oldObject[key] !== newObject[key]) {
-            results.changed[key] = newObject[key];
-            didChange = true;
-          }
-        }
-      }
-    }
-
-    return didChange && results;
-  }
-
-  function promiseLabel(label) {
-    return 'Router: ' + label;
-  }
-
-  function subclass(parentConstructor, proto) {
-    function C(props) {
-      parentConstructor.call(this, props || {});
-    }
-    C.prototype = oCreate(parentConstructor.prototype);
-    merge(C.prototype, proto);
-    return C;
-  }
-
-  function resolveHook(obj, hookName) {
-    if (!obj) {
-      return;
-    }
-    var underscored = "_" + hookName;
-    return obj[underscored] && underscored || obj[hookName] && hookName;
-  }
-
-  function callHook(obj, _hookName, arg1, arg2) {
-    var hookName = resolveHook(obj, _hookName);
-    return hookName && obj[hookName].call(obj, arg1, arg2);
-  }
-
-  function applyHook(obj, _hookName, args) {
-    var hookName = resolveHook(obj, _hookName);
-    if (hookName) {
-      if (args.length === 0) {
-        return obj[hookName].call(obj);
-      } else if (args.length === 1) {
-        return obj[hookName].call(obj, args[0]);
-      } else if (args.length === 2) {
-        return obj[hookName].call(obj, args[0], args[1]);
-      } else {
-        return obj[hookName].apply(obj, args);
-      }
-    }
-  }
-
-  exports.merge = merge;
-  exports.slice = slice;
-  exports.isParam = isParam;
-  exports.coerceQueryParamsToString = coerceQueryParamsToString;
-  exports.callHook = callHook;
-  exports.resolveHook = resolveHook;
-  exports.applyHook = applyHook;
-});
-enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
-  'use strict';
-
-  // defaults
-  _rsvpConfig.config.async = _rsvpAsap.default;
-  _rsvpConfig.config.after = function (cb) {
-    setTimeout(cb, 0);
-  };
-  var cast = _rsvpResolve.default;
-  function async(callback, arg) {
-    _rsvpConfig.config.async(callback, arg);
-  }
-
-  function on() {
-    _rsvpConfig.config['on'].apply(_rsvpConfig.config, arguments);
-  }
-
-  function off() {
-    _rsvpConfig.config['off'].apply(_rsvpConfig.config, arguments);
-  }
-
-  // Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
-  if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
-    var callbacks = window['__PROMISE_INSTRUMENTATION__'];
-    _rsvpConfig.configure('instrument', true);
-    for (var eventName in callbacks) {
-      if (callbacks.hasOwnProperty(eventName)) {
-        on(eventName, callbacks[eventName]);
-      }
-    }
-  }
-
-  exports.cast = cast;
-  exports.Promise = _rsvpPromise.default;
-  exports.EventTarget = _rsvpEvents.default;
-  exports.all = _rsvpAll.default;
-  exports.allSettled = _rsvpAllSettled.default;
-  exports.race = _rsvpRace.default;
-  exports.hash = _rsvpHash.default;
-  exports.hashSettled = _rsvpHashSettled.default;
-  exports.rethrow = _rsvpRethrow.default;
-  exports.defer = _rsvpDefer.default;
-  exports.denodeify = _rsvpNode.default;
-  exports.configure = _rsvpConfig.configure;
-  exports.on = on;
-  exports.off = off;
-  exports.resolve = _rsvpResolve.default;
-  exports.reject = _rsvpReject.default;
-  exports.async = async;
-  exports.map = _rsvpMap.default;
-  exports.filter = _rsvpFilter.default;
-});
-enifed('rsvp.umd', ['exports', 'rsvp/platform', 'rsvp'], function (exports, _rsvpPlatform, _rsvp) {
-  'use strict';
-
-  var RSVP = {
-    'race': _rsvp.race,
-    'Promise': _rsvp.Promise,
-    'allSettled': _rsvp.allSettled,
-    'hash': _rsvp.hash,
-    'hashSettled': _rsvp.hashSettled,
-    'denodeify': _rsvp.denodeify,
-    'on': _rsvp.on,
-    'off': _rsvp.off,
-    'map': _rsvp.map,
-    'filter': _rsvp.filter,
-    'resolve': _rsvp.resolve,
-    'reject': _rsvp.reject,
-    'all': _rsvp.all,
-    'rethrow': _rsvp.rethrow,
-    'defer': _rsvp.defer,
-    'EventTarget': _rsvp.EventTarget,
-    'configure': _rsvp.configure,
-    'async': _rsvp.async
-  };
-
-  /* global define:true module:true window: true */
-  if (typeof define === 'function' && define['amd']) {
-    define(function () {
-      return RSVP;
-    });
-  } else if (typeof module !== 'undefined' && module['exports']) {
-    module['exports'] = RSVP;
-  } else if (typeof _rsvpPlatform.default !== 'undefined') {
-    _rsvpPlatform.default['RSVP'] = RSVP;
-  }
-});
-enifed('rsvp/-internal', ['exports', 'rsvp/utils', 'rsvp/instrument', 'rsvp/config'], function (exports, _rsvpUtils, _rsvpInstrument, _rsvpConfig) {
-  'use strict';
-
-  function withOwnPromise() {
-    return new TypeError('A promises callback cannot return that same promise.');
-  }
-
-  function noop() {}
-
-  var PENDING = void 0;
-  var FULFILLED = 1;
-  var REJECTED = 2;
-
-  var GET_THEN_ERROR = new ErrorObject();
-
-  function getThen(promise) {
-    try {
-      return promise.then;
-    } catch (error) {
-      GET_THEN_ERROR.error = error;
-      return GET_THEN_ERROR;
-    }
-  }
-
-  function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
-    try {
-      then.call(value, fulfillmentHandler, rejectionHandler);
-    } catch (e) {
-      return e;
-    }
-  }
-
-  function handleForeignThenable(promise, thenable, then) {
-    _rsvpConfig.config.async(function (promise) {
-      var sealed = false;
-      var error = tryThen(then, thenable, function (value) {
-        if (sealed) {
-          return;
-        }
-        sealed = true;
-        if (thenable !== value) {
-          resolve(promise, value);
-        } else {
-          fulfill(promise, value);
-        }
-      }, function (reason) {
-        if (sealed) {
-          return;
-        }
-        sealed = true;
-
-        reject(promise, reason);
-      }, 'Settle: ' + (promise._label || ' unknown promise'));
-
-      if (!sealed && error) {
-        sealed = true;
-        reject(promise, error);
-      }
-    }, promise);
-  }
-
-  function handleOwnThenable(promise, thenable) {
-    if (thenable._state === FULFILLED) {
-      fulfill(promise, thenable._result);
-    } else if (thenable._state === REJECTED) {
-      thenable._onError = null;
-      reject(promise, thenable._result);
-    } else {
-      subscribe(thenable, undefined, function (value) {
-        if (thenable !== value) {
-          resolve(promise, value);
-        } else {
-          fulfill(promise, value);
-        }
-      }, function (reason) {
-        reject(promise, reason);
-      });
-    }
-  }
-
-  function handleMaybeThenable(promise, maybeThenable) {
-    if (maybeThenable.constructor === promise.constructor) {
-      handleOwnThenable(promise, maybeThenable);
-    } else {
-      var then = getThen(maybeThenable);
-
-      if (then === GET_THEN_ERROR) {
-        reject(promise, GET_THEN_ERROR.error);
-      } else if (then === undefined) {
-        fulfill(promise, maybeThenable);
-      } else if (_rsvpUtils.isFunction(then)) {
-        handleForeignThenable(promise, maybeThenable, then);
-      } else {
-        fulfill(promise, maybeThenable);
-      }
-    }
-  }
-
-  function resolve(promise, value) {
-    if (promise === value) {
-      fulfill(promise, value);
-    } else if (_rsvpUtils.objectOrFunction(value)) {
-      handleMaybeThenable(promise, value);
-    } else {
-      fulfill(promise, value);
-    }
-  }
-
-  function publishRejection(promise) {
-    if (promise._onError) {
-      promise._onError(promise._result);
-    }
-
-    publish(promise);
-  }
-
-  function fulfill(promise, value) {
-    if (promise._state !== PENDING) {
-      return;
-    }
-
-    promise._result = value;
-    promise._state = FULFILLED;
-
-    if (promise._subscribers.length === 0) {
-      if (_rsvpConfig.config.instrument) {
-        _rsvpInstrument.default('fulfilled', promise);
-      }
-    } else {
-      _rsvpConfig.config.async(publish, promise);
-    }
-  }
-
-  function reject(promise, reason) {
-    if (promise._state !== PENDING) {
-      return;
-    }
-    promise._state = REJECTED;
-    promise._result = reason;
-    _rsvpConfig.config.async(publishRejection, promise);
-  }
-
-  function subscribe(parent, child, onFulfillment, onRejection) {
-    var subscribers = parent._subscribers;
-    var length = subscribers.length;
-
-    parent._onError = null;
-
-    subscribers[length] = child;
-    subscribers[length + FULFILLED] = onFulfillment;
-    subscribers[length + REJECTED] = onRejection;
-
-    if (length === 0 && parent._state) {
-      _rsvpConfig.config.async(publish, parent);
-    }
-  }
-
-  function publish(promise) {
-    var subscribers = promise._subscribers;
-    var settled = promise._state;
-
-    if (_rsvpConfig.config.instrument) {
-      _rsvpInstrument.default(settled === FULFILLED ? 'fulfilled' : 'rejected', promise);
-    }
-
-    if (subscribers.length === 0) {
-      return;
-    }
-
-    var child,
-        callback,
-        detail = promise._result;
-
-    for (var i = 0; i < subscribers.length; i += 3) {
-      child = subscribers[i];
-      callback = subscribers[i + settled];
-
-      if (child) {
-        invokeCallback(settled, child, callback, detail);
-      } else {
-        callback(detail);
-      }
-    }
-
-    promise._subscribers.length = 0;
-  }
-
-  function ErrorObject() {
-    this.error = null;
-  }
-
-  var TRY_CATCH_ERROR = new ErrorObject();
-
-  function tryCatch(callback, detail) {
-    try {
-      return callback(detail);
-    } catch (e) {
-      TRY_CATCH_ERROR.error = e;
-      return TRY_CATCH_ERROR;
-    }
-  }
-
-  function invokeCallback(settled, promise, callback, detail) {
-    var hasCallback = _rsvpUtils.isFunction(callback),
-        value,
-        error,
-        succeeded,
-        failed;
-
-    if (hasCallback) {
-      value = tryCatch(callback, detail);
-
-      if (value === TRY_CATCH_ERROR) {
-        failed = true;
-        error = value.error;
-        value = null;
-      } else {
-        succeeded = true;
-      }
-
-      if (promise === value) {
-        reject(promise, withOwnPromise());
-        return;
-      }
-    } else {
-      value = detail;
-      succeeded = true;
-    }
-
-    if (promise._state !== PENDING) {
-      // noop
-    } else if (hasCallback && succeeded) {
-        resolve(promise, value);
-      } else if (failed) {
-        reject(promise, error);
-      } else if (settled === FULFILLED) {
-        fulfill(promise, value);
-      } else if (settled === REJECTED) {
-        reject(promise, value);
-      }
-  }
-
-  function initializePromise(promise, resolver) {
-    var resolved = false;
-    try {
-      resolver(function resolvePromise(value) {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        resolve(promise, value);
-      }, function rejectPromise(reason) {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        reject(promise, reason);
-      });
-    } catch (e) {
-      reject(promise, e);
-    }
-  }
-
-  exports.noop = noop;
-  exports.resolve = resolve;
-  exports.reject = reject;
-  exports.fulfill = fulfill;
-  exports.subscribe = subscribe;
-  exports.publish = publish;
-  exports.publishRejection = publishRejection;
-  exports.initializePromise = initializePromise;
-  exports.invokeCallback = invokeCallback;
-  exports.FULFILLED = FULFILLED;
-  exports.REJECTED = REJECTED;
-  exports.PENDING = PENDING;
-});
-enifed('rsvp/all-settled', ['exports', 'rsvp/enumerator', 'rsvp/promise', 'rsvp/utils'], function (exports, _rsvpEnumerator, _rsvpPromise, _rsvpUtils) {
-  'use strict';
-
-  exports.default = allSettled;
-
-  function AllSettled(Constructor, entries, label) {
-    this._superConstructor(Constructor, entries, false, /* don't abort on reject */label);
-  }
-
-  AllSettled.prototype = _rsvpUtils.o_create(_rsvpEnumerator.default.prototype);
-  AllSettled.prototype._superConstructor = _rsvpEnumerator.default;
-  AllSettled.prototype._makeResult = _rsvpEnumerator.makeSettledResult;
-  AllSettled.prototype._validationError = function () {
-    return new Error('allSettled must be called with an array');
-  };
-
-  /**
-    `RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing
-    a fail-fast method, it waits until all the promises have returned and
-    shows you all the results. This is useful if you want to handle multiple
-    promises' failure states together as a set.
-  
-    Returns a promise that is fulfilled when all the given promises have been
-    settled. The return promise is fulfilled with an array of the states of
-    the promises passed into the `promises` array argument.
-  
-    Each state object will either indicate fulfillment or rejection, and
-    provide the corresponding value or reason. The states will take one of
-    the following formats:
-  
-    ```javascript
-    { state: 'fulfilled', value: value }
-      or
-    { state: 'rejected', reason: reason }
-    ```
-  
-    Example:
-  
-    ```javascript
-    var promise1 = RSVP.Promise.resolve(1);
-    var promise2 = RSVP.Promise.reject(new Error('2'));
-    var promise3 = RSVP.Promise.reject(new Error('3'));
-    var promises = [ promise1, promise2, promise3 ];
-  
-    RSVP.allSettled(promises).then(function(array){
-      // array == [
-      //   { state: 'fulfilled', value: 1 },
-      //   { state: 'rejected', reason: Error },
-      //   { state: 'rejected', reason: Error }
-      // ]
-      // Note that for the second item, reason.message will be '2', and for the
-      // third item, reason.message will be '3'.
-    }, function(error) {
-      // Not run. (This block would only be called if allSettled had failed,
-      // for instance if passed an incorrect argument type.)
-    });
-    ```
-  
-    @method allSettled
-    @static
-    @for RSVP
-    @param {Array} entries
-    @param {String} label - optional string that describes the promise.
-    Useful for tooling.
-    @return {Promise} promise that is fulfilled with an array of the settled
-    states of the constituent promises.
-  */
-
-  function allSettled(entries, label) {
-    return new AllSettled(_rsvpPromise.default, entries, label).promise;
-  }
-});
-enifed("rsvp/all", ["exports", "rsvp/promise"], function (exports, _rsvpPromise) {
-  "use strict";
-
-  exports.default = all;
-
-  /**
-    This is a convenient alias for `RSVP.Promise.all`.
-  
-    @method all
-    @static
-    @for RSVP
-    @param {Array} array Array of promises.
-    @param {String} label An optional label. This is useful
-    for tooling.
-  */
-
-  function all(array, label) {
-    return _rsvpPromise.default.all(array, label);
-  }
-});
-enifed('rsvp/asap', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = asap;
-  var len = 0;
-  var toString = ({}).toString;
-  var vertxNext;
-
-  function asap(callback, arg) {
-    queue[len] = callback;
-    queue[len + 1] = arg;
-    len += 2;
-    if (len === 2) {
-      // If len is 1, that means that we need to schedule an async flush.
-      // If additional callbacks are queued before the queue is flushed, they
-      // will be processed by this flush that we are scheduling.
-      scheduleFlush();
-    }
-  }
-
-  var browserWindow = typeof window !== 'undefined' ? window : undefined;
-  var browserGlobal = browserWindow || {};
-  var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
-  var isNode = typeof window === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
-
-  // test for web worker but not in IE10
-  var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
-
-  // node
-  function useNextTick() {
-    var nextTick = process.nextTick;
-    // node version 0.10.x displays a deprecation warning when nextTick is used recursively
-    // setImmediate should be used instead instead
-    var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
-    if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
-      nextTick = setImmediate;
-    }
-    return function () {
-      nextTick(flush);
-    };
-  }
-
-  // vertx
-  function useVertxTimer() {
-    return function () {
-      vertxNext(flush);
-    };
-  }
-
-  function useMutationObserver() {
-    var iterations = 0;
-    var observer = new BrowserMutationObserver(flush);
-    var node = document.createTextNode('');
-    observer.observe(node, { characterData: true });
-
-    return function () {
-      node.data = iterations = ++iterations % 2;
-    };
-  }
-
-  // web worker
-  function useMessageChannel() {
-    var channel = new MessageChannel();
-    channel.port1.onmessage = flush;
-    return function () {
-      channel.port2.postMessage(0);
-    };
-  }
-
-  function useSetTimeout() {
-    return function () {
-      setTimeout(flush, 1);
-    };
-  }
-
-  var queue = new Array(1000);
-  function flush() {
-    for (var i = 0; i < len; i += 2) {
-      var callback = queue[i];
-      var arg = queue[i + 1];
-
-      callback(arg);
-
-      queue[i] = undefined;
-      queue[i + 1] = undefined;
-    }
-
-    len = 0;
-  }
-
-  function attemptVertex() {
-    try {
-      var r = require;
-      var vertx = r('vertx');
-      vertxNext = vertx.runOnLoop || vertx.runOnContext;
-      return useVertxTimer();
-    } catch (e) {
-      return useSetTimeout();
-    }
-  }
-
-  var scheduleFlush;
-  // Decide what async method to use to triggering processing of queued callbacks:
-  if (isNode) {
-    scheduleFlush = useNextTick();
-  } else if (BrowserMutationObserver) {
-    scheduleFlush = useMutationObserver();
-  } else if (isWorker) {
-    scheduleFlush = useMessageChannel();
-  } else if (browserWindow === undefined && typeof require === 'function') {
-    scheduleFlush = attemptVertex();
-  } else {
-    scheduleFlush = useSetTimeout();
-  }
-});
-enifed('rsvp/config', ['exports', 'rsvp/events'], function (exports, _rsvpEvents) {
-  'use strict';
-
-  var config = {
-    instrument: false
-  };
-
-  _rsvpEvents.default['mixin'](config);
-
-  function configure(name, value) {
-    if (name === 'onerror') {
-      // handle for legacy users that expect the actual
-      // error to be passed to their function added via
-      // `RSVP.configure('onerror', someFunctionHere);`
-      config['on']('error', value);
-      return;
-    }
-
-    if (arguments.length === 2) {
-      config[name] = value;
-    } else {
-      return config[name];
-    }
-  }
-
-  exports.config = config;
-  exports.configure = configure;
-});
-enifed('rsvp/defer', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
-  'use strict';
-
-  exports.default = defer;
-
-  /**
-    `RSVP.defer` returns an object similar to jQuery's `$.Deferred`.
-    `RSVP.defer` should be used when porting over code reliant on `$.Deferred`'s
-    interface. New code should use the `RSVP.Promise` constructor instead.
-  
-    The object returned from `RSVP.defer` is a plain object with three properties:
-  
-    * promise - an `RSVP.Promise`.
-    * reject - a function that causes the `promise` property on this object to
-      become rejected
-    * resolve - a function that causes the `promise` property on this object to
-      become fulfilled.
-  
-    Example:
-  
-     ```javascript
-     var deferred = RSVP.defer();
-  
-     deferred.resolve("Success!");
-  
-     deferred.promise.then(function(value){
-       // value here is "Success!"
-     });
-     ```
-  
-    @method defer
-    @static
-    @for RSVP
+    A standard promise hook that resolves if the transition
+    succeeds and rejects if it fails/redirects/aborts.
+
+    Forwards to the internal `promise` property which you can
+    use in situations where you want to pass around a thennable,
+    but not the Transition itself.
+
+    @method then
+    @param {Function} onFulfilled
+    @param {Function} onRejected
     @param {String} label optional string for labeling the promise.
     Useful for tooling.
-    @return {Object}
-   */
-
-  function defer(label) {
-    var deferred = {};
-
-    deferred['promise'] = new _rsvpPromise.default(function (resolve, reject) {
-      deferred['resolve'] = resolve;
-      deferred['reject'] = reject;
-    }, label);
-
-    return deferred;
-  }
-});
-enifed('rsvp/enumerator', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
-  'use strict';
-
-  exports.makeSettledResult = makeSettledResult;
-
-  function makeSettledResult(state, position, value) {
-    if (state === _rsvpInternal.FULFILLED) {
-      return {
-        state: 'fulfilled',
-        value: value
-      };
-    } else {
-      return {
-        state: 'rejected',
-        reason: value
-      };
-    }
-  }
-
-  function Enumerator(Constructor, input, abortOnReject, label) {
-    var enumerator = this;
-
-    enumerator._instanceConstructor = Constructor;
-    enumerator.promise = new Constructor(_rsvpInternal.noop, label);
-    enumerator._abortOnReject = abortOnReject;
-
-    if (enumerator._validateInput(input)) {
-      enumerator._input = input;
-      enumerator.length = input.length;
-      enumerator._remaining = input.length;
-
-      enumerator._init();
-
-      if (enumerator.length === 0) {
-        _rsvpInternal.fulfill(enumerator.promise, enumerator._result);
-      } else {
-        enumerator.length = enumerator.length || 0;
-        enumerator._enumerate();
-        if (enumerator._remaining === 0) {
-          _rsvpInternal.fulfill(enumerator.promise, enumerator._result);
-        }
-      }
-    } else {
-      _rsvpInternal.reject(enumerator.promise, enumerator._validationError());
-    }
-  }
-
-  exports.default = Enumerator;
-
-  Enumerator.prototype._validateInput = function (input) {
-    return _rsvpUtils.isArray(input);
-  };
-
-  Enumerator.prototype._validationError = function () {
-    return new Error('Array Methods must be provided an Array');
-  };
-
-  Enumerator.prototype._init = function () {
-    this._result = new Array(this.length);
-  };
-
-  Enumerator.prototype._enumerate = function () {
-    var enumerator = this;
-    var length = enumerator.length;
-    var promise = enumerator.promise;
-    var input = enumerator._input;
-
-    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
-      enumerator._eachEntry(input[i], i);
-    }
-  };
-
-  Enumerator.prototype._eachEntry = function (entry, i) {
-    var enumerator = this;
-    var c = enumerator._instanceConstructor;
-    if (_rsvpUtils.isMaybeThenable(entry)) {
-      if (entry.constructor === c && entry._state !== _rsvpInternal.PENDING) {
-        entry._onError = null;
-        enumerator._settledAt(entry._state, i, entry._result);
-      } else {
-        enumerator._willSettleAt(c.resolve(entry), i);
-      }
-    } else {
-      enumerator._remaining--;
-      enumerator._result[i] = enumerator._makeResult(_rsvpInternal.FULFILLED, i, entry);
-    }
-  };
-
-  Enumerator.prototype._settledAt = function (state, i, value) {
-    var enumerator = this;
-    var promise = enumerator.promise;
-
-    if (promise._state === _rsvpInternal.PENDING) {
-      enumerator._remaining--;
-
-      if (enumerator._abortOnReject && state === _rsvpInternal.REJECTED) {
-        _rsvpInternal.reject(promise, value);
-      } else {
-        enumerator._result[i] = enumerator._makeResult(state, i, value);
-      }
-    }
-
-    if (enumerator._remaining === 0) {
-      _rsvpInternal.fulfill(promise, enumerator._result);
-    }
-  };
-
-  Enumerator.prototype._makeResult = function (state, i, value) {
-    return value;
-  };
-
-  Enumerator.prototype._willSettleAt = function (promise, i) {
-    var enumerator = this;
-
-    _rsvpInternal.subscribe(promise, undefined, function (value) {
-      enumerator._settledAt(_rsvpInternal.FULFILLED, i, value);
-    }, function (reason) {
-      enumerator._settledAt(_rsvpInternal.REJECTED, i, reason);
-    });
-  };
-});
-enifed('rsvp/events', ['exports'], function (exports) {
-  'use strict';
-
-  function indexOf(callbacks, callback) {
-    for (var i = 0, l = callbacks.length; i < l; i++) {
-      if (callbacks[i] === callback) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
-
-  function callbacksFor(object) {
-    var callbacks = object._promiseCallbacks;
-
-    if (!callbacks) {
-      callbacks = object._promiseCallbacks = {};
-    }
-
-    return callbacks;
-  }
-
-  /**
-    @class RSVP.EventTarget
-  */
-  exports.default = {
-
-    /**
-      `RSVP.EventTarget.mixin` extends an object with EventTarget methods. For
-      Example:
-       ```javascript
-      var object = {};
-       RSVP.EventTarget.mixin(object);
-       object.on('finished', function(event) {
-        // handle event
-      });
-       object.trigger('finished', { detail: value });
-      ```
-       `EventTarget.mixin` also works with prototypes:
-       ```javascript
-      var Person = function() {};
-      RSVP.EventTarget.mixin(Person.prototype);
-       var yehuda = new Person();
-      var tom = new Person();
-       yehuda.on('poke', function(event) {
-        console.log('Yehuda says OW');
-      });
-       tom.on('poke', function(event) {
-        console.log('Tom says OW');
-      });
-       yehuda.trigger('poke');
-      tom.trigger('poke');
-      ```
-       @method mixin
-      @for RSVP.EventTarget
-      @private
-      @param {Object} object object to extend with EventTarget methods
-    */
-    'mixin': function (object) {
-      object['on'] = this['on'];
-      object['off'] = this['off'];
-      object['trigger'] = this['trigger'];
-      object._promiseCallbacks = undefined;
-      return object;
-    },
-
-    /**
-      Registers a callback to be executed when `eventName` is triggered
-       ```javascript
-      object.on('event', function(eventInfo){
-        // handle the event
-      });
-       object.trigger('event');
-      ```
-       @method on
-      @for RSVP.EventTarget
-      @private
-      @param {String} eventName name of the event to listen for
-      @param {Function} callback function to be called when the event is triggered.
-    */
-    'on': function (eventName, callback) {
-      if (typeof callback !== 'function') {
-        throw new TypeError('Callback must be a function');
-      }
-
-      var allCallbacks = callbacksFor(this),
-          callbacks;
-
-      callbacks = allCallbacks[eventName];
-
-      if (!callbacks) {
-        callbacks = allCallbacks[eventName] = [];
-      }
-
-      if (indexOf(callbacks, callback) === -1) {
-        callbacks.push(callback);
-      }
-    },
-
-    /**
-      You can use `off` to stop firing a particular callback for an event:
-       ```javascript
-      function doStuff() { // do stuff! }
-      object.on('stuff', doStuff);
-       object.trigger('stuff'); // doStuff will be called
-       // Unregister ONLY the doStuff callback
-      object.off('stuff', doStuff);
-      object.trigger('stuff'); // doStuff will NOT be called
-      ```
-       If you don't pass a `callback` argument to `off`, ALL callbacks for the
-      event will not be executed when the event fires. For example:
-       ```javascript
-      var callback1 = function(){};
-      var callback2 = function(){};
-       object.on('stuff', callback1);
-      object.on('stuff', callback2);
-       object.trigger('stuff'); // callback1 and callback2 will be executed.
-       object.off('stuff');
-      object.trigger('stuff'); // callback1 and callback2 will not be executed!
-      ```
-       @method off
-      @for RSVP.EventTarget
-      @private
-      @param {String} eventName event to stop listening to
-      @param {Function} callback optional argument. If given, only the function
-      given will be removed from the event's callback queue. If no `callback`
-      argument is given, all callbacks will be removed from the event's callback
-      queue.
-    */
-    'off': function (eventName, callback) {
-      var allCallbacks = callbacksFor(this),
-          callbacks,
-          index;
-
-      if (!callback) {
-        allCallbacks[eventName] = [];
-        return;
-      }
-
-      callbacks = allCallbacks[eventName];
-
-      index = indexOf(callbacks, callback);
-
-      if (index !== -1) {
-        callbacks.splice(index, 1);
-      }
-    },
-
-    /**
-      Use `trigger` to fire custom events. For example:
-       ```javascript
-      object.on('foo', function(){
-        console.log('foo event happened!');
-      });
-      object.trigger('foo');
-      // 'foo event happened!' logged to the console
-      ```
-       You can also pass a value as a second argument to `trigger` that will be
-      passed as an argument to all event listeners for the event:
-       ```javascript
-      object.on('foo', function(value){
-        console.log(value.name);
-      });
-       object.trigger('foo', { name: 'bar' });
-      // 'bar' logged to the console
-      ```
-       @method trigger
-      @for RSVP.EventTarget
-      @private
-      @param {String} eventName name of the event to be triggered
-      @param {*} options optional value to be passed to any event handlers for
-      the given `eventName`
-    */
-    'trigger': function (eventName, options) {
-      var allCallbacks = callbacksFor(this),
-          callbacks,
-          callback;
-
-      if (callbacks = allCallbacks[eventName]) {
-        // Don't cache the callbacks.length since it may grow
-        for (var i = 0; i < callbacks.length; i++) {
-          callback = callbacks[i];
-
-          callback(options);
-        }
-      }
-    }
-  };
-});
-enifed('rsvp/filter', ['exports', 'rsvp/promise', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpUtils) {
-  'use strict';
-
-  exports.default = filter;
-
-  /**
-   `RSVP.filter` is similar to JavaScript's native `filter` method, except that it
-    waits for all promises to become fulfilled before running the `filterFn` on
-    each item in given to `promises`. `RSVP.filter` returns a promise that will
-    become fulfilled with the result of running `filterFn` on the values the
-    promises become fulfilled with.
-  
-    For example:
-  
-    ```javascript
-  
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.resolve(2);
-    var promise3 = RSVP.resolve(3);
-  
-    var promises = [promise1, promise2, promise3];
-  
-    var filterFn = function(item){
-      return item > 1;
-    };
-  
-    RSVP.filter(promises, filterFn).then(function(result){
-      // result is [ 2, 3 ]
-    });
-    ```
-  
-    If any of the `promises` given to `RSVP.filter` are rejected, the first promise
-    that is rejected will be given as an argument to the returned promise's
-    rejection handler. For example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.reject(new Error('2'));
-    var promise3 = RSVP.reject(new Error('3'));
-    var promises = [ promise1, promise2, promise3 ];
-  
-    var filterFn = function(item){
-      return item > 1;
-    };
-  
-    RSVP.filter(promises, filterFn).then(function(array){
-      // Code here never runs because there are rejected promises!
-    }, function(reason) {
-      // reason.message === '2'
-    });
-    ```
-  
-    `RSVP.filter` will also wait for any promises returned from `filterFn`.
-    For instance, you may want to fetch a list of users then return a subset
-    of those users based on some asynchronous operation:
-  
-    ```javascript
-  
-    var alice = { name: 'alice' };
-    var bob   = { name: 'bob' };
-    var users = [ alice, bob ];
-  
-    var promises = users.map(function(user){
-      return RSVP.resolve(user);
-    });
-  
-    var filterFn = function(user){
-      // Here, Alice has permissions to create a blog post, but Bob does not.
-      return getPrivilegesForUser(user).then(function(privs){
-        return privs.can_create_blog_post === true;
-      });
-    };
-    RSVP.filter(promises, filterFn).then(function(users){
-      // true, because the server told us only Alice can create a blog post.
-      users.length === 1;
-      // false, because Alice is the only user present in `users`
-      users[0] === bob;
-    });
-    ```
-  
-    @method filter
-    @static
-    @for RSVP
-    @param {Array} promises
-    @param {Function} filterFn - function to be called on each resolved value to
-    filter the final results.
-    @param {String} label optional string describing the promise. Useful for
-    tooling.
     @return {Promise}
-  */
-
-  function filter(promises, filterFn, label) {
-    return _rsvpPromise.default.all(promises, label).then(function (values) {
-      if (!_rsvpUtils.isFunction(filterFn)) {
-        throw new TypeError("You must pass a function as filter's second argument.");
-      }
-
-      var length = values.length;
-      var filtered = new Array(length);
-
-      for (var i = 0; i < length; i++) {
-        filtered[i] = filterFn(values[i]);
-      }
-
-      return _rsvpPromise.default.all(filtered, label).then(function (filtered) {
-        var results = new Array(length);
-        var newLength = 0;
-
-        for (var i = 0; i < length; i++) {
-          if (filtered[i]) {
-            results[newLength] = values[i];
-            newLength++;
-          }
-        }
-
-        results.length = newLength;
-
-        return results;
-      });
-    });
-  }
-});
-enifed('rsvp/hash-settled', ['exports', 'rsvp/promise', 'rsvp/enumerator', 'rsvp/promise-hash', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpEnumerator, _rsvpPromiseHash, _rsvpUtils) {
-  'use strict';
-
-  exports.default = hashSettled;
-
-  function HashSettled(Constructor, object, label) {
-    this._superConstructor(Constructor, object, false, label);
-  }
-
-  HashSettled.prototype = _rsvpUtils.o_create(_rsvpPromiseHash.default.prototype);
-  HashSettled.prototype._superConstructor = _rsvpEnumerator.default;
-  HashSettled.prototype._makeResult = _rsvpEnumerator.makeSettledResult;
-
-  HashSettled.prototype._validationError = function () {
-    return new Error('hashSettled must be called with an object');
-  };
+    @public
+   */
+  then: function(onFulfilled, onRejected, label) {
+    return this.promise.then(onFulfilled, onRejected, label);
+  },
 
   /**
-    `RSVP.hashSettled` is similar to `RSVP.allSettled`, but takes an object
-    instead of an array for its `promises` argument.
-  
-    Unlike `RSVP.all` or `RSVP.hash`, which implement a fail-fast method,
-    but like `RSVP.allSettled`, `hashSettled` waits until all the
-    constituent promises have returned and then shows you all the results
-    with their states and values/reasons. This is useful if you want to
-    handle multiple promises' failure states together as a set.
-  
-    Returns a promise that is fulfilled when all the given promises have been
-    settled, or rejected if the passed parameters are invalid.
-  
-    The returned promise is fulfilled with a hash that has the same key names as
-    the `promises` object argument. If any of the values in the object are not
-    promises, they will be copied over to the fulfilled object and marked with state
-    'fulfilled'.
-  
-    Example:
-  
-    ```javascript
-    var promises = {
-      myPromise: RSVP.Promise.resolve(1),
-      yourPromise: RSVP.Promise.resolve(2),
-      theirPromise: RSVP.Promise.resolve(3),
-      notAPromise: 4
-    };
-  
-    RSVP.hashSettled(promises).then(function(hash){
-      // hash here is an object that looks like:
-      // {
-      //   myPromise: { state: 'fulfilled', value: 1 },
-      //   yourPromise: { state: 'fulfilled', value: 2 },
-      //   theirPromise: { state: 'fulfilled', value: 3 },
-      //   notAPromise: { state: 'fulfilled', value: 4 }
-      // }
-    });
-    ```
-  
-    If any of the `promises` given to `RSVP.hash` are rejected, the state will
-    be set to 'rejected' and the reason for rejection provided.
-  
-    Example:
-  
-    ```javascript
-    var promises = {
-      myPromise: RSVP.Promise.resolve(1),
-      rejectedPromise: RSVP.Promise.reject(new Error('rejection')),
-      anotherRejectedPromise: RSVP.Promise.reject(new Error('more rejection')),
-    };
-  
-    RSVP.hashSettled(promises).then(function(hash){
-      // hash here is an object that looks like:
-      // {
-      //   myPromise:              { state: 'fulfilled', value: 1 },
-      //   rejectedPromise:        { state: 'rejected', reason: Error },
-      //   anotherRejectedPromise: { state: 'rejected', reason: Error },
-      // }
-      // Note that for rejectedPromise, reason.message == 'rejection',
-      // and for anotherRejectedPromise, reason.message == 'more rejection'.
-    });
-    ```
-  
-    An important note: `RSVP.hashSettled` is intended for plain JavaScript objects that
-    are just a set of keys and values. `RSVP.hashSettled` will NOT preserve prototype
-    chains.
-  
-    Example:
-  
-    ```javascript
-    function MyConstructor(){
-      this.example = RSVP.Promise.resolve('Example');
-    }
-  
-    MyConstructor.prototype = {
-      protoProperty: RSVP.Promise.resolve('Proto Property')
-    };
-  
-    var myObject = new MyConstructor();
-  
-    RSVP.hashSettled(myObject).then(function(hash){
-      // protoProperty will not be present, instead you will just have an
-      // object that looks like:
-      // {
-      //   example: { state: 'fulfilled', value: 'Example' }
-      // }
-      //
-      // hash.hasOwnProperty('protoProperty'); // false
-      // 'undefined' === typeof hash.protoProperty
-    });
-    ```
-  
-    @method hashSettled
-    @for RSVP
-    @param {Object} object
-    @param {String} label optional string that describes the promise.
-    Useful for tooling.
-    @return {Promise} promise that is fulfilled when when all properties of `promises`
-    have been settled.
-    @static
-  */
 
-  function hashSettled(object, label) {
-    return new HashSettled(_rsvpPromise.default, object, label).promise;
-  }
-});
-enifed('rsvp/hash', ['exports', 'rsvp/promise', 'rsvp/promise-hash'], function (exports, _rsvpPromise, _rsvpPromiseHash) {
-  'use strict';
+    Forwards to the internal `promise` property which you can
+    use in situations where you want to pass around a thennable,
+    but not the Transition itself.
 
-  exports.default = hash;
-
-  /**
-    `RSVP.hash` is similar to `RSVP.all`, but takes an object instead of an array
-    for its `promises` argument.
-  
-    Returns a promise that is fulfilled when all the given promises have been
-    fulfilled, or rejected if any of them become rejected. The returned promise
-    is fulfilled with a hash that has the same key names as the `promises` object
-    argument. If any of the values in the object are not promises, they will
-    simply be copied over to the fulfilled object.
-  
-    Example:
-  
-    ```javascript
-    var promises = {
-      myPromise: RSVP.resolve(1),
-      yourPromise: RSVP.resolve(2),
-      theirPromise: RSVP.resolve(3),
-      notAPromise: 4
-    };
-  
-    RSVP.hash(promises).then(function(hash){
-      // hash here is an object that looks like:
-      // {
-      //   myPromise: 1,
-      //   yourPromise: 2,
-      //   theirPromise: 3,
-      //   notAPromise: 4
-      // }
-    });
-    ````
-  
-    If any of the `promises` given to `RSVP.hash` are rejected, the first promise
-    that is rejected will be given as the reason to the rejection handler.
-  
-    Example:
-  
-    ```javascript
-    var promises = {
-      myPromise: RSVP.resolve(1),
-      rejectedPromise: RSVP.reject(new Error('rejectedPromise')),
-      anotherRejectedPromise: RSVP.reject(new Error('anotherRejectedPromise')),
-    };
-  
-    RSVP.hash(promises).then(function(hash){
-      // Code here never runs because there are rejected promises!
-    }, function(reason) {
-      // reason.message === 'rejectedPromise'
-    });
-    ```
-  
-    An important note: `RSVP.hash` is intended for plain JavaScript objects that
-    are just a set of keys and values. `RSVP.hash` will NOT preserve prototype
-    chains.
-  
-    Example:
-  
-    ```javascript
-    function MyConstructor(){
-      this.example = RSVP.resolve('Example');
-    }
-  
-    MyConstructor.prototype = {
-      protoProperty: RSVP.resolve('Proto Property')
-    };
-  
-    var myObject = new MyConstructor();
-  
-    RSVP.hash(myObject).then(function(hash){
-      // protoProperty will not be present, instead you will just have an
-      // object that looks like:
-      // {
-      //   example: 'Example'
-      // }
-      //
-      // hash.hasOwnProperty('protoProperty'); // false
-      // 'undefined' === typeof hash.protoProperty
-    });
-    ```
-  
-    @method hash
-    @static
-    @for RSVP
-    @param {Object} object
-    @param {String} label optional string that describes the promise.
-    Useful for tooling.
-    @return {Promise} promise that is fulfilled when all properties of `promises`
-    have been fulfilled, or rejected if any of them become rejected.
-  */
-
-  function hash(object, label) {
-    return new _rsvpPromiseHash.default(_rsvpPromise.default, object, label).promise;
-  }
-});
-enifed('rsvp/instrument', ['exports', 'rsvp/config', 'rsvp/utils'], function (exports, _rsvpConfig, _rsvpUtils) {
-  'use strict';
-
-  exports.default = instrument;
-
-  var queue = [];
-
-  function scheduleFlush() {
-    setTimeout(function () {
-      var entry;
-      for (var i = 0; i < queue.length; i++) {
-        entry = queue[i];
-
-        var payload = entry.payload;
-
-        payload.guid = payload.key + payload.id;
-        payload.childGuid = payload.key + payload.childId;
-        if (payload.error) {
-          payload.stack = payload.error.stack;
-        }
-
-        _rsvpConfig.config['trigger'](entry.name, entry.payload);
-      }
-      queue.length = 0;
-    }, 50);
-  }
-
-  function instrument(eventName, promise, child) {
-    if (1 === queue.push({
-      name: eventName,
-      payload: {
-        key: promise._guidKey,
-        id: promise._id,
-        eventName: eventName,
-        detail: promise._result,
-        childId: child && child._id,
-        label: promise._label,
-        timeStamp: _rsvpUtils.now(),
-        error: _rsvpConfig.config["instrument-with-stack"] ? new Error(promise._label) : null
-      } })) {
-      scheduleFlush();
-    }
-  }
-});
-enifed('rsvp/map', ['exports', 'rsvp/promise', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpUtils) {
-  'use strict';
-
-  exports.default = map;
-
-  /**
-   `RSVP.map` is similar to JavaScript's native `map` method, except that it
-    waits for all promises to become fulfilled before running the `mapFn` on
-    each item in given to `promises`. `RSVP.map` returns a promise that will
-    become fulfilled with the result of running `mapFn` on the values the promises
-    become fulfilled with.
-  
-    For example:
-  
-    ```javascript
-  
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.resolve(2);
-    var promise3 = RSVP.resolve(3);
-    var promises = [ promise1, promise2, promise3 ];
-  
-    var mapFn = function(item){
-      return item + 1;
-    };
-  
-    RSVP.map(promises, mapFn).then(function(result){
-      // result is [ 2, 3, 4 ]
-    });
-    ```
-  
-    If any of the `promises` given to `RSVP.map` are rejected, the first promise
-    that is rejected will be given as an argument to the returned promise's
-    rejection handler. For example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.reject(new Error('2'));
-    var promise3 = RSVP.reject(new Error('3'));
-    var promises = [ promise1, promise2, promise3 ];
-  
-    var mapFn = function(item){
-      return item + 1;
-    };
-  
-    RSVP.map(promises, mapFn).then(function(array){
-      // Code here never runs because there are rejected promises!
-    }, function(reason) {
-      // reason.message === '2'
-    });
-    ```
-  
-    `RSVP.map` will also wait if a promise is returned from `mapFn`. For example,
-    say you want to get all comments from a set of blog posts, but you need
-    the blog posts first because they contain a url to those comments.
-  
-    ```javscript
-  
-    var mapFn = function(blogPost){
-      // getComments does some ajax and returns an RSVP.Promise that is fulfilled
-      // with some comments data
-      return getComments(blogPost.comments_url);
-    };
-  
-    // getBlogPosts does some ajax and returns an RSVP.Promise that is fulfilled
-    // with some blog post data
-    RSVP.map(getBlogPosts(), mapFn).then(function(comments){
-      // comments is the result of asking the server for the comments
-      // of all blog posts returned from getBlogPosts()
-    });
-    ```
-  
-    @method map
-    @static
-    @for RSVP
-    @param {Array} promises
-    @param {Function} mapFn function to be called on each fulfilled promise.
+    @method catch
+    @param {Function} onRejection
     @param {String} label optional string for labeling the promise.
     Useful for tooling.
-    @return {Promise} promise that is fulfilled with the result of calling
-    `mapFn` on each fulfilled promise or value when they become fulfilled.
-     The promise will be rejected if any of the given `promises` become rejected.
-    @static
-  */
-
-  function map(promises, mapFn, label) {
-    return _rsvpPromise.default.all(promises, label).then(function (values) {
-      if (!_rsvpUtils.isFunction(mapFn)) {
-        throw new TypeError("You must pass a function as map's second argument.");
-      }
-
-      var length = values.length;
-      var results = new Array(length);
-
-      for (var i = 0; i < length; i++) {
-        results[i] = mapFn(values[i]);
-      }
-
-      return _rsvpPromise.default.all(results, label);
-    });
-  }
-});
-enifed('rsvp/node', ['exports', 'rsvp/promise', 'rsvp/-internal', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpInternal, _rsvpUtils) {
-  'use strict';
-
-  exports.default = denodeify;
-
-  function Result() {
-    this.value = undefined;
-  }
-
-  var ERROR = new Result();
-  var GET_THEN_ERROR = new Result();
-
-  function getThen(obj) {
-    try {
-      return obj.then;
-    } catch (error) {
-      ERROR.value = error;
-      return ERROR;
-    }
-  }
-
-  function tryApply(f, s, a) {
-    try {
-      f.apply(s, a);
-    } catch (error) {
-      ERROR.value = error;
-      return ERROR;
-    }
-  }
-
-  function makeObject(_, argumentNames) {
-    var obj = {};
-    var name;
-    var i;
-    var length = _.length;
-    var args = new Array(length);
-
-    for (var x = 0; x < length; x++) {
-      args[x] = _[x];
-    }
-
-    for (i = 0; i < argumentNames.length; i++) {
-      name = argumentNames[i];
-      obj[name] = args[i + 1];
-    }
-
-    return obj;
-  }
-
-  function arrayResult(_) {
-    var length = _.length;
-    var args = new Array(length - 1);
-
-    for (var i = 1; i < length; i++) {
-      args[i - 1] = _[i];
-    }
-
-    return args;
-  }
-
-  function wrapThenable(then, promise) {
-    return {
-      then: function (onFulFillment, onRejection) {
-        return then.call(promise, onFulFillment, onRejection);
-      }
-    };
-  }
+    @return {Promise}
+    @public
+   */
+  catch: function(onRejection, label) {
+    return this.promise.catch(onRejection, label);
+  },
 
   /**
-    `RSVP.denodeify` takes a 'node-style' function and returns a function that
-    will return an `RSVP.Promise`. You can use `denodeify` in Node.js or the
-    browser when you'd prefer to use promises over using callbacks. For example,
-    `denodeify` transforms the following:
-  
-    ```javascript
-    var fs = require('fs');
-  
-    fs.readFile('myfile.txt', function(err, data){
-      if (err) return handleError(err);
-      handleData(data);
-    });
-    ```
-  
-    into:
-  
-    ```javascript
-    var fs = require('fs');
-    var readFile = RSVP.denodeify(fs.readFile);
-  
-    readFile('myfile.txt').then(handleData, handleError);
-    ```
-  
-    If the node function has multiple success parameters, then `denodeify`
-    just returns the first one:
-  
-    ```javascript
-    var request = RSVP.denodeify(require('request'));
-  
-    request('http://example.com').then(function(res) {
-      // ...
-    });
-    ```
-  
-    However, if you need all success parameters, setting `denodeify`'s
-    second parameter to `true` causes it to return all success parameters
-    as an array:
-  
-    ```javascript
-    var request = RSVP.denodeify(require('request'), true);
-  
-    request('http://example.com').then(function(result) {
-      // result[0] -> res
-      // result[1] -> body
-    });
-    ```
-  
-    Or if you pass it an array with names it returns the parameters as a hash:
-  
-    ```javascript
-    var request = RSVP.denodeify(require('request'), ['res', 'body']);
-  
-    request('http://example.com').then(function(result) {
-      // result.res
-      // result.body
-    });
-    ```
-  
-    Sometimes you need to retain the `this`:
-  
-    ```javascript
-    var app = require('express')();
-    var render = RSVP.denodeify(app.render.bind(app));
-    ```
-  
-    The denodified function inherits from the original function. It works in all
-    environments, except IE 10 and below. Consequently all properties of the original
-    function are available to you. However, any properties you change on the
-    denodeified function won't be changed on the original function. Example:
-  
-    ```javascript
-    var request = RSVP.denodeify(require('request')),
-        cookieJar = request.jar(); // <- Inheritance is used here
-  
-    request('http://example.com', {jar: cookieJar}).then(function(res) {
-      // cookieJar.cookies holds now the cookies returned by example.com
-    });
-    ```
-  
-    Using `denodeify` makes it easier to compose asynchronous operations instead
-    of using callbacks. For example, instead of:
-  
-    ```javascript
-    var fs = require('fs');
-  
-    fs.readFile('myfile.txt', function(err, data){
-      if (err) { ... } // Handle error
-      fs.writeFile('myfile2.txt', data, function(err){
-        if (err) { ... } // Handle error
-        console.log('done')
-      });
-    });
-    ```
-  
-    you can chain the operations together using `then` from the returned promise:
-  
-    ```javascript
-    var fs = require('fs');
-    var readFile = RSVP.denodeify(fs.readFile);
-    var writeFile = RSVP.denodeify(fs.writeFile);
-  
-    readFile('myfile.txt').then(function(data){
-      return writeFile('myfile2.txt', data);
-    }).then(function(){
-      console.log('done')
-    }).catch(function(error){
-      // Handle error
-    });
-    ```
-  
-    @method denodeify
-    @static
-    @for RSVP
-    @param {Function} nodeFunc a 'node-style' function that takes a callback as
-    its last argument. The callback expects an error to be passed as its first
-    argument (if an error occurred, otherwise null), and the value from the
-    operation as its second argument ('function(err, value){ }').
-    @param {Boolean|Array} [options] An optional paramter that if set
-    to `true` causes the promise to fulfill with the callback's success arguments
-    as an array. This is useful if the node function has multiple success
-    paramters. If you set this paramter to an array with names, the promise will
-    fulfill with a hash with these names as keys and the success parameters as
-    values.
-    @return {Function} a function that wraps `nodeFunc` to return an
-    `RSVP.Promise`
-    @static
-  */
 
-  function denodeify(nodeFunc, options) {
-    var fn = function () {
-      var self = this;
-      var l = arguments.length;
-      var args = new Array(l + 1);
-      var arg;
-      var promiseInput = false;
+    Forwards to the internal `promise` property which you can
+    use in situations where you want to pass around a thennable,
+    but not the Transition itself.
 
-      for (var i = 0; i < l; ++i) {
-        arg = arguments[i];
+    @method finally
+    @param {Function} callback
+    @param {String} label optional string for labeling the promise.
+    Useful for tooling.
+    @return {Promise}
+    @public
+   */
+  finally: function(callback, label) {
+    return this.promise.finally(callback, label);
+  },
 
-        if (!promiseInput) {
-          // TODO: clean this up
-          promiseInput = needsPromiseInput(arg);
-          if (promiseInput === GET_THEN_ERROR) {
-            var p = new _rsvpPromise.default(_rsvpInternal.noop);
-            _rsvpInternal.reject(p, GET_THEN_ERROR.value);
-            return p;
-          } else if (promiseInput && promiseInput !== true) {
-            arg = wrapThenable(promiseInput, arg);
-          }
-        }
-        args[i] = arg;
-      }
+  /**
+    Aborts the Transition. Note you can also implicitly abort a transition
+    by initiating another transition while a previous one is underway.
 
-      var promise = new _rsvpPromise.default(_rsvpInternal.noop);
+    @method abort
+    @return {Transition} this transition
+    @public
+   */
+  abort: function() {
+    if (this.isAborted) { return this; }
+    log(this.router, this.sequence, this.targetName + ": transition was aborted");
+    this.intent.preTransitionState = this.router.state;
+    this.isAborted = true;
+    this.isActive = false;
+    this.router.activeTransition = null;
+    return this;
+  },
 
-      args[l] = function (err, val) {
-        if (err) _rsvpInternal.reject(promise, err);else if (options === undefined) _rsvpInternal.resolve(promise, val);else if (options === true) _rsvpInternal.resolve(promise, arrayResult(arguments));else if (_rsvpUtils.isArray(options)) _rsvpInternal.resolve(promise, makeObject(arguments, options));else _rsvpInternal.resolve(promise, val);
-      };
+  /**
 
-      if (promiseInput) {
-        return handlePromiseInput(promise, args, nodeFunc, self);
-      } else {
-        return handleValueInput(promise, args, nodeFunc, self);
-      }
-    };
+    Retries a previously-aborted transition (making sure to abort the
+    transition if it's still active). Returns a new transition that
+    represents the new attempt to transition.
 
-    babelHelpers.defaults(fn, nodeFunc);
+    @method retry
+    @return {Transition} new transition
+    @public
+   */
+  retry: function() {
+    // TODO: add tests for merged state retry()s
+    this.abort();
+    return this.router.transitionByIntent(this.intent, false);
+  },
 
-    return fn;
-  }
+  /**
 
-  function handleValueInput(promise, args, nodeFunc, self) {
-    var result = tryApply(nodeFunc, self, args);
-    if (result === ERROR) {
-      _rsvpInternal.reject(promise, result.value);
-    }
-    return promise;
-  }
+    Sets the URL-changing method to be employed at the end of a
+    successful transition. By default, a new Transition will just
+    use `updateURL`, but passing 'replace' to this method will
+    cause the URL to update using 'replaceWith' instead. Omitting
+    a parameter will disable the URL change, allowing for transitions
+    that don't update the URL at completion (this is also used for
+    handleURL, since the URL has already changed before the
+    transition took place).
 
-  function handlePromiseInput(promise, args, nodeFunc, self) {
-    return _rsvpPromise.default.all(args).then(function (args) {
-      var result = tryApply(nodeFunc, self, args);
-      if (result === ERROR) {
-        _rsvpInternal.reject(promise, result.value);
-      }
-      return promise;
-    });
-  }
+    @method method
+    @param {String} method the type of URL-changing method to use
+      at the end of a transition. Accepted values are 'replace',
+      falsy values, or any other non-falsy value (which is
+      interpreted as an updateURL transition).
 
-  function needsPromiseInput(arg) {
-    if (arg && typeof arg === 'object') {
-      if (arg.constructor === _rsvpPromise.default) {
-        return true;
-      } else {
-        return getThen(arg);
-      }
+    @return {Transition} this transition
+    @public
+   */
+  method: function(method) {
+    this.urlMethod = method;
+    return this;
+  },
+
+  /**
+
+    Fires an event on the current list of resolved/resolving
+    handlers within this transition. Useful for firing events
+    on route hierarchies that haven't fully been entered yet.
+
+    Note: This method is also aliased as `send`
+
+    @method trigger
+    @param {Boolean} [ignoreFailure=false] a boolean specifying whether unhandled events throw an error
+    @param {String} name the name of the event to fire
+    @public
+   */
+  trigger: function (ignoreFailure) {
+    var args = slice.call(arguments);
+    if (typeof ignoreFailure === 'boolean') {
+      args.shift();
     } else {
+      // Throw errors on unhandled trigger events by default
+      ignoreFailure = false;
+    }
+    trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
+  },
+
+  /**
+    Transitions are aborted and their promises rejected
+    when redirects occur; this method returns a promise
+    that will follow any redirects that occur and fulfill
+    with the value fulfilled by any redirecting transitions
+    that occur.
+
+    @method followRedirects
+    @return {Promise} a promise that fulfills with the same
+      value that the final redirecting transition fulfills with
+    @public
+   */
+  followRedirects: function() {
+    var router = this.router;
+    return this.promise['catch'](function(reason) {
+      if (router.activeTransition) {
+        return router.activeTransition.followRedirects();
+      }
+      return rsvp.Promise.reject(reason);
+    });
+  },
+
+  toString: function() {
+    return "Transition (sequence " + this.sequence + ")";
+  },
+
+  /**
+    @private
+   */
+  log: function(message) {
+    log(this.router, this.sequence, message);
+  }
+};
+
+// Alias 'trigger' as 'send'
+Transition.prototype.send = Transition.prototype.trigger;
+
+/**
+  @private
+
+  Logs and returns a TransitionAborted error.
+ */
+function logAbort(transition) {
+  log(transition.router, transition.sequence, "detected abort.");
+  return new TransitionAborted();
+}
+
+function TransitionAborted(message) {
+  this.message = (message || "TransitionAborted");
+  this.name = "TransitionAborted";
+}
+
+function TransitionIntent(props) {
+  this.initialize(props);
+
+  // TODO: wat
+  this.data = this.data || {};
+}
+
+TransitionIntent.prototype = {
+  initialize: null,
+  applyToState: null
+};
+
+var DEFAULT_HANDLER = Object.freeze({});
+
+function HandlerInfo(_props) {
+  var props = _props || {};
+
+  // Set a default handler to ensure consistent object shape
+  this._handler = DEFAULT_HANDLER;
+
+  if (props.handler) {
+    var name = props.name;
+
+    // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
+    this.handlerPromise = rsvp.Promise.resolve(props.handler);
+
+    // Wait until the 'handler' property has been updated when chaining to a handler
+    // that is a promise
+    if (isPromise(props.handler)) {
+      this.handlerPromise = this.handlerPromise.then(bind(this, this.updateHandler));
+      props.handler = undefined;
+    } else if (props.handler) {
+      // Store the name of the handler on the handler for easy checks later
+      props.handler._handlerName = name;
+    }
+  }
+
+  merge(this, props);
+  this.initialize(props);
+}
+
+HandlerInfo.prototype = {
+  name: null,
+
+  getHandler: function() {},
+
+  fetchHandler: function() {
+    var handler = this.getHandler(this.name);
+
+    // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
+    this.handlerPromise = rsvp.Promise.resolve(handler);
+
+    // Wait until the 'handler' property has been updated when chaining to a handler
+    // that is a promise
+    if (isPromise(handler)) {
+      this.handlerPromise = this.handlerPromise.then(bind(this, this.updateHandler));
+    } else if (handler) {
+      // Store the name of the handler on the handler for easy checks later
+      handler._handlerName = this.name;
+      return this.handler = handler;
+    }
+
+    return this.handler = undefined;
+  },
+
+  _handlerPromise: undefined,
+
+  params: null,
+  context: null,
+
+  // Injected by the handler info factory.
+  factory: null,
+
+  initialize: function() {},
+
+  log: function(payload, message) {
+    if (payload.log) {
+      payload.log(this.name + ': ' + message);
+    }
+  },
+
+  promiseLabel: function(label) {
+    return promiseLabel("'" + this.name + "' " + label);
+  },
+
+  getUnresolved: function() {
+    return this;
+  },
+
+  serialize: function() {
+    return this.params || {};
+  },
+
+  updateHandler: function(handler) {
+    // Store the name of the handler on the handler for easy checks later
+    handler._handlerName = this.name;
+    return this.handler = handler;
+  },
+
+  resolve: function(shouldContinue, payload) {
+    var checkForAbort  = bind(this, this.checkForAbort,      shouldContinue),
+        beforeModel    = bind(this, this.runBeforeModelHook, payload),
+        model          = bind(this, this.getModel,           payload),
+        afterModel     = bind(this, this.runAfterModelHook,  payload),
+        becomeResolved = bind(this, this.becomeResolved,     payload),
+        self = this;
+
+    return rsvp.Promise.resolve(this.handlerPromise, this.promiseLabel("Start handler"))
+            .then(function(handler) {
+              // We nest this chain in case the handlerPromise has an error so that
+              // we don't have to bubble it through every step
+              return rsvp.Promise.resolve(handler)
+                .then(checkForAbort, null, self.promiseLabel("Check for abort"))
+                .then(beforeModel, null, self.promiseLabel("Before model"))
+                .then(checkForAbort, null, self.promiseLabel("Check if aborted during 'beforeModel' hook"))
+                .then(model, null, self.promiseLabel("Model"))
+                .then(checkForAbort, null, self.promiseLabel("Check if aborted in 'model' hook"))
+                .then(afterModel, null, self.promiseLabel("After model"))
+                .then(checkForAbort, null, self.promiseLabel("Check if aborted in 'afterModel' hook"))
+                .then(becomeResolved, null, self.promiseLabel("Become resolved"));
+            }, function(error) {
+              throw error;
+            });
+  },
+
+  runBeforeModelHook: function(payload) {
+    if (payload.trigger) {
+      payload.trigger(true, 'willResolveModel', payload, this.handler);
+    }
+    return this.runSharedModelHook(payload, 'beforeModel', []);
+  },
+
+  runAfterModelHook: function(payload, resolvedModel) {
+    // Stash the resolved model on the payload.
+    // This makes it possible for users to swap out
+    // the resolved model in afterModel.
+    var name = this.name;
+    this.stashResolvedModel(payload, resolvedModel);
+
+    return this.runSharedModelHook(payload, 'afterModel', [resolvedModel])
+               .then(function() {
+                 // Ignore the fulfilled value returned from afterModel.
+                 // Return the value stashed in resolvedModels, which
+                 // might have been swapped out in afterModel.
+                 return payload.resolvedModels[name];
+               }, null, this.promiseLabel("Ignore fulfillment value and return model value"));
+  },
+
+  runSharedModelHook: function(payload, hookName, args) {
+    this.log(payload, "calling " + hookName + " hook");
+
+    if (this.queryParams) {
+      args.push(this.queryParams);
+    }
+    args.push(payload);
+
+    var result = applyHook(this.handler, hookName, args);
+
+    if (result && result.isTransition) {
+      result = null;
+    }
+
+    return rsvp.Promise.resolve(result, this.promiseLabel("Resolve value returned from one of the model hooks"));
+  },
+
+  // overridden by subclasses
+  getModel: null,
+
+  checkForAbort: function(shouldContinue, promiseValue) {
+    return rsvp.Promise.resolve(shouldContinue(), this.promiseLabel("Check for abort")).then(function() {
+      // We don't care about shouldContinue's resolve value;
+      // pass along the original value passed to this fn.
+      return promiseValue;
+    }, null, this.promiseLabel("Ignore fulfillment value and continue"));
+  },
+
+  stashResolvedModel: function(payload, resolvedModel) {
+    payload.resolvedModels = payload.resolvedModels || {};
+    payload.resolvedModels[this.name] = resolvedModel;
+  },
+
+  becomeResolved: function(payload, resolvedContext) {
+    var params = this.serialize(resolvedContext);
+
+    if (payload) {
+      this.stashResolvedModel(payload, resolvedContext);
+      payload.params = payload.params || {};
+      payload.params[this.name] = params;
+    }
+
+    return this.factory('resolved', {
+      context: resolvedContext,
+      name: this.name,
+      handler: this.handler,
+      params: params
+    });
+  },
+
+  shouldSupercede: function(other) {
+    // Prefer this newer handlerInfo over `other` if:
+    // 1) The other one doesn't exist
+    // 2) The names don't match
+    // 3) This handler has a context that doesn't match
+    //    the other one (or the other one doesn't have one).
+    // 4) This handler has parameters that don't match the other.
+    if (!other) { return true; }
+
+    var contextsMatch = (other.context === this.context);
+    return other.name !== this.name ||
+           (this.hasOwnProperty('context') && !contextsMatch) ||
+           (this.hasOwnProperty('params') && !paramsMatch(this.params, other.params));
+  }
+};
+
+Object.defineProperty(HandlerInfo.prototype, 'handler', {
+  get: function() {
+    // _handler could be set to either a handler object or undefined, so we
+    // compare against a default reference to know when it's been set
+    if (this._handler !== DEFAULT_HANDLER) {
+      return this._handler;
+    }
+
+    return this.fetchHandler();
+  },
+
+  set: function(handler) {
+    return this._handler = handler;
+  }
+});
+
+Object.defineProperty(HandlerInfo.prototype, 'handlerPromise', {
+  get: function() {
+    if (this._handlerPromise) {
+      return this._handlerPromise;
+    }
+
+    this.fetchHandler();
+
+    return this._handlerPromise;
+  },
+
+  set: function(handlerPromise) {
+    return this._handlerPromise = handlerPromise;
+  }
+});
+
+function paramsMatch(a, b) {
+  if ((!a) ^ (!b)) {
+    // Only one is null.
+    return false;
+  }
+
+  if (!a) {
+    // Both must be null.
+    return true;
+  }
+
+  // Note: this assumes that both params have the same
+  // number of keys, but since we're comparing the
+  // same handlers, they should.
+  for (var k in a) {
+    if (a.hasOwnProperty(k) && a[k] !== b[k]) {
       return false;
     }
   }
-});
-enifed('rsvp/platform', ['exports'], function (exports) {
-  'use strict';
+  return true;
+}
 
-  var platform;
-
-  /* global self */
-  if (typeof self === 'object') {
-    platform = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      platform = global;
-    } else {
-      throw new Error('no global: `self` or `global` found');
+var ResolvedHandlerInfo = subclass(HandlerInfo, {
+  resolve: function(shouldContinue, payload) {
+    // A ResolvedHandlerInfo just resolved with itself.
+    if (payload && payload.resolvedModels) {
+      payload.resolvedModels[this.name] = this.context;
     }
+    return rsvp.Promise.resolve(this, this.promiseLabel("Resolve"));
+  },
 
-  exports.default = platform;
+  getUnresolved: function() {
+    return this.factory('param', {
+      name: this.name,
+      handler: this.handler,
+      params: this.params
+    });
+  },
+
+  isResolved: true
 });
-enifed('rsvp/promise-hash', ['exports', 'rsvp/enumerator', 'rsvp/-internal', 'rsvp/utils'], function (exports, _rsvpEnumerator, _rsvpInternal, _rsvpUtils) {
-  'use strict';
 
-  function PromiseHash(Constructor, object, label) {
-    this._superConstructor(Constructor, object, true, label);
-  }
+var UnresolvedHandlerInfoByObject = subclass(HandlerInfo, {
+  getModel: function(payload) {
+    this.log(payload, this.name + ": resolving provided model");
+    return rsvp.Promise.resolve(this.context);
+  },
 
-  exports.default = PromiseHash;
-
-  PromiseHash.prototype = _rsvpUtils.o_create(_rsvpEnumerator.default.prototype);
-  PromiseHash.prototype._superConstructor = _rsvpEnumerator.default;
-  PromiseHash.prototype._init = function () {
-    this._result = {};
-  };
-
-  PromiseHash.prototype._validateInput = function (input) {
-    return input && typeof input === 'object';
-  };
-
-  PromiseHash.prototype._validationError = function () {
-    return new Error('Promise.hash must be called with an object');
-  };
-
-  PromiseHash.prototype._enumerate = function () {
-    var enumerator = this;
-    var promise = enumerator.promise;
-    var input = enumerator._input;
-    var results = [];
-
-    for (var key in input) {
-      if (promise._state === _rsvpInternal.PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
-        results.push({
-          position: key,
-          entry: input[key]
-        });
-      }
-    }
-
-    var length = results.length;
-    enumerator._remaining = length;
-    var result;
-
-    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
-      result = results[i];
-      enumerator._eachEntry(result.entry, result.position);
-    }
-  };
-});
-enifed('rsvp/promise', ['exports', 'rsvp/config', 'rsvp/instrument', 'rsvp/utils', 'rsvp/-internal', 'rsvp/promise/all', 'rsvp/promise/race', 'rsvp/promise/resolve', 'rsvp/promise/reject'], function (exports, _rsvpConfig, _rsvpInstrument, _rsvpUtils, _rsvpInternal, _rsvpPromiseAll, _rsvpPromiseRace, _rsvpPromiseResolve, _rsvpPromiseReject) {
-  'use strict';
-
-  exports.default = Promise;
-
-  var guidKey = 'rsvp_' + _rsvpUtils.now() + '-';
-  var counter = 0;
-
-  function needsResolver() {
-    throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
-  }
-
-  function needsNew() {
-    throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
-  }
+  initialize: function(props) {
+    this.names = props.names || [];
+    this.context = props.context;
+  },
 
   /**
-    Promise objects represent the eventual result of an asynchronous operation. The
-    primary way of interacting with a promise is through its `then` method, which
-    registers callbacks to receive either a promise’s eventual value or the reason
-    why the promise cannot be fulfilled.
-  
-    Terminology
-    -----------
-  
-    - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
-    - `thenable` is an object or function that defines a `then` method.
-    - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
-    - `exception` is a value that is thrown using the throw statement.
-    - `reason` is a value that indicates why a promise was rejected.
-    - `settled` the final resting state of a promise, fulfilled or rejected.
-  
-    A promise can be in one of three states: pending, fulfilled, or rejected.
-  
-    Promises that are fulfilled have a fulfillment value and are in the fulfilled
-    state.  Promises that are rejected have a rejection reason and are in the
-    rejected state.  A fulfillment value is never a thenable.
-  
-    Promises can also be said to *resolve* a value.  If this value is also a
-    promise, then the original promise's settled state will match the value's
-    settled state.  So a promise that *resolves* a promise that rejects will
-    itself reject, and a promise that *resolves* a promise that fulfills will
-    itself fulfill.
-  
-  
-    Basic Usage:
-    ------------
-  
-    ```js
-    var promise = new Promise(function(resolve, reject) {
-      // on success
-      resolve(value);
-  
-      // on failure
-      reject(reason);
-    });
-  
-    promise.then(function(value) {
-      // on fulfillment
-    }, function(reason) {
-      // on rejection
-    });
-    ```
-  
-    Advanced Usage:
-    ---------------
-  
-    Promises shine when abstracting away asynchronous interactions such as
-    `XMLHttpRequest`s.
-  
-    ```js
-    function getJSON(url) {
-      return new Promise(function(resolve, reject){
-        var xhr = new XMLHttpRequest();
-  
-        xhr.open('GET', url);
-        xhr.onreadystatechange = handler;
-        xhr.responseType = 'json';
-        xhr.setRequestHeader('Accept', 'application/json');
-        xhr.send();
-  
-        function handler() {
-          if (this.readyState === this.DONE) {
-            if (this.status === 200) {
-              resolve(this.response);
-            } else {
-              reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
-            }
-          }
-        };
-      });
-    }
-  
-    getJSON('/posts.json').then(function(json) {
-      // on fulfillment
-    }, function(reason) {
-      // on rejection
-    });
-    ```
-  
-    Unlike callbacks, promises are great composable primitives.
-  
-    ```js
-    Promise.all([
-      getJSON('/posts'),
-      getJSON('/comments')
-    ]).then(function(values){
-      values[0] // => postsJSON
-      values[1] // => commentsJSON
-  
-      return values;
-    });
-    ```
-  
-    @class RSVP.Promise
-    @param {function} resolver
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @constructor
+    @private
+
+    Serializes a handler using its custom `serialize` method or
+    by a default that looks up the expected property name from
+    the dynamic segment.
+
+    @param {Object} model the model to be serialized for this handler
   */
+  serialize: function(_model) {
+    var model = _model || this.context,
+        names = this.names,
+        serializer = this.serializer || (this.handler && this.handler.serialize);
 
-  function Promise(resolver, label) {
-    var promise = this;
-
-    promise._id = counter++;
-    promise._label = label;
-    promise._state = undefined;
-    promise._result = undefined;
-    promise._subscribers = [];
-
-    if (_rsvpConfig.config.instrument) {
-      _rsvpInstrument.default('created', promise);
-    }
-
-    if (_rsvpInternal.noop !== resolver) {
-      if (!_rsvpUtils.isFunction(resolver)) {
-        needsResolver();
-      }
-
-      if (!(promise instanceof Promise)) {
-        needsNew();
-      }
-
-      _rsvpInternal.initializePromise(promise, resolver);
-    }
-  }
-
-  Promise.cast = _rsvpPromiseResolve.default; // deprecated
-  Promise.all = _rsvpPromiseAll.default;
-  Promise.race = _rsvpPromiseRace.default;
-  Promise.resolve = _rsvpPromiseResolve.default;
-  Promise.reject = _rsvpPromiseReject.default;
-
-  Promise.prototype = {
-    constructor: Promise,
-
-    _guidKey: guidKey,
-
-    _onError: function (reason) {
-      var promise = this;
-      _rsvpConfig.config.after(function () {
-        if (promise._onError) {
-          _rsvpConfig.config['trigger']('error', reason);
-        }
-      });
-    },
-
-    /**
-      The primary way of interacting with a promise is through its `then` method,
-      which registers callbacks to receive either a promise's eventual value or the
-      reason why the promise cannot be fulfilled.
-    
-      ```js
-      findUser().then(function(user){
-        // user is available
-      }, function(reason){
-        // user is unavailable, and you are given the reason why
-      });
-      ```
-    
-      Chaining
-      --------
-    
-      The return value of `then` is itself a promise.  This second, 'downstream'
-      promise is resolved with the return value of the first promise's fulfillment
-      or rejection handler, or rejected if the handler throws an exception.
-    
-      ```js
-      findUser().then(function (user) {
-        return user.name;
-      }, function (reason) {
-        return 'default name';
-      }).then(function (userName) {
-        // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
-        // will be `'default name'`
-      });
-    
-      findUser().then(function (user) {
-        throw new Error('Found user, but still unhappy');
-      }, function (reason) {
-        throw new Error('`findUser` rejected and we're unhappy');
-      }).then(function (value) {
-        // never reached
-      }, function (reason) {
-        // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
-        // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
-      });
-      ```
-      If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
-    
-      ```js
-      findUser().then(function (user) {
-        throw new PedagogicalException('Upstream error');
-      }).then(function (value) {
-        // never reached
-      }).then(function (value) {
-        // never reached
-      }, function (reason) {
-        // The `PedgagocialException` is propagated all the way down to here
-      });
-      ```
-    
-      Assimilation
-      ------------
-    
-      Sometimes the value you want to propagate to a downstream promise can only be
-      retrieved asynchronously. This can be achieved by returning a promise in the
-      fulfillment or rejection handler. The downstream promise will then be pending
-      until the returned promise is settled. This is called *assimilation*.
-    
-      ```js
-      findUser().then(function (user) {
-        return findCommentsByAuthor(user);
-      }).then(function (comments) {
-        // The user's comments are now available
-      });
-      ```
-    
-      If the assimliated promise rejects, then the downstream promise will also reject.
-    
-      ```js
-      findUser().then(function (user) {
-        return findCommentsByAuthor(user);
-      }).then(function (comments) {
-        // If `findCommentsByAuthor` fulfills, we'll have the value here
-      }, function (reason) {
-        // If `findCommentsByAuthor` rejects, we'll have the reason here
-      });
-      ```
-    
-      Simple Example
-      --------------
-    
-      Synchronous Example
-    
-      ```javascript
-      var result;
-    
-      try {
-        result = findResult();
-        // success
-      } catch(reason) {
-        // failure
-      }
-      ```
-    
-      Errback Example
-    
-      ```js
-      findResult(function(result, err){
-        if (err) {
-          // failure
-        } else {
-          // success
-        }
-      });
-      ```
-    
-      Promise Example;
-    
-      ```javascript
-      findResult().then(function(result){
-        // success
-      }, function(reason){
-        // failure
-      });
-      ```
-    
-      Advanced Example
-      --------------
-    
-      Synchronous Example
-    
-      ```javascript
-      var author, books;
-    
-      try {
-        author = findAuthor();
-        books  = findBooksByAuthor(author);
-        // success
-      } catch(reason) {
-        // failure
-      }
-      ```
-    
-      Errback Example
-    
-      ```js
-    
-      function foundBooks(books) {
-    
-      }
-    
-      function failure(reason) {
-    
-      }
-    
-      findAuthor(function(author, err){
-        if (err) {
-          failure(err);
-          // failure
-        } else {
-          try {
-            findBoooksByAuthor(author, function(books, err) {
-              if (err) {
-                failure(err);
-              } else {
-                try {
-                  foundBooks(books);
-                } catch(reason) {
-                  failure(reason);
-                }
-              }
-            });
-          } catch(error) {
-            failure(err);
-          }
-          // success
-        }
-      });
-      ```
-    
-      Promise Example;
-    
-      ```javascript
-      findAuthor().
-        then(findBooksByAuthor).
-        then(function(books){
-          // found books
-      }).catch(function(reason){
-        // something went wrong
-      });
-      ```
-    
-      @method then
-      @param {Function} onFulfillment
-      @param {Function} onRejection
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-    */
-    then: function (onFulfillment, onRejection, label) {
-      var parent = this;
-      var state = parent._state;
-
-      if (state === _rsvpInternal.FULFILLED && !onFulfillment || state === _rsvpInternal.REJECTED && !onRejection) {
-        if (_rsvpConfig.config.instrument) {
-          _rsvpInstrument.default('chained', parent, parent);
-        }
-        return parent;
-      }
-
-      parent._onError = null;
-
-      var child = new parent.constructor(_rsvpInternal.noop, label);
-      var result = parent._result;
-
-      if (_rsvpConfig.config.instrument) {
-        _rsvpInstrument.default('chained', parent, child);
-      }
-
-      if (state) {
-        var callback = arguments[state - 1];
-        _rsvpConfig.config.async(function () {
-          _rsvpInternal.invokeCallback(state, child, callback, result);
-        });
-      } else {
-        _rsvpInternal.subscribe(parent, child, onFulfillment, onRejection);
-      }
-
-      return child;
-    },
-
-    /**
-      `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-      as the catch block of a try/catch statement.
-    
-      ```js
-      function findAuthor(){
-        throw new Error('couldn't find that author');
-      }
-    
-      // synchronous
-      try {
-        findAuthor();
-      } catch(reason) {
-        // something went wrong
-      }
-    
-      // async with promises
-      findAuthor().catch(function(reason){
-        // something went wrong
-      });
-      ```
-    
-      @method catch
-      @param {Function} onRejection
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-    */
-    'catch': function (onRejection, label) {
-      return this.then(undefined, onRejection, label);
-    },
-
-    /**
-      `finally` will be invoked regardless of the promise's fate just as native
-      try/catch/finally behaves
-    
-      Synchronous example:
-    
-      ```js
-      findAuthor() {
-        if (Math.random() > 0.5) {
-          throw new Error();
-        }
-        return new Author();
-      }
-    
-      try {
-        return findAuthor(); // succeed or fail
-      } catch(error) {
-        return findOtherAuther();
-      } finally {
-        // always runs
-        // doesn't affect the return value
-      }
-      ```
-    
-      Asynchronous example:
-    
-      ```js
-      findAuthor().catch(function(reason){
-        return findOtherAuther();
-      }).finally(function(){
-        // author was either found, or not
-      });
-      ```
-    
-      @method finally
-      @param {Function} callback
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-    */
-    'finally': function (callback, label) {
-      var promise = this;
-      var constructor = promise.constructor;
-
-      return promise.then(function (value) {
-        return constructor.resolve(callback()).then(function () {
-          return value;
-        });
-      }, function (reason) {
-        return constructor.resolve(callback()).then(function () {
-          throw reason;
-        });
-      }, label);
-    }
-  };
-});
-enifed('rsvp/promise/all', ['exports', 'rsvp/enumerator'], function (exports, _rsvpEnumerator) {
-  'use strict';
-
-  exports.default = all;
-
-  /**
-    `RSVP.Promise.all` accepts an array of promises, and returns a new promise which
-    is fulfilled with an array of fulfillment values for the passed promises, or
-    rejected with the reason of the first passed promise to be rejected. It casts all
-    elements of the passed iterable to promises as it runs this algorithm.
-  
-    Example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.resolve(2);
-    var promise3 = RSVP.resolve(3);
-    var promises = [ promise1, promise2, promise3 ];
-  
-    RSVP.Promise.all(promises).then(function(array){
-      // The array here would be [ 1, 2, 3 ];
-    });
-    ```
-  
-    If any of the `promises` given to `RSVP.all` are rejected, the first promise
-    that is rejected will be given as an argument to the returned promises's
-    rejection handler. For example:
-  
-    Example:
-  
-    ```javascript
-    var promise1 = RSVP.resolve(1);
-    var promise2 = RSVP.reject(new Error("2"));
-    var promise3 = RSVP.reject(new Error("3"));
-    var promises = [ promise1, promise2, promise3 ];
-  
-    RSVP.Promise.all(promises).then(function(array){
-      // Code here never runs because there are rejected promises!
-    }, function(error) {
-      // error.message === "2"
-    });
-    ```
-  
-    @method all
-    @static
-    @param {Array} entries array of promises
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise} promise that is fulfilled when all `promises` have been
-    fulfilled, or rejected if any of them become rejected.
-    @static
-  */
-
-  function all(entries, label) {
-    return new _rsvpEnumerator.default(this, entries, true, /* abort on reject */label).promise;
-  }
-});
-enifed('rsvp/promise/race', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
-  'use strict';
-
-  exports.default = race;
-
-  /**
-    `RSVP.Promise.race` returns a new promise which is settled in the same way as the
-    first passed promise to settle.
-  
-    Example:
-  
-    ```javascript
-    var promise1 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 1');
-      }, 200);
-    });
-  
-    var promise2 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 2');
-      }, 100);
-    });
-  
-    RSVP.Promise.race([promise1, promise2]).then(function(result){
-      // result === 'promise 2' because it was resolved before promise1
-      // was resolved.
-    });
-    ```
-  
-    `RSVP.Promise.race` is deterministic in that only the state of the first
-    settled promise matters. For example, even if other promises given to the
-    `promises` array argument are resolved, but the first settled promise has
-    become rejected before the other promises became fulfilled, the returned
-    promise will become rejected:
-  
-    ```javascript
-    var promise1 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        resolve('promise 1');
-      }, 200);
-    });
-  
-    var promise2 = new RSVP.Promise(function(resolve, reject){
-      setTimeout(function(){
-        reject(new Error('promise 2'));
-      }, 100);
-    });
-  
-    RSVP.Promise.race([promise1, promise2]).then(function(result){
-      // Code here never runs
-    }, function(reason){
-      // reason.message === 'promise 2' because promise 2 became rejected before
-      // promise 1 became fulfilled
-    });
-    ```
-  
-    An example real-world use case is implementing timeouts:
-  
-    ```javascript
-    RSVP.Promise.race([ajax('foo.json'), timeout(5000)])
-    ```
-  
-    @method race
-    @static
-    @param {Array} entries array of promises to observe
-    @param {String} label optional string for describing the promise returned.
-    Useful for tooling.
-    @return {Promise} a promise which settles in the same way as the first passed
-    promise to settle.
-  */
-
-  function race(entries, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-
-    var promise = new Constructor(_rsvpInternal.noop, label);
-
-    if (!_rsvpUtils.isArray(entries)) {
-      _rsvpInternal.reject(promise, new TypeError('You must pass an array to race.'));
-      return promise;
-    }
-
-    var length = entries.length;
-
-    function onFulfillment(value) {
-      _rsvpInternal.resolve(promise, value);
-    }
-
-    function onRejection(reason) {
-      _rsvpInternal.reject(promise, reason);
-    }
-
-    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
-      _rsvpInternal.subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
-    }
-
-    return promise;
-  }
-});
-enifed('rsvp/promise/reject', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
-  'use strict';
-
-  exports.default = reject;
-
-  /**
-    `RSVP.Promise.reject` returns a promise rejected with the passed `reason`.
-    It is shorthand for the following:
-  
-    ```javascript
-    var promise = new RSVP.Promise(function(resolve, reject){
-      reject(new Error('WHOOPS'));
-    });
-  
-    promise.then(function(value){
-      // Code here doesn't run because the promise is rejected!
-    }, function(reason){
-      // reason.message === 'WHOOPS'
-    });
-    ```
-  
-    Instead of writing the above, your code now simply becomes the following:
-  
-    ```javascript
-    var promise = RSVP.Promise.reject(new Error('WHOOPS'));
-  
-    promise.then(function(value){
-      // Code here doesn't run because the promise is rejected!
-    }, function(reason){
-      // reason.message === 'WHOOPS'
-    });
-    ```
-  
-    @method reject
-    @static
-    @param {*} reason value that the returned promise will be rejected with.
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise rejected with the given `reason`.
-  */
-
-  function reject(reason, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-    var promise = new Constructor(_rsvpInternal.noop, label);
-    _rsvpInternal.reject(promise, reason);
-    return promise;
-  }
-});
-enifed('rsvp/promise/resolve', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
-  'use strict';
-
-  exports.default = resolve;
-
-  /**
-    `RSVP.Promise.resolve` returns a promise that will become resolved with the
-    passed `value`. It is shorthand for the following:
-  
-    ```javascript
-    var promise = new RSVP.Promise(function(resolve, reject){
-      resolve(1);
-    });
-  
-    promise.then(function(value){
-      // value === 1
-    });
-    ```
-  
-    Instead of writing the above, your code now simply becomes the following:
-  
-    ```javascript
-    var promise = RSVP.Promise.resolve(1);
-  
-    promise.then(function(value){
-      // value === 1
-    });
-    ```
-  
-    @method resolve
-    @static
-    @param {*} object value that the returned promise will be resolved with
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise that will become fulfilled with the given
-    `value`
-  */
-
-  function resolve(object, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-
-    if (object && typeof object === 'object' && object.constructor === Constructor) {
+    var object = {};
+    if (isParam(model)) {
+      object[names[0]] = model;
       return object;
     }
 
-    var promise = new Constructor(_rsvpInternal.noop, label);
-    _rsvpInternal.resolve(promise, object);
-    return promise;
-  }
-});
-enifed('rsvp/race', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
-  'use strict';
-
-  exports.default = race;
-
-  /**
-    This is a convenient alias for `RSVP.Promise.race`.
-  
-    @method race
-    @static
-    @for RSVP
-    @param {Array} array Array of promises.
-    @param {String} label An optional label. This is useful
-    for tooling.
-   */
-
-  function race(array, label) {
-    return _rsvpPromise.default.race(array, label);
-  }
-});
-enifed('rsvp/reject', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
-  'use strict';
-
-  exports.default = reject;
-
-  /**
-    This is a convenient alias for `RSVP.Promise.reject`.
-  
-    @method reject
-    @static
-    @for RSVP
-    @param {*} reason value that the returned promise will be rejected with.
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise rejected with the given `reason`.
-  */
-
-  function reject(reason, label) {
-    return _rsvpPromise.default.reject(reason, label);
-  }
-});
-enifed('rsvp/resolve', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
-  'use strict';
-
-  exports.default = resolve;
-
-  /**
-    This is a convenient alias for `RSVP.Promise.resolve`.
-  
-    @method resolve
-    @static
-    @for RSVP
-    @param {*} value value that the returned promise will be resolved with
-    @param {String} label optional string for identifying the returned promise.
-    Useful for tooling.
-    @return {Promise} a promise that will become fulfilled with the given
-    `value`
-  */
-
-  function resolve(value, label) {
-    return _rsvpPromise.default.resolve(value, label);
-  }
-});
-enifed("rsvp/rethrow", ["exports"], function (exports) {
-  /**
-    `RSVP.rethrow` will rethrow an error on the next turn of the JavaScript event
-    loop in order to aid debugging.
-  
-    Promises A+ specifies that any exceptions that occur with a promise must be
-    caught by the promises implementation and bubbled to the last handler. For
-    this reason, it is recommended that you always specify a second rejection
-    handler function to `then`. However, `RSVP.rethrow` will throw the exception
-    outside of the promise, so it bubbles up to your console if in the browser,
-    or domain/cause uncaught exception in Node. `rethrow` will also throw the
-    error again so the error can be handled by the promise per the spec.
-  
-    ```javascript
-    function throws(){
-      throw new Error('Whoops!');
+    // Use custom serialize if it exists.
+    if (serializer) {
+      return serializer(model, names);
     }
-  
-    var promise = new RSVP.Promise(function(resolve, reject){
-      throws();
-    });
-  
-    promise.catch(RSVP.rethrow).then(function(){
-      // Code here doesn't run because the promise became rejected due to an
-      // error!
-    }, function (err){
-      // handle the error here
-    });
-    ```
-  
-    The 'Whoops' error will be thrown on the next turn of the event loop
-    and you can watch for it in your console. You can also handle it using a
-    rejection handler given to `.then` or `.catch` on the returned promise.
-  
-    @method rethrow
-    @static
-    @for RSVP
-    @param {Error} reason reason the promise became rejected.
-    @throws Error
-    @static
-  */
-  "use strict";
 
-  exports.default = rethrow;
+    if (names.length !== 1) { return; }
 
-  function rethrow(reason) {
-    setTimeout(function () {
-      throw reason;
-    });
-    throw reason;
+    var name = names[0];
+
+    if (/_id$/.test(name)) {
+      object[name] = model.id;
+    } else {
+      object[name] = model;
+    }
+    return object;
   }
 });
-enifed('rsvp/utils', ['exports'], function (exports) {
-  'use strict';
 
-  exports.objectOrFunction = objectOrFunction;
-  exports.isFunction = isFunction;
-  exports.isMaybeThenable = isMaybeThenable;
+// Generated by URL transitions and non-dynamic route segments in named Transitions.
+var UnresolvedHandlerInfoByParam = subclass (HandlerInfo, {
+  initialize: function(props) {
+    this.params = props.params || {};
+  },
 
-  function objectOrFunction(x) {
-    return typeof x === 'function' || typeof x === 'object' && x !== null;
+  getModel: function(payload) {
+    var fullParams = this.params;
+    if (payload && payload.queryParams) {
+      fullParams = {};
+      merge(fullParams, this.params);
+      fullParams.queryParams = payload.queryParams;
+    }
+
+    var handler = this.handler;
+    var hookName = resolveHook(handler, 'deserialize') ||
+                   resolveHook(handler, 'model');
+
+    return this.runSharedModelHook(payload, hookName, [fullParams]);
+  }
+});
+
+handlerInfoFactory.klasses = {
+  resolved: ResolvedHandlerInfo,
+  param: UnresolvedHandlerInfoByParam,
+  object: UnresolvedHandlerInfoByObject
+};
+
+function handlerInfoFactory(name, props) {
+  var Ctor = handlerInfoFactory.klasses[name],
+      handlerInfo = new Ctor(props || {});
+  handlerInfo.factory = handlerInfoFactory;
+  return handlerInfo;
+}
+
+var NamedTransitionIntent = subclass(TransitionIntent, {
+  name: null,
+  pivotHandler: null,
+  contexts: null,
+  queryParams: null,
+
+  initialize: function(props) {
+    this.name = props.name;
+    this.pivotHandler = props.pivotHandler;
+    this.contexts = props.contexts || [];
+    this.queryParams = props.queryParams;
+  },
+
+  applyToState: function(oldState, recognizer, getHandler, isIntermediate, getSerializer) {
+
+    var partitionedArgs     = extractQueryParams([this.name].concat(this.contexts)),
+      pureArgs              = partitionedArgs[0],
+      handlers              = recognizer.handlersFor(pureArgs[0]);
+
+    var targetRouteName = handlers[handlers.length-1].handler;
+
+    return this.applyToHandlers(oldState, handlers, getHandler, targetRouteName, isIntermediate, null, getSerializer);
+  },
+
+  applyToHandlers: function(oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
+
+    var i, len;
+    var newState = new TransitionState();
+    var objects = this.contexts.slice(0);
+
+    var invalidateIndex = handlers.length;
+
+    // Pivot handlers are provided for refresh transitions
+    if (this.pivotHandler) {
+      for (i = 0, len = handlers.length; i < len; ++i) {
+        if (handlers[i].handler === this.pivotHandler._handlerName) {
+          invalidateIndex = i;
+          break;
+        }
+      }
+    }
+
+    for (i = handlers.length - 1; i >= 0; --i) {
+      var result = handlers[i];
+      var name = result.handler;
+
+      var oldHandlerInfo = oldState.handlerInfos[i];
+      var newHandlerInfo = null;
+
+      if (result.names.length > 0) {
+        if (i >= invalidateIndex) {
+          newHandlerInfo = this.createParamHandlerInfo(name, getHandler, result.names, objects, oldHandlerInfo);
+        } else {
+          var serializer = getSerializer(name);
+          newHandlerInfo = this.getHandlerInfoForDynamicSegment(name, getHandler, result.names, objects, oldHandlerInfo, targetRouteName, i, serializer);
+        }
+      } else {
+        // This route has no dynamic segment.
+        // Therefore treat as a param-based handlerInfo
+        // with empty params. This will cause the `model`
+        // hook to be called with empty params, which is desirable.
+        newHandlerInfo = this.createParamHandlerInfo(name, getHandler, result.names, objects, oldHandlerInfo);
+      }
+
+      if (checkingIfActive) {
+        // If we're performing an isActive check, we want to
+        // serialize URL params with the provided context, but
+        // ignore mismatches between old and new context.
+        newHandlerInfo = newHandlerInfo.becomeResolved(null, newHandlerInfo.context);
+        var oldContext = oldHandlerInfo && oldHandlerInfo.context;
+        if (result.names.length > 0 && newHandlerInfo.context === oldContext) {
+          // If contexts match in isActive test, assume params also match.
+          // This allows for flexibility in not requiring that every last
+          // handler provide a `serialize` method
+          newHandlerInfo.params = oldHandlerInfo && oldHandlerInfo.params;
+        }
+        newHandlerInfo.context = oldContext;
+      }
+
+      var handlerToUse = oldHandlerInfo;
+      if (i >= invalidateIndex || newHandlerInfo.shouldSupercede(oldHandlerInfo)) {
+        invalidateIndex = Math.min(i, invalidateIndex);
+        handlerToUse = newHandlerInfo;
+      }
+
+      if (isIntermediate && !checkingIfActive) {
+        handlerToUse = handlerToUse.becomeResolved(null, handlerToUse.context);
+      }
+
+      newState.handlerInfos.unshift(handlerToUse);
+    }
+
+    if (objects.length > 0) {
+      throw new Error("More context objects were passed than there are dynamic segments for the route: " + targetRouteName);
+    }
+
+    if (!isIntermediate) {
+      this.invalidateChildren(newState.handlerInfos, invalidateIndex);
+    }
+
+    merge(newState.queryParams, this.queryParams || {});
+
+    return newState;
+  },
+
+  invalidateChildren: function(handlerInfos, invalidateIndex) {
+    for (var i = invalidateIndex, l = handlerInfos.length; i < l; ++i) {
+      var handlerInfo = handlerInfos[i];
+      handlerInfos[i] = handlerInfo.getUnresolved();
+    }
+  },
+
+  getHandlerInfoForDynamicSegment: function(name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
+    var objectToUse;
+    if (objects.length > 0) {
+
+      // Use the objects provided for this transition.
+      objectToUse = objects[objects.length - 1];
+      if (isParam(objectToUse)) {
+        return this.createParamHandlerInfo(name, getHandler, names, objects, oldHandlerInfo);
+      } else {
+        objects.pop();
+      }
+    } else if (oldHandlerInfo && oldHandlerInfo.name === name) {
+      // Reuse the matching oldHandlerInfo
+      return oldHandlerInfo;
+    } else {
+      if (this.preTransitionState) {
+        var preTransitionHandlerInfo = this.preTransitionState.handlerInfos[i];
+        objectToUse = preTransitionHandlerInfo && preTransitionHandlerInfo.context;
+      } else {
+        // Ideally we should throw this error to provide maximal
+        // information to the user that not enough context objects
+        // were provided, but this proves too cumbersome in Ember
+        // in cases where inner template helpers are evaluated
+        // before parent helpers un-render, in which cases this
+        // error somewhat prematurely fires.
+        //throw new Error("Not enough context objects were provided to complete a transition to " + targetRouteName + ". Specifically, the " + name + " route needs an object that can be serialized into its dynamic URL segments [" + names.join(', ') + "]");
+        return oldHandlerInfo;
+      }
+    }
+
+    return handlerInfoFactory('object', {
+      name: name,
+      getHandler: getHandler,
+      serializer: serializer,
+      context: objectToUse,
+      names: names
+    });
+  },
+
+  createParamHandlerInfo: function(name, getHandler, names, objects, oldHandlerInfo) {
+    var params = {};
+
+    // Soak up all the provided string/numbers
+    var numNames = names.length;
+    while (numNames--) {
+
+      // Only use old params if the names match with the new handler
+      var oldParams = (oldHandlerInfo && name === oldHandlerInfo.name && oldHandlerInfo.params) || {};
+
+      var peek = objects[objects.length - 1];
+      var paramName = names[numNames];
+      if (isParam(peek)) {
+        params[paramName] = "" + objects.pop();
+      } else {
+        // If we're here, this means only some of the params
+        // were string/number params, so try and use a param
+        // value from a previous handler.
+        if (oldParams.hasOwnProperty(paramName)) {
+          params[paramName] = oldParams[paramName];
+        } else {
+          throw new Error("You didn't provide enough string/numeric parameters to satisfy all of the dynamic segments for route " + name);
+        }
+      }
+    }
+
+    return handlerInfoFactory('param', {
+      name: name,
+      getHandler: getHandler,
+      params: params
+    });
+  }
+});
+
+/**
+  Promise reject reasons passed to promise rejection
+  handlers for failed transitions.
+ */
+function UnrecognizedURLError(message) {
+  this.message = (message || "UnrecognizedURLError");
+  this.name = "UnrecognizedURLError";
+  Error.call(this);
+}
+
+UnrecognizedURLError.prototype = oCreate(Error.prototype);
+
+var URLTransitionIntent = subclass(TransitionIntent, {
+  url: null,
+
+  initialize: function(props) {
+    this.url = props.url;
+  },
+
+  applyToState: function(oldState, recognizer, getHandler) {
+    var newState = new TransitionState();
+
+    var results = recognizer.recognize(this.url),
+        i, len;
+
+    if (!results) {
+      throw new UnrecognizedURLError(this.url);
+    }
+
+    var statesDiffer = false;
+    var url = this.url;
+
+    // Checks if a handler is accessible by URL. If it is not, an error is thrown.
+    // For the case where the handler is loaded asynchronously, the error will be
+    // thrown once it is loaded.
+    function checkHandlerAccessibility(handler) {
+      if (handler && handler.inaccessibleByURL) {
+        throw new UnrecognizedURLError(url);
+      }
+
+      return handler;
+    }
+
+    for (i = 0, len = results.length; i < len; ++i) {
+      var result = results[i];
+      var name = result.handler;
+      var newHandlerInfo = handlerInfoFactory('param', {
+        name: name,
+        getHandler: getHandler,
+        params: result.params
+      });
+      var handler = newHandlerInfo.handler;
+
+      if (handler) {
+        checkHandlerAccessibility(handler);
+      } else {
+        // If the hanlder is being loaded asynchronously, check if we can
+        // access it after it has resolved
+        newHandlerInfo.handlerPromise = newHandlerInfo.handlerPromise.then(checkHandlerAccessibility);
+      }
+
+      var oldHandlerInfo = oldState.handlerInfos[i];
+      if (statesDiffer || newHandlerInfo.shouldSupercede(oldHandlerInfo)) {
+        statesDiffer = true;
+        newState.handlerInfos[i] = newHandlerInfo;
+      } else {
+        newState.handlerInfos[i] = oldHandlerInfo;
+      }
+    }
+
+    merge(newState.queryParams, results.queryParams);
+
+    return newState;
+  }
+});
+
+var pop = Array.prototype.pop;
+
+function Router(_options) {
+  var options = _options || {};
+  this.getHandler = options.getHandler || this.getHandler;
+  this.getSerializer = options.getSerializer || this.getSerializer;
+  this.updateURL = options.updateURL || this.updateURL;
+  this.replaceURL = options.replaceURL || this.replaceURL;
+  this.didTransition = options.didTransition || this.didTransition;
+  this.willTransition = options.willTransition || this.willTransition;
+  this.delegate = options.delegate || this.delegate;
+  this.triggerEvent = options.triggerEvent || this.triggerEvent;
+  this.log = options.log || this.log;
+  this.dslCallBacks = []; // NOTE: set by Ember
+  this.state = undefined;
+  this.activeTransition = undefined;
+  this._changedQueryParams = undefined;
+  this.oldState = undefined;
+  this.currentHandlerInfos = undefined;
+  this.state = undefined;
+
+  this.recognizer = new RouteRecognizer();
+  this.reset();
+}
+
+function getTransitionByIntent(intent, isIntermediate) {
+  var wasTransitioning = !!this.activeTransition;
+  var oldState = wasTransitioning ? this.activeTransition.state : this.state;
+  var newTransition;
+
+  var newState = intent.applyToState(oldState, this.recognizer, this.getHandler, isIntermediate, this.getSerializer);
+  var queryParamChangelist = getChangelist(oldState.queryParams, newState.queryParams);
+
+  if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
+
+    // This is a no-op transition. See if query params changed.
+    if (queryParamChangelist) {
+      newTransition = this.queryParamsTransition(queryParamChangelist, wasTransitioning, oldState, newState);
+      if (newTransition) {
+        return newTransition;
+      }
+    }
+
+    // No-op. No need to create a new transition.
+    return this.activeTransition || new Transition(this);
   }
 
-  function isFunction(x) {
-    return typeof x === 'function';
+  if (isIntermediate) {
+    setupContexts(this, newState);
+    return;
   }
 
-  function isMaybeThenable(x) {
-    return typeof x === 'object' && x !== null;
+  // Create a new transition to the destination route.
+  newTransition = new Transition(this, intent, newState);
+
+  // Abort and usurp any previously active transition.
+  if (this.activeTransition) {
+    this.activeTransition.abort();
+  }
+  this.activeTransition = newTransition;
+
+  // Transition promises by default resolve with resolved state.
+  // For our purposes, swap out the promise to resolve
+  // after the transition has been finalized.
+  newTransition.promise = newTransition.promise.then(function(result) {
+    return finalizeTransition(newTransition, result.state);
+  }, null, promiseLabel("Settle transition promise when transition is finalized"));
+
+  if (!wasTransitioning) {
+    notifyExistingHandlers(this, newState, newTransition);
   }
 
-  var _isArray;
-  if (!Array.isArray) {
-    _isArray = function (x) {
-      return Object.prototype.toString.call(x) === '[object Array]';
+  fireQueryParamDidChange(this, newState, queryParamChangelist);
+
+  return newTransition;
+}
+
+Router.prototype = {
+
+  /**
+    The main entry point into the router. The API is essentially
+    the same as the `map` method in `route-recognizer`.
+
+    This method extracts the String handler at the last `.to()`
+    call and uses it as the name of the whole route.
+
+    @param {Function} callback
+  */
+  map: function(callback) {
+    this.recognizer.delegate = this.delegate;
+
+    this.recognizer.map(callback, function(recognizer, routes) {
+      for (var i = routes.length - 1, proceed = true; i >= 0 && proceed; --i) {
+        var route = routes[i];
+        recognizer.add(routes, { as: route.handler });
+        proceed = route.path === '/' || route.path === '' || route.handler.slice(-6) === '.index';
+      }
+    });
+  },
+
+  hasRoute: function(route) {
+    return this.recognizer.hasRoute(route);
+  },
+
+  getHandler: function() {},
+
+  getSerializer: function() {},
+
+  queryParamsTransition: function(changelist, wasTransitioning, oldState, newState) {
+    var router = this;
+
+    fireQueryParamDidChange(this, newState, changelist);
+
+    if (!wasTransitioning && this.activeTransition) {
+      // One of the handlers in queryParamsDidChange
+      // caused a transition. Just return that transition.
+      return this.activeTransition;
+    } else {
+      // Running queryParamsDidChange didn't change anything.
+      // Just update query params and be on our way.
+
+      // We have to return a noop transition that will
+      // perform a URL update at the end. This gives
+      // the user the ability to set the url update
+      // method (default is replaceState).
+      var newTransition = new Transition(this);
+      newTransition.queryParamsOnly = true;
+
+      oldState.queryParams = finalizeQueryParamChange(this, newState.handlerInfos, newState.queryParams, newTransition);
+
+      newTransition.promise = newTransition.promise.then(function(result) {
+        updateURL(newTransition, oldState, true);
+        if (router.didTransition) {
+          router.didTransition(router.currentHandlerInfos);
+        }
+        return result;
+      }, null, promiseLabel("Transition complete"));
+      return newTransition;
+    }
+  },
+
+  // NOTE: this doesn't really belong here, but here
+  // it shall remain until our ES6 transpiler can
+  // handle cyclical deps.
+  transitionByIntent: function(intent/*, isIntermediate*/) {
+    try {
+      return getTransitionByIntent.apply(this, arguments);
+    } catch(e) {
+      return new Transition(this, intent, null, e);
+    }
+  },
+
+  /**
+    Clears the current and target route handlers and triggers exit
+    on each of them starting at the leaf and traversing up through
+    its ancestors.
+  */
+  reset: function() {
+    if (this.state) {
+      forEach(this.state.handlerInfos.slice().reverse(), function(handlerInfo) {
+        var handler = handlerInfo.handler;
+        callHook(handler, 'exit');
+      });
+    }
+
+    this.oldState = undefined;
+    this.state = new TransitionState();
+    this.currentHandlerInfos = null;
+  },
+
+  activeTransition: null,
+
+  /**
+    var handler = handlerInfo.handler;
+    The entry point for handling a change to the URL (usually
+    via the back and forward button).
+
+    Returns an Array of handlers and the parameters associated
+    with those parameters.
+
+    @param {String} url a URL to process
+
+    @return {Array} an Array of `[handler, parameter]` tuples
+  */
+  handleURL: function(url) {
+    // Perform a URL-based transition, but don't change
+    // the URL afterward, since it already happened.
+    var args = slice.call(arguments);
+    if (url.charAt(0) !== '/') { args[0] = '/' + url; }
+
+    return doTransition(this, args).method(null);
+  },
+
+  /**
+    Hook point for updating the URL.
+
+    @param {String} url a URL to update to
+  */
+  updateURL: function() {
+    throw new Error("updateURL is not implemented");
+  },
+
+  /**
+    Hook point for replacing the current URL, i.e. with replaceState
+
+    By default this behaves the same as `updateURL`
+
+    @param {String} url a URL to update to
+  */
+  replaceURL: function(url) {
+    this.updateURL(url);
+  },
+
+  /**
+    Transition into the specified named route.
+
+    If necessary, trigger the exit callback on any handlers
+    that are no longer represented by the target route.
+
+    @param {String} name the name of the route
+  */
+  transitionTo: function(/*name*/) {
+    return doTransition(this, arguments);
+  },
+
+  intermediateTransitionTo: function(/*name*/) {
+    return doTransition(this, arguments, true);
+  },
+
+  refresh: function(pivotHandler) {
+    var state = this.activeTransition ? this.activeTransition.state : this.state;
+    var handlerInfos = state.handlerInfos;
+    var params = {};
+    for (var i = 0, len = handlerInfos.length; i < len; ++i) {
+      var handlerInfo = handlerInfos[i];
+      params[handlerInfo.name] = handlerInfo.params || {};
+    }
+
+    log(this, "Starting a refresh transition");
+    var intent = new NamedTransitionIntent({
+      name: handlerInfos[handlerInfos.length - 1].name,
+      pivotHandler: pivotHandler || handlerInfos[0].handler,
+      contexts: [], // TODO collect contexts...?
+      queryParams: this._changedQueryParams || state.queryParams || {}
+    });
+
+    return this.transitionByIntent(intent, false);
+  },
+
+  /**
+    Identical to `transitionTo` except that the current URL will be replaced
+    if possible.
+
+    This method is intended primarily for use with `replaceState`.
+
+    @param {String} name the name of the route
+  */
+  replaceWith: function(/*name*/) {
+    return doTransition(this, arguments).method('replace');
+  },
+
+  /**
+    Take a named route and context objects and generate a
+    URL.
+
+    @param {String} name the name of the route to generate
+      a URL for
+    @param {...Object} objects a list of objects to serialize
+
+    @return {String} a URL
+  */
+  generate: function(handlerName) {
+
+    var partitionedArgs = extractQueryParams(slice.call(arguments, 1)),
+      suppliedParams = partitionedArgs[0],
+      queryParams = partitionedArgs[1];
+
+    // Construct a TransitionIntent with the provided params
+    // and apply it to the present state of the router.
+    var intent = new NamedTransitionIntent({ name: handlerName, contexts: suppliedParams });
+    var state = intent.applyToState(this.state, this.recognizer, this.getHandler, null, this.getSerializer);
+    var params = {};
+
+    for (var i = 0, len = state.handlerInfos.length; i < len; ++i) {
+      var handlerInfo = state.handlerInfos[i];
+      var handlerParams = handlerInfo.serialize();
+      merge(params, handlerParams);
+    }
+    params.queryParams = queryParams;
+
+    return this.recognizer.generate(handlerName, params);
+  },
+
+  applyIntent: function(handlerName, contexts) {
+    var intent = new NamedTransitionIntent({
+      name: handlerName,
+      contexts: contexts
+    });
+
+    var state = this.activeTransition && this.activeTransition.state || this.state;
+    return intent.applyToState(state, this.recognizer, this.getHandler, null, this.getSerializer);
+  },
+
+  isActiveIntent: function(handlerName, contexts, queryParams, _state) {
+    var state = _state || this.state,
+        targetHandlerInfos = state.handlerInfos,
+        handlerInfo, len;
+
+    if (!targetHandlerInfos.length) { return false; }
+
+    var targetHandler = targetHandlerInfos[targetHandlerInfos.length - 1].name;
+    var recogHandlers = this.recognizer.handlersFor(targetHandler);
+
+    var index = 0;
+    for (len = recogHandlers.length; index < len; ++index) {
+      handlerInfo = targetHandlerInfos[index];
+      if (handlerInfo.name === handlerName) { break; }
+    }
+
+    if (index === recogHandlers.length) {
+      // The provided route name isn't even in the route hierarchy.
+      return false;
+    }
+
+    var testState = new TransitionState();
+    testState.handlerInfos = targetHandlerInfos.slice(0, index + 1);
+    recogHandlers = recogHandlers.slice(0, index + 1);
+
+    var intent = new NamedTransitionIntent({
+      name: targetHandler,
+      contexts: contexts
+    });
+
+    var newState = intent.applyToHandlers(testState, recogHandlers, this.getHandler, targetHandler, true, true, this.getSerializer);
+
+    var handlersEqual = handlerInfosEqual(newState.handlerInfos, testState.handlerInfos);
+    if (!queryParams || !handlersEqual) {
+      return handlersEqual;
+    }
+
+    // Get a hash of QPs that will still be active on new route
+    var activeQPsOnNewHandler = {};
+    merge(activeQPsOnNewHandler, queryParams);
+
+    var activeQueryParams  = state.queryParams;
+    for (var key in activeQueryParams) {
+      if (activeQueryParams.hasOwnProperty(key) &&
+          activeQPsOnNewHandler.hasOwnProperty(key)) {
+        activeQPsOnNewHandler[key] = activeQueryParams[key];
+      }
+    }
+
+    return handlersEqual && !getChangelist(activeQPsOnNewHandler, queryParams);
+  },
+
+  isActive: function(handlerName) {
+    var partitionedArgs = extractQueryParams(slice.call(arguments, 1));
+    return this.isActiveIntent(handlerName, partitionedArgs[0], partitionedArgs[1]);
+  },
+
+  trigger: function(/*name*/) {
+    var args = slice.call(arguments);
+    trigger(this, this.currentHandlerInfos, false, args);
+  },
+
+  /**
+    Hook point for logging transition status updates.
+
+    @param {String} message The message to log.
+  */
+  log: null
+};
+
+/**
+  @private
+
+  Fires queryParamsDidChange event
+*/
+function fireQueryParamDidChange(router, newState, queryParamChangelist) {
+  // If queryParams changed trigger event
+  if (queryParamChangelist) {
+
+    // This is a little hacky but we need some way of storing
+    // changed query params given that no activeTransition
+    // is guaranteed to have occurred.
+    router._changedQueryParams = queryParamChangelist.all;
+    trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
+    router._changedQueryParams = null;
+  }
+}
+
+/**
+  @private
+
+  Takes an Array of `HandlerInfo`s, figures out which ones are
+  exiting, entering, or changing contexts, and calls the
+  proper handler hooks.
+
+  For example, consider the following tree of handlers. Each handler is
+  followed by the URL segment it handles.
+
+  ```
+  |~index ("/")
+  | |~posts ("/posts")
+  | | |-showPost ("/:id")
+  | | |-newPost ("/new")
+  | | |-editPost ("/edit")
+  | |~about ("/about/:id")
+  ```
+
+  Consider the following transitions:
+
+  1. A URL transition to `/posts/1`.
+     1. Triggers the `*model` callbacks on the
+        `index`, `posts`, and `showPost` handlers
+     2. Triggers the `enter` callback on the same
+     3. Triggers the `setup` callback on the same
+  2. A direct transition to `newPost`
+     1. Triggers the `exit` callback on `showPost`
+     2. Triggers the `enter` callback on `newPost`
+     3. Triggers the `setup` callback on `newPost`
+  3. A direct transition to `about` with a specified
+     context object
+     1. Triggers the `exit` callback on `newPost`
+        and `posts`
+     2. Triggers the `serialize` callback on `about`
+     3. Triggers the `enter` callback on `about`
+     4. Triggers the `setup` callback on `about`
+
+  @param {Router} transition
+  @param {TransitionState} newState
+*/
+function setupContexts(router, newState, transition) {
+  var partition = partitionHandlers(router.state, newState);
+  var i, l, handler;
+
+  for (i=0, l=partition.exited.length; i<l; i++) {
+    handler = partition.exited[i].handler;
+    delete handler.context;
+
+    callHook(handler, 'reset', true, transition);
+    callHook(handler, 'exit', transition);
+  }
+
+  var oldState = router.oldState = router.state;
+  router.state = newState;
+  var currentHandlerInfos = router.currentHandlerInfos = partition.unchanged.slice();
+
+  try {
+    for (i=0, l=partition.reset.length; i<l; i++) {
+      handler = partition.reset[i].handler;
+      callHook(handler, 'reset', false, transition);
+    }
+
+    for (i=0, l=partition.updatedContext.length; i<l; i++) {
+      handlerEnteredOrUpdated(currentHandlerInfos, partition.updatedContext[i], false, transition);
+    }
+
+    for (i=0, l=partition.entered.length; i<l; i++) {
+      handlerEnteredOrUpdated(currentHandlerInfos, partition.entered[i], true, transition);
+    }
+  } catch(e) {
+    router.state = oldState;
+    router.currentHandlerInfos = oldState.handlerInfos;
+    throw e;
+  }
+
+  router.state.queryParams = finalizeQueryParamChange(router, currentHandlerInfos, newState.queryParams, transition);
+}
+
+
+/**
+  @private
+
+  Helper method used by setupContexts. Handles errors or redirects
+  that may happen in enter/setup.
+*/
+function handlerEnteredOrUpdated(currentHandlerInfos, handlerInfo, enter, transition) {
+  var handler = handlerInfo.handler,
+      context = handlerInfo.context;
+
+  function _handlerEnteredOrUpdated(handler) {
+    if (enter) {
+      callHook(handler, 'enter', transition);
+    }
+
+    if (transition && transition.isAborted) {
+      throw new TransitionAborted();
+    }
+
+    handler.context = context;
+    callHook(handler, 'contextDidChange');
+
+    callHook(handler, 'setup', context, transition);
+    if (transition && transition.isAborted) {
+      throw new TransitionAborted();
+    }
+
+    currentHandlerInfos.push(handlerInfo);
+  }
+
+  // If the handler doesn't exist, it means we haven't resolved the handler promise yet
+  if (!handler) {
+    handlerInfo.handlerPromise = handlerInfo.handlerPromise.then(_handlerEnteredOrUpdated);
+  } else {
+    _handlerEnteredOrUpdated(handler);
+  }
+
+  return true;
+}
+
+
+/**
+  @private
+
+  This function is called when transitioning from one URL to
+  another to determine which handlers are no longer active,
+  which handlers are newly active, and which handlers remain
+  active but have their context changed.
+
+  Take a list of old handlers and new handlers and partition
+  them into four buckets:
+
+  * unchanged: the handler was active in both the old and
+    new URL, and its context remains the same
+  * updated context: the handler was active in both the
+    old and new URL, but its context changed. The handler's
+    `setup` method, if any, will be called with the new
+    context.
+  * exited: the handler was active in the old URL, but is
+    no longer active.
+  * entered: the handler was not active in the old URL, but
+    is now active.
+
+  The PartitionedHandlers structure has four fields:
+
+  * `updatedContext`: a list of `HandlerInfo` objects that
+    represent handlers that remain active but have a changed
+    context
+  * `entered`: a list of `HandlerInfo` objects that represent
+    handlers that are newly active
+  * `exited`: a list of `HandlerInfo` objects that are no
+    longer active.
+  * `unchanged`: a list of `HanderInfo` objects that remain active.
+
+  @param {Array[HandlerInfo]} oldHandlers a list of the handler
+    information for the previous URL (or `[]` if this is the
+    first handled transition)
+  @param {Array[HandlerInfo]} newHandlers a list of the handler
+    information for the new URL
+
+  @return {Partition}
+*/
+function partitionHandlers(oldState, newState) {
+  var oldHandlers = oldState.handlerInfos;
+  var newHandlers = newState.handlerInfos;
+
+  var handlers = {
+        updatedContext: [],
+        exited: [],
+        entered: [],
+        unchanged: [],
+        reset: undefined
+      };
+
+  var handlerChanged, contextChanged = false, i, l;
+
+  for (i=0, l=newHandlers.length; i<l; i++) {
+    var oldHandler = oldHandlers[i], newHandler = newHandlers[i];
+
+    if (!oldHandler || oldHandler.handler !== newHandler.handler) {
+      handlerChanged = true;
+    }
+
+    if (handlerChanged) {
+      handlers.entered.push(newHandler);
+      if (oldHandler) { handlers.exited.unshift(oldHandler); }
+    } else if (contextChanged || oldHandler.context !== newHandler.context) {
+      contextChanged = true;
+      handlers.updatedContext.push(newHandler);
+    } else {
+      handlers.unchanged.push(oldHandler);
+    }
+  }
+
+  for (i=newHandlers.length, l=oldHandlers.length; i<l; i++) {
+    handlers.exited.unshift(oldHandlers[i]);
+  }
+
+  handlers.reset = handlers.updatedContext.slice();
+  handlers.reset.reverse();
+
+  return handlers;
+}
+
+function updateURL(transition, state/*, inputUrl*/) {
+  var urlMethod = transition.urlMethod;
+
+  if (!urlMethod) {
+    return;
+  }
+
+  var router = transition.router,
+      handlerInfos = state.handlerInfos,
+      handlerName = handlerInfos[handlerInfos.length - 1].name,
+      params = {};
+
+  for (var i = handlerInfos.length - 1; i >= 0; --i) {
+    var handlerInfo = handlerInfos[i];
+    merge(params, handlerInfo.params);
+    if (handlerInfo.handler.inaccessibleByURL) {
+      urlMethod = null;
+    }
+  }
+
+  if (urlMethod) {
+    params.queryParams = transition._visibleQueryParams || state.queryParams;
+    var url = router.recognizer.generate(handlerName, params);
+
+    if (urlMethod === 'replace') {
+      router.replaceURL(url);
+    } else {
+      router.updateURL(url);
+    }
+  }
+}
+
+/**
+  @private
+
+  Updates the URL (if necessary) and calls `setupContexts`
+  to update the router's array of `currentHandlerInfos`.
+ */
+function finalizeTransition(transition, newState) {
+
+  try {
+    log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
+
+    var router = transition.router,
+        handlerInfos = newState.handlerInfos;
+
+    // Run all the necessary enter/setup/exit hooks
+    setupContexts(router, newState, transition);
+
+    // Check if a redirect occurred in enter/setup
+    if (transition.isAborted) {
+      // TODO: cleaner way? distinguish b/w targetHandlerInfos?
+      router.state.handlerInfos = router.currentHandlerInfos;
+      return rsvp.Promise.reject(logAbort(transition));
+    }
+
+    updateURL(transition, newState, transition.intent.url);
+
+    transition.isActive = false;
+    router.activeTransition = null;
+
+    trigger(router, router.currentHandlerInfos, true, ['didTransition']);
+
+    if (router.didTransition) {
+      router.didTransition(router.currentHandlerInfos);
+    }
+
+    log(router, transition.sequence, "TRANSITION COMPLETE.");
+
+    // Resolve with the final handler.
+    return handlerInfos[handlerInfos.length - 1].handler;
+  } catch(e) {
+    if (!(e instanceof TransitionAborted)) {
+      //var erroneousHandler = handlerInfos.pop();
+      var infos = transition.state.handlerInfos;
+      transition.trigger(true, 'error', e, transition, infos[infos.length-1].handler);
+      transition.abort();
+    }
+
+    throw e;
+  }
+}
+
+/**
+  @private
+
+  Begins and returns a Transition based on the provided
+  arguments. Accepts arguments in the form of both URL
+  transitions and named transitions.
+
+  @param {Router} router
+  @param {Array[Object]} args arguments passed to transitionTo,
+    replaceWith, or handleURL
+*/
+function doTransition(router, args, isIntermediate) {
+  // Normalize blank transitions to root URL transitions.
+  var name = args[0] || '/';
+
+  var lastArg = args[args.length-1];
+  var queryParams = {};
+  if (lastArg && lastArg.hasOwnProperty('queryParams')) {
+    queryParams = pop.call(args).queryParams;
+  }
+
+  var intent;
+  if (args.length === 0) {
+
+    log(router, "Updating query params");
+
+    // A query param update is really just a transition
+    // into the route you're already on.
+    var handlerInfos = router.state.handlerInfos;
+    intent = new NamedTransitionIntent({
+      name: handlerInfos[handlerInfos.length - 1].name,
+      contexts: [],
+      queryParams: queryParams
+    });
+
+  } else if (name.charAt(0) === '/') {
+
+    log(router, "Attempting URL transition to " + name);
+    intent = new URLTransitionIntent({ url: name });
+
+  } else {
+
+    log(router, "Attempting transition to " + name);
+    intent = new NamedTransitionIntent({
+      name: args[0],
+      contexts: slice.call(args, 1),
+      queryParams: queryParams
+    });
+  }
+
+  return router.transitionByIntent(intent, isIntermediate);
+}
+
+function handlerInfosEqual(handlerInfos, otherHandlerInfos) {
+  if (handlerInfos.length !== otherHandlerInfos.length) {
+    return false;
+  }
+
+  for (var i = 0, len = handlerInfos.length; i < len; ++i) {
+    if (handlerInfos[i] !== otherHandlerInfos[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function finalizeQueryParamChange(router, resolvedHandlers, newQueryParams, transition) {
+  // We fire a finalizeQueryParamChange event which
+  // gives the new route hierarchy a chance to tell
+  // us which query params it's consuming and what
+  // their final values are. If a query param is
+  // no longer consumed in the final route hierarchy,
+  // its serialized segment will be removed
+  // from the URL.
+
+  for (var k in newQueryParams) {
+    if (newQueryParams.hasOwnProperty(k) &&
+        newQueryParams[k] === null) {
+      delete newQueryParams[k];
+    }
+  }
+
+  var finalQueryParamsArray = [];
+  trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
+
+  if (transition) {
+    transition._visibleQueryParams = {};
+  }
+
+  var finalQueryParams = {};
+  for (var i = 0, len = finalQueryParamsArray.length; i < len; ++i) {
+    var qp = finalQueryParamsArray[i];
+    finalQueryParams[qp.key] = qp.value;
+    if (transition && qp.visible !== false) {
+      transition._visibleQueryParams[qp.key] = qp.value;
+    }
+  }
+  return finalQueryParams;
+}
+
+function notifyExistingHandlers(router, newState, newTransition) {
+  var oldHandlers = router.state.handlerInfos,
+      changing = [],
+      leavingIndex = null,
+      leaving, leavingChecker, i, oldHandlerLen, oldHandler, newHandler;
+
+  oldHandlerLen = oldHandlers.length;
+  for (i = 0; i < oldHandlerLen; i++) {
+    oldHandler = oldHandlers[i];
+    newHandler = newState.handlerInfos[i];
+
+    if (!newHandler || oldHandler.name !== newHandler.name) {
+      leavingIndex = i;
+      break;
+    }
+
+    if (!newHandler.isResolved) {
+      changing.push(oldHandler);
+    }
+  }
+
+  if (leavingIndex !== null) {
+    leaving = oldHandlers.slice(leavingIndex, oldHandlerLen);
+    leavingChecker = function(name) {
+      for (var h = 0, len = leaving.length; h < len; h++) {
+        if (leaving[h].name === name) {
+          return true;
+        }
+      }
+      return false;
+    };
+  }
+
+  trigger(router, oldHandlers, true, ['willTransition', newTransition]);
+
+  if (router.willTransition) {
+    router.willTransition(oldHandlers, newState.handlerInfos, newTransition);
+  }
+}
+
+exports['default'] = Router;
+exports.Transition = Transition;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+});
+/*!
+ * @overview RSVP - a tiny implementation of Promises/A+.
+ * @copyright Copyright (c) 2014 Yehuda Katz, Tom Dale, Stefan Penner and contributors
+ * @license   Licensed under MIT license
+ *            See https://raw.githubusercontent.com/tildeio/rsvp.js/master/LICENSE
+ * @version   3.2.1
+ */
+
+enifed('rsvp', ['exports'], function (exports) { 'use strict';
+
+function indexOf(callbacks, callback) {
+  for (var i=0, l=callbacks.length; i<l; i++) {
+    if (callbacks[i] === callback) { return i; }
+  }
+
+  return -1;
+}
+
+function callbacksFor(object) {
+  var callbacks = object._promiseCallbacks;
+
+  if (!callbacks) {
+    callbacks = object._promiseCallbacks = {};
+  }
+
+  return callbacks;
+}
+
+/**
+  @class RSVP.EventTarget
+*/
+var EventTarget = {
+
+  /**
+    `RSVP.EventTarget.mixin` extends an object with EventTarget methods. For
+    Example:
+
+    ```javascript
+    var object = {};
+
+    RSVP.EventTarget.mixin(object);
+
+    object.on('finished', function(event) {
+      // handle event
+    });
+
+    object.trigger('finished', { detail: value });
+    ```
+
+    `EventTarget.mixin` also works with prototypes:
+
+    ```javascript
+    var Person = function() {};
+    RSVP.EventTarget.mixin(Person.prototype);
+
+    var yehuda = new Person();
+    var tom = new Person();
+
+    yehuda.on('poke', function(event) {
+      console.log('Yehuda says OW');
+    });
+
+    tom.on('poke', function(event) {
+      console.log('Tom says OW');
+    });
+
+    yehuda.trigger('poke');
+    tom.trigger('poke');
+    ```
+
+    @method mixin
+    @for RSVP.EventTarget
+    @private
+    @param {Object} object object to extend with EventTarget methods
+  */
+  'mixin': function(object) {
+    object['on']      = this['on'];
+    object['off']     = this['off'];
+    object['trigger'] = this['trigger'];
+    object._promiseCallbacks = undefined;
+    return object;
+  },
+
+  /**
+    Registers a callback to be executed when `eventName` is triggered
+
+    ```javascript
+    object.on('event', function(eventInfo){
+      // handle the event
+    });
+
+    object.trigger('event');
+    ```
+
+    @method on
+    @for RSVP.EventTarget
+    @private
+    @param {String} eventName name of the event to listen for
+    @param {Function} callback function to be called when the event is triggered.
+  */
+  'on': function(eventName, callback) {
+    if (typeof callback !== 'function') {
+      throw new TypeError('Callback must be a function');
+    }
+
+    var allCallbacks = callbacksFor(this), callbacks;
+
+    callbacks = allCallbacks[eventName];
+
+    if (!callbacks) {
+      callbacks = allCallbacks[eventName] = [];
+    }
+
+    if (indexOf(callbacks, callback) === -1) {
+      callbacks.push(callback);
+    }
+  },
+
+  /**
+    You can use `off` to stop firing a particular callback for an event:
+
+    ```javascript
+    function doStuff() { // do stuff! }
+    object.on('stuff', doStuff);
+
+    object.trigger('stuff'); // doStuff will be called
+
+    // Unregister ONLY the doStuff callback
+    object.off('stuff', doStuff);
+    object.trigger('stuff'); // doStuff will NOT be called
+    ```
+
+    If you don't pass a `callback` argument to `off`, ALL callbacks for the
+    event will not be executed when the event fires. For example:
+
+    ```javascript
+    var callback1 = function(){};
+    var callback2 = function(){};
+
+    object.on('stuff', callback1);
+    object.on('stuff', callback2);
+
+    object.trigger('stuff'); // callback1 and callback2 will be executed.
+
+    object.off('stuff');
+    object.trigger('stuff'); // callback1 and callback2 will not be executed!
+    ```
+
+    @method off
+    @for RSVP.EventTarget
+    @private
+    @param {String} eventName event to stop listening to
+    @param {Function} callback optional argument. If given, only the function
+    given will be removed from the event's callback queue. If no `callback`
+    argument is given, all callbacks will be removed from the event's callback
+    queue.
+  */
+  'off': function(eventName, callback) {
+    var allCallbacks = callbacksFor(this), callbacks, index;
+
+    if (!callback) {
+      allCallbacks[eventName] = [];
+      return;
+    }
+
+    callbacks = allCallbacks[eventName];
+
+    index = indexOf(callbacks, callback);
+
+    if (index !== -1) { callbacks.splice(index, 1); }
+  },
+
+  /**
+    Use `trigger` to fire custom events. For example:
+
+    ```javascript
+    object.on('foo', function(){
+      console.log('foo event happened!');
+    });
+    object.trigger('foo');
+    // 'foo event happened!' logged to the console
+    ```
+
+    You can also pass a value as a second argument to `trigger` that will be
+    passed as an argument to all event listeners for the event:
+
+    ```javascript
+    object.on('foo', function(value){
+      console.log(value.name);
+    });
+
+    object.trigger('foo', { name: 'bar' });
+    // 'bar' logged to the console
+    ```
+
+    @method trigger
+    @for RSVP.EventTarget
+    @private
+    @param {String} eventName name of the event to be triggered
+    @param {*} options optional value to be passed to any event handlers for
+    the given `eventName`
+  */
+  'trigger': function(eventName, options, label) {
+    var allCallbacks = callbacksFor(this), callbacks, callback;
+
+    if (callbacks = allCallbacks[eventName]) {
+      // Don't cache the callbacks.length since it may grow
+      for (var i=0; i<callbacks.length; i++) {
+        callback = callbacks[i];
+
+        callback(options, label);
+      }
+    }
+  }
+};
+
+var config = {
+  instrument: false
+};
+
+EventTarget['mixin'](config);
+
+function configure(name, value) {
+  if (name === 'onerror') {
+    // handle for legacy users that expect the actual
+    // error to be passed to their function added via
+    // `RSVP.configure('onerror', someFunctionHere);`
+    config['on']('error', value);
+    return;
+  }
+
+  if (arguments.length === 2) {
+    config[name] = value;
+  } else {
+    return config[name];
+  }
+}
+
+function objectOrFunction(x) {
+  return typeof x === 'function' || (typeof x === 'object' && x !== null);
+}
+
+function isFunction(x) {
+  return typeof x === 'function';
+}
+
+function isMaybeThenable(x) {
+  return typeof x === 'object' && x !== null;
+}
+
+var _isArray;
+if (!Array.isArray) {
+  _isArray = function (x) {
+    return Object.prototype.toString.call(x) === '[object Array]';
+  };
+} else {
+  _isArray = Array.isArray;
+}
+
+var isArray = _isArray;
+
+// Date.now is not available in browsers < IE9
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
+var now = Date.now || function() { return new Date().getTime(); };
+
+function F() { }
+
+var o_create = (Object.create || function (o) {
+  if (arguments.length > 1) {
+    throw new Error('Second argument not supported');
+  }
+  if (typeof o !== 'object') {
+    throw new TypeError('Argument must be an object');
+  }
+  F.prototype = o;
+  return new F();
+});
+
+var queue = [];
+
+function scheduleFlush() {
+  setTimeout(function() {
+    var entry;
+    for (var i = 0; i < queue.length; i++) {
+      entry = queue[i];
+
+      var payload = entry.payload;
+
+      payload.guid = payload.key + payload.id;
+      payload.childGuid = payload.key + payload.childId;
+      if (payload.error) {
+        payload.stack = payload.error.stack;
+      }
+
+      config['trigger'](entry.name, entry.payload);
+    }
+    queue.length = 0;
+  }, 50);
+}
+
+function instrument(eventName, promise, child) {
+  if (1 === queue.push({
+    name: eventName,
+    payload: {
+      key: promise._guidKey,
+      id:  promise._id,
+      eventName: eventName,
+      detail: promise._result,
+      childId: child && child._id,
+      label: promise._label,
+      timeStamp: now(),
+      error: config["instrument-with-stack"] ? new Error(promise._label) : null
+    }})) {
+      scheduleFlush();
+    }
+  }
+
+/**
+  `RSVP.Promise.resolve` returns a promise that will become resolved with the
+  passed `value`. It is shorthand for the following:
+
+  ```javascript
+  var promise = new RSVP.Promise(function(resolve, reject){
+    resolve(1);
+  });
+
+  promise.then(function(value){
+    // value === 1
+  });
+  ```
+
+  Instead of writing the above, your code now simply becomes the following:
+
+  ```javascript
+  var promise = RSVP.Promise.resolve(1);
+
+  promise.then(function(value){
+    // value === 1
+  });
+  ```
+
+  @method resolve
+  @static
+  @param {*} object value that the returned promise will be resolved with
+  @param {String} label optional string for identifying the returned promise.
+  Useful for tooling.
+  @return {Promise} a promise that will become fulfilled with the given
+  `value`
+*/
+function resolve$1(object, label) {
+  /*jshint validthis:true */
+  var Constructor = this;
+
+  if (object && typeof object === 'object' && object.constructor === Constructor) {
+    return object;
+  }
+
+  var promise = new Constructor(noop, label);
+  resolve(promise, object);
+  return promise;
+}
+
+function  withOwnPromise() {
+  return new TypeError('A promises callback cannot return that same promise.');
+}
+
+function noop() {}
+
+var PENDING   = void 0;
+var FULFILLED = 1;
+var REJECTED  = 2;
+
+var GET_THEN_ERROR = new ErrorObject();
+
+function getThen(promise) {
+  try {
+    return promise.then;
+  } catch(error) {
+    GET_THEN_ERROR.error = error;
+    return GET_THEN_ERROR;
+  }
+}
+
+function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
+  try {
+    then.call(value, fulfillmentHandler, rejectionHandler);
+  } catch(e) {
+    return e;
+  }
+}
+
+function handleForeignThenable(promise, thenable, then) {
+  config.async(function(promise) {
+    var sealed = false;
+    var error = tryThen(then, thenable, function(value) {
+      if (sealed) { return; }
+      sealed = true;
+      if (thenable !== value) {
+        resolve(promise, value, undefined);
+      } else {
+        fulfill(promise, value);
+      }
+    }, function(reason) {
+      if (sealed) { return; }
+      sealed = true;
+
+      reject(promise, reason);
+    }, 'Settle: ' + (promise._label || ' unknown promise'));
+
+    if (!sealed && error) {
+      sealed = true;
+      reject(promise, error);
+    }
+  }, promise);
+}
+
+function handleOwnThenable(promise, thenable) {
+  if (thenable._state === FULFILLED) {
+    fulfill(promise, thenable._result);
+  } else if (thenable._state === REJECTED) {
+    thenable._onError = null;
+    reject(promise, thenable._result);
+  } else {
+    subscribe(thenable, undefined, function(value) {
+      if (thenable !== value) {
+        resolve(promise, value, undefined);
+      } else {
+        fulfill(promise, value);
+      }
+    }, function(reason) {
+      reject(promise, reason);
+    });
+  }
+}
+
+function handleMaybeThenable(promise, maybeThenable, then$$) {
+  if (maybeThenable.constructor === promise.constructor &&
+      then$$ === then &&
+      constructor.resolve === resolve$1) {
+    handleOwnThenable(promise, maybeThenable);
+  } else {
+    if (then$$ === GET_THEN_ERROR) {
+      reject(promise, GET_THEN_ERROR.error);
+    } else if (then$$ === undefined) {
+      fulfill(promise, maybeThenable);
+    } else if (isFunction(then$$)) {
+      handleForeignThenable(promise, maybeThenable, then$$);
+    } else {
+      fulfill(promise, maybeThenable);
+    }
+  }
+}
+
+function resolve(promise, value) {
+  if (promise === value) {
+    fulfill(promise, value);
+  } else if (objectOrFunction(value)) {
+    handleMaybeThenable(promise, value, getThen(value));
+  } else {
+    fulfill(promise, value);
+  }
+}
+
+function publishRejection(promise) {
+  if (promise._onError) {
+    promise._onError(promise._result);
+  }
+
+  publish(promise);
+}
+
+function fulfill(promise, value) {
+  if (promise._state !== PENDING) { return; }
+
+  promise._result = value;
+  promise._state = FULFILLED;
+
+  if (promise._subscribers.length === 0) {
+    if (config.instrument) {
+      instrument('fulfilled', promise);
+    }
+  } else {
+    config.async(publish, promise);
+  }
+}
+
+function reject(promise, reason) {
+  if (promise._state !== PENDING) { return; }
+  promise._state = REJECTED;
+  promise._result = reason;
+  config.async(publishRejection, promise);
+}
+
+function subscribe(parent, child, onFulfillment, onRejection) {
+  var subscribers = parent._subscribers;
+  var length = subscribers.length;
+
+  parent._onError = null;
+
+  subscribers[length] = child;
+  subscribers[length + FULFILLED] = onFulfillment;
+  subscribers[length + REJECTED]  = onRejection;
+
+  if (length === 0 && parent._state) {
+    config.async(publish, parent);
+  }
+}
+
+function publish(promise) {
+  var subscribers = promise._subscribers;
+  var settled = promise._state;
+
+  if (config.instrument) {
+    instrument(settled === FULFILLED ? 'fulfilled' : 'rejected', promise);
+  }
+
+  if (subscribers.length === 0) { return; }
+
+  var child, callback, detail = promise._result;
+
+  for (var i = 0; i < subscribers.length; i += 3) {
+    child = subscribers[i];
+    callback = subscribers[i + settled];
+
+    if (child) {
+      invokeCallback(settled, child, callback, detail);
+    } else {
+      callback(detail);
+    }
+  }
+
+  promise._subscribers.length = 0;
+}
+
+function ErrorObject() {
+  this.error = null;
+}
+
+var TRY_CATCH_ERROR = new ErrorObject();
+
+function tryCatch(callback, detail) {
+  try {
+    return callback(detail);
+  } catch(e) {
+    TRY_CATCH_ERROR.error = e;
+    return TRY_CATCH_ERROR;
+  }
+}
+
+function invokeCallback(settled, promise, callback, detail) {
+  var hasCallback = isFunction(callback),
+      value, error, succeeded, failed;
+
+  if (hasCallback) {
+    value = tryCatch(callback, detail);
+
+    if (value === TRY_CATCH_ERROR) {
+      failed = true;
+      error = value.error;
+      value = null;
+    } else {
+      succeeded = true;
+    }
+
+    if (promise === value) {
+      reject(promise, withOwnPromise());
+      return;
+    }
+
+  } else {
+    value = detail;
+    succeeded = true;
+  }
+
+  if (promise._state !== PENDING) {
+    // noop
+  } else if (hasCallback && succeeded) {
+    resolve(promise, value);
+  } else if (failed) {
+    reject(promise, error);
+  } else if (settled === FULFILLED) {
+    fulfill(promise, value);
+  } else if (settled === REJECTED) {
+    reject(promise, value);
+  }
+}
+
+function initializePromise(promise, resolver) {
+  var resolved = false;
+  try {
+    resolver(function resolvePromise(value){
+      if (resolved) { return; }
+      resolved = true;
+      resolve(promise, value);
+    }, function rejectPromise(reason) {
+      if (resolved) { return; }
+      resolved = true;
+      reject(promise, reason);
+    });
+  } catch(e) {
+    reject(promise, e);
+  }
+}
+
+function then(onFulfillment, onRejection, label) {
+  var parent = this;
+  var state = parent._state;
+
+  if (state === FULFILLED && !onFulfillment || state === REJECTED && !onRejection) {
+    config.instrument && instrument('chained', parent, parent);
+    return parent;
+  }
+
+  parent._onError = null;
+
+  var child = new parent.constructor(noop, label);
+  var result = parent._result;
+
+  config.instrument && instrument('chained', parent, child);
+
+  if (state) {
+    var callback = arguments[state - 1];
+    config.async(function(){
+      invokeCallback(state, child, callback, result);
+    });
+  } else {
+    subscribe(parent, child, onFulfillment, onRejection);
+  }
+
+  return child;
+}
+
+function makeSettledResult(state, position, value) {
+  if (state === FULFILLED) {
+    return {
+      state: 'fulfilled',
+      value: value
     };
   } else {
-    _isArray = Array.isArray;
+     return {
+      state: 'rejected',
+      reason: value
+    };
+  }
+}
+
+function Enumerator(Constructor, input, abortOnReject, label) {
+  this._instanceConstructor = Constructor;
+  this.promise = new Constructor(noop, label);
+  this._abortOnReject = abortOnReject;
+
+  if (this._validateInput(input)) {
+    this._input     = input;
+    this.length     = input.length;
+    this._remaining = input.length;
+
+    this._init();
+
+    if (this.length === 0) {
+      fulfill(this.promise, this._result);
+    } else {
+      this.length = this.length || 0;
+      this._enumerate();
+      if (this._remaining === 0) {
+        fulfill(this.promise, this._result);
+      }
+    }
+  } else {
+    reject(this.promise, this._validationError());
+  }
+}
+
+Enumerator.prototype._validateInput = function(input) {
+  return isArray(input);
+};
+
+Enumerator.prototype._validationError = function() {
+  return new Error('Array Methods must be provided an Array');
+};
+
+Enumerator.prototype._init = function() {
+  this._result = new Array(this.length);
+};
+
+Enumerator.prototype._enumerate = function() {
+  var length     = this.length;
+  var promise    = this.promise;
+  var input      = this._input;
+
+  for (var i = 0; promise._state === PENDING && i < length; i++) {
+    this._eachEntry(input[i], i);
+  }
+};
+
+Enumerator.prototype._settleMaybeThenable = function(entry, i) {
+  var c = this._instanceConstructor;
+  var resolve = c.resolve;
+
+  if (resolve === resolve$1) {
+    var then$$ = getThen(entry);
+
+    if (then$$ === then &&
+        entry._state !== PENDING) {
+      entry._onError = null;
+      this._settledAt(entry._state, i, entry._result);
+    } else if (typeof then$$ !== 'function') {
+      this._remaining--;
+      this._result[i] = this._makeResult(FULFILLED, i, entry);
+    } else if (c === Promise) {
+      var promise = new c(noop);
+      handleMaybeThenable(promise, entry, then$$);
+      this._willSettleAt(promise, i);
+    } else {
+      this._willSettleAt(new c(function(resolve) { resolve(entry); }), i);
+    }
+  } else {
+    this._willSettleAt(resolve(entry), i);
+  }
+};
+
+Enumerator.prototype._eachEntry = function(entry, i) {
+  if (isMaybeThenable(entry)) {
+    this._settleMaybeThenable(entry, i);
+  } else {
+    this._remaining--;
+    this._result[i] = this._makeResult(FULFILLED, i, entry);
+  }
+};
+
+Enumerator.prototype._settledAt = function(state, i, value) {
+  var promise = this.promise;
+
+  if (promise._state === PENDING) {
+    this._remaining--;
+
+    if (this._abortOnReject && state === REJECTED) {
+      reject(promise, value);
+    } else {
+      this._result[i] = this._makeResult(state, i, value);
+    }
   }
 
-  var isArray = _isArray;
+  if (this._remaining === 0) {
+    fulfill(promise, this._result);
+  }
+};
 
-  exports.isArray = isArray;
-  // Date.now is not available in browsers < IE9
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  var now = Date.now || function () {
-    return new Date().getTime();
+Enumerator.prototype._makeResult = function(state, i, value) {
+  return value;
+};
+
+Enumerator.prototype._willSettleAt = function(promise, i) {
+  var enumerator = this;
+
+  subscribe(promise, undefined, function(value) {
+    enumerator._settledAt(FULFILLED, i, value);
+  }, function(reason) {
+    enumerator._settledAt(REJECTED, i, reason);
+  });
+};
+
+/**
+  `RSVP.Promise.all` accepts an array of promises, and returns a new promise which
+  is fulfilled with an array of fulfillment values for the passed promises, or
+  rejected with the reason of the first passed promise to be rejected. It casts all
+  elements of the passed iterable to promises as it runs this algorithm.
+
+  Example:
+
+  ```javascript
+  var promise1 = RSVP.resolve(1);
+  var promise2 = RSVP.resolve(2);
+  var promise3 = RSVP.resolve(3);
+  var promises = [ promise1, promise2, promise3 ];
+
+  RSVP.Promise.all(promises).then(function(array){
+    // The array here would be [ 1, 2, 3 ];
+  });
+  ```
+
+  If any of the `promises` given to `RSVP.all` are rejected, the first promise
+  that is rejected will be given as an argument to the returned promises's
+  rejection handler. For example:
+
+  Example:
+
+  ```javascript
+  var promise1 = RSVP.resolve(1);
+  var promise2 = RSVP.reject(new Error("2"));
+  var promise3 = RSVP.reject(new Error("3"));
+  var promises = [ promise1, promise2, promise3 ];
+
+  RSVP.Promise.all(promises).then(function(array){
+    // Code here never runs because there are rejected promises!
+  }, function(error) {
+    // error.message === "2"
+  });
+  ```
+
+  @method all
+  @static
+  @param {Array} entries array of promises
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @return {Promise} promise that is fulfilled when all `promises` have been
+  fulfilled, or rejected if any of them become rejected.
+  @static
+*/
+function all(entries, label) {
+  return new Enumerator(this, entries, true /* abort on reject */, label).promise;
+}
+
+/**
+  `RSVP.Promise.race` returns a new promise which is settled in the same way as the
+  first passed promise to settle.
+
+  Example:
+
+  ```javascript
+  var promise1 = new RSVP.Promise(function(resolve, reject){
+    setTimeout(function(){
+      resolve('promise 1');
+    }, 200);
+  });
+
+  var promise2 = new RSVP.Promise(function(resolve, reject){
+    setTimeout(function(){
+      resolve('promise 2');
+    }, 100);
+  });
+
+  RSVP.Promise.race([promise1, promise2]).then(function(result){
+    // result === 'promise 2' because it was resolved before promise1
+    // was resolved.
+  });
+  ```
+
+  `RSVP.Promise.race` is deterministic in that only the state of the first
+  settled promise matters. For example, even if other promises given to the
+  `promises` array argument are resolved, but the first settled promise has
+  become rejected before the other promises became fulfilled, the returned
+  promise will become rejected:
+
+  ```javascript
+  var promise1 = new RSVP.Promise(function(resolve, reject){
+    setTimeout(function(){
+      resolve('promise 1');
+    }, 200);
+  });
+
+  var promise2 = new RSVP.Promise(function(resolve, reject){
+    setTimeout(function(){
+      reject(new Error('promise 2'));
+    }, 100);
+  });
+
+  RSVP.Promise.race([promise1, promise2]).then(function(result){
+    // Code here never runs
+  }, function(reason){
+    // reason.message === 'promise 2' because promise 2 became rejected before
+    // promise 1 became fulfilled
+  });
+  ```
+
+  An example real-world use case is implementing timeouts:
+
+  ```javascript
+  RSVP.Promise.race([ajax('foo.json'), timeout(5000)])
+  ```
+
+  @method race
+  @static
+  @param {Array} entries array of promises to observe
+  @param {String} label optional string for describing the promise returned.
+  Useful for tooling.
+  @return {Promise} a promise which settles in the same way as the first passed
+  promise to settle.
+*/
+function race(entries, label) {
+  /*jshint validthis:true */
+  var Constructor = this;
+
+  var promise = new Constructor(noop, label);
+
+  if (!isArray(entries)) {
+    reject(promise, new TypeError('You must pass an array to race.'));
+    return promise;
+  }
+
+  var length = entries.length;
+
+  function onFulfillment(value) {
+    resolve(promise, value);
+  }
+
+  function onRejection(reason) {
+    reject(promise, reason);
+  }
+
+  for (var i = 0; promise._state === PENDING && i < length; i++) {
+    subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+  }
+
+  return promise;
+}
+
+/**
+  `RSVP.Promise.reject` returns a promise rejected with the passed `reason`.
+  It is shorthand for the following:
+
+  ```javascript
+  var promise = new RSVP.Promise(function(resolve, reject){
+    reject(new Error('WHOOPS'));
+  });
+
+  promise.then(function(value){
+    // Code here doesn't run because the promise is rejected!
+  }, function(reason){
+    // reason.message === 'WHOOPS'
+  });
+  ```
+
+  Instead of writing the above, your code now simply becomes the following:
+
+  ```javascript
+  var promise = RSVP.Promise.reject(new Error('WHOOPS'));
+
+  promise.then(function(value){
+    // Code here doesn't run because the promise is rejected!
+  }, function(reason){
+    // reason.message === 'WHOOPS'
+  });
+  ```
+
+  @method reject
+  @static
+  @param {*} reason value that the returned promise will be rejected with.
+  @param {String} label optional string for identifying the returned promise.
+  Useful for tooling.
+  @return {Promise} a promise rejected with the given `reason`.
+*/
+function reject$1(reason, label) {
+  /*jshint validthis:true */
+  var Constructor = this;
+  var promise = new Constructor(noop, label);
+  reject(promise, reason);
+  return promise;
+}
+
+var guidKey = 'rsvp_' + now() + '-';
+var counter = 0;
+
+function needsResolver() {
+  throw new TypeError('You must pass a resolver function as the first argument to the promise constructor');
+}
+
+function needsNew() {
+  throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
+}
+
+/**
+  Promise objects represent the eventual result of an asynchronous operation. The
+  primary way of interacting with a promise is through its `then` method, which
+  registers callbacks to receive either a promise’s eventual value or the reason
+  why the promise cannot be fulfilled.
+
+  Terminology
+  -----------
+
+  - `promise` is an object or function with a `then` method whose behavior conforms to this specification.
+  - `thenable` is an object or function that defines a `then` method.
+  - `value` is any legal JavaScript value (including undefined, a thenable, or a promise).
+  - `exception` is a value that is thrown using the throw statement.
+  - `reason` is a value that indicates why a promise was rejected.
+  - `settled` the final resting state of a promise, fulfilled or rejected.
+
+  A promise can be in one of three states: pending, fulfilled, or rejected.
+
+  Promises that are fulfilled have a fulfillment value and are in the fulfilled
+  state.  Promises that are rejected have a rejection reason and are in the
+  rejected state.  A fulfillment value is never a thenable.
+
+  Promises can also be said to *resolve* a value.  If this value is also a
+  promise, then the original promise's settled state will match the value's
+  settled state.  So a promise that *resolves* a promise that rejects will
+  itself reject, and a promise that *resolves* a promise that fulfills will
+  itself fulfill.
+
+
+  Basic Usage:
+  ------------
+
+  ```js
+  var promise = new Promise(function(resolve, reject) {
+    // on success
+    resolve(value);
+
+    // on failure
+    reject(reason);
+  });
+
+  promise.then(function(value) {
+    // on fulfillment
+  }, function(reason) {
+    // on rejection
+  });
+  ```
+
+  Advanced Usage:
+  ---------------
+
+  Promises shine when abstracting away asynchronous interactions such as
+  `XMLHttpRequest`s.
+
+  ```js
+  function getJSON(url) {
+    return new Promise(function(resolve, reject){
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('GET', url);
+      xhr.onreadystatechange = handler;
+      xhr.responseType = 'json';
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.send();
+
+      function handler() {
+        if (this.readyState === this.DONE) {
+          if (this.status === 200) {
+            resolve(this.response);
+          } else {
+            reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));
+          }
+        }
+      };
+    });
+  }
+
+  getJSON('/posts.json').then(function(json) {
+    // on fulfillment
+  }, function(reason) {
+    // on rejection
+  });
+  ```
+
+  Unlike callbacks, promises are great composable primitives.
+
+  ```js
+  Promise.all([
+    getJSON('/posts'),
+    getJSON('/comments')
+  ]).then(function(values){
+    values[0] // => postsJSON
+    values[1] // => commentsJSON
+
+    return values;
+  });
+  ```
+
+  @class RSVP.Promise
+  @param {function} resolver
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @constructor
+*/
+function Promise(resolver, label) {
+  this._id = counter++;
+  this._label = label;
+  this._state = undefined;
+  this._result = undefined;
+  this._subscribers = [];
+
+  config.instrument && instrument('created', this);
+
+  if (noop !== resolver) {
+    typeof resolver !== 'function' && needsResolver();
+    this instanceof Promise ? initializePromise(this, resolver) : needsNew();
+  }
+}
+
+Promise.cast = resolve$1; // deprecated
+Promise.all = all;
+Promise.race = race;
+Promise.resolve = resolve$1;
+Promise.reject = reject$1;
+
+Promise.prototype = {
+  constructor: Promise,
+
+  _guidKey: guidKey,
+
+  _onError: function (reason) {
+    var promise = this;
+    config.after(function() {
+      if (promise._onError) {
+        config['trigger']('error', reason, promise._label);
+      }
+    });
+  },
+
+/**
+  The primary way of interacting with a promise is through its `then` method,
+  which registers callbacks to receive either a promise's eventual value or the
+  reason why the promise cannot be fulfilled.
+
+  ```js
+  findUser().then(function(user){
+    // user is available
+  }, function(reason){
+    // user is unavailable, and you are given the reason why
+  });
+  ```
+
+  Chaining
+  --------
+
+  The return value of `then` is itself a promise.  This second, 'downstream'
+  promise is resolved with the return value of the first promise's fulfillment
+  or rejection handler, or rejected if the handler throws an exception.
+
+  ```js
+  findUser().then(function (user) {
+    return user.name;
+  }, function (reason) {
+    return 'default name';
+  }).then(function (userName) {
+    // If `findUser` fulfilled, `userName` will be the user's name, otherwise it
+    // will be `'default name'`
+  });
+
+  findUser().then(function (user) {
+    throw new Error('Found user, but still unhappy');
+  }, function (reason) {
+    throw new Error('`findUser` rejected and we're unhappy');
+  }).then(function (value) {
+    // never reached
+  }, function (reason) {
+    // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.
+    // If `findUser` rejected, `reason` will be '`findUser` rejected and we're unhappy'.
+  });
+  ```
+  If the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.
+
+  ```js
+  findUser().then(function (user) {
+    throw new PedagogicalException('Upstream error');
+  }).then(function (value) {
+    // never reached
+  }).then(function (value) {
+    // never reached
+  }, function (reason) {
+    // The `PedgagocialException` is propagated all the way down to here
+  });
+  ```
+
+  Assimilation
+  ------------
+
+  Sometimes the value you want to propagate to a downstream promise can only be
+  retrieved asynchronously. This can be achieved by returning a promise in the
+  fulfillment or rejection handler. The downstream promise will then be pending
+  until the returned promise is settled. This is called *assimilation*.
+
+  ```js
+  findUser().then(function (user) {
+    return findCommentsByAuthor(user);
+  }).then(function (comments) {
+    // The user's comments are now available
+  });
+  ```
+
+  If the assimliated promise rejects, then the downstream promise will also reject.
+
+  ```js
+  findUser().then(function (user) {
+    return findCommentsByAuthor(user);
+  }).then(function (comments) {
+    // If `findCommentsByAuthor` fulfills, we'll have the value here
+  }, function (reason) {
+    // If `findCommentsByAuthor` rejects, we'll have the reason here
+  });
+  ```
+
+  Simple Example
+  --------------
+
+  Synchronous Example
+
+  ```javascript
+  var result;
+
+  try {
+    result = findResult();
+    // success
+  } catch(reason) {
+    // failure
+  }
+  ```
+
+  Errback Example
+
+  ```js
+  findResult(function(result, err){
+    if (err) {
+      // failure
+    } else {
+      // success
+    }
+  });
+  ```
+
+  Promise Example;
+
+  ```javascript
+  findResult().then(function(result){
+    // success
+  }, function(reason){
+    // failure
+  });
+  ```
+
+  Advanced Example
+  --------------
+
+  Synchronous Example
+
+  ```javascript
+  var author, books;
+
+  try {
+    author = findAuthor();
+    books  = findBooksByAuthor(author);
+    // success
+  } catch(reason) {
+    // failure
+  }
+  ```
+
+  Errback Example
+
+  ```js
+
+  function foundBooks(books) {
+
+  }
+
+  function failure(reason) {
+
+  }
+
+  findAuthor(function(author, err){
+    if (err) {
+      failure(err);
+      // failure
+    } else {
+      try {
+        findBoooksByAuthor(author, function(books, err) {
+          if (err) {
+            failure(err);
+          } else {
+            try {
+              foundBooks(books);
+            } catch(reason) {
+              failure(reason);
+            }
+          }
+        });
+      } catch(error) {
+        failure(err);
+      }
+      // success
+    }
+  });
+  ```
+
+  Promise Example;
+
+  ```javascript
+  findAuthor().
+    then(findBooksByAuthor).
+    then(function(books){
+      // found books
+  }).catch(function(reason){
+    // something went wrong
+  });
+  ```
+
+  @method then
+  @param {Function} onFulfillment
+  @param {Function} onRejection
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @return {Promise}
+*/
+  then: then,
+
+/**
+  `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+  as the catch block of a try/catch statement.
+
+  ```js
+  function findAuthor(){
+    throw new Error('couldn't find that author');
+  }
+
+  // synchronous
+  try {
+    findAuthor();
+  } catch(reason) {
+    // something went wrong
+  }
+
+  // async with promises
+  findAuthor().catch(function(reason){
+    // something went wrong
+  });
+  ```
+
+  @method catch
+  @param {Function} onRejection
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @return {Promise}
+*/
+  'catch': function(onRejection, label) {
+    return this.then(undefined, onRejection, label);
+  },
+
+/**
+  `finally` will be invoked regardless of the promise's fate just as native
+  try/catch/finally behaves
+
+  Synchronous example:
+
+  ```js
+  findAuthor() {
+    if (Math.random() > 0.5) {
+      throw new Error();
+    }
+    return new Author();
+  }
+
+  try {
+    return findAuthor(); // succeed or fail
+  } catch(error) {
+    return findOtherAuther();
+  } finally {
+    // always runs
+    // doesn't affect the return value
+  }
+  ```
+
+  Asynchronous example:
+
+  ```js
+  findAuthor().catch(function(reason){
+    return findOtherAuther();
+  }).finally(function(){
+    // author was either found, or not
+  });
+  ```
+
+  @method finally
+  @param {Function} callback
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @return {Promise}
+*/
+  'finally': function(callback, label) {
+    var promise = this;
+    var constructor = promise.constructor;
+
+    return promise.then(function(value) {
+      return constructor.resolve(callback()).then(function() {
+        return value;
+      });
+    }, function(reason) {
+      return constructor.resolve(callback()).then(function() {
+        return constructor.reject(reason);
+      });
+    }, label);
+  }
+};
+
+function Result() {
+  this.value = undefined;
+}
+
+var ERROR = new Result();
+var GET_THEN_ERROR$1 = new Result();
+
+function getThen$1(obj) {
+  try {
+   return obj.then;
+  } catch(error) {
+    ERROR.value= error;
+    return ERROR;
+  }
+}
+
+
+function tryApply(f, s, a) {
+  try {
+    f.apply(s, a);
+  } catch(error) {
+    ERROR.value = error;
+    return ERROR;
+  }
+}
+
+function makeObject(_, argumentNames) {
+  var obj = {};
+  var name;
+  var i;
+  var length = _.length;
+  var args = new Array(length);
+
+  for (var x = 0; x < length; x++) {
+    args[x] = _[x];
+  }
+
+  for (i = 0; i < argumentNames.length; i++) {
+    name = argumentNames[i];
+    obj[name] = args[i + 1];
+  }
+
+  return obj;
+}
+
+function arrayResult(_) {
+  var length = _.length;
+  var args = new Array(length - 1);
+
+  for (var i = 1; i < length; i++) {
+    args[i - 1] = _[i];
+  }
+
+  return args;
+}
+
+function wrapThenable(then, promise) {
+  return {
+    then: function(onFulFillment, onRejection) {
+      return then.call(promise, onFulFillment, onRejection);
+    }
+  };
+}
+
+/**
+  `RSVP.denodeify` takes a 'node-style' function and returns a function that
+  will return an `RSVP.Promise`. You can use `denodeify` in Node.js or the
+  browser when you'd prefer to use promises over using callbacks. For example,
+  `denodeify` transforms the following:
+
+  ```javascript
+  var fs = require('fs');
+
+  fs.readFile('myfile.txt', function(err, data){
+    if (err) return handleError(err);
+    handleData(data);
+  });
+  ```
+
+  into:
+
+  ```javascript
+  var fs = require('fs');
+  var readFile = RSVP.denodeify(fs.readFile);
+
+  readFile('myfile.txt').then(handleData, handleError);
+  ```
+
+  If the node function has multiple success parameters, then `denodeify`
+  just returns the first one:
+
+  ```javascript
+  var request = RSVP.denodeify(require('request'));
+
+  request('http://example.com').then(function(res) {
+    // ...
+  });
+  ```
+
+  However, if you need all success parameters, setting `denodeify`'s
+  second parameter to `true` causes it to return all success parameters
+  as an array:
+
+  ```javascript
+  var request = RSVP.denodeify(require('request'), true);
+
+  request('http://example.com').then(function(result) {
+    // result[0] -> res
+    // result[1] -> body
+  });
+  ```
+
+  Or if you pass it an array with names it returns the parameters as a hash:
+
+  ```javascript
+  var request = RSVP.denodeify(require('request'), ['res', 'body']);
+
+  request('http://example.com').then(function(result) {
+    // result.res
+    // result.body
+  });
+  ```
+
+  Sometimes you need to retain the `this`:
+
+  ```javascript
+  var app = require('express')();
+  var render = RSVP.denodeify(app.render.bind(app));
+  ```
+
+  The denodified function inherits from the original function. It works in all
+  environments, except IE 10 and below. Consequently all properties of the original
+  function are available to you. However, any properties you change on the
+  denodeified function won't be changed on the original function. Example:
+
+  ```javascript
+  var request = RSVP.denodeify(require('request')),
+      cookieJar = request.jar(); // <- Inheritance is used here
+
+  request('http://example.com', {jar: cookieJar}).then(function(res) {
+    // cookieJar.cookies holds now the cookies returned by example.com
+  });
+  ```
+
+  Using `denodeify` makes it easier to compose asynchronous operations instead
+  of using callbacks. For example, instead of:
+
+  ```javascript
+  var fs = require('fs');
+
+  fs.readFile('myfile.txt', function(err, data){
+    if (err) { ... } // Handle error
+    fs.writeFile('myfile2.txt', data, function(err){
+      if (err) { ... } // Handle error
+      console.log('done')
+    });
+  });
+  ```
+
+  you can chain the operations together using `then` from the returned promise:
+
+  ```javascript
+  var fs = require('fs');
+  var readFile = RSVP.denodeify(fs.readFile);
+  var writeFile = RSVP.denodeify(fs.writeFile);
+
+  readFile('myfile.txt').then(function(data){
+    return writeFile('myfile2.txt', data);
+  }).then(function(){
+    console.log('done')
+  }).catch(function(error){
+    // Handle error
+  });
+  ```
+
+  @method denodeify
+  @static
+  @for RSVP
+  @param {Function} nodeFunc a 'node-style' function that takes a callback as
+  its last argument. The callback expects an error to be passed as its first
+  argument (if an error occurred, otherwise null), and the value from the
+  operation as its second argument ('function(err, value){ }').
+  @param {Boolean|Array} [options] An optional paramter that if set
+  to `true` causes the promise to fulfill with the callback's success arguments
+  as an array. This is useful if the node function has multiple success
+  paramters. If you set this paramter to an array with names, the promise will
+  fulfill with a hash with these names as keys and the success parameters as
+  values.
+  @return {Function} a function that wraps `nodeFunc` to return an
+  `RSVP.Promise`
+  @static
+*/
+function denodeify(nodeFunc, options) {
+  var fn = function() {
+    var self = this;
+    var l = arguments.length;
+    var args = new Array(l + 1);
+    var arg;
+    var promiseInput = false;
+
+    for (var i = 0; i < l; ++i) {
+      arg = arguments[i];
+
+      if (!promiseInput) {
+        // TODO: clean this up
+        promiseInput = needsPromiseInput(arg);
+        if (promiseInput === GET_THEN_ERROR$1) {
+          var p = new Promise(noop);
+          reject(p, GET_THEN_ERROR$1.value);
+          return p;
+        } else if (promiseInput && promiseInput !== true) {
+          arg = wrapThenable(promiseInput, arg);
+        }
+      }
+      args[i] = arg;
+    }
+
+    var promise = new Promise(noop);
+
+    args[l] = function(err, val) {
+      if (err)
+        reject(promise, err);
+      else if (options === undefined)
+        resolve(promise, val);
+      else if (options === true)
+        resolve(promise, arrayResult(arguments));
+      else if (isArray(options))
+        resolve(promise, makeObject(arguments, options));
+      else
+        resolve(promise, val);
+    };
+
+    if (promiseInput) {
+      return handlePromiseInput(promise, args, nodeFunc, self);
+    } else {
+      return handleValueInput(promise, args, nodeFunc, self);
+    }
   };
 
-  exports.now = now;
-  function F() {}
+  fn.__proto__ = nodeFunc;
 
-  var o_create = Object.create || function (o) {
-    if (arguments.length > 1) {
-      throw new Error('Second argument not supported');
+  return fn;
+}
+
+function handleValueInput(promise, args, nodeFunc, self) {
+  var result = tryApply(nodeFunc, self, args);
+  if (result === ERROR) {
+    reject(promise, result.value);
+  }
+  return promise;
+}
+
+function handlePromiseInput(promise, args, nodeFunc, self){
+  return Promise.all(args).then(function(args){
+    var result = tryApply(nodeFunc, self, args);
+    if (result === ERROR) {
+      reject(promise, result.value);
     }
-    if (typeof o !== 'object') {
-      throw new TypeError('Argument must be an object');
+    return promise;
+  });
+}
+
+function needsPromiseInput(arg) {
+  if (arg && typeof arg === 'object') {
+    if (arg.constructor === Promise) {
+      return true;
+    } else {
+      return getThen$1(arg);
     }
-    F.prototype = o;
-    return new F();
+  } else {
+    return false;
+  }
+}
+
+/**
+  This is a convenient alias for `RSVP.Promise.all`.
+
+  @method all
+  @static
+  @for RSVP
+  @param {Array} array Array of promises.
+  @param {String} label An optional label. This is useful
+  for tooling.
+*/
+function all$1(array, label) {
+  return Promise.all(array, label);
+}
+
+function AllSettled(Constructor, entries, label) {
+  this._superConstructor(Constructor, entries, false /* don't abort on reject */, label);
+}
+
+AllSettled.prototype = o_create(Enumerator.prototype);
+AllSettled.prototype._superConstructor = Enumerator;
+AllSettled.prototype._makeResult = makeSettledResult;
+AllSettled.prototype._validationError = function() {
+  return new Error('allSettled must be called with an array');
+};
+
+/**
+  `RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing
+  a fail-fast method, it waits until all the promises have returned and
+  shows you all the results. This is useful if you want to handle multiple
+  promises' failure states together as a set.
+
+  Returns a promise that is fulfilled when all the given promises have been
+  settled. The return promise is fulfilled with an array of the states of
+  the promises passed into the `promises` array argument.
+
+  Each state object will either indicate fulfillment or rejection, and
+  provide the corresponding value or reason. The states will take one of
+  the following formats:
+
+  ```javascript
+  { state: 'fulfilled', value: value }
+    or
+  { state: 'rejected', reason: reason }
+  ```
+
+  Example:
+
+  ```javascript
+  var promise1 = RSVP.Promise.resolve(1);
+  var promise2 = RSVP.Promise.reject(new Error('2'));
+  var promise3 = RSVP.Promise.reject(new Error('3'));
+  var promises = [ promise1, promise2, promise3 ];
+
+  RSVP.allSettled(promises).then(function(array){
+    // array == [
+    //   { state: 'fulfilled', value: 1 },
+    //   { state: 'rejected', reason: Error },
+    //   { state: 'rejected', reason: Error }
+    // ]
+    // Note that for the second item, reason.message will be '2', and for the
+    // third item, reason.message will be '3'.
+  }, function(error) {
+    // Not run. (This block would only be called if allSettled had failed,
+    // for instance if passed an incorrect argument type.)
+  });
+  ```
+
+  @method allSettled
+  @static
+  @for RSVP
+  @param {Array} entries
+  @param {String} label - optional string that describes the promise.
+  Useful for tooling.
+  @return {Promise} promise that is fulfilled with an array of the settled
+  states of the constituent promises.
+*/
+
+function allSettled(entries, label) {
+  return new AllSettled(Promise, entries, label).promise;
+}
+
+/**
+  This is a convenient alias for `RSVP.Promise.race`.
+
+  @method race
+  @static
+  @for RSVP
+  @param {Array} array Array of promises.
+  @param {String} label An optional label. This is useful
+  for tooling.
+ */
+function race$1(array, label) {
+  return Promise.race(array, label);
+}
+
+function PromiseHash(Constructor, object, label) {
+  this._superConstructor(Constructor, object, true, label);
+}
+
+PromiseHash.prototype = o_create(Enumerator.prototype);
+PromiseHash.prototype._superConstructor = Enumerator;
+PromiseHash.prototype._init = function() {
+  this._result = {};
+};
+
+PromiseHash.prototype._validateInput = function(input) {
+  return input && typeof input === 'object';
+};
+
+PromiseHash.prototype._validationError = function() {
+  return new Error('Promise.hash must be called with an object');
+};
+
+PromiseHash.prototype._enumerate = function() {
+  var enumerator = this;
+  var promise    = enumerator.promise;
+  var input      = enumerator._input;
+  var results    = [];
+
+  for (var key in input) {
+    if (promise._state === PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
+      results.push({
+        position: key,
+        entry: input[key]
+      });
+    }
+  }
+
+  var length = results.length;
+  enumerator._remaining = length;
+  var result;
+
+  for (var i = 0; promise._state === PENDING && i < length; i++) {
+    result = results[i];
+    enumerator._eachEntry(result.entry, result.position);
+  }
+};
+
+/**
+  `RSVP.hash` is similar to `RSVP.all`, but takes an object instead of an array
+  for its `promises` argument.
+
+  Returns a promise that is fulfilled when all the given promises have been
+  fulfilled, or rejected if any of them become rejected. The returned promise
+  is fulfilled with a hash that has the same key names as the `promises` object
+  argument. If any of the values in the object are not promises, they will
+  simply be copied over to the fulfilled object.
+
+  Example:
+
+  ```javascript
+  var promises = {
+    myPromise: RSVP.resolve(1),
+    yourPromise: RSVP.resolve(2),
+    theirPromise: RSVP.resolve(3),
+    notAPromise: 4
   };
-  exports.o_create = o_create;
+
+  RSVP.hash(promises).then(function(hash){
+    // hash here is an object that looks like:
+    // {
+    //   myPromise: 1,
+    //   yourPromise: 2,
+    //   theirPromise: 3,
+    //   notAPromise: 4
+    // }
+  });
+  ````
+
+  If any of the `promises` given to `RSVP.hash` are rejected, the first promise
+  that is rejected will be given as the reason to the rejection handler.
+
+  Example:
+
+  ```javascript
+  var promises = {
+    myPromise: RSVP.resolve(1),
+    rejectedPromise: RSVP.reject(new Error('rejectedPromise')),
+    anotherRejectedPromise: RSVP.reject(new Error('anotherRejectedPromise')),
+  };
+
+  RSVP.hash(promises).then(function(hash){
+    // Code here never runs because there are rejected promises!
+  }, function(reason) {
+    // reason.message === 'rejectedPromise'
+  });
+  ```
+
+  An important note: `RSVP.hash` is intended for plain JavaScript objects that
+  are just a set of keys and values. `RSVP.hash` will NOT preserve prototype
+  chains.
+
+  Example:
+
+  ```javascript
+  function MyConstructor(){
+    this.example = RSVP.resolve('Example');
+  }
+
+  MyConstructor.prototype = {
+    protoProperty: RSVP.resolve('Proto Property')
+  };
+
+  var myObject = new MyConstructor();
+
+  RSVP.hash(myObject).then(function(hash){
+    // protoProperty will not be present, instead you will just have an
+    // object that looks like:
+    // {
+    //   example: 'Example'
+    // }
+    //
+    // hash.hasOwnProperty('protoProperty'); // false
+    // 'undefined' === typeof hash.protoProperty
+  });
+  ```
+
+  @method hash
+  @static
+  @for RSVP
+  @param {Object} object
+  @param {String} label optional string that describes the promise.
+  Useful for tooling.
+  @return {Promise} promise that is fulfilled when all properties of `promises`
+  have been fulfilled, or rejected if any of them become rejected.
+*/
+function hash(object, label) {
+  return new PromiseHash(Promise, object, label).promise;
+}
+
+function HashSettled(Constructor, object, label) {
+  this._superConstructor(Constructor, object, false, label);
+}
+
+HashSettled.prototype = o_create(PromiseHash.prototype);
+HashSettled.prototype._superConstructor = Enumerator;
+HashSettled.prototype._makeResult = makeSettledResult;
+
+HashSettled.prototype._validationError = function() {
+  return new Error('hashSettled must be called with an object');
+};
+
+/**
+  `RSVP.hashSettled` is similar to `RSVP.allSettled`, but takes an object
+  instead of an array for its `promises` argument.
+
+  Unlike `RSVP.all` or `RSVP.hash`, which implement a fail-fast method,
+  but like `RSVP.allSettled`, `hashSettled` waits until all the
+  constituent promises have returned and then shows you all the results
+  with their states and values/reasons. This is useful if you want to
+  handle multiple promises' failure states together as a set.
+
+  Returns a promise that is fulfilled when all the given promises have been
+  settled, or rejected if the passed parameters are invalid.
+
+  The returned promise is fulfilled with a hash that has the same key names as
+  the `promises` object argument. If any of the values in the object are not
+  promises, they will be copied over to the fulfilled object and marked with state
+  'fulfilled'.
+
+  Example:
+
+  ```javascript
+  var promises = {
+    myPromise: RSVP.Promise.resolve(1),
+    yourPromise: RSVP.Promise.resolve(2),
+    theirPromise: RSVP.Promise.resolve(3),
+    notAPromise: 4
+  };
+
+  RSVP.hashSettled(promises).then(function(hash){
+    // hash here is an object that looks like:
+    // {
+    //   myPromise: { state: 'fulfilled', value: 1 },
+    //   yourPromise: { state: 'fulfilled', value: 2 },
+    //   theirPromise: { state: 'fulfilled', value: 3 },
+    //   notAPromise: { state: 'fulfilled', value: 4 }
+    // }
+  });
+  ```
+
+  If any of the `promises` given to `RSVP.hash` are rejected, the state will
+  be set to 'rejected' and the reason for rejection provided.
+
+  Example:
+
+  ```javascript
+  var promises = {
+    myPromise: RSVP.Promise.resolve(1),
+    rejectedPromise: RSVP.Promise.reject(new Error('rejection')),
+    anotherRejectedPromise: RSVP.Promise.reject(new Error('more rejection')),
+  };
+
+  RSVP.hashSettled(promises).then(function(hash){
+    // hash here is an object that looks like:
+    // {
+    //   myPromise:              { state: 'fulfilled', value: 1 },
+    //   rejectedPromise:        { state: 'rejected', reason: Error },
+    //   anotherRejectedPromise: { state: 'rejected', reason: Error },
+    // }
+    // Note that for rejectedPromise, reason.message == 'rejection',
+    // and for anotherRejectedPromise, reason.message == 'more rejection'.
+  });
+  ```
+
+  An important note: `RSVP.hashSettled` is intended for plain JavaScript objects that
+  are just a set of keys and values. `RSVP.hashSettled` will NOT preserve prototype
+  chains.
+
+  Example:
+
+  ```javascript
+  function MyConstructor(){
+    this.example = RSVP.Promise.resolve('Example');
+  }
+
+  MyConstructor.prototype = {
+    protoProperty: RSVP.Promise.resolve('Proto Property')
+  };
+
+  var myObject = new MyConstructor();
+
+  RSVP.hashSettled(myObject).then(function(hash){
+    // protoProperty will not be present, instead you will just have an
+    // object that looks like:
+    // {
+    //   example: { state: 'fulfilled', value: 'Example' }
+    // }
+    //
+    // hash.hasOwnProperty('protoProperty'); // false
+    // 'undefined' === typeof hash.protoProperty
+  });
+  ```
+
+  @method hashSettled
+  @for RSVP
+  @param {Object} object
+  @param {String} label optional string that describes the promise.
+  Useful for tooling.
+  @return {Promise} promise that is fulfilled when when all properties of `promises`
+  have been settled.
+  @static
+*/
+function hashSettled(object, label) {
+  return new HashSettled(Promise, object, label).promise;
+}
+
+/**
+  `RSVP.rethrow` will rethrow an error on the next turn of the JavaScript event
+  loop in order to aid debugging.
+
+  Promises A+ specifies that any exceptions that occur with a promise must be
+  caught by the promises implementation and bubbled to the last handler. For
+  this reason, it is recommended that you always specify a second rejection
+  handler function to `then`. However, `RSVP.rethrow` will throw the exception
+  outside of the promise, so it bubbles up to your console if in the browser,
+  or domain/cause uncaught exception in Node. `rethrow` will also throw the
+  error again so the error can be handled by the promise per the spec.
+
+  ```javascript
+  function throws(){
+    throw new Error('Whoops!');
+  }
+
+  var promise = new RSVP.Promise(function(resolve, reject){
+    throws();
+  });
+
+  promise.catch(RSVP.rethrow).then(function(){
+    // Code here doesn't run because the promise became rejected due to an
+    // error!
+  }, function (err){
+    // handle the error here
+  });
+  ```
+
+  The 'Whoops' error will be thrown on the next turn of the event loop
+  and you can watch for it in your console. You can also handle it using a
+  rejection handler given to `.then` or `.catch` on the returned promise.
+
+  @method rethrow
+  @static
+  @for RSVP
+  @param {Error} reason reason the promise became rejected.
+  @throws Error
+  @static
+*/
+function rethrow(reason) {
+  setTimeout(function() {
+    throw reason;
+  });
+  throw reason;
+}
+
+/**
+  `RSVP.defer` returns an object similar to jQuery's `$.Deferred`.
+  `RSVP.defer` should be used when porting over code reliant on `$.Deferred`'s
+  interface. New code should use the `RSVP.Promise` constructor instead.
+
+  The object returned from `RSVP.defer` is a plain object with three properties:
+
+  * promise - an `RSVP.Promise`.
+  * reject - a function that causes the `promise` property on this object to
+    become rejected
+  * resolve - a function that causes the `promise` property on this object to
+    become fulfilled.
+
+  Example:
+
+   ```javascript
+   var deferred = RSVP.defer();
+
+   deferred.resolve("Success!");
+
+   deferred.promise.then(function(value){
+     // value here is "Success!"
+   });
+   ```
+
+  @method defer
+  @static
+  @for RSVP
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @return {Object}
+ */
+
+function defer(label) {
+  var deferred = {};
+
+  deferred['promise'] = new Promise(function(resolve, reject) {
+    deferred['resolve'] = resolve;
+    deferred['reject'] = reject;
+  }, label);
+
+  return deferred;
+}
+
+/**
+ `RSVP.map` is similar to JavaScript's native `map` method, except that it
+  waits for all promises to become fulfilled before running the `mapFn` on
+  each item in given to `promises`. `RSVP.map` returns a promise that will
+  become fulfilled with the result of running `mapFn` on the values the promises
+  become fulfilled with.
+
+  For example:
+
+  ```javascript
+
+  var promise1 = RSVP.resolve(1);
+  var promise2 = RSVP.resolve(2);
+  var promise3 = RSVP.resolve(3);
+  var promises = [ promise1, promise2, promise3 ];
+
+  var mapFn = function(item){
+    return item + 1;
+  };
+
+  RSVP.map(promises, mapFn).then(function(result){
+    // result is [ 2, 3, 4 ]
+  });
+  ```
+
+  If any of the `promises` given to `RSVP.map` are rejected, the first promise
+  that is rejected will be given as an argument to the returned promise's
+  rejection handler. For example:
+
+  ```javascript
+  var promise1 = RSVP.resolve(1);
+  var promise2 = RSVP.reject(new Error('2'));
+  var promise3 = RSVP.reject(new Error('3'));
+  var promises = [ promise1, promise2, promise3 ];
+
+  var mapFn = function(item){
+    return item + 1;
+  };
+
+  RSVP.map(promises, mapFn).then(function(array){
+    // Code here never runs because there are rejected promises!
+  }, function(reason) {
+    // reason.message === '2'
+  });
+  ```
+
+  `RSVP.map` will also wait if a promise is returned from `mapFn`. For example,
+  say you want to get all comments from a set of blog posts, but you need
+  the blog posts first because they contain a url to those comments.
+
+  ```javscript
+
+  var mapFn = function(blogPost){
+    // getComments does some ajax and returns an RSVP.Promise that is fulfilled
+    // with some comments data
+    return getComments(blogPost.comments_url);
+  };
+
+  // getBlogPosts does some ajax and returns an RSVP.Promise that is fulfilled
+  // with some blog post data
+  RSVP.map(getBlogPosts(), mapFn).then(function(comments){
+    // comments is the result of asking the server for the comments
+    // of all blog posts returned from getBlogPosts()
+  });
+  ```
+
+  @method map
+  @static
+  @for RSVP
+  @param {Array} promises
+  @param {Function} mapFn function to be called on each fulfilled promise.
+  @param {String} label optional string for labeling the promise.
+  Useful for tooling.
+  @return {Promise} promise that is fulfilled with the result of calling
+  `mapFn` on each fulfilled promise or value when they become fulfilled.
+   The promise will be rejected if any of the given `promises` become rejected.
+  @static
+*/
+function map(promises, mapFn, label) {
+  return Promise.all(promises, label).then(function(values) {
+    if (!isFunction(mapFn)) {
+      throw new TypeError("You must pass a function as map's second argument.");
+    }
+
+    var length = values.length;
+    var results = new Array(length);
+
+    for (var i = 0; i < length; i++) {
+      results[i] = mapFn(values[i]);
+    }
+
+    return Promise.all(results, label);
+  });
+}
+
+/**
+  This is a convenient alias for `RSVP.Promise.resolve`.
+
+  @method resolve
+  @static
+  @for RSVP
+  @param {*} value value that the returned promise will be resolved with
+  @param {String} label optional string for identifying the returned promise.
+  Useful for tooling.
+  @return {Promise} a promise that will become fulfilled with the given
+  `value`
+*/
+function resolve$2(value, label) {
+  return Promise.resolve(value, label);
+}
+
+/**
+  This is a convenient alias for `RSVP.Promise.reject`.
+
+  @method reject
+  @static
+  @for RSVP
+  @param {*} reason value that the returned promise will be rejected with.
+  @param {String} label optional string for identifying the returned promise.
+  Useful for tooling.
+  @return {Promise} a promise rejected with the given `reason`.
+*/
+function reject$2(reason, label) {
+  return Promise.reject(reason, label);
+}
+
+/**
+ `RSVP.filter` is similar to JavaScript's native `filter` method, except that it
+  waits for all promises to become fulfilled before running the `filterFn` on
+  each item in given to `promises`. `RSVP.filter` returns a promise that will
+  become fulfilled with the result of running `filterFn` on the values the
+  promises become fulfilled with.
+
+  For example:
+
+  ```javascript
+
+  var promise1 = RSVP.resolve(1);
+  var promise2 = RSVP.resolve(2);
+  var promise3 = RSVP.resolve(3);
+
+  var promises = [promise1, promise2, promise3];
+
+  var filterFn = function(item){
+    return item > 1;
+  };
+
+  RSVP.filter(promises, filterFn).then(function(result){
+    // result is [ 2, 3 ]
+  });
+  ```
+
+  If any of the `promises` given to `RSVP.filter` are rejected, the first promise
+  that is rejected will be given as an argument to the returned promise's
+  rejection handler. For example:
+
+  ```javascript
+  var promise1 = RSVP.resolve(1);
+  var promise2 = RSVP.reject(new Error('2'));
+  var promise3 = RSVP.reject(new Error('3'));
+  var promises = [ promise1, promise2, promise3 ];
+
+  var filterFn = function(item){
+    return item > 1;
+  };
+
+  RSVP.filter(promises, filterFn).then(function(array){
+    // Code here never runs because there are rejected promises!
+  }, function(reason) {
+    // reason.message === '2'
+  });
+  ```
+
+  `RSVP.filter` will also wait for any promises returned from `filterFn`.
+  For instance, you may want to fetch a list of users then return a subset
+  of those users based on some asynchronous operation:
+
+  ```javascript
+
+  var alice = { name: 'alice' };
+  var bob   = { name: 'bob' };
+  var users = [ alice, bob ];
+
+  var promises = users.map(function(user){
+    return RSVP.resolve(user);
+  });
+
+  var filterFn = function(user){
+    // Here, Alice has permissions to create a blog post, but Bob does not.
+    return getPrivilegesForUser(user).then(function(privs){
+      return privs.can_create_blog_post === true;
+    });
+  };
+  RSVP.filter(promises, filterFn).then(function(users){
+    // true, because the server told us only Alice can create a blog post.
+    users.length === 1;
+    // false, because Alice is the only user present in `users`
+    users[0] === bob;
+  });
+  ```
+
+  @method filter
+  @static
+  @for RSVP
+  @param {Array} promises
+  @param {Function} filterFn - function to be called on each resolved value to
+  filter the final results.
+  @param {String} label optional string describing the promise. Useful for
+  tooling.
+  @return {Promise}
+*/
+function filter(promises, filterFn, label) {
+  return Promise.all(promises, label).then(function(values) {
+    if (!isFunction(filterFn)) {
+      throw new TypeError("You must pass a function as filter's second argument.");
+    }
+
+    var length = values.length;
+    var filtered = new Array(length);
+
+    for (var i = 0; i < length; i++) {
+      filtered[i] = filterFn(values[i]);
+    }
+
+    return Promise.all(filtered, label).then(function(filtered) {
+      var results = new Array(length);
+      var newLength = 0;
+
+      for (var i = 0; i < length; i++) {
+        if (filtered[i]) {
+          results[newLength] = values[i];
+          newLength++;
+        }
+      }
+
+      results.length = newLength;
+
+      return results;
+    });
+  });
+}
+
+var len = 0;
+var vertxNext;
+function asap(callback, arg) {
+  queue$1[len] = callback;
+  queue$1[len + 1] = arg;
+  len += 2;
+  if (len === 2) {
+    // If len is 1, that means that we need to schedule an async flush.
+    // If additional callbacks are queued before the queue is flushed, they
+    // will be processed by this flush that we are scheduling.
+    scheduleFlush$1();
+  }
+}
+
+var browserWindow = (typeof window !== 'undefined') ? window : undefined;
+var browserGlobal = browserWindow || {};
+var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+var isNode = typeof self === 'undefined' &&
+  typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+// test for web worker but not in IE10
+var isWorker = typeof Uint8ClampedArray !== 'undefined' &&
+  typeof importScripts !== 'undefined' &&
+  typeof MessageChannel !== 'undefined';
+
+// node
+function useNextTick() {
+  var nextTick = process.nextTick;
+  // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+  // setImmediate should be used instead instead
+  var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
+  if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
+    nextTick = setImmediate;
+  }
+  return function() {
+    nextTick(flush);
+  };
+}
+
+// vertx
+function useVertxTimer() {
+  return function() {
+    vertxNext(flush);
+  };
+}
+
+function useMutationObserver() {
+  var iterations = 0;
+  var observer = new BrowserMutationObserver(flush);
+  var node = document.createTextNode('');
+  observer.observe(node, { characterData: true });
+
+  return function() {
+    node.data = (iterations = ++iterations % 2);
+  };
+}
+
+// web worker
+function useMessageChannel() {
+  var channel = new MessageChannel();
+  channel.port1.onmessage = flush;
+  return function () {
+    channel.port2.postMessage(0);
+  };
+}
+
+function useSetTimeout() {
+  return function() {
+    setTimeout(flush, 1);
+  };
+}
+
+var queue$1 = new Array(1000);
+function flush() {
+  for (var i = 0; i < len; i+=2) {
+    var callback = queue$1[i];
+    var arg = queue$1[i+1];
+
+    callback(arg);
+
+    queue$1[i] = undefined;
+    queue$1[i+1] = undefined;
+  }
+
+  len = 0;
+}
+
+function attemptVertex() {
+  try {
+    var r = require;
+    var vertx = r('vertx');
+    vertxNext = vertx.runOnLoop || vertx.runOnContext;
+    return useVertxTimer();
+  } catch(e) {
+    return useSetTimeout();
+  }
+}
+
+var scheduleFlush$1;
+// Decide what async method to use to triggering processing of queued callbacks:
+if (isNode) {
+  scheduleFlush$1 = useNextTick();
+} else if (BrowserMutationObserver) {
+  scheduleFlush$1 = useMutationObserver();
+} else if (isWorker) {
+  scheduleFlush$1 = useMessageChannel();
+} else if (browserWindow === undefined && typeof require === 'function') {
+  scheduleFlush$1 = attemptVertex();
+} else {
+  scheduleFlush$1 = useSetTimeout();
+}
+
+// defaults
+config.async = asap;
+config.after = function(cb) {
+  setTimeout(cb, 0);
+};
+var cast = resolve$2;
+function async(callback, arg) {
+  config.async(callback, arg);
+}
+
+function on() {
+  config['on'].apply(config, arguments);
+}
+
+function off() {
+  config['off'].apply(config, arguments);
+}
+
+// Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
+if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
+  var callbacks = window['__PROMISE_INSTRUMENTATION__'];
+  configure('instrument', true);
+  for (var eventName in callbacks) {
+    if (callbacks.hasOwnProperty(eventName)) {
+      on(eventName, callbacks[eventName]);
+    }
+  }
+}
+
+exports.cast = cast;
+exports.Promise = Promise;
+exports.EventTarget = EventTarget;
+exports.all = all$1;
+exports.allSettled = allSettled;
+exports.race = race$1;
+exports.hash = hash;
+exports.hashSettled = hashSettled;
+exports.rethrow = rethrow;
+exports.defer = defer;
+exports.denodeify = denodeify;
+exports.configure = configure;
+exports.on = on;
+exports.off = off;
+exports.resolve = resolve$2;
+exports.reject = reject$2;
+exports.async = async;
+exports.map = map;
+exports.filter = filter;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
 });
 requireModule("ember");
 
