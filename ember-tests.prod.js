@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b46f3916
+ * @version   2.9.0-null+6fd9afe2
  */
 
 var enifed, requireModule, require, Ember;
@@ -15781,7 +15781,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
     _class.prototype['@test accessing `currentWhen` triggers a deprecation'] = function testAccessingCurrentWhenTriggersADeprecation(assert) {
       var component = undefined;
       this.registerComponent('link-to', {
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkTo.extend({
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkComponent.extend({
           init: function () {
             this._super.apply(this, arguments);
             component = this;
@@ -15896,7 +15896,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
     _class.prototype['@test able to safely extend the built-in component and use the normal path'] = function testAbleToSafelyExtendTheBuiltInComponentAndUseTheNormalPath() {
       var _this8 = this;
 
-      this.registerComponent('custom-link-to', { ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkTo.extend() });
+      this.registerComponent('custom-link-to', { ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkComponent.extend() });
       this.registerTemplate('application', '{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}');
       this.registerController('application', _emberRuntimeControllersController.default.extend({
         title: 'Hello'
@@ -15910,7 +15910,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
     _class.prototype['@test [GH#13432] able to safely extend the built-in component and invoke it inline'] = function testGH13432AbleToSafelyExtendTheBuiltInComponentAndInvokeItInline() {
       var _this9 = this;
 
-      this.registerComponent('custom-link-to', { ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkTo.extend() });
+      this.registerComponent('custom-link-to', { ComponentClass: _emberGlimmerTestsUtilsHelpers.LinkComponent.extend() });
       this.registerTemplate('application', '{{custom-link-to title \'index\'}}');
       this.registerController('application', _emberRuntimeControllersController.default.extend({
         title: 'Hello'
@@ -30816,31 +30816,31 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-registry', 'container/tests/test-helpers/build-owner', 'ember-views/system/jquery', 'ember-glimmer/templates/root', 'ember-metal/dictionary', 'ember-glimmer-template-compiler/tests/utils/helpers', 'ember-glimmer/helper', 'ember-glimmer/helpers/action', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/components/link-to', 'glimmer-runtime', 'ember-glimmer/renderer', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string'], function (exports, _emberGlimmerSetupRegistry, _containerTestsTestHelpersBuildOwner, _emberViewsSystemJquery, _emberGlimmerTemplatesRoot, _emberMetalDictionary, _emberGlimmerTemplateCompilerTestsUtilsHelpers, _emberGlimmerHelper, _emberGlimmerHelpersAction, _emberGlimmerComponent, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_area, _emberGlimmerComponentsText_field, _emberGlimmerComponentsLinkTo, _glimmerRuntime, _emberGlimmerRenderer, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/dictionary', 'ember-glimmer', 'container/tests/test-helpers/build-owner', 'ember-views/system/jquery', 'ember-glimmer-template-compiler/tests/utils/helpers'], function (exports, _emberMetalDictionary, _emberGlimmer, _containerTestsTestHelpersBuildOwner, _emberViewsSystemJquery, _emberGlimmerTemplateCompilerTestsUtilsHelpers) {
   'use strict';
 
   exports.buildOwner = buildOwner;
   exports.compile = _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile;
   exports.precompile = _emberGlimmerTemplateCompilerTestsUtilsHelpers.precompile;
-  exports.Helper = _emberGlimmerHelper.default;
-  exports.helper = _emberGlimmerHelper.helper;
-  exports.INVOKE = _emberGlimmerHelpersAction.INVOKE;
-  exports.Component = _emberGlimmerComponent.default;
-  exports.Checkbox = _emberGlimmerComponentsCheckbox.default;
-  exports.TextArea = _emberGlimmerComponentsText_area.default;
-  exports.TextField = _emberGlimmerComponentsText_field.default;
-  exports.LinkTo = _emberGlimmerComponentsLinkTo.default;
-  exports.DOMChanges = _glimmerRuntime.DOMChanges;
-  exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
-  exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
-  exports.makeBoundHelper = _emberGlimmerMakeBoundHelper.default;
-  exports.htmlSafe = _emberGlimmerUtilsString.htmlSafe;
-  exports.SafeString = _emberGlimmerUtilsString.SafeString;
+  exports.INVOKE = _emberGlimmer.INVOKE;
+  exports.Helper = _emberGlimmer.Helper;
+  exports.helper = _emberGlimmer.helper;
+  exports.Component = _emberGlimmer.Component;
+  exports.TextArea = _emberGlimmer.TextArea;
+  exports.LinkComponent = _emberGlimmer.LinkComponent;
+  exports.TextField = _emberGlimmer.TextField;
+  exports.InteractiveRender = _emberGlimmer.InteractiveRender;
+  exports.InertRenderer = _emberGlimmer.InertRenderer;
+  exports.makeBoundHelper = _emberGlimmer.makeBoundHelper;
+  exports.htmlSafe = _emberGlimmer.htmlSafe;
+  exports.SafeString = _emberGlimmer.SafeString;
+  exports.DOMChanges = _emberGlimmer.DOMChanges;
+  exports.isHTMLSafe = _emberGlimmer.isHTMLSafe;
 
   function buildOwner(options) {
     var owner = _containerTestsTestHelpersBuildOwner.default(options);
-    _emberGlimmerSetupRegistry.setupEngineRegistry(owner.__registry__);
-    _emberGlimmerSetupRegistry.setupApplicationRegistry(owner.__registry__);
+    _emberGlimmer.setupEngineRegistry(owner.__registry__);
+    _emberGlimmer.setupApplicationRegistry(owner.__registry__);
 
     owner.register('service:-document', document, { instantiate: false });
     owner.register('-environment:main', {
@@ -30859,9 +30859,6 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/setup-reg
         return _emberMetalDictionary.default(null);
       } });
     owner.inject('renderer', '_viewRegistry', '-view-registry:main');
-
-    owner.register('template:-root', _emberGlimmerTemplatesRoot.default);
-    owner.inject('renderer', 'rootTemplate', 'template:-root');
 
     return owner;
   }
@@ -31946,7 +31943,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins.apply(undefined, [IfUnlessWithSyntaxTest].concat(IfUnlessWithTestCases));
 });
-enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils/string', 'ember-metal/features', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerUtilsString, _emberMetalFeatures, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-metal/features', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberMetalFeatures, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString', (function (_TestCase) {
@@ -31957,22 +31954,22 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
     }
 
     _class.prototype['@test htmlSafe should return an instance of SafeString'] = function testHtmlSafeShouldReturnAnInstanceOfSafeString() {
-      var safeString = _emberGlimmerUtilsString.htmlSafe('you need to be more <b>bold</b>');
+      var safeString = _emberGlimmerTestsUtilsHelpers.htmlSafe('you need to be more <b>bold</b>');
 
-      this.assert.ok(safeString instanceof _emberGlimmerUtilsString.SafeString, 'should be a SafeString');
+      this.assert.ok(safeString instanceof _emberGlimmerTestsUtilsHelpers.SafeString, 'should be a SafeString');
     };
 
     _class.prototype['@test htmlSafe should return an empty string for null'] = function testHtmlSafeShouldReturnAnEmptyStringForNull() {
-      var safeString = _emberGlimmerUtilsString.htmlSafe(null);
+      var safeString = _emberGlimmerTestsUtilsHelpers.htmlSafe(null);
 
-      this.assert.equal(safeString instanceof _emberGlimmerUtilsString.SafeString, true, 'should be a SafeString');
+      this.assert.equal(safeString instanceof _emberGlimmerTestsUtilsHelpers.SafeString, true, 'should be a SafeString');
       this.assert.equal(safeString.toString(), '', 'should return an empty string');
     };
 
     _class.prototype['@test htmlSafe should return an instance of SafeString'] = function testHtmlSafeShouldReturnAnInstanceOfSafeString() {
-      var safeString = _emberGlimmerUtilsString.htmlSafe();
+      var safeString = _emberGlimmerTestsUtilsHelpers.htmlSafe();
 
-      this.assert.equal(safeString instanceof _emberGlimmerUtilsString.SafeString, true, 'should be a SafeString');
+      this.assert.equal(safeString instanceof _emberGlimmerTestsUtilsHelpers.SafeString, true, 'should be a SafeString');
       this.assert.equal(safeString.toString(), '', 'should return an empty string');
     };
 
@@ -31988,17 +31985,17 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/utils
       }
 
       _class2.prototype['@test isHTMLSafe should detect SafeString'] = function testIsHTMLSafeShouldDetectSafeString() {
-        var safeString = _emberGlimmerUtilsString.htmlSafe('<em>Emphasize</em> the important things.');
+        var safeString = _emberGlimmerTestsUtilsHelpers.htmlSafe('<em>Emphasize</em> the important things.');
 
-        this.assert.ok(_emberGlimmerUtilsString.isHTMLSafe(safeString));
+        this.assert.ok(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(safeString));
       };
 
       _class2.prototype['@test isHTMLSafe should not detect SafeString on primatives'] = function testIsHTMLSafeShouldNotDetectSafeStringOnPrimatives() {
-        this.assert.notOk(_emberGlimmerUtilsString.isHTMLSafe('Hello World'));
-        this.assert.notOk(_emberGlimmerUtilsString.isHTMLSafe({}));
-        this.assert.notOk(_emberGlimmerUtilsString.isHTMLSafe([]));
-        this.assert.notOk(_emberGlimmerUtilsString.isHTMLSafe(10));
-        this.assert.notOk(_emberGlimmerUtilsString.isHTMLSafe(null));
+        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe('Hello World'));
+        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe({}));
+        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe([]));
+        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(10));
+        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(null));
       };
 
       return _class2;
@@ -55783,7 +55780,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     }, 'Using \'{{input on="asdf" ...}}\' without specifying an action (\'foo/bar/baz\' @ L1:C0) will do nothing.');
   });
 });
-enifed('ember-template-compiler/tests/system/bootstrap-test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-glimmer', 'ember-runtime/tests/utils', 'ember-template-compiler/system/bootstrap', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberGlimmer, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemBootstrap, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-template-compiler/tests/system/bootstrap-test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-glimmer', 'ember-runtime/tests/utils', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberGlimmer, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemBootstrap, _internalTestHelpers) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -55801,7 +55798,7 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['exports', 'ember
     ok(template, 'template is available on Ember.TEMPLATES');
     equal(_emberViewsSystemJquery.default('#qunit-fixture script').length, 0, 'script removed');
 
-    var owner = _emberGlimmerTestsUtilsHelpers.buildOwner();
+    var owner = _internalTestHelpers.buildOwner();
     owner.register('template:-top-level', template);
     owner.register('component:-top-level', _emberGlimmer.Component.extend({
       layoutName: '-top-level',

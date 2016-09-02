@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+b46f3916
+ * @version   2.9.0-null+6fd9afe2
  */
 
 var enifed, requireModule, require, Ember;
@@ -2736,6 +2736,14 @@ enifed('dag-map/platform', ['exports'], function (exports) {
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/initializers/dom-templates'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationInitializersDomTemplates) {
   'use strict';
 
+  /**
+  @module ember
+  @submodule ember-application
+  */
+
+  exports.Application = _emberApplicationSystemApplication.default;
+  exports.ApplicationInstance = _emberApplicationSystemApplicationInstance.default;
+
   _emberMetalCore.default.Application = _emberApplicationSystemApplication.default;
   _emberMetalCore.default.DefaultResolver = _emberMetalCore.default.Resolver = _emberApplicationSystemResolver.default;
 
@@ -2754,11 +2762,6 @@ enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/f
   _emberRuntimeSystemLazy_load.runLoadHooks('Ember.Application', _emberApplicationSystemApplication.default);
 });
 // reexports
-
-/**
-@module ember
-@submodule ember-application
-*/
 enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'ember-glimmer', 'ember-environment', 'ember-application/system/application'], function (exports, _require, _emberGlimmer, _emberEnvironment, _emberApplicationSystemApplication) {
   'use strict';
 
@@ -3260,7 +3263,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'ember-glimmer/setup-registry'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _container, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _emberGlimmerSetupRegistry) {
+enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'ember-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _container, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -4159,7 +4162,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
       commonSetupRegistry(registry);
 
-      _emberGlimmerSetupRegistry.setupApplicationRegistry(registry);
+      _emberGlimmer.setupApplicationRegistry(registry);
 
       return registry;
     }
@@ -4482,7 +4485,7 @@ enifed('ember-application/system/engine-parent', ['exports', 'ember-metal/symbol
     engine[ENGINE_PARENT] = parent;
   }
 });
-enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-runtime/controllers/controller', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-views/component_lookup', 'ember-glimmer/setup-registry'], function (exports, _emberRuntimeSystemNamespace, _container, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberRuntimeControllersController, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberViewsComponent_lookup, _emberGlimmerSetupRegistry) {
+enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-runtime/controllers/controller', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-views/component_lookup', 'ember-glimmer'], function (exports, _emberRuntimeSystemNamespace, _container, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberRuntimeControllersController, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberViewsComponent_lookup, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -4826,7 +4829,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
       registry.register('application:main', namespace, { instantiate: false });
 
       commonSetupRegistry(registry);
-      _emberGlimmerSetupRegistry.setupEngineRegistry(registry);
+      _emberGlimmer.setupEngineRegistry(registry);
 
       return registry;
     },
@@ -9514,9 +9517,12 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal/debug', 'ember-
     }
   };
 });
-enifed('ember-glimmer/index', ['exports', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry'], function (exports, _emberGlimmerTemplate, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_field, _emberGlimmerComponentsText_area, _emberGlimmerComponentsLinkTo, _emberGlimmerComponent, _emberGlimmerHelper, _emberGlimmerEnvironment, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString, _emberGlimmerRenderer, _emberGlimmerTemplate_registry) {
+enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/syntax', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _emberGlimmerHelpersAction, _emberGlimmerTemplatesRoot, _emberGlimmerSyntax, _emberGlimmerTemplate, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_field, _emberGlimmerComponentsText_area, _emberGlimmerComponentsLinkTo, _emberGlimmerComponent, _emberGlimmerHelper, _emberGlimmerEnvironment, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString, _emberGlimmerRenderer, _emberGlimmerTemplate_registry, _emberGlimmerSetupRegistry, _emberGlimmerDom) {
   'use strict';
 
+  exports.INVOKE = _emberGlimmerHelpersAction.INVOKE;
+  exports.RootTemplate = _emberGlimmerTemplatesRoot.default;
+  exports.registerSyntax = _emberGlimmerSyntax.registerSyntax;
   exports.template = _emberGlimmerTemplate.default;
   exports.Checkbox = _emberGlimmerComponentsCheckbox.default;
   exports.TextField = _emberGlimmerComponentsText_field.default;
@@ -9538,6 +9544,11 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/template', 'ember-glimm
   exports.hasTemplate = _emberGlimmerTemplate_registry.hasTemplate;
   exports.getTemplates = _emberGlimmerTemplate_registry.getTemplates;
   exports.setTemplates = _emberGlimmerTemplate_registry.setTemplates;
+  exports.setupEngineRegistry = _emberGlimmerSetupRegistry.setupEngineRegistry;
+  exports.setupApplicationRegistry = _emberGlimmerSetupRegistry.setupApplicationRegistry;
+  exports.DOMChanges = _emberGlimmerDom.DOMChanges;
+  exports.NodeDOMTreeConstruction = _emberGlimmerDom.NodeDOMTreeConstruction;
+  exports.DOMTreeConstruction = _emberGlimmerDom.DOMTreeConstruction;
 });
 enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal/debug', 'ember-glimmer/helper'], function (exports, _emberMetalDebug, _emberGlimmerHelper) {
   /**
@@ -29355,7 +29366,10 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
 
   'use strict';
 
+  exports.Object = _emberRuntimeSystemObject.default;
   exports.String = _emberRuntimeSystemString.default;
+  exports.RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
+  exports.ContainerProxyMixin = _emberRuntimeMixinsContainer_proxy.default;
 
   // BEGIN IMPORTS
 
@@ -40770,7 +40784,39 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+b46f3916";
+  exports.default = "2.9.0-null+6fd9afe2";
+});
+enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
+  'use strict';
+
+  exports.buildOwner = buildOwner;
+
+  function buildOwner(resolver) {
+    var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin);
+
+    var namespace = _emberRuntime.Object.create({
+      Resolver: { create: function () {
+          return resolver;
+        } }
+    });
+
+    var fallbackRegistry = _emberApplication.Application.buildRegistry(namespace);
+    var registry = new _container.Registry({
+      fallback: fallbackRegistry
+    });
+
+    _emberApplication.ApplicationInstance.setupRegistry(registry);
+
+    var owner = Owner.create({
+      __registry__: registry,
+      __container__: null
+    });
+
+    var container = registry.container({ owner: owner });
+    owner.__container__ = container;
+
+    return owner;
+  }
 });
 enifed('glimmer-node/index', ['exports', 'glimmer-node/lib/node-dom-helper'], function (exports, _glimmerNodeLibNodeDomHelper) {
   'use strict';
