@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+20f2c8de
+ * @version   2.9.0-null+c484192f
  */
 
 var enifed, requireModule, require, Ember;
@@ -175,1046 +175,1019 @@ babelHelpers = {
   defaults: defaults
 };
 
-enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'backburner/binary-search', 'backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
-  'use strict';
+enifed('backburner', ['exports'], function (exports) { 'use strict';
 
-  exports.default = Backburner;
+var NUMBER = /\d+/;
 
-  function Backburner(queueNames, options) {
-    this.queueNames = queueNames;
-    this.options = options || {};
-    if (!this.options.defaultQueue) {
-      this.options.defaultQueue = queueNames[0];
+function each(collection, callback) {
+  for (var i = 0; i < collection.length; i++) {
+    callback(collection[i]);
+  }
+}
+
+function isString(suspect) {
+  return typeof suspect === 'string';
+}
+
+function isFunction(suspect) {
+  return typeof suspect === 'function';
+}
+
+function isNumber(suspect) {
+  return typeof suspect === 'number';
+}
+
+function isCoercableNumber(number) {
+  return isNumber(number) || NUMBER.test(number);
+}
+
+function binarySearch(time, timers) {
+  var start = 0;
+  var end = timers.length - 2;
+  var middle, l;
+
+  while (start < end) {
+    // since timers is an array of pairs 'l' will always
+    // be an integer
+    l = (end - start) / 2;
+
+    // compensate for the index in case even number
+    // of pairs inside timers
+    middle = start + l - (l % 2);
+
+    if (time >= timers[middle]) {
+      start = middle + 2;
+    } else {
+      end = middle;
     }
-    this.instanceStack = [];
-    this._debouncees = [];
-    this._throttlers = [];
-    this._eventCallbacks = {
-      end: [],
-      begin: []
-    };
-
-    var _this = this;
-    this._boundClearItems = function () {
-      clearItems();
-    };
-
-    this._timerTimeoutId = undefined;
-    this._timers = [];
-
-    this._platform = this.options._platform || _backburnerPlatform.default;
-
-    this._boundRunExpiredTimers = function () {
-      _this._runExpiredTimers();
-    };
   }
 
-  Backburner.prototype = {
-    begin: function () {
-      var options = this.options;
-      var onBegin = options && options.onBegin;
-      var previousInstance = this.currentInstance;
-
-      if (previousInstance) {
-        this.instanceStack.push(previousInstance);
-      }
-
-      this.currentInstance = new _backburnerDeferredActionQueues.default(this.queueNames, options);
-      this._trigger('begin', this.currentInstance, previousInstance);
-      if (onBegin) {
-        onBegin(this.currentInstance, previousInstance);
-      }
-    },
-
-    end: function () {
-      var options = this.options;
-      var onEnd = options && options.onEnd;
-      var currentInstance = this.currentInstance;
-      var nextInstance = null;
-
-      // Prevent double-finally bug in Safari 6.0.2 and iOS 6
-      // This bug appears to be resolved in Safari 6.0.5 and iOS 7
-      var finallyAlreadyCalled = false;
-      try {
-        currentInstance.flush();
-      } finally {
-        if (!finallyAlreadyCalled) {
-          finallyAlreadyCalled = true;
-
-          this.currentInstance = null;
-
-          if (this.instanceStack.length) {
-            nextInstance = this.instanceStack.pop();
-            this.currentInstance = nextInstance;
-          }
-          this._trigger('end', currentInstance, nextInstance);
-          if (onEnd) {
-            onEnd(currentInstance, nextInstance);
-          }
-        }
-      }
-    },
-
-    /**
-     Trigger an event. Supports up to two arguments. Designed around
-     triggering transition events from one run loop instance to the
-     next, which requires an argument for the first instance and then
-     an argument for the next instance.
-      @private
-     @method _trigger
-     @param {String} eventName
-     @param {any} arg1
-     @param {any} arg2
-     */
-    _trigger: function (eventName, arg1, arg2) {
-      var callbacks = this._eventCallbacks[eventName];
-      if (callbacks) {
-        for (var i = 0; i < callbacks.length; i++) {
-          callbacks[i](arg1, arg2);
-        }
-      }
-    },
-
-    on: function (eventName, callback) {
-      if (typeof callback !== 'function') {
-        throw new TypeError('Callback must be a function');
-      }
-      var callbacks = this._eventCallbacks[eventName];
-      if (callbacks) {
-        callbacks.push(callback);
-      } else {
-        throw new TypeError('Cannot on() event "' + eventName + '" because it does not exist');
-      }
-    },
-
-    off: function (eventName, callback) {
-      if (eventName) {
-        var callbacks = this._eventCallbacks[eventName];
-        var callbackFound = false;
-        if (!callbacks) return;
-        if (callback) {
-          for (var i = 0; i < callbacks.length; i++) {
-            if (callbacks[i] === callback) {
-              callbackFound = true;
-              callbacks.splice(i, 1);
-              i--;
-            }
-          }
-        }
-        if (!callbackFound) {
-          throw new TypeError('Cannot off() callback that does not exist');
-        }
-      } else {
-        throw new TypeError('Cannot off() event "' + eventName + '" because it does not exist');
-      }
-    },
-
-    run: function () /* target, method, args */{
-      var length = arguments.length;
-      var method, target, args;
-
-      if (length === 1) {
-        method = arguments[0];
-        target = null;
-      } else {
-        target = arguments[0];
-        method = arguments[1];
-      }
-
-      if (_backburnerUtils.isString(method)) {
-        method = target[method];
-      }
-
-      if (length > 2) {
-        args = new Array(length - 2);
-        for (var i = 0, l = length - 2; i < l; i++) {
-          args[i] = arguments[i + 2];
-        }
-      } else {
-        args = [];
-      }
-
-      var onError = getOnError(this.options);
-
-      this.begin();
-
-      // guard against Safari 6's double-finally bug
-      var didFinally = false;
-
-      if (onError) {
-        try {
-          return method.apply(target, args);
-        } catch (error) {
-          onError(error);
-        } finally {
-          if (!didFinally) {
-            didFinally = true;
-            this.end();
-          }
-        }
-      } else {
-        try {
-          return method.apply(target, args);
-        } finally {
-          if (!didFinally) {
-            didFinally = true;
-            this.end();
-          }
-        }
-      }
-    },
-
-    /*
-      Join the passed method with an existing queue and execute immediately,
-      if there isn't one use `Backburner#run`.
-       The join method is like the run method except that it will schedule into
-      an existing queue if one already exists. In either case, the join method will
-      immediately execute the passed in function and return its result.
-       @method join
-      @param {Object} target
-      @param {Function} method The method to be executed
-      @param {any} args The method arguments
-      @return method result
-    */
-    join: function () /* target, method, args */{
-      if (!this.currentInstance) {
-        return this.run.apply(this, arguments);
-      }
-
-      var length = arguments.length;
-      var method, target;
-
-      if (length === 1) {
-        method = arguments[0];
-        target = null;
-      } else {
-        target = arguments[0];
-        method = arguments[1];
-      }
-
-      if (_backburnerUtils.isString(method)) {
-        method = target[method];
-      }
-
-      if (length === 1) {
-        return method();
-      } else if (length === 2) {
-        return method.call(target);
-      } else {
-        var args = new Array(length - 2);
-        for (var i = 0, l = length - 2; i < l; i++) {
-          args[i] = arguments[i + 2];
-        }
-        return method.apply(target, args);
-      }
-    },
-
-    /*
-      Defer the passed function to run inside the specified queue.
-       @method defer
-      @param {String} queueName
-      @param {Object} target
-      @param {Function|String} method The method or method name to be executed
-      @param {any} args The method arguments
-      @return method result
-    */
-    defer: function (queueName /* , target, method, args */) {
-      var length = arguments.length;
-      var method, target, args;
-
-      if (length === 2) {
-        method = arguments[1];
-        target = null;
-      } else {
-        target = arguments[1];
-        method = arguments[2];
-      }
-
-      if (_backburnerUtils.isString(method)) {
-        method = target[method];
-      }
-
-      var stack = this.DEBUG ? new Error() : undefined;
-
-      if (length > 3) {
-        args = new Array(length - 3);
-        for (var i = 3; i < length; i++) {
-          args[i - 3] = arguments[i];
-        }
-      } else {
-        args = undefined;
-      }
-
-      if (!this.currentInstance) {
-        createAutorun(this);
-      }
-      return this.currentInstance.schedule(queueName, target, method, args, false, stack);
-    },
-
-    deferOnce: function (queueName /* , target, method, args */) {
-      var length = arguments.length;
-      var method, target, args;
-
-      if (length === 2) {
-        method = arguments[1];
-        target = null;
-      } else {
-        target = arguments[1];
-        method = arguments[2];
-      }
-
-      if (_backburnerUtils.isString(method)) {
-        method = target[method];
-      }
-
-      var stack = this.DEBUG ? new Error() : undefined;
-
-      if (length > 3) {
-        args = new Array(length - 3);
-        for (var i = 3; i < length; i++) {
-          args[i - 3] = arguments[i];
-        }
-      } else {
-        args = undefined;
-      }
-
-      if (!this.currentInstance) {
-        createAutorun(this);
-      }
-      return this.currentInstance.schedule(queueName, target, method, args, true, stack);
-    },
-
-    setTimeout: function () {
-      var l = arguments.length;
-      var args = new Array(l);
-
-      for (var x = 0; x < l; x++) {
-        args[x] = arguments[x];
-      }
-
-      var length = args.length,
-          method,
-          wait,
-          target,
-          methodOrTarget,
-          methodOrWait,
-          methodOrArgs;
-
-      if (length === 0) {
-        return;
-      } else if (length === 1) {
-        method = args.shift();
-        wait = 0;
-      } else if (length === 2) {
-        methodOrTarget = args[0];
-        methodOrWait = args[1];
-
-        if (_backburnerUtils.isFunction(methodOrWait) || _backburnerUtils.isFunction(methodOrTarget[methodOrWait])) {
-          target = args.shift();
-          method = args.shift();
-          wait = 0;
-        } else if (_backburnerUtils.isCoercableNumber(methodOrWait)) {
-          method = args.shift();
-          wait = args.shift();
-        } else {
-          method = args.shift();
-          wait = 0;
-        }
-      } else {
-        var last = args[args.length - 1];
-
-        if (_backburnerUtils.isCoercableNumber(last)) {
-          wait = args.pop();
-        } else {
-          wait = 0;
-        }
-
-        methodOrTarget = args[0];
-        methodOrArgs = args[1];
-
-        if (_backburnerUtils.isFunction(methodOrArgs) || _backburnerUtils.isString(methodOrArgs) && methodOrTarget !== null && methodOrArgs in methodOrTarget) {
-          target = args.shift();
-          method = args.shift();
-        } else {
-          method = args.shift();
-        }
-      }
-
-      var executeAt = Date.now() + parseInt(wait !== wait ? 0 : wait, 10);
-
-      if (_backburnerUtils.isString(method)) {
-        method = target[method];
-      }
-
-      var onError = getOnError(this.options);
-
-      function fn() {
-        if (onError) {
-          try {
-            method.apply(target, args);
-          } catch (e) {
-            onError(e);
-          }
-        } else {
-          method.apply(target, args);
-        }
-      }
-
-      return this._setTimeout(fn, executeAt);
-    },
-
-    _setTimeout: function (fn, executeAt) {
-      if (this._timers.length === 0) {
-        this._timers.push(executeAt, fn);
-        this._installTimerTimeout();
-        return fn;
-      }
-
-      // find position to insert
-      var i = _backburnerBinarySearch.default(executeAt, this._timers);
-
-      this._timers.splice(i, 0, executeAt, fn);
-
-      // we should be the new earliest timer if i == 0
-      if (i === 0) {
-        this._reinstallTimerTimeout();
-      }
-
-      return fn;
-    },
-
-    throttle: function (target, method /* , args, wait, [immediate] */) {
-      var backburner = this;
-      var args = new Array(arguments.length);
-      for (var i = 0; i < arguments.length; i++) {
-        args[i] = arguments[i];
-      }
-      var immediate = args.pop();
-      var wait, throttler, index, timer;
-
-      if (_backburnerUtils.isNumber(immediate) || _backburnerUtils.isString(immediate)) {
-        wait = immediate;
-        immediate = true;
-      } else {
-        wait = args.pop();
-      }
-
-      wait = parseInt(wait, 10);
-
-      index = findThrottler(target, method, this._throttlers);
-      if (index > -1) {
-        return this._throttlers[index];
-      } // throttled
-
-      timer = this._platform.setTimeout(function () {
-        if (!immediate) {
-          backburner.run.apply(backburner, args);
-        }
-        var index = findThrottler(target, method, backburner._throttlers);
-        if (index > -1) {
-          backburner._throttlers.splice(index, 1);
-        }
-      }, wait);
-
-      if (immediate) {
-        this.run.apply(this, args);
-      }
-
-      throttler = [target, method, timer];
-
-      this._throttlers.push(throttler);
-
-      return throttler;
-    },
-
-    debounce: function (target, method /* , args, wait, [immediate] */) {
-      var backburner = this;
-      var args = new Array(arguments.length);
-      for (var i = 0; i < arguments.length; i++) {
-        args[i] = arguments[i];
-      }
-
-      var immediate = args.pop();
-      var wait, index, debouncee, timer;
-
-      if (_backburnerUtils.isNumber(immediate) || _backburnerUtils.isString(immediate)) {
-        wait = immediate;
-        immediate = false;
-      } else {
-        wait = args.pop();
-      }
-
-      wait = parseInt(wait, 10);
-      // Remove debouncee
-      index = findDebouncee(target, method, this._debouncees);
-
-      if (index > -1) {
-        debouncee = this._debouncees[index];
-        this._debouncees.splice(index, 1);
-        this._platform.clearTimeout(debouncee[2]);
-      }
-
-      timer = this._platform.setTimeout(function () {
-        if (!immediate) {
-          backburner.run.apply(backburner, args);
-        }
-        var index = findDebouncee(target, method, backburner._debouncees);
-        if (index > -1) {
-          backburner._debouncees.splice(index, 1);
-        }
-      }, wait);
-
-      if (immediate && index === -1) {
-        backburner.run.apply(backburner, args);
-      }
-
-      debouncee = [target, method, timer];
-
-      backburner._debouncees.push(debouncee);
-
-      return debouncee;
-    },
-
-    cancelTimers: function () {
-      _backburnerUtils.each(this._throttlers, this._boundClearItems);
-      this._throttlers = [];
-
-      _backburnerUtils.each(this._debouncees, this._boundClearItems);
-      this._debouncees = [];
-
-      this._clearTimerTimeout();
-      this._timers = [];
-
-      if (this._autorun) {
-        this._platform.clearTimeout(this._autorun);
-        this._autorun = null;
-      }
-    },
-
-    hasTimers: function () {
-      return !!this._timers.length || !!this._debouncees.length || !!this._throttlers.length || this._autorun;
-    },
-
-    cancel: function (timer) {
-      var timerType = typeof timer;
-
-      if (timer && timerType === 'object' && timer.queue && timer.method) {
-        // we're cancelling a deferOnce
-        return timer.queue.cancel(timer);
-      } else if (timerType === 'function') {
-        // we're cancelling a setTimeout
-        for (var i = 0, l = this._timers.length; i < l; i += 2) {
-          if (this._timers[i + 1] === timer) {
-            this._timers.splice(i, 2); // remove the two elements
-            if (i === 0) {
-              this._reinstallTimerTimeout();
-            }
-            return true;
-          }
-        }
-      } else if (Object.prototype.toString.call(timer) === '[object Array]') {
-        // we're cancelling a throttle or debounce
-        return this._cancelItem(findThrottler, this._throttlers, timer) || this._cancelItem(findDebouncee, this._debouncees, timer);
-      } else {
-        return; // timer was null or not a timer
-      }
-    },
-
-    _cancelItem: function (findMethod, array, timer) {
-      var item, index;
-
-      if (timer.length < 3) {
-        return false;
-      }
-
-      index = findMethod(timer[0], timer[1], array);
-
-      if (index > -1) {
-
-        item = array[index];
-
-        if (item[2] === timer[2]) {
-          array.splice(index, 1);
-          this._platform.clearTimeout(timer[2]);
-          return true;
-        }
-      }
-
-      return false;
-    },
-
-    _runExpiredTimers: function () {
-      this._timerTimeoutId = undefined;
-      this.run(this, this._scheduleExpiredTimers);
-    },
-
-    _scheduleExpiredTimers: function () {
-      var n = Date.now();
-      var timers = this._timers;
-      var i = 0;
-      var l = timers.length;
-      for (; i < l; i += 2) {
-        var executeAt = timers[i];
-        var fn = timers[i + 1];
-        if (executeAt <= n) {
-          this.schedule(this.options.defaultQueue, null, fn);
-        } else {
-          break;
-        }
-      }
-      timers.splice(0, i);
-      this._installTimerTimeout();
-    },
-
-    _reinstallTimerTimeout: function () {
-      this._clearTimerTimeout();
-      this._installTimerTimeout();
-    },
-
-    _clearTimerTimeout: function () {
-      if (!this._timerTimeoutId) {
+  return (time >= timers[start]) ? start + 2 : start;
+}
+
+function Queue(name, options, globalOptions) {
+  this.name = name;
+  this.globalOptions = globalOptions || {};
+  this.options = options;
+  this._queue = [];
+  this.targetQueues = {};
+  this._queueBeingFlushed = undefined;
+}
+
+Queue.prototype = {
+  push: function(target, method, args, stack) {
+    var queue = this._queue;
+    queue.push(target, method, args, stack);
+
+    return {
+      queue: this,
+      target: target,
+      method: method
+    };
+  },
+
+  pushUniqueWithoutGuid: function(target, method, args, stack) {
+    var queue = this._queue;
+
+    for (var i = 0, l = queue.length; i < l; i += 4) {
+      var currentTarget = queue[i];
+      var currentMethod = queue[i+1];
+
+      if (currentTarget === target && currentMethod === method) {
+        queue[i+2] = args;  // replace args
+        queue[i+3] = stack; // replace stack
         return;
       }
-      this._platform.clearTimeout(this._timerTimeoutId);
-      this._timerTimeoutId = undefined;
-    },
+    }
 
-    _installTimerTimeout: function () {
-      if (!this._timers.length) {
+    queue.push(target, method, args, stack);
+  },
+
+  targetQueue: function(targetQueue, target, method, args, stack) {
+    var queue = this._queue;
+
+    for (var i = 0, l = targetQueue.length; i < l; i += 2) {
+      var currentMethod = targetQueue[i];
+      var currentIndex  = targetQueue[i + 1];
+
+      if (currentMethod === method) {
+        queue[currentIndex + 2] = args;  // replace args
+        queue[currentIndex + 3] = stack; // replace stack
         return;
       }
-      var minExpiresAt = this._timers[0];
-      var n = Date.now();
-      var wait = Math.max(0, minExpiresAt - n);
-      this._timerTimeoutId = this._platform.setTimeout(this._boundRunExpiredTimers, wait);
     }
-  };
 
-  Backburner.prototype.schedule = Backburner.prototype.defer;
-  Backburner.prototype.scheduleOnce = Backburner.prototype.deferOnce;
-  Backburner.prototype.later = Backburner.prototype.setTimeout;
+    targetQueue.push(
+      method,
+      queue.push(target, method, args, stack) - 4
+    );
+  },
 
-  function getOnError(options) {
-    return options.onError || options.onErrorTarget && options.onErrorTarget[options.onErrorMethod];
-  }
+  pushUniqueWithGuid: function(guid, target, method, args, stack) {
+    var hasLocalQueue = this.targetQueues[guid];
 
-  function createAutorun(backburner) {
-    backburner.begin();
-    backburner._autorun = backburner._platform.setTimeout(function () {
-      backburner._autorun = null;
-      backburner.end();
-    });
-  }
+    if (hasLocalQueue) {
+      this.targetQueue(hasLocalQueue, target, method, args, stack);
+    } else {
+      this.targetQueues[guid] = [
+        method,
+        this._queue.push(target, method, args, stack) - 4
+      ];
+    }
 
-  function findDebouncee(target, method, debouncees) {
-    return findItem(target, method, debouncees);
-  }
+    return {
+      queue: this,
+      target: target,
+      method: method
+    };
+  },
 
-  function findThrottler(target, method, throttlers) {
-    return findItem(target, method, throttlers);
-  }
+  pushUnique: function(target, method, args, stack) {
+    var KEY = this.globalOptions.GUID_KEY;
 
-  function findItem(target, method, collection) {
-    var item;
-    var index = -1;
-
-    for (var i = 0, l = collection.length; i < l; i++) {
-      item = collection[i];
-      if (item[0] === target && item[1] === method) {
-        index = i;
-        break;
+    if (target && KEY) {
+      var guid = target[KEY];
+      if (guid) {
+        return this.pushUniqueWithGuid(guid, target, method, args, stack);
       }
     }
 
-    return index;
-  }
+    this.pushUniqueWithoutGuid(target, method, args, stack);
 
-  function clearItems(item) {
-    this._platform.clearTimeout(item[2]);
-  }
-});
-enifed("backburner/binary-search", ["exports"], function (exports) {
-  "use strict";
+    return {
+      queue: this,
+      target: target,
+      method: method
+    };
+  },
 
-  exports.default = binarySearch;
-
-  function binarySearch(time, timers) {
-    var start = 0;
-    var end = timers.length - 2;
-    var middle, l;
-
-    while (start < end) {
-      // since timers is an array of pairs 'l' will always
-      // be an integer
-      l = (end - start) / 2;
-
-      // compensate for the index in case even number
-      // of pairs inside timers
-      middle = start + l - l % 2;
-
-      if (time >= timers[middle]) {
-        start = middle + 2;
-      } else {
-        end = middle;
-      }
+  invoke: function(target, method, args /*, onError, errorRecordedForStack */) {
+    if (args && args.length > 0) {
+      method.apply(target, args);
+    } else {
+      method.call(target);
     }
+  },
 
-    return time >= timers[start] ? start + 2 : start;
-  }
-});
-enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'backburner/queue'], function (exports, _backburnerUtils, _backburnerQueue) {
-  'use strict';
-
-  exports.default = DeferredActionQueues;
-
-  function DeferredActionQueues(queueNames, options) {
-    var queues = this.queues = {};
-    this.queueNames = queueNames = queueNames || [];
-
-    this.options = options;
-
-    _backburnerUtils.each(queueNames, function (queueName) {
-      queues[queueName] = new _backburnerQueue.default(queueName, options[queueName], options);
-    });
-  }
-
-  function noSuchQueue(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
-  }
-
-  function noSuchMethod(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
-  }
-
-  DeferredActionQueues.prototype = {
-    schedule: function (name, target, method, args, onceFlag, stack) {
-      var queues = this.queues;
-      var queue = queues[name];
-
-      if (!queue) {
-        noSuchQueue(name);
-      }
-
-      if (!method) {
-        noSuchMethod(name);
-      }
-
-      if (onceFlag) {
-        return queue.pushUnique(target, method, args, stack);
-      } else {
-        return queue.push(target, method, args, stack);
-      }
-    },
-
-    flush: function () {
-      var queues = this.queues;
-      var queueNames = this.queueNames;
-      var queueName, queue;
-      var queueNameIndex = 0;
-      var numberOfQueues = queueNames.length;
-
-      while (queueNameIndex < numberOfQueues) {
-        queueName = queueNames[queueNameIndex];
-        queue = queues[queueName];
-
-        var numberOfQueueItems = queue._queue.length;
-
-        if (numberOfQueueItems === 0) {
-          queueNameIndex++;
-        } else {
-          queue.flush(false /* async */);
-          queueNameIndex = 0;
-        }
-      }
-    }
-  };
-});
-enifed('backburner/platform', ['exports'], function (exports) {
-  'use strict';
-
-  var GlobalContext;
-
-  /* global self */
-  if (typeof self === 'object') {
-    GlobalContext = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      GlobalContext = global;
-
-      /* global window */
-    } else if (typeof window === 'object') {
-        GlobalContext = window;
-      } else {
-        throw new Error('no global: `self`, `global` nor `window` was found');
-      }
-
-  exports.default = GlobalContext;
-});
-enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
-  'use strict';
-
-  exports.default = Queue;
-
-  function Queue(name, options, globalOptions) {
-    this.name = name;
-    this.globalOptions = globalOptions || {};
-    this.options = options;
-    this._queue = [];
-    this.targetQueues = {};
-    this._queueBeingFlushed = undefined;
-  }
-
-  Queue.prototype = {
-    push: function (target, method, args, stack) {
-      var queue = this._queue;
-      queue.push(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUniqueWithoutGuid: function (target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = queue.length; i < l; i += 4) {
-        var currentTarget = queue[i];
-        var currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          queue[i + 2] = args; // replace args
-          queue[i + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      queue.push(target, method, args, stack);
-    },
-
-    targetQueue: function (targetQueue, target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = targetQueue.length; i < l; i += 2) {
-        var currentMethod = targetQueue[i];
-        var currentIndex = targetQueue[i + 1];
-
-        if (currentMethod === method) {
-          queue[currentIndex + 2] = args; // replace args
-          queue[currentIndex + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      targetQueue.push(method, queue.push(target, method, args, stack) - 4);
-    },
-
-    pushUniqueWithGuid: function (guid, target, method, args, stack) {
-      var hasLocalQueue = this.targetQueues[guid];
-
-      if (hasLocalQueue) {
-        this.targetQueue(hasLocalQueue, target, method, args, stack);
-      } else {
-        this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
-      }
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUnique: function (target, method, args, stack) {
-      var KEY = this.globalOptions.GUID_KEY;
-
-      if (target && KEY) {
-        var guid = target[KEY];
-        if (guid) {
-          return this.pushUniqueWithGuid(guid, target, method, args, stack);
-        }
-      }
-
-      this.pushUniqueWithoutGuid(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    invoke: function (target, method, args, _, _errorRecordedForStack) {
+  invokeWithOnError: function(target, method, args, onError, errorRecordedForStack) {
+    try {
       if (args && args.length > 0) {
         method.apply(target, args);
       } else {
         method.call(target);
       }
-    },
+    } catch(error) {
+      onError(error, errorRecordedForStack);
+    }
+  },
 
-    invokeWithOnError: function (target, method, args, onError, errorRecordedForStack) {
-      try {
-        if (args && args.length > 0) {
-          method.apply(target, args);
-        } else {
-          method.call(target);
-        }
-      } catch (error) {
-        onError(error, errorRecordedForStack);
-      }
-    },
+  flush: function(sync) {
+    var queue = this._queue;
+    var length = queue.length;
 
-    flush: function (sync) {
-      var queue = this._queue;
-      var length = queue.length;
+    if (length === 0) {
+      return;
+    }
 
-      if (length === 0) {
-        return;
-      }
+    var globalOptions = this.globalOptions;
+    var options = this.options;
+    var before = options && options.before;
+    var after = options && options.after;
+    var onError = globalOptions.onError || (globalOptions.onErrorTarget &&
+                                            globalOptions.onErrorTarget[globalOptions.onErrorMethod]);
+    var target, method, args, errorRecordedForStack;
+    var invoke = onError ? this.invokeWithOnError : this.invoke;
 
-      var globalOptions = this.globalOptions;
-      var options = this.options;
-      var before = options && options.before;
-      var after = options && options.after;
-      var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
-      var target, method, args, errorRecordedForStack;
-      var invoke = onError ? this.invokeWithOnError : this.invoke;
+    this.targetQueues = Object.create(null);
+    var queueItems = this._queueBeingFlushed = this._queue.slice();
+    this._queue = [];
 
-      this.targetQueues = Object.create(null);
-      var queueItems = this._queueBeingFlushed = this._queue.slice();
-      this._queue = [];
+    if (before) {
+      before();
+    }
 
-      if (before) {
-        before();
-      }
+    for (var i = 0; i < length; i += 4) {
+      target                = queueItems[i];
+      method                = queueItems[i+1];
+      args                  = queueItems[i+2];
+      errorRecordedForStack = queueItems[i+3]; // Debugging assistance
 
-      for (var i = 0; i < length; i += 4) {
-        target = queueItems[i];
-        method = queueItems[i + 1];
-        args = queueItems[i + 2];
-        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
-
-        if (_backburnerUtils.isString(method)) {
-          method = target[method];
-        }
-
-        // method could have been nullified / canceled during flush
-        if (method) {
-          //
-          //    ** Attention intrepid developer **
-          //
-          //    To find out the stack of this task when it was scheduled onto
-          //    the run loop, add the following to your app.js:
-          //
-          //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
-          //
-          //    Once that is in place, when you are at a breakpoint and navigate
-          //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
-          //    which will be the captured stack when this job was scheduled.
-          //
-          invoke(target, method, args, onError, errorRecordedForStack);
-        }
+      if (isString(method)) {
+        method = target[method];
       }
 
-      if (after) {
-        after();
+      // method could have been nullified / canceled during flush
+      if (method) {
+        //
+        //    ** Attention intrepid developer **
+        //
+        //    To find out the stack of this task when it was scheduled onto
+        //    the run loop, add the following to your app.js:
+        //
+        //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+        //
+        //    Once that is in place, when you are at a breakpoint and navigate
+        //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+        //    which will be the captured stack when this job was scheduled.
+        //
+        //    One possible long-term solution is the following Chrome issue:
+        //       https://bugs.chromium.org/p/chromium/issues/detail?id=332624
+        //
+        invoke(target, method, args, onError, errorRecordedForStack);
       }
+    }
 
-      this._queueBeingFlushed = undefined;
+    if (after) {
+      after();
+    }
 
-      if (sync !== false && this._queue.length > 0) {
-        // check if new items have been added
-        this.flush(true);
-      }
-    },
+    this._queueBeingFlushed = undefined;
 
-    cancel: function (actionToCancel) {
-      var queue = this._queue,
-          currentTarget,
-          currentMethod,
-          i,
-          l;
-      var target = actionToCancel.target;
-      var method = actionToCancel.method;
-      var GUID_KEY = this.globalOptions.GUID_KEY;
+    if (sync !== false &&
+        this._queue.length > 0) {
+      // check if new items have been added
+      this.flush(true);
+    }
+  },
 
-      if (GUID_KEY && this.targetQueues && target) {
-        var targetQueue = this.targetQueues[target[GUID_KEY]];
+  cancel: function(actionToCancel) {
+    var queue = this._queue, currentTarget, currentMethod, i, l;
+    var target = actionToCancel.target;
+    var method = actionToCancel.method;
+    var GUID_KEY = this.globalOptions.GUID_KEY;
 
-        if (targetQueue) {
-          for (i = 0, l = targetQueue.length; i < l; i++) {
-            if (targetQueue[i] === method) {
-              targetQueue.splice(i, 1);
-            }
+    if (GUID_KEY && this.targetQueues && target) {
+      var targetQueue = this.targetQueues[target[GUID_KEY]];
+
+      if (targetQueue) {
+        for (i = 0, l = targetQueue.length; i < l; i++) {
+          if (targetQueue[i] === method) {
+            targetQueue.splice(i, 1);
           }
         }
       }
+    }
 
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
+    for (i = 0, l = queue.length; i < l; i += 4) {
+      currentTarget = queue[i];
+      currentMethod = queue[i+1];
 
-        if (currentTarget === target && currentMethod === method) {
-          queue.splice(i, 4);
-          return true;
-        }
+      if (currentTarget === target &&
+          currentMethod === method) {
+        queue.splice(i, 4);
+        return true;
       }
+    }
 
-      // if not found in current queue
-      // could be in the queue that is being flushed
-      queue = this._queueBeingFlushed;
+    // if not found in current queue
+    // could be in the queue that is being flushed
+    queue = this._queueBeingFlushed;
 
-      if (!queue) {
-        return;
+    if (!queue) {
+      return;
+    }
+
+    for (i = 0, l = queue.length; i < l; i += 4) {
+      currentTarget = queue[i];
+      currentMethod = queue[i+1];
+
+      if (currentTarget === target &&
+          currentMethod === method) {
+        // don't mess with array during flush
+        // just nullify the method
+        queue[i+1] = null;
+        return true;
       }
+    }
+  }
+};
 
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
+function DeferredActionQueues(queueNames, options) {
+  var queues = this.queues = {};
+  this.queueNames = queueNames = queueNames || [];
 
-        if (currentTarget === target && currentMethod === method) {
-          // don't mess with array during flush
-          // just nullify the method
-          queue[i + 1] = null;
-          return true;
-        }
+  this.options = options;
+
+  each(queueNames, function(queueName) {
+    queues[queueName] = new Queue(queueName, options[queueName], options);
+  });
+}
+
+function noSuchQueue(name) {
+  throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
+}
+
+function noSuchMethod(name) {
+  throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
+}
+
+DeferredActionQueues.prototype = {
+  schedule: function(name, target, method, args, onceFlag, stack) {
+    var queues = this.queues;
+    var queue = queues[name];
+
+    if (!queue) {
+      noSuchQueue(name);
+    }
+
+    if (!method) {
+      noSuchMethod(name);
+    }
+
+    if (onceFlag) {
+      return queue.pushUnique(target, method, args, stack);
+    } else {
+      return queue.push(target, method, args, stack);
+    }
+  },
+
+  flush: function() {
+    var queues = this.queues;
+    var queueNames = this.queueNames;
+    var queueName, queue;
+    var queueNameIndex = 0;
+    var numberOfQueues = queueNames.length;
+
+    while (queueNameIndex < numberOfQueues) {
+      queueName = queueNames[queueNameIndex];
+      queue = queues[queueName];
+
+      var numberOfQueueItems = queue._queue.length;
+
+      if (numberOfQueueItems === 0) {
+        queueNameIndex++;
+      } else {
+        queue.flush(false /* async */);
+        queueNameIndex = 0;
       }
+    }
+  }
+};
+
+function Backburner(queueNames, options) {
+  this.queueNames = queueNames;
+  this.options = options || {};
+  if (!this.options.defaultQueue) {
+    this.options.defaultQueue = queueNames[0];
+  }
+  this.instanceStack = [];
+  this._debouncees = [];
+  this._throttlers = [];
+  this._eventCallbacks = {
+    end: [],
+    begin: []
+  };
+
+  var _this = this;
+  this._boundClearItems = function() {
+    clearItems();
+  };
+
+  this._timerTimeoutId = undefined;
+  this._timers = [];
+
+  this._platform = this.options._platform || {
+    setTimeout: function (fn, ms) {
+      return setTimeout(fn, ms);
+    },
+    clearTimeout: function (id) {
+      clearTimeout(id);
     }
   };
-});
-enifed('backburner/utils', ['exports'], function (exports) {
-  'use strict';
 
-  exports.each = each;
-  exports.isString = isString;
-  exports.isFunction = isFunction;
-  exports.isNumber = isNumber;
-  exports.isCoercableNumber = isCoercableNumber;
-  var NUMBER = /\d+/;
+  this._boundRunExpiredTimers = function () {
+    _this._runExpiredTimers();
+  };
+}
 
-  function each(collection, callback) {
-    for (var i = 0; i < collection.length; i++) {
-      callback(collection[i]);
+Backburner.prototype = {
+  begin: function() {
+    var options = this.options;
+    var onBegin = options && options.onBegin;
+    var previousInstance = this.currentInstance;
+
+    if (previousInstance) {
+      this.instanceStack.push(previousInstance);
+    }
+
+    this.currentInstance = new DeferredActionQueues(this.queueNames, options);
+    this._trigger('begin', this.currentInstance, previousInstance);
+    if (onBegin) {
+      onBegin(this.currentInstance, previousInstance);
+    }
+  },
+
+  end: function() {
+    var options = this.options;
+    var onEnd = options && options.onEnd;
+    var currentInstance = this.currentInstance;
+    var nextInstance = null;
+
+    // Prevent double-finally bug in Safari 6.0.2 and iOS 6
+    // This bug appears to be resolved in Safari 6.0.5 and iOS 7
+    var finallyAlreadyCalled = false;
+    try {
+      currentInstance.flush();
+    } finally {
+      if (!finallyAlreadyCalled) {
+        finallyAlreadyCalled = true;
+
+        this.currentInstance = null;
+
+        if (this.instanceStack.length) {
+          nextInstance = this.instanceStack.pop();
+          this.currentInstance = nextInstance;
+        }
+        this._trigger('end', currentInstance, nextInstance);
+        if (onEnd) {
+          onEnd(currentInstance, nextInstance);
+        }
+      }
+    }
+  },
+
+  /**
+   Trigger an event. Supports up to two arguments. Designed around
+   triggering transition events from one run loop instance to the
+   next, which requires an argument for the first instance and then
+   an argument for the next instance.
+
+   @private
+   @method _trigger
+   @param {String} eventName
+   @param {any} arg1
+   @param {any} arg2
+   */
+  _trigger: function(eventName, arg1, arg2) {
+    var callbacks = this._eventCallbacks[eventName];
+    if (callbacks) {
+      for (var i = 0; i < callbacks.length; i++) {
+        callbacks[i](arg1, arg2);
+      }
+    }
+  },
+
+  on: function(eventName, callback) {
+    if (typeof callback !== 'function') {
+      throw new TypeError('Callback must be a function');
+    }
+    var callbacks = this._eventCallbacks[eventName];
+    if (callbacks) {
+      callbacks.push(callback);
+    } else {
+      throw new TypeError('Cannot on() event "' + eventName + '" because it does not exist');
+    }
+  },
+
+  off: function(eventName, callback) {
+    if (eventName) {
+      var callbacks = this._eventCallbacks[eventName];
+      var callbackFound = false;
+      if (!callbacks) return;
+      if (callback) {
+        for (var i = 0; i < callbacks.length; i++) {
+          if (callbacks[i] === callback) {
+            callbackFound = true;
+            callbacks.splice(i, 1);
+            i--;
+          }
+        }
+      }
+      if (!callbackFound) {
+        throw new TypeError('Cannot off() callback that does not exist');
+      }
+    } else {
+      throw new TypeError('Cannot off() event "' + eventName + '" because it does not exist');
+    }
+  },
+
+  run: function(/* target, method, args */) {
+    var length = arguments.length;
+    var method, target, args;
+
+    if (length === 1) {
+      method = arguments[0];
+      target = null;
+    } else {
+      target = arguments[0];
+      method = arguments[1];
+    }
+
+    if (isString(method)) {
+      method = target[method];
+    }
+
+    if (length > 2) {
+      args = new Array(length - 2);
+      for (var i = 0, l = length - 2; i < l; i++) {
+        args[i] = arguments[i + 2];
+      }
+    } else {
+      args = [];
+    }
+
+    var onError = getOnError(this.options);
+
+    this.begin();
+
+    // guard against Safari 6's double-finally bug
+    var didFinally = false;
+
+    if (onError) {
+      try {
+        return method.apply(target, args);
+      } catch(error) {
+        onError(error);
+      } finally {
+        if (!didFinally) {
+          didFinally = true;
+          this.end();
+        }
+      }
+    } else {
+      try {
+        return method.apply(target, args);
+      } finally {
+        if (!didFinally) {
+          didFinally = true;
+          this.end();
+        }
+      }
+    }
+  },
+
+  /*
+    Join the passed method with an existing queue and execute immediately,
+    if there isn't one use `Backburner#run`.
+
+    The join method is like the run method except that it will schedule into
+    an existing queue if one already exists. In either case, the join method will
+    immediately execute the passed in function and return its result.
+
+    @method join
+    @param {Object} target
+    @param {Function} method The method to be executed
+    @param {any} args The method arguments
+    @return method result
+  */
+  join: function(/* target, method, args */) {
+    if (!this.currentInstance) {
+      return this.run.apply(this, arguments);
+    }
+
+    var length = arguments.length;
+    var method, target;
+
+    if (length === 1) {
+      method = arguments[0];
+      target = null;
+    } else {
+      target = arguments[0];
+      method = arguments[1];
+    }
+
+    if (isString(method)) {
+      method = target[method];
+    }
+
+    if (length === 1) {
+      return method();
+    } else if (length === 2) {
+      return method.call(target);
+    } else {
+      var args = new Array(length - 2);
+      for (var i = 0, l = length - 2; i < l; i++) {
+        args[i] = arguments[i + 2];
+      }
+      return method.apply(target, args);
+    }
+  },
+
+
+  /*
+    Defer the passed function to run inside the specified queue.
+
+    @method defer
+    @param {String} queueName
+    @param {Object} target
+    @param {Function|String} method The method or method name to be executed
+    @param {any} args The method arguments
+    @return method result
+  */
+  defer: function(queueName /* , target, method, args */) {
+    var length = arguments.length;
+    var method, target, args;
+
+    if (length === 2) {
+      method = arguments[1];
+      target = null;
+    } else {
+      target = arguments[1];
+      method = arguments[2];
+    }
+
+    if (isString(method)) {
+      method = target[method];
+    }
+
+    var stack = this.DEBUG ? new Error() : undefined;
+
+    if (length > 3) {
+      args = new Array(length - 3);
+      for (var i = 3; i < length; i++) {
+        args[i-3] = arguments[i];
+      }
+    } else {
+      args = undefined;
+    }
+
+    if (!this.currentInstance) { createAutorun(this); }
+    return this.currentInstance.schedule(queueName, target, method, args, false, stack);
+  },
+
+  deferOnce: function(queueName /* , target, method, args */) {
+    var length = arguments.length;
+    var method, target, args;
+
+    if (length === 2) {
+      method = arguments[1];
+      target = null;
+    } else {
+      target = arguments[1];
+      method = arguments[2];
+    }
+
+    if (isString(method)) {
+      method = target[method];
+    }
+
+    var stack = this.DEBUG ? new Error() : undefined;
+
+    if (length > 3) {
+      args = new Array(length - 3);
+      for (var i = 3; i < length; i++) {
+        args[i-3] = arguments[i];
+      }
+    } else {
+      args = undefined;
+    }
+
+    if (!this.currentInstance) {
+      createAutorun(this);
+    }
+    return this.currentInstance.schedule(queueName, target, method, args, true, stack);
+  },
+
+  setTimeout: function() {
+    var l = arguments.length;
+    var args = new Array(l);
+
+    for (var x = 0; x < l; x++) {
+      args[x] = arguments[x];
+    }
+
+    var length = args.length,
+        method, wait, target,
+        methodOrTarget, methodOrWait, methodOrArgs;
+
+    if (length === 0) {
+      return;
+    } else if (length === 1) {
+      method = args.shift();
+      wait = 0;
+    } else if (length === 2) {
+      methodOrTarget = args[0];
+      methodOrWait = args[1];
+
+      if (isFunction(methodOrWait) || isFunction(methodOrTarget[methodOrWait])) {
+        target = args.shift();
+        method = args.shift();
+        wait = 0;
+      } else if (isCoercableNumber(methodOrWait)) {
+        method = args.shift();
+        wait = args.shift();
+      } else {
+        method = args.shift();
+        wait =  0;
+      }
+    } else {
+      var last = args[args.length - 1];
+
+      if (isCoercableNumber(last)) {
+        wait = args.pop();
+      } else {
+        wait = 0;
+      }
+
+      methodOrTarget = args[0];
+      methodOrArgs = args[1];
+
+      if (isFunction(methodOrArgs) || (isString(methodOrArgs) &&
+                                      methodOrTarget !== null &&
+                                      methodOrArgs in methodOrTarget)) {
+        target = args.shift();
+        method = args.shift();
+      } else {
+        method = args.shift();
+      }
+    }
+
+    var executeAt = Date.now() + parseInt(wait !== wait ? 0 : wait, 10);
+
+    if (isString(method)) {
+      method = target[method];
+    }
+
+    var onError = getOnError(this.options);
+
+    function fn() {
+      if (onError) {
+        try {
+          method.apply(target, args);
+        } catch (e) {
+          onError(e);
+        }
+      } else {
+        method.apply(target, args);
+      }
+    }
+
+    return this._setTimeout(fn, executeAt);
+  },
+
+  _setTimeout: function (fn, executeAt) {
+    if (this._timers.length === 0) {
+      this._timers.push(executeAt, fn);
+      this._installTimerTimeout();
+      return fn;
+    }
+
+    // find position to insert
+    var i = binarySearch(executeAt, this._timers);
+
+    this._timers.splice(i, 0, executeAt, fn);
+
+    // we should be the new earliest timer if i == 0
+    if (i === 0) {
+      this._reinstallTimerTimeout();
+    }
+
+    return fn;
+  },
+
+  throttle: function(target, method /* , args, wait, [immediate] */) {
+    var backburner = this;
+    var args = new Array(arguments.length);
+    for (var i = 0; i < arguments.length; i++) {
+      args[i] = arguments[i];
+    }
+    var immediate = args.pop();
+    var wait, throttler, index, timer;
+
+    if (isNumber(immediate) || isString(immediate)) {
+      wait = immediate;
+      immediate = true;
+    } else {
+      wait = args.pop();
+    }
+
+    wait = parseInt(wait, 10);
+
+    index = findThrottler(target, method, this._throttlers);
+    if (index > -1) { return this._throttlers[index]; } // throttled
+
+    timer = this._platform.setTimeout(function() {
+      if (!immediate) {
+        backburner.run.apply(backburner, args);
+      }
+      var index = findThrottler(target, method, backburner._throttlers);
+      if (index > -1) {
+        backburner._throttlers.splice(index, 1);
+      }
+    }, wait);
+
+    if (immediate) {
+      this.run.apply(this, args);
+    }
+
+    throttler = [target, method, timer];
+
+    this._throttlers.push(throttler);
+
+    return throttler;
+  },
+
+  debounce: function(target, method /* , args, wait, [immediate] */) {
+    var backburner = this;
+    var args = new Array(arguments.length);
+    for (var i = 0; i < arguments.length; i++) {
+      args[i] = arguments[i];
+    }
+
+    var immediate = args.pop();
+    var wait, index, debouncee, timer;
+
+    if (isNumber(immediate) || isString(immediate)) {
+      wait = immediate;
+      immediate = false;
+    } else {
+      wait = args.pop();
+    }
+
+    wait = parseInt(wait, 10);
+    // Remove debouncee
+    index = findDebouncee(target, method, this._debouncees);
+
+    if (index > -1) {
+      debouncee = this._debouncees[index];
+      this._debouncees.splice(index, 1);
+      this._platform.clearTimeout(debouncee[2]);
+    }
+
+    timer = this._platform.setTimeout(function() {
+      if (!immediate) {
+        backburner.run.apply(backburner, args);
+      }
+      var index = findDebouncee(target, method, backburner._debouncees);
+      if (index > -1) {
+        backburner._debouncees.splice(index, 1);
+      }
+    }, wait);
+
+    if (immediate && index === -1) {
+      backburner.run.apply(backburner, args);
+    }
+
+    debouncee = [
+      target,
+      method,
+      timer
+    ];
+
+    backburner._debouncees.push(debouncee);
+
+    return debouncee;
+  },
+
+  cancelTimers: function() {
+    each(this._throttlers, this._boundClearItems);
+    this._throttlers = [];
+
+    each(this._debouncees, this._boundClearItems);
+    this._debouncees = [];
+
+    this._clearTimerTimeout();
+    this._timers = [];
+
+    if (this._autorun) {
+      this._platform.clearTimeout(this._autorun);
+      this._autorun = null;
+    }
+  },
+
+  hasTimers: function() {
+    return !!this._timers.length || !!this._debouncees.length || !!this._throttlers.length || this._autorun;
+  },
+
+  cancel: function (timer) {
+    var timerType = typeof timer;
+
+    if (timer && timerType === 'object' && timer.queue && timer.method) { // we're cancelling a deferOnce
+      return timer.queue.cancel(timer);
+    } else if (timerType === 'function') { // we're cancelling a setTimeout
+      for (var i = 0, l = this._timers.length; i < l; i += 2) {
+        if (this._timers[i + 1] === timer) {
+          this._timers.splice(i, 2); // remove the two elements
+          if (i === 0) {
+            this._reinstallTimerTimeout();
+          }
+          return true;
+        }
+      }
+    } else if (Object.prototype.toString.call(timer) === '[object Array]'){ // we're cancelling a throttle or debounce
+      return this._cancelItem(findThrottler, this._throttlers, timer) ||
+               this._cancelItem(findDebouncee, this._debouncees, timer);
+    } else {
+      return; // timer was null or not a timer
+    }
+  },
+
+  _cancelItem: function(findMethod, array, timer){
+    var item, index;
+
+    if (timer.length < 3) { return false; }
+
+    index = findMethod(timer[0], timer[1], array);
+
+    if (index > -1) {
+
+      item = array[index];
+
+      if (item[2] === timer[2]) {
+        array.splice(index, 1);
+        this._platform.clearTimeout(timer[2]);
+        return true;
+      }
+    }
+
+    return false;
+  },
+
+  _runExpiredTimers: function () {
+    this._timerTimeoutId = undefined;
+    this.run(this, this._scheduleExpiredTimers);
+  },
+
+  _scheduleExpiredTimers: function () {
+    var n = Date.now();
+    var timers = this._timers;
+    var i = 0;
+    var l = timers.length;
+    for (; i < l; i += 2) {
+      var executeAt = timers[i];
+      var fn = timers[i+1];
+      if (executeAt <= n) {
+        this.schedule(this.options.defaultQueue, null, fn);
+      } else {
+        break;
+      }
+    }
+    timers.splice(0, i);
+    this._installTimerTimeout();
+  },
+
+  _reinstallTimerTimeout: function () {
+    this._clearTimerTimeout();
+    this._installTimerTimeout();
+  },
+
+  _clearTimerTimeout: function () {
+    if (!this._timerTimeoutId) {
+      return;
+    }
+    this._platform.clearTimeout(this._timerTimeoutId);
+    this._timerTimeoutId = undefined;
+  },
+
+  _installTimerTimeout: function () {
+    if (!this._timers.length) {
+      return;
+    }
+    var minExpiresAt = this._timers[0];
+    var n = Date.now();
+    var wait = Math.max(0, minExpiresAt - n);
+    this._timerTimeoutId = this._platform.setTimeout(this._boundRunExpiredTimers, wait);
+  }
+};
+
+Backburner.prototype.schedule = Backburner.prototype.defer;
+Backburner.prototype.scheduleOnce = Backburner.prototype.deferOnce;
+Backburner.prototype.later = Backburner.prototype.setTimeout;
+
+function getOnError(options) {
+  return options.onError || (options.onErrorTarget && options.onErrorTarget[options.onErrorMethod]);
+}
+
+function createAutorun(backburner) {
+  var setTimeout = backburner._platform.setTimeout;
+  backburner.begin();
+  backburner._autorun = setTimeout(function() {
+    backburner._autorun = null;
+    backburner.end();
+  }, 0);
+}
+
+function findDebouncee(target, method, debouncees) {
+  return findItem(target, method, debouncees);
+}
+
+function findThrottler(target, method, throttlers) {
+  return findItem(target, method, throttlers);
+}
+
+function findItem(target, method, collection) {
+  var item;
+  var index = -1;
+
+  for (var i = 0, l = collection.length; i < l; i++) {
+    item = collection[i];
+    if (item[0] === target && item[1] === method) {
+      index = i;
+      break;
     }
   }
 
-  function isString(suspect) {
-    return typeof suspect === 'string';
-  }
+  return index;
+}
 
-  function isFunction(suspect) {
-    return typeof suspect === 'function';
-  }
+function clearItems(item) {
+  this._platform.clearTimeout(item[2]);
+}
 
-  function isNumber(suspect) {
-    return typeof suspect === 'number';
-  }
+exports['default'] = Backburner;
 
-  function isCoercableNumber(number) {
-    return isNumber(number) || NUMBER.test(number);
-  }
+Object.defineProperty(exports, '__esModule', { value: true });
+
 });
 enifed('container/container', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
   'use strict';
@@ -2524,180 +2497,224 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     return privateNames[fullName] = _emberMetalUtils.intern(type + ':' + rawName + '-' + privateSuffix);
   }
 });
-enifed('dag-map', ['exports', 'vertex', 'visit'], function (exports, _vertex, _visit) {
-  'use strict';
+enifed('dag-map', ['exports'], function (exports) { 'use strict';
 
-  exports.default = DAG;
-
-  /**
-   * DAG stands for Directed acyclic graph.
-   *
-   * It is used to build a graph of dependencies checking that there isn't circular
-   * dependencies. p.e Registering initializers with a certain precedence order.
-   *
-   * @class DAG
-   * @constructor
-   */
-
-  function DAG() {
-    this.names = [];
-    this.vertices = Object.create(null);
-  }
-
-  /**
-   * Adds a vertex entry to the graph unless it is already added.
-   *
-   * @private
-   * @method add
-   * @param {String} name The name of the vertex to add
-   */
-  DAG.prototype.add = function (name) {
-    if (!name) {
-      throw new Error("Can't add Vertex without name");
+/**
+ * A map of key/value pairs with dependencies contraints that can be traversed
+ * in topological order and is checked for cycles.
+ *
+ * @class DAG
+ * @constructor
+ */
+var DAG = (function () {
+    function DAG() {
+        this._vertices = new Vertices();
     }
-    if (this.vertices[name] !== undefined) {
-      return this.vertices[name];
-    }
-    var vertex = new _vertex.default(name);
-    this.vertices[name] = vertex;
-    this.names.push(name);
-    return vertex;
-  };
-
-  /**
-   * Adds a vertex to the graph and sets its value.
-   *
-   * @private
-   * @method map
-   * @param {String} name The name of the vertex.
-   * @param         value The value to put in the vertex.
-   */
-  DAG.prototype.map = function (name, value) {
-    this.add(name).value = value;
-  };
-
-  /**
-   * Connects the vertices with the given names, adding them to the graph if
-   * necessary, only if this does not produce is any circular dependency.
-   *
-   * @private
-   * @method addEdge
-   * @param {String} fromName The name the vertex where the edge starts.
-   * @param {String} toName The name the vertex where the edge ends.
-   */
-  DAG.prototype.addEdge = function (fromName, toName) {
-    if (!fromName || !toName || fromName === toName) {
-      return;
-    }
-    var from = this.add(fromName);
-    var to = this.add(toName);
-    if (to.incoming.hasOwnProperty(fromName)) {
-      return;
-    }
-    function checkCycle(vertex, path) {
-      if (vertex.name === toName) {
-        throw new Error("cycle detected: " + toName + " <- " + path.join(" <- "));
-      }
-    }
-    _visit.default(from, checkCycle);
-    from.hasOutgoing = true;
-    to.incoming[fromName] = from;
-    to.incomingNames.push(fromName);
-  };
-
-  /**
-   * Visits all the vertex of the graph calling the given function with each one,
-   * ensuring that the vertices are visited respecting their precedence.
-   *
-   * @method  topsort
-   * @param {Function} fn The function to be invoked on each vertex.
-   */
-  DAG.prototype.topsort = function (fn) {
-    var visited = {};
-    var vertices = this.vertices;
-    var names = this.names;
-    var len = names.length;
-    var i, vertex;
-
-    for (i = 0; i < len; i++) {
-      vertex = vertices[names[i]];
-      if (!vertex.hasOutgoing) {
-        _visit.default(vertex, fn, visited);
-      }
-    }
-  };
-
-  /**
-   * Adds a vertex with the given name and value to the graph and joins it with the
-   * vertices referenced in _before_ and _after_. If there isn't vertices with those
-   * names, they are added too.
-   *
-   * If either _before_ or _after_ are falsy/empty, the added vertex will not have
-   * an incoming/outgoing edge.
-   *
-   * @method addEdges
-   * @param {String} name The name of the vertex to be added.
-   * @param         value The value of that vertex.
-   * @param        before An string or array of strings with the names of the vertices before
-   *                      which this vertex must be visited.
-   * @param         after An string or array of strings with the names of the vertex after
-   *                      which this vertex must be visited.
-   *
-   */
-  DAG.prototype.addEdges = function (name, value, before, after) {
-    var i;
-    this.map(name, value);
-    if (before) {
-      if (typeof before === 'string') {
-        this.addEdge(name, before);
-      } else {
-        for (i = 0; i < before.length; i++) {
-          this.addEdge(name, before[i]);
+    /**
+     * Adds a key/value pair with dependencies on other key/value pairs.
+     *
+     * @public
+     * @method addEdges
+     * @param {string[]}   key The key of the vertex to be added.
+     * @param {any}      value The value of that vertex.
+     * @param {string[]|string|undefined}  before A key or array of keys of the vertices that must
+     *                                            be visited before this vertex.
+     * @param {string[]|string|undefined}   after An string or array of strings with the keys of the
+     *                                            vertices that must be after this vertex is visited.
+     */
+    DAG.prototype.add = function (key, value, before, after) {
+        var vertices = this._vertices;
+        var v = vertices.add(key);
+        v.val = value;
+        if (before) {
+            if (typeof before === "string") {
+                vertices.addEdge(v, vertices.add(before));
+            }
+            else {
+                for (var i = 0; i < before.length; i++) {
+                    vertices.addEdge(v, vertices.add(before[i]));
+                }
+            }
         }
-      }
-    }
-    if (after) {
-      if (typeof after === 'string') {
-        this.addEdge(after, name);
-      } else {
-        for (i = 0; i < after.length; i++) {
-          this.addEdge(after[i], name);
+        if (after) {
+            if (typeof after === "string") {
+                vertices.addEdge(vertices.add(after), v);
+            }
+            else {
+                for (var i = 0; i < after.length; i++) {
+                    vertices.addEdge(vertices.add(after[i]), v);
+                }
+            }
         }
-      }
+    };
+    /**
+     * Visits key/value pairs in topological order.
+     *
+     * @public
+     * @method  topsort
+     * @param {Function} fn The function to be invoked with each key/value.
+     */
+    DAG.prototype.topsort = function (callback) {
+        this._vertices.topsort(callback);
+    };
+    return DAG;
+}());
+var Vertices = (function () {
+    function Vertices() {
+        this.stack = new IntStack();
+        this.result = new IntStack();
+        this.vertices = [];
     }
-  };
-});
-enifed('dag-map.umd', ['exports', 'dag-map/platform', 'dag-map'], function (exports, _dagMapPlatform, _dagMap) {
-  'use strict';
-
-  /* global define:true module:true window: true */
-  if (typeof define === 'function' && define.amd) {
-    define(function () {
-      return _dagMap.default;
-    });
-  } else if (typeof module !== 'undefined' && module.exports) {
-    module.exports = _dagMap.default;
-  } else if (typeof _dagMapPlatform.default !== 'undefined') {
-    _dagMapPlatform.default['DAG'] = _dagMap.default;
-  }
-});
-enifed('dag-map/platform', ['exports'], function (exports) {
-  'use strict';
-
-  var platform;
-
-  /* global self */
-  if (typeof self === 'object') {
-    platform = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      platform = global;
-    } else {
-      throw new Error('no global: `self` or `global` found');
+    Vertices.prototype.add = function (key) {
+        if (!key)
+            throw new Error("missing key");
+        var vertices = this.vertices;
+        var i = 0;
+        var vertex;
+        for (; i < vertices.length; i++) {
+            vertex = vertices[i];
+            if (vertex.key === key)
+                return vertex;
+        }
+        return vertices[i] = {
+            id: i,
+            key: key,
+            val: null,
+            inc: null,
+            out: false,
+            mark: false
+        };
+    };
+    Vertices.prototype.addEdge = function (v, w) {
+        this.check(v, w.key);
+        var inc = w.inc;
+        if (!inc) {
+            w.inc = [v.id];
+        }
+        else {
+            var i = 0;
+            for (; i < inc.length; i++) {
+                if (inc[i] === v.id)
+                    return;
+            }
+            inc[i] = v.id;
+        }
+        v.out = true;
+    };
+    Vertices.prototype.topsort = function (cb) {
+        this.reset();
+        var vertices = this.vertices;
+        for (var i = 0; i < vertices.length; i++) {
+            var vertex = vertices[i];
+            if (vertex.out)
+                continue;
+            this.visit(vertex, undefined);
+        }
+        this.each(cb);
+    };
+    Vertices.prototype.check = function (v, w) {
+        if (v.key === w) {
+            throw new Error("cycle detected: " + w + " <- " + w);
+        }
+        var inc = v.inc;
+        // quick check
+        if (!inc || inc.length === 0)
+            return;
+        var vertices = this.vertices;
+        // shallow check
+        for (var i = 0; i < inc.length; i++) {
+            var key = vertices[inc[i]].key;
+            if (key === w) {
+                throw new Error("cycle detected: " + w + " <- " + v.key + " <- " + w);
+            }
+        }
+        // deep check
+        this.reset();
+        this.visit(v, w);
+        if (this.result.len > 0) {
+            var msg_1 = "cycle detected: " + w;
+            this.each(function (key) {
+                msg_1 += " <- " + key;
+            });
+            throw new Error(msg_1);
+        }
+    };
+    Vertices.prototype.each = function (cb) {
+        var _a = this, result = _a.result, vertices = _a.vertices;
+        for (var i = 0; i < result.len; i++) {
+            var vertex = vertices[result.stack[i]];
+            cb(vertex.key, vertex.val);
+        }
+    };
+    // reuse between cycle check and topsort
+    Vertices.prototype.reset = function () {
+        this.stack.len = 0;
+        this.result.len = 0;
+        var vertices = this.vertices;
+        for (var i = 0; i < vertices.length; i++) {
+            vertices[i].mark = false;
+        }
+    };
+    Vertices.prototype.visit = function (start, search) {
+        var _a = this, stack = _a.stack, result = _a.result, vertices = _a.vertices;
+        stack.push(start.id);
+        while (stack.len) {
+            var index = stack.pop();
+            if (index < 0) {
+                index = ~index;
+                if (search) {
+                    result.pop();
+                }
+                else {
+                    result.push(index);
+                }
+            }
+            else {
+                var vertex = vertices[index];
+                if (vertex.mark) {
+                    continue;
+                }
+                if (search) {
+                    result.push(index);
+                    if (search === vertex.key) {
+                        return;
+                    }
+                }
+                vertex.mark = true;
+                stack.push(~index);
+                var incoming = vertex.inc;
+                if (incoming) {
+                    var i = incoming.length;
+                    while (i--) {
+                        index = incoming[i];
+                        if (!vertices[index].mark) {
+                            stack.push(index);
+                        }
+                    }
+                }
+            }
+        }
+    };
+    return Vertices;
+}());
+var IntStack = (function () {
+    function IntStack() {
+        this.stack = [0, 0, 0, 0, 0, 0];
+        this.len = 0;
     }
+    IntStack.prototype.push = function (n) {
+        this.stack[this.len++] = n;
+    };
+    IntStack.prototype.pop = function () {
+        return this.stack[--this.len];
+    };
+    return IntStack;
+}());
 
-  exports.default = platform;
+exports['default'] = DAG;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
 });
 enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/initializers/dom-templates'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationInitializersDomTemplates) {
   'use strict';
@@ -4578,12 +4595,10 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
 
       for (var i = 0; i < initializers.length; i++) {
         initializer = initializersByName[initializers[i]];
-        graph.addEdges(initializer.name, initializer, initializer.before, initializer.after);
+        graph.add(initializer.name, initializer, initializer.before, initializer.after);
       }
 
-      graph.topsort(function (vertex) {
-        return cb(vertex.name, vertex.value);
-      });
+      graph.topsort(cb);
     }
   });
 
@@ -37947,7 +37962,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+20f2c8de";
+  exports.default = "2.9.0-null+c484192f";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
   'use strict';
@@ -54243,56 +54258,6 @@ enifed('rsvp/utils', ['exports'], function (exports) {
     return new F();
   };
   exports.o_create = o_create;
-});
-enifed("vertex", ["exports"], function (exports) {
-  /**
-   * DAG Vertex
-   *
-   * @class Vertex
-   * @constructor
-   */
-
-  "use strict";
-
-  exports.default = Vertex;
-
-  function Vertex(name) {
-    this.name = name;
-    this.incoming = {};
-    this.incomingNames = [];
-    this.hasOutgoing = false;
-    this.value = null;
-  }
-});
-enifed("visit", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = visit;
-
-  function visit(vertex, fn, visited, path) {
-    var name = vertex.name;
-    var vertices = vertex.incoming;
-    var names = vertex.incomingNames;
-    var len = names.length;
-    var i;
-
-    if (!visited) {
-      visited = {};
-    }
-    if (!path) {
-      path = [];
-    }
-    if (visited.hasOwnProperty(name)) {
-      return;
-    }
-    path.push(name);
-    visited[name] = true;
-    for (i = 0; i < len; i++) {
-      visit(vertices[names[i]], fn, visited, path);
-    }
-    fn(vertex, path);
-    path.pop();
-  }
 });
 requireModule("ember");
 
