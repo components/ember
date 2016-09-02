@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ec65dcad
+ * @version   2.9.0-null+8414c300
  */
 
 var enifed, requireModule, require, Ember;
@@ -48092,8 +48092,8 @@ enifed('ember-runtime/tests/main_test', ['exports', 'ember-runtime'], function (
   QUnit.module('ember-runtime/main');
 
   QUnit.test('Ember.computed.collect', function () {
-    var MyObj = _emberRuntime.default.Object.extend({
-      props: _emberRuntime.default.computed.collect('foo', 'bar', 'baz')
+    var MyObj = _emberRuntime.Object.extend({
+      props: _emberRuntime.collect('foo', 'bar', 'baz')
     });
 
     var myObj = MyObj.create({
@@ -61955,10 +61955,23 @@ enifed('ember/tests/reexports_test', ['exports', 'ember', 'ember-metal/features'
 
   QUnit.module('ember reexports');
 
-  [['_Renderer', 'ember-glimmer', '_Renderer'], ['Component', 'ember-glimmer', 'Component'], ['Helper', 'ember-glimmer', 'Helper'], ['Helper.helper', 'ember-glimmer', 'helper'], ['Checkbox', 'ember-glimmer', 'Checkbox'], ['LinkComponent', 'ember-glimmer', 'LinkComponent'], ['TextArea', 'ember-glimmer', 'TextArea'], ['TextField', 'ember-glimmer', 'TextField'], ['TEMPLATES', 'ember-glimmer', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-glimmer', 'template'], ['Handlebars.SafeString', 'ember-glimmer', { get: '_getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-glimmer', 'escapeExpression'], ['String.htmlSafe', 'ember-glimmer', 'htmlSafe'], ['HTMLBars.makeBoundHelper', 'ember-glimmer', 'makeBoundHelper'], ['String', 'ember-runtime', 'String']].forEach(function (reexport) {
+  [
+  // container
+  ['getOwner', 'container', 'getOwner'], ['setOwner', 'container', 'setOwner'], ['Registry', 'container', 'Registry'], ['Container', 'container', 'Container'],
+
+  // ember-glimmer
+  ['_Renderer', 'ember-glimmer', '_Renderer'], ['Component', 'ember-glimmer', 'Component'], ['Helper', 'ember-glimmer', 'Helper'], ['Helper.helper', 'ember-glimmer', 'helper'], ['Checkbox', 'ember-glimmer', 'Checkbox'], ['LinkComponent', 'ember-glimmer', 'LinkComponent'], ['TextArea', 'ember-glimmer', 'TextArea'], ['TextField', 'ember-glimmer', 'TextField'], ['TEMPLATES', 'ember-glimmer', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-glimmer', 'template'], ['Handlebars.SafeString', 'ember-glimmer', { get: '_getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-glimmer', 'escapeExpression'], ['String.htmlSafe', 'ember-glimmer', 'htmlSafe'], ['HTMLBars.makeBoundHelper', 'ember-glimmer', 'makeBoundHelper'],
+
+  // ember-runtime
+  ['_RegistryProxyMixin', 'ember-runtime', 'RegistryProxyMixin'], ['_ContainerProxyMixin', 'ember-runtime', 'ContainerProxyMixin'], ['Object', 'ember-runtime'], ['String', 'ember-runtime'], ['compare', 'ember-runtime'], ['copy', 'ember-runtime'], ['isEqual', 'ember-runtime'], ['inject', 'ember-runtime'], ['Array', 'ember-runtime'], ['Comparable', 'ember-runtime'], ['Namespace', 'ember-runtime'], ['Enumerable', 'ember-runtime'], ['ArrayProxy', 'ember-runtime'], ['ObjectProxy', 'ember-runtime'], ['ActionHandler', 'ember-runtime'], ['CoreObject', 'ember-runtime'], ['NativeArray', 'ember-runtime'], ['Copyable', 'ember-runtime'], ['Freezable', 'ember-runtime'], ['FROZEN_ERROR', 'ember-runtime'], ['MutableEnumerable', 'ember-runtime'], ['MutableArray', 'ember-runtime'], ['TargetActionSupport', 'ember-runtime'], ['Evented', 'ember-runtime'], ['PromiseProxyMixin', 'ember-runtime'], ['Observable', 'ember-runtime'], ['typeOf', 'ember-runtime'], ['isArray', 'ember-runtime'], ['Object', 'ember-runtime'], ['onLoad', 'ember-runtime'], ['runLoadHooks', 'ember-runtime'], ['Controller', 'ember-runtime'], ['ControllerMixin', 'ember-runtime'], ['Service', 'ember-runtime'], ['_ProxyMixin', 'ember-runtime'], ['RSVP', 'ember-runtime'], ['STRINGS', 'ember-runtime', { get: 'getStrings', set: 'setStrings' }], ['BOOTED', 'ember-runtime', { get: 'isNamespaceSearchDisabled', set: 'setNamespaceSearchDisabled' }]].forEach(function (reexport) {
     var path = reexport[0];
     var moduleId = reexport[1];
     var exportName = reexport[2];
+
+    // default path === exportName if none present
+    if (!exportName) {
+      exportName = path;
+    }
 
     QUnit.test('Ember.' + path + ' exports correctly', function (assert) {
       confirmExport(assert, path, moduleId, exportName);

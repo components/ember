@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+ec65dcad
+ * @version   2.9.0-null+8414c300
  */
 
 var enifed, requireModule, require, Ember;
@@ -5369,16 +5369,20 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember/version', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/assign', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-console', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'backburner'], function (exports, _require, _emberEnvironment, _emberVersion, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalAssign, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberConsole, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalTesting, _emberMetalError_handler, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _backburner) {
+enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember/version', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/assign', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-console', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'backburner', 'ember-metal/computed', 'ember-metal/alias'], function (exports, _require, _emberEnvironment, _emberVersion, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalAssign, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberConsole, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalTesting, _emberMetalError_handler, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _backburner, _emberMetalComputed, _emberMetalAlias) {
   /**
   @module ember
   @submodule ember-metal
   */
 
-  // BEGIN IMPORTS
   'use strict';
 
-  _emberMetalComputed.computed.alias = _emberMetalAlias.default;
+  exports.computed = _emberMetalComputed.default;
+  exports.cacheFor = _emberMetalComputed.cacheFor;
+  exports.ComputedProperty = _emberMetalComputed.ComputedProperty;
+  exports.alias = _emberMetalAlias.default;
+
+  // BEGIN IMPORTS
 
   // END IMPORTS
 
@@ -5475,10 +5479,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-environment', 'ember/v
   _emberMetalCore.default.destroy = _emberMetalWatching.destroy;
 
   _emberMetalCore.default.expandProperties = _emberMetalExpand_properties.default;
-
-  _emberMetalCore.default.ComputedProperty = _emberMetalComputed.ComputedProperty;
-  _emberMetalCore.default.computed = _emberMetalComputed.computed;
-  _emberMetalCore.default.cacheFor = _emberMetalComputed.cacheFor;
 
   _emberMetalCore.default.addObserver = _emberMetalObserver.addObserver;
   _emberMetalCore.default.observersFor = _emberMetalObserver.observersFor;
@@ -13378,7 +13378,7 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-environment', 'ember-runti
     };
   }
 });
-enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-metal/features', 'ember-runtime/computed/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/string_registry', 'ember-runtime/system/string'], function (exports, _emberMetal, _emberRuntimeIsEqual, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberMetalFeatures, _emberRuntimeComputedComputed_macros, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberRuntimeString_registry, _emberRuntimeSystemString) {
+enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/system/object', 'ember-runtime/system/string', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/compare', 'ember-runtime/is-equal', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/system/namespace', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/utils', 'ember-runtime/string_registry'], function (exports, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeSystemObject, _emberRuntimeSystemString, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeCompare, _emberRuntimeIsEqual, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeSystemNamespace, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsObservable, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedComputed_macros, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeUtils, _emberRuntimeString_registry) {
   /**
   @module ember
   @submodule ember-runtime
@@ -13390,154 +13390,76 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   exports.String = _emberRuntimeSystemString.default;
   exports.RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
   exports.ContainerProxyMixin = _emberRuntimeMixinsContainer_proxy.default;
-
-  // BEGIN IMPORTS
-
-  // END IMPORTS
-
-  // BEGIN EXPORTS
-  _emberMetal.default.compare = _emberRuntimeCompare.default;
-  _emberMetal.default.copy = _emberRuntimeCopy.default;
-  _emberMetal.default.isEqual = _emberRuntimeIsEqual.default;
-
-  _emberMetal.default.inject = _emberRuntimeInject.default;
-
-  _emberMetal.default.Array = _emberRuntimeMixinsArray.default;
-
-  _emberMetal.default.Comparable = _emberRuntimeMixinsComparable.default;
-  _emberMetal.default.Copyable = _emberRuntimeMixinsCopyable.default;
-
-  _emberMetal.default.Freezable = _emberRuntimeMixinsFreezable.Freezable;
-  _emberMetal.default.FROZEN_ERROR = _emberRuntimeMixinsFreezable.FROZEN_ERROR;
-
-  _emberMetal.default.MutableEnumerable = _emberRuntimeMixinsMutable_enumerable.default;
-  _emberMetal.default.MutableArray = _emberRuntimeMixinsMutable_array.default;
-
-  _emberMetal.default.TargetActionSupport = _emberRuntimeMixinsTarget_action_support.default;
-  _emberMetal.default.Evented = _emberRuntimeMixinsEvented.default;
-
-  _emberMetal.default.PromiseProxyMixin = _emberRuntimeMixinsPromise_proxy.default;
-
-  _emberMetal.default.Observable = _emberRuntimeMixinsObservable.default;
-
-  _emberMetal.default.typeOf = _emberRuntimeUtils.typeOf;
-  _emberMetal.default.isArray = _emberRuntimeUtils.isArray;
-
-  // ES6TODO: this seems a less than ideal way/place to add properties to Ember.computed
-  var EmComputed = _emberMetal.default.computed;
-
-  EmComputed.empty = _emberRuntimeComputedComputed_macros.empty;
-  EmComputed.notEmpty = _emberRuntimeComputedComputed_macros.notEmpty;
-  EmComputed.none = _emberRuntimeComputedComputed_macros.none;
-  EmComputed.not = _emberRuntimeComputedComputed_macros.not;
-  EmComputed.bool = _emberRuntimeComputedComputed_macros.bool;
-  EmComputed.match = _emberRuntimeComputedComputed_macros.match;
-  EmComputed.equal = _emberRuntimeComputedComputed_macros.equal;
-  EmComputed.gt = _emberRuntimeComputedComputed_macros.gt;
-  EmComputed.gte = _emberRuntimeComputedComputed_macros.gte;
-  EmComputed.lt = _emberRuntimeComputedComputed_macros.lt;
-  EmComputed.lte = _emberRuntimeComputedComputed_macros.lte;
-  EmComputed.oneWay = _emberRuntimeComputedComputed_macros.oneWay;
-  EmComputed.reads = _emberRuntimeComputedComputed_macros.oneWay;
-  EmComputed.readOnly = _emberRuntimeComputedComputed_macros.readOnly;
-  EmComputed.defaultTo = _emberRuntimeComputedComputed_macros.defaultTo;
-  EmComputed.deprecatingAlias = _emberRuntimeComputedComputed_macros.deprecatingAlias;
-  EmComputed.and = _emberRuntimeComputedComputed_macros.and;
-  EmComputed.or = _emberRuntimeComputedComputed_macros.or;
-  EmComputed.any = _emberRuntimeComputedComputed_macros.any;
-
-  EmComputed.sum = _emberRuntimeComputedReduce_computed_macros.sum;
-  EmComputed.min = _emberRuntimeComputedReduce_computed_macros.min;
-  EmComputed.max = _emberRuntimeComputedReduce_computed_macros.max;
-  EmComputed.map = _emberRuntimeComputedReduce_computed_macros.map;
-  EmComputed.sort = _emberRuntimeComputedReduce_computed_macros.sort;
-  EmComputed.setDiff = _emberRuntimeComputedReduce_computed_macros.setDiff;
-  EmComputed.mapBy = _emberRuntimeComputedReduce_computed_macros.mapBy;
-  EmComputed.filter = _emberRuntimeComputedReduce_computed_macros.filter;
-  EmComputed.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
-  EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
-
-  if (_emberMetalFeatures.default('ember-runtime-computed-uniq-by')) {
-    EmComputed.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
-  }
-
-  EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
-  EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
-  EmComputed.collect = _emberRuntimeComputedReduce_computed_macros.collect;
-
-  _emberMetal.default.Object = _emberRuntimeSystemObject.default;
-  _emberMetal.default.Container = _emberRuntimeSystemContainer.Container;
-  _emberMetal.default.Registry = _emberRuntimeSystemContainer.Registry;
-
-  _emberMetal.default.getOwner = _emberRuntimeSystemContainer.getOwner;
-  _emberMetal.default.setOwner = _emberRuntimeSystemContainer.setOwner;
-
-  _emberMetal.default._RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
-  _emberMetal.default._ContainerProxyMixin = _emberRuntimeMixinsContainer_proxy.default;
-
-  _emberMetal.default.Namespace = _emberRuntimeSystemNamespace.default;
-  _emberMetal.default.Enumerable = _emberRuntimeMixinsEnumerable.default;
-  _emberMetal.default.ArrayProxy = _emberRuntimeSystemArray_proxy.default;
-  _emberMetal.default.ObjectProxy = _emberRuntimeSystemObject_proxy.default;
-  _emberMetal.default.ActionHandler = _emberRuntimeMixinsAction_handler.default;
-  _emberMetal.default.CoreObject = _emberRuntimeSystemCore_object.default;
-  _emberMetal.default.NativeArray = _emberRuntimeSystemNative_array.default;
-  // ES6TODO: Currently we must rely on the global from ember-metal/core to avoid circular deps
-  // Ember.A = A;
-  _emberMetal.default.onLoad = _emberRuntimeSystemLazy_load.onLoad;
-  _emberMetal.default.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
-
-  _emberMetal.default.Controller = _emberRuntimeControllersController.default;
-  _emberMetal.default.ControllerMixin = _emberRuntimeMixinsController.default;
-
-  _emberMetal.default.Service = _emberRuntimeSystemService.default;
-
-  _emberMetal.default._ProxyMixin = _emberRuntimeMixinsProxy.default;
-
-  _emberMetal.default.RSVP = _emberRuntimeExtRsvp.default;
-  // END EXPORTS
-
-  /**
-    Defines the hash of localized strings for the current language. Used by
-    the `Ember.String.loc()` helper. To localize, add string values to this
-    hash.
-  
-    @property STRINGS
-    @for Ember
-    @type Object
-    @private
-  */
-  Object.defineProperty(_emberMetal.default, 'STRINGS', {
-    configurable: false,
-    get: _emberRuntimeString_registry.getStrings,
-    set: _emberRuntimeString_registry.setStrings
-  });
-
-  /**
-    Whether searching on the global for new Namespace instances is enabled.
-  
-    This is only exported here as to not break any addons.  Given the new
-    visit API, you will have issues if you treat this as a indicator of
-    booted.
-  
-    Internally this is only exposing a flag in Namespace.
-  
-    @property BOOTED
-    @for Ember
-    @type Boolean
-    @private
-   */
-  Object.defineProperty(_emberMetal.default, 'BOOTED', {
-    configurable: false,
-    enumerable: false,
-    get: _emberRuntimeSystemNamespace.isSearchDisabled,
-    set: _emberRuntimeSystemNamespace.setSearchDisabled
-  });
-
-  exports.default = _emberMetal.default;
+  exports.copy = _emberRuntimeCopy.default;
+  exports.inject = _emberRuntimeInject.default;
+  exports.compare = _emberRuntimeCompare.default;
+  exports.isEqual = _emberRuntimeIsEqual.default;
+  exports.Array = _emberRuntimeMixinsArray.default;
+  exports.Comparable = _emberRuntimeMixinsComparable.default;
+  exports.Namespace = _emberRuntimeSystemNamespace.default;
+  exports.isNamespaceSearchDisabled = _emberRuntimeSystemNamespace.isSearchDisabled;
+  exports.setNamespaceSearchDisabled = _emberRuntimeSystemNamespace.setSearchDisabled;
+  exports.ArrayProxy = _emberRuntimeSystemArray_proxy.default;
+  exports.ObjectProxy = _emberRuntimeSystemObject_proxy.default;
+  exports.CoreObject = _emberRuntimeSystemCore_object.default;
+  exports.NativeArray = _emberRuntimeSystemNative_array.default;
+  exports.A = _emberRuntimeSystemNative_array.A;
+  exports.ActionHandler = _emberRuntimeMixinsAction_handler.default;
+  exports.Copyable = _emberRuntimeMixinsCopyable.default;
+  exports.Enumerable = _emberRuntimeMixinsEnumerable.default;
+  exports.Freezable = _emberRuntimeMixinsFreezable.Freezable;
+  exports.FROZEN_ERROR = _emberRuntimeMixinsFreezable.FROZEN_ERROR;
+  exports._ProxyMixin = _emberRuntimeMixinsProxy.default;
+  exports.onLoad = _emberRuntimeSystemLazy_load.onLoad;
+  exports.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
+  exports.Observable = _emberRuntimeMixinsObservable.default;
+  exports.MutableEnumerable = _emberRuntimeMixinsMutable_enumerable.default;
+  exports.MutableArray = _emberRuntimeMixinsMutable_array.default;
+  exports.TargetActionSupport = _emberRuntimeMixinsTarget_action_support.default;
+  exports.Evented = _emberRuntimeMixinsEvented.defautl;
+  exports.PromiseProxyMixin = _emberRuntimeMixinsPromise_proxy.default;
+  exports.empty = _emberRuntimeComputedComputed_macros.empty;
+  exports.notEmpty = _emberRuntimeComputedComputed_macros.notEmpty;
+  exports.none = _emberRuntimeComputedComputed_macros.none;
+  exports.not = _emberRuntimeComputedComputed_macros.not;
+  exports.bool = _emberRuntimeComputedComputed_macros.bool;
+  exports.match = _emberRuntimeComputedComputed_macros.match;
+  exports.equal = _emberRuntimeComputedComputed_macros.equal;
+  exports.gt = _emberRuntimeComputedComputed_macros.gt;
+  exports.gte = _emberRuntimeComputedComputed_macros.gte;
+  exports.lt = _emberRuntimeComputedComputed_macros.lt;
+  exports.lte = _emberRuntimeComputedComputed_macros.lte;
+  exports.oneWay = _emberRuntimeComputedComputed_macros.oneWay;
+  exports.readOnly = _emberRuntimeComputedComputed_macros.readOnly;
+  exports.defaultTo = _emberRuntimeComputedComputed_macros.defaultTo;
+  exports.deprecatingAlias = _emberRuntimeComputedComputed_macros.deprecatingAlias;
+  exports.and = _emberRuntimeComputedComputed_macros.and;
+  exports.or = _emberRuntimeComputedComputed_macros.or;
+  exports.any = _emberRuntimeComputedComputed_macros.any;
+  exports.sum = _emberRuntimeComputedReduce_computed_macros.sum;
+  exports.min = _emberRuntimeComputedReduce_computed_macros.min;
+  exports.max = _emberRuntimeComputedReduce_computed_macros.max;
+  exports.map = _emberRuntimeComputedReduce_computed_macros.map;
+  exports.sort = _emberRuntimeComputedReduce_computed_macros.sort;
+  exports.setDiff = _emberRuntimeComputedReduce_computed_macros.setDiff;
+  exports.mapBy = _emberRuntimeComputedReduce_computed_macros.mapBy;
+  exports.filter = _emberRuntimeComputedReduce_computed_macros.filter;
+  exports.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
+  exports.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
+  exports.uniqBy = _emberRuntimeComputedReduce_computed_macros.uniqBy;
+  exports.union = _emberRuntimeComputedReduce_computed_macros.union;
+  exports.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
+  exports.collect = _emberRuntimeComputedReduce_computed_macros.collect;
+  exports.Controller = _emberRuntimeControllersController.default;
+  exports.ControllerMixin = _emberRuntimeMixinsController.default;
+  exports.Service = _emberRuntimeSystemService.default;
+  exports.RSVP = _emberRuntimeExtRsvp.default;
+  // just for side effect of extending Ember.RSVP
+  exports.isArray = _emberRuntimeUtils.isArray;
+  exports.typeOf = _emberRuntimeUtils.typeOf;
+  exports.getStrings = _emberRuntimeString_registry.getStrings;
+  exports.setStrings = _emberRuntimeString_registry.setStrings;
 });
-// reexports
-// just for side effect of extending Ember.RSVP
 // just for side effect of extending String.prototype
 // just for side effect of extending Function.prototype
 enifed('ember-runtime/inject', ['exports', 'ember-metal/debug', 'ember-metal/injected_property'], function (exports, _emberMetalDebug, _emberMetalInjected_property) {
@@ -18140,17 +18062,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
     }
   });
 });
-enifed('ember-runtime/system/container', ['exports', 'container', 'ember-metal/property_set'], function (exports, _container, _emberMetalProperty_set) {
-  'use strict';
-
-  _container.Registry.set = _emberMetalProperty_set.set;
-  _container.Container.set = _emberMetalProperty_set.set;
-
-  exports.Registry = _container.Registry;
-  exports.Container = _container.Container;
-  exports.getOwner = _container.getOwner;
-  exports.setOwner = _container.setOwner;
-});
 enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/assign', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/chains', 'ember-metal/events', 'ember-metal/mixin', 'ember-metal/error', 'ember-runtime/mixins/action_handler', 'ember-metal/properties', 'ember-metal/binding', 'ember-metal/computed', 'ember-metal/injected_property', 'ember-metal/run_loop', 'ember-metal/watching', 'ember-runtime/inject', 'ember-metal/symbol'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalAssign, _emberMetalProperty_get, _emberMetalUtils, _emberMetalMeta, _emberMetalChains, _emberMetalEvents, _emberMetalMixin, _emberMetalError, _emberRuntimeMixinsAction_handler, _emberMetalProperties, _emberMetalBinding, _emberMetalComputed, _emberMetalInjected_property, _emberMetalRun_loop, _emberMetalWatching, _emberRuntimeInject, _emberMetalSymbol) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
@@ -19523,8 +19434,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
 
   if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
-    exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
-    A = A = function (arr) {
+    exports.A = A = function (arr) {
       return arr || [];
     };
   } else {
@@ -19536,7 +19446,8 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
     };
   }
 
-  _emberMetalCore.default.A = A;exports.A = A;
+  _emberMetalCore.default.A = A;
+  exports.A = A;
   exports.NativeArray = NativeArray;
   exports.default = NativeArray;
 });
@@ -20154,7 +20065,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+ec65dcad";
+  exports.default = "2.9.0-null+8414c300";
 });
 enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
