@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+870a71b1
+ * @version   2.9.0-null+cf1aa1f7
  */
 
 var enifed, requireModule, require, Ember;
@@ -1199,6 +1199,1364 @@ exports['default'] = Backburner;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+});
+enifed('container/container', ['exports', 'ember-environment', 'ember-metal', 'container/owner'], function (exports, _emberEnvironment, _emberMetal, _containerOwner) {
+  'use strict';
+
+  exports.default = Container;
+  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
+
+  var CONTAINER_OVERRIDE = _emberMetal.symbol('CONTAINER_OVERRIDE');
+
+  /**
+   A container used to instantiate and cache objects.
+  
+   Every `Container` must be associated with a `Registry`, which is referenced
+   to determine the factory and options that should be used to instantiate
+   objects.
+  
+   The public API for `Container` is still in flux and should not be considered
+   stable.
+  
+   @private
+   @class Container
+   */
+
+  function Container(registry, options) {
+    this.registry = registry;
+    this.owner = options && options.owner ? options.owner : null;
+    this.cache = _emberMetal.dictionary(options && options.cache ? options.cache : null);
+    this.factoryCache = _emberMetal.dictionary(options && options.factoryCache ? options.factoryCache : null);
+    this.validationCache = _emberMetal.dictionary(options && options.validationCache ? options.validationCache : null);
+    this._fakeContainerToInject = buildFakeContainerWithDeprecations(this);
+    this[CONTAINER_OVERRIDE] = undefined;
+    this.isDestroyed = false;
+  }
+
+  Container.prototype = {
+    /**
+     @private
+     @property owner
+     @type Object
+     */
+    owner: null,
+
+    /**
+     @private
+     @property registry
+     @type Registry
+     @since 1.11.0
+     */
+    registry: null,
+
+    /**
+     @private
+     @property cache
+     @type InheritingDict
+     */
+    cache: null,
+
+    /**
+     @private
+     @property factoryCache
+     @type InheritingDict
+     */
+    factoryCache: null,
+
+    /**
+     @private
+     @property validationCache
+     @type InheritingDict
+     */
+    validationCache: null,
+
+    /**
+     Given a fullName return a corresponding instance.
+      The default behaviour is for lookup to return a singleton instance.
+     The singleton is scoped to the container, allowing multiple containers
+     to all have their own locally scoped singletons.
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      registry.register('api:twitter', Twitter);
+      let twitter = container.lookup('api:twitter');
+      twitter instanceof Twitter; // => true
+      // by default the container will return singletons
+     let twitter2 = container.lookup('api:twitter');
+     twitter2 instanceof Twitter; // => true
+      twitter === twitter2; //=> true
+     ```
+      If singletons are not wanted, an optional flag can be provided at lookup.
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      registry.register('api:twitter', Twitter);
+      let twitter = container.lookup('api:twitter', { singleton: false });
+     let twitter2 = container.lookup('api:twitter', { singleton: false });
+      twitter === twitter2; //=> false
+     ```
+      @private
+     @method lookup
+     @param {String} fullName
+     @param {Object} [options]
+     @param {String} [options.source] The fullname of the request source (used for local lookup)
+     @return {any}
+     */
+    lookup: function (fullName, options) {
+      _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      return lookup(this, this.registry.normalize(fullName), options);
+    },
+
+    /**
+     Given a fullName, return the corresponding factory.
+      @private
+     @method lookupFactory
+     @param {String} fullName
+     @param {Object} [options]
+     @param {String} [options.source] The fullname of the request source (used for local lookup)
+     @return {any}
+     */
+    lookupFactory: function (fullName, options) {
+      _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      return factoryFor(this, this.registry.normalize(fullName), options);
+    },
+
+    /**
+     A depth first traversal, destroying the container, its descendant containers and all
+     their managed objects.
+      @private
+     @method destroy
+     */
+    destroy: function () {
+      eachDestroyable(this, function (item) {
+        if (item.destroy) {
+          item.destroy();
+        }
+      });
+
+      this.isDestroyed = true;
+    },
+
+    /**
+     Clear either the entire cache or just the cache for a particular key.
+      @private
+     @method reset
+     @param {String} fullName optional key to reset; if missing, resets everything
+     */
+    reset: function (fullName) {
+      if (arguments.length > 0) {
+        resetMember(this, this.registry.normalize(fullName));
+      } else {
+        resetCache(this);
+      }
+    },
+
+    /**
+     Returns an object that can be used to provide an owner to a
+     manually created instance.
+      @private
+     @method ownerInjection
+     @returns { Object }
+    */
+    ownerInjection: function () {
+      var _ref;
+
+      return _ref = {}, _ref[_containerOwner.OWNER] = this.owner, _ref;
+    }
+  };
+
+  function isSingleton(container, fullName) {
+    return container.registry.getOption(fullName, 'singleton') !== false;
+  }
+
+  function lookup(container, fullName) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    if (options.source) {
+      fullName = container.registry.expandLocalLookup(fullName, options);
+
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!fullName) {
+        return;
+      }
+    }
+
+    if (container.cache[fullName] !== undefined && options.singleton !== false) {
+      return container.cache[fullName];
+    }
+
+    var value = instantiate(container, fullName);
+
+    if (value === undefined) {
+      return;
+    }
+
+    if (isSingleton(container, fullName) && options.singleton !== false) {
+      container.cache[fullName] = value;
+    }
+
+    return value;
+  }
+
+  function markInjectionsAsDynamic(injections) {
+    injections._dynamic = true;
+  }
+
+  function areInjectionsDynamic(injections) {
+    return !!injections._dynamic;
+  }
+
+  function buildInjections() /* container, ...injections */{
+    var hash = {};
+
+    if (arguments.length > 1) {
+      var container = arguments[0];
+      var injections = [];
+      var injection = undefined;
+
+      for (var i = 1; i < arguments.length; i++) {
+        if (arguments[i]) {
+          injections = injections.concat(arguments[i]);
+        }
+      }
+
+      container.registry.validateInjections(injections);
+
+      for (var i = 0; i < injections.length; i++) {
+        injection = injections[i];
+        hash[injection.property] = lookup(container, injection.fullName);
+        if (!isSingleton(container, injection.fullName)) {
+          markInjectionsAsDynamic(hash);
+        }
+      }
+    }
+
+    return hash;
+  }
+
+  function factoryFor(container, fullName) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    var registry = container.registry;
+
+    if (options.source) {
+      fullName = registry.expandLocalLookup(fullName, options);
+
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!fullName) {
+        return;
+      }
+    }
+
+    var cache = container.factoryCache;
+    if (cache[fullName]) {
+      return cache[fullName];
+    }
+    var factory = registry.resolve(fullName);
+    if (factory === undefined) {
+      return;
+    }
+
+    var type = fullName.split(':')[0];
+    if (!factory || typeof factory.extend !== 'function' || !_emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS && type === 'model') {
+      if (factory && typeof factory._onLookup === 'function') {
+        factory._onLookup(fullName);
+      }
+
+      // TODO: think about a 'safe' merge style extension
+      // for now just fallback to create time injection
+      cache[fullName] = factory;
+      return factory;
+    } else {
+      var injections = injectionsFor(container, fullName);
+      var factoryInjections = factoryInjectionsFor(container, fullName);
+      var cacheable = !areInjectionsDynamic(injections) && !areInjectionsDynamic(factoryInjections);
+
+      factoryInjections._toString = registry.makeToString(factory, fullName);
+
+      var injectedFactory = factory.extend(injections);
+
+      // TODO - remove all `container` injections when Ember reaches v3.0.0
+      injectDeprecatedContainer(injectedFactory.prototype, container);
+      injectedFactory.reopenClass(factoryInjections);
+
+      if (factory && typeof factory._onLookup === 'function') {
+        factory._onLookup(fullName);
+      }
+
+      if (cacheable) {
+        cache[fullName] = injectedFactory;
+      }
+
+      return injectedFactory;
+    }
+  }
+
+  function injectionsFor(container, fullName) {
+    var registry = container.registry;
+    var splitName = fullName.split(':');
+    var type = splitName[0];
+
+    var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
+    injections._debugContainerKey = fullName;
+
+    _containerOwner.setOwner(injections, container.owner);
+
+    return injections;
+  }
+
+  function factoryInjectionsFor(container, fullName) {
+    var registry = container.registry;
+    var splitName = fullName.split(':');
+    var type = splitName[0];
+
+    var factoryInjections = buildInjections(container, registry.getFactoryTypeInjections(type), registry.getFactoryInjections(fullName));
+    factoryInjections._debugContainerKey = fullName;
+
+    return factoryInjections;
+  }
+
+  function instantiate(container, fullName) {
+    var factory = factoryFor(container, fullName);
+    var lazyInjections = undefined,
+        validationCache = undefined;
+
+    if (container.registry.getOption(fullName, 'instantiate') === false) {
+      return factory;
+    }
+
+    if (factory) {
+      if (typeof factory.create !== 'function') {
+        throw new Error('Failed to create an instance of \'' + fullName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
+      }
+
+      validationCache = container.validationCache;
+
+      _emberMetal.runInDebug(function () {
+        // Ensure that all lazy injections are valid at instantiation time
+        if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
+          lazyInjections = factory._lazyInjections();
+          lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
+
+          container.registry.validateInjections(lazyInjections);
+        }
+      });
+
+      validationCache[fullName] = true;
+
+      var obj = undefined;
+
+      if (typeof factory.extend === 'function') {
+        // assume the factory was extendable and is already injected
+        obj = factory.create();
+      } else {
+        // assume the factory was extendable
+        // to create time injections
+        // TODO: support new'ing for instantiation and merge injections for pure JS Functions
+        var injections = injectionsFor(container, fullName);
+
+        // Ensure that a container is available to an object during instantiation.
+        // TODO - remove when Ember reaches v3.0.0
+        // This "fake" container will be replaced after instantiation with a
+        // property that raises deprecations every time it is accessed.
+        injections.container = container._fakeContainerToInject;
+        obj = factory.create(injections);
+
+        // TODO - remove when Ember reaches v3.0.0
+        if (!Object.isFrozen(obj) && 'container' in obj) {
+          injectDeprecatedContainer(obj, container);
+        }
+      }
+
+      return obj;
+    }
+  }
+
+  // TODO - remove when Ember reaches v3.0.0
+  function injectDeprecatedContainer(object, container) {
+    Object.defineProperty(object, 'container', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        _emberMetal.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+        return this[CONTAINER_OVERRIDE] || container;
+      },
+
+      set: function (value) {
+        _emberMetal.deprecate('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+
+        this[CONTAINER_OVERRIDE] = value;
+
+        return value;
+      }
+    });
+  }
+
+  function eachDestroyable(container, callback) {
+    var cache = container.cache;
+    var keys = Object.keys(cache);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var value = cache[key];
+
+      if (container.registry.getOption(key, 'instantiate') !== false) {
+        callback(value);
+      }
+    }
+  }
+
+  function resetCache(container) {
+    eachDestroyable(container, function (value) {
+      if (value.destroy) {
+        value.destroy();
+      }
+    });
+
+    container.cache.dict = _emberMetal.dictionary(null);
+  }
+
+  function resetMember(container, fullName) {
+    var member = container.cache[fullName];
+
+    delete container.factoryCache[fullName];
+
+    if (member) {
+      delete container.cache[fullName];
+
+      if (member.destroy) {
+        member.destroy();
+      }
+    }
+  }
+
+  function buildFakeContainerWithDeprecations(container) {
+    var fakeContainer = {};
+    var propertyMappings = {
+      lookup: 'lookup',
+      lookupFactory: '_lookupFactory'
+    };
+
+    for (var containerProperty in propertyMappings) {
+      fakeContainer[containerProperty] = buildFakeContainerFunction(container, containerProperty, propertyMappings[containerProperty]);
+    }
+
+    return fakeContainer;
+  }
+
+  function buildFakeContainerFunction(container, containerProperty, ownerProperty) {
+    return function () {
+      _emberMetal.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
+        id: 'ember-application.injected-container',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
+      });
+      return container[containerProperty].apply(container, arguments);
+    };
+  }
+});
+enifed('container/index', ['exports', 'container/registry', 'container/container', 'container/owner'], function (exports, _containerRegistry, _containerContainer, _containerOwner) {
+  /*
+  Public API for the container is still in flux.
+  The public API, specified on the application namespace should be considered the stable API.
+  // @module container
+    @private
+  */
+
+  'use strict';
+
+  exports.Registry = _containerRegistry.default;
+  exports.privatize = _containerRegistry.privatize;
+  exports.Container = _containerContainer.default;
+  exports.buildFakeContainerWithDeprecations = _containerContainer.buildFakeContainerWithDeprecations;
+  exports.OWNER = _containerOwner.OWNER;
+  exports.getOwner = _containerOwner.getOwner;
+  exports.setOwner = _containerOwner.setOwner;
+});
+enifed('container/owner', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
+  'use strict';
+
+  exports.getOwner = getOwner;
+  exports.setOwner = setOwner;
+  var OWNER = _emberMetal.symbol('OWNER');
+
+  exports.OWNER = OWNER;
+  /**
+    Framework objects in an Ember application (components, services, routes, etc.)
+    are created via a factory and dependency injection system. Each of these
+    objects is the responsibility of an "owner", which handled its
+    instantiation and manages its lifetime.
+  
+    `getOwner` fetches the owner object responsible for an instance. This can
+    be used to lookup or resolve other class instances, or register new factories
+    into the owner.
+  
+    For example, this component dynamically looks up a service based on the
+    `audioType` passed as an attribute:
+  
+    ```
+    // app/components/play-audio.js
+    import Ember from 'ember';
+  
+    // Usage:
+    //
+    //   {{play-audio audioType=model.audioType audioFile=model.file}}
+    //
+    export default Ember.Component.extend({
+      audioService: Ember.computed('audioType', function() {
+        let owner = Ember.getOwner(this);
+        return owner.lookup(`service:${this.get('audioType')}`);
+      }),
+      click() {
+        let player = this.get('audioService');
+        player.play(this.get('audioFile'));
+      }
+    });
+    ```
+  
+    @method getOwner
+    @for Ember
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
+    @since 2.3.0
+    @public
+  */
+
+  function getOwner(object) {
+    return object[OWNER];
+  }
+
+  /**
+    `setOwner` forces a new owner on a given object instance. This is primarily
+    useful in some testing cases.
+  
+    @method setOwner
+    @for Ember
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
+    @since 2.3.0
+    @public
+  */
+
+  function setOwner(object, owner) {
+    object[OWNER] = owner;
+  }
+});
+enifed('container/registry', ['exports', 'ember-metal', 'container/container'], function (exports, _emberMetal, _containerContainer) {
+  'use strict';
+
+  exports.default = Registry;
+  exports.privatize = privatize;
+
+  var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
+
+  /**
+   A registry used to store factory and option information keyed
+   by type.
+  
+   A `Registry` stores the factory and option information needed by a
+   `Container` to instantiate and cache objects.
+  
+   The API for `Registry` is still in flux and should not be considered stable.
+  
+   @private
+   @class Registry
+   @since 1.11.0
+  */
+
+  function Registry(options) {
+    this.fallback = options && options.fallback ? options.fallback : null;
+
+    if (options && options.resolver) {
+      this.resolver = options.resolver;
+
+      if (typeof this.resolver === 'function') {
+        deprecateResolverFunction(this);
+      }
+    }
+
+    this.registrations = _emberMetal.dictionary(options && options.registrations ? options.registrations : null);
+
+    this._typeInjections = _emberMetal.dictionary(null);
+    this._injections = _emberMetal.dictionary(null);
+    this._factoryTypeInjections = _emberMetal.dictionary(null);
+    this._factoryInjections = _emberMetal.dictionary(null);
+
+    this._localLookupCache = new _emberMetal.EmptyObject();
+    this._normalizeCache = _emberMetal.dictionary(null);
+    this._resolveCache = _emberMetal.dictionary(null);
+    this._failCache = _emberMetal.dictionary(null);
+
+    this._options = _emberMetal.dictionary(null);
+    this._typeOptions = _emberMetal.dictionary(null);
+  }
+
+  Registry.prototype = {
+    /**
+     A backup registry for resolving registrations when no matches can be found.
+      @private
+     @property fallback
+     @type Registry
+     */
+    fallback: null,
+
+    /**
+     An object that has a `resolve` method that resolves a name.
+      @private
+     @property resolver
+     @type Resolver
+     */
+    resolver: null,
+
+    /**
+     @private
+     @property registrations
+     @type InheritingDict
+     */
+    registrations: null,
+
+    /**
+     @private
+      @property _typeInjections
+     @type InheritingDict
+     */
+    _typeInjections: null,
+
+    /**
+     @private
+      @property _injections
+     @type InheritingDict
+     */
+    _injections: null,
+
+    /**
+     @private
+      @property _factoryTypeInjections
+     @type InheritingDict
+     */
+    _factoryTypeInjections: null,
+
+    /**
+     @private
+      @property _factoryInjections
+     @type InheritingDict
+     */
+    _factoryInjections: null,
+
+    /**
+     @private
+      @property _normalizeCache
+     @type InheritingDict
+     */
+    _normalizeCache: null,
+
+    /**
+     @private
+      @property _resolveCache
+     @type InheritingDict
+     */
+    _resolveCache: null,
+
+    /**
+     @private
+      @property _options
+     @type InheritingDict
+     */
+    _options: null,
+
+    /**
+     @private
+      @property _typeOptions
+     @type InheritingDict
+     */
+    _typeOptions: null,
+
+    /**
+     Creates a container based on this registry.
+      @private
+     @method container
+     @param {Object} options
+     @return {Container} created container
+     */
+    container: function (options) {
+      return new _containerContainer.default(this, options);
+    },
+
+    /**
+     Registers a factory for later injection.
+      Example:
+      ```javascript
+     let registry = new Registry();
+      registry.register('model:user', Person, {singleton: false });
+     registry.register('fruit:favorite', Orange);
+     registry.register('communication:main', Email, {singleton: false});
+     ```
+      @private
+     @method register
+     @param {String} fullName
+     @param {Function} factory
+     @param {Object} options
+     */
+    register: function (fullName, factory) {
+      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
+
+      if (factory === undefined) {
+        throw new TypeError('Attempting to register an unknown factory: \'' + fullName + '\'');
+      }
+
+      var normalizedName = this.normalize(fullName);
+
+      if (this._resolveCache[normalizedName]) {
+        throw new Error('Cannot re-register: \'' + fullName + '\', as it has already been resolved.');
+      }
+
+      delete this._failCache[normalizedName];
+      this.registrations[normalizedName] = factory;
+      this._options[normalizedName] = options;
+    },
+
+    /**
+     Unregister a fullName
+      ```javascript
+     let registry = new Registry();
+     registry.register('model:user', User);
+      registry.resolve('model:user').create() instanceof User //=> true
+      registry.unregister('model:user')
+     registry.resolve('model:user') === undefined //=> true
+     ```
+      @private
+     @method unregister
+     @param {String} fullName
+     */
+    unregister: function (fullName) {
+      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
+
+      var normalizedName = this.normalize(fullName);
+
+      this._localLookupCache = new _emberMetal.EmptyObject();
+
+      delete this.registrations[normalizedName];
+      delete this._resolveCache[normalizedName];
+      delete this._failCache[normalizedName];
+      delete this._options[normalizedName];
+    },
+
+    /**
+     Given a fullName return the corresponding factory.
+      By default `resolve` will retrieve the factory from
+     the registry.
+      ```javascript
+     let registry = new Registry();
+     registry.register('api:twitter', Twitter);
+      registry.resolve('api:twitter') // => Twitter
+     ```
+      Optionally the registry can be provided with a custom resolver.
+     If provided, `resolve` will first provide the custom resolver
+     the opportunity to resolve the fullName, otherwise it will fallback
+     to the registry.
+      ```javascript
+     let registry = new Registry();
+     registry.resolver = function(fullName) {
+        // lookup via the module system of choice
+      };
+      // the twitter factory is added to the module system
+     registry.resolve('api:twitter') // => Twitter
+     ```
+      @private
+     @method resolve
+     @param {String} fullName
+     @param {Object} [options]
+     @param {String} [options.source] the fullname of the request source (used for local lookups)
+     @return {Function} fullName's factory
+     */
+    resolve: function (fullName, options) {
+      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      var factory = resolve(this, this.normalize(fullName), options);
+      if (factory === undefined && this.fallback) {
+        var _fallback;
+
+        factory = (_fallback = this.fallback).resolve.apply(_fallback, arguments);
+      }
+      return factory;
+    },
+
+    /**
+     A hook that can be used to describe how the resolver will
+     attempt to find the factory.
+      For example, the default Ember `.describe` returns the full
+     class name (including namespace) where Ember's resolver expects
+     to find the `fullName`.
+      @private
+     @method describe
+     @param {String} fullName
+     @return {string} described fullName
+     */
+    describe: function (fullName) {
+      if (this.resolver && this.resolver.lookupDescription) {
+        return this.resolver.lookupDescription(fullName);
+      } else if (this.fallback) {
+        return this.fallback.describe(fullName);
+      } else {
+        return fullName;
+      }
+    },
+
+    /**
+     A hook to enable custom fullName normalization behaviour
+      @private
+     @method normalizeFullName
+     @param {String} fullName
+     @return {string} normalized fullName
+     */
+    normalizeFullName: function (fullName) {
+      if (this.resolver && this.resolver.normalize) {
+        return this.resolver.normalize(fullName);
+      } else if (this.fallback) {
+        return this.fallback.normalizeFullName(fullName);
+      } else {
+        return fullName;
+      }
+    },
+
+    /**
+     Normalize a fullName based on the application's conventions
+      @private
+     @method normalize
+     @param {String} fullName
+     @return {string} normalized fullName
+     */
+    normalize: function (fullName) {
+      return this._normalizeCache[fullName] || (this._normalizeCache[fullName] = this.normalizeFullName(fullName));
+    },
+
+    /**
+     @method makeToString
+      @private
+     @param {any} factory
+     @param {string} fullName
+     @return {function} toString function
+     */
+    makeToString: function (factory, fullName) {
+      if (this.resolver && this.resolver.makeToString) {
+        return this.resolver.makeToString(factory, fullName);
+      } else if (this.fallback) {
+        return this.fallback.makeToString(factory, fullName);
+      } else {
+        return factory.toString();
+      }
+    },
+
+    /**
+     Given a fullName check if the container is aware of its factory
+     or singleton instance.
+      @private
+     @method has
+     @param {String} fullName
+     @param {Object} [options]
+     @param {String} [options.source] the fullname of the request source (used for local lookups)
+     @return {Boolean}
+     */
+    has: function (fullName, options) {
+      if (!this.isValidFullName(fullName)) {
+        return false;
+      }
+
+      var source = options && options.source && this.normalize(options.source);
+
+      return has(this, this.normalize(fullName), source);
+    },
+
+    /**
+     Allow registering options for all factories of a type.
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      // if all of type `connection` must not be singletons
+     registry.optionsForType('connection', { singleton: false });
+      registry.register('connection:twitter', TwitterConnection);
+     registry.register('connection:facebook', FacebookConnection);
+      let twitter = container.lookup('connection:twitter');
+     let twitter2 = container.lookup('connection:twitter');
+      twitter === twitter2; // => false
+      let facebook = container.lookup('connection:facebook');
+     let facebook2 = container.lookup('connection:facebook');
+      facebook === facebook2; // => false
+     ```
+      @private
+     @method optionsForType
+     @param {String} type
+     @param {Object} options
+     */
+    optionsForType: function (type, options) {
+      this._typeOptions[type] = options;
+    },
+
+    getOptionsForType: function (type) {
+      var optionsForType = this._typeOptions[type];
+      if (optionsForType === undefined && this.fallback) {
+        optionsForType = this.fallback.getOptionsForType(type);
+      }
+      return optionsForType;
+    },
+
+    /**
+     @private
+     @method options
+     @param {String} fullName
+     @param {Object} options
+     */
+    options: function (fullName) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var normalizedName = this.normalize(fullName);
+      this._options[normalizedName] = options;
+    },
+
+    getOptions: function (fullName) {
+      var normalizedName = this.normalize(fullName);
+      var options = this._options[normalizedName];
+
+      if (options === undefined && this.fallback) {
+        options = this.fallback.getOptions(fullName);
+      }
+      return options;
+    },
+
+    getOption: function (fullName, optionName) {
+      var options = this._options[fullName];
+
+      if (options && options[optionName] !== undefined) {
+        return options[optionName];
+      }
+
+      var type = fullName.split(':')[0];
+      options = this._typeOptions[type];
+
+      if (options && options[optionName] !== undefined) {
+        return options[optionName];
+      } else if (this.fallback) {
+        return this.fallback.getOption(fullName, optionName);
+      }
+    },
+
+    /**
+     Used only via `injection`.
+      Provides a specialized form of injection, specifically enabling
+     all objects of one type to be injected with a reference to another
+     object.
+      For example, provided each object of type `controller` needed a `router`.
+     one would do the following:
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      registry.register('router:main', Router);
+     registry.register('controller:user', UserController);
+     registry.register('controller:post', PostController);
+      registry.typeInjection('controller', 'router', 'router:main');
+      let user = container.lookup('controller:user');
+     let post = container.lookup('controller:post');
+      user.router instanceof Router; //=> true
+     post.router instanceof Router; //=> true
+      // both controllers share the same router
+     user.router === post.router; //=> true
+     ```
+      @private
+     @method typeInjection
+     @param {String} type
+     @param {String} property
+     @param {String} fullName
+     */
+    typeInjection: function (type, property, fullName) {
+      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
+
+      var fullNameType = fullName.split(':')[0];
+      if (fullNameType === type) {
+        throw new Error('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).');
+      }
+
+      var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
+
+      injections.push({
+        property: property,
+        fullName: fullName
+      });
+    },
+
+    /**
+     Defines injection rules.
+      These rules are used to inject dependencies onto objects when they
+     are instantiated.
+      Two forms of injections are possible:
+      * Injecting one fullName on another fullName
+     * Injecting one fullName on a type
+      Example:
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      registry.register('source:main', Source);
+     registry.register('model:user', User);
+     registry.register('model:post', Post);
+      // injecting one fullName on another fullName
+     // eg. each user model gets a post model
+     registry.injection('model:user', 'post', 'model:post');
+      // injecting one fullName on another type
+     registry.injection('model', 'source', 'source:main');
+      let user = container.lookup('model:user');
+     let post = container.lookup('model:post');
+      user.source instanceof Source; //=> true
+     post.source instanceof Source; //=> true
+      user.post instanceof Post; //=> true
+      // and both models share the same source
+     user.source === post.source; //=> true
+     ```
+      @private
+     @method injection
+     @param {String} factoryName
+     @param {String} property
+     @param {String} injectionName
+     */
+    injection: function (fullName, property, injectionName) {
+      this.validateFullName(injectionName);
+      var normalizedInjectionName = this.normalize(injectionName);
+
+      if (fullName.indexOf(':') === -1) {
+        return this.typeInjection(fullName, property, normalizedInjectionName);
+      }
+
+      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      var normalizedName = this.normalize(fullName);
+
+      var injections = this._injections[normalizedName] || (this._injections[normalizedName] = []);
+
+      injections.push({
+        property: property,
+        fullName: normalizedInjectionName
+      });
+    },
+
+    /**
+     Used only via `factoryInjection`.
+      Provides a specialized form of injection, specifically enabling
+     all factory of one type to be injected with a reference to another
+     object.
+      For example, provided each factory of type `model` needed a `store`.
+     one would do the following:
+      ```javascript
+     let registry = new Registry();
+      registry.register('store:main', SomeStore);
+      registry.factoryTypeInjection('model', 'store', 'store:main');
+      let store = registry.lookup('store:main');
+     let UserFactory = registry.lookupFactory('model:user');
+      UserFactory.store instanceof SomeStore; //=> true
+     ```
+      @private
+     @method factoryTypeInjection
+     @param {String} type
+     @param {String} property
+     @param {String} fullName
+     */
+    factoryTypeInjection: function (type, property, fullName) {
+      var injections = this._factoryTypeInjections[type] || (this._factoryTypeInjections[type] = []);
+
+      injections.push({
+        property: property,
+        fullName: this.normalize(fullName)
+      });
+    },
+
+    /**
+     Defines factory injection rules.
+      Similar to regular injection rules, but are run against factories, via
+     `Registry#lookupFactory`.
+      These rules are used to inject objects onto factories when they
+     are looked up.
+      Two forms of injections are possible:
+      * Injecting one fullName on another fullName
+     * Injecting one fullName on a type
+      Example:
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      registry.register('store:main', Store);
+     registry.register('store:secondary', OtherStore);
+     registry.register('model:user', User);
+     registry.register('model:post', Post);
+      // injecting one fullName on another type
+     registry.factoryInjection('model', 'store', 'store:main');
+      // injecting one fullName on another fullName
+     registry.factoryInjection('model:post', 'secondaryStore', 'store:secondary');
+      let UserFactory = container.lookupFactory('model:user');
+     let PostFactory = container.lookupFactory('model:post');
+     let store = container.lookup('store:main');
+      UserFactory.store instanceof Store; //=> true
+     UserFactory.secondaryStore instanceof OtherStore; //=> false
+      PostFactory.store instanceof Store; //=> true
+     PostFactory.secondaryStore instanceof OtherStore; //=> true
+      // and both models share the same source instance
+     UserFactory.store === PostFactory.store; //=> true
+     ```
+      @private
+     @method factoryInjection
+     @param {String} factoryName
+     @param {String} property
+     @param {String} injectionName
+     */
+    factoryInjection: function (fullName, property, injectionName) {
+      var normalizedName = this.normalize(fullName);
+      var normalizedInjectionName = this.normalize(injectionName);
+
+      this.validateFullName(injectionName);
+
+      if (fullName.indexOf(':') === -1) {
+        return this.factoryTypeInjection(normalizedName, property, normalizedInjectionName);
+      }
+
+      var injections = this._factoryInjections[normalizedName] || (this._factoryInjections[normalizedName] = []);
+
+      injections.push({
+        property: property,
+        fullName: normalizedInjectionName
+      });
+    },
+
+    /**
+     @private
+     @method knownForType
+     @param {String} type the type to iterate over
+    */
+    knownForType: function (type) {
+      var fallbackKnown = undefined,
+          resolverKnown = undefined;
+
+      var localKnown = _emberMetal.dictionary(null);
+      var registeredNames = Object.keys(this.registrations);
+      for (var index = 0; index < registeredNames.length; index++) {
+        var fullName = registeredNames[index];
+        var itemType = fullName.split(':')[0];
+
+        if (itemType === type) {
+          localKnown[fullName] = true;
+        }
+      }
+
+      if (this.fallback) {
+        fallbackKnown = this.fallback.knownForType(type);
+      }
+
+      if (this.resolver && this.resolver.knownForType) {
+        resolverKnown = this.resolver.knownForType(type);
+      }
+
+      return _emberMetal.assign({}, fallbackKnown, localKnown, resolverKnown);
+    },
+
+    validateFullName: function (fullName) {
+      if (!this.isValidFullName(fullName)) {
+        throw new TypeError('Invalid Fullname, expected: \'type:name\' got: ' + fullName);
+      }
+
+      return true;
+    },
+
+    isValidFullName: function (fullName) {
+      return !!VALID_FULL_NAME_REGEXP.test(fullName);
+    },
+
+    validateInjections: function (injections) {
+      if (!injections) {
+        return;
+      }
+
+      var fullName = undefined;
+
+      for (var i = 0; i < injections.length; i++) {
+        fullName = injections[i].fullName;
+
+        if (!this.has(fullName)) {
+          throw new Error('Attempting to inject an unknown injection: \'' + fullName + '\'');
+        }
+      }
+    },
+
+    normalizeInjectionsHash: function (hash) {
+      var injections = [];
+
+      for (var key in hash) {
+        if (hash.hasOwnProperty(key)) {
+          _emberMetal.assert('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
+
+          injections.push({
+            property: key,
+            fullName: hash[key]
+          });
+        }
+      }
+
+      return injections;
+    },
+
+    getInjections: function (fullName) {
+      var injections = this._injections[fullName] || [];
+      if (this.fallback) {
+        injections = injections.concat(this.fallback.getInjections(fullName));
+      }
+      return injections;
+    },
+
+    getTypeInjections: function (type) {
+      var injections = this._typeInjections[type] || [];
+      if (this.fallback) {
+        injections = injections.concat(this.fallback.getTypeInjections(type));
+      }
+      return injections;
+    },
+
+    getFactoryInjections: function (fullName) {
+      var injections = this._factoryInjections[fullName] || [];
+      if (this.fallback) {
+        injections = injections.concat(this.fallback.getFactoryInjections(fullName));
+      }
+      return injections;
+    },
+
+    getFactoryTypeInjections: function (type) {
+      var injections = this._factoryTypeInjections[type] || [];
+      if (this.fallback) {
+        injections = injections.concat(this.fallback.getFactoryTypeInjections(type));
+      }
+      return injections;
+    }
+  };
+
+  function deprecateResolverFunction(registry) {
+    _emberMetal.deprecate('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
+    registry.resolver = {
+      resolve: registry.resolver
+    };
+  }
+
+  /**
+   Given a fullName and a source fullName returns the fully resolved
+   fullName. Used to allow for local lookup.
+  
+   ```javascript
+   let registry = new Registry();
+  
+   // the twitter factory is added to the module system
+   registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
+   ```
+  
+   @private
+   @method expandLocalLookup
+   @param {String} fullName
+   @param {Object} [options]
+   @param {String} [options.source] the fullname of the request source (used for local lookups)
+   @return {String} fullName
+   */
+  Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
+    if (this.resolver && this.resolver.expandLocalLookup) {
+      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      _emberMetal.assert('options.source must be provided to expandLocalLookup', options && options.source);
+      _emberMetal.assert('options.source must be a proper full name', this.validateFullName(options.source));
+
+      var normalizedFullName = this.normalize(fullName);
+      var normalizedSource = this.normalize(options.source);
+
+      return expandLocalLookup(this, normalizedFullName, normalizedSource);
+    } else if (this.fallback) {
+      return this.fallback.expandLocalLookup(fullName, options);
+    } else {
+      return null;
+    }
+  };
+
+  function expandLocalLookup(registry, normalizedName, normalizedSource) {
+    var cache = registry._localLookupCache;
+    var normalizedNameCache = cache[normalizedName];
+
+    if (!normalizedNameCache) {
+      normalizedNameCache = cache[normalizedName] = new _emberMetal.EmptyObject();
+    }
+
+    var cached = normalizedNameCache[normalizedSource];
+
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    var expanded = registry.resolver.expandLocalLookup(normalizedName, normalizedSource);
+
+    return normalizedNameCache[normalizedSource] = expanded;
+  }
+
+  function resolve(registry, normalizedName, options) {
+    if (options && options.source) {
+      // when `source` is provided expand normalizedName
+      // and source into the full normalizedName
+      normalizedName = registry.expandLocalLookup(normalizedName, options);
+
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!normalizedName) {
+        return;
+      }
+    }
+
+    var cached = registry._resolveCache[normalizedName];
+    if (cached !== undefined) {
+      return cached;
+    }
+    if (registry._failCache[normalizedName]) {
+      return;
+    }
+
+    var resolved = undefined;
+
+    if (registry.resolver) {
+      resolved = registry.resolver.resolve(normalizedName);
+    }
+
+    if (resolved === undefined) {
+      resolved = registry.registrations[normalizedName];
+    }
+
+    if (resolved === undefined) {
+      registry._failCache[normalizedName] = true;
+    } else {
+      registry._resolveCache[normalizedName] = resolved;
+    }
+
+    return resolved;
+  }
+
+  function has(registry, fullName, source) {
+    return registry.resolve(fullName, { source: source }) !== undefined;
+  }
+
+  var privateNames = _emberMetal.dictionary(null);
+  var privateSuffix = '' + Math.random() + Date.now();
+
+  function privatize(_ref) {
+    var fullName = _ref[0];
+
+    var name = privateNames[fullName];
+    if (name) {
+      return name;
+    }
+
+    var _fullName$split = fullName.split(':');
+
+    var type = _fullName$split[0];
+    var rawName = _fullName$split[1];
+
+    return privateNames[fullName] = _emberMetal.intern(type + ':' + rawName + '-' + privateSuffix);
+  }
 });
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
@@ -5018,7 +6376,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalDebug, _emberMetalAssign, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache) {
+enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/symbol', 'ember-metal/dictionary', 'ember-metal/empty_object', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalDebug, _emberMetalAssign, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalSymbol, _emberMetalDictionary, _emberMetalEmpty_object, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace) {
   /**
   @module ember
   @submodule ember-metal
@@ -5045,7 +6403,9 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.instrumentationReset = _emberMetalInstrumentation.reset;
   exports.instrumentationSubscribe = _emberMetalInstrumentation.subscribe;
   exports.instrumentationUnsubscribe = _emberMetalInstrumentation.unsubscribe;
+  exports.intern = _emberMetalUtils.intern;
   exports.GUID_KEY = _emberMetalUtils.GUID_KEY;
+  exports.GUID_KEY_PROPERTY = _emberMetalUtils.GUID_KEY_PROPERTY;
   exports.apply = _emberMetalUtils.apply;
   exports.applyStr = _emberMetalUtils.applyStr;
   exports.canInvoke = _emberMetalUtils.canInvoke;
@@ -5061,6 +6421,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.setTesting = _emberMetalTesting.setTesting;
   exports.getOnerror = _emberMetalError_handler.getOnerror;
   exports.setOnerror = _emberMetalError_handler.setOnerror;
+  exports.dispatchError = _emberMetalError_handler.dispatchError;
   exports.META_DESC = _emberMetalMeta.META_DESC;
   exports.meta = _emberMetalMeta.meta;
   exports.Error = _emberMetalError.default;
@@ -5096,6 +6457,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.propertyDidChange = _emberMetalProperty_events.propertyDidChange;
   exports.propertyWillChange = _emberMetalProperty_events.propertyWillChange;
   exports.defineProperty = _emberMetalProperties.defineProperty;
+  exports.Descriptor = _emberMetalProperties.Descriptor;
   exports.watchKey = _emberMetalWatch_key.watchKey;
   exports.unwatchKey = _emberMetalWatch_key.unwatchKey;
   exports.ChainNode = _emberMetalChains.ChainNode;
@@ -5120,16 +6482,30 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.addObserver = _emberMetalObserver.addObserver;
   exports.observersFor = _emberMetalObserver.observersFor;
   exports.removeObserver = _emberMetalObserver.removeObserver;
+  exports._addBeforeObserver = _emberMetalObserver._addBeforeObserver;
+  exports._removeBeforeObserver = _emberMetalObserver._removeBeforeObserver;
   exports.NAME_KEY = _emberMetalMixin.NAME_KEY;
   exports.Mixin = _emberMetalMixin.Mixin;
   exports.aliasMethod = _emberMetalMixin.aliasMethod;
   exports._immediateObserver = _emberMetalMixin._immediateObserver;
+  exports._beforeObserver = _emberMetalMixin._beforeObserver;
   exports.mixin = _emberMetalMixin.mixin;
   exports.observer = _emberMetalMixin.observer;
   exports.required = _emberMetalMixin.required;
+  exports.REQUIRED = _emberMetalMixin.REQUIRED;
+  exports.hasUnprocessedMixins = _emberMetalMixin.hasUnprocessedMixins;
+  exports.clearUnprocessedMixins = _emberMetalMixin.clearUnprocessedMixins;
+  exports.detectBinding = _emberMetalMixin.detectBinding;
   exports.Binding = _emberMetalBinding.Binding;
   exports.bind = _emberMetalBinding.bind;
   exports.isGlobalPath = _emberMetalPath_cache.isGlobalPath;
+  exports.symbol = _emberMetalSymbol.default;
+  exports.dictionary = _emberMetalDictionary.default;
+  exports.EmptyObject = _emberMetalEmpty_object.default;
+  exports.InjectedProperty = _emberMetalInjected_property.default;
+  exports.tagFor = _emberMetalTags.tagFor;
+  exports.markObjectAsDirty = _emberMetalTags.markObjectAsDirty;
+  exports.replace = _emberMetalReplace.default;
 
   // TODO: this needs to be deleted once we refactor the build tooling
   // do this for side-effects of updating Ember.assert, warn, etc when
@@ -10733,7 +12109,7 @@ enifed('ember-template-compiler/compiler', ['exports', 'ember-glimmer-template-c
     return _emberGlimmerTemplateCompiler;
   }
 });
-enifed('ember-template-compiler/index', ['exports', 'ember-template-compiler/compat', 'ember-template-compiler/system/bootstrap', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/register-plugin', 'ember-template-compiler/system/compile-options'], function (exports, _emberTemplateCompilerCompat, _emberTemplateCompilerSystemBootstrap, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemRegisterPlugin, _emberTemplateCompilerSystemCompileOptions) {
+enifed('ember-template-compiler/index', ['exports', 'container', 'ember-template-compiler/compat', 'ember-template-compiler/system/bootstrap', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/register-plugin', 'ember-template-compiler/system/compile-options'], function (exports, _container, _emberTemplateCompilerCompat, _emberTemplateCompilerSystemBootstrap, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemRegisterPlugin, _emberTemplateCompilerSystemCompileOptions) {
   'use strict';
 
   exports._Ember = _emberMetal.default;
@@ -11532,7 +12908,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+870a71b1";
+  exports.default = "2.9.0-null+cf1aa1f7";
 });
 enifed('glimmer-compiler/index', ['exports', 'glimmer-compiler/lib/compiler', 'glimmer-compiler/lib/template-compiler', 'glimmer-compiler/lib/template-visitor'], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateCompiler, _glimmerCompilerLibTemplateVisitor) {
   'use strict';
