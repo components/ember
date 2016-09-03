@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+cf1aa1f7
+ * @version   2.9.0-null+5f8c8ef3
  */
 
 var enifed, requireModule, require, Ember;
@@ -4501,7 +4501,7 @@ enifed('ember-metal/core', ['exports', 'ember-environment'], function (exports, 
 
   // Make sure these are set whether Ember was already defined or not
   Ember.isNamespace = true;
-
+  Ember.ENV = _emberEnvironment.ENV;
   Ember.toString = function () {
     return 'Ember';
   };
@@ -19852,7 +19852,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+cf1aa1f7";
+  exports.default = "2.9.0-null+5f8c8ef3";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
