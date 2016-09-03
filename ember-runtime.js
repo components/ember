@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+39b93863
+ * @version   2.9.0-null+8807a3f6
  */
 
 var enifed, requireModule, require, Ember;
@@ -5399,14 +5399,12 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.intern = _emberMetalUtils.intern;
   exports.GUID_KEY = _emberMetalUtils.GUID_KEY;
   exports.GUID_KEY_PROPERTY = _emberMetalUtils.GUID_KEY_PROPERTY;
-  exports.apply = _emberMetalUtils.apply;
   exports.applyStr = _emberMetalUtils.applyStr;
   exports.canInvoke = _emberMetalUtils.canInvoke;
   exports.generateGuid = _emberMetalUtils.generateGuid;
   exports.guidFor = _emberMetalUtils.guidFor;
   exports.inspect = _emberMetalUtils.inspect;
   exports.makeArray = _emberMetalUtils.makeArray;
-  exports.deprecatedTryCatchFinally = _emberMetalUtils.deprecatedTryCatchFinally;
   exports.tryInvoke = _emberMetalUtils.tryInvoke;
   exports.uuid = _emberMetalUtils.uuid;
   exports.wrap = _emberMetalUtils.wrap;
@@ -19852,7 +19850,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+39b93863";
+  exports.default = "2.9.0-null+8807a3f6";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.

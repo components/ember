@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+39b93863
+ * @version   2.9.0-null+8807a3f6
  */
 
 var enifed, requireModule, require, Ember;
@@ -9096,7 +9096,9 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
   exports.htmlSafe = _emberGlimmerUtilsString.htmlSafe;
   exports.isHTMLSafe = _emberGlimmerUtilsString.isHTMLSafe;
   exports._getSafeString = _emberGlimmerUtilsString.getSafeString;
-  exports._Renderer = _emberGlimmerRenderer.default;
+  exports.Renderer = _emberGlimmerRenderer.Renderer;
+  exports.InertRenderer = _emberGlimmerRenderer.InertRenderer;
+  exports.InteractiveRenderer = _emberGlimmerRenderer.InteractiveRenderer;
   exports.getTemplate = _emberGlimmerTemplate_registry.getTemplate;
   exports.setTemplate = _emberGlimmerTemplate_registry.setTemplate;
   exports.hasTemplate = _emberGlimmerTemplate_registry.hasTemplate;
@@ -15134,14 +15136,12 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.intern = _emberMetalUtils.intern;
   exports.GUID_KEY = _emberMetalUtils.GUID_KEY;
   exports.GUID_KEY_PROPERTY = _emberMetalUtils.GUID_KEY_PROPERTY;
-  exports.apply = _emberMetalUtils.apply;
   exports.applyStr = _emberMetalUtils.applyStr;
   exports.canInvoke = _emberMetalUtils.canInvoke;
   exports.generateGuid = _emberMetalUtils.generateGuid;
   exports.guidFor = _emberMetalUtils.guidFor;
   exports.inspect = _emberMetalUtils.inspect;
   exports.makeArray = _emberMetalUtils.makeArray;
-  exports.deprecatedTryCatchFinally = _emberMetalUtils.deprecatedTryCatchFinally;
   exports.tryInvoke = _emberMetalUtils.tryInvoke;
   exports.uuid = _emberMetalUtils.uuid;
   exports.wrap = _emberMetalUtils.wrap;
@@ -37699,12 +37699,10 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
   _emberMetal.default.guidFor = _emberMetal.guidFor;
   _emberMetal.default.inspect = _emberMetal.inspect;
 
-  _emberMetal.default.tryCatchFinally = _emberMetal.deprecatedTryCatchFinally;
   _emberMetal.default.makeArray = _emberMetal.makeArray;
   _emberMetal.default.canInvoke = _emberMetal.canInvoke;
   _emberMetal.default.tryInvoke = _emberMetal.tryInvoke;
   _emberMetal.default.wrap = _emberMetal.wrap;
-  _emberMetal.default.apply = _emberMetal.apply;
   _emberMetal.default.applyStr = _emberMetal.applyStr;
   _emberMetal.default.uuid = _emberMetal.uuid;
   _emberMetal.default.Error = _emberMetal.Error;
@@ -38047,7 +38045,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
   _emberMetal.default.TextField = _emberGlimmer.TextField;
   _emberMetal.default.TextArea = _emberGlimmer.TextArea;
   _emberMetal.default.LinkComponent = _emberGlimmer.LinkComponent;
-  _emberMetal.default._Renderer = _emberGlimmer._Renderer;
+  _emberMetal.default._Renderer = _emberGlimmer.Renderer;
 
   if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
     String.prototype.htmlSafe = function () {
@@ -38192,7 +38190,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+39b93863";
+  exports.default = "2.9.0-null+8807a3f6";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime', 'require'], function (exports, _container, _emberApplication, _emberRuntime, _require) {
   'use strict';
@@ -38234,9 +38232,15 @@ enifed('internal-test-helpers/index', ['exports', 'container', 'ember-applicatio
     var mod = _require.default(moduleId);
     if (typeof exportName === 'string') {
       assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
+      assert.notEqual(mod[exportName], undefined, 'Ember.' + path + ' is not `undefined`');
     } else {
       assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
-      assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
+      assert.notEqual(desc.get, undefined, 'Ember.' + path + ' getter is not undefined');
+
+      if (exportName.set) {
+        assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
+        assert.notEqual(desc.set, undefined, 'Ember.' + path + ' setter is not undefined');
+      }
     }
   }
 
