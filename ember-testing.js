@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+07ff634f
+ * @version   2.9.0-null+870a71b1
  */
 
 var enifed, requireModule, require, Ember;
@@ -1685,28 +1685,23 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
     });
   }
 });
-enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'require', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers'], function (exports, _emberMetalCore, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _require, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers) {
+enifed('ember-testing/index', ['exports', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'ember-testing/adapters/qunit'], function (exports, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _emberTestingAdaptersQunit) {
   'use strict';
 
-  // to setup initializer
-
-  /**
-    @module ember
-    @submodule ember-testing
-  */
-
-  _emberMetalCore.default.Test = _emberTestingTest.default;
-  _emberMetalCore.default.Test.Adapter = _emberTestingAdaptersAdapter.default;
-  _emberMetalCore.default.setupForTesting = _emberTestingSetup_for_testing.default;
-  Object.defineProperty(_emberTestingTest.default, 'QUnitAdapter', {
-    get: function () {
-      return _require.default('ember-testing/adapters/qunit').default;
-    }
-  });
+  exports.Test = _emberTestingTest.default;
+  exports.Adapter = _emberTestingAdaptersAdapter.default;
+  exports.setupForTesting = _emberTestingSetup_for_testing.default;
+  exports.QUnitAdapter = _emberTestingAdaptersQunit.default;
 });
-// reexports
 // to handle various edge cases
+// setup RSVP + run loop integration
 // adds helpers to helpers object in Test
+// to setup initializer
+
+/**
+  @module ember
+  @submodule ember-testing
+*/
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
   'use strict';
 

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+07ff634f
+ * @version   2.9.0-null+870a71b1
  */
 
 var enifed, requireModule, require, Ember;
@@ -2750,29 +2750,23 @@ exports['default'] = DAG;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 });
-enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/initializers/dom-templates'], function (exports, _emberMetalCore, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberApplicationInitializersDomTemplates) {
-  'use strict';
-
+enifed('ember-application/index', ['exports', 'ember-application/initializers/dom-templates', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/resolver', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberApplicationInitializersDomTemplates, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemResolver, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   /**
   @module ember
   @submodule ember-application
   */
 
+  'use strict';
+
   exports.Application = _emberApplicationSystemApplication.default;
   exports.ApplicationInstance = _emberApplicationSystemApplicationInstance.default;
-
-  _emberMetalCore.default.Application = _emberApplicationSystemApplication.default;
-  _emberMetalCore.default.ApplicationInstance = _emberApplicationSystemApplicationInstance.default;
-  _emberMetalCore.default.Engine = _emberApplicationSystemEngine.default;
-  _emberMetalCore.default.EngineInstance = _emberApplicationSystemEngineInstance.default;
-  _emberMetalCore.default.DefaultResolver = _emberMetalCore.default.Resolver = _emberApplicationSystemResolver.default;
+  exports.Resolver = _emberApplicationSystemResolver.default;
+  exports.Engine = _emberApplicationSystemEngine.default;
+  exports.EngineInstance = _emberApplicationSystemEngineInstance.default;
 
   // add domTemplates initializer (only does something if `ember-template-compiler`
   // is loaded already)
-
-  _emberRuntimeSystemLazy_load.runLoadHooks('Ember.Application', _emberApplicationSystemApplication.default);
 });
-// reexports
 enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'ember-glimmer', 'ember-environment', 'ember-application/system/application'], function (exports, _require, _emberGlimmer, _emberEnvironment, _emberApplicationSystemApplication) {
   'use strict';
 
@@ -6855,7 +6849,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     }
   });
 });
-enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-extension-support/data_adapter', 'ember-extension-support/container_debug_adapter'], function (exports, _emberMetalCore, _emberExtensionSupportData_adapter, _emberExtensionSupportContainer_debug_adapter) {
+enifed('ember-extension-support/index', ['exports', 'ember-extension-support/data_adapter', 'ember-extension-support/container_debug_adapter'], function (exports, _emberExtensionSupportData_adapter, _emberExtensionSupportContainer_debug_adapter) {
   /**
   @module ember
   @submodule ember-extension-support
@@ -6863,11 +6857,10 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
 
   'use strict';
 
-  _emberMetalCore.default.DataAdapter = _emberExtensionSupportData_adapter.default;
-  _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
+  exports.DataAdapter = _emberExtensionSupportData_adapter.default;
+  exports.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
-// reexports
-enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-views/mixins/class_names_support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'glimmer-reference', 'glimmer-runtime', 'ember-metal/debug', 'ember-metal/mixin', 'container'], function (exports, _emberViewsViewsCore_view, _emberViewsMixinsClass_names_support, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _glimmerReference, _glimmerRuntime, _emberMetalDebug, _emberMetalMixin, _container) {
+enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'ember-views/mixins/class_names_support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-runtime/mixins/target_action_support', 'ember-metal/symbol', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy', 'ember-glimmer/utils/references', 'glimmer-reference', 'glimmer-runtime', 'ember-metal/debug', 'ember-metal/mixin', 'container'], function (exports, _emberViewsViewsCore_view, _emberViewsMixinsClass_names_support, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberRuntimeMixinsTarget_action_support, _emberMetalSymbol, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy, _emberGlimmerUtilsReferences, _glimmerReference, _glimmerRuntime, _emberMetalDebug, _emberMetalMixin, _container) {
   'use strict';
 
   var _CoreView$extend;
@@ -6885,7 +6878,99 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
   var BOUNDS = _emberMetalSymbol.default('BOUNDS');
 
   exports.BOUNDS = BOUNDS;
-  var Component = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsAria_role_support.default, _emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsAction_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
+
+  /**
+    An `Ember.Component` is a view that is completely
+    isolated. Properties accessed in its templates go
+    to the view object and actions are targeted at
+    the view object. There is no access to the
+    surrounding context or outer controller; all
+    contextual information must be passed in.
+  
+    The easiest way to create an `Ember.Component` is via
+    a template. If you name a template
+    `components/my-foo`, you will be able to use
+    `{{my-foo}}` in other templates, which will make
+    an instance of the isolated component.
+  
+    ```handlebars
+    {{app-profile person=currentUser}}
+    ```
+  
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    <img src={{person.avatar}}>
+    <p class='signature'>{{person.signature}}</p>
+    ```
+  
+    You can use `yield` inside a template to
+    include the **contents** of any block attached to
+    the component. The block will be executed in the
+    context of the surrounding context or outer controller:
+  
+    ```handlebars
+    {{#app-profile person=currentUser}}
+      <p>Admin mode</p>
+      {{! Executed in the controller's context. }}
+    {{/app-profile}}
+    ```
+  
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    {{! Executed in the component's context. }}
+    {{yield}} {{! block contents }}
+    ```
+  
+    If you want to customize the component, in order to
+    handle events or actions, you implement a subclass
+    of `Ember.Component` named after the name of the
+    component. Note that `Component` needs to be appended to the name of
+    your subclass like `AppProfileComponent`.
+  
+    For example, you could implement the action
+    `hello` for the `app-profile` component:
+  
+    ```javascript
+    App.AppProfileComponent = Ember.Component.extend({
+      actions: {
+        hello: function(name) {
+          console.log("Hello", name);
+        }
+      }
+    });
+    ```
+  
+    And then use it in the component's template:
+  
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    {{yield}} <!-- block contents -->
+    <button {{action 'hello' person.name}}>
+      Say Hello to {{person.name}}
+    </button>
+    ```
+    Components must have a `-` in their name to avoid
+    conflicts with built-in controls that wrap HTML
+    elements. This is consistent with the same
+    requirement in web components.
+  
+    @class Component
+    @namespace Ember
+    @extends Ember.CoreView
+    @uses Ember.TargetActionSupport
+    @uses Ember.ClassNamesSupport
+    @uses Ember.ActionSupport
+    @uses Ember.ViewMixin
+    @public
+  */
+  var Component = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsAction_support.default, _emberViewsMixinsView_support.default, (_CoreView$extend = {
     isComponent: true,
 
     init: function () {
@@ -6958,6 +7043,158 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
     return _glimmerRuntime.readDOMAttr(this.element, name);
   }, _CoreView$extend));
 
+  /**
+   The WAI-ARIA role of the control represented by this view. For example, a
+   button may have a role of type 'button', or a pane may have a role of
+   type 'alertdialog'. This property is used by assistive software to help
+   visually challenged users navigate rich web applications.
+    The full list of valid WAI-ARIA roles is available at:
+   [http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)
+    @property ariaRole
+   @type String
+   @default null
+   @public
+   */
+
+  /**
+   Enables components to take a list of parameters as arguments.
+   For example, a component that takes two parameters with the names
+   `name` and `age`:
+    ```javascript
+   let MyComponent = Ember.Component.extend;
+   MyComponent.reopenClass({
+   positionalParams: ['name', 'age']
+   });
+   ```
+    It can then be invoked like this:
+    ```hbs
+   {{my-component "John" 38}}
+   ```
+    The parameters can be referred to just like named parameters:
+    ```hbs
+   Name: {{attrs.name}}, Age: {{attrs.age}}.
+   ```
+    Using a string instead of an array allows for an arbitrary number of
+   parameters:
+    ```javascript
+   let MyComponent = Ember.Component.extend;
+   MyComponent.reopenClass({
+   positionalParams: 'names'
+   });
+   ```
+    It can then be invoked like this:
+    ```hbs
+   {{my-component "John" "Michael" "Scott"}}
+   ```
+   The parameters can then be referred to by enumerating over the list:
+    ```hbs
+   {{#each attrs.names as |name|}}{{name}}{{/each}}
+   ```
+    @static
+   @public
+   @property positionalParams
+   @since 1.13.0
+   */
+
+  /**
+   Called when the attributes passed into the component have been updated.
+   Called both during the initial render of a container and during a rerender.
+   Can be used in place of an observer; code placed here will be executed
+   every time any attribute updates.
+   @method didReceiveAttrs
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called when the attributes passed into the component have been updated.
+   Called both during the initial render of a container and during a rerender.
+   Can be used in place of an observer; code placed here will be executed
+   every time any attribute updates.
+   @event didReceiveAttrs
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called after a component has been rendered, both on initial render and
+   in subsequent rerenders.
+   @method didRender
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called after a component has been rendered, both on initial render and
+   in subsequent rerenders.
+   @event didRender
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called before a component has been rendered, both on initial render and
+   in subsequent rerenders.
+   @method willRender
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called before a component has been rendered, both on initial render and
+   in subsequent rerenders.
+   @event willRender
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called when the attributes passed into the component have been changed.
+   Called only during a rerender, not during an initial render.
+   @method didUpdateAttrs
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called when the attributes passed into the component have been changed.
+   Called only during a rerender, not during an initial render.
+   @event didUpdateAttrs
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called when the component is about to update and rerender itself.
+   Called only during a rerender, not during an initial render.
+   @method willUpdate
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called when the component is about to update and rerender itself.
+   Called only during a rerender, not during an initial render.
+   @event willUpdate
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called when the component has updated and rerendered itself.
+   Called only during a rerender, not during an initial render.
+   @method didUpdate
+   @public
+   @since 1.13.0
+   */
+
+  /**
+   Called when the component has updated and rerendered itself.
+   Called only during a rerender, not during an initial render.
+   @event didUpdate
+   @public
+   @since 1.13.0
+   */
   Component[_emberMetalMixin.NAME_KEY] = 'Ember.Component';
 
   Component.reopenClass({
@@ -6966,6 +7203,33 @@ enifed('ember-glimmer/component', ['exports', 'ember-views/views/core_view', 'em
 
   exports.default = Component;
 });
+
+/**
+  Normally, Ember's component model is "write-only". The component takes a
+  bunch of attributes that it got passed in, and uses them to render its
+  template.
+   One nice thing about this model is that if you try to set a value to the
+  same thing as last time, Ember (through HTMLBars) will avoid doing any
+  work on the DOM.
+   This is not just a performance optimization. If an attribute has not
+  changed, it is important not to clobber the element's "hidden state".
+  For example, if you set an input's `value` to the same value as before,
+  it will clobber selection state and cursor position. In other words,
+  setting an attribute is not **always** idempotent.
+   This method provides a way to read an element's attribute and also
+  update the last value Ember knows about at the same time. This makes
+  setting an attribute idempotent.
+   In particular, what this means is that if you get an `<input>` element's
+  `value` attribute and then re-render the template with the same value,
+  it will avoid clobbering the cursor and selection position.
+  Since most attribute sets are idempotent in the browser, you typically
+  can get away with reading attributes using jQuery, but the most reliable
+  way to do so is through this method.
+  @method readDOMAttr
+   @param {String} name the name of the attribute
+  @return String
+  @public
+ */
 enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-glimmer/component', 'ember-glimmer/templates/empty'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberGlimmerComponent, _emberGlimmerTemplatesEmpty) {
   'use strict';
 
@@ -21685,32 +21949,27 @@ enifed('ember-routing/ext/run_loop', ['exports', 'ember-metal/run_loop'], functi
   // 'actions' queue first.
   _emberMetalRun_loop.default._addQueue('routerTransitions', 'actions');
 });
-enifed('ember-routing/index', ['exports', 'ember-metal/core', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route'], function (exports, _emberMetalCore, _emberRoutingExtRun_loop, _emberRoutingExtController, _emberRoutingLocationApi, _emberRoutingLocationNone_location, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingSystemGenerate_controller, _emberRoutingSystemController_for, _emberRoutingSystemDsl, _emberRoutingSystemRouter, _emberRoutingSystemRoute) {
+enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route'], function (exports, _emberRoutingExtRun_loop, _emberRoutingExtController, _emberRoutingLocationApi, _emberRoutingLocationNone_location, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingSystemGenerate_controller, _emberRoutingSystemController_for, _emberRoutingSystemDsl, _emberRoutingSystemRouter, _emberRoutingSystemRoute) {
   /**
   @module ember
   @submodule ember-routing
   */
 
+  // ES6TODO: Cleanup modules with side-effects below
   'use strict';
 
-  _emberMetalCore.default.Location = _emberRoutingLocationApi.default;
-  _emberMetalCore.default.AutoLocation = _emberRoutingLocationAuto_location.default;
-  _emberMetalCore.default.HashLocation = _emberRoutingLocationHash_location.default;
-  _emberMetalCore.default.HistoryLocation = _emberRoutingLocationHistory_location.default;
-  _emberMetalCore.default.NoneLocation = _emberRoutingLocationNone_location.default;
-
-  _emberMetalCore.default.controllerFor = _emberRoutingSystemController_for.default;
-  _emberMetalCore.default.generateControllerFactory = _emberRoutingSystemGenerate_controller.generateControllerFactory;
-  _emberMetalCore.default.generateController = _emberRoutingSystemGenerate_controller.default;
-  _emberMetalCore.default.RouterDSL = _emberRoutingSystemDsl.default;
-  _emberMetalCore.default.Router = _emberRoutingSystemRouter.default;
-  _emberMetalCore.default.Route = _emberRoutingSystemRoute.default;
-
-  exports.default = _emberMetalCore.default;
+  exports.Location = _emberRoutingLocationApi.default;
+  exports.NoneLocation = _emberRoutingLocationNone_location.default;
+  exports.HashLocation = _emberRoutingLocationHash_location.default;
+  exports.HistoryLocation = _emberRoutingLocationHistory_location.default;
+  exports.AutoLocation = _emberRoutingLocationAuto_location.default;
+  exports.generateController = _emberRoutingSystemGenerate_controller.default;
+  exports.generateControllerFactory = _emberRoutingSystemGenerate_controller.generateControllerFactory;
+  exports.controllerFor = _emberRoutingSystemController_for.default;
+  exports.RouterDSL = _emberRoutingSystemDsl.default;
+  exports.Router = _emberRoutingSystemRouter.default;
+  exports.Route = _emberRoutingSystemRoute.default;
 });
-// reexports
-
-// ES6TODO: Cleanup modules with side-effects below
 enifed('ember-routing/location/api', ['exports', 'ember-metal/debug', 'ember-environment', 'ember-routing/location/util'], function (exports, _emberMetalDebug, _emberEnvironment, _emberRoutingLocationUtil) {
   'use strict';
 
@@ -36715,28 +36974,23 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
     });
   }
 });
-enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'require', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers'], function (exports, _emberMetalCore, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _require, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers) {
+enifed('ember-testing/index', ['exports', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'ember-testing/adapters/qunit'], function (exports, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _emberTestingAdaptersQunit) {
   'use strict';
 
-  // to setup initializer
-
-  /**
-    @module ember
-    @submodule ember-testing
-  */
-
-  _emberMetalCore.default.Test = _emberTestingTest.default;
-  _emberMetalCore.default.Test.Adapter = _emberTestingAdaptersAdapter.default;
-  _emberMetalCore.default.setupForTesting = _emberTestingSetup_for_testing.default;
-  Object.defineProperty(_emberTestingTest.default, 'QUnitAdapter', {
-    get: function () {
-      return _require.default('ember-testing/adapters/qunit').default;
-    }
-  });
+  exports.Test = _emberTestingTest.default;
+  exports.Adapter = _emberTestingAdaptersAdapter.default;
+  exports.setupForTesting = _emberTestingSetup_for_testing.default;
+  exports.QUnitAdapter = _emberTestingAdaptersQunit.default;
 });
-// reexports
 // to handle various edge cases
+// setup RSVP + run loop integration
 // adds helpers to helpers object in Test
+// to setup initializer
+
+/**
+  @module ember
+  @submodule ember-testing
+*/
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
   'use strict';
 
@@ -37495,46 +37749,31 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-r
     }
   });
 });
-enifed('ember-views/index', ['exports', 'ember-metal/core', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/system/event_dispatcher', 'ember-views/component_lookup', 'ember-views/mixins/text_support'], function (exports, _emberMetalCore, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsSystemEvent_dispatcher, _emberViewsComponent_lookup, _emberViewsMixinsText_support) {
+enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/event_dispatcher', 'ember-views/component_lookup', 'ember-views/mixins/text_support'], function (exports, _emberViewsSystemExt, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemEvent_dispatcher, _emberViewsComponent_lookup, _emberViewsMixinsText_support) {
   /**
   @module ember
   @submodule ember-views
   */
 
-  // BEGIN IMPORTS
   'use strict';
 
-  // END IMPORTS
-
-  /**
-    Alias for jQuery
-  
-    @method $
-    @for Ember
-   @public
-  */
-
-  // BEGIN EXPORTS
-  _emberMetalCore.default.$ = _emberViewsSystemJquery.default;
-
-  var ViewUtils = _emberMetalCore.default.ViewUtils = {};
-  ViewUtils.isSimpleClick = _emberViewsSystemUtils.isSimpleClick;
-  ViewUtils.getViewBounds = _emberViewsSystemUtils.getViewBounds;
-  ViewUtils.getViewClientRects = _emberViewsSystemUtils.getViewClientRects;
-  ViewUtils.getViewBoundingClientRect = _emberViewsSystemUtils.getViewBoundingClientRect;
-  ViewUtils.getRootViews = _emberViewsSystemUtils.getRootViews;
-  ViewUtils.getChildViews = _emberViewsSystemUtils.getChildViews;
-
-  _emberMetalCore.default.TextSupport = _emberViewsMixinsText_support.default;
-  _emberMetalCore.default.ComponentLookup = _emberViewsComponent_lookup.default;
-  _emberMetalCore.default.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
-
-  // END EXPORTS
-
-  exports.default = _emberMetalCore.default;
+  exports.jQuery = _emberViewsSystemJquery.default;
+  exports.isSimpleClick = _emberViewsSystemUtils.isSimpleClick;
+  exports.getViewBounds = _emberViewsSystemUtils.getViewBounds;
+  exports.getViewClientRects = _emberViewsSystemUtils.getViewClientRects;
+  exports.getViewBoundingClientRect = _emberViewsSystemUtils.getViewBoundingClientRect;
+  exports.getRootViews = _emberViewsSystemUtils.getRootViews;
+  exports.getChildViews = _emberViewsSystemUtils.getChildViews;
+  exports.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
+  exports.ComponentLookup = _emberViewsComponent_lookup.default;
+  exports.TextSupport = _emberViewsMixinsText_support.default;
 });
 // for the side effect of extending Ember.run.queues
 enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/is_none', 'ember-metal/debug', 'ember-views/compat/attrs-proxy', 'ember-metal/utils'], function (exports, _emberMetalMixin, _emberMetalProperty_get, _emberMetalIs_none, _emberMetalDebug, _emberViewsCompatAttrsProxy, _emberMetalUtils) {
+  /**
+   @module ember
+   @submodule ember-views
+  */
   'use strict';
 
   function validateAction(component, actionName) {
@@ -37546,6 +37785,11 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'em
     return actionName;
   }
 
+  /**
+   @class ActionSupport
+   @namespace Ember
+   @private
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     /**
       Calls an action passed to a component.
@@ -37671,35 +37915,6 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'em
         _emberMetalDebug.assert(_emberMetalUtils.inspect(this) + ' had no action handler for: ' + actionName, action);
       }
     }
-  });
-});
-enifed('ember-views/mixins/aria_role_support', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
-  /**
-   @module ember
-   @submodule ember-views
-  */
-
-  'use strict';
-
-  /**
-   @class AriaRoleSupport
-   @namespace Ember
-   @private
-  */
-  exports.default = _emberMetalMixin.Mixin.create({
-    /**
-     The WAI-ARIA role of the control represented by this view. For example, a
-     button may have a role of type 'button', or a pane may have a role of
-     type 'alertdialog'. This property is used by assistive software to help
-     visually challenged users navigate rich web applications.
-      The full list of valid WAI-ARIA roles is available at:
-     [http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)
-      @property ariaRole
-     @type String
-     @default null
-     @public
-    */
-    ariaRole: null
   });
 });
 enifed('ember-views/mixins/child_views_support', ['exports', 'ember-metal/mixin', 'container', 'ember-metal/descriptor', 'ember-views/system/utils'], function (exports, _emberMetalMixin, _container, _emberMetalDescriptor, _emberViewsSystemUtils) {
@@ -38273,6 +38488,10 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get'
   }
 });
 enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-views
+  */
   'use strict';
 
   exports.default = _emberMetalMixin.Mixin.create({
@@ -38301,6 +38520,11 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     return this;
   }
 
+  /**
+   @class ViewMixin
+   @namespace Ember
+   @private
+  */
   exports.default = _emberMetalMixin.Mixin.create((_Mixin$create = {
     concatenatedProperties: ['attributeBindings'],
 
@@ -39751,7 +39975,7 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 
   exports.default = preRender;
 });
-enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
+enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
   'use strict';
 
   /**
@@ -40245,11 +40469,10 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     @uses Ember.AttributeBindingsSupport
     @uses Ember.InstrumentationSupport
     @uses Ember.VisibilitySupport
-    @uses Ember.AriaRoleSupport
     @public
   */
   // jscs:disable validateIndentation
-  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsAria_role_support.default, _emberViewsMixinsView_support.default);
+  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsView_support.default);
 
   // jscs:enable validateIndentation
 
@@ -40734,6 +40957,53 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
   // require the main entry points for each of these packages
   // this is so that the global exports occur properly
 
+  /**
+   Alias for jQuery
+  
+   @method $
+   @for Ember
+   @public
+   */
+  _emberMetal.default.$ = _emberViews.jQuery;
+
+  _emberMetal.default.ViewTargetActionSupport = _emberViews.ViewTargetActionSupport;
+
+  _emberMetal.default.ViewUtils = {
+    isSimpleClick: _emberViews.isSimpleClick,
+    getViewBounds: _emberViews.getViewBounds,
+    getViewClientRects: _emberViews.getViewClientRects,
+    getViewBoundingClientRect: _emberViews.getViewBoundingClientRect,
+    getRootViews: _emberViews.getRootViews,
+    getChildViews: _emberViews.getChildViews
+  };
+
+  _emberMetal.default.TextSupport = _emberViews.TextSupport;
+  _emberMetal.default.ComponentLookup = _emberViews.ComponentLookup;
+  _emberMetal.default.EventDispatcher = _emberViews.EventDispatcher;
+
+  _emberMetal.default.Location = _emberRouting.Location;
+  _emberMetal.default.AutoLocation = _emberRouting.AutoLocation;
+  _emberMetal.default.HashLocation = _emberRouting.HashLocation;
+  _emberMetal.default.HistoryLocation = _emberRouting.HistoryLocation;
+  _emberMetal.default.NoneLocation = _emberRouting.NoneLocation;
+  _emberMetal.default.controllerFor = _emberRouting.controllerFor;
+  _emberMetal.default.generateControllerFactory = _emberRouting.generateControllerFactory;
+  _emberMetal.default.generateController = _emberRouting.generateController;
+  _emberMetal.default.RouterDSL = _emberRouting.RouterDSL;
+  _emberMetal.default.Router = _emberRouting.Router;
+  _emberMetal.default.Route = _emberRouting.Route;
+
+  _emberMetal.default.Application = _emberApplication.Application;
+  _emberMetal.default.ApplicationInstance = _emberApplication.ApplicationInstance;
+  _emberMetal.default.Engine = _emberApplication.Engine;
+  _emberMetal.default.EngineInstance = _emberApplication.EngineInstance;
+  _emberMetal.default.DefaultResolver = _emberMetal.default.Resolver = _emberApplication.Resolver;
+
+  _emberRuntime.runLoadHooks('Ember.Application', _emberApplication.Application);
+
+  _emberMetal.default.DataAdapter = _emberExtensionSupport.DataAdapter;
+  _emberMetal.default.ContainerDebugAdapter = _emberExtensionSupport.ContainerDebugAdapter;
+
   if (_require.has('ember-template-compiler')) {
     _require.default('ember-template-compiler');
   }
@@ -40741,7 +41011,12 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
   // do this to ensure that Ember.Test is defined properly on the global
   // if it is present.
   if (_require.has('ember-testing')) {
-    _require.default('ember-testing');
+    var testing = _require.default('ember-testing');
+
+    _emberMetal.default.Test = testing.Test;
+    _emberMetal.default.Test.Adapter = testing.Adapter;
+    _emberMetal.default.Test.QUnitAdapter = testing.QUnitAdapter;
+    _emberMetal.default.setupForTesting = testing.setupForTesting;
   }
 
   _emberRuntime.runLoadHooks('Ember');
@@ -40769,12 +41044,13 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+07ff634f";
+  exports.default = "2.9.0-null+870a71b1";
 });
-enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
+enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime', 'require'], function (exports, _container, _emberApplication, _emberRuntime, _require) {
   'use strict';
 
   exports.buildOwner = buildOwner;
+  exports.confirmExport = confirmExport;
 
   function buildOwner(resolver) {
     var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin);
@@ -40801,6 +41077,33 @@ enifed('internal-test-helpers/index', ['exports', 'container', 'ember-applicatio
     owner.__container__ = container;
 
     return owner;
+  }
+
+  function confirmExport(Ember, assert, path, moduleId, exportName) {
+    var desc = getDescriptor(Ember, path);
+    assert.ok(desc, 'the property exists on the global');
+
+    var mod = _require.default(moduleId);
+    if (typeof exportName === 'string') {
+      assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
+    } else {
+      assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
+      assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
+    }
+  }
+
+  function getDescriptor(obj, path) {
+    var parts = path.split('.');
+    var value = obj;
+    for (var i = 0; i < parts.length - 1; i++) {
+      var part = parts[i];
+      value = value[part];
+      if (!value) {
+        return undefined;
+      }
+    }
+    var last = parts[parts.length - 1];
+    return Object.getOwnPropertyDescriptor(value, last);
   }
 });
 enifed('glimmer-node/index', ['exports', 'glimmer-node/lib/node-dom-helper'], function (exports, _glimmerNodeLibNodeDomHelper) {

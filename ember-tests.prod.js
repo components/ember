@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+07ff634f
+ * @version   2.9.0-null+870a71b1
  */
 
 var enifed, requireModule, require, Ember;
@@ -57793,6 +57793,28 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/run_loop
     });
   });
 });
+enifed('ember-testing/tests/reexports_test', ['exports', 'ember', 'internal-test-helpers'], function (exports, _ember, _internalTestHelpers) {
+  'use strict';
+
+  QUnit.module('ember-testing reexports');
+
+  [
+  // ember-testing
+  ['Test', 'ember-testing'], ['Test.Adapter', 'ember-testing', 'Adapter'], ['Test.QUnitAdapter', 'ember-testing', 'QUnitAdapter'], ['setupForTesting', 'ember-testing']].forEach(function (reexport) {
+    var path = reexport[0];
+    var moduleId = reexport[1];
+    var exportName = reexport[2];
+
+    // default path === exportName if none present
+    if (!exportName) {
+      exportName = path;
+    }
+
+    QUnit.test('Ember.' + path + ' exports correctly', function (assert) {
+      _internalTestHelpers.confirmExport(_ember.default, assert, path, moduleId, exportName);
+    });
+  });
+});
 enifed('ember-testing/tests/simple_setup', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery) {
   'use strict';
 
@@ -61556,7 +61578,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
     assert.deepEqual(actions, ['#app-2', '#app-1']);
   });
 });
-enifed('ember/tests/reexports_test', ['exports', 'ember', 'ember-metal/features', 'require'], function (exports, _ember, _emberMetalFeatures, _require) {
+enifed('ember/tests/reexports_test', ['exports', 'ember', 'internal-test-helpers', 'ember-metal/features'], function (exports, _ember, _internalTestHelpers, _emberMetalFeatures) {
   'use strict';
 
   QUnit.module('ember reexports');
@@ -61576,11 +61598,23 @@ enifed('ember/tests/reexports_test', ['exports', 'ember', 'ember-metal/features'
   // ['keys'], TODO: figure out what to do here
   ['FEATURES', 'ember-metal'], ['FEATURES.isEnabled', 'ember-metal', 'isFeatureEnabled'], ['Error', 'ember-metal'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['accumulateListeners', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['rewatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-metal'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
+  // ember-views
+  ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
+
   // ember-glimmer
   ['_Renderer', 'ember-glimmer', '_Renderer'], ['Component', 'ember-glimmer', 'Component'], ['Helper', 'ember-glimmer', 'Helper'], ['Helper.helper', 'ember-glimmer', 'helper'], ['Checkbox', 'ember-glimmer', 'Checkbox'], ['LinkComponent', 'ember-glimmer', 'LinkComponent'], ['TextArea', 'ember-glimmer', 'TextArea'], ['TextField', 'ember-glimmer', 'TextField'], ['TEMPLATES', 'ember-glimmer', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-glimmer', 'template'], ['Handlebars.SafeString', 'ember-glimmer', { get: '_getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-glimmer', 'escapeExpression'], ['String.htmlSafe', 'ember-glimmer', 'htmlSafe'], ['HTMLBars.makeBoundHelper', 'ember-glimmer', 'makeBoundHelper'],
 
   // ember-runtime
-  ['_RegistryProxyMixin', 'ember-runtime', 'RegistryProxyMixin'], ['_ContainerProxyMixin', 'ember-runtime', 'ContainerProxyMixin'], ['Object', 'ember-runtime'], ['String', 'ember-runtime'], ['compare', 'ember-runtime'], ['copy', 'ember-runtime'], ['isEqual', 'ember-runtime'], ['inject', 'ember-runtime'], ['Array', 'ember-runtime'], ['Comparable', 'ember-runtime'], ['Namespace', 'ember-runtime'], ['Enumerable', 'ember-runtime'], ['ArrayProxy', 'ember-runtime'], ['ObjectProxy', 'ember-runtime'], ['ActionHandler', 'ember-runtime'], ['CoreObject', 'ember-runtime'], ['NativeArray', 'ember-runtime'], ['Copyable', 'ember-runtime'], ['Freezable', 'ember-runtime'], ['FROZEN_ERROR', 'ember-runtime'], ['MutableEnumerable', 'ember-runtime'], ['MutableArray', 'ember-runtime'], ['TargetActionSupport', 'ember-runtime'], ['Evented', 'ember-runtime'], ['PromiseProxyMixin', 'ember-runtime'], ['Observable', 'ember-runtime'], ['typeOf', 'ember-runtime'], ['isArray', 'ember-runtime'], ['Object', 'ember-runtime'], ['onLoad', 'ember-runtime'], ['runLoadHooks', 'ember-runtime'], ['Controller', 'ember-runtime'], ['ControllerMixin', 'ember-runtime'], ['Service', 'ember-runtime'], ['_ProxyMixin', 'ember-runtime'], ['RSVP', 'ember-runtime'], ['STRINGS', 'ember-runtime', { get: 'getStrings', set: 'setStrings' }], ['BOOTED', 'ember-runtime', { get: 'isNamespaceSearchDisabled', set: 'setNamespaceSearchDisabled' }]].forEach(function (reexport) {
+  ['_RegistryProxyMixin', 'ember-runtime', 'RegistryProxyMixin'], ['_ContainerProxyMixin', 'ember-runtime', 'ContainerProxyMixin'], ['Object', 'ember-runtime'], ['String', 'ember-runtime'], ['compare', 'ember-runtime'], ['copy', 'ember-runtime'], ['isEqual', 'ember-runtime'], ['inject', 'ember-runtime'], ['Array', 'ember-runtime'], ['Comparable', 'ember-runtime'], ['Namespace', 'ember-runtime'], ['Enumerable', 'ember-runtime'], ['ArrayProxy', 'ember-runtime'], ['ObjectProxy', 'ember-runtime'], ['ActionHandler', 'ember-runtime'], ['CoreObject', 'ember-runtime'], ['NativeArray', 'ember-runtime'], ['Copyable', 'ember-runtime'], ['Freezable', 'ember-runtime'], ['FROZEN_ERROR', 'ember-runtime'], ['MutableEnumerable', 'ember-runtime'], ['MutableArray', 'ember-runtime'], ['TargetActionSupport', 'ember-runtime'], ['Evented', 'ember-runtime'], ['PromiseProxyMixin', 'ember-runtime'], ['Observable', 'ember-runtime'], ['typeOf', 'ember-runtime'], ['isArray', 'ember-runtime'], ['Object', 'ember-runtime'], ['onLoad', 'ember-runtime'], ['runLoadHooks', 'ember-runtime'], ['Controller', 'ember-runtime'], ['ControllerMixin', 'ember-runtime'], ['Service', 'ember-runtime'], ['_ProxyMixin', 'ember-runtime'], ['RSVP', 'ember-runtime'], ['STRINGS', 'ember-runtime', { get: 'getStrings', set: 'setStrings' }], ['BOOTED', 'ember-runtime', { get: 'isNamespaceSearchDisabled', set: 'setNamespaceSearchDisabled' }],
+
+  // ember-routing
+  ['Location', 'ember-routing'], ['AutoLocation', 'ember-routing'], ['HashLocation', 'ember-routing'], ['HistoryLocation', 'ember-routing'], ['NoneLocation', 'ember-routing'], ['controllerFor', 'ember-routing'], ['generateControllerFactory', 'ember-routing'], ['generateController', 'ember-routing'], ['RouterDSL', 'ember-routing'], ['Router', 'ember-routing'], ['Route', 'ember-routing'],
+
+  // ember-application
+  ['Application', 'ember-application'], ['ApplicationInstance', 'ember-application'], ['Engine', 'ember-application'], ['EngineInstance', 'ember-application'], ['Resolver', 'ember-application'], ['DefaultResolver', 'ember-application', 'Resolver'],
+
+  // ember-extension-support
+  ['DataAdapter', 'ember-extension-support'], ['ContainerDebugAdapter', 'ember-extension-support']].forEach(function (reexport) {
     var path = reexport[0];
     var moduleId = reexport[1];
     var exportName = reexport[2];
@@ -61591,46 +61625,20 @@ enifed('ember/tests/reexports_test', ['exports', 'ember', 'ember-metal/features'
     }
 
     QUnit.test('Ember.' + path + ' exports correctly', function (assert) {
-      confirmExport(assert, path, moduleId, exportName);
+      _internalTestHelpers.confirmExport(_ember.default, assert, path, moduleId, exportName);
     });
   });
 
   if (true) {
     QUnit.test('Ember.String.isHTMLSafe exports correctly', function (assert) {
-      confirmExport(assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
+      _internalTestHelpers.confirmExport(_ember.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
     });
   }
 
   if (_emberMetalFeatures.default('ember-metal-weakmap')) {
     QUnit.test('Ember.WeakMap exports correctly', function (assert) {
-      confirmExport(assert, 'WeakMap', 'ember-metal', 'WeakMap');
+      _internalTestHelpers.confirmExport(_ember.default, assert, 'WeakMap', 'ember-metal', 'WeakMap');
     });
-  }
-  function confirmExport(assert, path, moduleId, exportName) {
-    var desc = getDescriptor(_ember.default, path);
-    assert.ok(desc, 'the property exists on the global');
-
-    var mod = _require.default(moduleId);
-    if (typeof exportName === 'string') {
-      assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
-    } else {
-      assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
-      assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
-    }
-  }
-
-  function getDescriptor(obj, path) {
-    var parts = path.split('.');
-    var value = obj;
-    for (var i = 0; i < parts.length - 1; i++) {
-      var part = parts[i];
-      value = value[part];
-      if (!value) {
-        return undefined;
-      }
-    }
-    var last = parts[parts.length - 1];
-    return Object.getOwnPropertyDescriptor(value, last);
   }
 });
 enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router', 'ember-runtime/copy', 'ember-metal/observer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _router, _emberRuntimeCopy, _emberMetalObserver) {
