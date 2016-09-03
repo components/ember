@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+7a3faa47
+ * @version   2.9.0-null+07ff634f
  */
 
 var enifed, requireModule, require, Ember;
@@ -32091,10 +32091,7 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
   to add a `triggerAction` method with semantics similar to the Handlebars
   `{{action}}` helper. In normal Ember usage, the `{{action}}` helper is
   usually the best choice. This mixin is most often useful when you are
-  doing more complex event handling in View objects.
-  
-  See also `Ember.ViewTargetActionSupport`, which has
-  view-aware defaults for target and actionContext.
+  doing more complex event handling in Components.
   
   @class TargetActionSupport
   @namespace Ember
@@ -34692,7 +34689,7 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/debug', 'ember-r
     }
   });
 });
-enifed('ember-views/index', ['exports', 'ember-metal/core', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/mixins/text_support'], function (exports, _emberMetalCore, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsMixinsText_support) {
+enifed('ember-views/index', ['exports', 'ember-metal/core', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/system/event_dispatcher', 'ember-views/component_lookup', 'ember-views/mixins/text_support'], function (exports, _emberMetalCore, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsSystemEvent_dispatcher, _emberViewsComponent_lookup, _emberViewsMixinsText_support) {
   /**
   @module ember
   @submodule ember-views
@@ -34713,8 +34710,6 @@ enifed('ember-views/index', ['exports', 'ember-metal/core', 'ember-views/system/
 
   // BEGIN EXPORTS
   _emberMetalCore.default.$ = _emberViewsSystemJquery.default;
-
-  _emberMetalCore.default.ViewTargetActionSupport = _emberViewsMixinsView_target_action_support.default;
 
   var ViewUtils = _emberMetalCore.default.ViewUtils = {};
   ViewUtils.isSimpleClick = _emberViewsSystemUtils.isSimpleClick;
@@ -35887,64 +35882,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
   @param evt {Event}
   @private
 */
-enifed('ember-views/mixins/view_target_action_support', ['exports', 'ember-metal/mixin', 'ember-runtime/mixins/target_action_support', 'ember-metal/alias'], function (exports, _emberMetalMixin, _emberRuntimeMixinsTarget_action_support, _emberMetalAlias) {
-  'use strict';
-
-  /**
-  `Ember.ViewTargetActionSupport` is a mixin that can be included in a
-  view class to add a `triggerAction` method with semantics similar to
-  the Handlebars `{{action}}` helper. It provides intelligent defaults
-  for the action's target: the view's controller; and the context that is
-  sent with the action: the view's context.
-  
-  Note: In normal Ember usage, the `{{action}}` helper is usually the best
-  choice. This mixin is most often useful when you are doing more complex
-  event handling in custom View subclasses.
-  
-  For example:
-  
-  ```javascript
-  App.SaveButtonView = Ember.View.extend(Ember.ViewTargetActionSupport, {
-    action: 'save',
-    click: function() {
-      this.triggerAction(); // Sends the `save` action, along with the current context
-                            // to the current controller
-    }
-  });
-  ```
-  
-  The `action` can be provided as properties of an optional object argument
-  to `triggerAction` as well.
-  
-  ```javascript
-  App.SaveButtonView = Ember.View.extend(Ember.ViewTargetActionSupport, {
-    click: function() {
-      this.triggerAction({
-        action: 'save'
-      }); // Sends the `save` action, along with the current context
-          // to the current controller
-    }
-  });
-  ```
-  
-  @class ViewTargetActionSupport
-  @namespace Ember
-  @extends Ember.TargetActionSupport
-  @private
-  */
-  exports.default = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsTarget_action_support.default, {
-    /**
-     @property target
-     @private
-    */
-    target: _emberMetalAlias.default('controller'),
-    /**
-     @property actionContext
-     @private
-    */
-    actionContext: _emberMetalAlias.default('context')
-  });
-});
 enifed('ember-views/mixins/visibility_support', ['exports', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/run_loop'], function (exports, _emberMetalMixin, _emberMetalProperty_get, _emberMetalRun_loop) {
   /**
    @module ember
@@ -37965,7 +37902,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+7a3faa47";
+  exports.default = "2.9.0-null+07ff634f";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime'], function (exports, _container, _emberApplication, _emberRuntime) {
   'use strict';

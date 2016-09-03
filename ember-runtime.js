@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+7a3faa47
+ * @version   2.9.0-null+07ff634f
  */
 
 var enifed, requireModule, require, Ember;
@@ -17295,10 +17295,7 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
   to add a `triggerAction` method with semantics similar to the Handlebars
   `{{action}}` helper. In normal Ember usage, the `{{action}}` helper is
   usually the best choice. This mixin is most often useful when you are
-  doing more complex event handling in View objects.
-  
-  See also `Ember.ViewTargetActionSupport`, which has
-  view-aware defaults for target and actionContext.
+  doing more complex event handling in Components.
   
   @class TargetActionSupport
   @namespace Ember
@@ -19840,7 +19837,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+7a3faa47";
+  exports.default = "2.9.0-null+07ff634f";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
