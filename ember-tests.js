@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+504a6e05
+ * @version   2.9.0-null+2849f5f8
  */
 
 var enifed, requireModule, require, Ember;
@@ -1954,7 +1954,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     assert.equal(registry.resolve('service:-document'), document);
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberVersion, _emberEnvironment, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberGlimmer, _container, _emberApplicationTestsTestHelpersRegistryCheck) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember/version', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler', 'ember-runtime/system/lazy_load', 'ember-metal/debug', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check'], function (exports, _emberVersion, _emberEnvironment, _emberMetalRun_loop, _emberMetalLibraries, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompiler, _emberRuntimeSystemLazy_load, _emberMetalDebug, _emberGlimmer, _container, _emberApplicationTestsTestHelpersRegistryCheck) {
   /*globals EmberDev */
   'use strict';
 
@@ -2146,9 +2146,9 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
         location: 'none'
       });
 
-      app.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
+      app.register('template:application', _emberTemplateCompiler.compile('{{outlet}}'));
 
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hi from index</h1>'));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h1>Hi from index</h1>'));
     });
 
     equal(_emberViewsSystemJquery.default('#qunit-fixture h1').text(), 'Hi from index');
@@ -2199,7 +2199,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
       });
 
       app.ApplicationView = _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello!</h1>')
+        template: _emberTemplateCompiler.compile('<h1>Hello!</h1>')
       });
     });
 
@@ -2220,7 +2220,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
         location: 'none'
       });
 
-      app.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello!</h1>'));
+      app.register('template:application', _emberTemplateCompiler.compile('<h1>Hello!</h1>'));
     });
 
     var router = app.__container__.lookup('router:main');
@@ -2234,7 +2234,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember/ver
         rootElement: '#qunit-fixture'
       });
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello!</h1>'));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<h1>Hello!</h1>'));
 
       app.ApplicationController = _emberRuntimeControllersController.default.extend();
 
@@ -2390,14 +2390,14 @@ enifed('ember-application/tests/system/bootstrap-test', ['exports', 'ember-metal
     assert.equal(_emberViewsSystemJquery.default('#app').text(), 'Hello World!');
   });
 });
-enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerTestsUtilsHelpers) {
+enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompiler) {
   'use strict';
 
   var application = undefined;
 
   QUnit.module('Ember.Application Dependency Injection – customResolver', {
     setup: function () {
-      var fallbackTemplate = _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Fallback</h1>');
+      var fallbackTemplate = _emberTemplateCompiler.compile('<h1>Fallback</h1>');
 
       var Resolver = _emberApplicationSystemResolver.default.extend({
         resolveTemplate: function (resolvable) {
@@ -4698,7 +4698,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
     _emberMetalRun_loop.default(app, 'reset');
   });
 });
-enifed('ember-application/tests/system/logging_test', ['exports', 'ember-console', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-template-compiler/tests/utils/helpers', 'ember-routing'], function (exports, _emberConsole, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberRuntimeExtRsvp, _emberTemplateCompilerTestsUtilsHelpers, _emberRouting) {
+enifed('ember-application/tests/system/logging_test', ['exports', 'ember-console', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-template-compiler', 'ember-routing'], function (exports, _emberConsole, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberRuntimeExtRsvp, _emberTemplateCompiler, _emberRouting) {
   /*globals EmberDev */
 
   'use strict';
@@ -4877,7 +4877,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-console
       return;
     }
 
-    App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
+    App.register('template:application', _emberTemplateCompiler.compile('{{outlet}}'));
     _emberMetalRun_loop.default(App, 'advanceReadiness');
 
     visit('/posts').then(function () {
@@ -5291,7 +5291,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     ok(application.__container__.lookup('store:main'), 'store is still present');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-glimmer', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberGlimmer, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-glimmer', 'ember-template-compiler', 'ember-views/system/jquery'], function (exports, _emberRuntimeSystemObject, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberGlimmer, _emberTemplateCompiler, _emberViewsSystemJquery) {
   'use strict';
 
   var App = null;
@@ -5614,7 +5614,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     _emberMetalRun_loop.default(function () {
       createApplication();
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello world</h1>'));
+      App.register('template:application', _emberTemplateCompiler.compile('<h1>Hello world</h1>'));
     });
 
     assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
@@ -5631,7 +5631,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     _emberMetalRun_loop.default(function () {
       createApplication();
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello world</h1>'));
+      App.register('template:application', _emberTemplateCompiler.compile('<h1>Hello world</h1>'));
     });
 
     assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
@@ -5648,7 +5648,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     _emberMetalRun_loop.default(function () {
       createApplication();
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello world</h1>'));
+      App.register('template:application', _emberTemplateCompiler.compile('<h1>Hello world</h1>'));
     });
 
     assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
@@ -5665,7 +5665,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
     _emberMetalRun_loop.default(function () {
       createApplication();
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Hello world</h1>'));
+      App.register('template:application', _emberTemplateCompiler.compile('<h1>Hello world</h1>'));
 
       // Register engine
       var BlogEngine = _emberApplicationSystemEngine.default.extend();
@@ -5702,8 +5702,8 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
           }
 
           this._super.apply(this, args);
-          this.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{cache-money}}'));
-          this.register('template:components/cache-money', _emberTemplateCompilerTestsUtilsHelpers.compile('\n          <p>Dis cache money</p>\n        '));
+          this.register('template:application', _emberTemplateCompiler.compile('{{cache-money}}'));
+          this.register('template:components/cache-money', _emberTemplateCompiler.compile('\n          <p>Dis cache money</p>\n        '));
           this.register('component:cache-money', _emberGlimmer.Component.extend({}));
         }
       });
@@ -5739,7 +5739,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
           }
 
           this._super.apply(this, args);
-          this.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{swag}}'));
+          this.register('template:application', _emberTemplateCompiler.compile('{{swag}}'));
           this.register('helper:swag', _emberGlimmer.helper(function () {
             return 'turnt up';
           }));
@@ -5817,9 +5817,9 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
       App.register('service:isolated-counter', Counter);
       App.register('service:shared-counter', Counter.create(), { instantiate: false });
 
-      App.register('template:show', _emberTemplateCompilerTestsUtilsHelpers.compile('{{component model.componentName model=model.componentData}}'));
+      App.register('template:show', _emberTemplateCompiler.compile('{{component model.componentName model=model.componentData}}'));
 
-      App.register('template:components/x-foo', _emberTemplateCompilerTestsUtilsHelpers.compile('\n      <h1>X-Foo</h1>\n      <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n    '));
+      App.register('template:components/x-foo', _emberTemplateCompiler.compile('\n      <h1>X-Foo</h1>\n      <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n    '));
 
       App.register('component:x-foo', _emberGlimmer.Component.extend({
         tagName: 'x-foo',
@@ -5842,7 +5842,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-runtime/s
         }
       }));
 
-      App.register('template:components/x-bar', _emberTemplateCompilerTestsUtilsHelpers.compile('\n      <h1>X-Bar</h1>\n      <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n    '));
+      App.register('template:components/x-bar', _emberTemplateCompiler.compile('\n      <h1>X-Bar</h1>\n      <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n    '));
 
       App.register('component:x-bar', _emberGlimmer.Component.extend({
         counter: _emberRuntimeInject.default.service('shared-counter'),
@@ -7380,68 +7380,6 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     _emberMetalProperty_set.set(post, 'title', 'New Title');
     equal(updatesCalled, 1, 'Release function removes observers');
   });
-});
-enifed('ember-glimmer-template-compiler/tests/plugins-test', ['exports', 'ember-glimmer-template-compiler/tests/utils/helpers'], function (exports, _emberGlimmerTemplateCompilerTestsUtilsHelpers) {
-  'use strict';
-
-  function TestPlugin() {
-    ok(true, 'TestPlugin instantiated');
-  }
-
-  TestPlugin.prototype.transform = function (ast) {
-    ok(true, 'transform was called');
-
-    return ast;
-  };
-
-  QUnit.module('ember-' + _emberGlimmerTemplateCompilerTestsUtilsHelpers.packageName + ': Registering AST Plugins', {
-    setup: function (assert) {},
-
-    teardown: function () {
-      _emberGlimmerTemplateCompilerTestsUtilsHelpers.removePlugin('ast', TestPlugin);
-    }
-  });
-
-  QUnit.test('registering a plugin adds it to compiler options', function () {
-    expect(2);
-
-    _emberGlimmerTemplateCompilerTestsUtilsHelpers.registerPlugin('ast', TestPlugin);
-
-    _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile('some random template', { plugins: { ast: [] } });
-  });
-
-  QUnit.test('registering an unknown type throws an error', function () {
-    throws(function () {
-      _emberGlimmerTemplateCompilerTestsUtilsHelpers.registerPlugin('asdf', 'whatever');
-    }, 'Attempting to register whatever as "asdf" which is not a valid ' + _emberGlimmerTemplateCompilerTestsUtilsHelpers.engineName + ' plugin type.');
-  });
-
-  QUnit.test('can register AST plugins through the options', function () {
-    expect(2);
-
-    _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile('some random template', { plugins: { ast: [TestPlugin] } });
-  });
-});
-enifed('ember-glimmer-template-compiler/tests/utils/helpers', ['exports', 'ember-glimmer-template-compiler', 'ember-metal/assign', 'ember-glimmer-template-compiler/system/compile-options'], function (exports, _emberGlimmerTemplateCompiler, _emberMetalAssign, _emberGlimmerTemplateCompilerSystemCompileOptions) {
-  'use strict';
-
-  exports.precompile = precompile;
-  exports.compile = compile;
-  babelHelpers.defaults(exports, babelHelpers.interopExportWildcard(_emberGlimmerTemplateCompiler, babelHelpers.defaults));
-  exports.removePlugin = _emberGlimmerTemplateCompilerSystemCompileOptions.removePlugin;
-  var packageName = 'glimmer';
-  exports.packageName = packageName;
-  var engineName = 'Glimmer';
-
-  exports.engineName = engineName;
-
-  function precompile(string) {
-    return _emberGlimmerTemplateCompiler.template(_emberGlimmerTemplateCompiler.precompile(string));
-  }
-
-  function compile(string, options) {
-    return _emberGlimmerTemplateCompiler.compile(string, _emberMetalAssign.default({}, _emberGlimmerTemplateCompiler.defaultCompileOptions(), options));
-  }
 });
 enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/controllers/controller', 'ember-application/system/engine', 'ember-routing/system/route'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntimeControllersController, _emberApplicationSystemEngine, _emberRoutingSystemRoute) {
   'use strict';
@@ -30598,7 +30536,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-glimmer-template-compiler', 'ember-glimmer', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTemplateCompiler, _emberGlimmer, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-template-compiler', 'ember-glimmer', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberTemplateCompiler, _emberGlimmer, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Template factory test', (function (_RenderingTest) {
@@ -30616,14 +30554,14 @@ enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-glim
       var templateStr = 'Hello {{name}}';
       var options = { moduleName: 'some-module' };
 
-      var spec = _emberGlimmerTemplateCompiler.precompile(templateStr, options);
+      var spec = _emberTemplateCompiler.precompile(templateStr, options);
       var body = 'exports.default = template(' + spec + ');';
       var module = new Function('exports', 'template', body);
       var exports = {};
       module(exports, _emberGlimmer.template);
       var Precompiled = exports['default'];
 
-      var Compiled = _emberGlimmerTemplateCompiler.compile(templateStr, options);
+      var Compiled = _emberTemplateCompiler.compile(templateStr, options);
 
       assert.equal(typeof Precompiled.create, 'function', 'precompiled is a factory');
       assert.ok(Precompiled.id, 'precompiled has id');
@@ -31172,12 +31110,12 @@ enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], fu
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/dictionary', 'ember-glimmer', 'container/tests/test-helpers/build-owner', 'ember-views/system/jquery', 'ember-glimmer-template-compiler/tests/utils/helpers'], function (exports, _emberMetalDictionary, _emberGlimmer, _containerTestsTestHelpersBuildOwner, _emberViewsSystemJquery, _emberGlimmerTemplateCompilerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-metal/dictionary', 'ember-glimmer', 'container/tests/test-helpers/build-owner', 'ember-views/system/jquery', 'ember-template-compiler'], function (exports, _emberMetalDictionary, _emberGlimmer, _containerTestsTestHelpersBuildOwner, _emberViewsSystemJquery, _emberTemplateCompiler) {
   'use strict';
 
   exports.buildOwner = buildOwner;
-  exports.compile = _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile;
-  exports.precompile = _emberGlimmerTemplateCompilerTestsUtilsHelpers.precompile;
+  exports.compile = _emberTemplateCompiler.compile;
+  exports.precompile = _emberTemplateCompiler.precompile;
   exports.INVOKE = _emberGlimmer.INVOKE;
   exports.Helper = _emberGlimmer.Helper;
   exports.helper = _emberGlimmer.helper;
@@ -56108,7 +56046,7 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
   exports.runAppend = runAppend;
   exports.runDestroy = runDestroy;
 });
-enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
+enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
   'use strict';
 
   QUnit.module('ember-template-compiler: assert-reserved-named-arguments');
@@ -56117,25 +56055,25 @@ enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-te
     expect(3);
 
     expectAssertion(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{@foo}}', {
+      _emberTemplateCompiler.compile('{{@foo}}', {
         moduleName: 'baz/foo-bar'
       });
     }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C2) ');
 
     expectAssertion(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{#if @foo}}Yup{{/if}}', {
+      _emberTemplateCompiler.compile('{{#if @foo}}Yup{{/if}}', {
         moduleName: 'baz/foo-bar'
       });
     }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C6) ');
 
     expectAssertion(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{input type=(if @foo "bar" "baz")}}', {
+      _emberTemplateCompiler.compile('{{input type=(if @foo "bar" "baz")}}', {
         moduleName: 'baz/foo-bar'
       });
     }, '\'@foo\' is not a valid path. (\'baz/foo-bar\' @ L1:C17) ');
   });
 });
-enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
+enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
   'use strict';
 
   QUnit.module('ember-template-compiler: deprecate-model-render');
@@ -56146,13 +56084,13 @@ enifed('ember-template-compiler/tests/plugins/deprecate-render-model-test', ['ex
     var expectedMessage = 'Please refactor `{{render "foo-bar" coolModel}}` to a component and' + ' invoke via `{{foo-bar model=coolModel}}`. (\'baz/foo-bar\' @ L1:C0) ';
 
     expectDeprecation(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "foo-bar" coolModel}}', {
+      _emberTemplateCompiler.compile('{{render "foo-bar" coolModel}}', {
         moduleName: 'baz/foo-bar'
       });
     }, expectedMessage);
   });
 });
-enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
+enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
   'use strict';
 
   QUnit.module('ember-template-compiler: assert-no-view-and-controller-paths without legacy view support');
@@ -56160,12 +56098,12 @@ enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['
   QUnit.test('Can transform an inline {{link-to}} without error', function () {
     expect(0);
 
-    _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'foo\' \'index\'}}', {
+    _emberTemplateCompiler.compile('{{link-to \'foo\' \'index\'}}', {
       moduleName: 'foo/bar/baz'
     });
   });
 });
-enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['exports', 'ember-template-compiler/tests/utils/helpers'], function (exports, _emberTemplateCompilerTestsUtilsHelpers) {
+enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
   'use strict';
 
   QUnit.module('ember-template-compiler: transform-input-on');
@@ -56174,7 +56112,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     expect(1);
 
     expectDeprecation(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{input action="foo"}}', {
+      _emberTemplateCompiler.compile('{{input action="foo"}}', {
         moduleName: 'foo/bar/baz'
       });
     }, 'Using \'{{input action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input enter="foo"}}\' instead.');
@@ -56184,7 +56122,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     expect(1);
 
     expectDeprecation(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{input on="focus-in" action="foo"}}', {
+      _emberTemplateCompiler.compile('{{input on="focus-in" action="foo"}}', {
         moduleName: 'foo/bar/baz'
       });
     }, 'Using \'{{input on="focus-in" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input focus-in="foo"}}\' instead.');
@@ -56194,7 +56132,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     expect(1);
 
     expectDeprecation(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{input on="keyPress" action="foo"}}', {
+      _emberTemplateCompiler.compile('{{input on="keyPress" action="foo"}}', {
         moduleName: 'foo/bar/baz'
       });
     }, 'Using \'{{input on="keyPress" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input key-press="foo"}}\' instead.');
@@ -56204,7 +56142,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     expect(1);
 
     expectDeprecation(function () {
-      _emberTemplateCompilerTestsUtilsHelpers.compile('{{input on="asdf"}}', {
+      _emberTemplateCompiler.compile('{{input on="asdf"}}', {
         moduleName: 'foo/bar/baz'
       });
     }, 'Using \'{{input on="asdf" ...}}\' without specifying an action (\'foo/bar/baz\' @ L1:C0) will do nothing.');
@@ -56328,32 +56266,27 @@ enifed('ember-template-compiler/tests/system/bootstrap-test', ['exports', 'ember
     }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
   });
 });
-enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 'ember-template-compiler', 'ember-template-compiler/plugins'], function (exports, _emberTemplateCompiler, _emberTemplateCompilerPlugins) {
+enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
   'use strict';
 
   QUnit.module('ember-template-compiler: default compile options');
 
   QUnit.test('default options are a new copy', function () {
-    notEqual(_emberTemplateCompiler.defaultCompileOptions(), _emberTemplateCompiler.defaultCompileOptions());
+    notEqual(_emberTemplateCompiler.compileOptions(), _emberTemplateCompiler.compileOptions());
   });
 
   QUnit.test('has default AST plugins', function (assert) {
-    assert.expect(_emberTemplateCompilerPlugins.default.length);
+    assert.expect(_emberTemplateCompiler.defaultPlugins.length);
 
-    var plugins = _emberTemplateCompiler.defaultCompileOptions().plugins.ast;
+    var plugins = _emberTemplateCompiler.compileOptions().plugins.ast;
 
-    for (var i = 0; i < _emberTemplateCompilerPlugins.default.length; i++) {
-      var plugin = _emberTemplateCompilerPlugins.default[i];
+    for (var i = 0; i < _emberTemplateCompiler.defaultPlugins.length; i++) {
+      var plugin = _emberTemplateCompiler.defaultPlugins[i];
       assert.ok(plugins.indexOf(plugin) > -1, 'includes ' + plugin);
     }
   });
 });
-enifed('ember-template-compiler/tests/utils/helpers', ['exports', 'ember-glimmer-template-compiler/tests/utils/helpers'], function (exports, _emberGlimmerTemplateCompilerTestsUtilsHelpers) {
-  'use strict';
-
-  exports.compile = _emberGlimmerTemplateCompilerTestsUtilsHelpers.compile;
-});
-enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/tests/utils/helpers', 'ember-runtime/ext/rsvp', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompilerTestsUtilsHelpers, _emberRuntimeExtRsvp, _emberGlimmer) {
+enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler', 'ember-runtime/ext/rsvp', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompiler, _emberRuntimeExtRsvp, _emberGlimmer) {
   'use strict';
 
   //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
@@ -56396,7 +56329,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
           }
         });
 
-        _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-view"><a class="dummy-link"></a><div id="comments-link">{{#link-to \'comments\'}}Comments{{/link-to}}</div></div>'));
+        _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('<div class="posts-view"><a class="dummy-link"></a><div id="comments-link">{{#link-to \'comments\'}}Comments{{/link-to}}</div></div>'));
 
         App.CommentsRoute = _emberRoutingSystemRoute.default.extend({
           renderTemplate: function () {
@@ -56405,7 +56338,7 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
           }
         });
 
-        _emberGlimmer.setTemplate('comments', _emberTemplateCompilerTestsUtilsHelpers.compile('<div>{{input type="text"}}</div>'));
+        _emberGlimmer.setTemplate('comments', _emberTemplateCompiler.compile('<div>{{input type="text"}}</div>'));
 
         App.AbortTransitionRoute = _emberRoutingSystemRoute.default.extend({
           beforeModel: function (transition) {
@@ -57054,7 +56987,7 @@ enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/
     ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
   });
 });
-enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-glimmer', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/tests/utils/helpers', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberGlimmer, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerTestsUtilsHelpers, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters) {
+enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-glimmer', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (exports, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberGlimmer, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompiler, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters) {
   'use strict';
 
   var App;
@@ -57402,7 +57335,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#index-wrapper}}{{input type="text"}} {{x-checkbox type="checkbox"}} {{textarea}} <div contenteditable="true"> </div>{{/index-wrapper}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#index-wrapper}}{{input type="text"}} {{x-checkbox type="checkbox"}} {{textarea}} <div contenteditable="true"> </div>{{/index-wrapper}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57458,7 +57391,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#index-wrapper}}some text{{/index-wrapper}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#index-wrapper}}some text{{/index-wrapper}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57494,7 +57427,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#index-wrapper}}some text{{/index-wrapper}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#index-wrapper}}some text{{/index-wrapper}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57581,8 +57514,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{index-wrapper}}'));
-    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompilerTestsUtilsHelpers.compile('{{input type="text" id="scope" class="input"}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{index-wrapper}}'));
+    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompiler.compile('{{input type="text" id="scope" class="input"}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57612,8 +57545,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompilerTestsUtilsHelpers.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{index-wrapper}}'));
+    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompiler.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{index-wrapper}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57641,8 +57574,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompilerTestsUtilsHelpers.compile('{{input type="text" id="foo"}}'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{index-wrapper}}'));
+    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompiler.compile('{{input type="text" id="foo"}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{index-wrapper}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57661,7 +57594,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
     expect(2);
     var fillIn, find, visit, andThen, wait;
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id="parent">{{input type="text" id="first" class="current"}}</div>{{input type="text" id="second" class="current"}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<div id="parent">{{input type="text" id="first" class="current"}}</div>{{input type="text" id="second" class="current"}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57692,7 +57625,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id="parent">{{input type="text" id="first" focus-in="wasFocused"}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<div id="parent">{{input type="text" id="first" focus-in="wasFocused"}}</div>'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57727,7 +57660,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<input type="text" id="first" oninput={{action "oninputHandler"}} onchange={{action "onchangeHandler"}}>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<input type="text" id="first" oninput={{action "oninputHandler"}} onchange={{action "onchangeHandler"}}>'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -57752,7 +57685,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
         andThen = undefined,
         wait = undefined;
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<input type="text" id="first" class="in-test"><input type="text" id="second" class="in-test">'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<input type="text" id="first" class="in-test"><input type="text" id="second" class="in-test">'));
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
     fillIn = App.testHelpers.fillIn;
@@ -57784,8 +57717,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing/system/rou
       }
     });
 
-    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompilerTestsUtilsHelpers.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{index-wrapper}}'));
+    _emberGlimmer.setTemplate('components/index-wrapper', _emberTemplateCompiler.compile('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{index-wrapper}}'));
 
     _emberMetalRun_loop.default(App, App.advanceReadiness);
 
@@ -58393,7 +58326,7 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal/feature
     assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
   });
 });
-enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-routing/system/controller_for'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberRoutingSystemController_for) {
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler', 'ember-routing/system/controller_for'], function (exports, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompiler, _emberRoutingSystemController_for) {
   'use strict';
 
   var App = undefined,
@@ -58523,8 +58456,8 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
     });
 
     _emberGlimmer.setTemplates({
-      index: _emberTemplateCompilerTestsUtilsHelpers.compile('Index!'),
-      application: _emberTemplateCompilerTestsUtilsHelpers.compile('Application! {{outlet}}')
+      index: _emberTemplateCompiler.compile('Index!'),
+      application: _emberTemplateCompiler.compile('Application! {{outlet}}')
     });
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend();
@@ -58569,8 +58502,8 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
       }
     });
 
-    TEMPLATES['application'] = _emberTemplateCompilerTestsUtilsHelpers.compile('{{foo-bar}}');
-    TEMPLATES['components/foo-bar'] = _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wowza-thingy\'></div>');
+    TEMPLATES['application'] = _emberTemplateCompiler.compile('{{foo-bar}}');
+    TEMPLATES['components/foo-bar'] = _emberTemplateCompiler.compile('<div id=\'wowza-thingy\'></div>');
 
     _emberMetalRun_loop.default(App, 'advanceReadiness');
 
@@ -58603,8 +58536,8 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application/
       }
     });
 
-    TEMPLATES['application'] = _emberTemplateCompilerTestsUtilsHelpers.compile('{{foo-bar}}');
-    TEMPLATES['components/foo-bar'] = _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'herky-thingy\'></div>');
+    TEMPLATES['application'] = _emberTemplateCompiler.compile('{{foo-bar}}');
+    TEMPLATES['components/foo-bar'] = _emberTemplateCompiler.compile('<div id=\'herky-thingy\'></div>');
 
     _emberMetalRun_loop.default(App, 'advanceReadiness');
 
@@ -58971,7 +58904,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-runtime/con
     _emberViewsSystemJquery.default('#fizzbuzz', '#wrapper').click();
   });
 });
-enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-glimmer', 'ember-views/system/jquery'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberGlimmer, _emberViewsSystemJquery) {
+enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-application/system/application', 'ember-glimmer', 'ember-views/system/jquery'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberGlimmer, _emberViewsSystemJquery) {
   'use strict';
 
   /*
@@ -59018,7 +58951,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember-runtime/controllers/con
   QUnit.test('Actions inside an outlet go to the associated controller', function () {
     expect(1);
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{component-with-action action=\'componentAction\'}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{component-with-action action=\'componentAction\'}}'));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       actions: {
@@ -59065,7 +58998,7 @@ enifed('ember/tests/global-api-test', ['exports', 'ember-metal/property_get', 'e
   confirmExport('Ember.Helper.helper');
   confirmExport('Ember.isArray', _emberRuntimeUtils.isArray);
 });
-enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-glimmer', 'ember-application/system/application', 'ember-routing/system/router', 'ember-runtime/system/service', 'ember-views/system/jquery', 'ember-runtime/inject'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberGlimmer, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberRuntimeSystemService, _emberViewsSystemJquery, _emberRuntimeInject) {
+enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-glimmer', 'ember-application/system/application', 'ember-routing/system/router', 'ember-runtime/system/service', 'ember-views/system/jquery', 'ember-runtime/inject'], function (exports, _emberRuntimeControllersController, _emberMetalRun_loop, _emberTemplateCompiler, _emberGlimmer, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberRuntimeSystemService, _emberViewsSystemJquery, _emberRuntimeInject) {
   'use strict';
 
   var App = undefined,
@@ -59113,7 +59046,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
   }
 
   QUnit.test('Unbound dashed helpers registered on the container can be late-invoked', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{x-borf}} {{x-borf \'YES\'}}</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{x-borf}} {{x-borf \'YES\'}}</div>'));
     var myHelper = _emberGlimmer.helper(function (params) {
       return params[0] || 'BORF';
     });
@@ -59126,7 +59059,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
   });
 
   QUnit.test('Bound helpers registered on the container can be late-invoked', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{x-reverse}} {{x-reverse foo}}</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{x-reverse}} {{x-reverse foo}}</div>'));
 
     boot(function () {
       appInstance.register('controller:application', _emberRuntimeControllersController.default.extend({
@@ -59144,7 +59077,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
   });
 
   QUnit.test('Undashed helpers registered on the container can be invoked', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{omg}}|{{yorp \'boo\'}}|{{yorp \'ya\'}}</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{omg}}|{{yorp \'boo\'}}|{{yorp \'ya\'}}</div>'));
 
     boot(function () {
       appInstance.register('helper:omg', _emberGlimmer.helper(function () {
@@ -59161,7 +59094,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
   });
 
   QUnit.test('Helpers can receive injections', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'wrapper\'>{{full-name}}</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<div id=\'wrapper\'>{{full-name}}</div>'));
 
     var serviceCalled = false;
     boot(function () {
@@ -59181,7 +59114,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
     ok(serviceCalled, 'service was injected, method called');
   });
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-template-compiler/tests/utils/helpers', 'ember-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberTemplateCompilerTestsUtilsHelpers, _emberGlimmer) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-metal/property_set', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/instrumentation', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/object', 'ember-runtime/inject', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-template-compiler', 'ember-glimmer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberMetalProperty_set, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalInstrumentation, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemObject, _emberRuntimeInject, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberTemplateCompiler, _emberGlimmer) {
   'use strict';
 
   var Router = undefined,
@@ -59255,10 +59188,10 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       _emberMetalRun_loop.default(function () {
         sharedSetup();
 
-        _emberGlimmer.setTemplate('app', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-        _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}'));
-        _emberGlimmer.setTemplate('about', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>About</h3>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}'));
-        _emberGlimmer.setTemplate('item', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}'));
+        _emberGlimmer.setTemplate('app', _emberTemplateCompiler.compile('{{outlet}}'));
+        _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}'));
+        _emberGlimmer.setTemplate('about', _emberTemplateCompiler.compile('<h3>About</h3>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}'));
+        _emberGlimmer.setTemplate('item', _emberTemplateCompiler.compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}'));
 
         appInstance.unregister('router:main');
         appInstance.register('router:main', Router);
@@ -59371,7 +59304,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   }
 
   QUnit.test('The {{link-to}} helper supports URL replacement', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59395,7 +59328,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports URL replacement via replace=boundTruthyThing', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}'));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       boundTruthyThing: true
@@ -59423,7 +59356,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports setting replace=boundFalseyThing', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}'));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       boundFalseyThing: false
@@ -59453,7 +59386,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   // jscs:disable
 
   QUnit.test("the {{link-to}} helper doesn't add an href when the tagName isn't 'a'", function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59469,7 +59402,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test("the {{link-to}} applies a 'disabled' class when disabled", function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('\n    {{#link-to "about" id="about-link-static" disabledWhen="shouldDisable"}}About{{/link-to}}\n    {{#link-to "about" id="about-link-dynamic" disabledWhen=dynamicDisabledWhen}}About{{/link-to}}\n  '));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('\n    {{#link-to "about" id="about-link-static" disabledWhen="shouldDisable"}}About{{/link-to}}\n    {{#link-to "about" id="about-link-dynamic" disabledWhen=dynamicDisabledWhen}}About{{/link-to}}\n  '));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       shouldDisable: true,
@@ -59497,7 +59430,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test("the {{link-to}} doesn't apply a 'disabled' class if disabledWhen is not provided", function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link"}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#link-to "about" id="about-link"}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59513,7 +59446,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('the {{link-to}} helper supports a custom disabledClass', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass="do-not-want"}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass="do-not-want"}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59529,7 +59462,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('the {{link-to}} helper supports a custom disabledClass set via bound param', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass=disabledClass}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass=disabledClass}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59549,7 +59482,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('the {{link-to}} helper does not respond to clicks when disabled', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59569,7 +59502,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('the {{link-to}} helper responds to clicks according to its disabledWhen bound param', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59602,7 +59535,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports a custom activeClass', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link' activeClass='zomg-active'}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link' activeClass='zomg-active'}}Self{{/link-to}}"));
 
     Router.map(function () {
       this.route('about');
@@ -59620,7 +59553,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports a custom activeClass from a bound param', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59642,7 +59575,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test("The {{link-to}} helper supports 'classNameBindings' with custom values [GH #11699]", function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}'));
 
     Router.map(function () {
       this.route('about');
@@ -59676,9 +59609,9 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       });
     });
 
-    _emberGlimmer.setTemplate('about', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>About</h1>{{outlet}}'));
-    _emberGlimmer.setTemplate('about/index', _emberTemplateCompilerTestsUtilsHelpers.compile("<div id='index'>Index</div>"));
-    _emberGlimmer.setTemplate('about/item', _emberTemplateCompilerTestsUtilsHelpers.compile("<div id='item'>{{#link-to 'about'}}About{{/link-to}}</div>"));
+    _emberGlimmer.setTemplate('about', _emberTemplateCompiler.compile('<h1>About</h1>{{outlet}}'));
+    _emberGlimmer.setTemplate('about/index', _emberTemplateCompiler.compile("<div id='index'>Index</div>"));
+    _emberGlimmer.setTemplate('about/item', _emberTemplateCompiler.compile("<div id='item'>{{#link-to 'about'}}About{{/link-to}}</div>"));
 
     bootApplication();
 
@@ -59698,8 +59631,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       this.route('item');
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{outlet}}'));
-    _emberGlimmer.setTemplate('index/about', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'item' id='other-link' currentWhen='index'}}ITEM{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{outlet}}'));
+    _emberGlimmer.setTemplate('index/about', _emberTemplateCompiler.compile("{{#link-to 'item' id='other-link' currentWhen='index'}}ITEM{{/link-to}}"));
 
     bootApplication();
 
@@ -59719,8 +59652,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       this.route('item');
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{outlet}}'));
-    _emberGlimmer.setTemplate('index/about', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'item' id='other-link' current-when='index'}}ITEM{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{outlet}}'));
+    _emberGlimmer.setTemplate('index/about', _emberTemplateCompiler.compile("{{#link-to 'item' id='other-link' current-when='index'}}ITEM{{/link-to}}"));
 
     bootApplication();
 
@@ -59742,8 +59675,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       });
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{outlet}}'));
-    _emberGlimmer.setTemplate('index/about', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'items' id='other-link' current-when='index'}}ITEM{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{outlet}}'));
+    _emberGlimmer.setTemplate('index/about', _emberTemplateCompiler.compile("{{#link-to 'items' id='other-link' current-when='index'}}ITEM{{/link-to}}"));
 
     bootApplication();
 
@@ -59769,8 +59702,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       currentWhen: 'index'
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{outlet}}'));
-    _emberGlimmer.setTemplate('index/about', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'items' id='other-link' current-when=currentWhen}}ITEM{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{outlet}}'));
+    _emberGlimmer.setTemplate('index/about', _emberTemplateCompiler.compile("{{#link-to 'items' id='other-link' current-when=currentWhen}}ITEM{{/link-to}}"));
 
     bootApplication();
 
@@ -59790,10 +59723,10 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       this.route('foo');
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>{{outlet}}'));
-    _emberGlimmer.setTemplate('index/about', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'item' id='link1' current-when='item index'}}ITEM{{/link-to}}"));
-    _emberGlimmer.setTemplate('item', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'item' id='link2' current-when='item index'}}ITEM{{/link-to}}"));
-    _emberGlimmer.setTemplate('foo', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'item' id='link3' current-when='item index'}}ITEM{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h3>Home</h3>{{outlet}}'));
+    _emberGlimmer.setTemplate('index/about', _emberTemplateCompiler.compile("{{#link-to 'item' id='link1' current-when='item index'}}ITEM{{/link-to}}"));
+    _emberGlimmer.setTemplate('item', _emberTemplateCompiler.compile("{{#link-to 'item' id='link2' current-when='item index'}}ITEM{{/link-to}}"));
+    _emberGlimmer.setTemplate('foo', _emberTemplateCompiler.compile("{{#link-to 'item' id='link3' current-when='item index'}}ITEM{{/link-to}}"));
 
     bootApplication();
 
@@ -59817,8 +59750,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper defaults to bubbling', function () {
-    _emberGlimmer.setTemplate('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}"));
-    _emberGlimmer.setTemplate('about/contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h1 id='contact'>Contact</h1>"));
+    _emberGlimmer.setTemplate('about', _emberTemplateCompiler.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}"));
+    _emberGlimmer.setTemplate('about/contact', _emberTemplateCompiler.compile("<h1 id='contact'>Contact</h1>"));
 
     Router.map(function () {
       this.route('about', function () {
@@ -59852,8 +59785,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports bubbles=false', function () {
-    _emberGlimmer.setTemplate('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=false}}About{{/link-to}}</div>{{outlet}}"));
-    _emberGlimmer.setTemplate('about/contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h1 id='contact'>Contact</h1>"));
+    _emberGlimmer.setTemplate('about', _emberTemplateCompiler.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=false}}About{{/link-to}}</div>{{outlet}}"));
+    _emberGlimmer.setTemplate('about/contact', _emberTemplateCompiler.compile("<h1 id='contact'>Contact</h1>"));
 
     Router.map(function () {
       this.route('about', function () {
@@ -59887,8 +59820,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports bubbles=boundFalseyThing', function () {
-    _emberGlimmer.setTemplate('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=boundFalseyThing}}About{{/link-to}}</div>{{outlet}}"));
-    _emberGlimmer.setTemplate('about/contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h1 id='contact'>Contact</h1>"));
+    _emberGlimmer.setTemplate('about', _emberTemplateCompiler.compile("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=boundFalseyThing}}About{{/link-to}}</div>{{outlet}}"));
+    _emberGlimmer.setTemplate('about/contact', _emberTemplateCompiler.compile("<h1 id='contact'>Contact</h1>"));
 
     App.AboutController = _emberRuntimeControllersController.default.extend({
       boundFalseyThing: false
@@ -59930,7 +59863,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       this.route('item', { path: '/item/:id' });
     });
 
-    _emberGlimmer.setTemplate('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>List</h3><ul>{{#each model as |person|}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}"));
+    _emberGlimmer.setTemplate('about', _emberTemplateCompiler.compile("<h3>List</h3><ul>{{#each model as |person|}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}"));
 
     App.AboutRoute = _emberRoutingSystemRoute.default.extend({
       model: function () {
@@ -59974,7 +59907,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper binds some anchor html tag common attributes', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}"));
     bootApplication();
 
     _emberMetalRun_loop.default(function () {
@@ -59988,7 +59921,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports `target` attribute', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
     bootApplication();
 
     _emberMetalRun_loop.default(function () {
@@ -60000,7 +59933,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper supports `target` attribute specified as a bound param', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target=boundLinkTarget}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target=boundLinkTarget}}Self{{/link-to}}"));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       boundLinkTarget: '_blank'
@@ -60017,7 +59950,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper does not call preventDefault if `target` attribute is provided', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
     bootApplication();
 
     _emberMetalRun_loop.default(function () {
@@ -60031,7 +59964,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper should preventDefault when `target = _self`', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}"));
     bootApplication();
 
     _emberMetalRun_loop.default(function () {
@@ -60045,7 +59978,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The {{link-to}} helper should not transition if target is not equal to _self or empty', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}"));
 
     Router.map(function () {
       this.route('about');
@@ -60075,9 +60008,9 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       repo: _emberRuntimeSystemObject.default.create({ owner: 'ember', name: 'ember.js' }),
       post_id: 123
     });
-    _emberGlimmer.setTemplate('filter', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{filter}}</p>{{#link-to "filter" "unpopular" id="link"}}Unpopular{{/link-to}}{{#link-to "filter" filter id="path-link"}}Unpopular{{/link-to}}{{#link-to "post" post_id id="post-path-link"}}Post{{/link-to}}{{#link-to "post" 123 id="post-number-link"}}Post{{/link-to}}{{#link-to "repo" repo id="repo-object-link"}}Repo{{/link-to}}'));
+    _emberGlimmer.setTemplate('filter', _emberTemplateCompiler.compile('<p>{{filter}}</p>{{#link-to "filter" "unpopular" id="link"}}Unpopular{{/link-to}}{{#link-to "filter" filter id="path-link"}}Unpopular{{/link-to}}{{#link-to "post" post_id id="post-path-link"}}Post{{/link-to}}{{#link-to "post" 123 id="post-number-link"}}Post{{/link-to}}{{#link-to "repo" repo id="repo-object-link"}}Repo{{/link-to}}'));
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile(' '));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile(' '));
 
     bootApplication();
 
@@ -60108,9 +60041,9 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       }
     });
 
-    _emberGlimmer.setTemplate('lobby/index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'lobby' 'foobar' id='lobby-link'}}Lobby{{/link-to}}"));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile(''));
-    _emberGlimmer.setTemplate('lobby/list', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'lobby' 'foobar' id='lobby-link'}}Lobby{{/link-to}}"));
+    _emberGlimmer.setTemplate('lobby/index', _emberTemplateCompiler.compile("{{#link-to 'lobby' 'foobar' id='lobby-link'}}Lobby{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile(''));
+    _emberGlimmer.setTemplate('lobby/list', _emberTemplateCompiler.compile("{{#link-to 'lobby' 'foobar' id='lobby-link'}}Lobby{{/link-to}}"));
     bootApplication();
     _emberMetalRun_loop.default(router, 'handleURL', '/lobby/list');
     _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#lobby-link'), 'click');
@@ -60118,7 +60051,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('Quoteless route param performs property lookup', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}"));
 
     function assertEquality(href) {
       equal(normalizeUrl(_emberViewsSystemJquery.default('#string-link', '#qunit-fixture').attr('href')), '/');
@@ -60155,7 +60088,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     _emberConsole.default.warn = function () {
       warnCalled = true;
     };
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to destinationRoute routeContext loadingClass='i-am-loading' id='context-link'}}string{{/link-to}}{{#link-to secondRoute loadingClass=loadingClass id='static-link'}}string{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to destinationRoute routeContext loadingClass='i-am-loading' id='context-link'}}string{{/link-to}}{{#link-to secondRoute loadingClass=loadingClass id='static-link'}}string{{/link-to}}"));
 
     var thing = _emberRuntimeSystemObject.default.create({ id: 123 });
 
@@ -60246,7 +60179,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     var post = _emberRuntimeSystemObject.default.create({ id: '1' });
     var secondPost = _emberRuntimeSystemObject.default.create({ id: '2' });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to "post" post id="post"}}post{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#link-to "post" post id="post"}}post{{/link-to}}'));
 
     App.IndexController = _emberRuntimeControllersController.default.extend();
     var indexController = appInstance.lookup('controller:index');
@@ -60283,9 +60216,9 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       });
     });
 
-    _emberGlimmer.setTemplate('about', _emberTemplateCompilerTestsUtilsHelpers.compile("<div id='about'>{{#link-to 'about' id='about-link'}}About{{/link-to}} {{#link-to 'about.item' id='item-link'}}Item{{/link-to}} {{outlet}}</div>"));
-    _emberGlimmer.setTemplate('about/item', _emberTemplateCompilerTestsUtilsHelpers.compile(' '));
-    _emberGlimmer.setTemplate('about/index', _emberTemplateCompilerTestsUtilsHelpers.compile(' '));
+    _emberGlimmer.setTemplate('about', _emberTemplateCompiler.compile("<div id='about'>{{#link-to 'about' id='about-link'}}About{{/link-to}} {{#link-to 'about.item' id='item-link'}}Item{{/link-to}} {{outlet}}</div>"));
+    _emberGlimmer.setTemplate('about/item', _emberTemplateCompiler.compile(' '));
+    _emberGlimmer.setTemplate('about/index', _emberTemplateCompiler.compile(' '));
 
     bootApplication();
 
@@ -60313,7 +60246,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       route2: 'foo'
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#each routeNames as |routeName|}}{{#link-to routeName}}{{routeName}}{{/link-to}}{{/each}}{{#each routeNames as |r|}}{{#link-to r}}{{r}}{{/link-to}}{{/each}}{{#link-to route1}}a{{/link-to}}{{#link-to route2}}b{{/link-to}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#each routeNames as |routeName|}}{{#link-to routeName}}{{routeName}}{{/link-to}}{{/each}}{{#each routeNames as |r|}}{{#link-to r}}{{r}}{{/link-to}}{{/each}}{{#link-to route1}}a{{/link-to}}{{#link-to route2}}b{{/link-to}}'));
 
     bootApplication();
 
@@ -60346,8 +60279,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       this.route('contact');
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{link-to 'Contact us' 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}"));
-    _emberGlimmer.setTemplate('contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{link-to 'Contact us' 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('contact', _emberTemplateCompiler.compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}"));
 
     bootApplication();
 
@@ -60370,8 +60303,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       contactName: 'Jane'
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3>{{link-to contactName 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}"));
-    _emberGlimmer.setTemplate('contact', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3>{{link-to contactName 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}"));
+    _emberGlimmer.setTemplate('contact', _emberTemplateCompiler.compile("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}"));
 
     bootApplication();
 
@@ -60424,8 +60357,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Home</h3><ul>{{#each model as |person|}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>"));
-    _emberGlimmer.setTemplate('item', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>Item</h3><p>{{model.name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("<h3>Home</h3><ul>{{#each model as |person|}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>"));
+    _emberGlimmer.setTemplate('item', _emberTemplateCompiler.compile("<h3>Item</h3><p>{{model.name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}"));
 
     bootApplication();
 
@@ -60446,7 +60379,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The non-block form {{link-to}} performs property lookup', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}"));
 
     function assertEquality(href) {
       equal(normalizeUrl(_emberViewsSystemJquery.default('#string-link', '#qunit-fixture').attr('href')), '/');
@@ -60476,7 +60409,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('The non-block form {{link-to}} protects against XSS', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to display 'index' id='link'}}"));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{link-to display 'index' id='link'}}"));
 
     App.ApplicationController = _emberRuntimeControllersController.default.extend({
       display: 'blahzorz'
@@ -60513,7 +60446,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=false` is passed as an option', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' id='about-link' preventDefault=false}}About{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'about' id='about-link' preventDefault=false}}About{{/link-to}}"));
 
     Router.map(function () {
       this.route('about');
@@ -60530,7 +60463,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=boundFalseyThing` is passed as an option', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' id='about-link' preventDefault=boundFalseyThing}}About{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'about' id='about-link' preventDefault=boundFalseyThing}}About{{/link-to}}"));
 
     App.IndexController = _emberRuntimeControllersController.default.extend({
       boundFalseyThing: false
@@ -60553,7 +60486,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   QUnit.test('the {{link-to}} helper does not throw an error if its route has exited', function () {
     expect(0);
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' id='post-link'}}Post{{/link-to}}{{/if}}"));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' id='post-link'}}Post{{/link-to}}{{/if}}"));
 
     App.ApplicationController = _emberRuntimeControllersController.default.extend({
       postController: _emberRuntimeInject.default.controller('post'),
@@ -60581,7 +60514,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('{{link-to}} active property respects changing parent route context', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'OMG' 'things' 'omg' id='omg-link'}} " + "{{link-to 'LOL' 'things' 'lol' id='lol-link'}} "));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{link-to 'OMG' 'things' 'omg' id='omg-link'}} " + "{{link-to 'LOL' 'things' 'lol' id='lol-link'}} "));
 
     Router.map(function () {
       this.route('things', { path: '/things/:name' }, function () {
@@ -60616,7 +60549,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       });
     }
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
     bootApplication();
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/', 'link has right href');
   });
@@ -60637,7 +60570,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       });
     }
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
     bootApplication();
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/', 'link has right href');
   });
@@ -60666,7 +60599,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       });
     }
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#link-to (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{#link-to (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}'));
     bootApplication();
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
 
@@ -60701,7 +60634,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       });
     }
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to "Index" (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{link-to "Index" (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}'));
     bootApplication();
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
 
@@ -60729,7 +60662,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('\n    <h3>Home</h3>\n\n    {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n  '));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('\n    <h3>Home</h3>\n\n    {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n  '));
 
     bootApplication();
 
@@ -60763,7 +60696,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       }
     });
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('\n    {{link-to \'Parent\' \'parent\' id=\'parent-link\'}}\n  '));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('\n    {{link-to \'Parent\' \'parent\' id=\'parent-link\'}}\n  '));
 
     bootApplication();
 
@@ -60772,7 +60705,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     shouldBeActive('#parent-link');
   });
 });
-enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_set, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer) {
+enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_set, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer) {
   'use strict';
 
   var Router = undefined,
@@ -60864,7 +60797,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
           }
         });
 
-        _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{link-to \'Index\' \'index\' id=\'index-link\'}}{{link-to \'About\' \'about\' id=\'about-link\'}}{{link-to \'Other\' \'other\' id=\'other-link\'}}'));
+        _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}{{link-to \'Index\' \'index\' id=\'index-link\'}}{{link-to \'About\' \'about\' id=\'about-link\'}}{{link-to \'Other\' \'other\' id=\'other-link\'}}'));
       });
     },
 
@@ -60919,7 +60852,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       }
     });
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('\n    {{outlet}}\n    {{#link-to \'index\' tagName=\'li\'}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n    {{/link-to}}\n    {{#link-to \'parent-route.about\' tagName=\'li\'}}\n      {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n    {{/link-to}}\n    {{#link-to \'parent-route.other\' tagName=\'li\'}}\n      {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n    {{/link-to}}\n  '));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('\n    {{outlet}}\n    {{#link-to \'index\' tagName=\'li\'}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n    {{/link-to}}\n    {{#link-to \'parent-route.about\' tagName=\'li\'}}\n      {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n    {{/link-to}}\n    {{#link-to \'parent-route.other\' tagName=\'li\'}}\n      {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n    {{/link-to}}\n  '));
 
     bootApplication();
 
@@ -60964,7 +60897,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
   });
 });
-enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer, _emberRuntimeExtRsvp) {
+enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer, _emberRuntimeExtRsvp) {
   'use strict';
 
   var Router = undefined,
@@ -61074,7 +61007,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     // jscs:disable
 
     QUnit.test("doesn't update controller QP properties on current route when invoked", function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61083,7 +61016,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj)", function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61092,14 +61025,14 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('link-to with no params throws', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to id='the-link'}}Index{{/link-to}}"));
       expectAssertion(function () {
         bootApplication();
       }, /one or more/);
     });
 
     QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj, inferred route)", function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61108,7 +61041,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('updates controller QP properties on current route when invoked', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61117,7 +61050,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('updates controller QP properties on current route when invoked (inferred route)', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61130,7 +61063,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('about');
       });
 
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' (query-params baz='lol') id='the-link'}}About{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'about' (query-params baz='lol') id='the-link'}}About{{/link-to}}"));
       bootApplication();
 
       equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/about?baz=lol');
@@ -61142,7 +61075,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('supplied QP properties can be bound', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       var indexController = container.lookup('controller:index');
@@ -61154,7 +61087,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
 
     QUnit.test('supplied QP properties can be bound (booleans)', function () {
       var indexController = container.lookup('controller:index');
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}"));
 
       bootApplication();
 
@@ -61168,7 +61101,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('href updates when unsupplied controller QP props change', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}"));
 
       bootApplication();
 
@@ -61184,9 +61117,9 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
       // Test harness for bug #12033
 
-      _emberGlimmer.setTemplate('cars', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'cars.create' id='create-link'}}Create new car{{/link-to}} " + "{{#link-to (query-params page='2') id='page2-link'}}Page 2{{/link-to}}" + '{{outlet}}'));
+      _emberGlimmer.setTemplate('cars', _emberTemplateCompiler.compile("{{#link-to 'cars.create' id='create-link'}}Create new car{{/link-to}} " + "{{#link-to (query-params page='2') id='page2-link'}}Page 2{{/link-to}}" + '{{outlet}}'));
 
-      _emberGlimmer.setTemplate('cars/create', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'cars' id='close-link'}}Close create form{{/link-to}}"));
+      _emberGlimmer.setTemplate('cars/create', _emberTemplateCompiler.compile("{{#link-to 'cars' id='close-link'}}Close create form{{/link-to}}"));
 
       Router.map(function () {
         this.route('cars', function () {
@@ -61226,11 +61159,11 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='cat') id='cat-link'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} " + "{{#link-to 'index' id='change-nothing'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo='cat') id='cat-link'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} " + "{{#link-to 'index' id='change-nothing'}}Index{{/link-to}}"));
 
-      _emberGlimmer.setTemplate('search', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params search='same') id='same-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='same-search-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params archive=true) id='only-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='both-same'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=true) id='change-one'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=false) id='remove-one'}}Index{{/link-to}} " + '{{outlet}}'));
+      _emberGlimmer.setTemplate('search', _emberTemplateCompiler.compile("{{#link-to (query-params search='same') id='same-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='same-search-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params archive=true) id='only-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='both-same'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=true) id='change-one'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=false) id='remove-one'}}Index{{/link-to}} " + '{{outlet}}'));
 
-      _emberGlimmer.setTemplate('search/results', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params sort='title') id='same-sort-child-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same') id='same-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='title') id='same-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='author') id='same-search-different-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='change' sort='title') id='change-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} "));
+      _emberGlimmer.setTemplate('search/results', _emberTemplateCompiler.compile("{{#link-to (query-params sort='title') id='same-sort-child-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same') id='same-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='title') id='same-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='author') id='same-search-different-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='change' sort='title') id='change-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} "));
 
       Router.map(function () {
         this.route('search', function () {
@@ -61307,7 +61240,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is number', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} "));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} "));
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -61329,7 +61262,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is array', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params pages=pagesArray) id='array-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=biggerArray) id='bigger-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=emptyArray) id='empty-link'}}Index{{/link-to}} "));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params pages=pagesArray) id='array-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=biggerArray) id='bigger-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=emptyArray) id='empty-link'}}Index{{/link-to}} "));
 
       App.IndexRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -61369,7 +61302,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         });
       });
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'parent' id='parent-link'}}Parent{{/link-to}} " + "{{#link-to 'parent.child' id='parent-child-link'}}Child{{/link-to}} " + "{{#link-to 'parent' (query-params foo=cat) id='parent-link-qp'}}Parent{{/link-to}} " + '{{outlet}}'));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'parent' id='parent-link'}}Parent{{/link-to}} " + "{{#link-to 'parent.child' id='parent-child-link'}}Child{{/link-to}} " + "{{#link-to 'parent' (query-params foo=cat) id='parent-link-qp'}}Parent{{/link-to}} " + '{{outlet}}'));
 
       App.ParentChildRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -61393,8 +61326,8 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('parent');
       });
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='app-link'}}Parent{{/link-to}} {{outlet}}"));
-      _emberGlimmer.setTemplate('parent', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='parent-link'}}Parent{{/link-to}} {{outlet}}"));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='app-link'}}Parent{{/link-to}} {{outlet}}"));
+      _emberGlimmer.setTemplate('parent', _emberTemplateCompiler.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='parent-link'}}Parent{{/link-to}} {{outlet}}"));
 
       App.ParentRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -61453,7 +61386,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test("doesn't update controller QP properties on current route when invoked", function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61462,7 +61395,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj)", function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61471,14 +61404,14 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('link-to with no params throws', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to id='the-link'}}Index{{/link-to}}"));
       expectAssertion(function () {
         return bootApplication();
       }, /one or more/);
     });
 
     QUnit.test("doesn't update controller QP properties on current route when invoked (empty query-params obj, inferred route)", function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params) id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61487,7 +61420,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('updates controller QP properties on current route when invoked', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'index' (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61496,7 +61429,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('updates controller QP properties on current route when invoked (inferred route)', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo='456') id='the-link'}}Index{{/link-to}}"));
       bootApplication();
 
       _emberMetalRun_loop.default(_emberViewsSystemJquery.default('#the-link'), 'click');
@@ -61509,7 +61442,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('about');
       });
 
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'about' (query-params baz='lol') id='the-link'}}About{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to 'about' (query-params baz='lol') id='the-link'}}About{{/link-to}}"));
       bootApplication();
 
       equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/about?baz=lol');
@@ -61522,7 +61455,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
 
     QUnit.test('supplied QP properties can be bound', function () {
       var indexController = container.lookup('controller:index');
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo=boundThing) id='the-link'}}Index{{/link-to}}"));
 
       bootApplication();
 
@@ -61533,7 +61466,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
 
     QUnit.test('supplied QP properties can be bound (booleans)', function () {
       var indexController = container.lookup('controller:index');
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params abool=boundThing) id='the-link'}}Index{{/link-to}}"));
 
       bootApplication();
 
@@ -61547,7 +61480,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('href updates when unsupplied controller QP props change', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo='lol') id='the-link'}}Index{{/link-to}}"));
 
       bootApplication();
       var indexController = container.lookup('controller:index');
@@ -61562,9 +61495,9 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
       // Test harness for bug #12033
 
-      _emberGlimmer.setTemplate('cars', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'cars.create' id='create-link'}}Create new car{{/link-to}} " + "{{#link-to (query-params page='2') id='page2-link'}}Page 2{{/link-to}}" + '{{outlet}}'));
+      _emberGlimmer.setTemplate('cars', _emberTemplateCompiler.compile("{{#link-to 'cars.create' id='create-link'}}Create new car{{/link-to}} " + "{{#link-to (query-params page='2') id='page2-link'}}Page 2{{/link-to}}" + '{{outlet}}'));
 
-      _emberGlimmer.setTemplate('cars/create', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'cars' id='close-link'}}Close create form{{/link-to}}"));
+      _emberGlimmer.setTemplate('cars/create', _emberTemplateCompiler.compile("{{#link-to 'cars' id='close-link'}}Close create form{{/link-to}}"));
 
       Router.map(function () {
         this.route('cars', function () {
@@ -61605,11 +61538,11 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params foo='cat') id='cat-link'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} " + "{{#link-to 'index' id='change-nothing'}}Index{{/link-to}}"));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params foo='cat') id='cat-link'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} " + "{{#link-to 'index' id='change-nothing'}}Index{{/link-to}}"));
 
-      _emberGlimmer.setTemplate('search', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params search='same') id='same-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='same-search-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params archive=true) id='only-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='both-same'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=true) id='change-one'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=false) id='remove-one'}}Index{{/link-to}} " + '{{outlet}}'));
+      _emberGlimmer.setTemplate('search', _emberTemplateCompiler.compile("{{#link-to (query-params search='same') id='same-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='same-search-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params archive=true) id='only-add-archive'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' archive=true) id='both-same'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=true) id='change-one'}}Index{{/link-to}} " + "{{#link-to (query-params search='different' archive=false) id='remove-one'}}Index{{/link-to}} " + '{{outlet}}'));
 
-      _emberGlimmer.setTemplate('search/results', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params sort='title') id='same-sort-child-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same') id='same-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='title') id='same-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='author') id='same-search-different-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='change' sort='title') id='change-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} "));
+      _emberGlimmer.setTemplate('search/results', _emberTemplateCompiler.compile("{{#link-to (query-params sort='title') id='same-sort-child-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same') id='same-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='change') id='change-search-parent-only'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='title') id='same-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='same' sort='author') id='same-search-different-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params search='change' sort='title') id='change-search-same-sort-child-and-parent'}}Index{{/link-to}} " + "{{#link-to (query-params foo='dog') id='dog-link'}}Index{{/link-to}} "));
 
       Router.map(function () {
         this.route('search', function () {
@@ -61675,7 +61608,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is number', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} "));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params page=pageNumber) id='page-link'}}Index{{/link-to}} "));
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['page'],
@@ -61691,7 +61624,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is array', function () {
-      _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to (query-params pages=pagesArray) id='array-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=biggerArray) id='bigger-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=emptyArray) id='empty-link'}}Index{{/link-to}} "));
+      _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile("{{#link-to (query-params pages=pagesArray) id='array-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=biggerArray) id='bigger-link'}}Index{{/link-to}} " + "{{#link-to (query-params pages=emptyArray) id='empty-link'}}Index{{/link-to}} "));
 
       App.IndexController = _emberRuntimeControllersController.default.extend({
         queryParams: ['pages'],
@@ -61725,7 +61658,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         });
       });
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'parent' id='parent-link'}}Parent{{/link-to}} " + "{{#link-to 'parent.child' id='parent-child-link'}}Child{{/link-to}} " + "{{#link-to 'parent' (query-params foo=cat) id='parent-link-qp'}}Parent{{/link-to}} " + '{{outlet}}'));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'parent' id='parent-link'}}Parent{{/link-to}} " + "{{#link-to 'parent.child' id='parent-child-link'}}Child{{/link-to}} " + "{{#link-to 'parent' (query-params foo=cat) id='parent-link-qp'}}Parent{{/link-to}} " + '{{outlet}}'));
 
       App.ParentChildController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
@@ -61746,8 +61679,8 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('parent');
       });
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='app-link'}}Parent{{/link-to}} {{outlet}}"));
-      _emberGlimmer.setTemplate('parent', _emberTemplateCompilerTestsUtilsHelpers.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='parent-link'}}Parent{{/link-to}} {{outlet}}"));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='app-link'}}Parent{{/link-to}} {{outlet}}"));
+      _emberGlimmer.setTemplate('parent', _emberTemplateCompiler.compile("{{#link-to 'parent' (query-params page=1) current-when='parent' id='parent-link'}}Parent{{/link-to}} {{outlet}}"));
 
       App.ParentController = _emberRuntimeControllersController.default.extend({
         queryParams: ['page'],
@@ -61783,7 +61716,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       var foos = _emberRuntimeExtRsvp.default.defer();
       var bars = _emberRuntimeExtRsvp.default.defer();
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('\n      {{link-to \'Foos\' \'foos\' id=\'foos-link\'}}\n      {{link-to \'Baz Foos\' \'foos\' (query-params baz=true) id=\'baz-foos-link\'}}\n      {{link-to \'Quux Bars\' \'bars\' (query-params quux=true) id=\'bars-link\'}}\n    '));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('\n      {{link-to \'Foos\' \'foos\' id=\'foos-link\'}}\n      {{link-to \'Baz Foos\' \'foos\' (query-params baz=true) id=\'baz-foos-link\'}}\n      {{link-to \'Quux Bars\' \'bars\' (query-params quux=true) id=\'bars-link\'}}\n    '));
 
       App.FoosController = _emberRuntimeControllersController.default.extend({
         queryParams: ['status'],
@@ -61831,7 +61764,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
   }
 });
-enifed('ember/tests/homepage_example_test', ['exports', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-template-compiler/tests/utils/helpers', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-glimmer'], function (exports, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberMetalComputed, _emberTemplateCompilerTestsUtilsHelpers, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberGlimmer) {
+enifed('ember/tests/homepage_example_test', ['exports', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-template-compiler', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-glimmer'], function (exports, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberMetalComputed, _emberTemplateCompiler, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberGlimmer) {
   'use strict';
 
   var App = undefined,
@@ -61839,8 +61772,8 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember-routing/system/ro
 
   function setupExample() {
     // setup templates
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>People</h1><ul>{{#each model as |person|}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h1>People</h1><ul>{{#each model as |person|}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>'));
 
     App.Person = _emberRuntimeSystemObject.default.extend({
       firstName: null,
@@ -61905,7 +61838,7 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember-routing/system/ro
     equal($fixture.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
   });
 });
-enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-glimmer', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberGlimmer, _emberViewsSystemJquery) {
+enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-application/system/application', 'ember-glimmer', 'ember-views/system/jquery'], function (exports, _emberMetalRun_loop, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberGlimmer, _emberViewsSystemJquery) {
   'use strict';
 
   var App1 = undefined,
@@ -61934,9 +61867,9 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/run
           }
         }
       }));
-      registry.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}', { moduleName: 'application' }));
-      registry.register('template:index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Node 1</h1>{{special-button}}', { moduleName: 'index' }));
-      registry.register('template:components/special-button', _emberTemplateCompilerTestsUtilsHelpers.compile('<button class=\'do-stuff\' {{action \'doStuff\'}}>Button</button>', { moduleName: 'components/special-button' }));
+      registry.register('template:application', _emberTemplateCompiler.compile('{{outlet}}', { moduleName: 'application' }));
+      registry.register('template:index', _emberTemplateCompiler.compile('<h1>Node 1</h1>{{special-button}}', { moduleName: 'index' }));
+      registry.register('template:components/special-button', _emberTemplateCompiler.compile('<button class=\'do-stuff\' {{action \'doStuff\'}}>Button</button>', { moduleName: 'components/special-button' }));
     });
 
     return application;
@@ -62038,7 +61971,7 @@ enifed('ember/tests/reexports_test', ['exports', 'ember', 'internal-test-helpers
     });
   }
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router', 'ember-runtime/copy', 'ember-metal/observer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _router, _emberRuntimeCopy, _emberMetalObserver) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-runtime/system/object', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-glimmer', 'ember-views/system/jquery', 'ember-template-compiler', 'ember-application/system/application', 'ember-application/system/engine', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-routing/location/history_location', 'container', 'router', 'ember-runtime/copy', 'ember-metal/observer'], function (exports, _emberConsole, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberRuntimeSystemObject, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberGlimmer, _emberViewsSystemJquery, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberRoutingLocationHistory_location, _container, _router, _emberRuntimeCopy, _emberMetalObserver) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -62108,10 +62041,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
         registry = App.__registry__;
         container = App.__container__;
 
-        _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-        _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Hours</h3>'));
-        _emberGlimmer.setTemplate('homepage', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Megatroll</h3><p>{{model.home}}</p>'));
-        _emberGlimmer.setTemplate('camelot', _emberTemplateCompilerTestsUtilsHelpers.compile('<section><h3>Is a silly place</h3></section>'));
+        _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+        _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<h3>Hours</h3>'));
+        _emberGlimmer.setTemplate('homepage', _emberTemplateCompiler.compile('<h3>Megatroll</h3><p>{{model.home}}</p>'));
+        _emberGlimmer.setTemplate('camelot', _emberTemplateCompiler.compile('<section><h3>Is a silly place</h3></section>'));
 
         originalLoggerError = _emberConsole.default.error;
       });
@@ -62315,7 +62248,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Model passed via renderTemplate model is set as controller\'s model', function () {
-    _emberGlimmer.setTemplate('bio', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.name}}</p>'));
+    _emberGlimmer.setTemplate('bio', _emberTemplateCompiler.compile('<p>{{model.name}}</p>'));
 
     App.BioController = _emberRuntimeControllersController.default.extend();
 
@@ -62341,7 +62274,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       this.route('home', { path: '/' });
     });
 
-    _emberGlimmer.setTemplate('the_real_home_template', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>THIS IS THE REAL HOME</p>'));
+    _emberGlimmer.setTemplate('the_real_home_template', _emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>'));
 
     App.HomeController = _emberRuntimeControllersController.default.extend();
     App.HomeRoute = _emberRoutingSystemRoute.default.extend({
@@ -62358,8 +62291,8 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       this.route('home', { path: '/' });
     });
 
-    _emberGlimmer.setTemplate('alert', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'alert-box\'>Invader!</div>'));
-    _emberGlimmer.setTemplate('the_real_home_template', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));
+    _emberGlimmer.setTemplate('alert', _emberTemplateCompiler.compile('<div class=\'alert-box\'>Invader!</div>'));
+    _emberGlimmer.setTemplate('the_real_home_template', _emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));
 
     App.HomeController = _emberRuntimeControllersController.default.extend();
     App.HomeRoute = _emberRoutingSystemRoute.default.extend({
@@ -62390,8 +62323,8 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       this.route('home', { path: '/' });
     });
 
-    _emberGlimmer.setTemplate('alert', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'alert-box\'>Invader!</div>'));
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));
+    _emberGlimmer.setTemplate('alert', _emberTemplateCompiler.compile('<div class=\'alert-box\'>Invader!</div>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));
 
     App.HomeRoute = _emberRoutingSystemRoute.default.extend({
       templateName: 'alert',
@@ -62416,7 +62349,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));
 
     bootApplication();
 
@@ -62447,7 +62380,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       this.route('home', { path: '/' });
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{myValue}}</p>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<p>{{myValue}}</p>'));
 
     App.HomeRoute = _emberRoutingSystemRoute.default.extend({
       controllerName: 'myController'
@@ -62468,7 +62401,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       this.route('home', { path: '/' });
     });
 
-    _emberGlimmer.setTemplate('alternative_home', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>alternative home: {{myValue}}</p>'));
+    _emberGlimmer.setTemplate('alternative_home', _emberTemplateCompiler.compile('<p>alternative home: {{myValue}}</p>'));
 
     App.HomeRoute = _emberRoutingSystemRoute.default.extend({
       controllerName: 'myController',
@@ -62492,7 +62425,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       this.route('home', { path: '/' });
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>home: {{myValue}}</p>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<p>home: {{myValue}}</p>'));
 
     App.HomeRoute = _emberRoutingSystemRoute.default.extend({
       controllerName: 'myController'
@@ -62523,7 +62456,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));
 
     bootApplication();
 
@@ -62541,7 +62474,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       })
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<ul>{{#each model as |passage|}}<li>{{passage}}</li>{{/each}}</ul>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<ul>{{#each model as |passage|}}<li>{{passage}}</li>{{/each}}</ul>'));
 
     bootApplication();
 
@@ -62565,7 +62498,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));
 
     bootApplication();
 
@@ -62590,7 +62523,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('special', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.menuItemId}}</p>'));
+    _emberGlimmer.setTemplate('special', _emberTemplateCompiler.compile('<p>{{model.menuItemId}}</p>'));
 
     bootApplication();
 
@@ -62622,7 +62555,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('special', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.id}}</p>'));
+    _emberGlimmer.setTemplate('special', _emberTemplateCompiler.compile('<p>{{model.id}}</p>'));
 
     bootApplication();
 
@@ -62661,9 +62594,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('special', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.id}}</p>'));
+    _emberGlimmer.setTemplate('special', _emberTemplateCompiler.compile('<p>{{model.id}}</p>'));
 
-    _emberGlimmer.setTemplate('loading', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>LOADING!</p>'));
+    _emberGlimmer.setTemplate('loading', _emberTemplateCompiler.compile('<p>LOADING!</p>'));
 
     bootApplication();
 
@@ -62705,9 +62638,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('special', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.id}}</p>'));
+    _emberGlimmer.setTemplate('special', _emberTemplateCompiler.compile('<p>{{model.id}}</p>'));
 
-    _emberGlimmer.setTemplate('loading', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>LOADING!</p>'));
+    _emberGlimmer.setTemplate('loading', _emberTemplateCompiler.compile('<p>LOADING!</p>'));
 
     bootApplication();
 
@@ -62863,9 +62796,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<h3>Home</h3>'));
 
-    _emberGlimmer.setTemplate('special', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.id}}</p>'));
+    _emberGlimmer.setTemplate('special', _emberTemplateCompiler.compile('<p>{{model.id}}</p>'));
 
     bootApplication();
 
@@ -62945,11 +62878,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('root/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Home</h3>'));
+    _emberGlimmer.setTemplate('root/index', _emberTemplateCompiler.compile('<h3>Home</h3>'));
 
-    _emberGlimmer.setTemplate('special', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.id}}</p>'));
+    _emberGlimmer.setTemplate('special', _emberTemplateCompiler.compile('<p>{{model.id}}</p>'));
 
-    _emberGlimmer.setTemplate('loading', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>LOADING!</p>'));
+    _emberGlimmer.setTemplate('loading', _emberTemplateCompiler.compile('<p>LOADING!</p>'));
 
     var rootSetup = 0;
     var rootRender = 0;
@@ -63010,7 +62943,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<a {{action \'showStuff\' model}}>{{name}}</a>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{name}}</a>'));
 
     var controller = _emberRuntimeControllersController.default.extend({
       actions: {
@@ -63051,7 +62984,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>'));
 
     bootApplication();
 
@@ -63084,7 +63017,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('root/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>'));
+    _emberGlimmer.setTemplate('root/index', _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>'));
 
     bootApplication();
 
@@ -63151,7 +63084,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<a {{action \'showStuff\' model}}>{{name}}</a>'));
+    _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{name}}</a>'));
 
     var controller = _emberRuntimeControllersController.default.extend({
       showStuff: function (context) {
@@ -63194,7 +63127,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       model2: model2
     });
 
-    _emberGlimmer.setTemplate('root/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<a {{action \'showStuff\' model1 model2}}>{{model1.name}}</a>'));
+    _emberGlimmer.setTemplate('root/index', _emberTemplateCompiler.compile('<a {{action \'showStuff\' model1 model2}}>{{model1.name}}</a>'));
 
     bootApplication();
 
@@ -63664,11 +63597,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   QUnit.test('Generated names can be customized when providing routes with dot notation', function () {
     expect(4);
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div>Index</div>'));
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('foo', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'middle\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('bar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'bottom\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('bar/baz', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{name}}Bottom!</p>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<div>Index</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('foo', _emberTemplateCompiler.compile('<div class=\'middle\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('bar', _emberTemplateCompiler.compile('<div class=\'bottom\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('bar/baz', _emberTemplateCompiler.compile('<p>{{name}}Bottom!</p>'));
 
     Router.map(function () {
       this.route('foo', { path: '/top' }, function () {
@@ -63708,11 +63641,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Child routes render into their parent route\'s template by default', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div>Index</div>'));
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('top', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'middle\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('middle', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'bottom\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('middle/bottom', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>Bottom!</p>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<div>Index</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('top', _emberTemplateCompiler.compile('<div class=\'middle\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('middle', _emberTemplateCompiler.compile('<div class=\'bottom\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('middle/bottom', _emberTemplateCompiler.compile('<p>Bottom!</p>'));
 
     Router.map(function () {
       this.route('top', function () {
@@ -63730,11 +63663,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Child routes render into specified template', function () {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div>Index</div>'));
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('top', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'middle\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('middle', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class=\'bottom\'>{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('middle/bottom', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>Bottom!</p>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<div>Index</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('top', _emberTemplateCompiler.compile('<div class=\'middle\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('middle', _emberTemplateCompiler.compile('<div class=\'bottom\'>{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('middle/bottom', _emberTemplateCompiler.compile('<p>Bottom!</p>'));
 
     Router.map(function () {
       this.route('top', function () {
@@ -63759,8 +63692,8 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Rendering into specified template with slash notation', function () {
-    _emberGlimmer.setTemplate('person/profile', _emberTemplateCompilerTestsUtilsHelpers.compile('profile {{outlet}}'));
-    _emberGlimmer.setTemplate('person/details', _emberTemplateCompilerTestsUtilsHelpers.compile('details!'));
+    _emberGlimmer.setTemplate('person/profile', _emberTemplateCompiler.compile('profile {{outlet}}'));
+    _emberGlimmer.setTemplate('person/details', _emberTemplateCompiler.compile('details!'));
 
     Router.map(function () {
       this.route('home', { path: '/' });
@@ -63782,11 +63715,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     var editCount = 0;
     var editedPostIds = _emberRuntimeSystemNative_array.A();
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('post', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('post/index', _emberTemplateCompilerTestsUtilsHelpers.compile('showing'));
-    _emberGlimmer.setTemplate('post/edit', _emberTemplateCompilerTestsUtilsHelpers.compile('editing'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('post', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('post/index', _emberTemplateCompiler.compile('showing'));
+    _emberGlimmer.setTemplate('post/edit', _emberTemplateCompiler.compile('editing'));
 
     Router.map(function () {
       this.route('posts', function () {
@@ -63927,10 +63860,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Only use route rendered into main outlet for default into property on child', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet \'menu\'}}{{outlet}}'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<p class="posts-index">postsIndex</p>'));
-    _emberGlimmer.setTemplate('posts/menu', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-menu">postsMenu</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet \'menu\'}}{{outlet}}'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompiler.compile('<p class="posts-index">postsIndex</p>'));
+    _emberGlimmer.setTemplate('posts/menu', _emberTemplateCompiler.compile('<div class="posts-menu">postsMenu</div>'));
 
     Router.map(function () {
       this.route('posts', function () {});
@@ -64018,7 +63951,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Application template does not duplicate when re-rendered', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>I Render Once</h3>{{outlet}}'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<h3>I Render Once</h3>{{outlet}}'));
 
     Router.map(function () {
       this.route('posts');
@@ -64039,8 +63972,8 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Child routes should render inside the application template if the application template causes a redirect', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>App</h3> {{outlet}}'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('posts'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<h3>App</h3> {{outlet}}'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('posts'));
 
     Router.map(function () {
       this.route('posts');
@@ -64076,7 +64009,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('page', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{model.name}}{{foo-bar}}</p>'));
+    _emberGlimmer.setTemplate('page', _emberTemplateCompiler.compile('<p>{{model.name}}{{foo-bar}}</p>'));
 
     bootApplication();
 
@@ -64132,7 +64065,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     App.SharedController = _emberRuntimeControllersController.default.extend();
 
-    _emberGlimmer.setTemplate('shared', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>{{message}}{{x-input}}</p>'));
+    _emberGlimmer.setTemplate('shared', _emberTemplateCompiler.compile('<p>{{message}}{{x-input}}</p>'));
 
     bootApplication();
 
@@ -64199,8 +64132,8 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
       }
     });
 
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>INDEX</p>'));
-    _emberGlimmer.setTemplate('loading', _emberTemplateCompilerTestsUtilsHelpers.compile('<p>LOADING</p>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<p>INDEX</p>'));
+    _emberGlimmer.setTemplate('loading', _emberTemplateCompiler.compile('<p>LOADING</p>'));
 
     bootApplication();
 
@@ -64210,12 +64143,12 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Route should tear down multiple outlets', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('users', _emberTemplateCompilerTestsUtilsHelpers.compile('users'));
-    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<p class="posts-index">postsIndex</p>'));
-    _emberGlimmer.setTemplate('posts/menu', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-menu">postsMenu</div>'));
-    _emberGlimmer.setTemplate('posts/footer', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-footer">postsFooter</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('users', _emberTemplateCompiler.compile('users'));
+    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompiler.compile('<p class="posts-index">postsIndex</p>'));
+    _emberGlimmer.setTemplate('posts/menu', _emberTemplateCompiler.compile('<div class="posts-menu">postsMenu</div>'));
+    _emberGlimmer.setTemplate('posts/footer', _emberTemplateCompiler.compile('<div class="posts-footer">postsFooter</div>'));
 
     Router.map(function () {
       this.route('posts', function () {});
@@ -64270,12 +64203,12 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Route supports clearing outlet explicitly', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet \'modal\'}}'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('users', _emberTemplateCompilerTestsUtilsHelpers.compile('users'));
-    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-index">postsIndex {{outlet}}</div>'));
-    _emberGlimmer.setTemplate('posts/modal', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-modal">postsModal</div>'));
-    _emberGlimmer.setTemplate('posts/extra', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-extra">postsExtra</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}{{outlet \'modal\'}}'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('users', _emberTemplateCompiler.compile('users'));
+    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompiler.compile('<div class="posts-index">postsIndex {{outlet}}</div>'));
+    _emberGlimmer.setTemplate('posts/modal', _emberTemplateCompiler.compile('<div class="posts-modal">postsModal</div>'));
+    _emberGlimmer.setTemplate('posts/extra', _emberTemplateCompiler.compile('<div class="posts-extra">postsExtra</div>'));
 
     Router.map(function () {
       this.route('posts', function () {});
@@ -64355,11 +64288,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Route supports clearing outlet using string parameter', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet \'modal\'}}'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('users', _emberTemplateCompilerTestsUtilsHelpers.compile('users'));
-    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-index">postsIndex {{outlet}}</div>'));
-    _emberGlimmer.setTemplate('posts/modal', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="posts-modal">postsModal</div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}{{outlet \'modal\'}}'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('users', _emberTemplateCompiler.compile('users'));
+    _emberGlimmer.setTemplate('posts/index', _emberTemplateCompiler.compile('<div class="posts-index">postsIndex {{outlet}}</div>'));
+    _emberGlimmer.setTemplate('posts/modal', _emberTemplateCompiler.compile('<div class="posts-modal">postsModal</div>'));
 
     Router.map(function () {
       this.route('posts', function () {});
@@ -64407,9 +64340,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   QUnit.test('Route silently fails when cleaning an outlet from an inactive view', function () {
     expect(1); // handleURL
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet \'modal\'}}'));
-    _emberGlimmer.setTemplate('modal', _emberTemplateCompilerTestsUtilsHelpers.compile('A Yo.'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('{{outlet \'modal\'}}'));
+    _emberGlimmer.setTemplate('modal', _emberTemplateCompiler.compile('A Yo.'));
 
     Router.map(function () {
       this.route('posts');
@@ -65056,7 +64989,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Errors in transition show error template if available', function () {
-    _emberGlimmer.setTemplate('error', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id=\'error\'>Error!</div>'));
+    _emberGlimmer.setTemplate('error', _emberTemplateCompiler.compile('<div id=\'error\'>Error!</div>'));
 
     Router.map(function () {
       this.route('yondo', { path: '/' });
@@ -65192,9 +65125,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('{{outlet}} works when created after initial render', function () {
-    _emberGlimmer.setTemplate('sample', _emberTemplateCompilerTestsUtilsHelpers.compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye'));
-    _emberGlimmer.setTemplate('sample/inner', _emberTemplateCompilerTestsUtilsHelpers.compile('Yay'));
-    _emberGlimmer.setTemplate('sample/inner2', _emberTemplateCompilerTestsUtilsHelpers.compile('Boo'));
+    _emberGlimmer.setTemplate('sample', _emberTemplateCompiler.compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye'));
+    _emberGlimmer.setTemplate('sample/inner', _emberTemplateCompiler.compile('Yay'));
+    _emberGlimmer.setTemplate('sample/inner2', _emberTemplateCompiler.compile('Boo'));
     Router.map(function () {
       this.route('sample', { path: '/' }, function () {
         this.route('inner', { path: '/' });
@@ -65218,9 +65151,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can render into a named outlet at the top level', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
-    _emberGlimmer.setTemplate('modal', _emberTemplateCompilerTestsUtilsHelpers.compile('Hello world'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('The index'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
+    _emberGlimmer.setTemplate('modal', _emberTemplateCompiler.compile('Hello world'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('The index'));
 
     registry.register('route:application', _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65238,9 +65171,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can disconnect a named outlet at the top level', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
-    _emberGlimmer.setTemplate('modal', _emberTemplateCompilerTestsUtilsHelpers.compile('Hello world'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('The index'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
+    _emberGlimmer.setTemplate('modal', _emberTemplateCompiler.compile('Hello world'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('The index'));
 
     registry.register('route:application', _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65270,8 +65203,8 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can render into a named outlet at the top level, with empty main outlet', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
-    _emberGlimmer.setTemplate('modal', _emberTemplateCompilerTestsUtilsHelpers.compile('Hello world'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
+    _emberGlimmer.setTemplate('modal', _emberTemplateCompiler.compile('Hello world'));
 
     Router.map(function () {
       this.route('hasNoTemplate', { path: '/' });
@@ -65293,9 +65226,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can render into a named outlet at the top level, later', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
-    _emberGlimmer.setTemplate('modal', _emberTemplateCompilerTestsUtilsHelpers.compile('Hello world'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('The index'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('A-{{outlet}}-B-{{outlet "other"}}-C'));
+    _emberGlimmer.setTemplate('modal', _emberTemplateCompiler.compile('Hello world'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('The index'));
 
     registry.register('route:application', _emberRoutingSystemRoute.default.extend({
       actions: {
@@ -65318,10 +65251,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can render routes with no \'main\' outlet and their children', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id="application">{{outlet "app"}}</div>'));
-    _emberGlimmer.setTemplate('app', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>'));
-    _emberGlimmer.setTemplate('common', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id="common"></div>'));
-    _emberGlimmer.setTemplate('sub', _emberTemplateCompilerTestsUtilsHelpers.compile('<div id="sub"></div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<div id="application">{{outlet "app"}}</div>'));
+    _emberGlimmer.setTemplate('app', _emberTemplateCompiler.compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>'));
+    _emberGlimmer.setTemplate('common', _emberTemplateCompiler.compile('<div id="common"></div>'));
+    _emberGlimmer.setTemplate('sub', _emberTemplateCompiler.compile('<div id="sub"></div>'));
 
     Router.map(function () {
       this.route('app', { path: '/app' }, function () {
@@ -65360,9 +65293,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Tolerates stacked renders', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet "modal"}}'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('hi'));
-    _emberGlimmer.setTemplate('layer', _emberTemplateCompilerTestsUtilsHelpers.compile('layer'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}{{outlet "modal"}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('hi'));
+    _emberGlimmer.setTemplate('layer', _emberTemplateCompiler.compile('layer'));
     App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
       actions: {
         openLayer: function () {
@@ -65390,9 +65323,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Renders child into parent with non-default template name', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="a">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('exports/root', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="b">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('exports/index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="c"></div>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('<div class="a">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('exports/root', _emberTemplateCompiler.compile('<div class="b">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('exports/index', _emberTemplateCompiler.compile('<div class="c"></div>'));
 
     Router.map(function () {
       this.route('root', function () {});
@@ -65416,9 +65349,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Allows any route to disconnectOutlet another route\'s templates', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}{{outlet "modal"}}'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('hi'));
-    _emberGlimmer.setTemplate('layer', _emberTemplateCompilerTestsUtilsHelpers.compile('layer'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}{{outlet "modal"}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('hi'));
+    _emberGlimmer.setTemplate('layer', _emberTemplateCompiler.compile('layer'));
     App.ApplicationRoute = _emberRoutingSystemRoute.default.extend({
       actions: {
         openLayer: function () {
@@ -65448,10 +65381,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can this.render({into:...}) the render helper', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
-    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
-    _emberGlimmer.setTemplate('bar', _emberTemplateCompilerTestsUtilsHelpers.compile('bar'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{render "sidebar"}}'));
+    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompiler.compile('<div class="sidebar">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('other'));
+    _emberGlimmer.setTemplate('bar', _emberTemplateCompiler.compile('bar'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65475,9 +65408,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can disconnect from the render helper', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
-    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{render "sidebar"}}'));
+    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompiler.compile('<div class="sidebar">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('other'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65500,11 +65433,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can this.render({into:...}) the render helper\'s children', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
-    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="index">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('other', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
-    _emberGlimmer.setTemplate('bar', _emberTemplateCompilerTestsUtilsHelpers.compile('bar'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{render "sidebar"}}'));
+    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompiler.compile('<div class="sidebar">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<div class="index">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('other', _emberTemplateCompiler.compile('other'));
+    _emberGlimmer.setTemplate('bar', _emberTemplateCompiler.compile('bar'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65529,10 +65462,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can disconnect from the render helper\'s children', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
-    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="index">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('other', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{render "sidebar"}}'));
+    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompiler.compile('<div class="sidebar">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<div class="index">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('other', _emberTemplateCompiler.compile('other'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65556,11 +65489,11 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can this.render({into:...}) nested render helpers', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
-    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{render "cart"}}</div>'));
-    _emberGlimmer.setTemplate('cart', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="cart">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
-    _emberGlimmer.setTemplate('baz', _emberTemplateCompilerTestsUtilsHelpers.compile('baz'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{render "sidebar"}}'));
+    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompiler.compile('<div class="sidebar">{{render "cart"}}</div>'));
+    _emberGlimmer.setTemplate('cart', _emberTemplateCompiler.compile('<div class="cart">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('other'));
+    _emberGlimmer.setTemplate('baz', _emberTemplateCompiler.compile('baz'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65584,10 +65517,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Can disconnect from nested render helpers', function () {
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{render "sidebar"}}'));
-    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="sidebar">{{render "cart"}}</div>'));
-    _emberGlimmer.setTemplate('cart', _emberTemplateCompilerTestsUtilsHelpers.compile('<div class="cart">{{outlet}}</div>'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{render "sidebar"}}'));
+    _emberGlimmer.setTemplate('sidebar', _emberTemplateCompiler.compile('<div class="sidebar">{{render "cart"}}</div>'));
+    _emberGlimmer.setTemplate('cart', _emberTemplateCompiler.compile('<div class="cart">{{outlet}}</div>'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('other'));
 
     App.IndexRoute = _emberRoutingSystemRoute.default.extend({
       renderTemplate: function () {
@@ -65610,7 +65543,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
   });
 
   QUnit.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed', function (assert) {
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}'));
 
     var myComponentCounter = 0;
     var otherComponentCounter = 0;
@@ -65653,9 +65586,9 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
   QUnit.test('Doesnt swallow exception thrown from willTransition', function () {
     expect(1);
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('index'));
-    _emberGlimmer.setTemplate('other', _emberTemplateCompilerTestsUtilsHelpers.compile('other'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('index'));
+    _emberGlimmer.setTemplate('other', _emberTemplateCompiler.compile('other'));
 
     Router.map(function () {
       this.route('other', function () {});
@@ -65794,7 +65727,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     var engine = container.lookup('engine:blog');
     engine.register('route:index', EngineIndexRoute);
-    engine.register('template:index', _emberTemplateCompilerTestsUtilsHelpers.compile('Engine Post!'));
+    engine.register('template:index', _emberTemplateCompiler.compile('Engine Post!'));
 
     handleURL('/blog');
 
@@ -65810,7 +65743,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
   });
 });
-enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-glimmer', 'ember-runtime/system/string', 'ember-metal/mixin', 'ember-metal/meta'], function (exports, _emberRuntimeControllersController, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberGlimmer, _emberRuntimeSystemString, _emberMetalMixin, _emberMetalMeta) {
+enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/ext/rsvp', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-glimmer', 'ember-runtime/system/string', 'ember-metal/mixin', 'ember-metal/meta'], function (exports, _emberRuntimeControllersController, _emberRuntimeExtRsvp, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberGlimmer, _emberRuntimeSystemString, _emberMetalMixin, _emberMetalMeta) {
   'use strict';
 
   var App = undefined,
@@ -65891,8 +65824,8 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
 
       App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-      App.register('template:home', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Hours</h3>'));
+      App.register('template:application', _emberTemplateCompiler.compile('{{outlet}}'));
+      App.register('template:home', _emberTemplateCompiler.compile('<h3>Hours</h3>'));
     });
   }
 
@@ -66310,8 +66243,8 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
     });
 
     QUnit.skip('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent when all configuration is on route', function () {
-      App.register('template:parent', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-      App.register('template:parent/child', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}"));
+      App.register('template:parent', _emberTemplateCompiler.compile('{{outlet}}'));
+      App.register('template:parent/child', _emberTemplateCompiler.compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}"));
 
       App.Router.map(function () {
         this.route('parent', function () {
@@ -66371,7 +66304,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         });
       });
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'A' 'abc.def' (query-params foo='123') id='one'}}{{link-to 'B' 'abc.def.zoo' (query-params foo='123' bar='456') id='two'}}{{outlet}}"));
+      App.register('template:application', _emberTemplateCompiler.compile("{{link-to 'A' 'abc.def' (query-params foo='123') id='one'}}{{link-to 'B' 'abc.def.zoo' (query-params foo='123' bar='456') id='two'}}{{outlet}}"));
 
       App.AbcDefRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -66668,7 +66601,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
 
     QUnit.test('opting into replace does not affect transitions between routes when configuration occurs on the route', function () {
       expect(5);
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isthebest') id='bar-link'}}" + '{{outlet}}'));
+      App.register('template:application', _emberTemplateCompiler.compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isthebest') id='bar-link'}}" + '{{outlet}}'));
       App.Router.map(function () {
         this.route('foo');
         this.route('bar');
@@ -66708,7 +66641,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         this.route('example');
       });
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Example' 'example' id='the-link'}}"));
+      App.register('template:application', _emberTemplateCompiler.compile("{{link-to 'Example' 'example' id='the-link'}}"));
 
       App.ExampleRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -66832,9 +66765,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         this.route('about');
       });
 
-      App.register('template:home', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>{{link-to 'About' 'about' (query-params lol='wat') id='link-to-about'}}</h3>"));
-      App.register('template:about', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>{{link-to 'Home' 'home'  (query-params foo='naw')}}</h3>"));
-      App.register('template:cats.index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>{{link-to 'Cats' 'cats'  (query-params name='domino') id='cats-link'}}</h3>"));
+      App.register('template:home', _emberTemplateCompiler.compile("<h3>{{link-to 'About' 'about' (query-params lol='wat') id='link-to-about'}}</h3>"));
+      App.register('template:about', _emberTemplateCompiler.compile("<h3>{{link-to 'Home' 'home'  (query-params foo='naw')}}</h3>"));
+      App.register('template:cats.index', _emberTemplateCompiler.compile("<h3>{{link-to 'Cats' 'cats'  (query-params name='domino') id='cats-link'}}</h3>"));
 
       var homeShouldBeCreated = false;
       var aboutShouldBeCreated = false;
@@ -67211,8 +67144,8 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
     });
 
     QUnit.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent when configured on the route', function () {
-      App.register('template:parent', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-      App.register('template:parent.child', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}"));
+      App.register('template:parent', _emberTemplateCompiler.compile('{{outlet}}'));
+      App.register('template:parent.child', _emberTemplateCompiler.compile("{{link-to 'Parent' 'parent' (query-params foo='change') id='parent-link'}}"));
 
       App.Router.map(function () {
         this.route('parent', function () {
@@ -67334,7 +67267,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         });
       });
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'A' 'abc.def' (query-params foo='123') id='one'}}{{link-to 'B' 'abc.def.zoo' (query-params foo='123' bar='456') id='two'}}{{outlet}}"));
+      App.register('template:application', _emberTemplateCompiler.compile("{{link-to 'A' 'abc.def' (query-params foo='123') id='one'}}{{link-to 'B' 'abc.def.zoo' (query-params foo='123' bar='456') id='two'}}{{outlet}}"));
 
       App.AbcDefRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -67675,7 +67608,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
 
     QUnit.test('opting into replace does not affect transitions between routes when configured on route', function () {
       expect(5);
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isthebest') id='bar-link'}}" + '{{outlet}}'));
+      App.register('template:application', _emberTemplateCompiler.compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isthebest') id='bar-link'}}" + '{{outlet}}'));
       App.Router.map(function () {
         this.route('foo');
         this.route('bar');
@@ -67715,7 +67648,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         this.route('example');
       });
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Example' 'example' id='the-link'}}"));
+      App.register('template:application', _emberTemplateCompiler.compile("{{link-to 'Example' 'example' id='the-link'}}"));
 
       App.ExampleRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -67743,7 +67676,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         this.route('example');
       });
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile("{{link-to 'Example' 'example' (query-params bar='abc' foo='def') id='the-link1'}}" + "{{link-to 'Example' 'example' (query-params bar='123' foo='456') id='the-link2'}}"));
+      App.register('template:application', _emberTemplateCompiler.compile("{{link-to 'Example' 'example' (query-params bar='abc' foo='def') id='the-link1'}}" + "{{link-to 'Example' 'example' (query-params bar='123' foo='456') id='the-link2'}}"));
 
       App.ExampleRoute = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -67982,9 +67915,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         this.route('about');
       });
 
-      App.register('template:home', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>{{link-to 'About' 'about' (query-params lol='wat') id='link-to-about'}}</h3>"));
-      App.register('template:about', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>{{link-to 'Home' 'home'  (query-params foo='naw')}}</h3>"));
-      App.register('template:cats.index', _emberTemplateCompilerTestsUtilsHelpers.compile("<h3>{{link-to 'Cats' 'cats'  (query-params name='domino') id='cats-link'}}</h3>"));
+      App.register('template:home', _emberTemplateCompiler.compile("<h3>{{link-to 'About' 'about' (query-params lol='wat') id='link-to-about'}}</h3>"));
+      App.register('template:about', _emberTemplateCompiler.compile("<h3>{{link-to 'Home' 'home'  (query-params foo='naw')}}</h3>"));
+      App.register('template:cats.index', _emberTemplateCompiler.compile("<h3>{{link-to 'Cats' 'cats'  (query-params name='domino') id='cats-link'}}</h3>"));
 
       var homeShouldBeCreated = false;
       var aboutShouldBeCreated = false;
@@ -68277,7 +68210,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
 
     QUnit.test('queryParams are updated when a controller property is set and the route is refreshed. Issue #13263  ', function () {
       _emberGlimmer.setTemplates({
-        application: _emberTemplateCompilerTestsUtilsHelpers.compile('<button id="test-button" {{action \'increment\'}}>Increment</button>' + '<span id="test-value">{{foo}}</span>' + '{{outlet}}')
+        application: _emberTemplateCompiler.compile('<button id="test-button" {{action \'increment\'}}>Increment</button>' + '<span id="test-value">{{foo}}</span>' + '{{outlet}}')
       });
       App.ApplicationController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
@@ -68476,8 +68409,8 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
     });
 
     QUnit.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent', function () {
-      App.register('template:parent', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-      App.register('template:parent.child', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}'));
+      App.register('template:parent', _emberTemplateCompiler.compile('{{outlet}}'));
+      App.register('template:parent.child', _emberTemplateCompiler.compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}'));
 
       App.Router.map(function () {
         this.route('parent', function () {
@@ -68625,7 +68558,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         });
       });
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}'));
+      App.register('template:application', _emberTemplateCompiler.compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}'));
 
       App.AbcDefController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
@@ -68930,7 +68863,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
 
     QUnit.test('opting into replace does not affect transitions between routes', function () {
       expect(5);
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}'));
+      App.register('template:application', _emberTemplateCompiler.compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}'));
       App.Router.map(function () {
         this.route('foo');
         this.route('bar');
@@ -68974,7 +68907,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
         this.route('example');
       });
 
-      App.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}'));
+      App.register('template:application', _emberTemplateCompiler.compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}'));
 
       App.ExampleController = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo']
@@ -69160,7 +69093,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime/contr
     equal(_emberMetalProperty_get.default(controller, 'foo'), '999');
   });
 });
-enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-glimmer', 'ember-runtime/system/string'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberGlimmer, _emberRuntimeSystemString) {
+enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location', 'ember-glimmer', 'ember-runtime/system/string'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location, _emberGlimmer, _emberRuntimeSystemString) {
   'use strict';
 
   var App = undefined,
@@ -69243,8 +69176,8 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});
 
-      registry.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-      registry.register('template:home', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Hours</h3>'));
+      registry.register('template:application', _emberTemplateCompiler.compile('{{outlet}}'));
+      registry.register('template:home', _emberTemplateCompiler.compile('<h3>Hours</h3>'));
     });
   }
 
@@ -69317,7 +69250,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
   function queryParamsStickyTest3(urlPrefix, articleLookup) {
     return function () {
-      registry.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#each articles as |a|}} {{link-to \'Article\' \'' + articleLookup + '\' a.id id=a.id}} {{/each}}'));
+      registry.register('template:application', _emberTemplateCompiler.compile('{{#each articles as |a|}} {{link-to \'Article\' \'' + articleLookup + '\' a.id id=a.id}} {{/each}}'));
 
       this.boot();
 
@@ -69456,7 +69389,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       });
 
-      registry.register('template:about', _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'A\' \'' + commentsLookup + '\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'' + commentsLookup + '\' \'a-2\' id=\'two\'}}'));
+      registry.register('template:about', _emberTemplateCompiler.compile('{{link-to \'A\' \'' + commentsLookup + '\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'' + commentsLookup + '\' \'a-2\' id=\'two\'}}'));
 
       this.boot();
 
@@ -69539,7 +69472,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         });
       }
 
-      registry.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}'));
+      registry.register('template:application', _emberTemplateCompiler.compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}'));
 
       this.boot = function () {
         bootApplication();
@@ -69629,7 +69562,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
           page: 1
         });
       }
-      registry.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#each articles as |a|}} {{link-to \'Article\' \'site.article\' a id=a.id}} {{/each}} {{outlet}}'));
+      registry.register('template:application', _emberTemplateCompiler.compile('{{#each articles as |a|}} {{link-to \'Article\' \'site.article\' a id=a.id}} {{/each}} {{outlet}}'));
 
       this.boot = function () {
         bootApplication();
@@ -69754,7 +69687,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         });
       }
 
-      registry.register('template:application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{#each allSitesAllArticles as |a|}} {{#link-to \'site.article\' a.site_id a.article_id id=a.id}}Article [{{a.site_id}}] [{{a.article_id}}]{{/link-to}} {{/each}} {{outlet}}'));
+      registry.register('template:application', _emberTemplateCompiler.compile('{{#each allSitesAllArticles as |a|}} {{#link-to \'site.article\' a.site_id a.article_id id=a.id}}Article [{{a.site_id}}] [{{a.article_id}}]{{/link-to}} {{/each}} {{outlet}}'));
 
       this.boot = function () {
         bootApplication();
@@ -70093,7 +70026,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     equal(this.links['s-3-a-3'].attr('href'), '/site/s-3/a/a-3?country=nz&q=hay&z=3');
   });
 });
-enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/mixin', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalMixin, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberRoutingLocationNone_location, _emberGlimmer) {
+enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/mixin', 'ember-template-compiler', 'ember-application/system/application', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalMixin, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberRoutingLocationNone_location, _emberGlimmer) {
   'use strict';
 
   var App = undefined,
@@ -70164,8 +70097,8 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
 
       App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-      _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Hours</h3>'));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+      _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<h3>Hours</h3>'));
     });
   }
 
@@ -70388,7 +70321,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
   }
 });
-enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/string', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemString, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer) {
+enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_test', ['exports', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/string', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemString, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer) {
   'use strict';
 
   var App = undefined,
@@ -70453,8 +70386,8 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
 
       App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});
 
-      _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-      _emberGlimmer.setTemplate('home', _emberTemplateCompilerTestsUtilsHelpers.compile('<h3>Hours</h3>'));
+      _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+      _emberGlimmer.setTemplate('home', _emberTemplateCompiler.compile('<h3>Hours</h3>'));
     });
   }
 
@@ -70482,7 +70415,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     QUnit.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
       expect(1);
 
-      _emberGlimmer.setTemplate(routeName, _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'index\' \'index\' id=\'index-link\'}}'));
+      _emberGlimmer.setTemplate(routeName, _emberTemplateCompiler.compile('{{link-to \'index\' \'index\' id=\'index-link\'}}'));
 
       App[_emberRuntimeSystemString.capitalize(routeName) + 'Controller'] = _emberRuntimeControllersController.default.extend({
         queryParams: ['foo'],
@@ -70500,7 +70433,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     QUnit.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
       expect(1);
 
-      _emberGlimmer.setTemplate(routeName, _emberTemplateCompilerTestsUtilsHelpers.compile('{{link-to \'index\' \'index\' id=\'index-link\'}}'));
+      _emberGlimmer.setTemplate(routeName, _emberTemplateCompiler.compile('{{link-to \'index\' \'index\' id=\'index-link\'}}'));
 
       App[_emberRuntimeSystemString.capitalize(routeName) + 'Route'] = _emberRoutingSystemRoute.default.extend({
         queryParams: {
@@ -70525,7 +70458,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     testParamlessLinks('index');
   }
 });
-enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-routing/system/router', 'ember-views/system/jquery', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberViewsSystemJquery, _emberGlimmer) {
+enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-application/system/application', 'ember-routing/system/router', 'ember-views/system/jquery', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberRoutingSystemRouter, _emberViewsSystemJquery, _emberGlimmer) {
   'use strict';
 
   var router = undefined,
@@ -70590,8 +70523,8 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/run_loop'
   QUnit.test('Router.map can be called multiple times', function () {
     expect(4);
 
-    _emberGlimmer.setTemplate('hello', _emberTemplateCompilerTestsUtilsHelpers.compile('Hello!'));
-    _emberGlimmer.setTemplate('goodbye', _emberTemplateCompilerTestsUtilsHelpers.compile('Goodbye!'));
+    _emberGlimmer.setTemplate('hello', _emberTemplateCompiler.compile('Hello!'));
+    _emberGlimmer.setTemplate('goodbye', _emberTemplateCompiler.compile('Goodbye!'));
 
     App.Router.map(function () {
       this.route('hello');
@@ -70612,7 +70545,7 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/run_loop'
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
   });
 });
-enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-application/system/engine', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-glimmer'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberGlimmer) {
+enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-application/system/application', 'ember-application/system/engine', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-application/system/resolver', 'ember-glimmer'], function (exports, _emberRuntimeExtRsvp, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberApplicationSystemEngine, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberApplicationSystemResolver, _emberGlimmer) {
   'use strict';
 
   var Router = undefined,
@@ -70630,7 +70563,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
 
   function bootApplication(startingURL) {
     for (var _name in templates) {
-      _emberGlimmer.setTemplate(_name, _emberTemplateCompilerTestsUtilsHelpers.compile(templates[_name]));
+      _emberGlimmer.setTemplate(_name, _emberTemplateCompiler.compile(templates[_name]));
     }
 
     if (startingURL) {
@@ -71778,7 +71711,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime/ext/rsvp
     _emberMetalRun_loop.default(deferred, 'resolve');
   });
 });
-enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/tests/utils/helpers', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerTestsUtilsHelpers, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer) {
+enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-routing/location/none_location', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRoutingLocationNone_location, _emberGlimmer) {
   'use strict';
 
   var App = undefined,
@@ -71788,7 +71721,7 @@ enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal/run_loo
 
   function bootApplication() {
     for (var _name in templates) {
-      _emberGlimmer.setTemplate(_name, _emberTemplateCompilerTestsUtilsHelpers.compile(templates[_name]));
+      _emberGlimmer.setTemplate(_name, _emberTemplateCompiler.compile(templates[_name]));
     }
     router = container.lookup('router:main');
     _emberMetalRun_loop.default(App, 'advanceReadiness');
@@ -71834,7 +71767,7 @@ enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal/run_loo
     equal(_emberViewsSystemJquery.default('#qunit-fixture > .ember-view').text(), 'hello world');
   });
 });
-enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-application/system/application', 'ember-metal/instrumentation', 'ember-template-compiler/tests/utils/helpers', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberApplicationSystemApplication, _emberMetalInstrumentation, _emberTemplateCompilerTestsUtilsHelpers, _emberGlimmer) {
+enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-application/system/application', 'ember-metal/instrumentation', 'ember-template-compiler', 'ember-glimmer'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberApplicationSystemApplication, _emberMetalInstrumentation, _emberTemplateCompiler, _emberGlimmer) {
   'use strict';
 
   var App = undefined,
@@ -71842,9 +71775,9 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/run_loo
 
   function setupExample() {
     // setup templates
-    _emberGlimmer.setTemplate('application', _emberTemplateCompilerTestsUtilsHelpers.compile('{{outlet}}'));
-    _emberGlimmer.setTemplate('index', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Index</h1>'));
-    _emberGlimmer.setTemplate('posts', _emberTemplateCompilerTestsUtilsHelpers.compile('<h1>Posts</h1>'));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile('{{outlet}}'));
+    _emberGlimmer.setTemplate('index', _emberTemplateCompiler.compile('<h1>Index</h1>'));
+    _emberGlimmer.setTemplate('posts', _emberTemplateCompiler.compile('<h1>Posts</h1>'));
 
     App.Router.map(function () {
       this.route('posts');

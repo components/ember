@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+504a6e05
+ * @version   2.9.0-null+2849f5f8
  */
 
 var enifed, requireModule, require, Ember;
@@ -2774,7 +2774,7 @@ enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'e
     }
   });
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/mixins/registry_proxy', 'ember-metal/assign', 'ember-environment', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-application/system/engine-instance'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeMixinsRegistry_proxy, _emberMetalAssign, _emberEnvironment, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberApplicationSystemEngineInstance) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _emberApplicationSystemEngineInstance) {
   /**
   @module ember
   @submodule ember-application
@@ -2877,8 +2877,8 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       }
 
       if (options.location) {
-        var router = _emberMetalProperty_get.get(this, 'router');
-        _emberMetalProperty_set.set(router, 'location', options.location);
+        var router = _emberMetal.get(this, 'router');
+        _emberMetal.set(router, 'location', options.location);
       }
 
       this.application.runInstanceInitializers(this);
@@ -2896,7 +2896,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       this.constructor.setupRegistry(this.__registry__, options);
     },
 
-    router: _emberMetalComputed.computed(function () {
+    router: _emberMetal.computed(function () {
       return this.lookup('router:main');
     }).readOnly(),
 
@@ -2921,7 +2921,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
        @private
     */
     startRouting: function () {
-      var router = _emberMetalProperty_get.get(this, 'router');
+      var router = _emberMetal.get(this, 'router');
       router.startRouting();
       this._didSetupRouter = true;
     },
@@ -2939,7 +2939,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       }
       this._didSetupRouter = true;
 
-      var router = _emberMetalProperty_get.get(this, 'router');
+      var router = _emberMetal.get(this, 'router');
       router.setupRouter();
     },
 
@@ -2950,7 +2950,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @private
     */
     handleURL: function (url) {
-      var router = _emberMetalProperty_get.get(this, 'router');
+      var router = _emberMetal.get(this, 'router');
 
       this.setupRouter();
       return router.handleURL(url);
@@ -2961,10 +2961,10 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     */
     setupEventDispatcher: function () {
       var dispatcher = this.lookup('event_dispatcher:main');
-      var applicationCustomEvents = _emberMetalProperty_get.get(this.application, 'customEvents');
-      var instanceCustomEvents = _emberMetalProperty_get.get(this, 'customEvents');
+      var applicationCustomEvents = _emberMetal.get(this.application, 'customEvents');
+      var instanceCustomEvents = _emberMetal.get(this, 'customEvents');
 
-      var customEvents = _emberMetalAssign.default({}, applicationCustomEvents, instanceCustomEvents);
+      var customEvents = _emberMetal.assign({}, applicationCustomEvents, instanceCustomEvents);
       dispatcher.setup(customEvents, this.rootElement);
 
       return dispatcher;
@@ -2978,8 +2978,8 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @return {String} the current URL
     */
     getURL: function () {
-      var router = _emberMetalProperty_get.get(this, 'router');
-      return _emberMetalProperty_get.get(router, 'url');
+      var router = _emberMetal.get(this, 'router');
+      return _emberMetal.get(router, 'url');
     },
 
     // `instance.visit(url)` should eventually replace `instance.handleURL()`;
@@ -2999,14 +2999,14 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
       this.setupRouter();
 
-      var router = _emberMetalProperty_get.get(this, 'router');
+      var router = _emberMetal.get(this, 'router');
 
       var handleResolve = function () {
         // Resolve only after rendering is complete
-        return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+        return new _emberRuntime.RSVP.Promise(function (resolve) {
           // TODO: why is this necessary? Shouldn't 'actions' queue be enough?
           // Also, aren't proimses supposed to be async anyway?
-          _emberMetalRun_loop.default.next(null, resolve, _this);
+          _emberMetal.run.next(null, resolve, _this);
         });
       };
 
@@ -3022,7 +3022,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
         }
       };
 
-      var location = _emberMetalProperty_get.get(router, 'location');
+      var location = _emberMetal.get(router, 'location');
 
       // Keeps the location adapter's internal URL in-sync
       location.setURL(url);
@@ -3088,7 +3088,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @default auto-detected
       @private
     */
-    this.jQuery = _emberViewsSystemJquery.default; // This default is overridable below
+    this.jQuery = _emberViews.jQuery; // This default is overridable below
 
     /**
       Interactive mode: whether we need to set up event delegation and invoke
@@ -3220,7 +3220,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   };
 
   BootOptions.prototype.toEnvironment = function () {
-    var env = _emberMetalAssign.default({}, _emberEnvironment.environment);
+    var env = _emberMetal.assign({}, _emberEnvironment.environment);
     // For compatibility with existing code
     env.hasDOM = this.isBrowser;
     env.isInteractive = this.isInteractive;
@@ -3245,13 +3245,13 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     configurable: true,
     enumerable: false,
     get: function () {
-      return _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations(this, 'ApplicationInstance');
+      return _emberRuntime.buildFakeRegistryWithDeprecations(this, 'ApplicationInstance');
     }
   });
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/libraries', 'ember-metal/testing', 'ember-metal/property_get', 'ember-runtime/system/namespace', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-runtime/mixins/registry_proxy', 'container', 'ember-runtime/ext/rsvp', 'ember-application/system/engine', 'ember-glimmer'], function (exports, _emberEnvironment, _emberMetalDebug, _emberMetalDictionary, _emberMetalLibraries, _emberMetalTesting, _emberMetalProperty_get, _emberRuntimeSystemNamespace, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberRuntimeMixinsRegistry_proxy, _container, _emberRuntimeExtRsvp, _emberApplicationSystemEngine, _emberGlimmer) {
+enifed('ember-application/system/application', ['exports', 'ember-environment', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application/system/application-instance', 'container', 'ember-application/system/engine', 'ember-glimmer'], function (exports, _emberEnvironment, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplicationSystemApplicationInstance, _container, _emberApplicationSystemEngine, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -3553,7 +3553,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       this._super.apply(this, arguments);
 
       if (!this.$) {
-        this.$ = _emberViewsSystemJquery.default;
+        this.$ = _emberViews.jQuery;
       }
 
       registerLibraries();
@@ -3602,7 +3602,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       // Create subclass of Ember.Router for this Application instance.
       // This is to ensure that someone reopening `App.Router` does not
       // tamper with the default `Ember.Router`.
-      this.Router = (this.Router || _emberRoutingSystemRouter.default).extend();
+      this.Router = (this.Router || _emberRouting.Router).extend();
 
       this._buildDeprecatedInstance();
     },
@@ -3642,9 +3642,9 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     */
     waitForDOMReady: function () {
       if (!this.$ || this.$.isReady) {
-        _emberMetalRun_loop.default.schedule('actions', this, 'domReady');
+        _emberMetal.run.schedule('actions', this, 'domReady');
       } else {
-        this.$().ready(_emberMetalRun_loop.default.bind(this, 'domReady'));
+        this.$().ready(_emberMetal.run.bind(this, 'domReady'));
       }
     },
 
@@ -3722,7 +3722,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       this._readinessDeferrals--;
 
       if (this._readinessDeferrals === 0) {
-        _emberMetalRun_loop.default.once(this, this.didBecomeReady);
+        _emberMetal.run.once(this, this.didBecomeReady);
       }
     },
 
@@ -3774,12 +3774,12 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       // boot promise exists for book-keeping purposes: if anything went wrong in
       // the boot process, we need to store the error as a rejection on the boot
       // promise so that a future caller of `boot()` can tell what failed.
-      var defer = this._bootResolver = new _emberRuntimeExtRsvp.default.defer();
+      var defer = this._bootResolver = new _emberRuntime.RSVP.defer();
       this._bootPromise = defer.promise;
 
       try {
         this.runInitializers();
-        _emberRuntimeSystemLazy_load.runLoadHooks('application', this);
+        _emberRuntime.runLoadHooks('application', this);
         this.advanceReadiness();
         // Continues to `didBecomeReady`
       } catch (error) {
@@ -3854,12 +3854,12 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
       this._booted = false;
 
       function handleReset() {
-        _emberMetalRun_loop.default(instance, 'destroy');
+        _emberMetal.run(instance, 'destroy');
         this._buildDeprecatedInstance();
-        _emberMetalRun_loop.default.schedule('actions', this, '_bootSync');
+        _emberMetal.run.schedule('actions', this, '_bootSync');
       }
 
-      _emberMetalRun_loop.default.join(this, handleReset);
+      _emberMetal.run.join(this, handleReset);
     },
 
     /**
@@ -3869,10 +3869,10 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     didBecomeReady: function () {
       try {
         // TODO: Is this still needed for _globalsMode = false?
-        if (!_emberMetalTesting.isTesting()) {
+        if (!_emberMetal.isTesting()) {
           // Eagerly name all classes that are already loaded
-          _emberRuntimeSystemNamespace.default.processAll();
-          _emberRuntimeSystemNamespace.setSearchDisabled(true);
+          _emberRuntime.Namespace.processAll();
+          _emberRuntime.setNamespaceSearchDisabled(true);
         }
 
         // See documentation on `_autoboot()` for details
@@ -3926,13 +3926,13 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     // This method must be moved to the application instance object
     willDestroy: function () {
       this._super.apply(this, arguments);
-      _emberRuntimeSystemNamespace.setSearchDisabled(false);
+      _emberRuntime.setNamespaceSearchDisabled(false);
       this._booted = false;
       this._bootPromise = null;
       this._bootResolver = null;
 
-      if (_emberRuntimeSystemLazy_load._loaded.application === this) {
-        _emberRuntimeSystemLazy_load._loaded.application = undefined;
+      if (_emberRuntime._loaded.application === this) {
+        _emberRuntime._loaded.application = undefined;
       }
 
       if (this._globalsMode && this.__deprecatedInstance__) {
@@ -4101,7 +4101,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
         return instance.boot(options).then(function () {
           return instance.visit(url);
         }).catch(function (error) {
-          _emberMetalRun_loop.default(instance, 'destroy');
+          _emberMetal.run(instance, 'destroy');
           throw error;
         });
       });
@@ -4112,7 +4112,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     configurable: true,
     enumerable: false,
     get: function () {
-      return _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations(this, 'Application');
+      return _emberRuntime.buildFakeRegistryWithDeprecations(this, 'Application');
     }
   });
 
@@ -4154,28 +4154,28 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
   function commonSetupRegistry(registry) {
     registry.register('-view-registry:main', { create: function () {
-        return _emberMetalDictionary.default(null);
+        return _emberMetal.dictionary(null);
       } });
 
-    registry.register('route:basic', _emberRoutingSystemRoute.default);
-    registry.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+    registry.register('route:basic', _emberRouting.Route);
+    registry.register('event_dispatcher:main', _emberViews.EventDispatcher);
 
     registry.injection('router:main', 'namespace', 'application:main');
 
-    registry.register('location:auto', _emberRoutingLocationAuto_location.default);
-    registry.register('location:hash', _emberRoutingLocationHash_location.default);
-    registry.register('location:history', _emberRoutingLocationHistory_location.default);
-    registry.register('location:none', _emberRoutingLocationNone_location.default);
+    registry.register('location:auto', _emberRouting.AutoLocation);
+    registry.register('location:hash', _emberRouting.HashLocation);
+    registry.register('location:history', _emberRouting.HistoryLocation);
+    registry.register('location:none', _emberRouting.NoneLocation);
 
-    registry.register(_container.privatize(_templateObject), _emberRoutingSystemCache.default);
+    registry.register(_container.privatize(_templateObject), _emberRouting.BucketCache);
   }
 
   function registerLibraries() {
     if (!librariesRegistered) {
       librariesRegistered = true;
 
-      if (_emberEnvironment.environment.hasDOM && typeof _emberViewsSystemJquery.default === 'function') {
-        _emberMetalLibraries.default.registerCoreLibrary('jQuery', _emberViewsSystemJquery.default().jquery);
+      if (_emberEnvironment.environment.hasDOM && typeof _emberViews.jQuery === 'function') {
+        _emberMetal.libraries.registerCoreLibrary('jQuery', _emberViews.jQuery().jquery);
       }
     }
   }
@@ -4184,10 +4184,10 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
     if (_emberEnvironment.ENV.LOG_VERSION) {
       // we only need to see this once per Application#init
       _emberEnvironment.ENV.LOG_VERSION = false;
-      var libs = _emberMetalLibraries.default._registry;
+      var libs = _emberMetal.libraries._registry;
 
       var nameLengths = libs.map(function (item) {
-        return _emberMetalProperty_get.get(item, 'name.length');
+        return _emberMetal.get(item, 'name.length');
       });
 
       var maxNameLength = Math.max.apply(this, nameLengths);
@@ -4201,7 +4201,7 @@ enifed('ember-application/system/application', ['exports', 'ember-environment', 
 
   exports.default = Application;
 });
-enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/system/object', 'ember-metal/error', 'container', 'ember-runtime/mixins/container_proxy', 'ember-runtime/mixins/registry_proxy', 'ember-application/system/engine-parent', 'ember-metal/debug', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-metal/utils'], function (exports, _emberRuntimeSystemObject, _emberMetalError, _container, _emberRuntimeMixinsContainer_proxy, _emberRuntimeMixinsRegistry_proxy, _emberApplicationSystemEngineParent, _emberMetalDebug, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberMetalUtils) {
+enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime', 'ember-metal', 'container', 'ember-application/system/engine-parent'], function (exports, _emberRuntime, _emberMetal, _container, _emberApplicationSystemEngineParent) {
   /**
   @module ember
   @submodule ember-application
@@ -4222,7 +4222,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
     @uses ContainerProxyMixin
   */
 
-  var EngineInstance = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
+  var EngineInstance = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin, {
     /**
       The base `Engine` for which this is an instance.
        @property {Ember.Engine} engine
@@ -4233,7 +4233,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
     init: function () {
       this._super.apply(this, arguments);
 
-      _emberMetalUtils.guidFor(this);
+      _emberMetal.guidFor(this);
 
       var base = this.base;
 
@@ -4271,7 +4271,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
         return this._bootPromise;
       }
 
-      this._bootPromise = new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+      this._bootPromise = new _emberRuntime.RSVP.Promise(function (resolve) {
         return resolve(_this._bootSync(options));
       });
 
@@ -4330,7 +4330,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
     */
     willDestroy: function () {
       this._super.apply(this, arguments);
-      _emberMetalRun_loop.default(this.__container__, 'destroy');
+      _emberMetal.run(this.__container__, 'destroy');
     },
 
     /**
@@ -4349,7 +4349,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
       var Engine = this.lookup('engine:' + name);
 
       if (!Engine) {
-        throw new _emberMetalError.default('You attempted to mount the engine \'' + name + '\', but it is not registered with its parent.');
+        throw new _emberMetal.Error('You attempted to mount the engine \'' + name + '\', but it is not registered with its parent.');
       }
 
       var engineInstance = Engine.buildInstance(options);
@@ -4417,7 +4417,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/sy
 
   exports.default = EngineInstance;
 });
-enifed('ember-application/system/engine-parent', ['exports', 'ember-metal/symbol'], function (exports, _emberMetalSymbol) {
+enifed('ember-application/system/engine-parent', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   /**
   @module ember
   @submodule ember-application
@@ -4427,7 +4427,7 @@ enifed('ember-application/system/engine-parent', ['exports', 'ember-metal/symbol
 
   exports.getEngineParent = getEngineParent;
   exports.setEngineParent = setEngineParent;
-  var ENGINE_PARENT = _emberMetalSymbol.default('ENGINE_PARENT');
+  var ENGINE_PARENT = _emberMetal.symbol('ENGINE_PARENT');
 
   exports.ENGINE_PARENT = ENGINE_PARENT;
   /**
@@ -4457,7 +4457,7 @@ enifed('ember-application/system/engine-parent', ['exports', 'ember-metal/symbol
     engine[ENGINE_PARENT] = parent;
   }
 });
-enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-runtime/controllers/controller', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-views/component_lookup', 'ember-glimmer'], function (exports, _emberRuntimeSystemNamespace, _container, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberRuntimeControllersController, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberViewsComponent_lookup, _emberGlimmer) {
+enifed('ember-application/system/engine', ['exports', 'ember-runtime', 'container', 'dag-map', 'ember-metal', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-routing', 'ember-extension-support', 'ember-views', 'ember-glimmer'], function (exports, _emberRuntime, _container, _dagMap, _emberMetal, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberRouting, _emberExtensionSupport, _emberViews, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -4493,7 +4493,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     @uses RegistryProxy
     @public
   */
-  var Engine = _emberRuntimeSystemNamespace.default.extend(_emberRuntimeMixinsRegistry_proxy.default, {
+  var Engine = _emberRuntime.Namespace.extend(_emberRuntime.RegistryProxyMixin, {
     init: function () {
       this._super.apply(this, arguments);
 
@@ -4590,7 +4590,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     },
 
     _runInitializer: function (bucketName, cb) {
-      var initializersByName = _emberMetalProperty_get.get(this.constructor, bucketName);
+      var initializersByName = _emberMetal.get(this.constructor, bucketName);
       var initializers = props(initializersByName);
       var graph = new _dagMap.default();
       var initializer = undefined;
@@ -4605,8 +4605,8 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
   });
 
   Engine.reopenClass({
-    initializers: new _emberMetalEmpty_object.default(),
-    instanceInitializers: new _emberMetalEmpty_object.default(),
+    initializers: new _emberMetal.EmptyObject(),
+    instanceInitializers: new _emberMetal.EmptyObject(),
 
     /**
       The goal of initializers should be to register dependencies and injections.
@@ -4786,7 +4786,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
         resolver: resolverFor(namespace)
       });
 
-      registry.set = _emberMetalProperty_set.set;
+      registry.set = _emberMetal.set;
 
       registry.register('application:main', namespace, { instantiate: false });
 
@@ -4856,7 +4856,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     registry.optionsForType('component', { singleton: false });
     registry.optionsForType('view', { singleton: false });
 
-    registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
+    registry.register('controller:basic', _emberRuntime.Controller, { instantiate: false });
 
     registry.injection('view', '_viewRegistry', '-view-registry:main');
     registry.injection('renderer', '_viewRegistry', '-view-registry:main');
@@ -4876,7 +4876,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     registry.injection('route', 'router', 'router:main');
 
     // Register the routing service...
-    registry.register('service:-routing', _emberRoutingServicesRouting.default);
+    registry.register('service:-routing', _emberRouting.RoutingService);
     // Then inject the app router into it
     registry.injection('service:-routing', 'router', 'router:main');
 
@@ -4886,14 +4886,14 @@ enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/name
     registry.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
     // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
 
-    registry.register('container-debug-adapter:main', _emberExtensionSupportContainer_debug_adapter.default);
+    registry.register('container-debug-adapter:main', _emberExtensionSupport.ContainerDebugAdapter);
 
-    registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+    registry.register('component-lookup:main', _emberViews.ComponentLookup);
   }
 
   exports.default = Engine;
 });
-enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/utils/validate-type', 'ember-metal/dictionary', 'ember-glimmer'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationUtilsValidateType, _emberMetalDictionary, _emberGlimmer) {
+enifed('ember-application/system/resolver', ['exports', 'ember-metal', 'ember-runtime', 'ember-application/utils/validate-type', 'ember-glimmer'], function (exports, _emberMetal, _emberRuntime, _emberApplicationUtilsValidateType, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -4901,7 +4901,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
 
   'use strict';
 
-  var Resolver = _emberRuntimeSystemObject.default.extend({
+  var Resolver = _emberRuntime.Object.extend({
     /*
       This will be set to the Application instance when it is
       created.
@@ -4990,7 +4990,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     @public
   */
 
-  exports.default = _emberRuntimeSystemObject.default.extend({
+  exports.default = _emberRuntime.Object.extend({
     /**
       This will be set to the Application instance when it is
       created.
@@ -5000,7 +5000,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     namespace: null,
 
     init: function () {
-      this._parseNameCache = _emberMetalDictionary.default(null);
+      this._parseNameCache = _emberMetal.dictionary(null);
     },
     normalize: function (fullName) {
       var _fullName$split = fullName.split(':', 2);
@@ -5086,7 +5086,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
       var fullNameWithoutType = _fullName$split2[1];
 
       var name = fullNameWithoutType;
-      var namespace = _emberMetalProperty_get.get(this, 'namespace');
+      var namespace = _emberMetal.get(this, 'namespace');
       var root = namespace;
       var lastSlashIndex = name.lastIndexOf('/');
       var dirname = lastSlashIndex !== -1 ? name.slice(0, lastSlashIndex) : null;
@@ -5094,11 +5094,11 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
       if (type !== 'template' && lastSlashIndex !== -1) {
         var parts = name.split('/');
         name = parts[parts.length - 1];
-        var namespaceName = _emberRuntimeSystemString.capitalize(parts.slice(0, -1).join('.'));
-        root = _emberRuntimeSystemNamespace.default.byName(namespaceName);
+        var namespaceName = _emberRuntime.String.capitalize(parts.slice(0, -1).join('.'));
+        root = _emberRuntime.Namespace.byName(namespaceName);
       }
 
-      var resolveMethodName = fullNameWithoutType === 'main' ? 'Main' : _emberRuntimeSystemString.classify(type);
+      var resolveMethodName = fullNameWithoutType === 'main' ? 'Main' : _emberRuntime.String.classify(type);
 
       if (!(name && type)) {
         throw new TypeError('Invalid fullName: `' + fullName + '`, must be of the form `type:name` ');
@@ -5132,10 +5132,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
         return 'template at ' + parsedName.fullNameWithoutType.replace(/\./g, '/');
       }
 
-      description = parsedName.root + '.' + _emberRuntimeSystemString.classify(parsedName.name).replace(/\./g, '');
+      description = parsedName.root + '.' + _emberRuntime.String.classify(parsedName.name).replace(/\./g, '');
 
       if (parsedName.type !== 'model') {
-        description += _emberRuntimeSystemString.classify(parsedName.type);
+        description += _emberRuntime.String.classify(parsedName.type);
       }
 
       return description;
@@ -5169,7 +5169,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
     resolveTemplate: function (parsedName) {
       var templateName = parsedName.fullNameWithoutType.replace(/\./g, '/');
 
-      return _emberGlimmer.getTemplate(templateName) || _emberGlimmer.getTemplate(_emberRuntimeSystemString.decamelize(templateName));
+      return _emberGlimmer.getTemplate(templateName) || _emberGlimmer.getTemplate(_emberRuntime.String.decamelize(templateName));
     },
 
     /**
@@ -5215,8 +5215,8 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
       @protected
     */
     resolveModel: function (parsedName) {
-      var className = _emberRuntimeSystemString.classify(parsedName.name);
-      var factory = _emberMetalProperty_get.get(parsedName.root, className);
+      var className = _emberRuntime.String.classify(parsedName.name);
+      var factory = _emberMetal.get(parsedName.root, className);
 
       return factory;
     },
@@ -5240,14 +5240,14 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
       @protected
     */
     resolveOther: function (parsedName) {
-      var className = _emberRuntimeSystemString.classify(parsedName.name) + _emberRuntimeSystemString.classify(parsedName.type);
-      var factory = _emberMetalProperty_get.get(parsedName.root, className);
+      var className = _emberRuntime.String.classify(parsedName.name) + _emberRuntime.String.classify(parsedName.type);
+      var factory = _emberMetal.get(parsedName.root, className);
       return factory;
     },
 
     resolveMain: function (parsedName) {
-      var className = _emberRuntimeSystemString.classify(parsedName.type);
-      return _emberMetalProperty_get.get(parsedName.root, className);
+      var className = _emberRuntime.String.classify(parsedName.type);
+      return _emberMetal.get(parsedName.root, className);
     },
 
     /**
@@ -5280,11 +5280,11 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
      @private
      */
     knownForType: function (type) {
-      var namespace = _emberMetalProperty_get.get(this, 'namespace');
-      var suffix = _emberRuntimeSystemString.classify(type);
+      var namespace = _emberMetal.get(this, 'namespace');
+      var suffix = _emberRuntime.String.classify(type);
       var typeRegexp = new RegExp(suffix + '$');
 
-      var known = _emberMetalDictionary.default(null);
+      var known = _emberMetal.dictionary(null);
       var knownKeys = Object.keys(namespace);
       for (var index = 0; index < knownKeys.length; index++) {
         var _name = knownKeys[index];
@@ -5311,15 +5311,15 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'em
      */
 
     translateToContainerFullname: function (type, name) {
-      var suffix = _emberRuntimeSystemString.classify(type);
+      var suffix = _emberRuntime.String.classify(type);
       var namePrefix = name.slice(0, suffix.length * -1);
-      var dasherizedName = _emberRuntimeSystemString.dasherize(namePrefix);
+      var dasherizedName = _emberRuntime.String.dasherize(namePrefix);
 
       return type + ':' + dasherizedName;
     }
   });
 });
-enifed('ember-application/utils/validate-type', ['exports', 'ember-metal/debug'], function (exports, _emberMetalDebug) {
+enifed('ember-application/utils/validate-type', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   /**
   @module ember
   @submodule ember-application
@@ -5662,7 +5662,7 @@ enifed("ember-environment/utils", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-metal/core', 'ember-runtime/system/native_array', 'ember-runtime/utils', 'ember-runtime/system/string', 'ember-runtime/system/namespace', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberRuntimeSystemNative_array, _emberRuntimeUtils, _emberRuntimeSystemString, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject) {
+enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-metal', 'ember-runtime'], function (exports, _emberMetal, _emberRuntime) {
   'use strict';
 
   /**
@@ -5705,7 +5705,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
     @since 1.5.0
     @public
   */
-  exports.default = _emberRuntimeSystemObject.default.extend({
+  exports.default = _emberRuntime.Object.extend({
     /**
       The resolver instance of the application
       being debugged. This property will be injected
@@ -5740,20 +5740,20 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
       @public
     */
     catalogEntriesByType: function (type) {
-      var namespaces = _emberRuntimeSystemNative_array.A(_emberRuntimeSystemNamespace.default.NAMESPACES);
-      var types = _emberRuntimeSystemNative_array.A();
-      var typeSuffixRegex = new RegExp(_emberRuntimeSystemString.classify(type) + '$');
+      var namespaces = _emberRuntime.A(_emberRuntime.Namespace.NAMESPACES);
+      var types = _emberRuntime.A();
+      var typeSuffixRegex = new RegExp(_emberRuntime.String.classify(type) + '$');
 
       namespaces.forEach(function (namespace) {
-        if (namespace !== _emberMetalCore.default) {
+        if (namespace !== _emberMetal.default) {
           for (var key in namespace) {
             if (!namespace.hasOwnProperty(key)) {
               continue;
             }
             if (typeSuffixRegex.test(key)) {
               var klass = namespace[key];
-              if (_emberRuntimeUtils.typeOf(klass) === 'class') {
-                types.push(_emberRuntimeSystemString.dasherize(key.replace(typeSuffixRegex, '')));
+              if (_emberRuntime.typeOf(klass) === 'class') {
+                types.push(_emberRuntime.String.dasherize(key.replace(typeSuffixRegex, '')));
               }
             }
           }
@@ -5764,7 +5764,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
   });
 });
 // Ember as namespace
-enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/string', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-application/system/application', 'container', 'ember-runtime/mixins/array'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemString, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberApplicationSystemApplication, _container, _emberRuntimeMixinsArray) {
+enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal', 'ember-runtime', 'ember-application', 'container'], function (exports, _emberMetal, _emberRuntime, _emberApplication, _container) {
   'use strict';
 
   /**
@@ -5814,10 +5814,10 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     @extends EmberObject
     @public
   */
-  exports.default = _emberRuntimeSystemObject.default.extend({
+  exports.default = _emberRuntime.Object.extend({
     init: function () {
       this._super.apply(this, arguments);
-      this.releaseMethods = _emberRuntimeSystemNative_array.A();
+      this.releaseMethods = _emberRuntime.A();
     },
 
     /**
@@ -5860,7 +5860,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       @property releaseMethods
       @since 1.3.0
     */
-    releaseMethods: _emberRuntimeSystemNative_array.A(),
+    releaseMethods: _emberRuntime.A(),
 
     /**
       Specifies how records can be filtered.
@@ -5872,7 +5872,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
        The object should have a `name` and `desc` property.
     */
     getFilters: function () {
-      return _emberRuntimeSystemNative_array.A();
+      return _emberRuntime.A();
     },
 
     /**
@@ -5889,7 +5889,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       var _this = this;
 
       var modelTypes = this.getModelTypes();
-      var releaseMethods = _emberRuntimeSystemNative_array.A();
+      var releaseMethods = _emberRuntime.A();
       var typesToSend = undefined;
 
       typesToSend = modelTypes.map(function (type) {
@@ -5939,7 +5939,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     watchRecords: function (modelName, recordsAdded, recordsUpdated, recordsRemoved) {
       var _this2 = this;
 
-      var releaseMethods = _emberRuntimeSystemNative_array.A();
+      var releaseMethods = _emberRuntime.A();
       var klass = this._nameToClass(modelName);
       var records = this.getRecords(klass, modelName);
       var release = undefined;
@@ -5955,7 +5955,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
 
       var contentDidChange = function (array, idx, removedCount, addedCount) {
         for (var i = idx; i < idx + addedCount; i++) {
-          var record = _emberRuntimeMixinsArray.objectAt(array, i);
+          var record = _emberRuntime.objectAt(array, i);
           var wrapped = _this2.wrapRecord(record);
           releaseMethods.push(_this2.observeRecord(record, recordUpdated));
           recordsAdded([wrapped]);
@@ -5969,13 +5969,13 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       var observer = { didChange: contentDidChange, willChange: function () {
           return this;
         } };
-      _emberRuntimeMixinsArray.addArrayObserver(records, this, observer);
+      _emberRuntime.addArrayObserver(records, this, observer);
 
       release = function () {
         releaseMethods.forEach(function (fn) {
           return fn();
         });
-        _emberRuntimeMixinsArray.removeArrayObserver(records, _this2, observer);
+        _emberRuntime.removeArrayObserver(records, _this2, observer);
         _this2.releaseMethods.removeObject(release);
       };
 
@@ -6020,7 +6020,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
        desc: {String} Humanized description (what would show in a table column name).
     */
     columnsForType: function (type) {
-      return _emberRuntimeSystemNative_array.A();
+      return _emberRuntime.A();
     },
 
     /**
@@ -6044,17 +6044,17 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
 
       var observer = {
         didChange: function () {
-          _emberMetalRun_loop.default.scheduleOnce('actions', this, onChange);
+          _emberMetal.run.scheduleOnce('actions', this, onChange);
         },
         willChange: function () {
           return this;
         }
       };
 
-      _emberRuntimeMixinsArray.addArrayObserver(records, this, observer);
+      _emberRuntime.addArrayObserver(records, this, observer);
 
       var release = function () {
-        return _emberRuntimeMixinsArray.removeArrayObserver(records, _this3, observer);
+        return _emberRuntime.removeArrayObserver(records, _this3, observer);
       };
 
       return release;
@@ -6082,7 +6082,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
 
       typeToSend = {
         name: name,
-        count: _emberMetalProperty_get.get(records, 'length'),
+        count: _emberMetal.get(records, 'length'),
         columns: this.columnsForType(klass),
         object: klass
       };
@@ -6109,17 +6109,17 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       }
 
       // New adapters return strings instead of classes.
-      types = _emberRuntimeSystemNative_array.A(types).map(function (name) {
+      types = _emberRuntime.A(types).map(function (name) {
         return {
           klass: _this4._nameToClass(name),
           name: name
         };
       });
-      types = _emberRuntimeSystemNative_array.A(types).filter(function (type) {
+      types = _emberRuntime.A(types).filter(function (type) {
         return _this4.detect(type.klass);
       });
 
-      return _emberRuntimeSystemNative_array.A(types);
+      return _emberRuntime.A(types);
     },
 
     /**
@@ -6132,8 +6132,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     _getObjectsOnNamespaces: function () {
       var _this5 = this;
 
-      var namespaces = _emberRuntimeSystemNative_array.A(_emberRuntimeSystemNamespace.default.NAMESPACES);
-      var types = _emberRuntimeSystemNative_array.A();
+      var namespaces = _emberRuntime.A(_emberRuntime.Namespace.NAMESPACES);
+      var types = _emberRuntime.A();
 
       namespaces.forEach(function (namespace) {
         for (var key in namespace) {
@@ -6146,8 +6146,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
           if (!_this5.detect(namespace[key])) {
             continue;
           }
-          var _name = _emberRuntimeSystemString.dasherize(key);
-          if (!(namespace instanceof _emberApplicationSystemApplication.default) && namespace.toString()) {
+          var _name = _emberRuntime.String.dasherize(key);
+          if (!(namespace instanceof _emberApplication.Application) && namespace.toString()) {
             _name = namespace + '/' + _name;
           }
           types.push(_name);
@@ -6165,7 +6165,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
        so it should update when new records are added/removed.
     */
     getRecords: function (type) {
-      return _emberRuntimeSystemNative_array.A();
+      return _emberRuntime.A();
     },
 
     /**
@@ -6206,7 +6206,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       @return {Array} Relevant keywords for search.
     */
     getRecordKeywords: function (record) {
-      return _emberRuntimeSystemNative_array.A();
+      return _emberRuntime.A();
     },
 
     /**
@@ -15128,6 +15128,8 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.deprecate = _emberMetalDebug.deprecate;
   exports.deprecateFunc = _emberMetalDebug.deprecateFunc;
   exports.runInDebug = _emberMetalDebug.runInDebug;
+  exports.setDebugFunction = _emberMetalDebug.setDebugFunction;
+  exports.getDebugFunction = _emberMetalDebug.getDebugFunction;
   exports.instrument = _emberMetalInstrumentation.instrument;
   exports.flaggedInstrument = _emberMetalInstrumentation.flaggedInstrument;
   exports._instrumentStart = _emberMetalInstrumentation._instrumentStart;
@@ -15151,12 +15153,14 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.getOnerror = _emberMetalError_handler.getOnerror;
   exports.setOnerror = _emberMetalError_handler.setOnerror;
   exports.dispatchError = _emberMetalError_handler.dispatchError;
+  exports.setDispatchOverride = _emberMetalError_handler.setDispatchOverride;
   exports.META_DESC = _emberMetalMeta.META_DESC;
   exports.meta = _emberMetalMeta.meta;
   exports.Error = _emberMetalError.default;
   exports.Cache = _emberMetalCache.default;
   exports.isFeatureEnabled = _emberMetalFeatures.default;
   exports.FEATURES = _emberMetalFeatures.FEATURES;
+  exports.DEFAULT_FEATURES = _emberMetalFeatures.DEFAULT_FEATURES;
   exports._getPath = _emberMetalProperty_get._getPath;
   exports.get = _emberMetalProperty_get.get;
   exports.getWithDefault = _emberMetalProperty_get.getWithDefault;
@@ -20948,7 +20952,7 @@ enifed('ember-routing/ext/run_loop', ['exports', 'ember-metal'], function (expor
   // 'actions' queue first.
   _emberMetal.run._addQueue('routerTransitions', 'actions');
 });
-enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route', 'ember-routing/system/query_params'], function (exports, _emberRoutingExtRun_loop, _emberRoutingExtController, _emberRoutingLocationApi, _emberRoutingLocationNone_location, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingSystemGenerate_controller, _emberRoutingSystemController_for, _emberRoutingSystemDsl, _emberRoutingSystemRouter, _emberRoutingSystemRoute, _emberRoutingSystemQuery_params) {
+enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route', 'ember-routing/system/query_params', 'ember-routing/services/routing', 'ember-routing/system/cache'], function (exports, _emberRoutingExtRun_loop, _emberRoutingExtController, _emberRoutingLocationApi, _emberRoutingLocationNone_location, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingSystemGenerate_controller, _emberRoutingSystemController_for, _emberRoutingSystemDsl, _emberRoutingSystemRouter, _emberRoutingSystemRoute, _emberRoutingSystemQuery_params, _emberRoutingServicesRouting, _emberRoutingSystemCache) {
   /**
   @module ember
   @submodule ember-routing
@@ -20969,6 +20973,8 @@ enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-r
   exports.Router = _emberRoutingSystemRouter.default;
   exports.Route = _emberRoutingSystemRoute.default;
   exports.QueryParams = _emberRoutingSystemQuery_params.default;
+  exports.RoutingService = _emberRoutingServicesRouting.default;
+  exports.BucketCache = _emberRoutingSystemCache.default;
 });
 enifed('ember-routing/location/api', ['exports', 'ember-metal', 'ember-environment', 'ember-routing/location/util'], function (exports, _emberMetal, _emberEnvironment, _emberRoutingLocationUtil) {
   'use strict';
@@ -28300,6 +28306,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.Object = _emberRuntimeSystemObject.default;
   exports.String = _emberRuntimeSystemString.default;
   exports.RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
+  exports.buildFakeRegistryWithDeprecations = _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations;
   exports.ContainerProxyMixin = _emberRuntimeMixinsContainer_proxy.default;
   exports.copy = _emberRuntimeCopy.default;
   exports.inject = _emberRuntimeInject.default;
@@ -28308,6 +28315,8 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.Array = _emberRuntimeMixinsArray.default;
   exports.objectAt = _emberRuntimeMixinsArray.objectAt;
   exports.isEmberArray = _emberRuntimeMixinsArray.isEmberArray;
+  exports.addArrayObserver = _emberRuntimeMixinsArray.addArrayObserver;
+  exports.removeArrayObserver = _emberRuntimeMixinsArray.removeArrayObserver;
   exports.Comparable = _emberRuntimeMixinsComparable.default;
   exports.Namespace = _emberRuntimeSystemNamespace.default;
   exports.isNamespaceSearchDisabled = _emberRuntimeSystemNamespace.isSearchDisabled;
@@ -28328,6 +28337,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.isProxy = _emberRuntimeMixinsProxy.isProxy;
   exports.onLoad = _emberRuntimeSystemLazy_load.onLoad;
   exports.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
+  exports._loaded = _emberRuntimeSystemLazy_load._loaded;
   exports.Observable = _emberRuntimeMixinsObservable.default;
   exports.MutableEnumerable = _emberRuntimeMixinsMutable_enumerable.default;
   exports.MutableArray = _emberRuntimeMixinsMutable_array.default;
@@ -38214,7 +38224,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+504a6e05";
+  exports.default = "2.9.0-null+2849f5f8";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime', 'require'], function (exports, _container, _emberApplication, _emberRuntime, _require) {
   'use strict';

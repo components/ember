@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+504a6e05
+ * @version   2.9.0-null+2849f5f8
  */
 
 var enifed, requireModule, require, Ember;
@@ -5392,6 +5392,8 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.deprecate = _emberMetalDebug.deprecate;
   exports.deprecateFunc = _emberMetalDebug.deprecateFunc;
   exports.runInDebug = _emberMetalDebug.runInDebug;
+  exports.setDebugFunction = _emberMetalDebug.setDebugFunction;
+  exports.getDebugFunction = _emberMetalDebug.getDebugFunction;
   exports.instrument = _emberMetalInstrumentation.instrument;
   exports.flaggedInstrument = _emberMetalInstrumentation.flaggedInstrument;
   exports._instrumentStart = _emberMetalInstrumentation._instrumentStart;
@@ -5415,12 +5417,14 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.getOnerror = _emberMetalError_handler.getOnerror;
   exports.setOnerror = _emberMetalError_handler.setOnerror;
   exports.dispatchError = _emberMetalError_handler.dispatchError;
+  exports.setDispatchOverride = _emberMetalError_handler.setDispatchOverride;
   exports.META_DESC = _emberMetalMeta.META_DESC;
   exports.meta = _emberMetalMeta.meta;
   exports.Error = _emberMetalError.default;
   exports.Cache = _emberMetalCache.default;
   exports.isFeatureEnabled = _emberMetalFeatures.default;
   exports.FEATURES = _emberMetalFeatures.FEATURES;
+  exports.DEFAULT_FEATURES = _emberMetalFeatures.DEFAULT_FEATURES;
   exports._getPath = _emberMetalProperty_get._getPath;
   exports.get = _emberMetalProperty_get.get;
   exports.getWithDefault = _emberMetalProperty_get.getWithDefault;
@@ -13215,6 +13219,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.Object = _emberRuntimeSystemObject.default;
   exports.String = _emberRuntimeSystemString.default;
   exports.RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
+  exports.buildFakeRegistryWithDeprecations = _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations;
   exports.ContainerProxyMixin = _emberRuntimeMixinsContainer_proxy.default;
   exports.copy = _emberRuntimeCopy.default;
   exports.inject = _emberRuntimeInject.default;
@@ -13223,6 +13228,8 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.Array = _emberRuntimeMixinsArray.default;
   exports.objectAt = _emberRuntimeMixinsArray.objectAt;
   exports.isEmberArray = _emberRuntimeMixinsArray.isEmberArray;
+  exports.addArrayObserver = _emberRuntimeMixinsArray.addArrayObserver;
+  exports.removeArrayObserver = _emberRuntimeMixinsArray.removeArrayObserver;
   exports.Comparable = _emberRuntimeMixinsComparable.default;
   exports.Namespace = _emberRuntimeSystemNamespace.default;
   exports.isNamespaceSearchDisabled = _emberRuntimeSystemNamespace.isSearchDisabled;
@@ -13243,6 +13250,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.isProxy = _emberRuntimeMixinsProxy.isProxy;
   exports.onLoad = _emberRuntimeSystemLazy_load.onLoad;
   exports.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
+  exports._loaded = _emberRuntimeSystemLazy_load._loaded;
   exports.Observable = _emberRuntimeMixinsObservable.default;
   exports.MutableEnumerable = _emberRuntimeMixinsMutable_enumerable.default;
   exports.MutableArray = _emberRuntimeMixinsMutable_array.default;
@@ -19863,7 +19871,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+504a6e05";
+  exports.default = "2.9.0-null+2849f5f8";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
