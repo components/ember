@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+2849f5f8
+ * @version   2.9.0-null+eb570b43
  */
 
 var enifed, requireModule, require, Ember;
@@ -7222,6 +7222,14 @@ enifed('ember-glimmer/component', ['exports', 'ember-views', 'ember-runtime', 'e
    @public
    @since 1.13.0
    */
+
+  /**
+   If `false`, the view will appear hidden in DOM.
+    @property isVisible
+   @type Boolean
+   @default null
+   @public
+   */
   Component[_emberMetal.NAME_KEY] = 'Ember.Component';
 
   Component.reopenClass({
@@ -7292,8 +7300,6 @@ enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal', 'ember-gl
   */
   exports.default = _emberGlimmerComponent.default.extend({
     layout: _emberGlimmerTemplatesEmpty.default,
-    instrumentDisplay: '{{input type="checkbox"}}',
-
     classNames: ['ember-checkbox'],
 
     tagName: 'input',
@@ -8156,8 +8162,6 @@ enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/componen
     @public
   */
   exports.default = _emberGlimmerComponent.default.extend(_emberViews.TextSupport, {
-    instrumentDisplay: '{{textarea}}',
-
     classNames: ['ember-text-area'],
 
     layout: _emberGlimmerTemplatesEmpty.default,
@@ -8222,8 +8226,6 @@ enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-
   */
   exports.default = _emberGlimmerComponent.default.extend(_emberViews.TextSupport, {
     layout: _emberGlimmerTemplatesEmpty.default,
-    instrumentDisplay: '{{input type="text"}}',
-
     classNames: ['ember-text-field'],
     tagName: 'input',
     attributeBindings: ['accept', 'autocomplete', 'autosave', 'dir', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget', 'height', 'inputmode', 'lang', 'list', 'max', 'min', 'multiple', 'name', 'pattern', 'size', 'step', 'type', 'value', 'width'],
@@ -25803,7 +25805,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal'
     init: function () {
       this._super.apply(this, arguments);
 
-      this._activeViews = {};
       this._qpCache = new _emberMetal.EmptyObject();
       this._resetQueuedQueryParameterChanges();
       this._handledErrors = _emberMetal.dictionary(null);
@@ -26142,10 +26143,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal'
       this.reset();
     },
 
-    _lookupActiveComponentNode: function (templateName) {
-      return this._activeViews[templateName];
-    },
-
     /*
       Called when an active route's query parameter has changed.
       These changes are batched into a runloop run and trigger
@@ -26179,18 +26176,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal'
     _fireQueryParamTransition: function () {
       this.transitionTo({ queryParams: this._queuedQPChanges });
       this._resetQueuedQueryParameterChanges();
-    },
-
-    _connectActiveComponentNode: function (templateName, componentNode) {
-      _emberMetal.assert('cannot connect an activeView that already exists', !this._activeViews[templateName]);
-
-      var _activeViews = this._activeViews;
-      function disconnectActiveView() {
-        delete _activeViews[templateName];
-      }
-
-      this._activeViews[templateName] = componentNode;
-      componentNode.renderNode.addDestruction({ destroy: disconnectActiveView });
     },
 
     _setupLocation: function () {
@@ -37699,16 +37684,10 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
     return array;
   }
 });
-enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-views/compat/attrs', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
 
-  exports.deprecation = deprecation;
   exports.getAttrFor = getAttrFor;
-
-  function deprecation(key) {
-    return 'You tried to look up an attribute directly on the component. This is deprecated. Use attrs.' + key + ' instead.';
-  }
-
   var MUTABLE_CELL = _emberMetal.symbol('MUTABLE_CELL');
 
   exports.MUTABLE_CELL = MUTABLE_CELL;
@@ -37720,47 +37699,6 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal'], function (e
     var val = attrs[key];
     return isCell(val) ? val.value : val;
   }
-
-  var AttrsProxyMixin = {
-    attrs: null,
-
-    getAttr: function (key) {
-      var attrs = this.attrs;
-      if (!attrs) {
-        return;
-      }
-      return getAttrFor(attrs, key);
-    },
-
-    setAttr: function (key, value) {
-      var attrs = this.attrs;
-      var val = attrs[key];
-
-      if (!isCell(val)) {
-        throw new Error('You can\'t update attrs.' + key + ', because it\'s not mutable');
-      }
-
-      val.update(value);
-    },
-
-    _propagateAttrsToThis: function (attrs) {
-      this._isDispatchingAttrs = true;
-      this.setProperties(attrs);
-      this._isDispatchingAttrs = false;
-    }
-  };
-
-  AttrsProxyMixin[_emberMetal.PROPERTY_DID_CHANGE] = function (key) {
-    if (this._isDispatchingAttrs) {
-      return;
-    }
-
-    if (this._currentState) {
-      this._currentState.legacyPropertyDidChange(this, key);
-    }
-  };
-
-  exports.default = _emberMetal.Mixin.create(AttrsProxyMixin);
 });
 enifed('ember-views/compat/fallback-view-registry', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
@@ -37786,7 +37724,7 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal', 'ember-runtime
     }
   });
 });
-enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/event_dispatcher', 'ember-views/component_lookup', 'ember-views/mixins/text_support', 'ember-views/views/core_view', 'ember-views/mixins/class_names_support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-views/compat/attrs-proxy', 'ember-views/system/lookup_partial', 'ember-views/utils/lookup-component', 'ember-views/system/action_manager', 'ember-views/compat/fallback-view-registry'], function (exports, _emberViewsSystemExt, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemEvent_dispatcher, _emberViewsComponent_lookup, _emberViewsMixinsText_support, _emberViewsViewsCore_view, _emberViewsMixinsClass_names_support, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberViewsCompatAttrsProxy, _emberViewsSystemLookup_partial, _emberViewsUtilsLookupComponent, _emberViewsSystemAction_manager, _emberViewsCompatFallbackViewRegistry) {
+enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/event_dispatcher', 'ember-views/component_lookup', 'ember-views/mixins/text_support', 'ember-views/views/core_view', 'ember-views/mixins/class_names_support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-views/compat/attrs', 'ember-views/system/lookup_partial', 'ember-views/utils/lookup-component', 'ember-views/system/action_manager', 'ember-views/compat/fallback-view-registry'], function (exports, _emberViewsSystemExt, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemEvent_dispatcher, _emberViewsComponent_lookup, _emberViewsMixinsText_support, _emberViewsViewsCore_view, _emberViewsMixinsClass_names_support, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsView_support, _emberViewsMixinsAction_support, _emberViewsCompatAttrs, _emberViewsSystemLookup_partial, _emberViewsUtilsLookupComponent, _emberViewsSystemAction_manager, _emberViewsCompatFallbackViewRegistry) {
   /**
   @module ember
   @submodule ember-views
@@ -37812,8 +37750,8 @@ enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/s
   exports.ViewStateSupport = _emberViewsMixinsView_state_support.default;
   exports.ViewMixin = _emberViewsMixinsView_support.default;
   exports.ActionSupport = _emberViewsMixinsAction_support.default;
-  exports.getAttrFor = _emberViewsCompatAttrsProxy.getAttrFor;
-  exports.MUTABLE_CELL = _emberViewsCompatAttrsProxy.MUTABLE_CELL;
+  exports.getAttrFor = _emberViewsCompatAttrs.getAttrFor;
+  exports.MUTABLE_CELL = _emberViewsCompatAttrs.MUTABLE_CELL;
   exports.lookupPartial = _emberViewsSystemLookup_partial.default;
   exports.hasPartial = _emberViewsSystemLookup_partial.hasPartial;
   exports.lookupComponent = _emberViewsUtilsLookupComponent.default;
@@ -37821,7 +37759,7 @@ enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/s
   exports.fallbackViewRegistry = _emberViewsCompatFallbackViewRegistry.default;
 });
 // for the side effect of extending Ember.run.queues
-enifed('ember-views/mixins/action_support', ['exports', 'ember-metal', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetal, _emberViewsCompatAttrsProxy) {
+enifed('ember-views/mixins/action_support', ['exports', 'ember-metal', 'ember-views/compat/attrs'], function (exports, _emberMetal, _emberViewsCompatAttrs) {
   /**
    @module ember
    @submodule ember-views
@@ -37829,7 +37767,7 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-metal', 'ember-vi
   'use strict';
 
   function validateAction(component, actionName) {
-    if (actionName && actionName[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
+    if (actionName && actionName[_emberViewsCompatAttrs.MUTABLE_CELL]) {
       actionName = actionName.value;
     }
 
@@ -38084,142 +38022,6 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal'], fun
       @public
     */
     classNameBindings: EMPTY_ARRAY
-  });
-});
-enifed('ember-views/mixins/instrumentation_support', ['exports', 'ember-metal'], function (exports, _emberMetal) {
-  /**
-  @module ember
-  @submodule ember-views
-  */
-  'use strict';
-
-  /**
-    @class InstrumentationSupport
-    @namespace Ember
-    @public
-  */
-  exports.default = _emberMetal.Mixin.create({
-    /**
-      Used to identify this view during debugging
-       @property instrumentDisplay
-      @type String
-      @public
-    */
-    instrumentDisplay: '',
-
-    instrumentName: 'view',
-
-    instrumentDetails: function (hash) {
-      hash.template = _emberMetal.get(this, 'templateName');
-      return this._super(hash);
-    }
-  });
-});
-enifed('ember-views/mixins/template_support', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
-  'use strict';
-
-  exports.default = _emberMetal.Mixin.create({
-    /**
-      @property isView
-      @type Boolean
-      @default true
-      @static
-      @private
-    */
-    isView: true,
-
-    // ..........................................................
-    // TEMPLATE SUPPORT
-    //
-
-    /**
-      The name of the template to lookup if no template is provided.
-       By default `Ember.View` will lookup a template with this name in
-      `Ember.TEMPLATES` (a shared global object).
-       @property templateName
-      @type String
-      @default null
-      @private
-    */
-    templateName: null,
-
-    /**
-      The name of the layout to lookup if no layout is provided.
-       By default `Ember.View` will lookup a template with this name in
-      `Ember.TEMPLATES` (a shared global object).
-       @property layoutName
-      @type String
-      @default null
-      @private
-    */
-
-    /**
-      The template used to render the view. This should be a function that
-      accepts an optional context parameter and returns a string of HTML that
-      will be inserted into the DOM relative to its parent view.
-       In general, you should set the `templateName` property instead of setting
-      the template yourself.
-       @property template
-      @type Function
-      @private
-    */
-    template: _emberMetal.computed({
-      get: function () {
-        var templateName = _emberMetal.get(this, 'templateName');
-        var template = this.templateForName(templateName, 'template');
-        _emberMetal.assert('You specified the templateName ' + templateName + ' for ' + this + ', but it did not exist.', !templateName || !!template);
-        return template || _emberMetal.get(this, 'defaultTemplate');
-      },
-      set: function (key, value) {
-        if (value !== undefined) {
-          return value;
-        }
-        return _emberMetal.get(this, key);
-      }
-    }),
-
-    /**
-      A view may contain a layout. A layout is a regular template but
-      supersedes the `template` property during rendering. It is the
-      responsibility of the layout template to retrieve the `template`
-      property from the view (or alternatively, call `Handlebars.helpers.yield`,
-      `{{yield}}`) to render it in the correct location.
-       This is useful for a view that has a shared wrapper, but which delegates
-      the rendering of the contents of the wrapper to the `template` property
-      on a subclass.
-       @property layout
-      @type Function
-      @private
-    */
-    layout: _emberMetal.computed({
-      get: function (key) {
-        var layoutName = _emberMetal.get(this, 'layoutName');
-        var layout = this.templateForName(layoutName, 'layout');
-
-        _emberMetal.assert('You specified the layoutName ' + layoutName + ' for ' + this + ', but it did not exist.', !layoutName || !!layout);
-
-        return layout || _emberMetal.get(this, 'defaultLayout');
-      },
-
-      set: function (key, value) {
-        return value;
-      }
-    }),
-
-    templateForName: function (name, type) {
-      if (!name) {
-        return;
-      }
-      _emberMetal.assert('templateNames are not allowed to contain periods: ' + name, name.indexOf('.') === -1);
-
-      var owner = _container.getOwner(this);
-
-      if (!owner) {
-        throw new _emberMetal.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
-      }
-
-      return owner.lookup('template:' + name);
-    }
   });
 });
 enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runtime'], function (exports, _emberMetal, _emberRuntime) {
@@ -38945,8 +38747,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal', 'ember-runt
         this.elementId = _emberMetal.guidFor(this);
       }
 
-      this.scheduledRevalidation = false;
-
       this[INIT_WAS_CALLED] = true;
 
       if (typeof this.didInitAttrs === 'function') {
@@ -38968,26 +38768,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal', 'ember-runt
     this.renderer.componentInitAttrs(this, this.attrs || {});
   }, _Mixin$create.__defineNonEnumerable = function (property) {
     this[property.name] = property.descriptor.value;
-  }, _Mixin$create.revalidate = function () {
-    this.renderer.revalidateTopLevelView(this);
-    this.scheduledRevalidation = false;
-  }, _Mixin$create.scheduleRevalidate = function (node, label, manualRerender) {
-    if (node && !this._dispatching && this._env.renderedNodes.has(node)) {
-      if (manualRerender) {
-        _emberMetal.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 3.0', false, { id: 'ember-views.manual-parent-rerender', until: '3.0.0' });
-      } else {
-        _emberMetal.deprecate('You modified ' + label + ' twice in a single render. This was unreliable in Ember 1.x and will be removed in Ember 3.0', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
-      }
-      _emberMetal.run.scheduleOnce('render', this, this.revalidate);
-      return;
-    }
-
-    _emberMetal.deprecate('A property of ' + this + ' was modified inside the ' + this._dispatching + ' hook. You should never change properties on components, services or models during ' + this._dispatching + ' because it causes significant performance degradation.', !this._dispatching, { id: 'ember-views.dispatching-modify-property', until: '3.0.0' });
-
-    if (!this.scheduledRevalidation || this._dispatching) {
-      this.scheduledRevalidation = true;
-      _emberMetal.run.scheduleOnce('render', this, this.revalidate);
-    }
   }, _Mixin$create.handleEvent = function (eventName, evt) {
     return this._currentState.handleEvent(this, eventName, evt);
   }, _Mixin$create));
@@ -39012,113 +38792,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal', 'ember-runt
   @param evt {Event}
   @private
 */
-enifed('ember-views/mixins/visibility_support', ['exports', 'ember-metal'], function (exports, _emberMetal) {
-  /**
-   @module ember
-   @submodule ember-views
-  */
-  'use strict';
-
-  function K() {
-    return this;
-  }
-
-  /**
-   @class VisibilitySupport
-   @namespace Ember
-   @public
-  */
-  exports.default = _emberMetal.Mixin.create({
-    /**
-      If `false`, the view will appear hidden in DOM.
-       @property isVisible
-      @type Boolean
-      @default null
-      @public
-    */
-    isVisible: true,
-
-    becameVisible: K,
-    becameHidden: K,
-
-    /**
-      When the view's `isVisible` property changes, toggle the visibility
-      element of the actual DOM element.
-       @method _isVisibleDidChange
-      @private
-    */
-    _isVisibleDidChange: _emberMetal.observer('isVisible', function () {
-      if (this._isVisible === _emberMetal.get(this, 'isVisible')) {
-        return;
-      }
-      _emberMetal.run.scheduleOnce('render', this, this._toggleVisibility);
-    }),
-
-    _toggleVisibility: function () {
-      var $el = this.$();
-      var isVisible = _emberMetal.get(this, 'isVisible');
-
-      if (this._isVisible === isVisible) {
-        return;
-      }
-
-      // It's important to keep these in sync, even if we don't yet have
-      // an element in the DOM to manipulate:
-      this._isVisible = isVisible;
-
-      if (!$el) {
-        return;
-      }
-
-      $el.toggle(isVisible);
-
-      if (this._isAncestorHidden()) {
-        return;
-      }
-
-      if (isVisible) {
-        this._notifyBecameVisible();
-      } else {
-        this._notifyBecameHidden();
-      }
-    },
-
-    _notifyBecameVisible: function () {
-      this.trigger('becameVisible');
-      var childViews = this.childViews;
-      for (var i = 0; i < childViews.length; i++) {
-        var view = childViews[i];
-        var isVisible = _emberMetal.get(view, 'isVisible');
-        if (isVisible || isVisible === null) {
-          view._notifyBecameVisible();
-        }
-      }
-    },
-
-    _notifyBecameHidden: function () {
-      this.trigger('becameHidden');
-      var childViews = this.childViews;
-      for (var i = 0; i < childViews.length; i++) {
-        var view = childViews[i];
-        var isVisible = _emberMetal.get(view, 'isVisible');
-        if (isVisible || isVisible === null) {
-          view._notifyBecameHidden();
-        }
-      }
-    },
-
-    _isAncestorHidden: function () {
-      var parent = this.parentView;
-      while (parent) {
-        if (_emberMetal.get(parent, 'isVisible') === false) {
-          return true;
-        }
-        parent = parent.parentView;
-      }
-      return false;
-    }
-  });
-});
 enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   /**
   @module ember
@@ -39730,7 +39403,7 @@ enifed('ember-views/utils/lookup-component', ['exports', 'container'], function 
     return lookupComponentPair(componentLookup, owner, name);
   }
 });
-enifed('ember-views/views/core_view', ['exports', 'ember-metal', 'ember-runtime', 'ember-views/views/states'], function (exports, _emberMetal, _emberRuntime, _emberViewsViewsStates) {
+enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/views/states'], function (exports, _emberRuntime, _emberViewsViewsStates) {
   'use strict';
 
   /**
@@ -39759,15 +39432,11 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal', 'ember-runtime'
       this._state = 'preRender';
       this._currentState = this._states.preRender;
       this._willInsert = false;
-      this._renderNode = null;
       this.lastResult = null;
-      this._dispatching = null;
       this._destroyingSubtreeForView = null;
       this._isDispatchingAttrs = false;
-      this._isVisible = false;
       this.element = null;
       this._env = null;
-      this._isVisible = _emberMetal.get(this, 'isVisible');
 
       if (!this.renderer) {
         throw new Error('Cannot instantiate a component without a renderer. Please ensure that you are creating ' + this + ' with a proper container/registry.');
@@ -39783,8 +39452,6 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal', 'ember-runtime'
       @private
     */
     parentView: null,
-
-    instrumentName: 'core_view',
 
     instrumentDetails: function (hash) {
       hash.object = this.toString();
@@ -39859,7 +39526,7 @@ enifed('ember-views/views/states', ['exports', 'ember-metal', 'ember-views/views
   };
   exports.states = states;
 });
-enifed('ember-views/views/states/default', ['exports', 'ember-metal', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetal, _emberViewsCompatAttrsProxy) {
+enifed('ember-views/views/states/default', ['exports', 'ember-metal', 'ember-views/compat/attrs'], function (exports, _emberMetal, _emberViewsCompatAttrs) {
   'use strict';
 
   /**
@@ -39885,7 +39552,7 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal', 'ember-vie
       if (attrs && key in attrs) {
         var possibleCell = attrs[key];
 
-        if (possibleCell && possibleCell[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
+        if (possibleCell && possibleCell[_emberViewsCompatAttrs.MUTABLE_CELL]) {
           var value = _emberMetal.get(view, key);
           if (value === possibleCell.value) {
             return;
@@ -40023,7 +39690,7 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 
   exports.default = preRender;
 });
-enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy, _emberViewsMixinsView_support) {
+enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/view_support'], function (exports, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsChild_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsView_support) {
   'use strict';
 
   /**
@@ -40515,12 +40182,10 @@ enifed('ember-views/views/view', ['exports', 'ember-views/system/ext', 'ember-vi
     @uses Ember.ViewChildViewsSupport
     @uses Ember.ClassNamesSupport
     @uses Ember.AttributeBindingsSupport
-    @uses Ember.InstrumentationSupport
-    @uses Ember.VisibilitySupport
     @public
   */
   // jscs:disable validateIndentation
-  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsInstrumentation_support.default, _emberViewsMixinsVisibility_support.default, _emberViewsCompatAttrsProxy.default, _emberViewsMixinsView_support.default);
+  var View = _emberViewsViewsCore_view.default.extend(_emberViewsMixinsChild_views_support.default, _emberViewsMixinsView_state_support.default, _emberViewsMixinsClass_names_support.default, _emberViewsMixinsView_support.default);
 
   // jscs:enable validateIndentation
 
@@ -41090,7 +40755,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+2849f5f8";
+  exports.default = "2.9.0-null+eb570b43";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime', 'require'], function (exports, _container, _emberApplication, _emberRuntime, _require) {
   'use strict';
