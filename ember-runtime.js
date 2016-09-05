@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+2a44a85b
+ * @version   2.9.0-null+de4d6b6f
  */
 
 var enifed, requireModule, require, Ember;
@@ -5420,6 +5420,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.setDispatchOverride = _emberMetalError_handler.setDispatchOverride;
   exports.META_DESC = _emberMetalMeta.META_DESC;
   exports.meta = _emberMetalMeta.meta;
+  exports.peekMeta = _emberMetalMeta.peekMeta;
   exports.Error = _emberMetalError.default;
   exports.Cache = _emberMetalCache.default;
   exports.isFeatureEnabled = _emberMetalFeatures.default;
@@ -5468,6 +5469,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.rewatch = _emberMetalWatching.rewatch;
   exports.unwatch = _emberMetalWatching.unwatch;
   exports.watch = _emberMetalWatching.watch;
+  exports.watcherCount = _emberMetalWatching.watcherCount;
   exports.libraries = _emberMetalLibraries.default;
   exports.Map = _emberMetalMap.Map;
   exports.MapWithDefault = _emberMetalMap.MapWithDefault;
@@ -13232,6 +13234,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.Observable = _emberRuntimeMixinsObservable.default;
   exports.MutableEnumerable = _emberRuntimeMixinsMutable_enumerable.default;
   exports.MutableArray = _emberRuntimeMixinsMutable_array.default;
+  exports.removeAt = _emberRuntimeMixinsMutable_array.removeAt;
   exports.TargetActionSupport = _emberRuntimeMixinsTarget_action_support.default;
   exports.Evented = _emberRuntimeMixinsEvented.default;
   exports.PromiseProxyMixin = _emberRuntimeMixinsPromise_proxy.default;
@@ -13271,6 +13274,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.ControllerMixin = _emberRuntimeMixinsController.default;
   exports.Service = _emberRuntimeSystemService.default;
   exports.RSVP = _emberRuntimeExtRsvp.default;
+  exports.onerrorDefault = _emberRuntimeExtRsvp.onerrorDefault;
   // just for side effect of extending Ember.RSVP
   exports.isArray = _emberRuntimeUtils.isArray;
   exports.typeOf = _emberRuntimeUtils.typeOf;
@@ -19854,7 +19858,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+2a44a85b";
+  exports.default = "2.9.0-null+de4d6b6f";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
