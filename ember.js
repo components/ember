@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+eb570b43
+ * @version   2.9.0-null+2a44a85b
  */
 
 var enifed, requireModule, require, Ember;
@@ -18372,8 +18372,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     added to other classes. For instance,
   
     ```javascript
-    App.Editable = Ember.Mixin.create({
-      edit: function() {
+    const EditableMixin = Ember.Mixin.create({
+      edit() {
         console.log('starting to edit');
         this.set('isEditing', true);
       },
@@ -18381,13 +18381,13 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     });
   
     // Mix mixins into classes by passing them as the first arguments to
-    // .extend.
-    App.CommentView = Ember.View.extend(App.Editable, {
-      template: Ember.Handlebars.compile('{{#if view.isEditing}}...{{else}}...{{/if}}')
+    // `.extend.`
+    const Comment = Ember.Object.extend(EditableMixin, {
+      post: null
     });
   
-    commentView = App.CommentView.create();
-    commentView.edit(); // outputs 'starting to edit'
+    let comment = Comment.create(post: somePost);
+    comment.edit(); // outputs 'starting to edit'
     ```
   
     Note that Mixins are created with `Ember.Mixin.create`, not
@@ -18399,19 +18399,21 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     it either as a computed property or have it be created on initialization of the object.
   
     ```javascript
-    //filters array will be shared amongst any object implementing mixin
-    App.Filterable = Ember.Mixin.create({
+    // filters array will be shared amongst any object implementing mixin
+    const FilterableMixin = Ember.Mixin.create({
       filters: Ember.A()
     });
   
-    //filters will be a separate  array for every object implementing the mixin
-    App.Filterable = Ember.Mixin.create({
-      filters: Ember.computed(function() {return Ember.A();})
+    // filters will be a separate array for every object implementing the mixin
+    const FilterableMixin = Ember.Mixin.create({
+      filters: Ember.computed(function() {
+        return Ember.A();
+      })
     });
   
-    //filters will be created as a separate array during the object's initialization
-    App.Filterable = Ember.Mixin.create({
-      init: function() {
+    // filters will be created as a separate array during the object's initialization
+    const Filterable = Ember.Mixin.create({
+      init() {
         this._super(...arguments);
         this.set("filters", Ember.A());
       }
@@ -18798,30 +18800,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
   
     A `_beforeObserver` fires before a property changes.
   
-    A `_beforeObserver` is an alternative form of `.observesBefore()`.
-  
-    ```javascript
-    App.PersonView = Ember.View.extend({
-      friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],
-  
-      valueDidChange: Ember.observer('content.value', function(obj, keyName) {
-          // only run if updating a value already in the DOM
-          if (this.get('state') === 'inDOM') {
-            let color = obj.get(keyName) > this.changingFrom ? 'green' : 'red';
-            // logic
-          }
-      }),
-  
-      friendsDidChange: Ember.observer('friends.@each.name', function(obj, keyName) {
-        // some logic
-        // obj.get(keyName) returns friends array
-      })
-    });
-    ```
-  
-    Also available as `Function.prototype.observesBefore` if prototype extensions are
-    enabled.
-  
     @method beforeObserver
     @for Ember
     @param {String} propertyNames*
@@ -18859,7 +18837,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     }
 
     if (typeof func !== 'function') {
-      throw new _emberMetalError.default('Ember.beforeObserver called without a function');
+      throw new _emberMetalError.default('_beforeObserver called without a function');
     }
 
     func.__ember_observesBefore__ = paths;
@@ -29768,7 +29746,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], functi
 
   /**
     `Ember.ActionHandler` is available on some familiar classes including
-    `Ember.Route`, `Ember.View`, `Ember.Component`, and `Ember.Controller`.
+    `Ember.Route`, `Ember.Component`, and `Ember.Controller`.
     (Internally the mixin is used by `Ember.CoreView`, `Ember.ControllerMixin`,
     and `Ember.Route` and available to the above classes through
     inheritance.)
@@ -29811,8 +29789,8 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], functi
       this.send('displayBanner');
       this.send('playMusic');
       ```
-       Within a Controller, Route, View or Component's action handler,
-      the value of the `this` context is the Controller, Route, View or
+       Within a Controller, Route or Component's action handler,
+      the value of the `this` context is the Controller, Route or
       Component object:
        ```js
       App.SongRoute = Ember.Route.extend({
@@ -34246,12 +34224,12 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
       does nothing unless it is overridden during class definition.
        Example:
        ```javascript
-      App.Person = Ember.Object.extend({
-        init: function() {
-          alert('Name is ' + this.get('name'));
+      const Person = Ember.Object.extend({
+        init() {
+          alert(`Name is ${this.get('name')}`);
         }
       });
-       var steve = App.Person.create({
+       let steve = Person.create({
         name: "Steve"
       });
        // alerts 'Name is Steve'.
@@ -34315,17 +34293,17 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
     /**
       Creates a new subclass.
        ```javascript
-      App.Person = Ember.Object.extend({
-        say: function(thing) {
+      const Person = Ember.Object.extend({
+        say(thing) {
           alert(thing);
          }
       });
       ```
-       This defines a new subclass of Ember.Object: `App.Person`. It contains one method: `say()`.
+       This defines a new subclass of Ember.Object: `Person`. It contains one method: `say()`.
        You can also create a subclass from any existing class by calling its `extend()` method.
-      For example, you might want to create a subclass of Ember's built-in `Ember.View` class:
+      For example, you might want to create a subclass of Ember's built-in `Ember.Component` class:
        ```javascript
-      App.PersonView = Ember.View.extend({
+      const PersonComponent = Ember.Component.extend({
         tagName: 'li',
         classNameBindings: ['isAdministrator']
       });
@@ -34333,47 +34311,47 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
        When defining a subclass, you can override methods but still access the
       implementation of your parent class by calling the special `_super()` method:
        ```javascript
-      App.Person = Ember.Object.extend({
-        say: function(thing) {
+      const Person = Ember.Object.extend({
+        say(thing) {
           var name = this.get('name');
-          alert(name + ' says: ' + thing);
+          alert(`${name} says: ${thing}`);
         }
       });
-       App.Soldier = App.Person.extend({
-        say: function(thing) {
-          this._super(thing + ", sir!");
+       const Soldier = Person.extend({
+        say(thing) {
+          this._super(`${thing}, sir!`);
         },
-        march: function(numberOfHours) {
-          alert(this.get('name') + ' marches for ' + numberOfHours + ' hours.');
+        march(numberOfHours) {
+          alert(`${this.get('name')} marches for ${numberOfHours} hours.`);
         }
       });
-       var yehuda = App.Soldier.create({
+       let yehuda = Soldier.create({
         name: "Yehuda Katz"
       });
        yehuda.say("Yes");  // alerts "Yehuda Katz says: Yes, sir!"
       ```
-       The `create()` on line #17 creates an *instance* of the `App.Soldier` class.
-      The `extend()` on line #8 creates a *subclass* of `App.Person`. Any instance
-      of the `App.Person` class will *not* have the `march()` method.
+       The `create()` on line #17 creates an *instance* of the `Soldier` class.
+      The `extend()` on line #8 creates a *subclass* of `Person`. Any instance
+      of the `Person` class will *not* have the `march()` method.
        You can also pass `Mixin` classes to add additional properties to the subclass.
        ```javascript
-      App.Person = Ember.Object.extend({
-        say: function(thing) {
-          alert(this.get('name') + ' says: ' + thing);
+      const Person = Ember.Object.extend({
+        say(thing) {
+          alert(`${this.get('name')} says: ${thing}`);
         }
       });
-       App.SingingMixin = Mixin.create({
-        sing: function(thing){
-          alert(this.get('name') + ' sings: la la la ' + thing);
+       const SingingMixin = Mixin.create({
+        sing(thing){
+          alert(`${this.get('name')} sings: la la la ${thing}`);
         }
       });
-       App.BroadwayStar = App.Person.extend(App.SingingMixin, {
-        dance: function() {
-          alert(this.get('name') + ' dances: tap tap tap tap ');
+       const BroadwayStar = Person.extend(SingingMixin, {
+        dance() {
+          alert(`${this.get('name')} dances: tap tap tap tap `);
         }
       });
       ```
-       The `App.BroadwayStar` class contains three methods: `say()`, `sing()`, and `dance()`.
+       The `BroadwayStar` class contains three methods: `say()`, `sing()`, and `dance()`.
        @method extend
       @static
        @param {Mixin} [mixins]* One or more Mixin classes
@@ -34407,12 +34385,12 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
       Creates an instance of a class. Accepts either no arguments, or an object
       containing values to initialize the newly instantiated object with.
        ```javascript
-      App.Person = Ember.Object.extend({
-        helloWorld: function() {
-          alert("Hi, my name is " + this.get('name'));
+      const Person = Ember.Object.extend({
+        helloWorld() {
+          alert(`Hi, my name is ${this.get('name')}`);
         }
       });
-       var tom = App.Person.create({
+       let tom = Person.create({
         name: 'Tom Dale'
       });
        tom.helloWorld(); // alerts "Hi, my name is Tom Dale".
@@ -34422,7 +34400,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
        If no arguments are passed to `create`, it will not set values to the new
       instance during initialization:
        ```javascript
-      var noName = App.Person.create();
+      let noName = Person.create();
       noName.helloWorld(); // alerts undefined
       ```
        NOTE: For performance reasons, you cannot declare methods or computed
@@ -34450,13 +34428,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
       Augments a constructor's prototype with additional
       properties and functions:
        ```javascript
-      MyObject = Ember.Object.extend({
+      const MyObject = Ember.Object.extend({
         name: 'an object'
       });
        o = MyObject.create();
       o.get('name'); // 'an object'
        MyObject.reopen({
-        say: function(msg){
+        say(msg){
           console.log(msg);
         }
       })
@@ -34478,7 +34456,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
     /**
       Augments a constructor's own properties and functions:
        ```javascript
-      MyObject = Ember.Object.extend({
+      const MyObject = Ember.Object.extend({
         name: 'an object'
       });
        MyObject.reopenClass({
@@ -34490,30 +34468,30 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
        In other words, this creates static properties and functions for the class.
       These are only available on the class and not on any instance of that class.
        ```javascript
-      App.Person = Ember.Object.extend({
-        name : "",
-        sayHello : function() {
+      const Person = Ember.Object.extend({
+        name: "",
+        sayHello() {
           alert("Hello. My name is " + this.get('name'));
         }
       });
-       App.Person.reopenClass({
-        species : "Homo sapiens",
-        createPerson: function(newPersonsName){
-          return App.Person.create({
+       Person.reopenClass({
+        species: "Homo sapiens",
+        createPerson(newPersonsName){
+          return Person.create({
             name:newPersonsName
           });
         }
       });
-       var tom = App.Person.create({
-        name : "Tom Dale"
+       let tom = Person.create({
+        name: "Tom Dale"
       });
-      var yehuda = App.Person.createPerson("Yehuda Katz");
+      let yehuda = Person.createPerson("Yehuda Katz");
        tom.sayHello(); // "Hello. My name is Tom Dale"
       yehuda.sayHello(); // "Hello. My name is Yehuda Katz"
-      alert(App.Person.species); // "Homo sapiens"
+      alert(Person.species); // "Homo sapiens"
       ```
        Note that `species` and `createPerson` are *not* valid on the `tom` and `yehuda`
-      variables. They are only valid on `App.Person`.
+      variables. They are only valid on `Person`.
        To add functions and properties to instances of
       a constructor by extending the constructor's prototype
       see `reopen`
@@ -34550,10 +34528,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
       no longer available for introspection.
        You can pass a hash of these values to a computed property like this:
        ```javascript
-      person: function() {
+      person: Ember.computed(function() {
         var personId = this.get('personId');
-        return App.Person.create({ id: personId });
-      }.property().meta({ type: App.Person })
+        return Person.create({ id: personId });
+      }).meta({ type: Person })
       ```
        Once you've done this, you can retrieve the values saved to the computed
       property from your class like this:
@@ -34690,39 +34668,41 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
    Here is some sample code showing the difference between a concatenated
   property and a normal one:
    ```javascript
-  App.BarView = Ember.View.extend({
-    someNonConcatenatedProperty: ['bar'],
-    classNames: ['bar']
+  const Bar = Ember.Object.extend({
+    // Configure which properties to concatenate
+    concatenatedProperties: ['concatenatedProperty'],
+     someNonConcatenatedProperty: ['bar'],
+    concatenatedProperty: ['bar']
   });
-   App.FooBarView = App.BarView.extend({
+   const FooBar = Bar.extend({
     someNonConcatenatedProperty: ['foo'],
-    classNames: ['foo']
+    concatenatedProperty: ['foo']
   });
-   var fooBarView = App.FooBarView.create();
-  fooBarView.get('someNonConcatenatedProperty'); // ['foo']
-  fooBarView.get('classNames'); // ['ember-view', 'bar', 'foo']
+   let fooBar = FooBar.create();
+  fooBar.get('someNonConcatenatedProperty'); // ['foo']
+  fooBar.get('concatenatedProperty'); // ['bar', 'foo']
   ```
    This behavior extends to object creation as well. Continuing the
   above example:
    ```javascript
-  var view = App.FooBarView.create({
+  let fooBar = FooBar.create({
     someNonConcatenatedProperty: ['baz'],
-    classNames: ['baz']
+    concatenatedProperty: ['baz']
   })
-  view.get('someNonConcatenatedProperty'); // ['baz']
-  view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
+  fooBar.get('someNonConcatenatedProperty'); // ['baz']
+  fooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
   ```
-  Adding a single property that is not an array will just add it in the array:
+   Adding a single property that is not an array will just add it in the array:
    ```javascript
-  var view = App.FooBarView.create({
-    classNames: 'baz'
+  let fooBar = FooBar.create({
+    concatenatedProperty: 'baz'
   })
-  view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
+  view.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
   ```
    Using the `concatenatedProperties` property, we can tell Ember to mix the
   content of the properties.
-   In `Ember.View` the `classNameBindings` and `attributeBindings` properties
-  are also concatenated, in addition to `classNames`.
+   In `Ember.Component` the `classNames`, `classNameBindings` and
+  `attributeBindings` properties are concatenated.
    This feature is available for you to use throughout the Ember object model,
   although typical app developers are likely to use it infrequently. Since
   it changes expectations about behavior of properties, you should properly
@@ -34746,30 +34726,32 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
    Here is some sample code showing the difference between a merged
   property and a normal one:
    ```javascript
-  App.BarRoute = Ember.Route.extend({
-    someNonMergedProperty: {
+  const Bar = Ember.Object.extend({
+    // Configure which properties are to be merged
+    mergedProperties: ['mergedProperty'],
+     someNonMergedProperty: {
       nonMerged: 'superclass value of nonMerged'
     },
-    queryParams: {
+    mergedProperty: {
       page: {replace: false},
       limit: {replace: true}
     }
   });
-   App.FooBarRoute = App.BarRoute.extend({
+   const FooBar = Bar.extend({
     someNonMergedProperty: {
       completelyNonMerged: 'subclass value of nonMerged'
     },
-    queryParams: {
+    mergedProperty: {
       limit: {replace: false}
     }
   });
-   var fooBarRoute = App.FooBarRoute.create();
-   fooBarRoute.get('someNonMergedProperty');
+   let fooBar = FooBar.create();
+   fooBar.get('someNonMergedProperty');
   // => { completelyNonMerged: 'subclass value of nonMerged' }
   //
   // Note the entire object, including the nonMerged property of
   // the superclass object, has been replaced
-   fooBarRoute.get('queryParams');
+   fooBar.get('mergedProperty');
   // => {
   //   page: {replace: false},
   //   limit: {replace: false}
@@ -34781,6 +34763,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
   ```
    This behavior is not available during object `create` calls. It is only
   available at `extend` time.
+   In `Ember.Route` the `queryParams` property is merged.
    This feature is available for you to use throughout the Ember object model,
   although typical app developers are likely to use it infrequently. Since
   it changes expectations about behavior of properties, you should properly
@@ -34840,27 +34823,27 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-run
   than Javascript's `toString` typically does, in a generic way for all Ember
   objects.
    ```javascript
-  App.Person = Em.Object.extend()
-  person = App.Person.create()
-  person.toString() //=> "<App.Person:ember1024>"
+  const Person = Ember.Object.extend()
+  person = Person.create()
+  person.toString() //=> "<Person:ember1024>"
   ```
    If the object's class is not defined on an Ember namespace, it will
   indicate it is a subclass of the registered superclass:
   ```javascript
-  Student = App.Person.extend()
-  student = Student.create()
-  student.toString() //=> "<(subclass of App.Person):ember1025>"
+  const Student = Person.extend()
+  let student = Student.create()
+  student.toString() //=> "<(subclass of Person):ember1025>"
   ```
    If the method `toStringExtension` is defined, its return value will be
   included in the output.
    ```javascript
-  App.Teacher = App.Person.extend({
-    toStringExtension: function() {
+  const Teacher = Person.extend({
+    toStringExtension() {
       return this.get('fullName');
     }
   });
-  teacher = App.Teacher.create()
-  teacher.toString(); //=> "<App.Teacher:ember1026:Tom Dale>"
+  teacher = Teacher.create()
+  teacher.toString(); //=> "<Teacher:ember1026:Tom Dale>"
   ```
    @method toString
   @return {String} string representation
@@ -37992,7 +37975,7 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal'], fun
       name.
        ```javascript
       // Applies the 'high' class to the view element
-      Ember.View.extend({
+      Ember.Component.extend({
         classNameBindings: ['priority'],
         priority: 'high'
       });
@@ -38001,7 +37984,7 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal'], fun
       added as a dasherized class name.
        ```javascript
       // Applies the 'is-urgent' class to the view element
-      Ember.View.extend({
+      Ember.Component.extend({
         classNameBindings: ['isUrgent'],
         isUrgent: true
       });
@@ -38010,12 +37993,12 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal'], fun
       property name, you can pass a binding like this:
        ```javascript
       // Applies the 'urgent' class to the view element
-      Ember.View.extend({
+      Ember.Component.extend({
         classNameBindings: ['isUrgent:urgent'],
         isUrgent: true
       });
       ```
-       This list of properties is inherited from the view's superclasses as well.
+       This list of properties is inherited from the component's superclasses as well.
        @property classNameBindings
       @type Array
       @default []
@@ -39408,16 +39391,16 @@ enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/
 
   /**
     `Ember.CoreView` is an abstract class that exists to give view-like behavior
-    to both Ember's main view class `Ember.View` and other classes that don't need
-    the fully functionaltiy of `Ember.View`.
+    to both Ember's main view class `Ember.Component` and other classes that don't need
+    the fully functionaltiy of `Ember.Component`.
   
-    Unless you have specific needs for `CoreView`, you will use `Ember.View`
+    Unless you have specific needs for `CoreView`, you will use `Ember.Component`
     in your applications.
   
     @class CoreView
     @namespace Ember
     @extends Ember.Object
-    @deprecated Use `Ember.View` instead.
+    @deprecated Use `Ember.Component` instead.
     @uses Ember.Evented
     @uses Ember.ActionHandler
     @private
@@ -40755,7 +40738,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal/features', 'ember-envi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+eb570b43";
+  exports.default = "2.9.0-null+2a44a85b";
 });
 enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-runtime', 'require'], function (exports, _container, _emberApplication, _emberRuntime, _require) {
   'use strict';

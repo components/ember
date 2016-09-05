@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+eb570b43
+ * @version   2.9.0-null+2a44a85b
  */
 
 var enifed, requireModule, require, Ember;
@@ -8196,8 +8196,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     added to other classes. For instance,
   
     ```javascript
-    App.Editable = Ember.Mixin.create({
-      edit: function() {
+    const EditableMixin = Ember.Mixin.create({
+      edit() {
         console.log('starting to edit');
         this.set('isEditing', true);
       },
@@ -8205,13 +8205,13 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     });
   
     // Mix mixins into classes by passing them as the first arguments to
-    // .extend.
-    App.CommentView = Ember.View.extend(App.Editable, {
-      template: Ember.Handlebars.compile('{{#if view.isEditing}}...{{else}}...{{/if}}')
+    // `.extend.`
+    const Comment = Ember.Object.extend(EditableMixin, {
+      post: null
     });
   
-    commentView = App.CommentView.create();
-    commentView.edit(); // outputs 'starting to edit'
+    let comment = Comment.create(post: somePost);
+    comment.edit(); // outputs 'starting to edit'
     ```
   
     Note that Mixins are created with `Ember.Mixin.create`, not
@@ -8223,19 +8223,21 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     it either as a computed property or have it be created on initialization of the object.
   
     ```javascript
-    //filters array will be shared amongst any object implementing mixin
-    App.Filterable = Ember.Mixin.create({
+    // filters array will be shared amongst any object implementing mixin
+    const FilterableMixin = Ember.Mixin.create({
       filters: Ember.A()
     });
   
-    //filters will be a separate  array for every object implementing the mixin
-    App.Filterable = Ember.Mixin.create({
-      filters: Ember.computed(function() {return Ember.A();})
+    // filters will be a separate array for every object implementing the mixin
+    const FilterableMixin = Ember.Mixin.create({
+      filters: Ember.computed(function() {
+        return Ember.A();
+      })
     });
   
-    //filters will be created as a separate array during the object's initialization
-    App.Filterable = Ember.Mixin.create({
-      init: function() {
+    // filters will be created as a separate array during the object's initialization
+    const Filterable = Ember.Mixin.create({
+      init() {
         this._super(...arguments);
         this.set("filters", Ember.A());
       }
@@ -8622,30 +8624,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
   
     A `_beforeObserver` fires before a property changes.
   
-    A `_beforeObserver` is an alternative form of `.observesBefore()`.
-  
-    ```javascript
-    App.PersonView = Ember.View.extend({
-      friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],
-  
-      valueDidChange: Ember.observer('content.value', function(obj, keyName) {
-          // only run if updating a value already in the DOM
-          if (this.get('state') === 'inDOM') {
-            let color = obj.get(keyName) > this.changingFrom ? 'green' : 'red';
-            // logic
-          }
-      }),
-  
-      friendsDidChange: Ember.observer('friends.@each.name', function(obj, keyName) {
-        // some logic
-        // obj.get(keyName) returns friends array
-      })
-    });
-    ```
-  
-    Also available as `Function.prototype.observesBefore` if prototype extensions are
-    enabled.
-  
     @method beforeObserver
     @for Ember
     @param {String} propertyNames*
@@ -8683,7 +8661,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     }
 
     if (typeof func !== 'function') {
-      throw new _emberMetalError.default('Ember.beforeObserver called without a function');
+      throw new _emberMetalError.default('_beforeObserver called without a function');
     }
 
     func.__ember_observesBefore__ = paths;
@@ -12853,7 +12831,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+eb570b43";
+  exports.default = "2.9.0-null+2a44a85b";
 });
 enifed('glimmer-compiler/index', ['exports', 'glimmer-compiler/lib/compiler', 'glimmer-compiler/lib/template-compiler', 'glimmer-compiler/lib/template-visitor'], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateCompiler, _glimmerCompilerLibTemplateVisitor) {
   'use strict';
