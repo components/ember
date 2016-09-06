@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.5
+ * @version   2.8.0-beta.5+a36823ce
  */
 
 var enifed, requireModule, require, Ember;
@@ -15677,8 +15677,26 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Nested template says: Hi!', 'Re-render works');
     };
 
-    _class.prototype['@test tagless blockless component can lookup local template'] = function testTaglessBlocklessComponentCanLookupLocalTemplate(assert) {
+    _class.prototype['@test moduleName remains unchanged'] = function testModuleNameRemainsUnchanged() {
       var _this2 = this;
+
+      this.registerComponent('x-outer/x-inner', { template: 'Nested template says: {{yield}}' });
+      this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
+      this.registerComponent('x-root', { template: '{{x-outer}}' });
+
+      this.render('{{x-root}}');
+
+      var moduleName = this.owner.lookup('template:-top-level').meta.moduleName;
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assert.equal(moduleName, this.owner.lookup('template:-top-level').meta.moduleName, 'moduleName is unchanged after re-render');
+    };
+
+    _class.prototype['@test tagless blockless component can lookup local template'] = function testTaglessBlocklessComponentCanLookupLocalTemplate(assert) {
+      var _this3 = this;
 
       this.registerComponent('x-outer/x-inner', { template: 'Nested template says: {{yield}}' });
       this.registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
@@ -15691,14 +15709,14 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Nested template says: Hi!', 'Re-render works');
 
       this.runTask(function () {
-        return _this2.rerender();
+        return _this3.rerender();
       });
 
       this.assertText('Nested template says: Hi!', 'Re-render works');
     };
 
     _class.prototype['@test it can lookup a local component template'] = function testItCanLookupALocalComponentTemplate() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.registerTemplate('components/x-outer/x-inner', 'Nested template says: {{yield}}');
       this.registerTemplate('components/x-outer', '{{#x-inner}}Hi!{{/x-inner}}');
@@ -15708,36 +15726,19 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Nested template says: Hi!', 'Initial render works');
 
       this.runTask(function () {
-        return _this3.rerender();
+        return _this4.rerender();
       });
 
       this.assertText('Nested template says: Hi!', 'Re-render works');
     };
 
     _class.prototype['@test it can local lookup a dynamic component'] = function testItCanLocalLookupADynamicComponent() {
-      var _this4 = this;
-
-      this.registerComponent('foo-bar', { template: 'yall finished {{component child}}' });
-      this.registerComponent('foo-bar/biz-baz', { template: 'or yall done?' });
-
-      this.render('{{foo-bar child=child}}', { child: 'biz-baz' });
-
-      this.assertText('yall finished or yall done?');
-
-      this.runTask(function () {
-        return _this4.rerender();
-      });
-
-      this.assertText('yall finished or yall done?');
-    };
-
-    _class.prototype['@test it can local lookup a dynamic component from a dynamic component'] = function testItCanLocalLookupADynamicComponentFromADynamicComponent() {
       var _this5 = this;
 
       this.registerComponent('foo-bar', { template: 'yall finished {{component child}}' });
       this.registerComponent('foo-bar/biz-baz', { template: 'or yall done?' });
 
-      this.render('{{component componentName child=child}}', { componentName: 'foo-bar', child: 'biz-baz' });
+      this.render('{{foo-bar child=child}}', { child: 'biz-baz' });
 
       this.assertText('yall finished or yall done?');
 
@@ -15748,8 +15749,25 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('yall finished or yall done?');
     };
 
-    _class.prototype['@test it can lookup a local helper'] = function testItCanLookupALocalHelper() {
+    _class.prototype['@test it can local lookup a dynamic component from a dynamic component'] = function testItCanLocalLookupADynamicComponentFromADynamicComponent() {
       var _this6 = this;
+
+      this.registerComponent('foo-bar', { template: 'yall finished {{component child}}' });
+      this.registerComponent('foo-bar/biz-baz', { template: 'or yall done?' });
+
+      this.render('{{component componentName child=child}}', { componentName: 'foo-bar', child: 'biz-baz' });
+
+      this.assertText('yall finished or yall done?');
+
+      this.runTask(function () {
+        return _this6.rerender();
+      });
+
+      this.assertText('yall finished or yall done?');
+    };
+
+    _class.prototype['@test it can lookup a local helper'] = function testItCanLookupALocalHelper() {
+      var _this7 = this;
 
       this.registerHelper('x-outer/x-helper', function () {
         return 'Who dis?';
@@ -15761,14 +15779,14 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Who dat? Who dis?', 'Initial render works');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('Who dat? Who dis?', 'Re-render works');
     };
 
     _class.prototype['@test it overrides global helper lookup'] = function testItOverridesGlobalHelperLookup() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.registerHelper('x-outer/x-helper', function () {
         return 'Who dis?';
@@ -15785,24 +15803,24 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Who dat? Who dis? I dunno', 'Initial render works');
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertText('Who dat? Who dis? I dunno', 'Re-render works');
     };
 
     _class.prototype['@test lookup without match issues standard assertion (with local helper name)'] = function testLookupWithoutMatchIssuesStandardAssertionWithLocalHelperName() {
-      var _this8 = this;
+      var _this9 = this;
 
       this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
 
       expectAssertion(function () {
-        _this8.render('{{x-outer}}');
+        _this9.render('{{x-outer}}');
       }, /A helper named "x-inner" could not be found/);
     };
 
     _class.prototype['@test overrides global lookup'] = function testOverridesGlobalLookup() {
-      var _this9 = this;
+      var _this10 = this;
 
       this.registerComponent('x-outer', { template: '{{#x-inner}}Hi!{{/x-inner}}' });
       this.registerComponent('x-outer/x-inner', { template: 'Nested template says (from local): {{yield}}' });
@@ -15813,7 +15831,7 @@ enifed('ember-htmlbars/tests/integration/components/local-lookup-test', ['export
       this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this10.rerender();
       });
 
       this.assertText('Nested template says (from global): Hi! Nested template says (from local): Hi! Nested template says (from local): Hi!');

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.5
+ * @version   2.8.0-beta.5+a36823ce
  */
 
 var enifed, requireModule, require, Ember;
@@ -10374,24 +10374,15 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
     // Determine if this is an initial render or a re-render.
     if (state.manager) {
       var sm = state.manager;
-      var templateMeta = null;
-      if (sm.block) {
-        templateMeta = sm.block.template.meta;
-      } else if (sm.scope && sm.scope._view && sm.scope._view.template) {
-        templateMeta = sm.scope._view.template.meta;
-      }
-      env.meta.moduleName = templateMeta && templateMeta.moduleName || env.meta && env.meta.moduleName;
       _emberHtmlbarsUtilsExtractPositionalParams.default(renderNode, sm.component.constructor, params, attrs, false);
       state.manager.rerender(env, attrs, visitor);
       return;
     }
 
     var parentView = env.view;
-    var options = {};
+
     var moduleName = env.meta && env.meta.moduleName;
-    if (moduleName) {
-      options.source = 'template:' + moduleName;
-    }
+    var options = { source: moduleName && 'template:' + moduleName };
 
     var _lookupComponent = _emberViewsUtilsLookupComponent.default(env.owner, tagName, options);
 
@@ -14063,7 +14054,8 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var component = this.component;
 
     return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function ComponentNodeManager_rerender_instrument() {
-      var env = _env.childWithView(component);
+      var meta = this.block && this.block.template.meta;
+      var env = _env.childWithView(component, meta);
 
       var snapshot = takeSnapshot(attrs);
 
@@ -44500,7 +44492,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.5";
+  exports.default = "2.8.0-beta.5+a36823ce";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -47709,12 +47701,145 @@ enifed("morph-range/utils", ["exports"], function (exports) {
     } while (node);
   }
 });
-enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer/normalizer'], function (exports, _routeRecognizerDsl, _routeRecognizerNormalizer) {
-  'use strict';
+enifed("route-recognizer", ["exports"], function (exports) {
+  "use strict";
 
-  var normalizePath = _routeRecognizerNormalizer.default.normalizePath;
-  var normalizeSegment = _routeRecognizerNormalizer.default.normalizeSegment;
-  var encodePathSegment = _routeRecognizerNormalizer.default.encodePathSegment;
+  function Target(path, matcher, delegate) {
+    this.path = path;
+    this.matcher = matcher;
+    this.delegate = delegate;
+  }
+
+  Target.prototype = {
+    to: function (target, callback) {
+      var delegate = this.delegate;
+
+      if (delegate && delegate.willAddRoute) {
+        target = delegate.willAddRoute(this.matcher.target, target);
+      }
+
+      this.matcher.add(this.path, target);
+
+      if (callback) {
+        if (callback.length === 0) {
+          throw new Error("You must have an argument in the function passed to `to`");
+        }
+        this.matcher.addChild(this.path, target, callback, this.delegate);
+      }
+      return this;
+    }
+  };
+
+  function Matcher(target) {
+    this.routes = {};
+    this.children = {};
+    this.target = target;
+  }
+
+  Matcher.prototype = {
+    add: function (path, handler) {
+      this.routes[path] = handler;
+    },
+
+    addChild: function (path, target, callback, delegate) {
+      var matcher = new Matcher(target);
+      this.children[path] = matcher;
+
+      var match = generateMatch(path, matcher, delegate);
+
+      if (delegate && delegate.contextEntered) {
+        delegate.contextEntered(target, match);
+      }
+
+      callback(match);
+    }
+  };
+
+  function generateMatch(startingPath, matcher, delegate) {
+    return function (path, nestedCallback) {
+      var fullPath = startingPath + path;
+
+      if (nestedCallback) {
+        nestedCallback(generateMatch(fullPath, matcher, delegate));
+      } else {
+        return new Target(startingPath + path, matcher, delegate);
+      }
+    };
+  }
+
+  function addRoute(routeArray, path, handler) {
+    var len = 0;
+    for (var i = 0; i < routeArray.length; i++) {
+      len += routeArray[i].path.length;
+    }
+
+    path = path.substr(len);
+    var route = { path: path, handler: handler };
+    routeArray.push(route);
+  }
+
+  function eachRoute(baseRoute, matcher, callback, binding) {
+    var routes = matcher.routes;
+
+    for (var path in routes) {
+      if (routes.hasOwnProperty(path)) {
+        var routeArray = baseRoute.slice();
+        addRoute(routeArray, path, routes[path]);
+
+        if (matcher.children[path]) {
+          eachRoute(routeArray, matcher.children[path], callback, binding);
+        } else {
+          callback.call(binding, routeArray);
+        }
+      }
+    }
+  }
+
+  function map(callback, addRouteCallback) {
+    var matcher = new Matcher();
+
+    callback(generateMatch("", matcher, this.delegate));
+
+    eachRoute([], matcher, function (route) {
+      if (addRouteCallback) {
+        addRouteCallback(this, route);
+      } else {
+        this.add(route);
+      }
+    }, this);
+  }
+
+  // Normalizes percent-encoded values in `path` to upper-case and decodes percent-encoded
+  // values that are not reserved (i.e., unicode characters, emoji, etc). The reserved
+  // chars are "/" and "%".
+  // Safe to call multiple times on the same path.
+  function normalizePath(path) {
+    return path.split('/').map(normalizeSegment).join('/');
+  }
+
+  // We want to ensure the characters "%" and "/" remain in percent-encoded
+  // form when normalizing paths, so replace them with their encoded form after
+  // decoding the rest of the path
+  var SEGMENT_RESERVED_CHARS = /%|\//g;
+  function normalizeSegment(segment) {
+    return decodeURIComponent(segment).replace(SEGMENT_RESERVED_CHARS, encodeURIComponent);
+  }
+
+  // We do not want to encode these characters when generating dynamic path segments
+  // See https://tools.ietf.org/html/rfc3986#section-3.3
+  // sub-delims: "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
+  // others allowed by RFC 3986: ":", "@"
+  //
+  // First encode the entire path segment, then decode any of the encoded special chars.
+  //
+  // The chars "!", "'", "(", ")", "*" do not get changed by `encodeURIComponent`,
+  // so the possible encoded chars are:
+  // ['%24', '%26', '%2B', '%2C', '%3B', '%3D', '%3A', '%40'].
+  var PATH_SEGMENT_ENCODINGS = /%(?:24|26|2B|2C|3B|3D|3A|40)/g;
+
+  function encodePathSegment(str) {
+    return encodeURIComponent(str).replace(PATH_SEGMENT_ENCODINGS, decodeURIComponent);
+  }
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
@@ -48183,7 +48308,7 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
       return output;
     },
 
-    generateQueryString: function (params, handlers) {
+    generateQueryString: function (params) {
       var pairs = [];
       var keys = [];
       for (var key in params) {
@@ -48252,7 +48377,6 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
       var states = [this.rootState],
           pathLen,
           i,
-          l,
           queryStart,
           queryParams = {},
           hashStart,
@@ -48318,254 +48442,21 @@ enifed('route-recognizer', ['exports', 'route-recognizer/dsl', 'route-recognizer
     }
   };
 
-  RouteRecognizer.prototype.map = _routeRecognizerDsl.default;
+  RouteRecognizer.prototype.map = map;
 
-  RouteRecognizer.VERSION = '0.2.2';
+  RouteRecognizer.VERSION = '0.2.6';
 
   // Set to false to opt-out of encoding and decoding path segments.
   // See https://github.com/tildeio/route-recognizer/pull/55
   RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
 
-  RouteRecognizer.Normalizer = _routeRecognizerNormalizer.default;
-
-  exports.default = RouteRecognizer;
-});
-enifed("route-recognizer/dsl", ["exports"], function (exports) {
-  "use strict";
-
-  function Target(path, matcher, delegate) {
-    this.path = path;
-    this.matcher = matcher;
-    this.delegate = delegate;
-  }
-
-  Target.prototype = {
-    to: function (target, callback) {
-      var delegate = this.delegate;
-
-      if (delegate && delegate.willAddRoute) {
-        target = delegate.willAddRoute(this.matcher.target, target);
-      }
-
-      this.matcher.add(this.path, target);
-
-      if (callback) {
-        if (callback.length === 0) {
-          throw new Error("You must have an argument in the function passed to `to`");
-        }
-        this.matcher.addChild(this.path, target, callback, this.delegate);
-      }
-      return this;
-    }
-  };
-
-  function Matcher(target) {
-    this.routes = {};
-    this.children = {};
-    this.target = target;
-  }
-
-  Matcher.prototype = {
-    add: function (path, handler) {
-      this.routes[path] = handler;
-    },
-
-    addChild: function (path, target, callback, delegate) {
-      var matcher = new Matcher(target);
-      this.children[path] = matcher;
-
-      var match = generateMatch(path, matcher, delegate);
-
-      if (delegate && delegate.contextEntered) {
-        delegate.contextEntered(target, match);
-      }
-
-      callback(match);
-    }
-  };
-
-  function generateMatch(startingPath, matcher, delegate) {
-    return function (path, nestedCallback) {
-      var fullPath = startingPath + path;
-
-      if (nestedCallback) {
-        nestedCallback(generateMatch(fullPath, matcher, delegate));
-      } else {
-        return new Target(startingPath + path, matcher, delegate);
-      }
-    };
-  }
-
-  function addRoute(routeArray, path, handler) {
-    var len = 0;
-    for (var i = 0; i < routeArray.length; i++) {
-      len += routeArray[i].path.length;
-    }
-
-    path = path.substr(len);
-    var route = { path: path, handler: handler };
-    routeArray.push(route);
-  }
-
-  function eachRoute(baseRoute, matcher, callback, binding) {
-    var routes = matcher.routes;
-
-    for (var path in routes) {
-      if (routes.hasOwnProperty(path)) {
-        var routeArray = baseRoute.slice();
-        addRoute(routeArray, path, routes[path]);
-
-        if (matcher.children[path]) {
-          eachRoute(routeArray, matcher.children[path], callback, binding);
-        } else {
-          callback.call(binding, routeArray);
-        }
-      }
-    }
-  }
-
-  exports.default = function (callback, addRouteCallback) {
-    var matcher = new Matcher();
-
-    callback(generateMatch("", matcher, this.delegate));
-
-    eachRoute([], matcher, function (route) {
-      if (addRouteCallback) {
-        addRouteCallback(this, route);
-      } else {
-        this.add(route);
-      }
-    }, this);
-  };
-});
-enifed('route-recognizer/normalizer', ['exports'], function (exports) {
-  // Match percent-encoded values (e.g. %3a, %3A, %25)
-  'use strict';
-
-  var PERCENT_ENCODED_VALUES = /%[a-fA-F0-9]{2}/g;
-
-  function toUpper(str) {
-    return str.toUpperCase();
-  }
-
-  // Turn percent-encoded values to upper case ("%3a" -> "%3A")
-  function percentEncodedValuesToUpper(string) {
-    return string.replace(PERCENT_ENCODED_VALUES, toUpper);
-  }
-
-  // Normalizes percent-encoded values to upper-case and decodes percent-encoded
-  // values that are not reserved (like unicode characters).
-  // Safe to call multiple times on the same path.
-  function normalizePath(path) {
-    return path.split('/').map(normalizeSegment).join('/');
-  }
-
-  function percentEncode(char) {
-    return '%' + charToHex(char);
-  }
-
-  function charToHex(char) {
-    return char.charCodeAt(0).toString(16).toUpperCase();
-  }
-
-  // Decodes percent-encoded values in the string except those
-  // characters in `reservedHex`, where `reservedHex` is an array of 2-character
-  // percent-encodings
-  function decodeURIComponentExcept(string, reservedHex) {
-    if (string.indexOf('%') === -1) {
-      // If there is no percent char, there is no decoding that needs to
-      // be done and we exit early
-      return string;
-    }
-    string = percentEncodedValuesToUpper(string);
-
-    var result = '';
-    var buffer = '';
-    var idx = 0;
-    while (idx < string.length) {
-      var pIdx = string.indexOf('%', idx);
-
-      if (pIdx === -1) {
-        // no percent char
-        buffer += string.slice(idx);
-        break;
-      } else {
-        // found percent char
-        buffer += string.slice(idx, pIdx);
-        idx = pIdx + 3;
-
-        var hex = string.slice(pIdx + 1, pIdx + 3);
-        var encoded = '%' + hex;
-
-        if (reservedHex.indexOf(hex) === -1) {
-          // encoded is not in reserved set, add to buffer
-          buffer += encoded;
-        } else {
-          result += decodeURIComponent(buffer);
-          buffer = '';
-          result += encoded;
-        }
-      }
-    }
-    result += decodeURIComponent(buffer);
-    return result;
-  }
-
-  // Leave these characters in encoded state in segments
-  var reservedSegmentChars = ['%', '/'];
-  var reservedHex = reservedSegmentChars.map(charToHex);
-
-  function normalizeSegment(segment) {
-    return decodeURIComponentExcept(segment, reservedHex);
-  }
-
-  function encodeURIComponentExcept(string, reservedChars) {
-    var pieces = [];
-    var separators = [];
-    var currentPiece = '';
-    var idx;
-
-    for (idx = 0; idx < string.length; idx++) {
-      var char = string[idx];
-      if (reservedChars.indexOf(char) === -1) {
-        currentPiece += char;
-      } else {
-        pieces.push(currentPiece);
-        separators.push(char);
-        currentPiece = '';
-      }
-    }
-    if (currentPiece.length) {
-      pieces.push(currentPiece);
-      separators.push('');
-    }
-
-    pieces = pieces.map(encodeURIComponent);
-    var encoded = '';
-    for (idx = 0; idx < pieces.length; idx++) {
-      encoded += pieces[idx] + separators[idx];
-    }
-
-    return encoded;
-  }
-
-  // Do not encode these characters when generating dynamic path segments
-  // See https://tools.ietf.org/html/rfc3986#section-3.3
-  var reservedSegmentChars = ["!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "=", // sub-delims
-  ":", "@" // others explicitly allowed by RFC 3986
-  ];
-  function encodePathSegment(segment) {
-    segment = '' + segment; // coerce to string
-    return encodeURIComponentExcept(segment, reservedSegmentChars);
-  }
-
-  var Normalizer = {
+  RouteRecognizer.Normalizer = {
     normalizeSegment: normalizeSegment,
     normalizePath: normalizePath,
     encodePathSegment: encodePathSegment
   };
 
-  exports.default = Normalizer;
+  exports.default = RouteRecognizer;
 });
 enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
   'use strict';
