@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+de4d6b6f
+ * @version   2.9.0-null+d19df967
  */
 
 var enifed, requireModule, require, Ember;
@@ -7196,6 +7196,71 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     _emberMetal.set(post, 'title', 'New Title');
     equal(updatesCalled, 1, 'Release function removes observers');
   });
+});
+enifed('ember-glimmer/tests/integration/application/actions-test', ['exports', 'ember-runtime', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberRuntime, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: actions', (function (_ApplicationTest) {
+    babelHelpers.inherits(_class, _ApplicationTest);
+
+    function _class() {
+      _ApplicationTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test actions in top level template application template target application controller'] = function testActionsInTopLevelTemplateApplicationTemplateTargetApplicationController(assert) {
+      var _this = this;
+
+      assert.expect(1);
+
+      this.registerController('application', _emberRuntime.Controller.extend({
+        actions: {
+          handleIt: function (arg) {
+            assert.ok(true, 'controller received action properly');
+          }
+        }
+      }));
+
+      this.registerTemplate('application', '<button id="handle-it" {{action "handleIt"}}>Click!</button>');
+
+      return this.visit('/').then(function () {
+        _this.runTask(function () {
+          return _this.$('#handle-it').click();
+        });
+      });
+    };
+
+    _class.prototype['@test actions in nested outlet template target their controller'] = function testActionsInNestedOutletTemplateTargetTheirController(assert) {
+      var _this2 = this;
+
+      assert.expect(1);
+
+      this.registerController('application', _emberRuntime.Controller.extend({
+        actions: {
+          handleIt: function (arg) {
+            assert.ok(false, 'application controller should not have received action!');
+          }
+        }
+      }));
+
+      this.registerController('index', _emberRuntime.Controller.extend({
+        actions: {
+          handleIt: function (arg) {
+            assert.ok(true, 'controller received action properly');
+          }
+        }
+      }));
+
+      this.registerTemplate('index', '<button id="handle-it" {{action "handleIt"}}>Click!</button>');
+
+      return this.visit('/').then(function () {
+        _this2.runTask(function () {
+          return _this2.$('#handle-it').click();
+        });
+      });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
 enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-application', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberApplication, _emberRouting) {
   'use strict';
@@ -16036,11 +16101,13 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
 enifed("ember-glimmer/tests/integration/components/render-to-element-test", ["exports"], function (exports) {
   "use strict";
 });
-enifed('ember-glimmer/tests/integration/components/target-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberRouting) {
+enifed('ember-glimmer/tests/integration/components/target-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberRouting) {
   'use strict';
 
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#component-a}}\n        {{component-b bar="derp"}}\n      {{/component-a}}\n    '], ['\n      {{#component-a}}\n        {{component-b bar="derp"}}\n      {{/component-a}}\n    ']);
+
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction', (function (_RenderingTest) {
-    babelHelpers.inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
       _RenderingTest.call(this);
@@ -16055,6 +16122,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
           init: function () {
             this._super();
             self.delegate = this;
+            this.name = 'action-delegate';
           }
         })
       });
@@ -16279,11 +16347,49 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
       this.assertSentWithArgs([firstContext, secondContext], 'multiple contexts were sent to the action');
     };
 
+    _class.prototype['@test calling sendAction on a component within a block sends to the outer scope GH#14216'] = function testCallingSendActionOnAComponentWithinABlockSendsToTheOuterScopeGH14216(assert) {
+      this.registerTemplate('components/action-delegate', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      this.registerComponent('component-a', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.name = 'component-a';
+          },
+          actions: {
+            derp: function () {
+              assert.ok(false, 'no! bad scoping!');
+            }
+          }
+        })
+      });
+
+      var innerChild = undefined;
+      this.registerComponent('component-b', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            innerChild = this;
+            this.name = 'component-b';
+          }
+        })
+      });
+
+      this.renderDelegate();
+
+      this.runTask(function () {
+        return innerChild.sendAction('bar');
+      });
+
+      this.assertSendCount(1);
+      this.assertNamedSendCount('derp', 1);
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction to a controller', (function (_ApplicationTest) {
-    babelHelpers.inherits(_class2, _ApplicationTest);
+babelHelpers.inherits(_class2, _ApplicationTest);
 
     function _class2() {
       _ApplicationTest.apply(this, arguments);
@@ -16431,7 +16537,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction of a closure action', (function (_RenderingTest2) {
-    babelHelpers.inherits(_class3, _RenderingTest2);
+babelHelpers.inherits(_class3, _RenderingTest2);
 
     function _class3() {
       _RenderingTest2.apply(this, arguments);
@@ -16511,7 +16617,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['export
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: send', (function (_RenderingTest3) {
-    babelHelpers.inherits(_class4, _RenderingTest3);
+babelHelpers.inherits(_class4, _RenderingTest3);
 
     function _class4() {
       _RenderingTest3.apply(this, arguments);
