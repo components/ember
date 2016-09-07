@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+17ff29d3
+ * @version   2.9.0-null+8d9181db
  */
 
 var enifed, requireModule, require, Ember;
@@ -9165,7 +9165,7 @@ enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal', 'ember-glim
     return _emberGlimmerHelper.helper(fn);
   }
 });
-enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberMetal, _emberViews, _emberGlimmerHelpersAction) {
+enifed('ember-glimmer/modifiers/action', ['exports', 'ember-environment', 'ember-metal', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberEnvironment, _emberMetal, _emberViews, _emberGlimmerHelpersAction) {
   'use strict';
 
   var MODIFIERS = ['alt', 'shift', 'meta', 'ctrl'];
@@ -9339,6 +9339,10 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal', 'ember-views
     function ActionModifierManager() {}
 
     ActionModifierManager.prototype.install = function install(element, args, dom, dynamicScope) {
+      if (!_emberEnvironment.environment.hasDOM) {
+        return;
+      }
+
       var named = args.named;
       var positional = args.positional;
 
@@ -9377,6 +9381,10 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-metal', 'ember-views
     };
 
     ActionModifierManager.prototype.update = function update(modifier, element, args, dom, dynamicScope) {
+      if (!_emberEnvironment.environment.hasDOM) {
+        return;
+      }
+
       var positional = args.positional;
 
       var actionNameRef = positional.at(1);
@@ -37883,7 +37891,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+17ff29d3";
+  exports.default = "2.9.0-null+8d9181db";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
