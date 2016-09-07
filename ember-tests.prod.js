@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c5cab7f4
+ * @version   2.9.0-null+945d81af
  */
 
 var enifed, requireModule, require, Ember;
@@ -15083,8 +15083,8 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
       _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
       _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
-      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
-      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#nested-item}}Item: {{count}}{{/nested-item}}\n    '], ['\n      {{#nested-item}}Item: {{count}}{{/nested-item}}\n    ']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#nested-item}}Nothing to see here{{/nested-item}}\n    '], ['\n      {{#nested-item}}Nothing to see here{{/nested-item}}\n    ']),
       _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
 
   var LifeCycleHooksTest = (function (_RenderingTest) {
@@ -15157,6 +15157,10 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       var assertParentView = function (hookName, instance) {
         _this.assert.ok(instance.parentView, 'parentView should be present in ' + hookName);
+
+        if (hookName === 'willDestroyElement') {
+          _this.assert.ok(instance.parentView.childViews.indexOf(instance) !== -1, 'view is still connected to parentView in ' + hookName);
+        }
       };
 
       var assertElement = function (hookName, instance) {
@@ -15164,14 +15168,8 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
           return;
         }
 
-        if (!instance.element) {
-          _this.assert.ok(false, 'element property should be present on ' + instance + ' during ' + hookName);
-        }
-
-        var inDOM = _this.$('#' + instance.elementId)[0];
-        if (!inDOM) {
-          _this.assert.ok(false, 'element for ' + instance + ' should be in the DOM during ' + hookName);
-        }
+        _this.assert.ok(instance.element, 'element property should be present on ' + instance + ' during ' + hookName);
+        _this.assert.ok(document.body.contains(instance.element), 'element for ' + instance + ' should be in the DOM during ' + hookName);
       };
 
       var assertNoElement = function (hookName, instance) {
@@ -15189,6 +15187,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
             _this2._super.apply(_this2, _arguments);
           }, /didInitAttrs called/);
 
+          this.componentName = name;
           pushHook('init');
           pushComponent(this);
           assertParentView('init', this);
@@ -15251,8 +15250,15 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
           assertElement('willClearRender', this);
         },
 
+        didDestroyElement: function () {
+          pushHook('didDestroyElement');
+          assertNoElement('didDestroyElement', this);
+        },
+
         willDestroy: function () {
+          pushHook('willDestroy');
           removeComponent(this);
+
           this._super.apply(this, arguments);
         }
       });
@@ -15380,7 +15386,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       ['the-top', 'didUpdate'], ['the-top', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
+        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']);
 
         _this3.assertRegisteredViews('after destroy');
       });
@@ -15523,7 +15529,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       ['the-first-child', 'didUpdate'], ['the-first-child', 'didRender'], ['the-second-child', 'didUpdate'], ['the-second-child', 'didRender'], ['the-last-child', 'didUpdate'], ['the-last-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this4.assertHooks('destroy', ['the-parent', 'willDestroyElement'], ['the-parent', 'willClearRender'], ['the-first-child', 'willDestroyElement'], ['the-first-child', 'willClearRender'], ['the-second-child', 'willDestroyElement'], ['the-second-child', 'willClearRender'], ['the-last-child', 'willDestroyElement'], ['the-last-child', 'willClearRender']);
+        _this4.assertHooks('destroy', ['the-parent', 'willDestroyElement'], ['the-parent', 'willClearRender'], ['the-first-child', 'willDestroyElement'], ['the-first-child', 'willClearRender'], ['the-second-child', 'willDestroyElement'], ['the-second-child', 'willClearRender'], ['the-last-child', 'willDestroyElement'], ['the-last-child', 'willClearRender'], ['the-parent', 'didDestroyElement'], ['the-first-child', 'didDestroyElement'], ['the-second-child', 'didDestroyElement'], ['the-last-child', 'didDestroyElement'], ['the-parent', 'willDestroy'], ['the-first-child', 'willDestroy'], ['the-second-child', 'willDestroy'], ['the-last-child', 'willDestroy']);
 
         _this4.assertRegisteredViews('after destroy');
       });
@@ -15602,7 +15608,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       this.assertHooks('after no-op rernder (root)');
 
       this.teardownAssertions.push(function () {
-        _this5.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
+        _this5.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']);
 
         _this5.assertRegisteredViews('after destroy');
       });
@@ -15612,6 +15618,8 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       var _this6 = this;
 
       var invoke = this.boundHelpers.invoke;
+
+      this.registerComponent('nested-item', { template: '{{yield}}' });
 
       this.registerComponent('an-item', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8) });
 
@@ -15625,25 +15633,29 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       this.assertRegisteredViews('intial render');
 
       var initialHooks = function (count) {
-        return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender']];
+        return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender']];
       };
 
       var initialAfterRenderHooks = function (count) {
-        return [['an-item', 'didInsertElement'], ['an-item', 'didRender']];
+        return [['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['an-item', 'didInsertElement'], ['an-item', 'didRender']];
       };
 
       this.assertHooks.apply(this, ['after initial render'].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1)));
+
+      this.assert.equal(this.component.childViews.length, 5, 'childViews precond');
 
       this.runTask(function () {
         return _emberMetal.set(_this6.context, 'items', []);
       });
 
+      this.assert.equal(this.component.childViews.length, 1, 'childViews updated');
+
       this.assertText('Nothing to see here');
 
-      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
+      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']);
 
       this.teardownAssertions.push(function () {
-        _this6.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender']);
+        _this6.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['no-items', 'willDestroy'], ['nested-item', 'willDestroy']);
 
         _this6.assertRegisteredViews('after destroy');
       });

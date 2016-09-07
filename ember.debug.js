@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+c5cab7f4
+ * @version   2.9.0-null+945d81af
  */
 
 var enifed, requireModule, require, Ember;
@@ -8334,6 +8334,9 @@ enifed('ember-glimmer/environment', ['exports', 'ember-metal', 'ember-views', 'g
       _GlimmerEnvironment.apply(this, arguments);
       this.owner = owner;
 
+      // can be removed once https://github.com/tildeio/glimmer/pull/305 lands
+      this.destroyedComponents = undefined;
+
       _emberGlimmerProtocolForUrl.default(this);
 
       this._definitionCache = new _emberMetal.Cache(2000, function (_ref2) {
@@ -8640,6 +8643,27 @@ enifed('ember-glimmer/environment', ['exports', 'ember-metal', 'ember-views', 'g
 
     Environment.prototype.didDestroy = function didDestroy(destroyable) {
       destroyable.destroy();
+    };
+
+    Environment.prototype.begin = function begin() {
+      this.inTransaction = true;
+
+      _GlimmerEnvironment.prototype.begin.call(this);
+
+      this.destroyedComponents = [];
+    };
+
+    Environment.prototype.commit = function commit() {
+      // components queued for destruction must be destroyed before firing
+      // `didCreate` to prevent errors when removing and adding a component
+      // with the same name (would throw an error when added to view registry)
+      for (var i = 0; i < this.destroyedComponents.length; i++) {
+        this.destroyedComponents[i].destroy();
+      }
+
+      _GlimmerEnvironment.prototype.commit.call(this);
+
+      this.inTransaction = false;
     };
 
     return Environment;
@@ -10256,6 +10280,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       _emberMetal.assert('You cannot render `' + self.value() + '` without a template.', template);
 
       this.id = _emberViews.getViewId(root);
+      this.env = env;
       this.root = root;
       this.result = undefined;
       this.shouldReflush = false;
@@ -10283,13 +10308,33 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
     RootState.prototype.destroy = function destroy() {
       var result = this.result;
+      var env = this.env;
 
+      this.env = null;
       this.root = null;
       this.result = null;
       this.render = null;
 
       if (result) {
+        /*
+         Handles these scenarios:
+          * When roots are removed during standard rendering process, a transaction exists already
+           `.begin()` / `.commit()` are not needed.
+         * When roots are being destroyed manually (`component.append(); component.destroy() case), no
+           transaction exists already.
+         * When roots are being destroyed during `Renderer#destroy`, no transaction exists
+          */
+        var needsTransaction = !env.inTransaction;
+
+        if (needsTransaction) {
+          env.begin();
+        }
+
         result.destroy();
+
+        if (needsTransaction) {
+          env.commit();
+        }
       }
     };
 
@@ -10402,9 +10447,23 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     };
 
     Renderer.prototype.remove = function remove(view) {
-      view.trigger('willDestroyElement');
-      view.trigger('willClearRender');
       view._transitionTo('destroying');
+
+      view.element = null;
+      view.trigger('didDestroyElement');
+
+      this.cleanupRootFor(view);
+
+      if (!view.isDestroying) {
+        view.destroy();
+      }
+    };
+
+    Renderer.prototype.cleanupRootFor = function cleanupRootFor(view) {
+      // no need to cleanup roots if we have already been destroyed
+      if (this._destroyed) {
+        return;
+      }
 
       var roots = this._roots;
 
@@ -10422,10 +10481,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
       if (this._roots.length === 0) {
         deregister(this);
-      }
-
-      if (!view.isDestroying) {
-        view.destroy();
       }
     };
 
@@ -10518,6 +10573,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         var root = roots[i];
         root.destroy();
       }
+
       this._roots = null;
 
       if (roots.length) {
@@ -10809,6 +10865,16 @@ babelHelpers.classCallCheck(this, ComponentStateBucket);
       this.finalizer = finalizer;
     }
 
+    ComponentStateBucket.prototype.destroy = function destroy() {
+      var component = this.component;
+      var environment = this.environment;
+
+      component.trigger('willDestroyElement');
+      component.trigger('willClearRender');
+
+      environment.destroyedComponents.push(component);
+    };
+
     ComponentStateBucket.prototype.finalize = function finalize() {
       var finalizer = this.finalizer;
 
@@ -11039,10 +11105,8 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
       component.trigger('didRender');
     };
 
-    CurlyComponentManager.prototype.getDestructor = function getDestructor(_ref6) {
-      var component = _ref6.component;
-
-      return component;
+    CurlyComponentManager.prototype.getDestructor = function getDestructor(stateBucket) {
+      return stateBucket;
     };
 
     return CurlyComponentManager;
@@ -39611,7 +39675,7 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
     },
 
     destroy: function (view) {
-      view.renderer.remove(view, true);
+      view.renderer.remove(view);
     },
 
     // Handle events from `Ember.EventDispatcher`
@@ -40746,7 +40810,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+c5cab7f4";
+  exports.default = "2.9.0-null+945d81af";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
