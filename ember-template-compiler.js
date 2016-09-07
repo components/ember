@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+8d9181db
+ * @version   2.9.0-null+c5cab7f4
  */
 
 var enifed, requireModule, require, Ember;
@@ -5072,7 +5072,6 @@ enifed('ember-metal/core', ['exports', 'ember-environment'], function (exports, 
 
   // Make sure these are set whether Ember was already defined or not
   Ember.isNamespace = true;
-  Ember.ENV = _emberEnvironment.ENV;
   Ember.toString = function () {
     return 'Ember';
   };
@@ -11650,11 +11649,21 @@ enifed('ember-template-compiler/compat', ['exports', 'ember-metal', 'ember-templ
   EmberHTMLBars.registerPlugin = _emberTemplateCompilerSystemCompileOptions.registerPlugin;
 });
 // reexports
-enifed('ember-template-compiler/index', ['exports', 'container', 'ember-template-compiler/compat', 'ember-template-compiler/system/bootstrap', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/compile-options', 'ember-template-compiler/plugins'], function (exports, _container, _emberTemplateCompilerCompat, _emberTemplateCompilerSystemBootstrap, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemCompileOptions, _emberTemplateCompilerPlugins) {
+enifed('ember-template-compiler/index', ['exports', 'container', 'ember-metal', 'ember-environment', 'ember/version', 'ember-template-compiler/compat', 'ember-template-compiler/system/bootstrap', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/compile-options', 'ember-template-compiler/plugins'], function (exports, _container, _emberMetal, _emberEnvironment, _emberVersion, _emberTemplateCompilerCompat, _emberTemplateCompilerSystemBootstrap, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemCompileOptions, _emberTemplateCompilerPlugins) {
   'use strict';
 
+  // private API used by ember-cli-htmlbars to setup ENV and FEATURES
+  if (!_emberMetal.default.ENV) {
+    _emberMetal.default.ENV = _emberEnvironment.ENV;
+  }
+  if (!_emberMetal.default.FEATURES) {
+    _emberMetal.default.FEATURES = _emberMetal.FEATURES;
+  }
+  if (!_emberMetal.default.VERSION) {
+    _emberMetal.default.VERSION = _emberVersion.default;
+  }
+
   exports._Ember = _emberMetal.default;
-  // Is this still needed
   exports.precompile = _emberTemplateCompilerSystemPrecompile.default;
   exports.compile = _emberTemplateCompilerSystemCompile.default;
   exports.compileOptions = _emberTemplateCompilerSystemCompileOptions.default;
@@ -12833,7 +12842,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+8d9181db";
+  exports.default = "2.9.0-null+c5cab7f4";
 });
 enifed('glimmer-compiler/index', ['exports', 'glimmer-compiler/lib/compiler', 'glimmer-compiler/lib/template-compiler', 'glimmer-compiler/lib/template-visitor'], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateCompiler, _glimmerCompilerLibTemplateVisitor) {
   'use strict';
