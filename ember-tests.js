@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+d19df967
+ * @version   2.9.0-null+17ff29d3
  */
 
 var enifed, requireModule, require, Ember;
@@ -15203,12 +15203,13 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
       _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Name: {{', '}}|\n        ', '\n      </div>']),
       _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Website: {{', '}}\n      </div>'], ['\n      <div>\n        Website: {{', '}}\n      </div>']),
-      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
-      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
-      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
-      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
-      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
-      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        ', '|\n        ', '|\n        ', '\n      </div>'], ['\n      <div>\n        ', '|\n        ', '|\n        ', '\n      </div>']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Top: ', '\n      </div>'], ['\n      <div>\n        Top: ', '\n      </div>']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Middle: ', '\n      </div>'], ['\n      <div>\n        Middle: ', '\n      </div>']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Item: {{count}}</div>\n    '], ['\n      <div>Item: {{count}}</div>\n    ']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>Nothing to see here</div>\n    '], ['\n      <div>Nothing to see here</div>\n    ']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
 
   var LifeCycleHooksTest = (function (_RenderingTest) {
 babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
@@ -15442,11 +15443,11 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       // Sync hooks
 
-      ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+      ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
 
       // Async hooks
 
-      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender']);
+      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
 
       this.runTask(function () {
         return _this3.components['the-middle'].rerender();
@@ -15454,25 +15455,21 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      bottomAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'tomdale.net' } };
-
       this.assertHooks('after no-op rerender (middle)',
 
       // Sync hooks
 
-      ['the-middle', 'willUpdate'], ['the-middle', 'willRender'],
+      ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'],
 
       // Async hooks
 
-      ['the-middle', 'didUpdate'], ['the-middle', 'didRender']);
+      ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
 
       this.runTask(function () {
         return _this3.components['the-top'].rerender();
       });
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
-
-      middleAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Tom Dale' } };
 
       this.assertHooks('after no-op rerender (top)',
 
@@ -15515,20 +15512,163 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       });
     };
 
-    LifeCycleHooksTest.prototype['@test passing values through attrs causes lifecycle hooks to fire if the attribute values have changed'] = function testPassingValuesThroughAttrsCausesLifecycleHooksToFireIfTheAttributeValuesHaveChanged() {
+    LifeCycleHooksTest.prototype['@test lifecycle hooks are invoked in a correct sibling order'] = function testLifecycleHooksAreInvokedInACorrectSiblingOrder() {
       var _this4 = this;
 
       var _boundHelpers2 = this.boundHelpers;
       var attr = _boundHelpers2.attr;
       var invoke = _boundHelpers2.invoke;
 
-      this.registerComponent('the-top', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4, invoke('the-middle', { twitterTop: expr(attr('twitter')) }))
+      this.registerComponent('the-parent', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4, invoke('the-first-child', { twitter: expr(attr('twitter')) }), invoke('the-second-child', { name: expr(attr('name')) }), invoke('the-last-child', { website: expr(attr('website')) }))
       });
 
-      this.registerComponent('the-middle', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5, invoke('the-bottom', { twitterMiddle: expr(attr('twitterTop')) }))
+      this.registerComponent('the-first-child', { template: 'Twitter: {{' + attr('twitter') + '}}' });
+
+      this.registerComponent('the-second-child', { template: 'Name: {{' + attr('name') + '}}' });
+
+      this.registerComponent('the-last-child', { template: 'Website: {{' + attr('website') + '}}' });
+
+      this.render(invoke('the-parent', {
+        twitter: expr('twitter'),
+        name: expr('name'),
+        website: expr('website')
+      }), {
+        twitter: '@tomdale',
+        name: 'Tom Dale',
+        website: 'tomdale.net'
       });
 
-      this.registerComponent('the-bottom', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6, attr('twitterMiddle'))
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+      this.assertRegisteredViews('intial render');
+
+      var parentAttrs = { twitter: '@tomdale', name: 'Tom Dale', website: 'tomdale.net' };
+      var firstAttrs = { twitter: '@tomdale' };
+      var secondAttrs = { name: 'Tom Dale' };
+      var lastAttrs = { website: 'tomdale.net' };
+
+      this.assertHooks('after initial render',
+
+      // Sync hooks
+
+      ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender'],
+
+      // Async hooks
+
+      ['the-first-child', 'didInsertElement'], ['the-first-child', 'didRender'], ['the-second-child', 'didInsertElement'], ['the-second-child', 'didRender'], ['the-last-child', 'didInsertElement'], ['the-last-child', 'didRender'], ['the-parent', 'didInsertElement'], ['the-parent', 'didRender']);
+
+      this.runTask(function () {
+        return _this4.components['the-first-child'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      this.assertHooks('after no-op rerender (first child)',
+
+      // Sync hooks
+
+      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'],
+
+      // Async hooks
+
+      ['the-first-child', 'didUpdate'], ['the-first-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+
+      this.runTask(function () {
+        return _this4.components['the-second-child'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      this.assertHooks('after no-op rerender (second child)',
+
+      // Sync hooks
+
+      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'],
+
+      // Async hooks
+
+      ['the-second-child', 'didUpdate'], ['the-second-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+
+      this.runTask(function () {
+        return _this4.components['the-last-child'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      this.assertHooks('after no-op rerender (last child)',
+
+      // Sync hooks
+
+      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
+
+      // Async hooks
+
+      ['the-last-child', 'didUpdate'], ['the-last-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+
+      this.runTask(function () {
+        return _this4.components['the-parent'].rerender();
+      });
+
+      this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
+
+      this.assertHooks('after no-op rerender (parent)',
+
+      // Sync hooks
+
+      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'],
+
+      // Async hooks
+
+      ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+
+      this.runTask(function () {
+        return _emberMetal.setProperties(_this4.context, {
+          twitter: '@horsetomdale',
+          name: 'Horse Tom Dale',
+          website: 'horsetomdale.net'
+        });
+      });
+
+      this.assertText('Twitter: @horsetomdale|Name: Horse Tom Dale|Website: horsetomdale.net');
+
+      parentAttrs = {
+        oldAttrs: { twitter: '@tomdale', name: 'Tom Dale', website: 'tomdale.net' },
+        newAttrs: { twitter: '@horsetomdale', name: 'Horse Tom Dale', website: 'horsetomdale.net' }
+      };
+      firstAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
+      secondAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Horse Tom Dale' } };
+      lastAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'horsetomdale.net' } };
+
+      this.assertHooks('after update',
+
+      // Sync hooks
+
+      ['the-parent', 'didUpdateAttrs', parentAttrs], ['the-parent', 'didReceiveAttrs', parentAttrs], ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'didUpdateAttrs', firstAttrs], ['the-first-child', 'didReceiveAttrs', firstAttrs], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'], ['the-second-child', 'didUpdateAttrs', secondAttrs], ['the-second-child', 'didReceiveAttrs', secondAttrs], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'], ['the-last-child', 'didUpdateAttrs', lastAttrs], ['the-last-child', 'didReceiveAttrs', lastAttrs], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
+
+      // Async hooks
+
+      ['the-first-child', 'didUpdate'], ['the-first-child', 'didRender'], ['the-second-child', 'didUpdate'], ['the-second-child', 'didRender'], ['the-last-child', 'didUpdate'], ['the-last-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+
+      this.teardownAssertions.push(function () {
+        _this4.assertHooks('destroy', ['the-parent', 'willDestroyElement'], ['the-parent', 'willClearRender'], ['the-first-child', 'willDestroyElement'], ['the-first-child', 'willClearRender'], ['the-second-child', 'willDestroyElement'], ['the-second-child', 'willClearRender'], ['the-last-child', 'willDestroyElement'], ['the-last-child', 'willClearRender']);
+
+        _this4.assertRegisteredViews('after destroy');
+      });
+    };
+
+    LifeCycleHooksTest.prototype['@test passing values through attrs causes lifecycle hooks to fire if the attribute values have changed'] = function testPassingValuesThroughAttrsCausesLifecycleHooksToFireIfTheAttributeValuesHaveChanged() {
+      var _this5 = this;
+
+      var _boundHelpers3 = this.boundHelpers;
+      var attr = _boundHelpers3.attr;
+      var invoke = _boundHelpers3.invoke;
+
+      this.registerComponent('the-top', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5, invoke('the-middle', { twitterTop: expr(attr('twitter')) }))
+      });
+
+      this.registerComponent('the-middle', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6, invoke('the-bottom', { twitterMiddle: expr(attr('twitterTop')) }))
+      });
+
+      this.registerComponent('the-bottom', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7, attr('twitterMiddle'))
       });
 
       this.render(invoke('the-top', { twitter: expr('twitter') }), { twitter: '@tomdale' });
@@ -15551,7 +15691,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']);
 
       this.runTask(function () {
-        return _emberMetal.set(_this4.context, 'twitter', '@horsetomdale');
+        return _emberMetal.set(_this5.context, 'twitter', '@horsetomdale');
       });
 
       this.assertText('Top: Middle: Bottom: @horsetomdale');
@@ -15574,7 +15714,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this5.rerender();
       });
 
       this.assertText('Top: Middle: Bottom: @horsetomdale');
@@ -15588,22 +15728,22 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.assertHooks('after no-op rernder (root)');
 
       this.teardownAssertions.push(function () {
-        _this4.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
+        _this5.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender']);
 
-        _this4.assertRegisteredViews('after destroy');
+        _this5.assertRegisteredViews('after destroy');
       });
     };
 
     LifeCycleHooksTest.prototype['@test components rendered from `{{each}}` have correct life-cycle hooks to be called'] = function testComponentsRenderedFromEachHaveCorrectLifeCycleHooksToBeCalled() {
-      var _this5 = this;
+      var _this6 = this;
 
       var invoke = this.boundHelpers.invoke;
 
-      this.registerComponent('an-item', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7) });
+      this.registerComponent('an-item', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8) });
 
-      this.registerComponent('no-items', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8) });
+      this.registerComponent('no-items', { template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9) });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9, invoke('an-item', { count: expr('item') }), invoke('no-items')), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10, invoke('an-item', { count: expr('item') }), invoke('no-items')), {
         items: [1, 2, 3, 4, 5]
       });
 
@@ -15621,7 +15761,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.assertHooks.apply(this, ['after initial render'].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1)));
 
       this.runTask(function () {
-        return _emberMetal.set(_this5.context, 'items', []);
+        return _emberMetal.set(_this6.context, 'items', []);
       });
 
       this.assertText('Nothing to see here');
@@ -15629,9 +15769,9 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender']);
 
       this.teardownAssertions.push(function () {
-        _this5.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender']);
+        _this6.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender']);
 
-        _this5.assertRegisteredViews('after destroy');
+        _this6.assertRegisteredViews('after destroy');
       });
     };
 
@@ -15662,12 +15802,12 @@ babelHelpers.classCallCheck(this, _class);
     }
 
     _class.prototype.invocationFor = function invocationFor(name) {
-      var _this6 = this;
+      var _this7 = this;
 
       var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       var attrs = Object.keys(namedArgs).map(function (k) {
-        return k + '=' + _this6.val(namedArgs[k]);
+        return k + '=' + _this7.val(namedArgs[k]);
       }).join(' ');
       return '{{' + name + ' ' + attrs + '}}';
     };
@@ -15707,15 +15847,15 @@ babelHelpers.classCallCheck(this, _class2);
     }
 
     _class2.prototype['@test afterRender set'] = function testAfterRenderSet() {
-      var _this8 = this;
+      var _this9 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         width: '5',
         didInsertElement: function () {
-          var _this7 = this;
+          var _this8 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            _this7.set('width', '10');
+            _this8.set('width', '10');
           });
         }
       });
@@ -15728,21 +15868,21 @@ babelHelpers.classCallCheck(this, _class2);
       this.assertText('10');
 
       this.runTask(function () {
-        return _this8.rerender();
+        return _this9.rerender();
       });
 
       this.assertText('10');
     };
 
     _class2.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
-      var _this10 = this;
+      var _this11 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         didInsertElement: function () {
-          var _this9 = this;
+          var _this10 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            var parent = _this9.get('parent');
+            var parent = _this10.get('parent');
             parent.set('foo', 'wat');
           });
         }
@@ -15757,7 +15897,7 @@ babelHelpers.classCallCheck(this, _class2);
       this.assertText('wat');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('wat');
