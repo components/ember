@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+6f5c3b8f
+ * @version   2.9.0-null+c6ac966d
  */
 
 var enifed, requireModule, require, Ember;
@@ -11978,25 +11978,25 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
       return new _emberGlimmerUtilsReferences.RootReference(controller);
     };
 
-    AbstractRenderManager.prototype.getTag = function getTag(state) {
+    AbstractRenderManager.prototype.getTag = function getTag() {
       return null;
     };
 
-    AbstractRenderManager.prototype.getDestructor = function getDestructor(state) {
-      return state.controller;
+    AbstractRenderManager.prototype.getDestructor = function getDestructor() {
+      return null;
     };
 
     AbstractRenderManager.prototype.didCreateElement = function didCreateElement() {};
 
     AbstractRenderManager.prototype.didRenderLayout = function didRenderLayout() {};
 
-    AbstractRenderManager.prototype.didCreate = function didCreate(state) {};
+    AbstractRenderManager.prototype.didCreate = function didCreate() {};
 
-    AbstractRenderManager.prototype.update = function update(state, args, dynamicScope) {};
+    AbstractRenderManager.prototype.update = function update() {};
 
     AbstractRenderManager.prototype.didUpdateLayout = function didUpdateLayout() {};
 
-    AbstractRenderManager.prototype.didUpdate = function didUpdate(state) {};
+    AbstractRenderManager.prototype.didUpdate = function didUpdate() {};
 
     return AbstractRenderManager;
   })();
@@ -12057,6 +12057,12 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
       var controller = _ref2.controller;
 
       controller.set('model', args.positional.at(0).value());
+    };
+
+    NonSingletonRenderManager.prototype.getDestructor = function getDestructor(_ref3) {
+      var controller = _ref3.controller;
+
+      return controller;
     };
 
     return NonSingletonRenderManager;
@@ -40861,7 +40867,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+6f5c3b8f";
+  exports.default = "2.9.0-null+c6ac966d";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
