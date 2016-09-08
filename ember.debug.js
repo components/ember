@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+945d81af
+ * @version   2.9.0-null+aeced158
  */
 
 var enifed, requireModule, require, Ember;
@@ -22313,9 +22313,9 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal', 'conta
       The user agent's global variable. In browsers, this will be `window`.
       @since 1.11
      @property global
-     @default environment.global
+     @default window
     */
-    global: _emberEnvironment.environment.global,
+    global: _emberEnvironment.environment.window,
 
     /**
       @private
@@ -40810,7 +40810,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+945d81af";
+  exports.default = "2.9.0-null+aeced158";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

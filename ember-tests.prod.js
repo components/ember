@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+945d81af
+ * @version   2.9.0-null+aeced158
  */
 
 var enifed, requireModule, require, Ember;
@@ -40811,7 +40811,7 @@ enifed('ember-metal/tests/weak_map_test', ['exports', 'ember-metal/weak_map'], f
     assert.strictEqual(map.toString(), '[object WeakMap]');
   });
 });
-enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'internal-test-helpers', 'container'], function (exports, _emberMetal, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _internalTestHelpers, _container) {
+enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-environment', 'ember-metal', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'internal-test-helpers', 'container'], function (exports, _emberEnvironment, _emberMetal, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _internalTestHelpers, _container) {
   'use strict';
 
   function mockBrowserLocation(overrides) {
@@ -40859,6 +40859,13 @@ enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-met
         _emberMetal.run(location, 'destroy');
       }
     }
+  });
+
+  QUnit.test('AutoLocation should have the `global`', function (assert) {
+    var location = _emberRoutingLocationAuto_location.default.create();
+
+    assert.ok(location.global, 'has a global defined');
+    assert.strictEqual(location.global, _emberEnvironment.environment.window, 'has the environments window global');
   });
 
   QUnit.test('AutoLocation should return concrete implementation\'s value for `getURL`', function () {
