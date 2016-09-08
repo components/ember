@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+4adbb01e
+ * @version   2.9.0-null+6f5c3b8f
  */
 
 var enifed, requireModule, require, Ember;
@@ -9779,7 +9779,10 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       view._transitionTo('destroying');
 
       view.element = null;
-      view.trigger('didDestroyElement');
+
+      if (this._env.isInteractive) {
+        view.trigger('didDestroyElement');
+      }
 
       this.cleanupRootFor(view);
 
@@ -10051,7 +10054,7 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
     return _class;
   })());
 });
-enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-glimmer/utils/process-args', 'container', 'ember-environment'], function (exports, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberGlimmerUtilsProcessArgs, _container, _emberEnvironment) {
+enifed('ember-glimmer/syntax/curly-component', ['exports', 'glimmer-runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-glimmer/utils/process-args', 'container'], function (exports, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberGlimmerUtilsProcessArgs, _container) {
   'use strict';
 
   exports.validatePositionalParameters = validatePositionalParameters;
@@ -10136,8 +10139,10 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
       var component = this.component;
       var environment = this.environment;
 
-      component.trigger('willDestroyElement');
-      component.trigger('willClearRender');
+      if (environment.isInteractive) {
+        component.trigger('willDestroyElement');
+        component.trigger('willClearRender');
+      }
 
       environment.destroyedComponents.push(component);
     };
@@ -10223,7 +10228,7 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
       component.trigger('didInitAttrs', { attrs: attrs });
       component.trigger('didReceiveAttrs', { newAttrs: attrs });
 
-      if (environment.hasDOM) {
+      if (environment.isInteractive) {
         component.trigger('willInsertElement');
       }
 
@@ -10321,8 +10326,9 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
 
     CurlyComponentManager.prototype.didCreate = function didCreate(_ref4) {
       var component = _ref4.component;
+      var environment = _ref4.environment;
 
-      if (_emberEnvironment.environment.hasDOM) {
+      if (environment.isInteractive) {
         component.trigger('didInsertElement');
         component.trigger('didRender');
         component._transitionTo('inDOM');
@@ -10365,9 +10371,12 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
 
     CurlyComponentManager.prototype.didUpdate = function didUpdate(_ref5) {
       var component = _ref5.component;
+      var environment = _ref5.environment;
 
-      component.trigger('didUpdate');
-      component.trigger('didRender');
+      if (environment.isInteractive) {
+        component.trigger('didUpdate');
+        component.trigger('didRender');
+      }
     };
 
     CurlyComponentManager.prototype.getDestructor = function getDestructor(stateBucket) {
@@ -10395,7 +10404,11 @@ babelHelpers.inherits(TopComponentManager, _CurlyComponentManager);
 
       component.trigger('didInitAttrs');
       component.trigger('didReceiveAttrs');
-      component.trigger('willInsertElement');
+
+      if (environment.isInteractive) {
+        component.trigger('willInsertElement');
+      }
+
       component.trigger('willRender');
 
       processComponentInitializationAssertions(component, {});
@@ -37996,7 +38009,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-null+4adbb01e";
+  exports.default = "2.9.0-null+6f5c3b8f";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
@@ -38079,8 +38092,13 @@ enifed('internal-test-helpers/index', ['exports', 'container', 'ember-applicatio
   exports.runDestroy = runDestroy;
   exports.factory = _internalTestHelpersFactory.default;
 
-  function buildOwner(_createOptions, resolver) {
-    var createOptions = _createOptions || {};
+  function buildOwner() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    var ownerOptions = options.ownerOptions || {};
+    var resolver = options.resolver;
+    var bootOptions = options.bootOptions || {};
+
     var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin);
 
     var namespace = _emberRuntime.Object.create({
@@ -38096,12 +38114,12 @@ enifed('internal-test-helpers/index', ['exports', 'container', 'ember-applicatio
       fallback: fallbackRegistry
     });
 
-    _emberApplication.ApplicationInstance.setupRegistry(registry);
+    _emberApplication.ApplicationInstance.setupRegistry(registry, bootOptions);
 
     var owner = Owner.create({
       __registry__: registry,
       __container__: null
-    }, createOptions);
+    }, ownerOptions);
 
     var container = registry.container({ owner: owner });
     owner.__container__ = container;

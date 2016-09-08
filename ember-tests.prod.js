@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+4adbb01e
+ * @version   2.9.0-null+6f5c3b8f
  */
 
 var enifed, requireModule, require, Ember;
@@ -15103,6 +15103,12 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       }
     };
 
+    LifeCycleHooksTest.prototype.getBootOptions = function getBootOptions() {
+      return {
+        isInteractive: this.isInteractive
+      };
+    };
+
     /* abstract */
 
     /* abstract */
@@ -15125,9 +15131,14 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       var actual = Object.keys(viewRegistry).sort().filter(function (id) {
         return id !== topLevelId;
       });
-      var expected = this.componentRegistry.sort();
 
-      this.assert.deepEqual(actual, expected, 'registered views - ' + label);
+      if (this.isInteractive) {
+        var expected = this.componentRegistry.sort();
+
+        this.assert.deepEqual(actual, expected, 'registered views - ' + label);
+      } else {
+        this.assert.deepEqual(actual, [], 'no views should be registered for non-interactive mode');
+      }
     };
 
     LifeCycleHooksTest.prototype.registerComponent = function registerComponent(name, _ref) {
@@ -15263,11 +15274,12 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       _RenderingTest.prototype.registerComponent.call(this, name, { ComponentClass: ComponentClass, template: template });
     };
 
-    LifeCycleHooksTest.prototype.assertHooks = function assertHooks(label) {
-      for (var _len = arguments.length, rawHooks = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        rawHooks[_key - 1] = arguments[_key];
-      }
+    LifeCycleHooksTest.prototype.assertHooks = function assertHooks(_ref2) {
+      var label = _ref2.label;
+      var interactive = _ref2.interactive;
+      var nonInteractive = _ref2.nonInteractive;
 
+      var rawHooks = this.isInteractive ? interactive : nonInteractive;
       var hooks = rawHooks.map(function (raw) {
         return hook.apply(undefined, raw);
       });
@@ -15300,15 +15312,22 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       var middleAttrs = { name: 'Tom Dale' };
       var bottomAttrs = { website: 'tomdale.net' };
 
-      this.assertHooks('after initial render',
+      this.assertHooks({
+        label: 'after initial render',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']);
+        ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this3.components['the-bottom'].rerender();
@@ -15316,15 +15335,19 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      this.assertHooks('after no-op rerender (bottom)',
+      this.assertHooks({
+        label: 'after no-op rerender (bottom)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
 
-      ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+        // Async hooks
 
-      // Async hooks
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']],
 
-      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+        nonInteractive: [['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this3.components['the-middle'].rerender();
@@ -15332,15 +15355,22 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      this.assertHooks('after no-op rerender (middle)',
+      this.assertHooks({
+        label: 'after no-op rerender (middle)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'],
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+        ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this3.components['the-top'].rerender();
@@ -15348,15 +15378,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      this.assertHooks('after no-op rerender (top)',
+      this.assertHooks({
+        label: 'after no-op rerender (top)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-top', 'willUpdate'], ['the-top', 'willRender'],
+        ['the-top', 'willUpdate'], ['the-top', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+        ['the-top', 'didUpdate'], ['the-top', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-top', 'willUpdate'], ['the-top', 'willRender']]
+      });
 
       this.runTask(function () {
         return _emberMetal.set(_this3.context, 'twitter', '@horsetomdale');
@@ -15372,18 +15410,31 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
 
-      this.assertHooks('after update',
+      this.assertHooks({
+        label: 'after update',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'],
+        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+        ['the-top', 'didUpdate'], ['the-top', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender']]
+      });
 
       this.teardownAssertions.push(function () {
-        _this3.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']);
+        _this3.assertHooks({
+          label: 'destroy',
+
+          interactive: [['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']],
+
+          nonInteractive: [['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']]
+        });
 
         _this3.assertRegisteredViews('after destroy');
       });
@@ -15423,15 +15474,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       var secondAttrs = { name: 'Tom Dale' };
       var lastAttrs = { website: 'tomdale.net' };
 
-      this.assertHooks('after initial render',
+      this.assertHooks({
+        label: 'after initial render',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender'],
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-first-child', 'didInsertElement'], ['the-first-child', 'didRender'], ['the-second-child', 'didInsertElement'], ['the-second-child', 'didRender'], ['the-last-child', 'didInsertElement'], ['the-last-child', 'didRender'], ['the-parent', 'didInsertElement'], ['the-parent', 'didRender']);
+        ['the-first-child', 'didInsertElement'], ['the-first-child', 'didRender'], ['the-second-child', 'didInsertElement'], ['the-second-child', 'didRender'], ['the-last-child', 'didInsertElement'], ['the-last-child', 'didRender'], ['the-parent', 'didInsertElement'], ['the-parent', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this4.components['the-first-child'].rerender();
@@ -15439,15 +15498,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      this.assertHooks('after no-op rerender (first child)',
+      this.assertHooks({
+        label: 'after no-op rerender (first child)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'],
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-first-child', 'didUpdate'], ['the-first-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+        ['the-first-child', 'didUpdate'], ['the-first-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this4.components['the-second-child'].rerender();
@@ -15455,15 +15522,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      this.assertHooks('after no-op rerender (second child)',
+      this.assertHooks({
+        label: 'after no-op rerender (second child)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'],
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-second-child', 'didUpdate'], ['the-second-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+        ['the-second-child', 'didUpdate'], ['the-second-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this4.components['the-last-child'].rerender();
@@ -15471,15 +15546,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      this.assertHooks('after no-op rerender (last child)',
+      this.assertHooks({
+        label: 'after no-op rerender (last child)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-last-child', 'didUpdate'], ['the-last-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+        ['the-last-child', 'didUpdate'], ['the-last-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this4.components['the-parent'].rerender();
@@ -15487,15 +15570,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
 
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
 
-      this.assertHooks('after no-op rerender (parent)',
+      this.assertHooks({
+        label: 'after no-op rerender (parent)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-parent', 'willUpdate'], ['the-parent', 'willRender'],
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+        ['the-parent', 'didUpdate'], ['the-parent', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-parent', 'willUpdate'], ['the-parent', 'willRender']]
+      });
 
       this.runTask(function () {
         return _emberMetal.setProperties(_this4.context, {
@@ -15515,18 +15606,32 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       secondAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Horse Tom Dale' } };
       lastAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'horsetomdale.net' } };
 
-      this.assertHooks('after update',
+      this.assertHooks({
+        label: 'after update',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-parent', 'didUpdateAttrs', parentAttrs], ['the-parent', 'didReceiveAttrs', parentAttrs], ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'didUpdateAttrs', firstAttrs], ['the-first-child', 'didReceiveAttrs', firstAttrs], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'], ['the-second-child', 'didUpdateAttrs', secondAttrs], ['the-second-child', 'didReceiveAttrs', secondAttrs], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'], ['the-last-child', 'didUpdateAttrs', lastAttrs], ['the-last-child', 'didReceiveAttrs', lastAttrs], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
+        ['the-parent', 'didUpdateAttrs', parentAttrs], ['the-parent', 'didReceiveAttrs', parentAttrs], ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'didUpdateAttrs', firstAttrs], ['the-first-child', 'didReceiveAttrs', firstAttrs], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'], ['the-second-child', 'didUpdateAttrs', secondAttrs], ['the-second-child', 'didReceiveAttrs', secondAttrs], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'], ['the-last-child', 'didUpdateAttrs', lastAttrs], ['the-last-child', 'didReceiveAttrs', lastAttrs], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-first-child', 'didUpdate'], ['the-first-child', 'didRender'], ['the-second-child', 'didUpdate'], ['the-second-child', 'didRender'], ['the-last-child', 'didUpdate'], ['the-last-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']);
+        ['the-first-child', 'didUpdate'], ['the-first-child', 'didRender'], ['the-second-child', 'didUpdate'], ['the-second-child', 'didRender'], ['the-last-child', 'didUpdate'], ['the-last-child', 'didRender'], ['the-parent', 'didUpdate'], ['the-parent', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-parent', 'didUpdateAttrs', parentAttrs], ['the-parent', 'didReceiveAttrs', parentAttrs], ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'didUpdateAttrs', firstAttrs], ['the-first-child', 'didReceiveAttrs', firstAttrs], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'], ['the-second-child', 'didUpdateAttrs', secondAttrs], ['the-second-child', 'didReceiveAttrs', secondAttrs], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'], ['the-last-child', 'didUpdateAttrs', lastAttrs], ['the-last-child', 'didReceiveAttrs', lastAttrs], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender']]
+      });
 
       this.teardownAssertions.push(function () {
-        _this4.assertHooks('destroy', ['the-parent', 'willDestroyElement'], ['the-parent', 'willClearRender'], ['the-first-child', 'willDestroyElement'], ['the-first-child', 'willClearRender'], ['the-second-child', 'willDestroyElement'], ['the-second-child', 'willClearRender'], ['the-last-child', 'willDestroyElement'], ['the-last-child', 'willClearRender'], ['the-parent', 'didDestroyElement'], ['the-first-child', 'didDestroyElement'], ['the-second-child', 'didDestroyElement'], ['the-last-child', 'didDestroyElement'], ['the-parent', 'willDestroy'], ['the-first-child', 'willDestroy'], ['the-second-child', 'willDestroy'], ['the-last-child', 'willDestroy']);
+        _this4.assertHooks({
+          label: 'destroy',
+
+          interactive: [['the-parent', 'willDestroyElement'], ['the-parent', 'willClearRender'], ['the-first-child', 'willDestroyElement'], ['the-first-child', 'willClearRender'], ['the-second-child', 'willDestroyElement'], ['the-second-child', 'willClearRender'], ['the-last-child', 'willDestroyElement'], ['the-last-child', 'willClearRender'], ['the-parent', 'didDestroyElement'], ['the-first-child', 'didDestroyElement'], ['the-second-child', 'didDestroyElement'], ['the-last-child', 'didDestroyElement'], ['the-parent', 'willDestroy'], ['the-first-child', 'willDestroy'], ['the-second-child', 'willDestroy'], ['the-last-child', 'willDestroy']],
+
+          nonInteractive: [['the-parent', 'willDestroy'], ['the-first-child', 'willDestroy'], ['the-second-child', 'willDestroy'], ['the-last-child', 'willDestroy']]
+        });
 
         _this4.assertRegisteredViews('after destroy');
       });
@@ -15557,15 +15662,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       var middleAttrs = { twitterTop: '@tomdale' };
       var bottomAttrs = { twitterMiddle: '@tomdale' };
 
-      this.assertHooks('after initial render',
+      this.assertHooks({
+        label: 'after initial render',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']);
+        ['the-bottom', 'didInsertElement'], ['the-bottom', 'didRender'], ['the-middle', 'didInsertElement'], ['the-middle', 'didRender'], ['the-top', 'didInsertElement'], ['the-top', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender']]
+      });
 
       this.runTask(function () {
         return _emberMetal.set(_this5.context, 'twitter', '@horsetomdale');
@@ -15580,15 +15693,23 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       middleAttrs = { oldAttrs: { twitterTop: '@tomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
       bottomAttrs = { oldAttrs: { twitterMiddle: '@tomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
 
-      this.assertHooks('after updating (root)',
+      this.assertHooks({
+        label: 'after updating (root)',
 
-      // Sync hooks
+        interactive: [
+        // Sync hooks
 
-      ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
 
-      // Async hooks
+        // Async hooks
 
-      ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']);
+        ['the-bottom', 'didUpdate'], ['the-bottom', 'didRender'], ['the-middle', 'didUpdate'], ['the-middle', 'didRender'], ['the-top', 'didUpdate'], ['the-top', 'didRender']],
+
+        nonInteractive: [
+        // Sync hooks
+
+        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender']]
+      });
 
       this.runTask(function () {
         return _this5.rerender();
@@ -15602,10 +15723,20 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       middleAttrs = { oldAttrs: { twitterTop: '@horsetomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
       bottomAttrs = { oldAttrs: { twitterMiddle: '@horsetomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
 
-      this.assertHooks('after no-op rernder (root)');
+      this.assertHooks({
+        label: 'after no-op rernder (root)',
+        interactive: [],
+        nonInteractive: []
+      });
 
       this.teardownAssertions.push(function () {
-        _this5.assertHooks('destroy', ['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']);
+        _this5.assertHooks({
+          label: 'destroy',
+
+          interactive: [['the-top', 'willDestroyElement'], ['the-top', 'willClearRender'], ['the-middle', 'willDestroyElement'], ['the-middle', 'willClearRender'], ['the-bottom', 'willDestroyElement'], ['the-bottom', 'willClearRender'], ['the-top', 'didDestroyElement'], ['the-middle', 'didDestroyElement'], ['the-bottom', 'didDestroyElement'], ['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']],
+
+          nonInteractive: [['the-top', 'willDestroy'], ['the-middle', 'willDestroy'], ['the-bottom', 'willDestroy']]
+        });
 
         _this5.assertRegisteredViews('after destroy');
       });
@@ -15634,31 +15765,64 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       };
 
       var initialAfterRenderHooks = function (count) {
-        return [['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['an-item', 'didInsertElement'], ['an-item', 'didRender']];
+        if (_this6.isInteractive) {
+          return [['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['an-item', 'didInsertElement'], ['an-item', 'didRender']];
+        } else {
+          return [];
+        }
       };
 
-      this.assertHooks.apply(this, ['after initial render'].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1)));
+      this.assertHooks({
+        label: 'after initial render',
 
-      this.assert.equal(this.component.childViews.length, 5, 'childViews precond');
+        interactive: [].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1)),
+
+        nonInteractive: [].concat(initialHooks(1), initialHooks(2), initialHooks(3), initialHooks(4), initialHooks(5), initialAfterRenderHooks(5), initialAfterRenderHooks(4), initialAfterRenderHooks(3), initialAfterRenderHooks(2), initialAfterRenderHooks(1))
+      });
+
+      // TODO: Is this correct? Should childViews be populated in non-interactive mode?
+      if (this.isInteractive) {
+        this.assert.equal(this.component.childViews.length, 5, 'childViews precond');
+      }
 
       this.runTask(function () {
         return _emberMetal.set(_this6.context, 'items', []);
       });
 
-      this.assert.equal(this.component.childViews.length, 1, 'childViews updated');
+      // TODO: Is this correct? Should childViews be populated in non-interactive mode?
+      if (this.isInteractive) {
+        this.assert.equal(this.component.childViews.length, 1, 'childViews updated');
+      }
 
       this.assertText('Nothing to see here');
 
-      this.assertHooks('reset to empty array', ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']);
+      this.assertHooks({
+        label: 'reset to empty array',
+
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+
+        nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
+      });
 
       this.teardownAssertions.push(function () {
-        _this6.assertHooks('destroy', ['no-items', 'willDestroyElement'], ['no-items', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['no-items', 'willDestroy'], ['nested-item', 'willDestroy']);
+        _this6.assertHooks({
+          label: 'destroy',
+
+          interactive: [['no-items', 'willDestroyElement'], ['no-items', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['no-items', 'willDestroy'], ['nested-item', 'willDestroy']],
+
+          nonInteractive: [['no-items', 'willDestroy'], ['nested-item', 'willDestroy']]
+        });
 
         _this6.assertRegisteredViews('after destroy');
       });
     };
 
 babelHelpers.createClass(LifeCycleHooksTest, [{
+      key: 'isInteractive',
+      get: function () {
+        return true;
+      }
+    }, {
       key: 'ComponentClass',
       get: function () {
         throw new Error('Not implemented: `ComponentClass`');
@@ -15675,7 +15839,7 @@ babelHelpers.createClass(LifeCycleHooksTest, [{
     return LifeCycleHooksTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: interactive lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
 babelHelpers.inherits(_class, _LifeCycleHooksTest);
 
     function _class() {
@@ -15714,27 +15878,80 @@ babelHelpers.createClass(_class, [{
       get: function () {
         return _emberGlimmerTestsUtilsHelpers.Component;
       }
+    }, {
+      key: 'isInteractive',
+      get: function () {
+        return true;
+      }
     }]);
     return _class;
   })(LifeCycleHooksTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
-babelHelpers.inherits(_class2, _RenderingTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: non-interactive lifecycle hooks (curly components)', (function (_LifeCycleHooksTest2) {
+babelHelpers.inherits(_class2, _LifeCycleHooksTest2);
 
     function _class2() {
+      _LifeCycleHooksTest2.apply(this, arguments);
+    }
+
+    _class2.prototype.invocationFor = function invocationFor(name) {
+      var _this8 = this;
+
+      var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var attrs = Object.keys(namedArgs).map(function (k) {
+        return k + '=' + _this8.val(namedArgs[k]);
+      }).join(' ');
+      return '{{' + name + ' ' + attrs + '}}';
+    };
+
+    _class2.prototype.attrFor = function attrFor(name) {
+      return '' + name;
+    };
+
+    /* private */
+
+    _class2.prototype.val = function val(value) {
+      if (value.isString) {
+        return JSON.stringify(value.value);
+      } else if (value.isExpr) {
+        return '(readonly ' + value.value + ')';
+      } else {
+        throw new Error('Unknown value: ' + value);
+      }
+    };
+
+babelHelpers.createClass(_class2, [{
+      key: 'ComponentClass',
+      get: function () {
+        return _emberGlimmerTestsUtilsHelpers.Component;
+      }
+    }, {
+      key: 'isInteractive',
+      get: function () {
+        return false;
+      }
+    }]);
+    return _class2;
+  })(LifeCycleHooksTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
+babelHelpers.inherits(_class3, _RenderingTest2);
+
+    function _class3() {
       _RenderingTest2.apply(this, arguments);
     }
 
-    _class2.prototype['@test afterRender set'] = function testAfterRenderSet() {
-      var _this9 = this;
+    _class3.prototype['@test afterRender set'] = function testAfterRenderSet() {
+      var _this10 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         width: '5',
         didInsertElement: function () {
-          var _this8 = this;
+          var _this9 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            _this8.set('width', '10');
+            _this9.set('width', '10');
           });
         }
       });
@@ -15747,21 +15964,21 @@ babelHelpers.inherits(_class2, _RenderingTest2);
       this.assertText('10');
 
       this.runTask(function () {
-        return _this9.rerender();
+        return _this10.rerender();
       });
 
       this.assertText('10');
     };
 
-    _class2.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
-      var _this11 = this;
+    _class3.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
+      var _this12 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         didInsertElement: function () {
-          var _this10 = this;
+          var _this11 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            var parent = _this10.get('parent');
+            var parent = _this11.get('parent');
             parent.set('foo', 'wat');
           });
         }
@@ -15776,19 +15993,19 @@ babelHelpers.inherits(_class2, _RenderingTest2);
       this.assertText('wat');
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertText('wat');
     };
 
-    return _class2;
+    return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   function bind(func, thisArg) {
     return function () {
-      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
       }
 
       return func.apply(thisArg, args);
@@ -15811,6 +16028,10 @@ babelHelpers.inherits(_class2, _RenderingTest2);
     return JSON.parse(JSON.stringify(serializable));
   }
 });
+
+// Sync hooks
+
+// Async hooks
 
 // Sync hooks
 
@@ -31067,7 +31288,11 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
 
     function AbstractRenderingTest() {
       _TestCase2.call(this);
-      var owner = this.owner = _emberGlimmerTestsUtilsHelpers.buildOwner(this.getOwnerOptions(), this.getResolver());
+      var owner = this.owner = _emberGlimmerTestsUtilsHelpers.buildOwner({
+        ownerOptions: this.getOwnerOptions(),
+        bootOptions: this.getBootOptions(),
+        resolver: this.getResolver()
+      });
 
       this.renderer = this.owner.lookup('renderer:-dom');
       this.element = _emberViews.jQuery('#qunit-fixture')[0];
@@ -31086,9 +31311,9 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       return {};
     };
 
-    AbstractRenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {
-      return {};
-    };
+    AbstractRenderingTest.prototype.getOwnerOptions = function getOwnerOptions() {};
+
+    AbstractRenderingTest.prototype.getBootOptions = function getBootOptions() {};
 
     AbstractRenderingTest.prototype.getResolver = function getResolver() {};
 
@@ -42332,7 +42557,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true
+      ownerOptions: { routable: true }
     });
 
     var router = Router.create();
@@ -42356,7 +42581,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true
+      ownerOptions: { routable: true }
     });
 
     var router = Router.create();
@@ -42380,7 +42605,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true
+      ownerOptions: { routable: true }
     });
 
     var router = Router.create();
@@ -42398,7 +42623,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true
+      ownerOptions: { routable: true }
     });
 
     var router = Router.create({
@@ -42420,7 +42645,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true
+      ownerOptions: { routable: true }
     });
 
     var router = Router.create({
@@ -42442,7 +42667,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true
+      ownerOptions: { routable: true }
     });
 
     var router = Router.create();
@@ -42463,7 +42688,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true
+      ownerOptions: { routable: true }
     });
 
     var router = Router.create({
@@ -42521,14 +42746,16 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     });
 
     _container.setOwner(route, _internalTestHelpers.buildOwner({
-      hasRegistration: function () {
-        return true;
-      },
+      ownerOptions: {
+        hasRegistration: function () {
+          return true;
+        },
 
-      _lookupFactory: function (fullName) {
-        equal(fullName, 'model:post', 'correct factory was looked up');
+        _lookupFactory: function (fullName) {
+          equal(fullName, 'model:post', 'correct factory was looked up');
 
-        return Post;
+          return Post;
+        }
       }
     }));
 
@@ -42828,15 +43055,17 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     };
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true,
+      ownerOptions: {
+        routable: true,
 
-      mountPoint: 'foo.bar',
+        mountPoint: 'foo.bar',
 
-      lookup: function (name) {
-        if (name === 'route:posts') {
-          return postsRoute;
-        } else if (name === 'route:application') {
-          return applicationRoute;
+        lookup: function (name) {
+          if (name === 'route:posts') {
+            return postsRoute;
+          } else if (name === 'route:application') {
+            return applicationRoute;
+          }
         }
       }
     });
@@ -42871,15 +43100,17 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     };
 
     var engineInstance = _internalTestHelpers.buildOwner({
-      routable: true,
+      ownerOptions: {
+        routable: true,
 
-      mountPoint: 'foo.bar',
+        mountPoint: 'foo.bar',
 
-      lookup: function (name) {
-        if (name === 'route:posts') {
-          return postsRoute;
-        } else if (name === 'route:application') {
-          return applicationRoute;
+        lookup: function (name) {
+          if (name === 'route:posts') {
+            return postsRoute;
+          } else if (name === 'route:application') {
+            return applicationRoute;
+          }
         }
       }
     });
