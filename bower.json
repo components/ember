@@ -1,11 +1,10 @@
 {
   "name": "ember",
-  "version": "2.8.0-beta.5+a36823ce",
+  "version": "2.9.0-beta.1",
   "license": "MIT",
   "homepage": "https://github.com/emberjs/ember.js",
   "main": [
-    "./ember.debug.js",
-    "./ember-template-compiler.js"
+    "./ember.debug.js"
   ],
   "repository": {
     "type": "git",
