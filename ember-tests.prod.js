@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-null+899d25e1
+ * @version   2.9.0-null+4adbb01e
  */
 
 var enifed, requireModule, require, Ember;
@@ -21162,6 +21162,283 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/helpers/debugger', 'ember-metal', 'ember-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerHelpersDebugger, _emberMetal, _emberRuntime) {
+  'use strict';
+
+  // This file is generally not I-N-U-R tested, because the {{debugger}} helper currently
+  // does not run during re-render. This is something we eventually want to do, and when
+  // we implement that feature these tests should be updated accordingly.
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{debugger}}', (function (_RenderingTest) {
+    babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype.teardown = function teardown() {
+      _RenderingTest.prototype.teardown.call(this);
+      _emberGlimmerHelpersDebugger.resetDebuggerCallback();
+    };
+
+    _class.prototype.expectDebuggerCallback = function expectDebuggerCallback(callback, debuggerCallback) {
+      var times = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+
+      var called = 0;
+
+      _emberGlimmerHelpersDebugger.setDebuggerCallback(function (context, get) {
+        called++;
+        debuggerCallback(context, get);
+      });
+
+      callback();
+
+      this.assert.strictEqual(called, times, 'Expect debugger callback to be called exactly ' + times + ' time(s)');
+    };
+
+    _class.prototype.expectNoDebuggerCallback = function expectNoDebuggerCallback(callback) {
+      var called = 0;
+
+      _emberGlimmerHelpersDebugger.setDebuggerCallback(function () {
+        return called++;
+      });
+
+      callback();
+
+      this.assert.strictEqual(called, 0, 'Expect no debugger callback');
+    };
+
+    _class.prototype['@test should have the right context when used in a component layout'] = function testShouldHaveTheRightContextWhenUsedInAComponentLayout(assert) {
+      var _this = this;
+
+      var instance = undefined;
+
+      this.registerComponent('my-wrapper', {
+        template: '{{yield}}'
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            instance = this;
+          }
+        }),
+        template: '{{debugger}}foo-bar'
+      });
+
+      this.expectDebuggerCallback(function () {
+        _this.render('{{#my-wrapper}}{{foo-bar}}{{/my-wrapper}}');
+      }, function (context) {
+        assert.strictEqual(context, instance, 'context should be the component instance');
+      });
+
+      this.assertText('foo-bar');
+
+      this.expectNoDebuggerCallback(function () {
+        return _this.runTask(function () {
+          return _this.rerender();
+        });
+      });
+
+      this.assertText('foo-bar');
+    };
+
+    _class.prototype['@test should have the right context when yielded'] = function testShouldHaveTheRightContextWhenYielded(assert) {
+      var _this2 = this;
+
+      var instance = undefined;
+
+      this.registerComponent('my-wrapper', {
+        template: '{{yield}}'
+      });
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            instance = this;
+          }
+        }),
+        template: '{{#my-wrapper}}{{debugger}}foo-bar{{/my-wrapper}}'
+      });
+
+      this.expectDebuggerCallback(function () {
+        _this2.render('{{foo-bar}}');
+      }, function (context) {
+        assert.strictEqual(context, instance, 'context should be the component instance');
+      });
+
+      this.assertText('foo-bar');
+
+      this.expectNoDebuggerCallback(function () {
+        return _this2.runTask(function () {
+          return _this2.rerender();
+        });
+      });
+
+      this.assertText('foo-bar');
+    };
+
+    _class.prototype['@test should be called once per iteration in a loop'] = function testShouldBeCalledOncePerIterationInALoop(assert) {
+      var _this3 = this;
+
+      var count = 0;
+
+      _emberGlimmerHelpersDebugger.setDebuggerCallback(function () {
+        return count++;
+      });
+
+      var items = _emberRuntime.A([1, 2, 3, 4, 5]);
+
+      this.render('{{#each items as |item|}}{{debugger}}[{{item}}]{{/each}}', { items: items });
+
+      this.assertText('[1][2][3][4][5]');
+
+      assert.equal(count, 5, 'should have fired once per iteration');
+
+      count = 0;
+
+      this.runTask(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('[1][2][3][4][5]');
+
+      assert.strictEqual(count, 0, 'should not fire for re-render');
+
+      count = 0;
+
+      this.runTask(function () {
+        return items.pushObjects([6, 7, 8]);
+      });
+
+      this.assertText('[1][2][3][4][5][6][7][8]');
+
+      assert.equal(count, 3, 'should fire once per new items added to the loop');
+    };
+
+    _class.prototype['@test could `get` properties from "self"'] = function testCouldGetPropertiesFromSelf(assert) {
+      var _this4 = this;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            this.zomg = 'zomg';
+          }
+        }),
+        template: '{{debugger not.here}}foo-bar'
+      });
+
+      this.expectDebuggerCallback(function () {
+        _this4.render('{{foo-bar lol="lol" foo=foo}}', { foo: { bar: { baz: 'fooBarBaz' } } });
+      }, function (context, get) {
+        assert.equal(get('this'), context, '{{this}}');
+
+        assert.equal(get('lol'), 'lol', '{{lol}}');
+        assert.equal(get('this.lol'), 'lol', '{{this.lol}}');
+
+        assert.equal(get('zomg'), 'zomg', '{{zomg}}');
+        assert.equal(get('this.zomg'), 'zomg', '{{this.zomg}}');
+
+        assert.equal(get('foo.bar.baz'), 'fooBarBaz', '{{foo.bar.baz}}');
+        assert.equal(get('this.foo.bar.baz'), 'fooBarBaz', '{{this.foo.bar.baz}}');
+
+        assert.strictEqual(get('nope'), undefined, '{{nope}}');
+        assert.strictEqual(get('this.nope'), undefined, '{{this.nope}}');
+
+        assert.strictEqual(get('not.here'), undefined, '{{not.here}}');
+        assert.strictEqual(get('this.not.here'), undefined, '{{this.not.here}}');
+      });
+
+      this.assertText('foo-bar');
+
+      this.expectNoDebuggerCallback(function () {
+        return _this4.runTask(function () {
+          return _this4.rerender();
+        });
+      });
+
+      this.assertText('foo-bar');
+    };
+
+    _class.prototype['@test could `get` local variables'] = function testCouldGetLocalVariables(assert) {
+      var _this5 = this;
+
+      var obj = {
+        foo: 'foo',
+        bar: { baz: { bat: 'barBazBat' } }
+      };
+
+      this.expectDebuggerCallback(function () {
+        _this5.render('{{#each-in obj as |key value|}}{{debugger}}[{{key}}]{{/each-in}}', { obj: obj });
+      }, function (context, get) {
+        assert.equal(get('this'), context, '{{this}}');
+
+        assert.equal(get('obj'), obj);
+
+        // Glimmer bug:
+        // assert.strictEqual(get('this.key'), undefined, '{{this.key}}');
+        // assert.strictEqual(get('this.value'), undefined, '{{this.value}}');
+
+        var key = get('key');
+
+        if (key === 'foo') {
+          assert.equal(get('value'), 'foo', '{{value}} for key=foo');
+          assert.strictEqual(get('value.baz.bat'), undefined, '{{value.baz.bat}} for key=foo');
+          assert.strictEqual(get('value.nope'), undefined, '{{value.nope}} for key=foo');
+        } else if (key === 'bar') {
+          assert.equal(get('value'), obj.bar, '{{value}} for key=bar');
+          assert.equal(get('value.baz.bat'), 'barBazBat', '{{value.baz.bat}} for key=bar');
+          assert.strictEqual(get('value.nope'), undefined, '{{value.nope}} for key=bar');
+        } else {
+          assert.ok(false, 'Unknown key: ' + key);
+        }
+      }, 2);
+
+      this.assertText('[foo][bar]');
+
+      this.expectNoDebuggerCallback(function () {
+        return _this5.runTask(function () {
+          return _this5.rerender();
+        });
+      });
+
+      this.assertText('[foo][bar]');
+
+      this.expectDebuggerCallback(function () {
+        _this5.runTask(function () {
+          return _emberMetal.set(obj, 'baz', 'baz');
+        });
+      }, function (context, get) {
+        assert.equal(get('this'), context, '{{this}}');
+
+        assert.equal(get('obj'), obj);
+
+        assert.strictEqual(get('this.key'), undefined, '{{this.key}}');
+        assert.strictEqual(get('this.value'), undefined, '{{this.value}}');
+
+        assert.equal(get('key'), 'baz', '{{key}} for key=baz');
+        assert.equal(get('value'), 'baz', '{{value}} for key=baz');
+        assert.strictEqual(get('value.baz.bat'), undefined, '{{value.baz.bat}} for key=baz');
+        assert.strictEqual(get('value.nope'), undefined, '{{value.nope}} for key=baz');
+      });
+
+      this.assertText('[foo][bar][baz]');
+
+      this.expectNoDebuggerCallback(function () {
+        return _this5.runTask(function () {
+          return _this5.rerender();
+        });
+      });
+
+      this.assertText('[foo][bar][baz]');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember-runtime', 'ember-views'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetal, _emberRuntime, _emberViews) {
   'use strict';
 
@@ -28049,17 +28326,18 @@ enifed('ember-glimmer/tests/integration/syntax/each-in-test', ['exports', 'ember
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
       _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n      </ul>\n    ']),
       _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    ']),
-      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
-      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    ']),
-      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
-      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
-      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
-      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
-      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
-      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories as |category data|}}\n          <li>{{category}}: {{data.reports.unitsSold}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories as |category data|}}\n          <li>{{category}}: {{data.reports.unitsSold}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in categories key=\'@identity\' as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 8203</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n      </ul>\n    ']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 8203</li>\n        <li>JavaScript Frameworks: Infinity</li>\n        <li>Bugs: Infinity</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each-in (get collection type) as |category count|}}\n          <li>{{category}}: {{count}}</li>\n        {{/each-in}}\n      </ul>\n    ']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 533462</li>\n        <li>Tweets: 7323</li>\n      </ul>\n    ']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n      </ul>\n    ']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Televisions: 183</li>\n        <li>Alarm Clocks: 999</li>\n        <li>Tweets: 443115</li>\n      </ul>\n    ']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Emberinios: 123456</li>\n      </ul>\n    ']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}'], ['\n      {{#each-in foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each-in}}']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}'], ['\n      {{#each-in arr as |key value|}}\n        [{{key}}:{{value}}]\n      {{/each-in}}']),
+      _templateObject15 = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    '], ['\n      <ul>\n        <li>Smartphones: 100</li>\n        <li>Tablets: 20</li>\n      </ul>\n    ']);
 
   var EachInTest = (function (_TogglingSyntaxConditionalsTest) {
 babelHelpers.inherits(EachInTest, _TogglingSyntaxConditionalsTest);
@@ -28140,10 +28418,41 @@ babelHelpers.inherits(_class, _BasicEachInTest);
       this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
     };
 
-    _class.prototype['@test it can render duplicate items'] = function testItCanRenderDuplicateItems() {
+    _class.prototype['@test it can render sub-paths of each item'] = function testItCanRenderSubPathsOfEachItem() {
       var _this2 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
+        categories: {
+          'Smartphones': { reports: { unitsSold: 8203 } },
+          'JavaScript Frameworks': { reports: { unitsSold: Infinity } }
+        }
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _emberMetal.set(_this2.context, 'categories.Smartphones.reports.unitsSold', 100);
+        _emberMetal.set(_this2.context, 'categories.Tweets', { reports: { unitsSold: 443115 } });
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
+
+      this.runTask(function () {
+        return _emberMetal.set(_this2.context, 'categories', {
+          'Smartphones': { reports: { unitsSold: 8203 } },
+          'JavaScript Frameworks': { reports: { unitsSold: Infinity } }
+        });
+      });
+
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+    };
+
+    _class.prototype['@test it can render duplicate items'] = function testItCanRenderDuplicateItems() {
+      var _this3 = this;
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5), {
         categories: {
           'Smartphones': 8203,
           'Tablets': 8203,
@@ -28152,19 +28461,19 @@ babelHelpers.inherits(_class, _BasicEachInTest);
         }
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
 
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetal.set(_this2.context, 'categories.Smartphones', 100);
-        _emberMetal.set(_this2.context, 'categories.Tweets', 443115);
+        _emberMetal.set(_this3.context, 'categories.Smartphones', 100);
+        _emberMetal.set(_this3.context, 'categories.Tweets', 443115);
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7));
 
       this.runTask(function () {
-        return _emberMetal.set(_this2.context, 'categories', {
+        return _emberMetal.set(_this3.context, 'categories', {
           'Smartphones': 8203,
           'Tablets': 8203,
           'JavaScript Frameworks': Infinity,
@@ -28172,13 +28481,13 @@ babelHelpers.inherits(_class, _BasicEachInTest);
         });
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
     };
 
     _class.prototype['@test it repeats the given block when the hash is dynamic'] = function testItRepeatsTheGivenBlockWhenTheHashIsDynamic() {
-      var _this3 = this;
+      var _this4 = this;
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8), {
         collection: {
           categories: {
             'Smartphones': 8203,
@@ -28197,20 +28506,20 @@ babelHelpers.inherits(_class, _BasicEachInTest);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetal.set(_this3.context, 'type', 'otherCategories');
+        _emberMetal.set(_this4.context, 'type', 'otherCategories');
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
 
       this.runTask(function () {
-        return _emberMetal.set(_this3.context, 'type', 'categories');
+        return _emberMetal.set(_this4.context, 'type', 'categories');
       });
 
       this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
     };
 
     _class.prototype['@test it only iterates over an object\'s own properties'] = function testItOnlyIteratesOverAnObjectSOwnProperties() {
-      var _this4 = this;
+      var _this5 = this;
 
       var protoCategories = {
         'Smartphones': 8203,
@@ -28223,7 +28532,7 @@ babelHelpers.inherits(_class, _BasicEachInTest);
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), { categories: categories });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10));
 
       this.assertStableRerender();
 
@@ -28232,21 +28541,21 @@ babelHelpers.inherits(_class, _BasicEachInTest);
         _emberMetal.set(categories, 'Tweets', 443115);
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11));
 
       categories = Object.create(protoCategories);
       categories['Televisions'] = 183;
       categories['Alarm Clocks'] = 999;
 
       this.runTask(function () {
-        return _emberMetal.set(_this4.context, 'categories', categories);
+        return _emberMetal.set(_this5.context, 'categories', categories);
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10));
     };
 
     _class.prototype['@test it does not observe direct property mutations (not going through set) on the object'] = function testItDoesNotObserveDirectPropertyMutationsNotGoingThroughSetOnTheObject() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
         categories: {
@@ -28260,29 +28569,29 @@ babelHelpers.inherits(_class, _BasicEachInTest);
       this.assertStableRerender();
 
       this.runTask(function () {
-        var categories = _emberMetal.get(_this5.context, 'categories');
+        var categories = _emberMetal.get(_this6.context, 'categories');
         delete categories.Smartphones;
       });
 
       this.assertInvariants();
 
       this.runTask(function () {
-        var categories = _emberMetal.get(_this5.context, 'categories');
+        var categories = _emberMetal.get(_this6.context, 'categories');
         categories['Emberinios'] = 123456;
       });
 
       this.assertInvariants();
 
       this.runTask(function () {
-        _emberMetal.set(_this5.context, 'categories', {
+        _emberMetal.set(_this6.context, 'categories', {
           Emberinios: 123456
         });
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12));
 
       this.runTask(function () {
-        _emberMetal.set(_this5.context, 'categories', {
+        _emberMetal.set(_this6.context, 'categories', {
           'Smartphones': 8203,
           'JavaScript Frameworks': Infinity
         });
@@ -28292,43 +28601,43 @@ babelHelpers.inherits(_class, _BasicEachInTest);
     };
 
     _class.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
-      var _this6 = this;
+      var _this7 = this;
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12), { foo: {} });
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13), { foo: {} });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _emberMetal.set(_this6.context, 'foo', { bar: { baz: { 'Here!': 1 } } });
+        return _emberMetal.set(_this7.context, 'foo', { bar: { baz: { 'Here!': 1 } } });
       });
 
       this.assertText('Here!');
 
       this.runTask(function () {
-        return _emberMetal.set(_this6.context, 'foo', {});
+        return _emberMetal.set(_this7.context, 'foo', {});
       });
 
       this.assertText('');
     };
 
     _class.prototype['@test it iterate over array with `in` instead of walking over elements'] = function testItIterateOverArrayWithInInsteadOfWalkingOverElements(assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       var arr = [1, 2, 3];
       arr.foo = 'bar';
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13), { arr: arr });
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14), { arr: arr });
 
       this.assertText('[0:1][1:2][2:3][foo:bar]');
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertText('[0:1][1:2][2:3][foo:bar]');
@@ -28343,7 +28652,7 @@ babelHelpers.inherits(_class, _BasicEachInTest);
       arr.foo = 'bar';
 
       this.runTask(function () {
-        return _emberMetal.set(_this7.context, 'arr', arr);
+        return _emberMetal.set(_this8.context, 'arr', arr);
       });
 
       this.assertText('[0:1][1:2][2:3][foo:bar]');
@@ -28416,7 +28725,7 @@ babelHelpers.inherits(_class3, _EachInProxyTest);
     }
 
     _class3.prototype['@test it iterates over the content, not the proxy'] = function testItIteratesOverTheContentNotTheProxy() {
-      var _this8 = this;
+      var _this9 = this;
 
       var content = {
         'Smartphones': 8203,
@@ -28448,10 +28757,10 @@ babelHelpers.inherits(_class3, _EachInProxyTest);
         });
       });
 
-      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14));
+      this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15));
 
       this.runTask(function () {
-        return _emberMetal.set(_this8.context, 'categories', _emberRuntime.ObjectProxy.create({
+        return _emberMetal.set(_this9.context, 'categories', _emberRuntime.ObjectProxy.create({
           content: {
             'Smartphones': 8203,
             'JavaScript Frameworks': Infinity
