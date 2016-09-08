@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0-beta.5
+ * @version   2.8.0
  */
 
 var enifed, requireModule, require, Ember;
@@ -9724,24 +9724,15 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
     // Determine if this is an initial render or a re-render.
     if (state.manager) {
       var sm = state.manager;
-      var templateMeta = null;
-      if (sm.block) {
-        templateMeta = sm.block.template.meta;
-      } else if (sm.scope && sm.scope._view && sm.scope._view.template) {
-        templateMeta = sm.scope._view.template.meta;
-      }
-      env.meta.moduleName = templateMeta && templateMeta.moduleName || env.meta && env.meta.moduleName;
       _emberHtmlbarsUtilsExtractPositionalParams.default(renderNode, sm.component.constructor, params, attrs, false);
       state.manager.rerender(env, attrs, visitor);
       return;
     }
 
     var parentView = env.view;
-    var options = {};
+
     var moduleName = env.meta && env.meta.moduleName;
-    if (moduleName) {
-      options.source = 'template:' + moduleName;
-    }
+    var options = { source: moduleName && 'template:' + moduleName };
 
     var _lookupComponent = _emberViewsUtilsLookupComponent.default(env.owner, tagName, options);
 
@@ -13357,7 +13348,8 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var component = this.component;
 
     return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function ComponentNodeManager_rerender_instrument() {
-      var env = _env.childWithView(component);
+      var meta = this.block && this.block.template.meta;
+      var env = _env.childWithView(component, meta);
 
       var snapshot = takeSnapshot(attrs);
 
@@ -25013,9 +25005,9 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/debug', 
       The user agent's global variable. In browsers, this will be `window`.
       @since 1.11
      @property global
-     @default environment.global
+     @default window
     */
-    global: _emberEnvironment.environment.global,
+    global: _emberEnvironment.environment.window,
 
     /**
       @private
@@ -41887,7 +41879,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0-beta.5";
+  exports.default = "2.8.0";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
