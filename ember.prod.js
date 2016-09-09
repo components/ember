@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+e49f699b
+ * @version   2.10.0-canary+fe5ce0bc
  */
 
 var enifed, requireModule, require, Ember;
@@ -6415,11 +6415,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-views', 'ember-runtime', 'e
     }
   }, _CoreView$extend.getAttr = function (key) {
     // TODO Intimate API should be deprecated
-    var attrs = this.attrs;
-    if (!attrs) {
-      return;
-    }
-    return _emberViews.getAttrFor(attrs, key);
+    return this.get(key);
   }, _CoreView$extend.readDOMAttr = function (name) {
     return _glimmerRuntime.readDOMAttr(this.element, name);
   }, _CoreView$extend));
@@ -11825,7 +11821,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
   'use strict';
 
   exports.default = processArgs;
-  exports.isCell = isCell;
 
   function processArgs(args, positionalParamsDefinition) {
     if (!positionalParamsDefinition || positionalParamsDefinition.length === 0 || args.positional.length === 0) {
@@ -11893,10 +11888,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
 
     return SimpleArgs;
   })();
-
-  function isCell(val) {
-    return val && val[_emberViews.MUTABLE_CELL];
-  }
 
   var REF = _emberMetal.symbol('REF');
 
@@ -35026,18 +35017,8 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
 enifed('ember-views/compat/attrs', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
 
-  exports.getAttrFor = getAttrFor;
   var MUTABLE_CELL = _emberMetal.symbol('MUTABLE_CELL');
-
   exports.MUTABLE_CELL = MUTABLE_CELL;
-  function isCell(val) {
-    return val && val[MUTABLE_CELL];
-  }
-
-  function getAttrFor(attrs, key) {
-    var val = attrs[key];
-    return isCell(val) ? val.value : val;
-  }
 });
 enifed('ember-views/compat/fallback-view-registry', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
@@ -38040,7 +38021,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+e49f699b";
+  exports.default = "2.10.0-canary+fe5ce0bc";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

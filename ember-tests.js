@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+e49f699b
+ * @version   2.10.0-canary+fe5ce0bc
  */
 
 var enifed, requireModule, require, Ember;
@@ -9148,7 +9148,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
     _class.prototype['@test getAttr() should return the same value as get()'] = function testGetAttrShouldReturnTheSameValueAsGet(assert) {
       var _this5 = this;
 
-      assert.expect(18);
+      assert.expect(33);
 
       var instance = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -9158,22 +9158,32 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         },
 
         didReceiveAttrs: function () {
+          var rootFirstPositional = this.get('firstPositional');
           var rootFirst = this.get('first');
           var rootSecond = this.get('second');
+          var attrFirstPositional = this.getAttr('firstPositional');
           var attrFirst = this.getAttr('first');
           var attrSecond = this.getAttr('second');
 
+          equal(rootFirstPositional, attrFirstPositional, 'root property matches attrs value');
           equal(rootFirst, attrFirst, 'root property matches attrs value');
           equal(rootSecond, attrSecond, 'root property matches attrs value');
         }
       });
+
+      FooBarComponent.reopenClass({
+        positionalParams: ['firstPositional']
+      });
+
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
 
-      this.render('{{foo-bar first=first second=second}}', {
+      this.render('{{foo-bar firstPositional first=first second=second}}', {
+        firstPositional: 'firstPositional',
         first: 'first',
         second: 'second'
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
 
@@ -9181,6 +9191,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         return _this5.rerender();
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
 
@@ -9188,6 +9199,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         _emberMetal.set(_this5.context, 'first', 'third');
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'third', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
 
@@ -9195,14 +9207,25 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         _emberMetal.set(_this5.context, 'second', 'fourth');
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'third', 'matches known value');
       assert.equal(instance.get('second'), 'fourth', 'matches known value');
 
       this.runTask(function () {
+        _emberMetal.set(_this5.context, 'firstPositional', 'fifth');
+      });
+
+      assert.equal(instance.get('firstPositional'), 'fifth', 'matches known value');
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'fourth', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetal.set(_this5.context, 'firstPositional', 'firstPositional');
         _emberMetal.set(_this5.context, 'first', 'first');
         _emberMetal.set(_this5.context, 'second', 'second');
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
     };
@@ -9792,7 +9815,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
       _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
       _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
-      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\' first)) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\' first)) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
       _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
       _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
       _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
@@ -10562,9 +10585,9 @@ babelHelpers.classCallCheck(this, _class);
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9), { first: 'first' });
 
-      assert.ok(_emberMetal.isEmpty(value), 'value is an empty parameter');
+      assert.equal(value, 'first', 'value is the expected parameter');
     };
 
     _class.prototype['@test renders with dot path and updates attributes'] = function testRendersWithDotPathAndUpdatesAttributes(assert) {
