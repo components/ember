@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+111e354d
+ * @version   2.10.0-canary+be4fb63a
  */
 
 var enifed, requireModule, require, Ember;
@@ -523,6 +523,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
 
   _emberMetal.setDebugFunction('debugSeal', function debugSeal(obj) {
     Object.seal(obj);
+  });
+
+  _emberMetal.setDebugFunction('debugFreeze', function debugFreeze(obj) {
+    Object.freeze(obj);
   });
 
   _emberMetal.setDebugFunction('deprecate', _emberDebugDeprecate.default);

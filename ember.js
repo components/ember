@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+111e354d
+ * @version   2.10.0-canary+be4fb63a
  */
 
 var enifed, requireModule, require, Ember;
@@ -5902,6 +5902,10 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
 
   _emberMetal.setDebugFunction('debugSeal', function debugSeal(obj) {
     Object.seal(obj);
+  });
+
+  _emberMetal.setDebugFunction('debugFreeze', function debugFreeze(obj) {
+    Object.freeze(obj);
   });
 
   _emberMetal.setDebugFunction('deprecate', _emberDebugDeprecate.default);
@@ -13246,20 +13250,40 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal', 'glimmer-ref
 
     SimpleHelperReference.create = function create(helper, args) {
       if (_glimmerReference.isConst(args)) {
-        var positional = args.positional;
-        var named = args.named;
+        var _ret = (function () {
+          var positional = args.positional;
+          var named = args.named;
 
-        var result = helper(positional.value(), named.value());
+          var positionalValue = positional.value();
+          var namedValue = named.value();
 
-        if (result === null) {
-          return _glimmerRuntime.NULL_REFERENCE;
-        } else if (result === undefined) {
-          return _glimmerRuntime.UNDEFINED_REFERENCE;
-        } else if (typeof result === 'object') {
-          return new RootReference(result);
-        } else {
-          return new PrimitiveReference(result);
-        }
+          _emberMetal.runInDebug(function () {
+            Object.freeze(positionalValue);
+            Object.freeze(namedValue);
+          });
+
+          var result = helper(positionalValue, namedValue);
+
+          if (result === null) {
+            return {
+              v: _glimmerRuntime.NULL_REFERENCE
+            };
+          } else if (result === undefined) {
+            return {
+              v: _glimmerRuntime.UNDEFINED_REFERENCE
+            };
+          } else if (typeof result === 'object') {
+            return {
+              v: new RootReference(result)
+            };
+          } else {
+            return {
+              v: new PrimitiveReference(result)
+            };
+          }
+        })();
+
+        if (typeof _ret === 'object') return _ret.v;
       } else {
         return new SimpleHelperReference(helper, args);
       }
@@ -13281,7 +13305,15 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal', 'glimmer-ref
       var positional = _args.positional;
       var named = _args.named;
 
-      return helper(positional.value(), named.value());
+      var positionalValue = positional.value();
+      var namedValue = named.value();
+
+      _emberMetal.runInDebug(function () {
+        Object.freeze(positionalValue);
+        Object.freeze(namedValue);
+      });
+
+      return helper(positionalValue, namedValue);
     };
 
     return SimpleHelperReference;
@@ -13314,7 +13346,15 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal', 'glimmer-ref
       var positional = _args2.positional;
       var named = _args2.named;
 
-      return instance.compute(positional.value(), named.value());
+      var positionalValue = positional.value();
+      var namedValue = named.value();
+
+      _emberMetal.runInDebug(function () {
+        Object.freeze(positionalValue);
+        Object.freeze(namedValue);
+      });
+
+      return instance.compute(positionalValue, namedValue);
     };
 
     return ClassBasedHelperReference;
@@ -15392,6 +15432,7 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
   exports.deprecateFunc = deprecateFunc;
   exports.runInDebug = runInDebug;
   exports.debugSeal = debugSeal;
+  exports.debugFreeze = debugFreeze;
   var debugFunctions = {
     assert: function () {},
     info: function () {},
@@ -15406,7 +15447,8 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
       return args[args.length - 1];
     },
     runInDebug: function () {},
-    debugSeal: function () {}
+    debugSeal: function () {},
+    debugFreeze: function () {}
   };
 
   exports.debugFunctions = debugFunctions;
@@ -15449,6 +15491,10 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
 
   function debugSeal() {
     return debugFunctions.debugSeal.apply(undefined, arguments);
+  }
+
+  function debugFreeze() {
+    return debugFunctions.debugFreeze.apply(undefined, arguments);
   }
 });
 enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], function (exports, _emberMetalWatching) {
@@ -16263,6 +16309,8 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.runInDebug = _emberMetalDebug.runInDebug;
   exports.setDebugFunction = _emberMetalDebug.setDebugFunction;
   exports.getDebugFunction = _emberMetalDebug.getDebugFunction;
+  exports.debugSeal = _emberMetalDebug.debugSeal;
+  exports.debugFreeze = _emberMetalDebug.debugFreeze;
   exports.instrument = _emberMetalInstrumentation.instrument;
   exports.flaggedInstrument = _emberMetalInstrumentation.flaggedInstrument;
   exports._instrumentStart = _emberMetalInstrumentation._instrumentStart;
@@ -40867,7 +40915,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+111e354d";
+  exports.default = "2.10.0-canary+be4fb63a";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

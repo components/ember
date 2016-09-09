@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+111e354d
+ * @version   2.10.0-canary+be4fb63a
  */
 
 var enifed, requireModule, require, Ember;
@@ -20723,6 +20723,7 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'internal-test-helpers', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _internalTestHelpers, _emberMetal) {
+  /* globals EmberDev */
   'use strict';
 
   var assert = QUnit.assert;
@@ -21382,6 +21383,138 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
 
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  // these feature detects prevent errors in these tests
+  // on platforms (*cough* IE9 *cough*) that do not
+  // property support `Object.freeze`
+  var pushingIntoFrozenArrayThrows = (function () {
+    var array = [];
+    Object.freeze(array);
+
+    try {
+      array.push('foo');
+
+      return false;
+    } catch (e) {
+      return true;
+    }
+  })();
+
+  var assigningExistingFrozenPropertyThrows = (function () {
+    var obj = { foo: 'asdf' };
+    Object.freeze(obj);
+
+    try {
+      obj.foo = 'derp';
+
+      return false;
+    } catch (e) {
+      return true;
+    }
+  })();
+
+  var addingPropertyToFrozenObjectThrows = (function () {
+    var obj = { foo: 'asdf' };
+    Object.freeze(obj);
+
+    try {
+      obj.bar = 'derp';
+
+      return false;
+    } catch (e) {
+      return true;
+    }
+  })();
+
+  if (!EmberDev.runningProdBuild && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
+    (function () {
+      var HelperMutatingArgsTests = (function (_RenderingTest2) {
+        babelHelpers.inherits(HelperMutatingArgsTests, _RenderingTest2);
+
+        function HelperMutatingArgsTests() {
+          _RenderingTest2.apply(this, arguments);
+        }
+
+        HelperMutatingArgsTests.prototype.buildCompute = function buildCompute() {
+          var _this21 = this;
+
+          return function (params, hash) {
+            if (pushingIntoFrozenArrayThrows) {
+              _this21.assert.throws(function () {
+                params.push('foo');
+
+                // cannot assert error message as it varies by platform
+              });
+            }
+
+            if (assigningExistingFrozenPropertyThrows) {
+              _this21.assert.throws(function () {
+                hash.foo = 'bar';
+
+                // cannot assert error message as it varies by platform
+              });
+            }
+
+            if (addingPropertyToFrozenObjectThrows) {
+              _this21.assert.throws(function () {
+                hash.someUnusedHashProperty = 'bar';
+
+                // cannot assert error message as it varies by platform
+              });
+            }
+          };
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - no positional specified / named specified'] = function testCannotMutateParamsNoPositionalSpecifiedNamedSpecified() {
+          this.render('{{test-helper foo=bar}}', { bar: 'derp' });
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - positional specified / no named specified'] = function testCannotMutateParamsPositionalSpecifiedNoNamedSpecified() {
+          this.render('{{test-helper bar}}', { bar: 'derp' });
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - positional specified / named specified'] = function testCannotMutateParamsPositionalSpecifiedNamedSpecified() {
+          this.render('{{test-helper bar foo=qux}}', { bar: 'derp', qux: 'baz' });
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - no positional specified / no named specified'] = function testCannotMutateParamsNoPositionalSpecifiedNoNamedSpecified() {
+          this.render('{{test-helper}}', { bar: 'derp', qux: 'baz' });
+        };
+
+        return HelperMutatingArgsTests;
+      })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
+
+      _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: mutation triggers errors - class based helper', (function (_HelperMutatingArgsTests) {
+        babelHelpers.inherits(_class2, _HelperMutatingArgsTests);
+
+        function _class2() {
+          _HelperMutatingArgsTests.call(this);
+
+          var compute = this.buildCompute();
+
+          this.registerHelper('test-helper', {
+            compute: compute
+          });
+        }
+
+        return _class2;
+      })(HelperMutatingArgsTests));
+
+      _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: mutation triggers errors - simple helper', (function (_HelperMutatingArgsTests2) {
+        babelHelpers.inherits(_class3, _HelperMutatingArgsTests2);
+
+        function _class3() {
+          _HelperMutatingArgsTests2.call(this);
+
+          var compute = this.buildCompute();
+
+          this.registerHelper('test-helper', compute);
+        }
+
+        return _class3;
+      })(HelperMutatingArgsTests));
+    })();
+  }
 });
 enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/helpers/debugger', 'ember-metal', 'ember-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerHelpersDebugger, _emberMetal, _emberRuntime) {
   'use strict';
