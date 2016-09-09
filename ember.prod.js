@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+be4fb63a
+ * @version   2.10.0-canary+e49f699b
  */
 
 var enifed, requireModule, require, Ember;
@@ -7789,7 +7789,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-metal', 'ember-views', 'g
 
     Environment.prototype.refineStatement = function refineStatement(statement, symbolTable) {
       // 1. resolve any native syntax – if, unless, with, each, and partial
-      var nativeSyntax = _GlimmerEnvironment.prototype.refineStatement.call(this, statement);
+      var nativeSyntax = _GlimmerEnvironment.prototype.refineStatement.call(this, statement, symbolTable);
 
       if (nativeSyntax) {
         return nativeSyntax;
@@ -7866,16 +7866,24 @@ enifed('ember-glimmer/environment', ['exports', 'ember-metal', 'ember-views', 'g
       return compilerCache.get(template, owner);
     };
 
-    Environment.prototype.hasPartial = function hasPartial(name) {
-      return _emberViews.hasPartial(this, name[0]);
+    Environment.prototype.hasPartial = function hasPartial(name, symbolTable) {
+      var _symbolTable$getMeta = symbolTable.getMeta();
+
+      var owner = _symbolTable$getMeta.owner;
+
+      return _emberViews.hasPartial(name[0], owner);
     };
 
-    Environment.prototype.lookupPartial = function lookupPartial(name) {
+    Environment.prototype.lookupPartial = function lookupPartial(name, symbolTable) {
+      var _symbolTable$getMeta2 = symbolTable.getMeta();
+
+      var owner = _symbolTable$getMeta2.owner;
+
       var partial = {
-        template: _emberViews.lookupPartial(this, name[0])
+        template: _emberViews.lookupPartial(name[0], owner)
       };
 
-      if (partial) {
+      if (partial.template) {
         return partial;
       } else {
         throw new Error(name + ' is not a partial');
@@ -36436,34 +36444,34 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal'], function
     return nameParts.join('/');
   }
 
-  function lookupPartial(env, templateName) {
+  function lookupPartial(templateName, owner) {
     if (templateName == null) {
       return;
     }
 
-    var template = templateFor(env, parseUnderscoredName(templateName), templateName);
+    var template = templateFor(owner, parseUnderscoredName(templateName), templateName);
 
     return template;
   }
 
-  function hasPartial(env, name) {
-    if (!env.owner) {
+  function hasPartial(name, owner) {
+    if (!owner) {
       throw new _emberMetal.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
     }
 
-    return env.owner.hasRegistration('template:' + parseUnderscoredName(name)) || env.owner.hasRegistration('template:' + name);
+    return owner.hasRegistration('template:' + parseUnderscoredName(name)) || owner.hasRegistration('template:' + name);
   }
 
-  function templateFor(env, underscored, name) {
+  function templateFor(owner, underscored, name) {
     if (!name) {
       return;
     }
 
-    if (!env.owner) {
+    if (!owner) {
       throw new _emberMetal.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
     }
 
-    return env.owner.lookup('template:' + underscored) || env.owner.lookup('template:' + name);
+    return owner.lookup('template:' + underscored) || owner.lookup('template:' + name);
   }
 });
 enifed('ember-views/system/utils', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
@@ -38032,7 +38040,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+be4fb63a";
+  exports.default = "2.10.0-canary+e49f699b";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

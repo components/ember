@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+be4fb63a
+ * @version   2.10.0-canary+e49f699b
  */
 
 var enifed, requireModule, require, Ember;
@@ -7390,17 +7390,66 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype.setupAppAndRoutelessEngine = function setupAppAndRoutelessEngine(hooks) {
-      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{mount "chat-engine"}}'));
+      this.setupRoutelessEngine(hooks);
+
+      this.registerEngine('chat-engine', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine'));
+          this.register('controller:application', _emberRuntime.Controller.extend({
+            init: function () {
+              this._super.apply(this, arguments);
+              hooks.push('engine - application');
+            }
+          }));
+        }
+      }));
+    };
+
+    _class.prototype.setupAppAndRoutableEngineWithPartial = function setupAppAndRoutableEngineWithPartial(hooks) {
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{outlet}}'));
+
+      this.router.map(function () {
+        this.mount('blog');
+      });
+      this.application.register('route-map:blog', function () {});
       this.registerRoute('application', _emberRouting.Route.extend({
         model: function () {
           hooks.push('application - application');
         }
       }));
 
+      this.registerEngine('blog', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:foo', _emberGlimmerTestsUtilsHelpers.compile('foo partial'));
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}} {{partial "foo"}}'));
+          this.register('route:application', _emberRouting.Route.extend({
+            model: function () {
+              hooks.push('engine - application');
+            }
+          }));
+        }
+      }));
+    };
+
+    _class.prototype.setupRoutelessEngine = function setupRoutelessEngine(hooks) {
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{mount "chat-engine"}}'));
+      this.registerRoute('application', _emberRouting.Route.extend({
+        model: function () {
+          hooks.push('application - application');
+        }
+      }));
+    };
+
+    _class.prototype.setupAppAndRoutlessEngineWithPartial = function setupAppAndRoutlessEngineWithPartial(hooks) {
+      this.setupRoutelessEngine(hooks);
+
       this.registerEngine('chat-engine', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
-          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine'));
+          this.register('template:foo', _emberGlimmerTestsUtilsHelpers.compile('foo partial'));
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine {{partial "foo"}}'));
           this.register('controller:application', _emberRuntime.Controller.extend({
             init: function () {
               this._super.apply(this, arguments);
@@ -7491,6 +7540,38 @@ babelHelpers.classCallCheck(this, _class);
         _this4.assertText('ApplicationEngine');
 
         _this4.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+      });
+    };
+
+    _class.prototype['@test visit() with partials in routable engine'] = function testVisitWithPartialsInRoutableEngine(assert) {
+      var _this5 = this;
+
+      assert.expect(2);
+
+      var hooks = [];
+
+      this.setupAppAndRoutableEngineWithPartial(hooks);
+
+      return this.visit('/blog', { shouldRender: true }).then(function () {
+        _this5.assertText('ApplicationEngine foo partial');
+
+        _this5.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+      });
+    };
+
+    _class.prototype['@test visit() with partials in non-routable engine'] = function testVisitWithPartialsInNonRoutableEngine(assert) {
+      var _this6 = this;
+
+      assert.expect(2);
+
+      var hooks = [];
+
+      this.setupAppAndRoutlessEngineWithPartial(hooks);
+
+      return this.visit('/', { shouldRender: true }).then(function () {
+        _this6.assertText('ApplicationEngine foo partial');
+
+        _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
       });
     };
 
