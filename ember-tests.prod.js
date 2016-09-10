@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+db4dc949
+ * @version   2.10.0-canary+c45d2192
  */
 
 var enifed, requireModule, require, Ember;
@@ -7486,6 +7486,31 @@ babelHelpers.inherits(_class, _ApplicationTest);
         _this6.assertText('ApplicationEngine foo partial');
 
         _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+      });
+    };
+
+    _class.prototype['@test deactivate should be called on Engine Routes before destruction'] = function testDeactivateShouldBeCalledOnEngineRoutesBeforeDestruction(assert) {
+      var _this7 = this;
+
+      assert.expect(3);
+
+      this.setupAppAndRoutableEngine();
+
+      this.registerEngine('blog', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}}'));
+          this.register('route:application', _emberRouting.Route.extend({
+            deactivate: function () {
+              assert.notOk(this.isDestroyed, 'Route is not destroyed');
+              assert.notOk(this.isDestroying, 'Route is not being destroyed');
+            }
+          }));
+        }
+      }));
+
+      return this.visit('/blog').then(function () {
+        _this7.assertText('ApplicationEngine');
       });
     };
 
