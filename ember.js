@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.1
+ * @version   2.9.0-beta.1-beta+aafc53c3
  */
 
 var enifed, requireModule, require, Ember;
@@ -7063,11 +7063,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-views', 'ember-runtime', 'e
     }
   }, _CoreView$extend.getAttr = function (key) {
     // TODO Intimate API should be deprecated
-    var attrs = this.attrs;
-    if (!attrs) {
-      return;
-    }
-    return _emberViews.getAttrFor(attrs, key);
+    return this.get(key);
   }, _CoreView$extend.readDOMAttr = function (name) {
     return _glimmerRuntime.readDOMAttr(this.element, name);
   }, _CoreView$extend));
@@ -8449,7 +8445,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-metal', 'ember-views', 'g
       var _this2 = this;
 
       // 1. resolve any native syntax – if, unless, with, each, and partial
-      var nativeSyntax = _GlimmerEnvironment.prototype.refineStatement.call(this, statement);
+      var nativeSyntax = _GlimmerEnvironment.prototype.refineStatement.call(this, statement, symbolTable);
 
       if (nativeSyntax) {
         return nativeSyntax;
@@ -8547,16 +8543,24 @@ enifed('ember-glimmer/environment', ['exports', 'ember-metal', 'ember-views', 'g
       return compilerCache.get(template, owner);
     };
 
-    Environment.prototype.hasPartial = function hasPartial(name) {
-      return _emberViews.hasPartial(this, name[0]);
+    Environment.prototype.hasPartial = function hasPartial(name, symbolTable) {
+      var _symbolTable$getMeta = symbolTable.getMeta();
+
+      var owner = _symbolTable$getMeta.owner;
+
+      return _emberViews.hasPartial(name[0], owner);
     };
 
-    Environment.prototype.lookupPartial = function lookupPartial(name) {
+    Environment.prototype.lookupPartial = function lookupPartial(name, symbolTable) {
+      var _symbolTable$getMeta2 = symbolTable.getMeta();
+
+      var owner = _symbolTable$getMeta2.owner;
+
       var partial = {
-        template: _emberViews.lookupPartial(this, name[0])
+        template: _emberViews.lookupPartial(name[0], owner)
       };
 
-      if (partial) {
+      if (partial.template) {
         return partial;
       } else {
         throw new Error(name + ' is not a partial');
@@ -12722,7 +12726,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
   'use strict';
 
   exports.default = processArgs;
-  exports.isCell = isCell;
 
   function processArgs(args, positionalParamsDefinition) {
     if (!positionalParamsDefinition || positionalParamsDefinition.length === 0 || args.positional.length === 0) {
@@ -12792,10 +12795,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'glimmer-reference', 'emb
 
     return SimpleArgs;
   })();
-
-  function isCell(val) {
-    return val && val[_emberViews.MUTABLE_CELL];
-  }
 
   var REF = _emberMetal.symbol('REF');
 
@@ -13246,20 +13245,40 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal', 'glimmer-ref
 
     SimpleHelperReference.create = function create(helper, args) {
       if (_glimmerReference.isConst(args)) {
-        var positional = args.positional;
-        var named = args.named;
+        var _ret = (function () {
+          var positional = args.positional;
+          var named = args.named;
 
-        var result = helper(positional.value(), named.value());
+          var positionalValue = positional.value();
+          var namedValue = named.value();
 
-        if (result === null) {
-          return _glimmerRuntime.NULL_REFERENCE;
-        } else if (result === undefined) {
-          return _glimmerRuntime.UNDEFINED_REFERENCE;
-        } else if (typeof result === 'object') {
-          return new RootReference(result);
-        } else {
-          return new PrimitiveReference(result);
-        }
+          _emberMetal.runInDebug(function () {
+            Object.freeze(positionalValue);
+            Object.freeze(namedValue);
+          });
+
+          var result = helper(positionalValue, namedValue);
+
+          if (result === null) {
+            return {
+              v: _glimmerRuntime.NULL_REFERENCE
+            };
+          } else if (result === undefined) {
+            return {
+              v: _glimmerRuntime.UNDEFINED_REFERENCE
+            };
+          } else if (typeof result === 'object') {
+            return {
+              v: new RootReference(result)
+            };
+          } else {
+            return {
+              v: new PrimitiveReference(result)
+            };
+          }
+        })();
+
+        if (typeof _ret === 'object') return _ret.v;
       } else {
         return new SimpleHelperReference(helper, args);
       }
@@ -13281,7 +13300,15 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal', 'glimmer-ref
       var positional = _args.positional;
       var named = _args.named;
 
-      return helper(positional.value(), named.value());
+      var positionalValue = positional.value();
+      var namedValue = named.value();
+
+      _emberMetal.runInDebug(function () {
+        Object.freeze(positionalValue);
+        Object.freeze(namedValue);
+      });
+
+      return helper(positionalValue, namedValue);
     };
 
     return SimpleHelperReference;
@@ -13314,7 +13341,15 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-metal', 'glimmer-ref
       var positional = _args2.positional;
       var named = _args2.named;
 
-      return instance.compute(positional.value(), named.value());
+      var positionalValue = positional.value();
+      var namedValue = named.value();
+
+      _emberMetal.runInDebug(function () {
+        Object.freeze(positionalValue);
+        Object.freeze(namedValue);
+      });
+
+      return instance.compute(positionalValue, namedValue);
     };
 
     return ClassBasedHelperReference;
@@ -18283,8 +18318,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
         props = undefined,
         key = undefined,
         concats = undefined,
-        mergings = undefined,
-        meta = undefined;
+        mergings = undefined;
 
     function removeKeys(keyName) {
       delete descs[keyName];
@@ -18301,7 +18335,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
       }
 
       if (props) {
-        meta = _emberMetalMeta.meta(base);
         if (base.willMergeMixin) {
           base.willMergeMixin(props);
         }
@@ -18313,7 +18346,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
             continue;
           }
           keys.push(key);
-          addNormalizedProperty(base, key, props[key], meta, descs, values, concats, mergings);
+          addNormalizedProperty(base, key, props[key], m, descs, values, concats, mergings);
         }
 
         // manually copy toString() because some JS engines do not enumerate it
@@ -26227,20 +26260,21 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal'
     },
 
     willDestroy: function () {
+      if (this._toplevelView) {
+        this._toplevelView.destroy();
+        this._toplevelView = null;
+      }
+
+      this._super.apply(this, arguments);
+
+      this.reset();
+
       var instances = this._engineInstances;
       for (var _name in instances) {
         for (var id in instances[_name]) {
           _emberMetal.run(instances[_name][id], 'destroy');
         }
       }
-
-      if (this._toplevelView) {
-        this._toplevelView.destroy();
-        this._toplevelView = null;
-      }
-      this._super.apply(this, arguments);
-
-      this.reset();
     },
 
     /*
@@ -37794,18 +37828,8 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
 enifed('ember-views/compat/attrs', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
 
-  exports.getAttrFor = getAttrFor;
   var MUTABLE_CELL = _emberMetal.symbol('MUTABLE_CELL');
-
   exports.MUTABLE_CELL = MUTABLE_CELL;
-  function isCell(val) {
-    return val && val[MUTABLE_CELL];
-  }
-
-  function getAttrFor(attrs, key) {
-    var val = attrs[key];
-    return isCell(val) ? val.value : val;
-  }
 });
 enifed('ember-views/compat/fallback-view-registry', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
@@ -39257,37 +39281,37 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal'], function
     return nameParts.join('/');
   }
 
-  function lookupPartial(env, templateName) {
+  function lookupPartial(templateName, owner) {
     if (templateName == null) {
       return;
     }
 
-    var template = templateFor(env, parseUnderscoredName(templateName), templateName);
+    var template = templateFor(owner, parseUnderscoredName(templateName), templateName);
 
     _emberMetal.assert('Unable to find partial with name "' + templateName + '"', !!template);
 
     return template;
   }
 
-  function hasPartial(env, name) {
-    if (!env.owner) {
+  function hasPartial(name, owner) {
+    if (!owner) {
       throw new _emberMetal.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
     }
 
-    return env.owner.hasRegistration('template:' + parseUnderscoredName(name)) || env.owner.hasRegistration('template:' + name);
+    return owner.hasRegistration('template:' + parseUnderscoredName(name)) || owner.hasRegistration('template:' + name);
   }
 
-  function templateFor(env, underscored, name) {
+  function templateFor(owner, underscored, name) {
     if (!name) {
       return;
     }
     _emberMetal.assert('templateNames are not allowed to contain periods: ' + name, name.indexOf('.') === -1);
 
-    if (!env.owner) {
+    if (!owner) {
       throw new _emberMetal.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
     }
 
-    return env.owner.lookup('template:' + underscored) || env.owner.lookup('template:' + name);
+    return owner.lookup('template:' + underscored) || owner.lookup('template:' + name);
   }
 });
 enifed('ember-views/system/utils', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
@@ -40867,7 +40891,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.1";
+  exports.default = "2.9.0-beta.1-beta+aafc53c3";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

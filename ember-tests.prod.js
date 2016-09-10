@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.1
+ * @version   2.9.0-beta.1-beta+aafc53c3
  */
 
 var enifed, requireModule, require, Ember;
@@ -7304,17 +7304,66 @@ babelHelpers.inherits(_class, _ApplicationTest);
     };
 
     _class.prototype.setupAppAndRoutelessEngine = function setupAppAndRoutelessEngine(hooks) {
-      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{mount "chat-engine"}}'));
+      this.setupRoutelessEngine(hooks);
+
+      this.registerEngine('chat-engine', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine'));
+          this.register('controller:application', _emberRuntime.Controller.extend({
+            init: function () {
+              this._super.apply(this, arguments);
+              hooks.push('engine - application');
+            }
+          }));
+        }
+      }));
+    };
+
+    _class.prototype.setupAppAndRoutableEngineWithPartial = function setupAppAndRoutableEngineWithPartial(hooks) {
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{outlet}}'));
+
+      this.router.map(function () {
+        this.mount('blog');
+      });
+      this.application.register('route-map:blog', function () {});
       this.registerRoute('application', _emberRouting.Route.extend({
         model: function () {
           hooks.push('application - application');
         }
       }));
 
+      this.registerEngine('blog', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:foo', _emberGlimmerTestsUtilsHelpers.compile('foo partial'));
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}} {{partial "foo"}}'));
+          this.register('route:application', _emberRouting.Route.extend({
+            model: function () {
+              hooks.push('engine - application');
+            }
+          }));
+        }
+      }));
+    };
+
+    _class.prototype.setupRoutelessEngine = function setupRoutelessEngine(hooks) {
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{mount "chat-engine"}}'));
+      this.registerRoute('application', _emberRouting.Route.extend({
+        model: function () {
+          hooks.push('application - application');
+        }
+      }));
+    };
+
+    _class.prototype.setupAppAndRoutlessEngineWithPartial = function setupAppAndRoutlessEngineWithPartial(hooks) {
+      this.setupRoutelessEngine(hooks);
+
       this.registerEngine('chat-engine', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
-          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine'));
+          this.register('template:foo', _emberGlimmerTestsUtilsHelpers.compile('foo partial'));
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine {{partial "foo"}}'));
           this.register('controller:application', _emberRuntime.Controller.extend({
             init: function () {
               this._super.apply(this, arguments);
@@ -7405,6 +7454,63 @@ babelHelpers.inherits(_class, _ApplicationTest);
         _this4.assertText('ApplicationEngine');
 
         _this4.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+      });
+    };
+
+    _class.prototype['@test visit() with partials in routable engine'] = function testVisitWithPartialsInRoutableEngine(assert) {
+      var _this5 = this;
+
+      assert.expect(2);
+
+      var hooks = [];
+
+      this.setupAppAndRoutableEngineWithPartial(hooks);
+
+      return this.visit('/blog', { shouldRender: true }).then(function () {
+        _this5.assertText('ApplicationEngine foo partial');
+
+        _this5.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+      });
+    };
+
+    _class.prototype['@test visit() with partials in non-routable engine'] = function testVisitWithPartialsInNonRoutableEngine(assert) {
+      var _this6 = this;
+
+      assert.expect(2);
+
+      var hooks = [];
+
+      this.setupAppAndRoutlessEngineWithPartial(hooks);
+
+      return this.visit('/', { shouldRender: true }).then(function () {
+        _this6.assertText('ApplicationEngine foo partial');
+
+        _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+      });
+    };
+
+    _class.prototype['@test deactivate should be called on Engine Routes before destruction'] = function testDeactivateShouldBeCalledOnEngineRoutesBeforeDestruction(assert) {
+      var _this7 = this;
+
+      assert.expect(3);
+
+      this.setupAppAndRoutableEngine();
+
+      this.registerEngine('blog', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}}'));
+          this.register('route:application', _emberRouting.Route.extend({
+            deactivate: function () {
+              assert.notOk(this.isDestroyed, 'Route is not destroyed');
+              assert.notOk(this.isDestroying, 'Route is not being destroyed');
+            }
+          }));
+        }
+      }));
+
+      return this.visit('/blog').then(function () {
+        _this7.assertText('ApplicationEngine');
       });
     };
 
@@ -8961,7 +9067,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
     _class.prototype['@test getAttr() should return the same value as get()'] = function testGetAttrShouldReturnTheSameValueAsGet(assert) {
       var _this5 = this;
 
-      assert.expect(18);
+      assert.expect(33);
 
       var instance = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -8971,22 +9077,32 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         },
 
         didReceiveAttrs: function () {
+          var rootFirstPositional = this.get('firstPositional');
           var rootFirst = this.get('first');
           var rootSecond = this.get('second');
+          var attrFirstPositional = this.getAttr('firstPositional');
           var attrFirst = this.getAttr('first');
           var attrSecond = this.getAttr('second');
 
+          equal(rootFirstPositional, attrFirstPositional, 'root property matches attrs value');
           equal(rootFirst, attrFirst, 'root property matches attrs value');
           equal(rootSecond, attrSecond, 'root property matches attrs value');
         }
       });
+
+      FooBarComponent.reopenClass({
+        positionalParams: ['firstPositional']
+      });
+
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
 
-      this.render('{{foo-bar first=first second=second}}', {
+      this.render('{{foo-bar firstPositional first=first second=second}}', {
+        firstPositional: 'firstPositional',
         first: 'first',
         second: 'second'
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
 
@@ -8994,6 +9110,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         return _this5.rerender();
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
 
@@ -9001,6 +9118,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         _emberMetal.set(_this5.context, 'first', 'third');
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'third', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
 
@@ -9008,14 +9126,25 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['exports
         _emberMetal.set(_this5.context, 'second', 'fourth');
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'third', 'matches known value');
       assert.equal(instance.get('second'), 'fourth', 'matches known value');
 
       this.runTask(function () {
+        _emberMetal.set(_this5.context, 'firstPositional', 'fifth');
+      });
+
+      assert.equal(instance.get('firstPositional'), 'fifth', 'matches known value');
+      assert.equal(instance.get('first'), 'third', 'matches known value');
+      assert.equal(instance.get('second'), 'fourth', 'matches known value');
+
+      this.runTask(function () {
+        _emberMetal.set(_this5.context, 'firstPositional', 'firstPositional');
         _emberMetal.set(_this5.context, 'first', 'first');
         _emberMetal.set(_this5.context, 'second', 'second');
       });
 
+      assert.equal(instance.get('firstPositional'), 'firstPositional', 'matches known value');
       assert.equal(instance.get('first'), 'first', 'matches known value');
       assert.equal(instance.get('second'), 'second', 'matches known value');
     };
@@ -9601,7 +9730,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup expectedText=model.expectedText}}\n      {{/with}}']),
       _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up" expectedText=model.expectedText)) as |object|}}\n        {{object.lookedup}}\n      {{/with}}']),
       _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}'], ['\n      {{#with (hash lookedup=(component "-looked-up")) as |object|}}\n        {{object.lookedup model.expectedText "Hola"}}\n      {{/with}}']),
-      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash my-component=(component \'my-component\' first)) as |c|}}\n        {{c.my-component}}\n      {{/with}}'], ['\n      {{#with (hash my-component=(component \'my-component\' first)) as |c|}}\n        {{c.my-component}}\n      {{/with}}']),
       _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>'], ['\n        {{#my-component my-attr=myProp as |api|}}\n          {{api.my-nested-component}}\n        {{/my-component}}\n        <br>\n        <button onclick={{action \'changeValue\'}}>Change value</button>']),
       _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}'], ['\n      {{#select-box as |sb|}}\n        {{sb.option label="Foo"}}\n        {{sb.option}}\n      {{/select-box}}']),
       _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>'], ['\n        <button {{action (action (mut val) 10)}} class="my-button">\n          Change to 10\n        </button>']),
@@ -10369,9 +10498,9 @@ babelHelpers.inherits(_class, _RenderingTest);
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9), { first: 'first' });
 
-      assert.ok(_emberMetal.isEmpty(value), 'value is an empty parameter');
+      assert.equal(value, 'first', 'value is the expected parameter');
     };
 
     _class.prototype['@test renders with dot path and updates attributes'] = function testRendersWithDotPathAndUpdatesAttributes(assert) {
@@ -20723,6 +20852,7 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'internal-test-helpers', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _internalTestHelpers, _emberMetal) {
+  /* globals EmberDev */
   'use strict';
 
   var assert = QUnit.assert;
@@ -21382,6 +21512,138 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
 
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  // these feature detects prevent errors in these tests
+  // on platforms (*cough* IE9 *cough*) that do not
+  // property support `Object.freeze`
+  var pushingIntoFrozenArrayThrows = (function () {
+    var array = [];
+    Object.freeze(array);
+
+    try {
+      array.push('foo');
+
+      return false;
+    } catch (e) {
+      return true;
+    }
+  })();
+
+  var assigningExistingFrozenPropertyThrows = (function () {
+    var obj = { foo: 'asdf' };
+    Object.freeze(obj);
+
+    try {
+      obj.foo = 'derp';
+
+      return false;
+    } catch (e) {
+      return true;
+    }
+  })();
+
+  var addingPropertyToFrozenObjectThrows = (function () {
+    var obj = { foo: 'asdf' };
+    Object.freeze(obj);
+
+    try {
+      obj.bar = 'derp';
+
+      return false;
+    } catch (e) {
+      return true;
+    }
+  })();
+
+  if (!EmberDev.runningProdBuild && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
+    (function () {
+      var HelperMutatingArgsTests = (function (_RenderingTest2) {
+        babelHelpers.inherits(HelperMutatingArgsTests, _RenderingTest2);
+
+        function HelperMutatingArgsTests() {
+          _RenderingTest2.apply(this, arguments);
+        }
+
+        HelperMutatingArgsTests.prototype.buildCompute = function buildCompute() {
+          var _this21 = this;
+
+          return function (params, hash) {
+            if (pushingIntoFrozenArrayThrows) {
+              _this21.assert.throws(function () {
+                params.push('foo');
+
+                // cannot assert error message as it varies by platform
+              });
+            }
+
+            if (assigningExistingFrozenPropertyThrows) {
+              _this21.assert.throws(function () {
+                hash.foo = 'bar';
+
+                // cannot assert error message as it varies by platform
+              });
+            }
+
+            if (addingPropertyToFrozenObjectThrows) {
+              _this21.assert.throws(function () {
+                hash.someUnusedHashProperty = 'bar';
+
+                // cannot assert error message as it varies by platform
+              });
+            }
+          };
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - no positional specified / named specified'] = function testCannotMutateParamsNoPositionalSpecifiedNamedSpecified() {
+          this.render('{{test-helper foo=bar}}', { bar: 'derp' });
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - positional specified / no named specified'] = function testCannotMutateParamsPositionalSpecifiedNoNamedSpecified() {
+          this.render('{{test-helper bar}}', { bar: 'derp' });
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - positional specified / named specified'] = function testCannotMutateParamsPositionalSpecifiedNamedSpecified() {
+          this.render('{{test-helper bar foo=qux}}', { bar: 'derp', qux: 'baz' });
+        };
+
+        HelperMutatingArgsTests.prototype['@test cannot mutate params - no positional specified / no named specified'] = function testCannotMutateParamsNoPositionalSpecifiedNoNamedSpecified() {
+          this.render('{{test-helper}}', { bar: 'derp', qux: 'baz' });
+        };
+
+        return HelperMutatingArgsTests;
+      })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
+
+      _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: mutation triggers errors - class based helper', (function (_HelperMutatingArgsTests) {
+        babelHelpers.inherits(_class2, _HelperMutatingArgsTests);
+
+        function _class2() {
+          _HelperMutatingArgsTests.call(this);
+
+          var compute = this.buildCompute();
+
+          this.registerHelper('test-helper', {
+            compute: compute
+          });
+        }
+
+        return _class2;
+      })(HelperMutatingArgsTests));
+
+      _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: mutation triggers errors - simple helper', (function (_HelperMutatingArgsTests2) {
+        babelHelpers.inherits(_class3, _HelperMutatingArgsTests2);
+
+        function _class3() {
+          _HelperMutatingArgsTests2.call(this);
+
+          var compute = this.buildCompute();
+
+          this.registerHelper('test-helper', compute);
+        }
+
+        return _class3;
+      })(HelperMutatingArgsTests));
+    })();
+  }
 });
 enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/helpers/debugger', 'ember-metal', 'ember-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerHelpersDebugger, _emberMetal, _emberRuntime) {
   'use strict';

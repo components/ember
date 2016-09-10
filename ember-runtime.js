@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.1
+ * @version   2.9.0-beta.1-beta+aafc53c3
  */
 
 var enifed, requireModule, require, Ember;
@@ -7413,8 +7413,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
         props = undefined,
         key = undefined,
         concats = undefined,
-        mergings = undefined,
-        meta = undefined;
+        mergings = undefined;
 
     function removeKeys(keyName) {
       delete descs[keyName];
@@ -7431,7 +7430,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
       }
 
       if (props) {
-        meta = _emberMetalMeta.meta(base);
         if (base.willMergeMixin) {
           base.willMergeMixin(props);
         }
@@ -7443,7 +7441,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
             continue;
           }
           keys.push(key);
-          addNormalizedProperty(base, key, props[key], meta, descs, values, concats, mergings);
+          addNormalizedProperty(base, key, props[key], m, descs, values, concats, mergings);
         }
 
         // manually copy toString() because some JS engines do not enumerate it
@@ -19857,7 +19855,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.1";
+  exports.default = "2.9.0-beta.1-beta+aafc53c3";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
