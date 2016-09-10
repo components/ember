@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+c45d2192
+ * @version   2.10.0-canary+7ce7f4ef
  */
 
 var enifed, requireModule, require, Ember;
@@ -20900,7 +20900,7 @@ enifed('ember-metal/weak_map', ['exports', 'ember-metal/utils', 'ember-metal/met
     return '[object WeakMap]';
   };
 });
-enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime'], function (exports, _emberMetal, _emberRuntime) {
+enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/utils'], function (exports, _emberMetal, _emberRuntime, _emberRoutingUtils) {
   'use strict';
 
   /**
@@ -21000,7 +21000,12 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
       // target may be either another controller or a router
       var target = _emberMetal.get(this, 'target');
       var method = target.transitionToRoute || target.transitionTo;
-      return method.apply(target, arguments);
+
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return method.apply(target, _emberRoutingUtils.prefixRouteNameArg(this, args));
     },
 
     /**
@@ -21052,7 +21057,12 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
       // target may be either another controller or a router
       var target = _emberMetal.get(this, 'target');
       var method = target.replaceRoute || target.replaceWith;
-      return method.apply(target, arguments);
+
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return method.apply(target, _emberRoutingUtils.prefixRouteNameArg(target, args));
     }
   });
 
@@ -23555,7 +23565,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal', 'ember-runtime',
     */
     transitionTo: function (name, context) {
       var router = this.router;
-      return router.transitionTo.apply(router, prefixRouteNameArg(this, arguments));
+      return router.transitionTo.apply(router, _emberRoutingUtils.prefixRouteNameArg(this, arguments));
     },
 
     /**
@@ -23575,7 +23585,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal', 'ember-runtime',
      */
     intermediateTransitionTo: function () {
       var router = this.router;
-      router.intermediateTransitionTo.apply(router, arguments);
+      router.intermediateTransitionTo.apply(router, _emberRoutingUtils.prefixRouteNameArg(this, arguments));
     },
 
     /**
@@ -23630,7 +23640,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal', 'ember-runtime',
     */
     replaceWith: function () {
       var router = this.router;
-      return router.replaceWith.apply(router, prefixRouteNameArg(this, arguments));
+      return router.replaceWith.apply(router, _emberRoutingUtils.prefixRouteNameArg(this, arguments));
     },
 
     /**
@@ -24689,38 +24699,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal', 'ember-runtime',
   }
 
   function deprecateQueryParamDefaultValuesSetOnController(controllerName, routeName, propName) {}
-
-  /*
-    Returns an arguments array where the route name arg is prefixed based on the mount point
-  
-    @private
-  */
-  function prefixRouteNameArg(route, args) {
-    var routeName = args[0];
-    var owner = _container.getOwner(route);
-    var prefix = owner.mountPoint;
-
-    // only alter the routeName if it's actually referencing a route.
-    if (owner.routable && typeof routeName === 'string') {
-      if (resemblesURL(routeName)) {
-        throw new _emberMetal.Error('Route#transitionTo cannot be used for URLs. Please use the route name instead.');
-      } else {
-        routeName = prefix + '.' + routeName;
-        args[0] = routeName;
-      }
-    }
-
-    return args;
-  }
-
-  /*
-    Check if a routeName resembles a url instead
-  
-    @private
-  */
-  function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
-  }
 
   function getEngineRouteName(engine, routeName) {
     if (engine.routable) {
@@ -26123,7 +26101,7 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-metal', 'ember-ru
     return true;
   }
 });
-enifed('ember-routing/utils', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-routing/utils', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
   'use strict';
 
   exports.routeArgs = routeArgs;
@@ -26131,6 +26109,7 @@ enifed('ember-routing/utils', ['exports', 'ember-metal'], function (exports, _em
   exports.stashParamNames = stashParamNames;
   exports.calculateCacheKey = calculateCacheKey;
   exports.normalizeControllerQueryParams = normalizeControllerQueryParams;
+  exports.prefixRouteNameArg = prefixRouteNameArg;
 
   var ALL_PERIODS_REGEX = /\./g;
 
@@ -26298,6 +26277,39 @@ enifed('ember-routing/utils', ['exports', 'ember-metal'], function (exports, _em
 
       accum[key] = tmp;
     }
+  }
+
+  /*
+    Check if a routeName resembles a url instead
+  
+    @private
+  */
+  function resemblesURL(str) {
+    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
+  }
+
+  /*
+    Returns an arguments array where the route name arg is prefixed based on the mount point
+  
+    @private
+  */
+
+  function prefixRouteNameArg(route, args) {
+    var routeName = args[0];
+    var owner = _container.getOwner(route);
+    var prefix = owner.mountPoint;
+
+    // only alter the routeName if it's actually referencing a route.
+    if (owner.routable && typeof routeName === 'string') {
+      if (resemblesURL(routeName)) {
+        throw new _emberMetal.Error('Programmatic transitions by URL cannot be used within an Engine. Please use the route name instead.');
+      } else {
+        routeName = prefix + '.' + routeName;
+        args[0] = routeName;
+      }
+    }
+
+    return args;
   }
 });
 enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtime/mixins/comparable'], function (exports, _emberRuntimeUtils, _emberRuntimeMixinsComparable) {
@@ -38020,7 +38032,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'container', '
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+c45d2192";
+  exports.default = "2.10.0-canary+7ce7f4ef";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
