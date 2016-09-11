@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0+d79fedb2
+ * @version   2.8.0+03174bef
  */
 
 var enifed, requireModule, require, Ember;
@@ -39081,6 +39081,40 @@ enifed('ember-metal/tests/weak_map_test', ['exports', 'ember-metal/weak_map'], f
     assert.strictEqual(map.toString(), '[object WeakMap]');
   });
 });
+enifed('ember-routing/tests/ext/controller_test', ['exports', 'container/tests/test-helpers/build-owner', 'ember-runtime/controllers/controller', 'container/owner', 'ember-metal/features'], function (exports, _containerTestsTestHelpersBuildOwner, _emberRuntimeControllersController, _containerOwner, _emberMetalFeatures) {
+  'use strict';
+
+  if (true) {
+    QUnit.module('ember-routing/ext/controller');
+
+    QUnit.test('transitionToRoute considers an engine\'s mountPoint', function () {
+      expect(4);
+
+      var router = {
+        transitionTo: function (route) {
+          return route;
+        }
+      };
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true,
+        mountPoint: 'foo.bar'
+      });
+
+      var controller = _emberRuntimeControllersController.default.create({ target: router });
+      _containerOwner.setOwner(controller, engineInstance);
+
+      strictEqual(controller.transitionToRoute('application'), 'foo.bar.application', 'properly prefixes application route');
+      strictEqual(controller.transitionToRoute('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      throws(function () {
+        return controller.transitionToRoute('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      strictEqual(controller.transitionToRoute(queryParams), queryParams, 'passes query param only transitions through');
+    });
+  }
+});
 enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/assign', 'ember-routing/location/auto_location', 'ember-environment', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalAssign, _emberRoutingLocationAuto_location, _emberEnvironment, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -40898,6 +40932,93 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
 
       strictEqual(route.modelFor('application'), applicationModel);
       strictEqual(route.modelFor('posts'), postsModel);
+    });
+
+    QUnit.test('transitionTo considers an engine\'s mountPoint', function () {
+      expect(4);
+
+      var router = {
+        transitionTo: function (route) {
+          return route;
+        }
+      };
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true,
+        mountPoint: 'foo.bar'
+      });
+
+      var route = _emberRoutingSystemRoute.default.create({ router: router });
+      _containerOwner.setOwner(route, engineInstance);
+
+      strictEqual(route.transitionTo('application'), 'foo.bar.application', 'properly prefixes application route');
+      strictEqual(route.transitionTo('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      throws(function () {
+        return route.transitionTo('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      strictEqual(route.transitionTo(queryParams), queryParams, 'passes query param only transitions through');
+    });
+
+    QUnit.test('intermediateTransitionTo considers an engine\'s mountPoint', function () {
+      expect(4);
+
+      var lastRoute = undefined;
+      var router = {
+        intermediateTransitionTo: function (route) {
+          lastRoute = route;
+        }
+      };
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true,
+        mountPoint: 'foo.bar'
+      });
+
+      var route = _emberRoutingSystemRoute.default.create({ router: router });
+      _containerOwner.setOwner(route, engineInstance);
+
+      route.intermediateTransitionTo('application');
+      strictEqual(lastRoute, 'foo.bar.application', 'properly prefixes application route');
+
+      route.intermediateTransitionTo('posts');
+      strictEqual(lastRoute, 'foo.bar.posts', 'properly prefixes child routes');
+
+      throws(function () {
+        return route.intermediateTransitionTo('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      route.intermediateTransitionTo(queryParams);
+      strictEqual(lastRoute, queryParams, 'passes query param only transitions through');
+    });
+
+    QUnit.test('replaceWith considers an engine\'s mountPoint', function () {
+      expect(4);
+
+      var router = {
+        replaceWith: function (route) {
+          return route;
+        }
+      };
+
+      var engineInstance = _containerTestsTestHelpersBuildOwner.default({
+        routable: true,
+        mountPoint: 'foo.bar'
+      });
+
+      var route = _emberRoutingSystemRoute.default.create({ router: router });
+      _containerOwner.setOwner(route, engineInstance);
+
+      strictEqual(route.replaceWith('application'), 'foo.bar.application', 'properly prefixes application route');
+      strictEqual(route.replaceWith('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+      throws(function () {
+        return route.replaceWith('/posts');
+      }, 'throws when trying to use a url');
+
+      var queryParams = {};
+      strictEqual(route.replaceWith(queryParams), queryParams, 'passes query param only transitions through');
     });
   }
 });
