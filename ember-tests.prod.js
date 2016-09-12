@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.1-beta+cf016851
+ * @version   2.9.0-beta.1-beta+5df20fd2
  */
 
 var enifed, requireModule, require, Ember;
@@ -175,7 +175,7 @@ babelHelpers = {
   defaults: defaults
 };
 
-enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers'], function (exports, _emberEnvironment, _emberMetal, _containerIndex, _internalTestHelpers) {
+enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _containerIndex, _internalTestHelpers) {
   'use strict';
 
   var originalModelInjections = undefined;
@@ -719,7 +719,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
 
     var result = container.ownerInjection();
 
-    equal(result[_containerIndex.OWNER], owner, 'owner is properly included');
+    equal(result[_emberUtils.OWNER], owner, 'owner is properly included');
   });
 
   QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
@@ -769,7 +769,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
       owner._lookupFactory = function (fullName) {
         equal(fullName, 'abc:two', '_lookupFactory on owner called properly');
       };
-      var foundOwner = _containerIndex.getOwner(options);
+      var foundOwner = _emberUtils.getOwner(options);
       foundOwner.lookup('abc:one');
       foundOwner._lookupFactory('abc:two');
 
@@ -891,7 +891,7 @@ enifed('container/tests/container_test', ['exports', 'ember-environment', 'ember
     assert.ok(PostControllerLookupResult instanceof PostController);
   });
 });
-enifed('container/tests/owner_test', ['exports', 'container/index'], function (exports, _containerIndex) {
+enifed('container/tests/owner_test', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
 
   QUnit.module('Owner', {});
@@ -900,13 +900,13 @@ enifed('container/tests/owner_test', ['exports', 'container/index'], function (e
     var owner = {};
     var obj = {};
 
-    strictEqual(_containerIndex.getOwner(obj), undefined, 'owner has not been set');
+    strictEqual(_emberUtils.getOwner(obj), undefined, 'owner has not been set');
 
-    _containerIndex.setOwner(obj, owner);
+    _emberUtils.setOwner(obj, owner);
 
-    strictEqual(_containerIndex.getOwner(obj), owner, 'owner has been set');
+    strictEqual(_emberUtils.getOwner(obj), owner, 'owner has been set');
 
-    strictEqual(obj[_containerIndex.OWNER], owner, 'owner has been set to the OWNER symbol');
+    strictEqual(obj[_emberUtils.OWNER], owner, 'owner has been set to the OWNER symbol');
   });
 });
 enifed('container/tests/registry_test', ['exports', 'container/index', 'internal-test-helpers'], function (exports, _containerIndex, _internalTestHelpers) {
@@ -2666,7 +2666,7 @@ enifed('ember-application/tests/system/dependency_injection/normalization_test',
     });
   });
 });
-enifed('ember-application/tests/system/dependency_injection/to_string_test', ['exports', 'ember-environment', 'ember-metal', 'ember-application/system/application', 'ember-runtime', 'ember-application/system/resolver'], function (exports, _emberEnvironment, _emberMetal, _emberApplicationSystemApplication, _emberRuntime, _emberApplicationSystemResolver) {
+enifed('ember-application/tests/system/dependency_injection/to_string_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'ember-application/system/application', 'ember-runtime', 'ember-application/system/resolver'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _emberApplicationSystemApplication, _emberRuntime, _emberApplicationSystemResolver) {
   'use strict';
 
   var originalLookup = undefined,
@@ -2704,7 +2704,7 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
 
   QUnit.test('instances', function () {
     var post = App.__container__.lookup('model:post');
-    var guid = _emberMetal.guidFor(post);
+    var guid = _emberUtils.guidFor(post);
 
     equal(post.toString(), '<App.Post:' + guid + '>', 'expecting the model to be post');
   });
@@ -2725,7 +2725,7 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
     App.register('model:peter', _emberRuntime.Object.extend());
 
     var peter = App.__container__.lookup('model:peter');
-    var guid = _emberMetal.guidFor(peter);
+    var guid = _emberUtils.guidFor(peter);
 
     equal(peter.toString(), '<model:peter:' + guid + '>', 'expecting the supermodel to be peter');
   });
@@ -9719,7 +9719,7 @@ babelHelpers.inherits(_class2, _RenderingTest2);
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal) {
+enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal'], function (exports, _emberUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
@@ -10916,7 +10916,7 @@ babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
     ClosureComponentMutableParamsTest.prototype.render = function render(templateStr) {
       var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-      _RenderingTest2.prototype.render.call(this, templateStr + '<span class="value">{{model.val2}}</span>', _emberMetal.assign(context, { model: { val2: 8 } }));
+      _RenderingTest2.prototype.render.call(this, templateStr + '<span class="value">{{model.val2}}</span>', _emberUtils.assign(context, { model: { val2: 8 } }));
     };
 
     return ClosureComponentMutableParamsTest;
@@ -16600,7 +16600,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
 enifed("ember-glimmer/tests/integration/components/render-to-element-test", ["exports"], function (exports) {
   "use strict";
 });
-enifed('ember-glimmer/tests/integration/components/target-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberRouting) {
+enifed('ember-glimmer/tests/integration/components/target-action-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-routing'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberRouting) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#component-a}}\n        {{component-b bar="derp"}}\n      {{/component-a}}\n    '], ['\n      {{#component-a}}\n        {{component-b bar="derp"}}\n      {{/component-a}}\n    ']);
@@ -16632,7 +16632,7 @@ babelHelpers.inherits(_class, _RenderingTest);
       var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       var root = this;
-      context = _emberMetal.assign(context, {
+      context = _emberUtils.assign(context, {
         send: function (actionName) {
           root.sendCount++;
           root.actionCounts[actionName] = root.actionCounts[actionName] || 0;
@@ -24581,7 +24581,7 @@ enifed('ember-glimmer/tests/integration/helpers/if-unless-test', ['exports', 'em
     return _class11;
   })(_emberGlimmerTestsUtilsSharedConditionalTests.IfUnlessHelperTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _internalTestHelpers) {
+enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers'], function (exports, _emberUtils, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _internalTestHelpers) {
   'use strict';
 
   var InputRenderingTest = (function (_RenderingTest) {
@@ -24655,7 +24655,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     InputRenderingTest.prototype.triggerEvent = function triggerEvent(type, options) {
       var event = document.createEvent('Events');
       event.initEvent(type, true, true);
-      _emberMetal.assign(event, options);
+      _emberUtils.assign(event, options);
 
       var element = this.$input()[0];
       this.runTask(function () {
@@ -26832,7 +26832,7 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberGlimmerTestsUtilsAbstractTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberUtils, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
   var TextAreaRenderingTest = (function (_RenderingTest) {
@@ -26850,7 +26850,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
       var attrs = _ref2.attrs;
       var value = _ref2.value;
 
-      var mergedAttrs = _emberMetal.assign({ 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view ember-text-area') }, attrs);
+      var mergedAttrs = _emberUtils.assign({ 'class': _emberGlimmerTestsUtilsTestHelpers.classes('ember-view ember-text-area') }, attrs);
       this.assertComponentElement(this.firstChild, { tagName: 'textarea', attrs: mergedAttrs });
 
       if (value) {
@@ -26863,7 +26863,7 @@ enifed('ember-glimmer/tests/integration/helpers/text-area-test', ['exports', 'em
 
       var event = document.createEvent('Events');
       event.initEvent(type, true, true);
-      _emberMetal.assign(event, options);
+      _emberUtils.assign(event, options);
 
       this.firstChild.dispatchEvent(event);
     };
@@ -28297,7 +28297,7 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-application', 'container'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberMetal, _emberApplication, _container) {
+enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-application'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberMetal, _emberApplication) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} assertions', (function (_RenderingTest) {
@@ -28378,7 +28378,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-glimmer/
       return this.visit('/').then(function () {
         assert.ok(controller, 'engine\'s application controller has been instantiated');
 
-        var engineInstance = _container.getOwner(controller);
+        var engineInstance = _emberUtils.getOwner(controller);
         assert.strictEqual(_emberApplication.getEngineParent(engineInstance), _this5.applicationInstance, 'engine instance has the application instance as its parent');
 
         _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
@@ -31101,7 +31101,7 @@ babelHelpers.inherits(_class3, _RenderingTest);
     return _class3;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'glimmer-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetal, _glimmerRuntime) {
+enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'glimmer-runtime'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _glimmerRuntime) {
   'use strict';
 
   var Counter = (function () {
@@ -31120,7 +31120,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/
 
     Counter.prototype.reset = function reset() {
       this.total = 0;
-      this.counts = new _emberMetal.EmptyObject();
+      this.counts = new _emberUtils.EmptyObject();
     };
 
     return Counter;
@@ -31321,7 +31321,7 @@ enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-temp
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal', 'internal-test-helpers', 'ember-views', 'ember-application', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetal, _internalTestHelpers, _emberViews, _emberApplication, _emberRouting) {
+enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-helpers', 'ember-metal', 'internal-test-helpers', 'ember-views', 'ember-application', 'ember-routing'], function (exports, _emberUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestHelpers, _emberMetal, _internalTestHelpers, _emberViews, _emberApplication, _emberRouting) {
   'use strict';
 
   exports.applyMixins = applyMixins;
@@ -31346,14 +31346,14 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
           mixin = {};
 
           generator.cases.forEach(function (value, idx) {
-            _emberMetal.assign(mixin, generator.generate(value, idx));
+            _emberUtils.assign(mixin, generator.generate(value, idx));
           });
         })();
       } else {
         mixin = mixinOrGenerator;
       }
 
-      _emberMetal.assign(TestClass.prototype, mixin);
+      _emberUtils.assign(TestClass.prototype, mixin);
     });
 
     return TestClass;
@@ -31498,7 +31498,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
       var _ref2$content = _ref2.content;
       var content = _ref2$content === undefined ? null : _ref2$content;
 
-      attrs = _emberMetal.assign({}, { id: _emberGlimmerTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
+      attrs = _emberUtils.assign({}, { id: _emberGlimmerTestsUtilsTestHelpers.regex(/^ember\d*$/), class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view') }, attrs || {});
       this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
     };
 
@@ -31713,7 +31713,7 @@ enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'ember-glimme
         moduleName: '-top-level'
       }));
 
-      var attrs = _emberMetal.assign({}, context, {
+      var attrs = _emberUtils.assign({}, context, {
         tagName: '',
         layoutName: '-top-level'
       });
@@ -31844,7 +31844,7 @@ enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-template-compiler
   exports.isHTMLSafe = _emberGlimmer.isHTMLSafe;
   exports.buildOwner = _internalTestHelpers.buildOwner;
 });
-enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberUtils, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
   var _ObjectTestCases, _ArrayTestCases;
@@ -32013,7 +32013,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     StableTruthyGenerator.prototype.generate = function generate(value, idx) {
       var _assign;
 
-      return _emberMetal.assign(_TruthyGenerator.prototype.generate.call(this, value, idx), (_assign = {}, _assign['@test it maintains DOM stability when condition changes from ' + value + ' to another truthy value and back [' + idx + ']'] = function () {
+      return _emberUtils.assign(_TruthyGenerator.prototype.generate.call(this, value, idx), (_assign = {}, _assign['@test it maintains DOM stability when condition changes from ' + value + ' to another truthy value and back [' + idx + ']'] = function () {
         var _this3 = this;
 
         this.renderValues(value);
@@ -32055,7 +32055,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
     StableFalsyGenerator.prototype.generate = function generate(value, idx) {
       var _assign2;
 
-      return _emberMetal.assign(_FalsyGenerator.prototype.generate.call(this, value), (_assign2 = {}, _assign2['@test it maintains DOM stability when condition changes from ' + value + ' to another falsy value and back [' + idx + ']'] = function () {
+      return _emberUtils.assign(_FalsyGenerator.prototype.generate.call(this, value), (_assign2 = {}, _assign2['@test it maintains DOM stability when condition changes from ' + value + ' to another falsy value and back [' + idx + ']'] = function () {
         var _this4 = this;
 
         this.renderValues(value);
@@ -32591,7 +32591,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
       }
 
       var wrappedTemplate = this.wrapperFor(templates);
-      this.render(wrappedTemplate, _emberMetal.assign({ t: 'T', f: 'F' }, context));
+      this.render(wrappedTemplate, _emberUtils.assign({ t: 'T', f: 'F' }, context));
     };
 
     TogglingSyntaxConditionalsTest.prototype['@test it does not update when the unbound helper is used'] = function testItDoesNotUpdateWhenTheUnboundHelperIsUsed() {
@@ -34261,25 +34261,6 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
     }, 'Setting alias \'bar\' on self');
   });
 });
-enifed('ember-metal/tests/assign_test', ['exports', 'ember-metal/assign'], function (exports, _emberMetalAssign) {
-  'use strict';
-
-  QUnit.module('Ember.assign');
-
-  QUnit.test('Ember.assign', function () {
-    var a = { a: 1 };
-    var b = { b: 2 };
-    var c = { c: 3 };
-    var a2 = { a: 4 };
-
-    _emberMetalAssign.default(a, b, c, a2);
-
-    deepEqual(a, { a: 4, b: 2, c: 3 });
-    deepEqual(b, { b: 2 });
-    deepEqual(c, { c: 3 });
-    deepEqual(a2, { a: 4 });
-  });
-});
 enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-environment', 'internal-test-helpers', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberEnvironment, _internalTestHelpers, _emberMetalBinding, _emberMetalRun_loop, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
@@ -35568,63 +35549,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-runtime', 'internal
     equal(get(obj, 'bar'), 'barValue');
   });
 });
-enifed('ember-metal/tests/core/inspect_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  QUnit.module('Ember.inspect');
-
-  QUnit.test('strings', function () {
-    equal(_emberMetalUtils.inspect('foo'), 'foo');
-  });
-
-  QUnit.test('numbers', function () {
-    equal(_emberMetalUtils.inspect(2.6), '2.6');
-  });
-
-  QUnit.test('null', function () {
-    equal(_emberMetalUtils.inspect(null), 'null');
-  });
-
-  QUnit.test('undefined', function () {
-    equal(_emberMetalUtils.inspect(undefined), 'undefined');
-  });
-
-  QUnit.test('true', function () {
-    equal(_emberMetalUtils.inspect(true), 'true');
-  });
-
-  QUnit.test('false', function () {
-    equal(_emberMetalUtils.inspect(false), 'false');
-  });
-
-  QUnit.test('object', function () {
-    equal(_emberMetalUtils.inspect({}), '{}');
-    equal(_emberMetalUtils.inspect({ foo: 'bar' }), '{foo: bar}');
-    equal(_emberMetalUtils.inspect({ foo: function () {
-        return this;
-      } }), '{foo: function() { ... }}');
-  });
-
-  QUnit.test('objects without a prototype', function () {
-    var prototypelessObj = Object.create(null);
-    equal(_emberMetalUtils.inspect({ foo: prototypelessObj }), '{foo: [object Object]}');
-  });
-
-  QUnit.test('array', function () {
-    equal(_emberMetalUtils.inspect([1, 2, 3]), '[1,2,3]');
-  });
-
-  QUnit.test('regexp', function () {
-    equal(_emberMetalUtils.inspect(/regexp/), '/regexp/');
-  });
-
-  QUnit.test('date', function () {
-    var inspected = _emberMetalUtils.inspect(new Date('Sat Apr 30 2011 13:24:11'));
-    ok(inspected.match(/Sat Apr 30/), 'The inspected date has its date');
-    ok(inspected.match(/2011/), 'The inspected date has its year');
-    ok(inspected.match(/13:24:11/), 'The inspected date has its time');
-  });
-});
 enifed('ember-metal/tests/descriptor_test', ['exports', 'ember-runtime', 'ember-metal/mixin', 'ember-metal/properties', 'ember-metal/descriptor'], function (exports, _emberRuntime, _emberMetalMixin, _emberMetalProperties, _emberMetalDescriptor) {
   'use strict';
 
@@ -36423,7 +36347,7 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
     }, /Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"/);
   });
 });
-enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/injected_property', 'container'], function (exports, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalInjected_property, _container) {
+enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-utils', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/injected_property'], function (exports, _emberUtils, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalInjected_property) {
   'use strict';
 
   QUnit.module('InjectedProperty');
@@ -36470,7 +36394,7 @@ enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/prop
 
     var obj = {};
 
-    _container.setOwner(obj, {
+    _emberUtils.setOwner(obj, {
       lookup: function (key) {
         ok(true, 'should call container.lookup');
         return key;
@@ -36485,7 +36409,7 @@ enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/prop
   QUnit.test('omitting the lookup name should default to the property name', function () {
     var obj = {};
 
-    _container.setOwner(obj, {
+    _emberUtils.setOwner(obj, {
       lookup: function (key) {
         return key;
       }
@@ -37962,7 +37886,7 @@ enifed('ember-metal/tests/mixin/detect_test', ['exports', 'ember-metal/mixin'], 
     equal(MixinA.detect(null), false);
   });
 });
-enifed('ember-metal/tests/mixin/introspection_test', ['exports', 'ember-metal/utils', 'ember-metal/mixin'], function (exports, _emberMetalUtils, _emberMetalMixin) {
+enifed('ember-metal/tests/mixin/introspection_test', ['exports', 'ember-utils', 'ember-metal/mixin'], function (exports, _emberUtils, _emberMetalMixin) {
   // NOTE: A previous iteration differentiated between public and private props
   // as well as methods vs props.  We are just keeping these for testing; the
   // current impl doesn't care about the differences as much...
@@ -38004,7 +37928,7 @@ enifed('ember-metal/tests/mixin/introspection_test', ['exports', 'ember-metal/ut
   QUnit.test('Ember.mixins()', function () {
     function mapGuids(ary) {
       return ary.map(function (x) {
-        return _emberMetalUtils.guidFor(x);
+        return _emberUtils.guidFor(x);
       });
     }
 
@@ -40945,217 +40869,6 @@ enifed('ember-metal/tests/set_properties_test', ['exports', 'ember-metal/set_pro
     }, 'Set an additional, previously unset property');
   });
 });
-enifed('ember-metal/tests/utils/can_invoke_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  var obj = undefined;
-
-  QUnit.module('Ember.canInvoke', {
-    setup: function () {
-      obj = {
-        foobar: 'foobar',
-        aMethodThatExists: function () {}
-      };
-    },
-
-    teardown: function () {
-      obj = undefined;
-    }
-  });
-
-  QUnit.test('should return false if the object doesn\'t exist', function () {
-    equal(_emberMetalUtils.canInvoke(undefined, 'aMethodThatDoesNotExist'), false);
-  });
-
-  QUnit.test('should return true if the method exists on the object', function () {
-    equal(_emberMetalUtils.canInvoke(obj, 'aMethodThatExists'), true);
-  });
-
-  QUnit.test('should return false if the method doesn\'t exist on the object', function () {
-    equal(_emberMetalUtils.canInvoke(obj, 'aMethodThatDoesNotExist'), false);
-  });
-
-  QUnit.test('should return false if the property exists on the object but is a non-function', function () {
-    equal(_emberMetalUtils.canInvoke(obj, 'foobar'), false);
-  });
-});
-enifed('ember-metal/tests/utils/generate_guid_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  QUnit.module('Ember.generateGuid');
-
-  QUnit.test('Prefix', function () {
-    var a = {};
-
-    ok(_emberMetalUtils.generateGuid(a, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
-  });
-});
-enifed('ember-metal/tests/utils/guid_for_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  QUnit.module('guidFor');
-
-  function sameGuid(a, b, message) {
-    equal(_emberMetalUtils.guidFor(a), _emberMetalUtils.guidFor(b), message);
-  }
-
-  function diffGuid(a, b, message) {
-    ok(_emberMetalUtils.guidFor(a) !== _emberMetalUtils.guidFor(b), message);
-  }
-
-  function nanGuid(obj) {
-    var type = typeof obj;
-    ok(isNaN(parseInt(_emberMetalUtils.guidFor(obj), 0)), 'guids for ' + type + 'don\'t parse to numbers');
-  }
-
-  QUnit.test('Object', function () {
-    var a = {};
-    var b = {};
-
-    sameGuid(a, a, 'same object always yields same guid');
-    diffGuid(a, b, 'different objects yield different guids');
-    nanGuid(a);
-  });
-
-  QUnit.test('strings', function () {
-    var a = 'string A';
-    var aprime = 'string A';
-    var b = 'String B';
-
-    sameGuid(a, a, 'same string always yields same guid');
-    sameGuid(a, aprime, 'identical strings always yield the same guid');
-    diffGuid(a, b, 'different strings yield different guids');
-    nanGuid(a);
-  });
-
-  QUnit.test('numbers', function () {
-    var a = 23;
-    var aprime = 23;
-    var b = 34;
-
-    sameGuid(a, a, 'same numbers always yields same guid');
-    sameGuid(a, aprime, 'identical numbers always yield the same guid');
-    diffGuid(a, b, 'different numbers yield different guids');
-    nanGuid(a);
-  });
-
-  QUnit.test('numbers', function () {
-    var a = true;
-    var aprime = true;
-    var b = false;
-
-    sameGuid(a, a, 'same booleans always yields same guid');
-    sameGuid(a, aprime, 'identical booleans always yield the same guid');
-    diffGuid(a, b, 'different boolean yield different guids');
-    nanGuid(a);
-    nanGuid(b);
-  });
-
-  QUnit.test('null and undefined', function () {
-    var a = null;
-    var aprime = null;
-    var b = undefined;
-
-    sameGuid(a, a, 'null always returns the same guid');
-    sameGuid(b, b, 'undefined always returns the same guid');
-    sameGuid(a, aprime, 'different nulls return the same guid');
-    diffGuid(a, b, 'null and undefined return different guids');
-    nanGuid(a);
-    nanGuid(b);
-  });
-
-  QUnit.test('arrays', function () {
-    var a = ['a', 'b', 'c'];
-    var aprime = ['a', 'b', 'c'];
-    var b = ['1', '2', '3'];
-
-    sameGuid(a, a, 'same instance always yields same guid');
-    diffGuid(a, aprime, 'identical arrays always yield the same guid');
-    diffGuid(a, b, 'different arrays yield different guids');
-    nanGuid(a);
-  });
-});
-enifed('ember-metal/tests/utils/try_invoke_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  var obj = undefined;
-
-  QUnit.module('Ember.tryInvoke', {
-    setup: function () {
-      obj = {
-        aMethodThatExists: function () {
-          return true;
-        },
-        aMethodThatTakesArguments: function (arg1, arg2) {
-          return arg1 === arg2;
-        }
-      };
-    },
-
-    teardown: function () {
-      obj = undefined;
-    }
-  });
-
-  QUnit.test('should return undefined when the object doesn\'t exist', function () {
-    equal(_emberMetalUtils.tryInvoke(undefined, 'aMethodThatDoesNotExist'), undefined);
-  });
-
-  QUnit.test('should return undefined when asked to perform a method that doesn\'t exist on the object', function () {
-    equal(_emberMetalUtils.tryInvoke(obj, 'aMethodThatDoesNotExist'), undefined);
-  });
-
-  QUnit.test('should return what the method returns when asked to perform a method that exists on the object', function () {
-    equal(_emberMetalUtils.tryInvoke(obj, 'aMethodThatExists'), true);
-  });
-
-  QUnit.test('should return what the method returns when asked to perform a method that takes arguments and exists on the object', function () {
-    equal(_emberMetalUtils.tryInvoke(obj, 'aMethodThatTakesArguments', [true, true]), true);
-  });
-});
-enifed('ember-metal/tests/utils_test', ['exports', 'ember-environment', 'ember-metal/utils'], function (exports, _emberEnvironment, _emberMetalUtils) {
-  'use strict';
-
-  QUnit.module('Ember Metal Utils');
-
-  QUnit.test('inspect outputs the toString() representation of Symbols', function () {
-    // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
-    // for it's existence (where a simple `if (Symbol)` would ReferenceError)
-    var Symbol = Symbol || null;
-
-    if (Symbol) {
-      var symbol = Symbol('test');
-      equal(_emberMetalUtils.inspect(symbol), 'Symbol(test)');
-    } else {
-      expect(0);
-    }
-  });
-
-  // Only run this test on browsers that we are certain should have function
-  // source available.  This allows the test suite to continue to pass on other
-  // platforms that correctly (for them) fall back to the "always wrap" code.
-  if (_emberEnvironment.environment.isPhantom || _emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
-    QUnit.test('does not super wrap needlessly [GH #12462]', function (assert) {
-      assert.notOk(_emberMetalUtils.checkHasSuper(function () {}), 'empty function does not have super');
-    });
-  }
-
-  QUnit.test('toString uses an object\'s toString method when available', function () {
-    var obj = {
-      toString: function () {
-        return 'bob';
-      }
-    };
-
-    strictEqual(_emberMetalUtils.toString(obj), 'bob');
-  });
-
-  QUnit.test('toString falls back to Object.prototype.toString', function () {
-    var obj = Object.create(null);
-
-    strictEqual(_emberMetalUtils.toString(obj), ({}).toString());
-  });
-});
 enifed('ember-metal/tests/watching/is_watching_test', ['exports', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/observer', 'ember-metal/watching'], function (exports, _emberMetalComputed, _emberMetalProperty_get, _emberMetalProperties, _emberMetalMixin, _emberMetalObserver, _emberMetalWatching) {
   'use strict';
 
@@ -41721,7 +41434,7 @@ enifed('ember-metal/tests/weak_map_test', ['exports', 'ember-metal/weak_map'], f
     assert.strictEqual(map.toString(), '[object WeakMap]');
   });
 });
-enifed('ember-routing/tests/ext/controller_test', ['exports', 'internal-test-helpers', 'ember-runtime', 'container'], function (exports, _internalTestHelpers, _emberRuntime, _container) {
+enifed('ember-routing/tests/ext/controller_test', ['exports', 'ember-utils', 'internal-test-helpers', 'ember-runtime'], function (exports, _emberUtils, _internalTestHelpers, _emberRuntime) {
   'use strict';
 
   QUnit.module('ember-routing/ext/controller');
@@ -41743,7 +41456,7 @@ enifed('ember-routing/tests/ext/controller_test', ['exports', 'internal-test-hel
     });
 
     var controller = _emberRuntime.Controller.create({ target: router });
-    _container.setOwner(controller, engineInstance);
+    _emberUtils.setOwner(controller, engineInstance);
 
     strictEqual(controller.transitionToRoute('application'), 'foo.bar.application', 'properly prefixes application route');
     strictEqual(controller.transitionToRoute('posts'), 'foo.bar.posts', 'properly prefixes child routes');
@@ -41755,11 +41468,11 @@ enifed('ember-routing/tests/ext/controller_test', ['exports', 'internal-test-hel
     strictEqual(controller.transitionToRoute(queryParams), queryParams, 'passes query param only transitions through');
   });
 });
-enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-environment', 'ember-metal', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'internal-test-helpers', 'container'], function (exports, _emberEnvironment, _emberMetal, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _internalTestHelpers, _container) {
+enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'internal-test-helpers'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _internalTestHelpers) {
   'use strict';
 
   function mockBrowserLocation(overrides) {
-    return _emberMetal.assign({
+    return _emberUtils.assign({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
@@ -41771,7 +41484,7 @@ enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-env
   }
 
   function mockBrowserHistory(overrides) {
-    return _emberMetal.assign({
+    return _emberUtils.assign({
       pushState: function () {
         ok(false, 'history.pushState should not be called during testing');
       },
@@ -41790,7 +41503,7 @@ enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-env
     owner.register('location:hash', _emberRoutingLocationHash_location.default);
     owner.register('location:none', _emberRoutingLocationNone_location.default);
 
-    var autolocation = _emberRoutingLocationAuto_location.default.create((_AutoLocation$create = {}, _AutoLocation$create[_container.OWNER] = owner, _AutoLocation$create.location = location, _AutoLocation$create.history = history, _AutoLocation$create.global = {}, _AutoLocation$create));
+    var autolocation = _emberRoutingLocationAuto_location.default.create((_AutoLocation$create = {}, _AutoLocation$create[_emberUtils.OWNER] = owner, _AutoLocation$create.location = location, _AutoLocation$create.history = history, _AutoLocation$create.global = {}, _AutoLocation$create));
 
     return autolocation;
   }
@@ -42614,11 +42327,11 @@ enifed('ember-routing/tests/location/none_location_test', ['exports', 'ember-met
     equal(location.getURL(), '/bars/baz');
   });
 });
-enifed('ember-routing/tests/location/util_test', ['exports', 'ember-metal', 'ember-routing/location/util'], function (exports, _emberMetal, _emberRoutingLocationUtil) {
+enifed('ember-routing/tests/location/util_test', ['exports', 'ember-utils', 'ember-routing/location/util'], function (exports, _emberUtils, _emberRoutingLocationUtil) {
   'use strict';
 
   function mockBrowserLocation(overrides) {
-    return _emberMetal.assign({
+    return _emberUtils.assign({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
@@ -42796,7 +42509,7 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   });
 });
 // A
-enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router', 'container', 'internal-test-helpers'], function (exports, _emberRoutingSystemRouter, _container, _internalTestHelpers) {
+enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-routing/system/router', 'internal-test-helpers'], function (exports, _emberUtils, _emberRoutingSystemRouter, _internalTestHelpers) {
   'use strict';
 
   var Router = undefined;
@@ -42974,7 +42687,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var router = Router.create();
-    _container.setOwner(router, engineInstance);
+    _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
     assert.ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
@@ -42998,7 +42711,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var router = Router.create();
-    _container.setOwner(router, engineInstance);
+    _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
     assert.deepEqual(router.router.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
@@ -43022,7 +42735,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var router = Router.create();
-    _container.setOwner(router, engineInstance);
+    _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
     assert.deepEqual(router.router.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
@@ -43044,7 +42757,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
         return true;
       }
     });
-    _container.setOwner(router, engineInstance);
+    _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
     ok(router.router.recognizer.names['chat'], 'main route was created');
@@ -43066,7 +42779,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
         return true;
       }
     });
-    _container.setOwner(router, engineInstance);
+    _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
     ok(router.router.recognizer.names['shoutbox'], 'main route was created');
@@ -43084,7 +42797,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     });
 
     var router = Router.create();
-    _container.setOwner(router, engineInstance);
+    _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs(false);
 
     ok(router.router.recognizer.names['chat'], 'main route was created');
@@ -43109,7 +42822,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
         return true;
       }
     });
-    _container.setOwner(router, engineInstance);
+    _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
     ok(router.router.recognizer.names['news.chat'], 'nested route was created');
@@ -43125,7 +42838,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
     ok(!router.router.recognizer.names['news.blog_error'], 'nested reset error route was not added');
   });
 });
-enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route', 'container'], function (exports, _internalTestHelpers, _emberRuntime, _emberRoutingSystemRoute, _container) {
+enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route'], function (exports, _emberUtils, _internalTestHelpers, _emberRuntime, _emberRoutingSystemRoute) {
   'use strict';
 
   var route = undefined,
@@ -43158,7 +42871,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
       }
     });
 
-    _container.setOwner(route, _internalTestHelpers.buildOwner({
+    _emberUtils.setOwner(route, _internalTestHelpers.buildOwner({
       ownerOptions: {
         hasRegistration: function () {
           return true;
@@ -43261,7 +42974,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     expect(1);
 
     var owner = _internalTestHelpers.buildOwner();
-    _container.setOwner(route, owner);
+    _emberUtils.setOwner(route, owner);
 
     var foo = { name: 'foo' };
 
@@ -43408,8 +43121,8 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
       routeOne = _emberRoutingSystemRoute.default.create({ routeName: 'one' });
       routeTwo = _emberRoutingSystemRoute.default.create({ routeName: 'two' });
 
-      _container.setOwner(routeOne, owner);
-      _container.setOwner(routeTwo, owner);
+      _emberUtils.setOwner(routeOne, owner);
+      _emberUtils.setOwner(routeTwo, owner);
 
       lookupHash = {
         'route:one': routeOne,
@@ -43487,9 +43200,9 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
     var route = _emberRoutingSystemRoute.default.create({ router: router });
 
-    _container.setOwner(applicationRoute, engineInstance);
-    _container.setOwner(postsRoute, engineInstance);
-    _container.setOwner(route, engineInstance);
+    _emberUtils.setOwner(applicationRoute, engineInstance);
+    _emberUtils.setOwner(postsRoute, engineInstance);
+    _emberUtils.setOwner(route, engineInstance);
 
     assert.deepEqual(route.paramsFor('application'), { a: 'b' }, 'params match for root `application` route in engine');
     assert.deepEqual(route.paramsFor('posts'), { c: 'd' }, 'params match for `posts` route in engine');
@@ -43532,9 +43245,9 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
     var route = _emberRoutingSystemRoute.default.create({ router: router });
 
-    _container.setOwner(applicationRoute, engineInstance);
-    _container.setOwner(postsRoute, engineInstance);
-    _container.setOwner(route, engineInstance);
+    _emberUtils.setOwner(applicationRoute, engineInstance);
+    _emberUtils.setOwner(postsRoute, engineInstance);
+    _emberUtils.setOwner(route, engineInstance);
 
     strictEqual(route.modelFor('application'), applicationModel);
     strictEqual(route.modelFor('posts'), postsModel);
@@ -43557,7 +43270,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     });
 
     var route = _emberRoutingSystemRoute.default.create({ router: router });
-    _container.setOwner(route, engineInstance);
+    _emberUtils.setOwner(route, engineInstance);
 
     strictEqual(route.transitionTo('application'), 'foo.bar.application', 'properly prefixes application route');
     strictEqual(route.transitionTo('posts'), 'foo.bar.posts', 'properly prefixes child routes');
@@ -43587,7 +43300,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     });
 
     var route = _emberRoutingSystemRoute.default.create({ router: router });
-    _container.setOwner(route, engineInstance);
+    _emberUtils.setOwner(route, engineInstance);
 
     route.intermediateTransitionTo('application');
     strictEqual(lastRoute, 'foo.bar.application', 'properly prefixes application route');
@@ -43621,7 +43334,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     });
 
     var route = _emberRoutingSystemRoute.default.create({ router: router });
-    _container.setOwner(route, engineInstance);
+    _emberUtils.setOwner(route, engineInstance);
 
     strictEqual(route.replaceWith('application'), 'foo.bar.application', 'properly prefixes application route');
     strictEqual(route.replaceWith('posts'), 'foo.bar.posts', 'properly prefixes child routes');
@@ -43633,7 +43346,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'internal-test-helpe
     strictEqual(route.replaceWith(queryParams), queryParams, 'passes query param only transitions through');
   });
 });
-enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'internal-test-helpers', 'container'], function (exports, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _internalTestHelpers, _container) {
+enifed('ember-routing/tests/system/router_test', ['exports', 'ember-utils', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'internal-test-helpers'], function (exports, _emberUtils, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _internalTestHelpers) {
   'use strict';
 
   var owner = undefined;
@@ -43645,7 +43358,7 @@ enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/loca
     var router = CustomRouter.create(settings);
 
     if (!options.skipOwner) {
-      _container.setOwner(router, owner);
+      _emberUtils.setOwner(router, owner);
     }
 
     if (!options.disableSetup) {
@@ -49208,7 +48921,7 @@ enifed('ember-runtime/tests/mixins/comparable_test', ['exports', 'ember-metal', 
     equal(_emberRuntimeCompare.default(r2, r1), 1);
   });
 });
-enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'container', 'ember-runtime/mixins/container_proxy', 'ember-runtime/system/object'], function (exports, _container, _emberRuntimeMixinsContainer_proxy, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'ember-utils', 'container', 'ember-runtime/mixins/container_proxy', 'ember-runtime/system/object'], function (exports, _emberUtils, _container, _emberRuntimeMixinsContainer_proxy, _emberRuntimeSystemObject) {
   'use strict';
 
   QUnit.module('ember-runtime/mixins/container_proxy', {
@@ -49227,10 +48940,10 @@ enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'container
   QUnit.test('provides ownerInjection helper method', function (assert) {
     var result = this.instance.ownerInjection();
 
-    assert.equal(result[_container.OWNER], this.instance, 'returns an object with the OWNER symbol');
+    assert.equal(result[_emberUtils.OWNER], this.instance, 'returns an object with the OWNER symbol');
   });
 });
-enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/system/object', 'ember-metal'], function (exports, _emberRuntimeTestsSuitesCopyable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberRuntimeSystemObject, _emberMetal) {
+enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-utils', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/system/object', 'ember-metal'], function (exports, _emberUtils, _emberRuntimeTestsSuitesCopyable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberRuntimeSystemObject, _emberMetal) {
   'use strict';
 
   QUnit.module('Ember.Copyable.frozenCopy');
@@ -49252,7 +48965,7 @@ enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/te
 
     init: function () {
       this._super.apply(this, arguments);
-      _emberMetal.set(this, 'id', _emberMetal.generateGuid());
+      _emberMetal.set(this, 'id', _emberUtils.generateGuid());
     },
 
     copy: function () {
@@ -50627,7 +50340,7 @@ enifed('ember-runtime/tests/suites/copyable/frozenCopy', ['exports', 'ember-runt
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemObject, _emberMetal, _emberRuntimeTestsSuitesEnumerableAny, _emberRuntimeTestsSuitesEnumerableIs_any, _emberRuntimeTestsSuitesEnumerableCompact, _emberRuntimeTestsSuitesEnumerableContains, _emberRuntimeTestsSuitesEnumerableIncludes, _emberRuntimeTestsSuitesEnumerableEvery, _emberRuntimeTestsSuitesEnumerableFilter, _emberRuntimeTestsSuitesEnumerableFind, _emberRuntimeTestsSuitesEnumerableFirstObject, _emberRuntimeTestsSuitesEnumerableForEach, _emberRuntimeTestsSuitesEnumerableMapBy, _emberRuntimeTestsSuitesEnumerableInvoke, _emberRuntimeTestsSuitesEnumerableLastObject, _emberRuntimeTestsSuitesEnumerableMap, _emberRuntimeTestsSuitesEnumerableReduce, _emberRuntimeTestsSuitesEnumerableReject, _emberRuntimeTestsSuitesEnumerableSortBy, _emberRuntimeTestsSuitesEnumerableToArray, _emberRuntimeTestsSuitesEnumerableUniq, _emberRuntimeTestsSuitesEnumerableUniqBy, _emberRuntimeTestsSuitesEnumerableWithout) {
+enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberUtils, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemObject, _emberMetal, _emberRuntimeTestsSuitesEnumerableAny, _emberRuntimeTestsSuitesEnumerableIs_any, _emberRuntimeTestsSuitesEnumerableCompact, _emberRuntimeTestsSuitesEnumerableContains, _emberRuntimeTestsSuitesEnumerableIncludes, _emberRuntimeTestsSuitesEnumerableEvery, _emberRuntimeTestsSuitesEnumerableFilter, _emberRuntimeTestsSuitesEnumerableFind, _emberRuntimeTestsSuitesEnumerableFirstObject, _emberRuntimeTestsSuitesEnumerableForEach, _emberRuntimeTestsSuitesEnumerableMapBy, _emberRuntimeTestsSuitesEnumerableInvoke, _emberRuntimeTestsSuitesEnumerableLastObject, _emberRuntimeTestsSuitesEnumerableMap, _emberRuntimeTestsSuitesEnumerableReduce, _emberRuntimeTestsSuitesEnumerableReject, _emberRuntimeTestsSuitesEnumerableSortBy, _emberRuntimeTestsSuitesEnumerableToArray, _emberRuntimeTestsSuitesEnumerableUniq, _emberRuntimeTestsSuitesEnumerableUniqBy, _emberRuntimeTestsSuitesEnumerableWithout) {
   'use strict';
 
   var ObserverClass = _emberRuntimeSystemObject.default.extend({
@@ -50796,7 +50509,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
     newFixture: function (cnt) {
       var ret = [];
       while (--cnt >= 0) {
-        ret.push(_emberMetal.generateGuid());
+        ret.push(_emberUtils.generateGuid());
       }
 
       return ret;
@@ -50814,7 +50527,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       var item = undefined;
       while (--cnt >= 0) {
         item = {};
-        _emberMetal.guidFor(item);
+        _emberUtils.guidFor(item);
         ret.push(item);
       }
       return ret;
@@ -51353,7 +51066,7 @@ enifed('ember-runtime/tests/suites/enumerable/firstObject', ['exports', 'ember-r
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetal) {
+enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-metal'], function (exports, _emberUtils, _emberRuntimeTestsSuitesSuite, _emberMetal) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -51411,7 +51124,7 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-runti
     });
 
     obj.forEach(function () {
-      equal(_emberMetal.guidFor(_this), _emberMetal.guidFor(target), 'should pass target as this if context');
+      equal(_emberUtils.guidFor(_this), _emberUtils.guidFor(target), 'should pass target as this if context');
     }, target);
   });
 
@@ -51423,7 +51136,7 @@ enifed('ember-runtime/tests/suites/enumerable/forEach', ['exports', 'ember-runti
     obj.forEach(function (item, idx, enumerable) {
       equal(item, ary[loc], 'item param');
       equal(idx, loc, 'idx param');
-      equal(_emberMetal.guidFor(enumerable), _emberMetal.guidFor(obj), 'enumerable param');
+      equal(_emberUtils.guidFor(enumerable), _emberUtils.guidFor(obj), 'enumerable param');
       loc++;
     });
   });
@@ -51572,7 +51285,7 @@ enifed('ember-runtime/tests/suites/enumerable/lastObject', ['exports', 'ember-ru
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetal) {
+enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-metal'], function (exports, _emberUtils, _emberRuntimeTestsSuitesSuite, _emberMetal) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -51626,7 +51339,7 @@ enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/t
     });
 
     obj.map(function () {
-      equal(_emberMetal.guidFor(_this), _emberMetal.guidFor(target), 'should pass target as this if context');
+      equal(_emberUtils.guidFor(_this), _emberUtils.guidFor(target), 'should pass target as this if context');
     }, target);
   });
 
@@ -51638,7 +51351,7 @@ enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/t
     obj.map(function (item, idx, enumerable) {
       equal(item, ary[loc], 'item param');
       equal(idx, loc, 'idx param');
-      equal(_emberMetal.guidFor(enumerable), _emberMetal.guidFor(obj), 'enumerable param');
+      equal(_emberUtils.guidFor(enumerable), _emberUtils.guidFor(obj), 'enumerable param');
       loc++;
     });
   });
@@ -53416,7 +53129,7 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObjects', ['exports'
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-runtime/system/object', 'ember-metal'], function (exports, _emberRuntimeSystemObject, _emberMetal) {
+enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-utils', 'ember-runtime/system/object', 'ember-metal'], function (exports, _emberUtils, _emberRuntimeSystemObject, _emberMetal) {
   'use strict';
 
   /*
@@ -53524,10 +53237,10 @@ enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-runtime/system/obj
     // convert to guids to minimize logging.
     same: function (actual, exp, message) {
       actual = actual && actual.map ? actual.map(function (x) {
-        return _emberMetal.guidFor(x);
+        return _emberUtils.guidFor(x);
       }) : actual;
       exp = exp && exp.map ? exp.map(function (x) {
-        return _emberMetal.guidFor(x);
+        return _emberUtils.guidFor(x);
       }) : exp;
       return deepEqual(actual, exp, message);
     },
@@ -54594,14 +54307,14 @@ enifed('ember-runtime/tests/system/native_array/a_test', ['exports', 'ember-runt
     ok(_emberRuntimeMixinsArray.default.detect(_emberRuntimeSystemNative_array.A([1, 2])), 'returned an ember array');
   });
 });
-enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports', 'ember-metal', 'ember-runtime/system/native_array', 'ember-runtime/tests/suites/copyable'], function (exports, _emberMetal, _emberRuntimeSystemNative_array, _emberRuntimeTestsSuitesCopyable) {
+enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports', 'ember-utils', 'ember-runtime/system/native_array', 'ember-runtime/tests/suites/copyable'], function (exports, _emberUtils, _emberRuntimeSystemNative_array, _emberRuntimeTestsSuitesCopyable) {
   'use strict';
 
   _emberRuntimeTestsSuitesCopyable.default.extend({
     name: 'NativeArray Copyable',
 
     newObject: function () {
-      return _emberRuntimeSystemNative_array.A([_emberMetal.generateGuid()]);
+      return _emberRuntimeSystemNative_array.A([_emberUtils.generateGuid()]);
     },
 
     isEqual: function (a, b) {
@@ -55922,7 +55635,7 @@ enifed('ember-runtime/tests/system/object/subclasses_test', ['exports', 'ember-m
     equal(subSub.get('greeting'), 'hello world');
   });
 });
-enifed('ember-runtime/tests/system/object/toString_test', ['exports', 'ember-environment', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/system/namespace'], function (exports, _emberEnvironment, _emberMetal, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace) {
+enifed('ember-runtime/tests/system/object/toString_test', ['exports', 'ember-utils', 'ember-environment', 'ember-runtime/system/object', 'ember-runtime/system/namespace'], function (exports, _emberUtils, _emberEnvironment, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace) {
   'use strict';
 
   var originalLookup = _emberEnvironment.context.lookup;
@@ -55950,8 +55663,8 @@ enifed('ember-runtime/tests/system/object/toString_test', ['exports', 'ember-env
 
     var obj = Foo.Bar.create();
 
-    equal(obj.toString(), '<Foo.Bar:' + _emberMetal.guidFor(obj) + '>');
-    equal(obj.toString(), '<Foo.Bar:' + _emberMetal.guidFor(obj) + '>');
+    equal(obj.toString(), '<Foo.Bar:' + _emberUtils.guidFor(obj) + '>');
+    equal(obj.toString(), '<Foo.Bar:' + _emberUtils.guidFor(obj) + '>');
 
     equal(Foo.Bar.toString(), 'Foo.Bar');
   });
@@ -55968,16 +55681,16 @@ enifed('ember-runtime/tests/system/object/toString_test', ['exports', 'ember-env
     equal(Foo.Bar.toString(), 'Foo.Bar');
 
     obj = Foo.Bar.create();
-    equal(obj.toString(), '<Foo.Bar:' + _emberMetal.guidFor(obj) + '>');
+    equal(obj.toString(), '<Foo.Bar:' + _emberUtils.guidFor(obj) + '>');
 
     Foo.Baz = Foo.Bar.extend();
     equal(Foo.Baz.toString(), 'Foo.Baz');
 
     obj = Foo.Baz.create();
-    equal(obj.toString(), '<Foo.Baz:' + _emberMetal.guidFor(obj) + '>');
+    equal(obj.toString(), '<Foo.Baz:' + _emberUtils.guidFor(obj) + '>');
 
     obj = Foo.Bar.create();
-    equal(obj.toString(), '<Foo.Bar:' + _emberMetal.guidFor(obj) + '>');
+    equal(obj.toString(), '<Foo.Bar:' + _emberUtils.guidFor(obj) + '>');
   });
 
   QUnit.test('toString on a namespace finds the namespace in lookup', function () {
@@ -55995,7 +55708,7 @@ enifed('ember-runtime/tests/system/object/toString_test', ['exports', 'ember-env
     equal(Foo.Bar.toString(), 'Foo.Bar');
 
     obj = Foo.Bar.create();
-    equal(obj.toString(), '<Foo.Bar:' + _emberMetal.guidFor(obj) + '>');
+    equal(obj.toString(), '<Foo.Bar:' + _emberUtils.guidFor(obj) + '>');
   });
 
   QUnit.test('toString on a namespace falls back to modulePrefix, if defined', function () {
@@ -56015,11 +55728,11 @@ enifed('ember-runtime/tests/system/object/toString_test', ['exports', 'ember-env
     var bar = Bar.create();
 
     // simulate these classes being defined on a Namespace
-    Foo[_emberMetal.GUID_KEY + '_name'] = 'Foo';
-    Bar[_emberMetal.GUID_KEY + '_name'] = 'Bar';
+    Foo[_emberUtils.GUID_KEY + '_name'] = 'Foo';
+    Bar[_emberUtils.GUID_KEY + '_name'] = 'Bar';
 
-    equal(bar.toString(), '<Bar:' + _emberMetal.guidFor(bar) + '>', 'does not include toStringExtension part');
-    equal(foo.toString(), '<Foo:' + _emberMetal.guidFor(foo) + ':fooey>', 'Includes toStringExtension result');
+    equal(bar.toString(), '<Bar:' + _emberUtils.guidFor(bar) + '>', 'does not include toStringExtension part');
+    equal(foo.toString(), '<Foo:' + _emberUtils.guidFor(foo) + ':fooey>', 'Includes toStringExtension result');
   });
 });
 enifed('ember-runtime/tests/system/object_proxy_test', ['exports', 'ember-metal', 'internal-test-helpers', 'ember-runtime/system/object_proxy'], function (exports, _emberMetal, _internalTestHelpers, _emberRuntimeSystemObject_proxy) {
@@ -59002,6 +58715,298 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal', 'embe
     }
 
     assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
+  });
+});
+enifed('ember-utils/tests/assign_test', ['exports', 'ember-utils/assign'], function (exports, _emberUtilsAssign) {
+  'use strict';
+
+  QUnit.module('Ember.assign');
+
+  QUnit.test('Ember.assign', function () {
+    var a = { a: 1 };
+    var b = { b: 2 };
+    var c = { c: 3 };
+    var a2 = { a: 4 };
+
+    _emberUtilsAssign.default(a, b, c, a2);
+
+    deepEqual(a, { a: 4, b: 2, c: 3 });
+    deepEqual(b, { b: 2 });
+    deepEqual(c, { c: 3 });
+    deepEqual(a2, { a: 4 });
+  });
+});
+enifed('ember-utils/tests/can_invoke_test', ['exports', 'ember-utils/index'], function (exports, _emberUtilsIndex) {
+  'use strict';
+
+  var obj = undefined;
+
+  QUnit.module('Ember.canInvoke', {
+    setup: function () {
+      obj = {
+        foobar: 'foobar',
+        aMethodThatExists: function () {}
+      };
+    },
+
+    teardown: function () {
+      obj = undefined;
+    }
+  });
+
+  QUnit.test('should return false if the object doesn\'t exist', function () {
+    equal(_emberUtilsIndex.canInvoke(undefined, 'aMethodThatDoesNotExist'), false);
+  });
+
+  QUnit.test('should return true if the method exists on the object', function () {
+    equal(_emberUtilsIndex.canInvoke(obj, 'aMethodThatExists'), true);
+  });
+
+  QUnit.test('should return false if the method doesn\'t exist on the object', function () {
+    equal(_emberUtilsIndex.canInvoke(obj, 'aMethodThatDoesNotExist'), false);
+  });
+
+  QUnit.test('should return false if the property exists on the object but is a non-function', function () {
+    equal(_emberUtilsIndex.canInvoke(obj, 'foobar'), false);
+  });
+});
+enifed('ember-utils/tests/checkHasSuper_test', ['exports', 'ember-environment', 'ember-utils/index'], function (exports, _emberEnvironment, _emberUtilsIndex) {
+  'use strict';
+
+  QUnit.module('checkHasSuper');
+
+  // Only run this test on browsers that we are certain should have function
+  // source available.  This allows the test suite to continue to pass on other
+  // platforms that correctly (for them) fall back to the "always wrap" code.
+  if (_emberEnvironment.environment.isPhantom || _emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
+    QUnit.test('does not super wrap needlessly [GH #12462]', function (assert) {
+      assert.notOk(_emberUtilsIndex.checkHasSuper(function () {}), 'empty function does not have super');
+    });
+  }
+});
+enifed('ember-utils/tests/generate_guid_test', ['exports', 'ember-utils/index'], function (exports, _emberUtilsIndex) {
+  'use strict';
+
+  QUnit.module('Ember.generateGuid');
+
+  QUnit.test('Prefix', function () {
+    var a = {};
+
+    ok(_emberUtilsIndex.generateGuid(a, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
+  });
+});
+enifed('ember-utils/tests/guid_for_test', ['exports', 'ember-utils/index'], function (exports, _emberUtilsIndex) {
+  'use strict';
+
+  QUnit.module('guidFor');
+
+  function sameGuid(a, b, message) {
+    equal(_emberUtilsIndex.guidFor(a), _emberUtilsIndex.guidFor(b), message);
+  }
+
+  function diffGuid(a, b, message) {
+    ok(_emberUtilsIndex.guidFor(a) !== _emberUtilsIndex.guidFor(b), message);
+  }
+
+  function nanGuid(obj) {
+    var type = typeof obj;
+    ok(isNaN(parseInt(_emberUtilsIndex.guidFor(obj), 0)), 'guids for ' + type + 'don\'t parse to numbers');
+  }
+
+  QUnit.test('Object', function () {
+    var a = {};
+    var b = {};
+
+    sameGuid(a, a, 'same object always yields same guid');
+    diffGuid(a, b, 'different objects yield different guids');
+    nanGuid(a);
+  });
+
+  QUnit.test('strings', function () {
+    var a = 'string A';
+    var aprime = 'string A';
+    var b = 'String B';
+
+    sameGuid(a, a, 'same string always yields same guid');
+    sameGuid(a, aprime, 'identical strings always yield the same guid');
+    diffGuid(a, b, 'different strings yield different guids');
+    nanGuid(a);
+  });
+
+  QUnit.test('numbers', function () {
+    var a = 23;
+    var aprime = 23;
+    var b = 34;
+
+    sameGuid(a, a, 'same numbers always yields same guid');
+    sameGuid(a, aprime, 'identical numbers always yield the same guid');
+    diffGuid(a, b, 'different numbers yield different guids');
+    nanGuid(a);
+  });
+
+  QUnit.test('numbers', function () {
+    var a = true;
+    var aprime = true;
+    var b = false;
+
+    sameGuid(a, a, 'same booleans always yields same guid');
+    sameGuid(a, aprime, 'identical booleans always yield the same guid');
+    diffGuid(a, b, 'different boolean yield different guids');
+    nanGuid(a);
+    nanGuid(b);
+  });
+
+  QUnit.test('null and undefined', function () {
+    var a = null;
+    var aprime = null;
+    var b = undefined;
+
+    sameGuid(a, a, 'null always returns the same guid');
+    sameGuid(b, b, 'undefined always returns the same guid');
+    sameGuid(a, aprime, 'different nulls return the same guid');
+    diffGuid(a, b, 'null and undefined return different guids');
+    nanGuid(a);
+    nanGuid(b);
+  });
+
+  QUnit.test('arrays', function () {
+    var a = ['a', 'b', 'c'];
+    var aprime = ['a', 'b', 'c'];
+    var b = ['1', '2', '3'];
+
+    sameGuid(a, a, 'same instance always yields same guid');
+    diffGuid(a, aprime, 'identical arrays always yield the same guid');
+    diffGuid(a, b, 'different arrays yield different guids');
+    nanGuid(a);
+  });
+});
+enifed('ember-utils/tests/inspect_test', ['exports', 'ember-utils/index'], function (exports, _emberUtilsIndex) {
+  'use strict';
+
+  // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
+  // for it's existence (where a simple `if (Symbol)` would ReferenceError)
+  var HAS_NATIVE_SYMBOL = typeof Symbol === 'function';
+
+  QUnit.module('Ember.inspect');
+
+  QUnit.test('strings', function () {
+    equal(_emberUtilsIndex.inspect('foo'), 'foo');
+  });
+
+  QUnit.test('numbers', function () {
+    equal(_emberUtilsIndex.inspect(2.6), '2.6');
+  });
+
+  QUnit.test('null', function () {
+    equal(_emberUtilsIndex.inspect(null), 'null');
+  });
+
+  QUnit.test('undefined', function () {
+    equal(_emberUtilsIndex.inspect(undefined), 'undefined');
+  });
+
+  QUnit.test('true', function () {
+    equal(_emberUtilsIndex.inspect(true), 'true');
+  });
+
+  QUnit.test('false', function () {
+    equal(_emberUtilsIndex.inspect(false), 'false');
+  });
+
+  QUnit.test('object', function () {
+    equal(_emberUtilsIndex.inspect({}), '{}');
+    equal(_emberUtilsIndex.inspect({ foo: 'bar' }), '{foo: bar}');
+    equal(_emberUtilsIndex.inspect({ foo: function () {
+        return this;
+      } }), '{foo: function() { ... }}');
+  });
+
+  QUnit.test('objects without a prototype', function () {
+    var prototypelessObj = Object.create(null);
+    equal(_emberUtilsIndex.inspect({ foo: prototypelessObj }), '{foo: [object Object]}');
+  });
+
+  QUnit.test('array', function () {
+    equal(_emberUtilsIndex.inspect([1, 2, 3]), '[1,2,3]');
+  });
+
+  QUnit.test('regexp', function () {
+    equal(_emberUtilsIndex.inspect(/regexp/), '/regexp/');
+  });
+
+  QUnit.test('date', function () {
+    var inspected = _emberUtilsIndex.inspect(new Date('Sat Apr 30 2011 13:24:11'));
+    ok(inspected.match(/Sat Apr 30/), 'The inspected date has its date');
+    ok(inspected.match(/2011/), 'The inspected date has its year');
+    ok(inspected.match(/13:24:11/), 'The inspected date has its time');
+  });
+
+  QUnit.test('inspect outputs the toString() representation of Symbols', function () {
+    if (HAS_NATIVE_SYMBOL) {
+      var symbol = Symbol('test');
+      equal(_emberUtilsIndex.inspect(symbol), 'Symbol(test)');
+    } else {
+      expect(0);
+    }
+  });
+});
+enifed('ember-utils/tests/to-string-test', ['exports', 'ember-utils/index'], function (exports, _emberUtilsIndex) {
+  'use strict';
+
+  QUnit.module('ember-utils toString');
+
+  QUnit.test('toString uses an object\'s toString method when available', function () {
+    var obj = {
+      toString: function () {
+        return 'bob';
+      }
+    };
+
+    strictEqual(_emberUtilsIndex.toString(obj), 'bob');
+  });
+
+  QUnit.test('toString falls back to Object.prototype.toString', function () {
+    var obj = Object.create(null);
+
+    strictEqual(_emberUtilsIndex.toString(obj), ({}).toString());
+  });
+});
+enifed('ember-utils/tests/try_invoke_test', ['exports', 'ember-utils/index'], function (exports, _emberUtilsIndex) {
+  'use strict';
+
+  var obj = undefined;
+
+  QUnit.module('Ember.tryInvoke', {
+    setup: function () {
+      obj = {
+        aMethodThatExists: function () {
+          return true;
+        },
+        aMethodThatTakesArguments: function (arg1, arg2) {
+          return arg1 === arg2;
+        }
+      };
+    },
+
+    teardown: function () {
+      obj = undefined;
+    }
+  });
+
+  QUnit.test('should return undefined when the object doesn\'t exist', function () {
+    equal(_emberUtilsIndex.tryInvoke(undefined, 'aMethodThatDoesNotExist'), undefined);
+  });
+
+  QUnit.test('should return undefined when asked to perform a method that doesn\'t exist on the object', function () {
+    equal(_emberUtilsIndex.tryInvoke(obj, 'aMethodThatDoesNotExist'), undefined);
+  });
+
+  QUnit.test('should return what the method returns when asked to perform a method that exists on the object', function () {
+    equal(_emberUtilsIndex.tryInvoke(obj, 'aMethodThatExists'), true);
+  });
+
+  QUnit.test('should return what the method returns when asked to perform a method that takes arguments and exists on the object', function () {
+    equal(_emberUtilsIndex.tryInvoke(obj, 'aMethodThatTakesArguments', [true, true]), true);
   });
 });
 enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-application', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler'], function (exports, _emberApplication, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler) {
@@ -62592,16 +62597,19 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
   QUnit.module('ember reexports');
 
   [
+  // ember-utils
+  ['getOwner', 'ember-utils', 'getOwner'], ['setOwner', 'ember-utils', 'setOwner'],
+  // ['assign', 'ember-metal'], TODO: fix this test, we use `Object.assign` if present
+  ['GUID_KEY', 'ember-utils'], ['uuid', 'ember-utils'], ['generateGuid', 'ember-utils'], ['guidFor', 'ember-utils'], ['inspect', 'ember-utils'], ['makeArray', 'ember-utils'], ['canInvoke', 'ember-utils'], ['tryInvoke', 'ember-utils'], ['wrap', 'ember-utils'], ['applyStr', 'ember-utils'],
+
   // ember-environment
   // ['ENV', 'ember-environment', 'ENV'], TODO: fix this, its failing because we are hitting the getter
 
   // container
-  ['getOwner', 'container', 'getOwner'], ['setOwner', 'container', 'setOwner'], ['Registry', 'container', 'Registry'], ['Container', 'container', 'Container'],
+  ['Registry', 'container', 'Registry'], ['Container', 'container', 'Container'],
 
   // ember-metal
-  ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['deprecate', 'ember-metal'], ['deprecateFunc', 'ember-metal'], ['assert', 'ember-metal'], ['warn', 'ember-metal'], ['debug', 'ember-metal'], ['runInDebug', 'ember-metal'],
-  // ['assign', 'ember-metal'], TODO: fix this test, we use `Object.assign` if present
-  ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['generateGuid', 'ember-metal'], ['GUID_KEY', 'ember-metal'], ['guidFor', 'ember-metal'], ['inspect', 'ember-metal'], ['makeArray', 'ember-metal'], ['canInvoke', 'ember-metal'], ['tryInvoke', 'ember-metal'], ['wrap', 'ember-metal'], ['applyStr', 'ember-metal'], ['uuid', 'ember-metal'], ['testing', 'ember-metal', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
+  ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['deprecate', 'ember-metal'], ['deprecateFunc', 'ember-metal'], ['assert', 'ember-metal'], ['warn', 'ember-metal'], ['debug', 'ember-metal'], ['runInDebug', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-metal', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
   ['FEATURES', 'ember-metal'], ['FEATURES.isEnabled', 'ember-metal', 'isFeatureEnabled'], ['Error', 'ember-metal'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['accumulateListeners', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-metal'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
@@ -62649,7 +62657,7 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
     });
   }
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler', 'ember-application', 'container', 'router'], function (exports, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler, _emberApplication, _container, _router) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler', 'ember-application', 'router'], function (exports, _emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler, _emberApplication, _router) {
   'use strict';
 
   var trim = _emberViews.jQuery.trim;
@@ -64121,7 +64129,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     equal(chooseFollowed, 0, 'The choose route wasn\'t entered since a transition occurred');
     equal(_emberViews.jQuery('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
+    equal(_emberUtils.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
   });
 
   QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes', function () {
@@ -64155,7 +64163,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     handleURLAborts('/foo/bar/baz');
 
-    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
+    equal(_emberUtils.getOwner(router).lookup('controller:application').get('currentPath'), 'home');
     equal(router.get('location').getURL(), '/home');
   });
 
@@ -64194,7 +64202,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     handleURL('/foo/bar/baz');
 
-    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
+    equal(_emberUtils.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
     equal(successCount, 1, 'transitionTo success handler was called once');
   });
 
@@ -64234,7 +64242,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     handleURLAborts('/foo/bar/1/baz');
 
-    equal(_container.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
+    equal(_emberUtils.getOwner(router).lookup('controller:application').get('currentPath'), 'foo.bar.baz');
     equal(router.get('location').getURL(), '/foo/bar/2/baz');
   });
 
@@ -64258,7 +64266,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var applicationController = _container.getOwner(router).lookup('controller:application');
+    var applicationController = _emberUtils.getOwner(router).lookup('controller:application');
 
     handleURL('/foo/bar/baz');
 
@@ -65358,7 +65366,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
 
     bootApplication();
 
-    var appController = _container.getOwner(router).lookup('controller:application');
+    var appController = _emberUtils.getOwner(router).lookup('controller:application');
 
     function transitionAndCheck(path, expectedPath, expectedRouteName) {
       if (path) {
@@ -66387,7 +66395,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-console', 'ember-run
     var EngineIndexRoute = _emberRouting.Route.extend({
       init: function () {
         this._super.apply(this, arguments);
-        engineInstance = _container.getOwner(this);
+        engineInstance = _emberUtils.getOwner(this);
       }
     });
 

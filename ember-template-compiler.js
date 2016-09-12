@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.1-beta+cf016851
+ * @version   2.9.0-beta.1-beta+5df20fd2
  */
 
 var enifed, requireModule, require, Ember;
@@ -1200,1364 +1200,6 @@ exports['default'] = Backburner;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 });
-enifed('container/container', ['exports', 'ember-environment', 'ember-metal', 'container/owner'], function (exports, _emberEnvironment, _emberMetal, _containerOwner) {
-  'use strict';
-
-  exports.default = Container;
-  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
-
-  var CONTAINER_OVERRIDE = _emberMetal.symbol('CONTAINER_OVERRIDE');
-
-  /**
-   A container used to instantiate and cache objects.
-  
-   Every `Container` must be associated with a `Registry`, which is referenced
-   to determine the factory and options that should be used to instantiate
-   objects.
-  
-   The public API for `Container` is still in flux and should not be considered
-   stable.
-  
-   @private
-   @class Container
-   */
-
-  function Container(registry, options) {
-    this.registry = registry;
-    this.owner = options && options.owner ? options.owner : null;
-    this.cache = _emberMetal.dictionary(options && options.cache ? options.cache : null);
-    this.factoryCache = _emberMetal.dictionary(options && options.factoryCache ? options.factoryCache : null);
-    this.validationCache = _emberMetal.dictionary(options && options.validationCache ? options.validationCache : null);
-    this._fakeContainerToInject = buildFakeContainerWithDeprecations(this);
-    this[CONTAINER_OVERRIDE] = undefined;
-    this.isDestroyed = false;
-  }
-
-  Container.prototype = {
-    /**
-     @private
-     @property owner
-     @type Object
-     */
-    owner: null,
-
-    /**
-     @private
-     @property registry
-     @type Registry
-     @since 1.11.0
-     */
-    registry: null,
-
-    /**
-     @private
-     @property cache
-     @type InheritingDict
-     */
-    cache: null,
-
-    /**
-     @private
-     @property factoryCache
-     @type InheritingDict
-     */
-    factoryCache: null,
-
-    /**
-     @private
-     @property validationCache
-     @type InheritingDict
-     */
-    validationCache: null,
-
-    /**
-     Given a fullName return a corresponding instance.
-      The default behaviour is for lookup to return a singleton instance.
-     The singleton is scoped to the container, allowing multiple containers
-     to all have their own locally scoped singletons.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('api:twitter', Twitter);
-      let twitter = container.lookup('api:twitter');
-      twitter instanceof Twitter; // => true
-      // by default the container will return singletons
-     let twitter2 = container.lookup('api:twitter');
-     twitter2 instanceof Twitter; // => true
-      twitter === twitter2; //=> true
-     ```
-      If singletons are not wanted, an optional flag can be provided at lookup.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('api:twitter', Twitter);
-      let twitter = container.lookup('api:twitter', { singleton: false });
-     let twitter2 = container.lookup('api:twitter', { singleton: false });
-      twitter === twitter2; //=> false
-     ```
-      @private
-     @method lookup
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] The fullname of the request source (used for local lookup)
-     @return {any}
-     */
-    lookup: function (fullName, options) {
-      _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
-      return lookup(this, this.registry.normalize(fullName), options);
-    },
-
-    /**
-     Given a fullName, return the corresponding factory.
-      @private
-     @method lookupFactory
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] The fullname of the request source (used for local lookup)
-     @return {any}
-     */
-    lookupFactory: function (fullName, options) {
-      _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
-      return factoryFor(this, this.registry.normalize(fullName), options);
-    },
-
-    /**
-     A depth first traversal, destroying the container, its descendant containers and all
-     their managed objects.
-      @private
-     @method destroy
-     */
-    destroy: function () {
-      eachDestroyable(this, function (item) {
-        if (item.destroy) {
-          item.destroy();
-        }
-      });
-
-      this.isDestroyed = true;
-    },
-
-    /**
-     Clear either the entire cache or just the cache for a particular key.
-      @private
-     @method reset
-     @param {String} fullName optional key to reset; if missing, resets everything
-     */
-    reset: function (fullName) {
-      if (arguments.length > 0) {
-        resetMember(this, this.registry.normalize(fullName));
-      } else {
-        resetCache(this);
-      }
-    },
-
-    /**
-     Returns an object that can be used to provide an owner to a
-     manually created instance.
-      @private
-     @method ownerInjection
-     @returns { Object }
-    */
-    ownerInjection: function () {
-      var _ref;
-
-      return _ref = {}, _ref[_containerOwner.OWNER] = this.owner, _ref;
-    }
-  };
-
-  function isSingleton(container, fullName) {
-    return container.registry.getOption(fullName, 'singleton') !== false;
-  }
-
-  function lookup(container, fullName) {
-    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-    if (options.source) {
-      fullName = container.registry.expandLocalLookup(fullName, options);
-
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!fullName) {
-        return;
-      }
-    }
-
-    if (container.cache[fullName] !== undefined && options.singleton !== false) {
-      return container.cache[fullName];
-    }
-
-    var value = instantiate(container, fullName);
-
-    if (value === undefined) {
-      return;
-    }
-
-    if (isSingleton(container, fullName) && options.singleton !== false) {
-      container.cache[fullName] = value;
-    }
-
-    return value;
-  }
-
-  function markInjectionsAsDynamic(injections) {
-    injections._dynamic = true;
-  }
-
-  function areInjectionsDynamic(injections) {
-    return !!injections._dynamic;
-  }
-
-  function buildInjections() /* container, ...injections */{
-    var hash = {};
-
-    if (arguments.length > 1) {
-      var container = arguments[0];
-      var injections = [];
-      var injection = undefined;
-
-      for (var i = 1; i < arguments.length; i++) {
-        if (arguments[i]) {
-          injections = injections.concat(arguments[i]);
-        }
-      }
-
-      container.registry.validateInjections(injections);
-
-      for (var i = 0; i < injections.length; i++) {
-        injection = injections[i];
-        hash[injection.property] = lookup(container, injection.fullName);
-        if (!isSingleton(container, injection.fullName)) {
-          markInjectionsAsDynamic(hash);
-        }
-      }
-    }
-
-    return hash;
-  }
-
-  function factoryFor(container, fullName) {
-    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-    var registry = container.registry;
-
-    if (options.source) {
-      fullName = registry.expandLocalLookup(fullName, options);
-
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!fullName) {
-        return;
-      }
-    }
-
-    var cache = container.factoryCache;
-    if (cache[fullName]) {
-      return cache[fullName];
-    }
-    var factory = registry.resolve(fullName);
-    if (factory === undefined) {
-      return;
-    }
-
-    var type = fullName.split(':')[0];
-    if (!factory || typeof factory.extend !== 'function' || !_emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS && type === 'model') {
-      if (factory && typeof factory._onLookup === 'function') {
-        factory._onLookup(fullName);
-      }
-
-      // TODO: think about a 'safe' merge style extension
-      // for now just fallback to create time injection
-      cache[fullName] = factory;
-      return factory;
-    } else {
-      var injections = injectionsFor(container, fullName);
-      var factoryInjections = factoryInjectionsFor(container, fullName);
-      var cacheable = !areInjectionsDynamic(injections) && !areInjectionsDynamic(factoryInjections);
-
-      factoryInjections._toString = registry.makeToString(factory, fullName);
-
-      var injectedFactory = factory.extend(injections);
-
-      // TODO - remove all `container` injections when Ember reaches v3.0.0
-      injectDeprecatedContainer(injectedFactory.prototype, container);
-      injectedFactory.reopenClass(factoryInjections);
-
-      if (factory && typeof factory._onLookup === 'function') {
-        factory._onLookup(fullName);
-      }
-
-      if (cacheable) {
-        cache[fullName] = injectedFactory;
-      }
-
-      return injectedFactory;
-    }
-  }
-
-  function injectionsFor(container, fullName) {
-    var registry = container.registry;
-    var splitName = fullName.split(':');
-    var type = splitName[0];
-
-    var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
-    injections._debugContainerKey = fullName;
-
-    _containerOwner.setOwner(injections, container.owner);
-
-    return injections;
-  }
-
-  function factoryInjectionsFor(container, fullName) {
-    var registry = container.registry;
-    var splitName = fullName.split(':');
-    var type = splitName[0];
-
-    var factoryInjections = buildInjections(container, registry.getFactoryTypeInjections(type), registry.getFactoryInjections(fullName));
-    factoryInjections._debugContainerKey = fullName;
-
-    return factoryInjections;
-  }
-
-  function instantiate(container, fullName) {
-    var factory = factoryFor(container, fullName);
-    var lazyInjections = undefined,
-        validationCache = undefined;
-
-    if (container.registry.getOption(fullName, 'instantiate') === false) {
-      return factory;
-    }
-
-    if (factory) {
-      if (typeof factory.create !== 'function') {
-        throw new Error('Failed to create an instance of \'' + fullName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
-      }
-
-      validationCache = container.validationCache;
-
-      _emberMetal.runInDebug(function () {
-        // Ensure that all lazy injections are valid at instantiation time
-        if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
-          lazyInjections = factory._lazyInjections();
-          lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
-
-          container.registry.validateInjections(lazyInjections);
-        }
-      });
-
-      validationCache[fullName] = true;
-
-      var obj = undefined;
-
-      if (typeof factory.extend === 'function') {
-        // assume the factory was extendable and is already injected
-        obj = factory.create();
-      } else {
-        // assume the factory was extendable
-        // to create time injections
-        // TODO: support new'ing for instantiation and merge injections for pure JS Functions
-        var injections = injectionsFor(container, fullName);
-
-        // Ensure that a container is available to an object during instantiation.
-        // TODO - remove when Ember reaches v3.0.0
-        // This "fake" container will be replaced after instantiation with a
-        // property that raises deprecations every time it is accessed.
-        injections.container = container._fakeContainerToInject;
-        obj = factory.create(injections);
-
-        // TODO - remove when Ember reaches v3.0.0
-        if (!Object.isFrozen(obj) && 'container' in obj) {
-          injectDeprecatedContainer(obj, container);
-        }
-      }
-
-      return obj;
-    }
-  }
-
-  // TODO - remove when Ember reaches v3.0.0
-  function injectDeprecatedContainer(object, container) {
-    Object.defineProperty(object, 'container', {
-      configurable: true,
-      enumerable: false,
-      get: function () {
-        _emberMetal.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
-        return this[CONTAINER_OVERRIDE] || container;
-      },
-
-      set: function (value) {
-        _emberMetal.deprecate('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
-
-        this[CONTAINER_OVERRIDE] = value;
-
-        return value;
-      }
-    });
-  }
-
-  function eachDestroyable(container, callback) {
-    var cache = container.cache;
-    var keys = Object.keys(cache);
-
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var value = cache[key];
-
-      if (container.registry.getOption(key, 'instantiate') !== false) {
-        callback(value);
-      }
-    }
-  }
-
-  function resetCache(container) {
-    eachDestroyable(container, function (value) {
-      if (value.destroy) {
-        value.destroy();
-      }
-    });
-
-    container.cache.dict = _emberMetal.dictionary(null);
-  }
-
-  function resetMember(container, fullName) {
-    var member = container.cache[fullName];
-
-    delete container.factoryCache[fullName];
-
-    if (member) {
-      delete container.cache[fullName];
-
-      if (member.destroy) {
-        member.destroy();
-      }
-    }
-  }
-
-  function buildFakeContainerWithDeprecations(container) {
-    var fakeContainer = {};
-    var propertyMappings = {
-      lookup: 'lookup',
-      lookupFactory: '_lookupFactory'
-    };
-
-    for (var containerProperty in propertyMappings) {
-      fakeContainer[containerProperty] = buildFakeContainerFunction(container, containerProperty, propertyMappings[containerProperty]);
-    }
-
-    return fakeContainer;
-  }
-
-  function buildFakeContainerFunction(container, containerProperty, ownerProperty) {
-    return function () {
-      _emberMetal.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
-        id: 'ember-application.injected-container',
-        until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
-      });
-      return container[containerProperty].apply(container, arguments);
-    };
-  }
-});
-enifed('container/index', ['exports', 'container/registry', 'container/container', 'container/owner'], function (exports, _containerRegistry, _containerContainer, _containerOwner) {
-  /*
-  Public API for the container is still in flux.
-  The public API, specified on the application namespace should be considered the stable API.
-  // @module container
-    @private
-  */
-
-  'use strict';
-
-  exports.Registry = _containerRegistry.default;
-  exports.privatize = _containerRegistry.privatize;
-  exports.Container = _containerContainer.default;
-  exports.buildFakeContainerWithDeprecations = _containerContainer.buildFakeContainerWithDeprecations;
-  exports.OWNER = _containerOwner.OWNER;
-  exports.getOwner = _containerOwner.getOwner;
-  exports.setOwner = _containerOwner.setOwner;
-});
-enifed('container/owner', ['exports', 'ember-metal'], function (exports, _emberMetal) {
-  /**
-  @module ember
-  @submodule ember-runtime
-  */
-
-  'use strict';
-
-  exports.getOwner = getOwner;
-  exports.setOwner = setOwner;
-  var OWNER = _emberMetal.symbol('OWNER');
-
-  exports.OWNER = OWNER;
-  /**
-    Framework objects in an Ember application (components, services, routes, etc.)
-    are created via a factory and dependency injection system. Each of these
-    objects is the responsibility of an "owner", which handled its
-    instantiation and manages its lifetime.
-  
-    `getOwner` fetches the owner object responsible for an instance. This can
-    be used to lookup or resolve other class instances, or register new factories
-    into the owner.
-  
-    For example, this component dynamically looks up a service based on the
-    `audioType` passed as an attribute:
-  
-    ```
-    // app/components/play-audio.js
-    import Ember from 'ember';
-  
-    // Usage:
-    //
-    //   {{play-audio audioType=model.audioType audioFile=model.file}}
-    //
-    export default Ember.Component.extend({
-      audioService: Ember.computed('audioType', function() {
-        let owner = Ember.getOwner(this);
-        return owner.lookup(`service:${this.get('audioType')}`);
-      }),
-      click() {
-        let player = this.get('audioService');
-        player.play(this.get('audioFile'));
-      }
-    });
-    ```
-  
-    @method getOwner
-    @for Ember
-    @param {Object} object An object with an owner.
-    @return {Object} An owner object.
-    @since 2.3.0
-    @public
-  */
-
-  function getOwner(object) {
-    return object[OWNER];
-  }
-
-  /**
-    `setOwner` forces a new owner on a given object instance. This is primarily
-    useful in some testing cases.
-  
-    @method setOwner
-    @for Ember
-    @param {Object} object An object with an owner.
-    @return {Object} An owner object.
-    @since 2.3.0
-    @public
-  */
-
-  function setOwner(object, owner) {
-    object[OWNER] = owner;
-  }
-});
-enifed('container/registry', ['exports', 'ember-metal', 'container/container'], function (exports, _emberMetal, _containerContainer) {
-  'use strict';
-
-  exports.default = Registry;
-  exports.privatize = privatize;
-
-  var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
-
-  /**
-   A registry used to store factory and option information keyed
-   by type.
-  
-   A `Registry` stores the factory and option information needed by a
-   `Container` to instantiate and cache objects.
-  
-   The API for `Registry` is still in flux and should not be considered stable.
-  
-   @private
-   @class Registry
-   @since 1.11.0
-  */
-
-  function Registry(options) {
-    this.fallback = options && options.fallback ? options.fallback : null;
-
-    if (options && options.resolver) {
-      this.resolver = options.resolver;
-
-      if (typeof this.resolver === 'function') {
-        deprecateResolverFunction(this);
-      }
-    }
-
-    this.registrations = _emberMetal.dictionary(options && options.registrations ? options.registrations : null);
-
-    this._typeInjections = _emberMetal.dictionary(null);
-    this._injections = _emberMetal.dictionary(null);
-    this._factoryTypeInjections = _emberMetal.dictionary(null);
-    this._factoryInjections = _emberMetal.dictionary(null);
-
-    this._localLookupCache = new _emberMetal.EmptyObject();
-    this._normalizeCache = _emberMetal.dictionary(null);
-    this._resolveCache = _emberMetal.dictionary(null);
-    this._failCache = _emberMetal.dictionary(null);
-
-    this._options = _emberMetal.dictionary(null);
-    this._typeOptions = _emberMetal.dictionary(null);
-  }
-
-  Registry.prototype = {
-    /**
-     A backup registry for resolving registrations when no matches can be found.
-      @private
-     @property fallback
-     @type Registry
-     */
-    fallback: null,
-
-    /**
-     An object that has a `resolve` method that resolves a name.
-      @private
-     @property resolver
-     @type Resolver
-     */
-    resolver: null,
-
-    /**
-     @private
-     @property registrations
-     @type InheritingDict
-     */
-    registrations: null,
-
-    /**
-     @private
-      @property _typeInjections
-     @type InheritingDict
-     */
-    _typeInjections: null,
-
-    /**
-     @private
-      @property _injections
-     @type InheritingDict
-     */
-    _injections: null,
-
-    /**
-     @private
-      @property _factoryTypeInjections
-     @type InheritingDict
-     */
-    _factoryTypeInjections: null,
-
-    /**
-     @private
-      @property _factoryInjections
-     @type InheritingDict
-     */
-    _factoryInjections: null,
-
-    /**
-     @private
-      @property _normalizeCache
-     @type InheritingDict
-     */
-    _normalizeCache: null,
-
-    /**
-     @private
-      @property _resolveCache
-     @type InheritingDict
-     */
-    _resolveCache: null,
-
-    /**
-     @private
-      @property _options
-     @type InheritingDict
-     */
-    _options: null,
-
-    /**
-     @private
-      @property _typeOptions
-     @type InheritingDict
-     */
-    _typeOptions: null,
-
-    /**
-     Creates a container based on this registry.
-      @private
-     @method container
-     @param {Object} options
-     @return {Container} created container
-     */
-    container: function (options) {
-      return new _containerContainer.default(this, options);
-    },
-
-    /**
-     Registers a factory for later injection.
-      Example:
-      ```javascript
-     let registry = new Registry();
-      registry.register('model:user', Person, {singleton: false });
-     registry.register('fruit:favorite', Orange);
-     registry.register('communication:main', Email, {singleton: false});
-     ```
-      @private
-     @method register
-     @param {String} fullName
-     @param {Function} factory
-     @param {Object} options
-     */
-    register: function (fullName, factory) {
-      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
-
-      if (factory === undefined) {
-        throw new TypeError('Attempting to register an unknown factory: \'' + fullName + '\'');
-      }
-
-      var normalizedName = this.normalize(fullName);
-
-      if (this._resolveCache[normalizedName]) {
-        throw new Error('Cannot re-register: \'' + fullName + '\', as it has already been resolved.');
-      }
-
-      delete this._failCache[normalizedName];
-      this.registrations[normalizedName] = factory;
-      this._options[normalizedName] = options;
-    },
-
-    /**
-     Unregister a fullName
-      ```javascript
-     let registry = new Registry();
-     registry.register('model:user', User);
-      registry.resolve('model:user').create() instanceof User //=> true
-      registry.unregister('model:user')
-     registry.resolve('model:user') === undefined //=> true
-     ```
-      @private
-     @method unregister
-     @param {String} fullName
-     */
-    unregister: function (fullName) {
-      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
-
-      var normalizedName = this.normalize(fullName);
-
-      this._localLookupCache = new _emberMetal.EmptyObject();
-
-      delete this.registrations[normalizedName];
-      delete this._resolveCache[normalizedName];
-      delete this._failCache[normalizedName];
-      delete this._options[normalizedName];
-    },
-
-    /**
-     Given a fullName return the corresponding factory.
-      By default `resolve` will retrieve the factory from
-     the registry.
-      ```javascript
-     let registry = new Registry();
-     registry.register('api:twitter', Twitter);
-      registry.resolve('api:twitter') // => Twitter
-     ```
-      Optionally the registry can be provided with a custom resolver.
-     If provided, `resolve` will first provide the custom resolver
-     the opportunity to resolve the fullName, otherwise it will fallback
-     to the registry.
-      ```javascript
-     let registry = new Registry();
-     registry.resolver = function(fullName) {
-        // lookup via the module system of choice
-      };
-      // the twitter factory is added to the module system
-     registry.resolve('api:twitter') // => Twitter
-     ```
-      @private
-     @method resolve
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] the fullname of the request source (used for local lookups)
-     @return {Function} fullName's factory
-     */
-    resolve: function (fullName, options) {
-      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
-      var factory = resolve(this, this.normalize(fullName), options);
-      if (factory === undefined && this.fallback) {
-        var _fallback;
-
-        factory = (_fallback = this.fallback).resolve.apply(_fallback, arguments);
-      }
-      return factory;
-    },
-
-    /**
-     A hook that can be used to describe how the resolver will
-     attempt to find the factory.
-      For example, the default Ember `.describe` returns the full
-     class name (including namespace) where Ember's resolver expects
-     to find the `fullName`.
-      @private
-     @method describe
-     @param {String} fullName
-     @return {string} described fullName
-     */
-    describe: function (fullName) {
-      if (this.resolver && this.resolver.lookupDescription) {
-        return this.resolver.lookupDescription(fullName);
-      } else if (this.fallback) {
-        return this.fallback.describe(fullName);
-      } else {
-        return fullName;
-      }
-    },
-
-    /**
-     A hook to enable custom fullName normalization behaviour
-      @private
-     @method normalizeFullName
-     @param {String} fullName
-     @return {string} normalized fullName
-     */
-    normalizeFullName: function (fullName) {
-      if (this.resolver && this.resolver.normalize) {
-        return this.resolver.normalize(fullName);
-      } else if (this.fallback) {
-        return this.fallback.normalizeFullName(fullName);
-      } else {
-        return fullName;
-      }
-    },
-
-    /**
-     Normalize a fullName based on the application's conventions
-      @private
-     @method normalize
-     @param {String} fullName
-     @return {string} normalized fullName
-     */
-    normalize: function (fullName) {
-      return this._normalizeCache[fullName] || (this._normalizeCache[fullName] = this.normalizeFullName(fullName));
-    },
-
-    /**
-     @method makeToString
-      @private
-     @param {any} factory
-     @param {string} fullName
-     @return {function} toString function
-     */
-    makeToString: function (factory, fullName) {
-      if (this.resolver && this.resolver.makeToString) {
-        return this.resolver.makeToString(factory, fullName);
-      } else if (this.fallback) {
-        return this.fallback.makeToString(factory, fullName);
-      } else {
-        return factory.toString();
-      }
-    },
-
-    /**
-     Given a fullName check if the container is aware of its factory
-     or singleton instance.
-      @private
-     @method has
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] the fullname of the request source (used for local lookups)
-     @return {Boolean}
-     */
-    has: function (fullName, options) {
-      if (!this.isValidFullName(fullName)) {
-        return false;
-      }
-
-      var source = options && options.source && this.normalize(options.source);
-
-      return has(this, this.normalize(fullName), source);
-    },
-
-    /**
-     Allow registering options for all factories of a type.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      // if all of type `connection` must not be singletons
-     registry.optionsForType('connection', { singleton: false });
-      registry.register('connection:twitter', TwitterConnection);
-     registry.register('connection:facebook', FacebookConnection);
-      let twitter = container.lookup('connection:twitter');
-     let twitter2 = container.lookup('connection:twitter');
-      twitter === twitter2; // => false
-      let facebook = container.lookup('connection:facebook');
-     let facebook2 = container.lookup('connection:facebook');
-      facebook === facebook2; // => false
-     ```
-      @private
-     @method optionsForType
-     @param {String} type
-     @param {Object} options
-     */
-    optionsForType: function (type, options) {
-      this._typeOptions[type] = options;
-    },
-
-    getOptionsForType: function (type) {
-      var optionsForType = this._typeOptions[type];
-      if (optionsForType === undefined && this.fallback) {
-        optionsForType = this.fallback.getOptionsForType(type);
-      }
-      return optionsForType;
-    },
-
-    /**
-     @private
-     @method options
-     @param {String} fullName
-     @param {Object} options
-     */
-    options: function (fullName) {
-      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-      var normalizedName = this.normalize(fullName);
-      this._options[normalizedName] = options;
-    },
-
-    getOptions: function (fullName) {
-      var normalizedName = this.normalize(fullName);
-      var options = this._options[normalizedName];
-
-      if (options === undefined && this.fallback) {
-        options = this.fallback.getOptions(fullName);
-      }
-      return options;
-    },
-
-    getOption: function (fullName, optionName) {
-      var options = this._options[fullName];
-
-      if (options && options[optionName] !== undefined) {
-        return options[optionName];
-      }
-
-      var type = fullName.split(':')[0];
-      options = this._typeOptions[type];
-
-      if (options && options[optionName] !== undefined) {
-        return options[optionName];
-      } else if (this.fallback) {
-        return this.fallback.getOption(fullName, optionName);
-      }
-    },
-
-    /**
-     Used only via `injection`.
-      Provides a specialized form of injection, specifically enabling
-     all objects of one type to be injected with a reference to another
-     object.
-      For example, provided each object of type `controller` needed a `router`.
-     one would do the following:
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('router:main', Router);
-     registry.register('controller:user', UserController);
-     registry.register('controller:post', PostController);
-      registry.typeInjection('controller', 'router', 'router:main');
-      let user = container.lookup('controller:user');
-     let post = container.lookup('controller:post');
-      user.router instanceof Router; //=> true
-     post.router instanceof Router; //=> true
-      // both controllers share the same router
-     user.router === post.router; //=> true
-     ```
-      @private
-     @method typeInjection
-     @param {String} type
-     @param {String} property
-     @param {String} fullName
-     */
-    typeInjection: function (type, property, fullName) {
-      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
-
-      var fullNameType = fullName.split(':')[0];
-      if (fullNameType === type) {
-        throw new Error('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).');
-      }
-
-      var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
-
-      injections.push({
-        property: property,
-        fullName: fullName
-      });
-    },
-
-    /**
-     Defines injection rules.
-      These rules are used to inject dependencies onto objects when they
-     are instantiated.
-      Two forms of injections are possible:
-      * Injecting one fullName on another fullName
-     * Injecting one fullName on a type
-      Example:
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('source:main', Source);
-     registry.register('model:user', User);
-     registry.register('model:post', Post);
-      // injecting one fullName on another fullName
-     // eg. each user model gets a post model
-     registry.injection('model:user', 'post', 'model:post');
-      // injecting one fullName on another type
-     registry.injection('model', 'source', 'source:main');
-      let user = container.lookup('model:user');
-     let post = container.lookup('model:post');
-      user.source instanceof Source; //=> true
-     post.source instanceof Source; //=> true
-      user.post instanceof Post; //=> true
-      // and both models share the same source
-     user.source === post.source; //=> true
-     ```
-      @private
-     @method injection
-     @param {String} factoryName
-     @param {String} property
-     @param {String} injectionName
-     */
-    injection: function (fullName, property, injectionName) {
-      this.validateFullName(injectionName);
-      var normalizedInjectionName = this.normalize(injectionName);
-
-      if (fullName.indexOf(':') === -1) {
-        return this.typeInjection(fullName, property, normalizedInjectionName);
-      }
-
-      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
-      var normalizedName = this.normalize(fullName);
-
-      var injections = this._injections[normalizedName] || (this._injections[normalizedName] = []);
-
-      injections.push({
-        property: property,
-        fullName: normalizedInjectionName
-      });
-    },
-
-    /**
-     Used only via `factoryInjection`.
-      Provides a specialized form of injection, specifically enabling
-     all factory of one type to be injected with a reference to another
-     object.
-      For example, provided each factory of type `model` needed a `store`.
-     one would do the following:
-      ```javascript
-     let registry = new Registry();
-      registry.register('store:main', SomeStore);
-      registry.factoryTypeInjection('model', 'store', 'store:main');
-      let store = registry.lookup('store:main');
-     let UserFactory = registry.lookupFactory('model:user');
-      UserFactory.store instanceof SomeStore; //=> true
-     ```
-      @private
-     @method factoryTypeInjection
-     @param {String} type
-     @param {String} property
-     @param {String} fullName
-     */
-    factoryTypeInjection: function (type, property, fullName) {
-      var injections = this._factoryTypeInjections[type] || (this._factoryTypeInjections[type] = []);
-
-      injections.push({
-        property: property,
-        fullName: this.normalize(fullName)
-      });
-    },
-
-    /**
-     Defines factory injection rules.
-      Similar to regular injection rules, but are run against factories, via
-     `Registry#lookupFactory`.
-      These rules are used to inject objects onto factories when they
-     are looked up.
-      Two forms of injections are possible:
-      * Injecting one fullName on another fullName
-     * Injecting one fullName on a type
-      Example:
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('store:main', Store);
-     registry.register('store:secondary', OtherStore);
-     registry.register('model:user', User);
-     registry.register('model:post', Post);
-      // injecting one fullName on another type
-     registry.factoryInjection('model', 'store', 'store:main');
-      // injecting one fullName on another fullName
-     registry.factoryInjection('model:post', 'secondaryStore', 'store:secondary');
-      let UserFactory = container.lookupFactory('model:user');
-     let PostFactory = container.lookupFactory('model:post');
-     let store = container.lookup('store:main');
-      UserFactory.store instanceof Store; //=> true
-     UserFactory.secondaryStore instanceof OtherStore; //=> false
-      PostFactory.store instanceof Store; //=> true
-     PostFactory.secondaryStore instanceof OtherStore; //=> true
-      // and both models share the same source instance
-     UserFactory.store === PostFactory.store; //=> true
-     ```
-      @private
-     @method factoryInjection
-     @param {String} factoryName
-     @param {String} property
-     @param {String} injectionName
-     */
-    factoryInjection: function (fullName, property, injectionName) {
-      var normalizedName = this.normalize(fullName);
-      var normalizedInjectionName = this.normalize(injectionName);
-
-      this.validateFullName(injectionName);
-
-      if (fullName.indexOf(':') === -1) {
-        return this.factoryTypeInjection(normalizedName, property, normalizedInjectionName);
-      }
-
-      var injections = this._factoryInjections[normalizedName] || (this._factoryInjections[normalizedName] = []);
-
-      injections.push({
-        property: property,
-        fullName: normalizedInjectionName
-      });
-    },
-
-    /**
-     @private
-     @method knownForType
-     @param {String} type the type to iterate over
-    */
-    knownForType: function (type) {
-      var fallbackKnown = undefined,
-          resolverKnown = undefined;
-
-      var localKnown = _emberMetal.dictionary(null);
-      var registeredNames = Object.keys(this.registrations);
-      for (var index = 0; index < registeredNames.length; index++) {
-        var fullName = registeredNames[index];
-        var itemType = fullName.split(':')[0];
-
-        if (itemType === type) {
-          localKnown[fullName] = true;
-        }
-      }
-
-      if (this.fallback) {
-        fallbackKnown = this.fallback.knownForType(type);
-      }
-
-      if (this.resolver && this.resolver.knownForType) {
-        resolverKnown = this.resolver.knownForType(type);
-      }
-
-      return _emberMetal.assign({}, fallbackKnown, localKnown, resolverKnown);
-    },
-
-    validateFullName: function (fullName) {
-      if (!this.isValidFullName(fullName)) {
-        throw new TypeError('Invalid Fullname, expected: \'type:name\' got: ' + fullName);
-      }
-
-      return true;
-    },
-
-    isValidFullName: function (fullName) {
-      return !!VALID_FULL_NAME_REGEXP.test(fullName);
-    },
-
-    validateInjections: function (injections) {
-      if (!injections) {
-        return;
-      }
-
-      var fullName = undefined;
-
-      for (var i = 0; i < injections.length; i++) {
-        fullName = injections[i].fullName;
-
-        if (!this.has(fullName)) {
-          throw new Error('Attempting to inject an unknown injection: \'' + fullName + '\'');
-        }
-      }
-    },
-
-    normalizeInjectionsHash: function (hash) {
-      var injections = [];
-
-      for (var key in hash) {
-        if (hash.hasOwnProperty(key)) {
-          _emberMetal.assert('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
-
-          injections.push({
-            property: key,
-            fullName: hash[key]
-          });
-        }
-      }
-
-      return injections;
-    },
-
-    getInjections: function (fullName) {
-      var injections = this._injections[fullName] || [];
-      if (this.fallback) {
-        injections = injections.concat(this.fallback.getInjections(fullName));
-      }
-      return injections;
-    },
-
-    getTypeInjections: function (type) {
-      var injections = this._typeInjections[type] || [];
-      if (this.fallback) {
-        injections = injections.concat(this.fallback.getTypeInjections(type));
-      }
-      return injections;
-    },
-
-    getFactoryInjections: function (fullName) {
-      var injections = this._factoryInjections[fullName] || [];
-      if (this.fallback) {
-        injections = injections.concat(this.fallback.getFactoryInjections(fullName));
-      }
-      return injections;
-    },
-
-    getFactoryTypeInjections: function (type) {
-      var injections = this._factoryTypeInjections[type] || [];
-      if (this.fallback) {
-        injections = injections.concat(this.fallback.getFactoryTypeInjections(type));
-      }
-      return injections;
-    }
-  };
-
-  function deprecateResolverFunction(registry) {
-    _emberMetal.deprecate('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
-    registry.resolver = {
-      resolve: registry.resolver
-    };
-  }
-
-  /**
-   Given a fullName and a source fullName returns the fully resolved
-   fullName. Used to allow for local lookup.
-  
-   ```javascript
-   let registry = new Registry();
-  
-   // the twitter factory is added to the module system
-   registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
-   ```
-  
-   @private
-   @method expandLocalLookup
-   @param {String} fullName
-   @param {Object} [options]
-   @param {String} [options.source] the fullname of the request source (used for local lookups)
-   @return {String} fullName
-   */
-  Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
-    if (this.resolver && this.resolver.expandLocalLookup) {
-      _emberMetal.assert('fullName must be a proper full name', this.validateFullName(fullName));
-      _emberMetal.assert('options.source must be provided to expandLocalLookup', options && options.source);
-      _emberMetal.assert('options.source must be a proper full name', this.validateFullName(options.source));
-
-      var normalizedFullName = this.normalize(fullName);
-      var normalizedSource = this.normalize(options.source);
-
-      return expandLocalLookup(this, normalizedFullName, normalizedSource);
-    } else if (this.fallback) {
-      return this.fallback.expandLocalLookup(fullName, options);
-    } else {
-      return null;
-    }
-  };
-
-  function expandLocalLookup(registry, normalizedName, normalizedSource) {
-    var cache = registry._localLookupCache;
-    var normalizedNameCache = cache[normalizedName];
-
-    if (!normalizedNameCache) {
-      normalizedNameCache = cache[normalizedName] = new _emberMetal.EmptyObject();
-    }
-
-    var cached = normalizedNameCache[normalizedSource];
-
-    if (cached !== undefined) {
-      return cached;
-    }
-
-    var expanded = registry.resolver.expandLocalLookup(normalizedName, normalizedSource);
-
-    return normalizedNameCache[normalizedSource] = expanded;
-  }
-
-  function resolve(registry, normalizedName, options) {
-    if (options && options.source) {
-      // when `source` is provided expand normalizedName
-      // and source into the full normalizedName
-      normalizedName = registry.expandLocalLookup(normalizedName, options);
-
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!normalizedName) {
-        return;
-      }
-    }
-
-    var cached = registry._resolveCache[normalizedName];
-    if (cached !== undefined) {
-      return cached;
-    }
-    if (registry._failCache[normalizedName]) {
-      return;
-    }
-
-    var resolved = undefined;
-
-    if (registry.resolver) {
-      resolved = registry.resolver.resolve(normalizedName);
-    }
-
-    if (resolved === undefined) {
-      resolved = registry.registrations[normalizedName];
-    }
-
-    if (resolved === undefined) {
-      registry._failCache[normalizedName] = true;
-    } else {
-      registry._resolveCache[normalizedName] = resolved;
-    }
-
-    return resolved;
-  }
-
-  function has(registry, fullName, source) {
-    return registry.resolve(fullName, { source: source }) !== undefined;
-  }
-
-  var privateNames = _emberMetal.dictionary(null);
-  var privateSuffix = '' + Math.random() + Date.now();
-
-  function privatize(_ref) {
-    var fullName = _ref[0];
-
-    var name = privateNames[fullName];
-    if (name) {
-      return name;
-    }
-
-    var _fullName$split = fullName.split(':');
-
-    var type = _fullName$split[0];
-    var rawName = _fullName$split[1];
-
-    return privateNames[fullName] = _emberMetal.intern(type + ':' + rawName + '-' + privateSuffix);
-  }
-});
 enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
 
@@ -3426,7 +2068,7 @@ enifed("ember-environment/utils", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/dependent_keys'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalError, _emberMetalProperties, _emberMetalComputed, _emberMetalUtils, _emberMetalMeta, _emberMetalDependent_keys) {
+enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/meta', 'ember-metal/dependent_keys'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalError, _emberMetalProperties, _emberMetalComputed, _emberMetalMeta, _emberMetalDependent_keys) {
   'use strict';
 
   exports.default = alias;
@@ -3481,7 +2123,7 @@ enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/proper
   };
 
   function AliasedProperty_readOnlySet(obj, keyName, value) {
-    throw new _emberMetalError.default('Cannot set read-only property \'' + keyName + '\' on object: ' + _emberMetalUtils.inspect(obj));
+    throw new _emberMetalError.default('Cannot set read-only property \'' + keyName + '\' on object: ' + _emberUtils.inspect(obj));
   }
 
   AliasedProperty.prototype.oneWay = function () {
@@ -3498,51 +2140,7 @@ enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/proper
   AliasedProperty.prototype._meta = undefined;
   AliasedProperty.prototype.meta = _emberMetalComputed.ComputedProperty.prototype.meta;
 });
-enifed("ember-metal/assign", ["exports"], function (exports) {
-  /**
-    Copy properties from a source object to a target object.
-  
-    ```javascript
-    var a = { first: 'Yehuda' };
-    var b = { last: 'Katz' };
-    var c = { company: 'Tilde Inc.' };
-    Ember.assign(a, b, c); // a === { first: 'Yehuda', last: 'Katz', company: 'Tilde Inc.' }, b === { last: 'Katz' }, c === { company: 'Tilde Inc.' }
-    ```
-  
-    @method assign
-    @for Ember
-    @param {Object} original The object to assign into
-    @param {Object} ...args The objects to copy properties from
-    @return {Object}
-    @public
-  */
-  "use strict";
-
-  exports.default = assign;
-
-  function assign(original) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    for (var i = 0; i < args.length; i++) {
-      var arg = args[i];
-      if (!arg) {
-        continue;
-      }
-
-      var updates = Object.keys(arg);
-
-      for (var _i = 0; _i < updates.length; _i++) {
-        var prop = updates[_i];
-        original[prop] = arg[prop];
-      }
-    }
-
-    return original;
-  }
-});
-enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/events', 'ember-metal/observer', 'ember-metal/path_cache'], function (exports, _emberConsole, _emberEnvironment, _emberMetalRun_loop, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalEvents, _emberMetalObserver, _emberMetalPath_cache) {
+enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/events', 'ember-metal/observer', 'ember-metal/path_cache'], function (exports, _emberUtils, _emberConsole, _emberEnvironment, _emberMetalRun_loop, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEvents, _emberMetalObserver, _emberMetalPath_cache) {
   'use strict';
 
   exports.bind = bind;
@@ -3651,7 +2249,7 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
     */
     toString: function () {
       var oneWay = this._oneWay ? '[oneWay]' : '';
-      return 'Ember.Binding<' + _emberMetalUtils.guidFor(this) + '>(' + this._from + ' -> ' + this._to + ')' + oneWay;
+      return 'Ember.Binding<' + _emberUtils.guidFor(this) + '>(' + this._from + ' -> ' + this._to + ')' + oneWay;
     },
 
     // ..........................................................
@@ -4018,7 +2616,7 @@ enifed('ember-metal/binding', ['exports', 'ember-console', 'ember-environment', 
 
   exports.Binding = Binding;
 });
-enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
+enifed('ember-metal/cache', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
 
   var Cache = (function () {
@@ -4087,7 +2685,7 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
     function DefaultStore() {
       babelHelpers.classCallCheck(this, DefaultStore);
 
-      this.data = new _emberMetalEmpty_object.default();
+      this.data = new _emberUtils.EmptyObject();
     }
 
     DefaultStore.prototype.get = function get(key) {
@@ -4099,13 +2697,13 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (e
     };
 
     DefaultStore.prototype.clear = function clear() {
-      this.data = new _emberMetalEmpty_object.default();
+      this.data = new _emberUtils.EmptyObject();
     };
 
     return DefaultStore;
   })();
 });
-enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/empty_object', 'ember-metal/watch_path'], function (exports, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalEmpty_object, _emberMetalWatch_path) {
+enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/watch_path'], function (exports, _emberUtils, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalWatch_path) {
   'use strict';
 
   exports.finishChains = finishChains;
@@ -4128,7 +2726,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     // chain nodes that reference a key in this obj by key
     // we only create ChainWatchers when we are going to add them
     // so create this upfront
-    this.chains = new _emberMetalEmpty_object.default();
+    this.chains = new _emberUtils.EmptyObject();
   }
 
   ChainWatchers.prototype = {
@@ -4360,7 +2958,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       var chains = this._chains;
       var node = undefined;
       if (chains === undefined) {
-        chains = this._chains = new _emberMetalEmpty_object.default();
+        chains = this._chains = new _emberUtils.EmptyObject();
       } else {
         node = chains[key];
       }
@@ -4463,7 +3061,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
   exports.removeChainWatcher = removeChainWatcher;
   exports.ChainNode = ChainNode;
 });
-enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalDebug, _emberMetalProperty_set, _emberMetalUtils, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
+enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalProperty_set, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
   'use strict';
 
   exports.default = computed;
@@ -4814,7 +3412,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
   };
 
   ComputedPropertyPrototype._throwReadOnlyError = function computedPropertyThrowReadOnlyError(obj, keyName) {
-    throw new _emberMetalError.default('Cannot set read-only property "' + keyName + '" on object: ' + _emberMetalUtils.inspect(obj));
+    throw new _emberMetalError.default('Cannot set read-only property "' + keyName + '" on object: ' + _emberUtils.inspect(obj));
   };
 
   ComputedPropertyPrototype.clobberSet = function computedPropertyClobberSet(obj, keyName, value) {
@@ -5285,52 +3883,6 @@ enifed('ember-metal/descriptor', ['exports', 'ember-metal/properties'], function
     return Descriptor;
   })(_emberMetalProperties.Descriptor);
 });
-enifed('ember-metal/dictionary', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
-  'use strict';
-
-  exports.default = makeDictionary;
-
-  // the delete is meant to hint at runtimes that this object should remain in
-  // dictionary mode. This is clearly a runtime specific hack, but currently it
-  // appears worthwhile in some usecases. Please note, these deletes do increase
-  // the cost of creation dramatically over a plain Object.create. And as this
-  // only makes sense for long-lived dictionaries that aren't instantiated often.
-
-  function makeDictionary(parent) {
-    var dict = undefined;
-    if (parent === null) {
-      dict = new _emberMetalEmpty_object.default();
-    } else {
-      dict = Object.create(parent);
-    }
-    dict['_dict'] = null;
-    delete dict['_dict'];
-    return dict;
-  }
-});
-enifed("ember-metal/empty_object", ["exports"], function (exports) {
-  // This exists because `Object.create(null)` is absurdly slow compared
-  // to `new EmptyObject()`. In either case, you want a null prototype
-  // when you're treating the object instances as arbitrary dictionaries
-  // and don't want your keys colliding with build-in methods on the
-  // default object prototype.
-
-  "use strict";
-
-  var proto = Object.create(null, {
-    // without this, we will always still end up with (new
-    // EmptyObject()).constructor === Object
-    constructor: {
-      value: undefined,
-      enumerable: false,
-      writable: true
-    }
-  });
-
-  function EmptyObject() {}
-  EmptyObject.prototype = proto;
-  exports.default = EmptyObject;
-});
 enifed("ember-metal/error", ["exports"], function (exports) {
 
   /**
@@ -5431,7 +3983,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
     }
   }
 });
-enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/meta_listeners'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberMetalMeta, _emberMetalMeta_listeners) {
+enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/meta', 'ember-metal/meta_listeners'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalMeta, _emberMetalMeta_listeners) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -5678,7 +4230,7 @@ enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils
       }
       if ('string' === typeof method) {
         if (params) {
-          _emberMetalUtils.applyStr(target, method, params);
+          _emberUtils.applyStr(target, method, params);
         } else {
           target[method]();
         }
@@ -5845,7 +4397,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], functi
     return all;
   }
 });
-enifed('ember-metal/features', ['exports', 'ember-environment', 'ember-metal/assign', 'ember/features'], function (exports, _emberEnvironment, _emberMetalAssign, _emberFeatures) {
+enifed('ember-metal/features', ['exports', 'ember-utils', 'ember-environment', 'ember/features'], function (exports, _emberUtils, _emberEnvironment, _emberFeatures) {
   'use strict';
 
   exports.default = isEnabled;
@@ -5863,7 +4415,7 @@ enifed('ember-metal/features', ['exports', 'ember-environment', 'ember-metal/ass
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default(_emberFeatures.default, _emberEnvironment.ENV.FEATURES);
+  var FEATURES = _emberUtils.assign(_emberFeatures.default, _emberEnvironment.ENV.FEATURES);
 
   exports.FEATURES = FEATURES;
   /**
@@ -5941,7 +4493,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/assign', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/symbol', 'ember-metal/dictionary', 'ember-metal/empty_object', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalAssign, _emberMetalMerge, _emberMetalDebug, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalSymbol, _emberMetalDictionary, _emberMetalEmpty_object, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalDescriptor) {
+enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalDescriptor) {
   /**
   @module ember
   @submodule ember-metal
@@ -5955,7 +4507,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.cacheFor = _emberMetalComputed.cacheFor;
   exports.ComputedProperty = _emberMetalComputed.ComputedProperty;
   exports.alias = _emberMetalAlias.default;
-  exports.assign = _emberMetalAssign.default;
   exports.merge = _emberMetalMerge.default;
   exports.assert = _emberMetalDebug.assert;
   exports.info = _emberMetalDebug.info;
@@ -5972,18 +4523,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.instrumentationReset = _emberMetalInstrumentation.reset;
   exports.instrumentationSubscribe = _emberMetalInstrumentation.subscribe;
   exports.instrumentationUnsubscribe = _emberMetalInstrumentation.unsubscribe;
-  exports.intern = _emberMetalUtils.intern;
-  exports.GUID_KEY = _emberMetalUtils.GUID_KEY;
-  exports.GUID_KEY_PROPERTY = _emberMetalUtils.GUID_KEY_PROPERTY;
-  exports.applyStr = _emberMetalUtils.applyStr;
-  exports.canInvoke = _emberMetalUtils.canInvoke;
-  exports.generateGuid = _emberMetalUtils.generateGuid;
-  exports.guidFor = _emberMetalUtils.guidFor;
-  exports.inspect = _emberMetalUtils.inspect;
-  exports.makeArray = _emberMetalUtils.makeArray;
-  exports.tryInvoke = _emberMetalUtils.tryInvoke;
-  exports.uuid = _emberMetalUtils.uuid;
-  exports.wrap = _emberMetalUtils.wrap;
   exports.isTesting = _emberMetalTesting.isTesting;
   exports.setTesting = _emberMetalTesting.setTesting;
   exports.getOnerror = _emberMetalError_handler.getOnerror;
@@ -6071,9 +4610,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.Binding = _emberMetalBinding.Binding;
   exports.bind = _emberMetalBinding.bind;
   exports.isGlobalPath = _emberMetalPath_cache.isGlobalPath;
-  exports.symbol = _emberMetalSymbol.default;
-  exports.dictionary = _emberMetalDictionary.default;
-  exports.EmptyObject = _emberMetalEmpty_object.default;
   exports.InjectedProperty = _emberMetalInjected_property.default;
   exports.setHasViews = _emberMetalTags.setHasViews;
   exports.tagFor = _emberMetalTags.tagFor;
@@ -6093,7 +4629,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
     _require.default('ember-debug');
   }
 });
-enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/properties', 'container'], function (exports, _emberMetalDebug, _emberMetalComputed, _emberMetalAlias, _emberMetalProperties, _container) {
+enifed('ember-metal/injected_property', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/properties'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalComputed, _emberMetalAlias, _emberMetalProperties) {
   'use strict';
 
   exports.default = InjectedProperty;
@@ -6120,7 +4656,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-
 
   function injectedPropertyGet(keyName) {
     var desc = this[keyName];
-    var owner = _container.getOwner(this) || this.container; // fallback to `container` for backwards compat
+    var owner = _emberUtils.getOwner(this) || this.container; // fallback to `container` for backwards compat
 
     _emberMetalDebug.assert('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
     _emberMetalDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
@@ -6651,7 +5187,7 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
 
   exports.default = new Libraries();
 });
-enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_object'], function (exports, _emberMetalUtils, _emberMetalEmpty_object) {
+enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   /**
   @module ember
   @submodule ember-metal
@@ -6685,7 +5221,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
   }
 
   function copyNull(obj) {
-    var output = new _emberMetalEmpty_object.default();
+    var output = new _emberUtils.EmptyObject();
 
     for (var prop in obj) {
       // hasOwnPropery is not needed because obj is new EmptyObject();
@@ -6744,7 +5280,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
       @private
     */
     clear: function () {
-      this.presenceSet = new _emberMetalEmpty_object.default();
+      this.presenceSet = new _emberUtils.EmptyObject();
       this.list = [];
       this.size = 0;
     },
@@ -6757,7 +5293,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
       @private
     */
     add: function (obj, _guid) {
-      var guid = _guid || _emberMetalUtils.guidFor(obj);
+      var guid = _guid || _emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
       var list = this.list;
 
@@ -6778,7 +5314,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
       @private
     */
     delete: function (obj, _guid) {
-      var guid = _guid || _emberMetalUtils.guidFor(obj);
+      var guid = _guid || _emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
       var list = this.list;
 
@@ -6815,7 +5351,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
         return false;
       }
 
-      var guid = _emberMetalUtils.guidFor(obj);
+      var guid = _emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
 
       return presenceSet[guid] === true;
@@ -6900,7 +5436,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
     if (this instanceof Map) {
       this._keys = OrderedSet.create();
       this._keys._silenceRemoveDeprecation = true;
-      this._values = new _emberMetalEmpty_object.default();
+      this._values = new _emberUtils.EmptyObject();
       this.size = 0;
     } else {
       missingNew('Map');
@@ -6943,7 +5479,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
       }
 
       var values = this._values;
-      var guid = _emberMetalUtils.guidFor(key);
+      var guid = _emberUtils.guidFor(key);
 
       return values[guid];
     },
@@ -6960,7 +5496,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
     set: function (key, value) {
       var keys = this._keys;
       var values = this._values;
-      var guid = _emberMetalUtils.guidFor(key);
+      var guid = _emberUtils.guidFor(key);
 
       // ensure we don't store -0
       var k = key === -0 ? 0 : key;
@@ -6990,7 +5526,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
       // to use in browsers that are not ES6 friendly;
       var keys = this._keys;
       var values = this._values;
-      var guid = _emberMetalUtils.guidFor(key);
+      var guid = _emberUtils.guidFor(key);
 
       if (keys.delete(key, guid)) {
         delete values[guid];
@@ -7056,7 +5592,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/empty_ob
     */
     clear: function () {
       this._keys.clear();
-      this._values = new _emberMetalEmpty_object.default();
+      this._values = new _emberUtils.EmptyObject();
       this.size = 0;
     },
 
@@ -7181,7 +5717,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     return original;
   }
 });
-enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/empty_object', 'ember-metal/utils', 'ember-metal/symbol'], function (exports, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalEmpty_object, _emberMetalUtils, _emberMetalSymbol) {
+enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta_listeners'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta_listeners) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -7296,7 +5832,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
   Meta.prototype._getOrCreateOwnMap = function (key) {
     var ret = this[key];
     if (!ret) {
-      ret = this[key] = new _emberMetalEmpty_object.default();
+      ret = this[key] = new _emberUtils.EmptyObject();
     }
     return ret;
   };
@@ -7318,7 +5854,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
 
     Meta.prototype['forEach' + capitalized] = function (fn) {
       var pointer = this;
-      var seen = new _emberMetalEmpty_object.default();
+      var seen = new _emberUtils.EmptyObject();
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
@@ -7370,7 +5906,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     }
   };
 
-  var UNDEFINED = _emberMetalSymbol.default('undefined');
+  var UNDEFINED = _emberUtils.symbol('undefined');
 
   exports.UNDEFINED = UNDEFINED;
   // Implements a member that provides a lazily created map of maps,
@@ -7383,7 +5919,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
       var outerMap = this._getOrCreateOwnMap(key);
       var innerMap = outerMap[subkey];
       if (!innerMap) {
-        innerMap = outerMap[subkey] = new _emberMetalEmpty_object.default();
+        innerMap = outerMap[subkey] = new _emberUtils.EmptyObject();
       }
       innerMap[itemkey] = value;
     };
@@ -7422,7 +5958,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
 
   Meta.prototype._forEachIn = function (key, subkey, fn) {
     var pointer = this;
-    var seen = new _emberMetalEmpty_object.default();
+    var seen = new _emberUtils.EmptyObject();
     var calls = [];
     while (pointer !== undefined) {
       var map = pointer[key];
@@ -7533,7 +6069,7 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
     };
 
     Meta.prototype.writeValue = function (obj, key, value) {
-      var descriptor = _emberMetalUtils.lookupDescriptor(obj, key);
+      var descriptor = _emberUtils.lookupDescriptor(obj, key);
       var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
 
       if (isMandatorySetter) {
@@ -7779,7 +6315,7 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
     destination.push(target, method, source[index + 3]);
   }
 });
-enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug', 'ember-metal/assign', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events'], function (exports, _emberMetalError, _emberMetalDebug, _emberMetalAssign, _emberMetalUtils, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents) {
+enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'ember-metal/debug', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events'], function (exports, _emberUtils, _emberMetalError, _emberMetalDebug, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -7814,7 +6350,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     var guid = undefined;
 
     if (mixin instanceof Mixin) {
-      guid = _emberMetalUtils.guidFor(mixin);
+      guid = _emberUtils.guidFor(mixin);
       if (mixinsMeta.peekMixins(guid)) {
         return CONTINUE;
       }
@@ -7863,10 +6399,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     // to clone the computed property so that other mixins do not receive
     // the wrapped version.
     property = Object.create(property);
-    property._getter = _emberMetalUtils.wrap(property._getter, superProperty._getter);
+    property._getter = _emberUtils.wrap(property._getter, superProperty._getter);
     if (superProperty._setter) {
       if (property._setter) {
-        property._setter = _emberMetalUtils.wrap(property._setter, superProperty._setter);
+        property._setter = _emberUtils.wrap(property._setter, superProperty._setter);
       } else {
         property._setter = superProperty._setter;
       }
@@ -7893,7 +6429,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
       return method;
     }
 
-    return _emberMetalUtils.wrap(method, superMethod);
+    return _emberUtils.wrap(method, superMethod);
   }
 
   function applyConcatenatedProperties(obj, key, value, values) {
@@ -7907,10 +6443,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
           return baseValue.concat(value);
         }
       } else {
-        return _emberMetalUtils.makeArray(baseValue).concat(value);
+        return _emberUtils.makeArray(baseValue).concat(value);
       }
     } else {
-      return _emberMetalUtils.makeArray(value);
+      return _emberUtils.makeArray(value);
     }
   }
 
@@ -7928,7 +6464,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
       return value;
     }
 
-    var newBase = _emberMetalAssign.default({}, baseValue);
+    var newBase = _emberUtils.assign({}, baseValue);
     var hasFunction = false;
 
     for (var prop in value) {
@@ -8187,7 +6723,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     return obj;
   }
 
-  var NAME_KEY = _emberMetalUtils.GUID_KEY + '_name';
+  var NAME_KEY = _emberUtils.GUID_KEY + '_name';
 
   exports.NAME_KEY = NAME_KEY;
   /**
@@ -8271,7 +6807,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     }
     this.ownerConstructor = undefined;
     this._without = undefined;
-    this[_emberMetalUtils.GUID_KEY] = null;
+    this[_emberUtils.GUID_KEY] = null;
     this[NAME_KEY] = null;
     _emberMetalDebug.debugSeal(this);
   }
@@ -8365,7 +6901,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
   MixinPrototype.toString = Object.toString;
 
   function _detect(curMixin, targetMixin, seen) {
-    var guid = _emberMetalUtils.guidFor(curMixin);
+    var guid = _emberUtils.guidFor(curMixin);
 
     if (seen[guid]) {
       return false;
@@ -8402,7 +6938,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
     if (!m) {
       return false;
     }
-    return !!m.peekMixins(_emberMetalUtils.guidFor(this));
+    return !!m.peekMixins(_emberUtils.guidFor(this));
   };
 
   MixinPrototype.without = function () {
@@ -8417,10 +6953,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/error', 'ember-metal/debug'
   };
 
   function _keys(ret, mixin, seen) {
-    if (seen[_emberMetalUtils.guidFor(mixin)]) {
+    if (seen[_emberUtils.guidFor(mixin)]) {
       return;
     }
-    seen[_emberMetalUtils.guidFor(mixin)] = true;
+    seen[_emberUtils.guidFor(mixin)] = true;
 
     if (mixin.properties) {
       var props = Object.keys(mixin.properties);
@@ -8785,7 +7321,7 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     return this;
   }
 });
-enifed('ember-metal/observer_set', ['exports', 'ember-metal/utils', 'ember-metal/events'], function (exports, _emberMetalUtils, _emberMetalEvents) {
+enifed('ember-metal/observer_set', ['exports', 'ember-utils', 'ember-metal/events'], function (exports, _emberUtils, _emberMetalEvents) {
   'use strict';
 
   exports.default = ObserverSet;
@@ -8816,7 +7352,7 @@ enifed('ember-metal/observer_set', ['exports', 'ember-metal/utils', 'ember-metal
   ObserverSet.prototype.add = function (sender, keyName, eventName) {
     var observerSet = this.observerSet;
     var observers = this.observers;
-    var senderGuid = _emberMetalUtils.guidFor(sender);
+    var senderGuid = _emberUtils.guidFor(sender);
     var keySet = observerSet[senderGuid];
     var index = undefined;
 
@@ -9161,10 +7697,10 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
     Object.defineProperty(obj, keyName, desc);
   }
 });
-enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/symbol', 'ember-metal/features', 'ember-metal/transaction'], function (exports, _emberMetalUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalSymbol, _emberMetalFeatures, _emberMetalTransaction) {
+enifed('ember-metal/property_events', ['exports', 'ember-utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/features', 'ember-metal/transaction'], function (exports, _emberUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalFeatures, _emberMetalTransaction) {
   'use strict';
 
-  var PROPERTY_DID_CHANGE = _emberMetalSymbol.default('PROPERTY_DID_CHANGE');
+  var PROPERTY_DID_CHANGE = _emberUtils.symbol('PROPERTY_DID_CHANGE');
 
   exports.PROPERTY_DID_CHANGE = PROPERTY_DID_CHANGE;
   var beforeObserverSet = new _emberMetalObserver_set.default();
@@ -9317,7 +7853,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   function iterDeps(method, obj, depKey, seen, meta) {
     var possibleDesc = undefined,
         desc = undefined;
-    var guid = _emberMetalUtils.guidFor(obj);
+    var guid = _emberUtils.guidFor(obj);
     var current = seen[guid];
 
     if (!current) {
@@ -9589,7 +8125,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
 
   exports.default = get;
 });
-enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/meta', 'ember-metal/utils'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalError, _emberMetalPath_cache, _emberMetalMeta, _emberMetalUtils) {
+enifed('ember-metal/property_set', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/meta'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalError, _emberMetalPath_cache, _emberMetalMeta) {
   'use strict';
 
   exports.set = set;
@@ -9615,7 +8151,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
     _emberMetalDebug.assert('Cannot call set with \'' + keyName + '\' on an undefined object.', obj && typeof obj === 'object' || typeof obj === 'function');
     _emberMetalDebug.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalDebug.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
-    _emberMetalDebug.assert('calling set on destroyed object: ' + _emberMetalUtils.toString(obj) + '.' + keyName + ' = ' + _emberMetalUtils.toString(value), !obj.isDestroyed);
+    _emberMetalDebug.assert('calling set on destroyed object: ' + _emberUtils.toString(obj) + '.' + keyName + ' = ' + _emberUtils.toString(value), !obj.isDestroyed);
 
     if (_emberMetalPath_cache.isPath(keyName)) {
       return setPath(obj, keyName, value, tolerant);
@@ -9757,7 +8293,7 @@ enifed("ember-metal/replace", ["exports"], function (exports) {
     return ret;
   }
 });
-enifed('ember-metal/run_loop', ['exports', 'ember-metal/debug', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/utils', 'ember-metal/property_events', 'backburner'], function (exports, _emberMetalDebug, _emberMetalTesting, _emberMetalError_handler, _emberMetalUtils, _emberMetalProperty_events, _backburner) {
+enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/property_events', 'backburner'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalTesting, _emberMetalError_handler, _emberMetalProperty_events, _backburner) {
   'use strict';
 
   exports.default = run;
@@ -9780,7 +8316,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/debug', 'ember-metal/tes
   };
 
   var backburner = new _backburner.default(['sync', 'actions', 'destroy'], {
-    GUID_KEY: _emberMetalUtils.GUID_KEY,
+    GUID_KEY: _emberUtils.GUID_KEY,
     sync: {
       before: _emberMetalProperty_events.beginPropertyChanges,
       after: _emberMetalProperty_events.endPropertyChanges
@@ -10483,19 +9019,6 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/symbol', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  exports.default = symbol;
-
-  function symbol(debugName) {
-    // TODO: Investigate using platform symbols, but we do not
-    // want to require non-enumerability for this API, which
-    // would introduce a large cost.
-
-    return _emberMetalUtils.intern(debugName + ' [id=' + _emberMetalUtils.GUID_KEY + Math.floor(Math.random() * new Date()) + ']');
-  }
-});
 enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function (exports, _emberMetalMeta, _require2) {
   'use strict';
 
@@ -10682,547 +9205,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
   exports.didRender = didRender;
   exports.assertNotRendered = assertNotRendered;
 });
-enifed('ember-metal/utils', ['exports'], function (exports) {
-  'no use strict';
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-
-  /**
-  @module ember-metal
-  */
-
-  /**
-    Previously we used `Ember.$.uuid`, however `$.uuid` has been removed from
-    jQuery master. We'll just bootstrap our own uuid now.
-  
-    @private
-    @return {Number} the uuid
-  */
-  exports.uuid = uuid;
-  exports.intern = intern;
-  exports.generateGuid = generateGuid;
-  exports.guidFor = guidFor;
-  exports.wrap = wrap;
-  exports.tryInvoke = tryInvoke;
-  exports.makeArray = makeArray;
-  exports.inspect = inspect;
-  exports.applyStr = applyStr;
-  exports.lookupDescriptor = lookupDescriptor;
-  exports.toString = toString;
-  var _uuid = 0;
-
-  /**
-    Generates a universally unique identifier. This method
-    is used internally by Ember for assisting with
-    the generation of GUID's and other unique identifiers.
-  
-    @public
-    @return {Number} [description]
-   */
-
-  function uuid() {
-    return ++_uuid;
-  }
-
-  /**
-    Prefix used for guids through out Ember.
-    @private
-    @property GUID_PREFIX
-    @for Ember
-    @type String
-    @final
-  */
-  var GUID_PREFIX = 'ember';
-
-  // Used for guid generation...
-  var numberCache = [];
-  var stringCache = {};
-
-  /**
-    Strongly hint runtimes to intern the provided string.
-  
-    When do I need to use this function?
-  
-    For the most part, never. Pre-mature optimization is bad, and often the
-    runtime does exactly what you need it to, and more often the trade-off isn't
-    worth it.
-  
-    Why?
-  
-    Runtimes store strings in at least 2 different representations:
-    Ropes and Symbols (interned strings). The Rope provides a memory efficient
-    data-structure for strings created from concatenation or some other string
-    manipulation like splitting.
-  
-    Unfortunately checking equality of different ropes can be quite costly as
-    runtimes must resort to clever string comparison algorithms. These
-    algorithms typically cost in proportion to the length of the string.
-    Luckily, this is where the Symbols (interned strings) shine. As Symbols are
-    unique by their string content, equality checks can be done by pointer
-    comparison.
-  
-    How do I know if my string is a rope or symbol?
-  
-    Typically (warning general sweeping statement, but truthy in runtimes at
-    present) static strings created as part of the JS source are interned.
-    Strings often used for comparisons can be interned at runtime if some
-    criteria are met.  One of these criteria can be the size of the entire rope.
-    For example, in chrome 38 a rope longer then 12 characters will not
-    intern, nor will segments of that rope.
-  
-    Some numbers: http://jsperf.com/eval-vs-keys/8
-  
-    Known Trick™
-  
-    @private
-    @return {String} interned version of the provided string
-  */
-
-  function intern(str) {
-    var obj = {};
-    obj[str] = 1;
-    for (var key in obj) {
-      if (key === str) {
-        return key;
-      }
-    }
-    return str;
-  }
-
-  /**
-    A unique key used to assign guids and other private metadata to objects.
-    If you inspect an object in your browser debugger you will often see these.
-    They can be safely ignored.
-  
-    On browsers that support it, these properties are added with enumeration
-    disabled so they won't show up when you iterate over your properties.
-  
-    @private
-    @property GUID_KEY
-    @for Ember
-    @type String
-    @final
-  */
-  var GUID_KEY = intern('__ember' + +new Date());
-
-  var GUID_DESC = {
-    writable: true,
-    configurable: true,
-    enumerable: false,
-    value: null
-  };
-
-  exports.GUID_DESC = GUID_DESC;
-  var nullDescriptor = {
-    configurable: true,
-    writable: true,
-    enumerable: false,
-    value: null
-  };
-
-  var GUID_KEY_PROPERTY = {
-    name: GUID_KEY,
-    descriptor: nullDescriptor
-  };
-
-  exports.GUID_KEY_PROPERTY = GUID_KEY_PROPERTY;
-  /**
-    Generates a new guid, optionally saving the guid to the object that you
-    pass in. You will rarely need to use this method. Instead you should
-    call `Ember.guidFor(obj)`, which return an existing guid if available.
-  
-    @private
-    @method generateGuid
-    @for Ember
-    @param {Object} [obj] Object the guid will be used for. If passed in, the guid will
-      be saved on the object and reused whenever you pass the same object
-      again.
-  
-      If no object is passed, just generate a new guid.
-    @param {String} [prefix] Prefix to place in front of the guid. Useful when you want to
-      separate the guid into separate namespaces.
-    @return {String} the guid
-  */
-
-  function generateGuid(obj, prefix) {
-    if (!prefix) {
-      prefix = GUID_PREFIX;
-    }
-
-    var ret = prefix + uuid();
-    if (obj) {
-      if (obj[GUID_KEY] === null) {
-        obj[GUID_KEY] = ret;
-      } else {
-        GUID_DESC.value = ret;
-        if (obj.__defineNonEnumerable) {
-          obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
-        } else {
-          Object.defineProperty(obj, GUID_KEY, GUID_DESC);
-        }
-      }
-    }
-    return ret;
-  }
-
-  /**
-    Returns a unique id for the object. If the object does not yet have a guid,
-    one will be assigned to it. You can call this on any object,
-    `Ember.Object`-based or not, but be aware that it will add a `_guid`
-    property.
-  
-    You can also use this method on DOM Element objects.
-  
-    @public
-    @method guidFor
-    @for Ember
-    @param {Object} obj any object, string, number, Element, or primitive
-    @return {String} the unique guid for this instance.
-  */
-
-  function guidFor(obj) {
-    var type = typeof obj;
-    var isObject = type === 'object' && obj !== null;
-    var isFunction = type === 'function';
-
-    if ((isObject || isFunction) && obj[GUID_KEY]) {
-      return obj[GUID_KEY];
-    }
-
-    // special cases where we don't want to add a key to object
-    if (obj === undefined) {
-      return '(undefined)';
-    }
-
-    if (obj === null) {
-      return '(null)';
-    }
-
-    var ret = undefined;
-
-    // Don't allow prototype changes to String etc. to change the guidFor
-    switch (type) {
-      case 'number':
-        ret = numberCache[obj];
-
-        if (!ret) {
-          ret = numberCache[obj] = 'nu' + obj;
-        }
-
-        return ret;
-
-      case 'string':
-        ret = stringCache[obj];
-
-        if (!ret) {
-          ret = stringCache[obj] = 'st' + uuid();
-        }
-
-        return ret;
-
-      case 'boolean':
-        return obj ? '(true)' : '(false)';
-
-      default:
-        if (obj === Object) {
-          return '(Object)';
-        }
-
-        if (obj === Array) {
-          return '(Array)';
-        }
-
-        ret = GUID_PREFIX + uuid();
-
-        if (obj[GUID_KEY] === null) {
-          obj[GUID_KEY] = ret;
-        } else {
-          GUID_DESC.value = ret;
-
-          if (obj.__defineNonEnumerable) {
-            obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
-          } else {
-            Object.defineProperty(obj, GUID_KEY, GUID_DESC);
-          }
-        }
-        return ret;
-    }
-  }
-
-  var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
-  var fnToString = Function.prototype.toString;
-
-  var checkHasSuper = (function () {
-    var sourceAvailable = fnToString.call(function () {
-      return this;
-    }).indexOf('return this') > -1;
-
-    if (sourceAvailable) {
-      return function checkHasSuper(func) {
-        return HAS_SUPER_PATTERN.test(fnToString.call(func));
-      };
-    }
-
-    return function checkHasSuper() {
-      return true;
-    };
-  })();
-
-  exports.checkHasSuper = checkHasSuper;
-  function ROOT() {}
-  ROOT.__hasSuper = false;
-
-  function hasSuper(func) {
-    if (func.__hasSuper === undefined) {
-      func.__hasSuper = checkHasSuper(func);
-    }
-    return func.__hasSuper;
-  }
-
-  /**
-    Wraps the passed function so that `this._super` will point to the superFunc
-    when the function is invoked. This is the primitive we use to implement
-    calls to super.
-  
-    @private
-    @method wrap
-    @for Ember
-    @param {Function} func The function to call
-    @param {Function} superFunc The super function.
-    @return {Function} wrapped function.
-  */
-
-  function wrap(func, superFunc) {
-    if (!hasSuper(func)) {
-      return func;
-    }
-    // ensure an unwrapped super that calls _super is wrapped with a terminal _super
-    if (!superFunc.wrappedFunction && hasSuper(superFunc)) {
-      return _wrap(func, _wrap(superFunc, ROOT));
-    }
-    return _wrap(func, superFunc);
-  }
-
-  function _wrap(func, superFunc) {
-    function superWrapper() {
-      var orig = this._super;
-      this._super = superFunc;
-      var ret = func.apply(this, arguments);
-      this._super = orig;
-      return ret;
-    }
-
-    superWrapper.wrappedFunction = func;
-    superWrapper.__ember_observes__ = func.__ember_observes__;
-    superWrapper.__ember_observesBefore__ = func.__ember_observesBefore__;
-    superWrapper.__ember_listens__ = func.__ember_listens__;
-
-    return superWrapper;
-  }
-
-  /**
-    Checks to see if the `methodName` exists on the `obj`.
-  
-    ```javascript
-    let foo = { bar: function() { return 'bar'; }, baz: null };
-  
-    Ember.canInvoke(foo, 'bar'); // true
-    Ember.canInvoke(foo, 'baz'); // false
-    Ember.canInvoke(foo, 'bat'); // false
-    ```
-  
-    @method canInvoke
-    @for Ember
-    @param {Object} obj The object to check for the method
-    @param {String} methodName The method name to check for
-    @return {Boolean}
-    @private
-  */
-  function canInvoke(obj, methodName) {
-    return !!(obj && typeof obj[methodName] === 'function');
-  }
-
-  /**
-    Checks to see if the `methodName` exists on the `obj`,
-    and if it does, invokes it with the arguments passed.
-  
-    ```javascript
-    let d = new Date('03/15/2013');
-  
-    Ember.tryInvoke(d, 'getTime');              // 1363320000000
-    Ember.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000
-    Ember.tryInvoke(d, 'noSuchMethod', [2014]); // undefined
-    ```
-  
-    @method tryInvoke
-    @for Ember
-    @param {Object} obj The object to check for the method
-    @param {String} methodName The method name to check for
-    @param {Array} [args] The arguments to pass to the method
-    @return {*} the return value of the invoked method or undefined if it cannot be invoked
-    @public
-  */
-
-  function tryInvoke(obj, methodName, args) {
-    if (canInvoke(obj, methodName)) {
-      return args ? applyStr(obj, methodName, args) : applyStr(obj, methodName);
-    }
-  }
-
-  // ........................................
-  // TYPING & ARRAY MESSAGING
-  //
-
-  var objectToString = Object.prototype.toString;
-
-  /**
-    Forces the passed object to be part of an array. If the object is already
-    an array, it will return the object. Otherwise, it will add the object to
-    an array. If obj is `null` or `undefined`, it will return an empty array.
-  
-    ```javascript
-    Ember.makeArray();            // []
-    Ember.makeArray(null);        // []
-    Ember.makeArray(undefined);   // []
-    Ember.makeArray('lindsay');   // ['lindsay']
-    Ember.makeArray([1, 2, 42]);  // [1, 2, 42]
-  
-    let controller = Ember.ArrayProxy.create({ content: [] });
-  
-    Ember.makeArray(controller) === controller;  // true
-    ```
-  
-    @method makeArray
-    @for Ember
-    @param {Object} obj the object
-    @return {Array}
-    @private
-  */
-
-  function makeArray(obj) {
-    if (obj === null || obj === undefined) {
-      return [];
-    }
-    return Array.isArray(obj) ? obj : [obj];
-  }
-
-  /**
-    Convenience method to inspect an object. This method will attempt to
-    convert the object into a useful string description.
-  
-    It is a pretty simple implementation. If you want something more robust,
-    use something like JSDump: https://github.com/NV/jsDump
-  
-    @method inspect
-    @for Ember
-    @param {Object} obj The object you want to inspect.
-    @return {String} A description of the object
-    @since 1.4.0
-    @private
-  */
-
-  function inspect(obj) {
-    if (obj === null) {
-      return 'null';
-    }
-    if (obj === undefined) {
-      return 'undefined';
-    }
-    if (Array.isArray(obj)) {
-      return '[' + obj + ']';
-    }
-    // for non objects
-    var type = typeof obj;
-    if (type !== 'object' && type !== 'symbol') {
-      return '' + obj;
-    }
-    // overridden toString
-    if (typeof obj.toString === 'function' && obj.toString !== objectToString) {
-      return obj.toString();
-    }
-
-    // Object.prototype.toString === {}.toString
-    var v = undefined;
-    var ret = [];
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        v = obj[key];
-        if (v === 'toString') {
-          continue;
-        } // ignore useless items
-        if (typeof v === 'function') {
-          v = 'function() { ... }';
-        }
-
-        if (v && typeof v.toString !== 'function') {
-          ret.push(key + ': ' + objectToString.call(v));
-        } else {
-          ret.push(key + ': ' + v);
-        }
-      }
-    }
-    return '{' + ret.join(', ') + '}';
-  }
-
-  /**
-    @param {Object} t target
-    @param {String} m method
-    @param {Array} a args
-    @private
-  */
-
-  function applyStr(t, m, a) {
-    var l = a && a.length;
-    if (!a || !l) {
-      return t[m]();
-    }
-    switch (l) {
-      case 1:
-        return t[m](a[0]);
-      case 2:
-        return t[m](a[0], a[1]);
-      case 3:
-        return t[m](a[0], a[1], a[2]);
-      case 4:
-        return t[m](a[0], a[1], a[2], a[3]);
-      case 5:
-        return t[m](a[0], a[1], a[2], a[3], a[4]);
-      default:
-        return t[m].apply(t, a);
-    }
-  }
-
-  function lookupDescriptor(obj, keyName) {
-    var current = obj;
-    while (current) {
-      var descriptor = Object.getOwnPropertyDescriptor(current, keyName);
-
-      if (descriptor) {
-        return descriptor;
-      }
-
-      current = Object.getPrototypeOf(current);
-    }
-
-    return null;
-  }
-
-  // A `toString` util function that supports objects without a `toString`
-  // method, e.g. an object created with `Object.create(null)`.
-
-  function toString(obj) {
-    if (obj && obj.toString) {
-      return obj.toString();
-    } else {
-      return objectToString.call(obj);
-    }
-  }
-
-  exports.GUID_KEY = GUID_KEY;
-  exports.makeArray = makeArray;
-  exports.canInvoke = canInvoke;
-});
-enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal/meta', 'ember-metal/properties', 'ember-metal/utils'], function (exports, _emberMetalFeatures, _emberMetalMeta, _emberMetalProperties, _emberMetalUtils) {
+enifed('ember-metal/watch_key', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta', 'ember-metal/properties'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta, _emberMetalProperties) {
   'use strict';
 
   exports.watchKey = watchKey;
@@ -11270,7 +9253,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
       // development to aid in development asertions. Production builds of
       // ember strip this entire block out
       handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-        var descriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+        var descriptor = _emberUtils.lookupDescriptor(obj, keyName);
         var configurable = descriptor ? descriptor.configurable : true;
         var isWritable = descriptor ? descriptor.writable : true;
         var hasValue = descriptor ? 'value' in descriptor : true;
@@ -11330,7 +9313,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
         // that occurs, and attempt to provide more helpful feedback. The alternative
         // is tricky to debug partially observable properties.
         if (!desc && keyName in obj) {
-          var maybeMandatoryDescriptor = _emberMetalUtils.lookupDescriptor(obj, keyName);
+          var maybeMandatoryDescriptor = _emberUtils.lookupDescriptor(obj, keyName);
 
           if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
             if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
@@ -11501,7 +9484,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
     }
   }
 });
-enifed('ember-metal/weak_map', ['exports', 'ember-metal/utils', 'ember-metal/meta'], function (exports, _emberMetalUtils, _emberMetalMeta) {
+enifed('ember-metal/weak_map', ['exports', 'ember-utils', 'ember-metal/meta'], function (exports, _emberUtils, _emberMetalMeta) {
   'use strict';
 
   exports.default = WeakMap;
@@ -11533,7 +9516,7 @@ enifed('ember-metal/weak_map', ['exports', 'ember-metal/utils', 'ember-metal/met
       throw new TypeError('Constructor WeakMap requires \'new\'');
     }
 
-    this._id = _emberMetalUtils.GUID_KEY + id++;
+    this._id = _emberUtils.GUID_KEY + id++;
 
     if (iterable === null || iterable === undefined) {
       return;
@@ -11647,7 +9630,7 @@ enifed('ember-template-compiler/compat', ['exports', 'ember-metal', 'ember-templ
   EmberHTMLBars.registerPlugin = _emberTemplateCompilerSystemCompileOptions.registerPlugin;
 });
 // reexports
-enifed('ember-template-compiler/index', ['exports', 'container', 'ember-metal', 'ember-environment', 'ember/version', 'ember-template-compiler/compat', 'ember-template-compiler/system/bootstrap', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/compile-options', 'ember-template-compiler/plugins'], function (exports, _container, _emberMetal, _emberEnvironment, _emberVersion, _emberTemplateCompilerCompat, _emberTemplateCompilerSystemBootstrap, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemCompileOptions, _emberTemplateCompilerPlugins) {
+enifed('ember-template-compiler/index', ['exports', 'ember-metal', 'ember-environment', 'ember/version', 'ember-template-compiler/compat', 'ember-template-compiler/system/bootstrap', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/compile-options', 'ember-template-compiler/plugins'], function (exports, _emberMetal, _emberEnvironment, _emberVersion, _emberTemplateCompilerCompat, _emberTemplateCompilerSystemBootstrap, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemCompileOptions, _emberTemplateCompilerPlugins) {
   'use strict';
 
   // private API used by ember-cli-htmlbars to setup ENV and FEATURES
@@ -12710,7 +10693,7 @@ enifed('ember-template-compiler/system/calculate-location-display', ['exports'],
     return moduleInfo;
   }
 });
-enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-template-compiler/plugins', 'ember-metal'], function (exports, _emberTemplateCompilerPlugins, _emberMetal) {
+enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-utils', 'ember-template-compiler/plugins'], function (exports, _emberUtils, _emberTemplateCompilerPlugins) {
   'use strict';
 
   exports.default = compileOptions;
@@ -12720,7 +10703,7 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-temp
   var USER_PLUGINS = [];
 
   function compileOptions(_options) {
-    var options = _emberMetal.assign({ meta: {} }, _options);
+    var options = _emberUtils.assign({ meta: {} }, _options);
 
     // move `moduleName` into `meta` property
     if (options.moduleName) {
@@ -12832,6 +10815,781 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-
     return glimmerPrecompile(templateString, _emberTemplateCompilerSystemCompileOptions.default(options));
   }
 });
+enifed("ember-utils/apply-str", ["exports"], function (exports) {
+  /**
+   @param {Object} t target
+   @param {String} m method
+   @param {Array} a args
+   @private
+   */
+  "use strict";
+
+  exports.default = applyStr;
+
+  function applyStr(t, m, a) {
+    var l = a && a.length;
+    if (!a || !l) {
+      return t[m]();
+    }
+    switch (l) {
+      case 1:
+        return t[m](a[0]);
+      case 2:
+        return t[m](a[0], a[1]);
+      case 3:
+        return t[m](a[0], a[1], a[2]);
+      case 4:
+        return t[m](a[0], a[1], a[2], a[3]);
+      case 5:
+        return t[m](a[0], a[1], a[2], a[3], a[4]);
+      default:
+        return t[m].apply(t, a);
+    }
+  }
+});
+enifed("ember-utils/assign", ["exports"], function (exports) {
+  /**
+    Copy properties from a source object to a target object.
+  
+    ```javascript
+    var a = { first: 'Yehuda' };
+    var b = { last: 'Katz' };
+    var c = { company: 'Tilde Inc.' };
+    Ember.assign(a, b, c); // a === { first: 'Yehuda', last: 'Katz', company: 'Tilde Inc.' }, b === { last: 'Katz' }, c === { company: 'Tilde Inc.' }
+    ```
+  
+    @method assign
+    @for Ember
+    @param {Object} original The object to assign into
+    @param {Object} ...args The objects to copy properties from
+    @return {Object}
+    @public
+  */
+  "use strict";
+
+  exports.default = assign;
+
+  function assign(original) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    for (var i = 0; i < args.length; i++) {
+      var arg = args[i];
+      if (!arg) {
+        continue;
+      }
+
+      var updates = Object.keys(arg);
+
+      for (var _i = 0; _i < updates.length; _i++) {
+        var prop = updates[_i];
+        original[prop] = arg[prop];
+      }
+    }
+
+    return original;
+  }
+});
+enifed('ember-utils/dictionary', ['exports', 'ember-utils/empty-object'], function (exports, _emberUtilsEmptyObject) {
+  'use strict';
+
+  exports.default = makeDictionary;
+
+  // the delete is meant to hint at runtimes that this object should remain in
+  // dictionary mode. This is clearly a runtime specific hack, but currently it
+  // appears worthwhile in some usecases. Please note, these deletes do increase
+  // the cost of creation dramatically over a plain Object.create. And as this
+  // only makes sense for long-lived dictionaries that aren't instantiated often.
+
+  function makeDictionary(parent) {
+    var dict = undefined;
+    if (parent === null) {
+      dict = new _emberUtilsEmptyObject.default();
+    } else {
+      dict = Object.create(parent);
+    }
+    dict['_dict'] = null;
+    delete dict['_dict'];
+    return dict;
+  }
+});
+enifed("ember-utils/empty-object", ["exports"], function (exports) {
+  // This exists because `Object.create(null)` is absurdly slow compared
+  // to `new EmptyObject()`. In either case, you want a null prototype
+  // when you're treating the object instances as arbitrary dictionaries
+  // and don't want your keys colliding with build-in methods on the
+  // default object prototype.
+
+  "use strict";
+
+  var proto = Object.create(null, {
+    // without this, we will always still end up with (new
+    // EmptyObject()).constructor === Object
+    constructor: {
+      value: undefined,
+      enumerable: false,
+      writable: true
+    }
+  });
+
+  function EmptyObject() {}
+  EmptyObject.prototype = proto;
+  exports.default = EmptyObject;
+});
+enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports, _emberUtilsIntern) {
+  'use strict';
+
+  exports.uuid = uuid;
+  exports.generateGuid = generateGuid;
+  exports.guidFor = guidFor;
+
+  /**
+   Previously we used `Ember.$.uuid`, however `$.uuid` has been removed from
+   jQuery master. We'll just bootstrap our own uuid now.
+  
+   @private
+   @return {Number} the uuid
+   */
+  var _uuid = 0;
+
+  /**
+   Generates a universally unique identifier. This method
+   is used internally by Ember for assisting with
+   the generation of GUID's and other unique identifiers.
+  
+   @public
+   @return {Number} [description]
+   */
+
+  function uuid() {
+    return ++_uuid;
+  }
+
+  /**
+   Prefix used for guids through out Ember.
+   @private
+   @property GUID_PREFIX
+   @for Ember
+   @type String
+   @final
+   */
+  var GUID_PREFIX = 'ember';
+
+  // Used for guid generation...
+  var numberCache = [];
+  var stringCache = {};
+
+  /**
+    A unique key used to assign guids and other private metadata to objects.
+    If you inspect an object in your browser debugger you will often see these.
+    They can be safely ignored.
+  
+    On browsers that support it, these properties are added with enumeration
+    disabled so they won't show up when you iterate over your properties.
+  
+    @private
+    @property GUID_KEY
+    @for Ember
+    @type String
+    @final
+  */
+  var GUID_KEY = _emberUtilsIntern.default('__ember' + +new Date());
+
+  exports.GUID_KEY = GUID_KEY;
+  var GUID_DESC = {
+    writable: true,
+    configurable: true,
+    enumerable: false,
+    value: null
+  };
+
+  exports.GUID_DESC = GUID_DESC;
+  var nullDescriptor = {
+    configurable: true,
+    writable: true,
+    enumerable: false,
+    value: null
+  };
+
+  var GUID_KEY_PROPERTY = {
+    name: GUID_KEY,
+    descriptor: nullDescriptor
+  };
+
+  exports.GUID_KEY_PROPERTY = GUID_KEY_PROPERTY;
+  /**
+    Generates a new guid, optionally saving the guid to the object that you
+    pass in. You will rarely need to use this method. Instead you should
+    call `Ember.guidFor(obj)`, which return an existing guid if available.
+  
+    @private
+    @method generateGuid
+    @for Ember
+    @param {Object} [obj] Object the guid will be used for. If passed in, the guid will
+      be saved on the object and reused whenever you pass the same object
+      again.
+  
+      If no object is passed, just generate a new guid.
+    @param {String} [prefix] Prefix to place in front of the guid. Useful when you want to
+      separate the guid into separate namespaces.
+    @return {String} the guid
+  */
+
+  function generateGuid(obj, prefix) {
+    if (!prefix) {
+      prefix = GUID_PREFIX;
+    }
+
+    var ret = prefix + uuid();
+    if (obj) {
+      if (obj[GUID_KEY] === null) {
+        obj[GUID_KEY] = ret;
+      } else {
+        GUID_DESC.value = ret;
+        if (obj.__defineNonEnumerable) {
+          obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
+        } else {
+          Object.defineProperty(obj, GUID_KEY, GUID_DESC);
+        }
+      }
+    }
+    return ret;
+  }
+
+  /**
+    Returns a unique id for the object. If the object does not yet have a guid,
+    one will be assigned to it. You can call this on any object,
+    `Ember.Object`-based or not, but be aware that it will add a `_guid`
+    property.
+  
+    You can also use this method on DOM Element objects.
+  
+    @public
+    @method guidFor
+    @for Ember
+    @param {Object} obj any object, string, number, Element, or primitive
+    @return {String} the unique guid for this instance.
+  */
+
+  function guidFor(obj) {
+    var type = typeof obj;
+    var isObject = type === 'object' && obj !== null;
+    var isFunction = type === 'function';
+
+    if ((isObject || isFunction) && obj[GUID_KEY]) {
+      return obj[GUID_KEY];
+    }
+
+    // special cases where we don't want to add a key to object
+    if (obj === undefined) {
+      return '(undefined)';
+    }
+
+    if (obj === null) {
+      return '(null)';
+    }
+
+    var ret = undefined;
+
+    // Don't allow prototype changes to String etc. to change the guidFor
+    switch (type) {
+      case 'number':
+        ret = numberCache[obj];
+
+        if (!ret) {
+          ret = numberCache[obj] = 'nu' + obj;
+        }
+
+        return ret;
+
+      case 'string':
+        ret = stringCache[obj];
+
+        if (!ret) {
+          ret = stringCache[obj] = 'st' + uuid();
+        }
+
+        return ret;
+
+      case 'boolean':
+        return obj ? '(true)' : '(false)';
+
+      default:
+        if (obj === Object) {
+          return '(Object)';
+        }
+
+        if (obj === Array) {
+          return '(Array)';
+        }
+
+        ret = GUID_PREFIX + uuid();
+
+        if (obj[GUID_KEY] === null) {
+          obj[GUID_KEY] = ret;
+        } else {
+          GUID_DESC.value = ret;
+
+          if (obj.__defineNonEnumerable) {
+            obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
+          } else {
+            Object.defineProperty(obj, GUID_KEY, GUID_DESC);
+          }
+        }
+        return ret;
+    }
+  }
+});
+enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/empty-object', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/to-string'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsEmptyObject, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsToString) {
+  /*
+   This package will be eagerly parsed and should have no dependencies on external
+   packages.
+  
+   It is intended to be used to share utility methods that will be needed
+   by every Ember application (and is **not** a dumping ground of useful utilities).
+  
+   Utility methods that are needed in < 80% of cases should be placed
+   elsewhere (so they can be lazily evaluated / parsed).
+  */
+  'use strict';
+
+  exports.symbol = _emberUtilsSymbol.default;
+  exports.getOwner = _emberUtilsOwner.getOwner;
+  exports.setOwner = _emberUtilsOwner.setOwner;
+  exports.OWNER = _emberUtilsOwner.OWNER;
+  exports.assign = _emberUtilsAssign.default;
+  exports.EmptyObject = _emberUtilsEmptyObject.default;
+  exports.dictionary = _emberUtilsDictionary.default;
+  exports.uuid = _emberUtilsGuid.uuid;
+  exports.GUID_KEY = _emberUtilsGuid.GUID_KEY;
+  exports.GUID_DESC = _emberUtilsGuid.GUID_DESC;
+  exports.GUID_KEY_PROPERTY = _emberUtilsGuid.GUID_KEY_PROPERTY;
+  exports.generateGuid = _emberUtilsGuid.generateGuid;
+  exports.guidFor = _emberUtilsGuid.guidFor;
+  exports.intern = _emberUtilsIntern.default;
+  exports.checkHasSuper = _emberUtilsSuper.checkHasSuper;
+  exports.ROOT = _emberUtilsSuper.ROOT;
+  exports.wrap = _emberUtilsSuper.wrap;
+  exports.inspect = _emberUtilsInspect.default;
+  exports.lookupDescriptor = _emberUtilsLookupDescriptor.default;
+  exports.canInvoke = _emberUtilsInvoke.canInvoke;
+  exports.tryInvoke = _emberUtilsInvoke.tryInvoke;
+  exports.makeArray = _emberUtilsMakeArray.default;
+  exports.applyStr = _emberUtilsApplyStr.default;
+  exports.toString = _emberUtilsToString.default;
+});
+enifed('ember-utils/inspect', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = inspect;
+  var objectToString = Object.prototype.toString;
+
+  /**
+    Convenience method to inspect an object. This method will attempt to
+    convert the object into a useful string description.
+  
+    It is a pretty simple implementation. If you want something more robust,
+    use something like JSDump: https://github.com/NV/jsDump
+  
+    @method inspect
+    @for Ember
+    @param {Object} obj The object you want to inspect.
+    @return {String} A description of the object
+    @since 1.4.0
+    @private
+  */
+
+  function inspect(obj) {
+    if (obj === null) {
+      return 'null';
+    }
+    if (obj === undefined) {
+      return 'undefined';
+    }
+    if (Array.isArray(obj)) {
+      return '[' + obj + ']';
+    }
+    // for non objects
+    var type = typeof obj;
+    if (type !== 'object' && type !== 'symbol') {
+      return '' + obj;
+    }
+    // overridden toString
+    if (typeof obj.toString === 'function' && obj.toString !== objectToString) {
+      return obj.toString();
+    }
+
+    // Object.prototype.toString === {}.toString
+    var v = undefined;
+    var ret = [];
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        v = obj[key];
+        if (v === 'toString') {
+          continue;
+        } // ignore useless items
+        if (typeof v === 'function') {
+          v = 'function() { ... }';
+        }
+
+        if (v && typeof v.toString !== 'function') {
+          ret.push(key + ': ' + objectToString.call(v));
+        } else {
+          ret.push(key + ': ' + v);
+        }
+      }
+    }
+    return '{' + ret.join(', ') + '}';
+  }
+});
+enifed("ember-utils/intern", ["exports"], function (exports) {
+  /**
+    Strongly hint runtimes to intern the provided string.
+  
+    When do I need to use this function?
+  
+    For the most part, never. Pre-mature optimization is bad, and often the
+    runtime does exactly what you need it to, and more often the trade-off isn't
+    worth it.
+  
+    Why?
+  
+    Runtimes store strings in at least 2 different representations:
+    Ropes and Symbols (interned strings). The Rope provides a memory efficient
+    data-structure for strings created from concatenation or some other string
+    manipulation like splitting.
+  
+    Unfortunately checking equality of different ropes can be quite costly as
+    runtimes must resort to clever string comparison algorithms. These
+    algorithms typically cost in proportion to the length of the string.
+    Luckily, this is where the Symbols (interned strings) shine. As Symbols are
+    unique by their string content, equality checks can be done by pointer
+    comparison.
+  
+    How do I know if my string is a rope or symbol?
+  
+    Typically (warning general sweeping statement, but truthy in runtimes at
+    present) static strings created as part of the JS source are interned.
+    Strings often used for comparisons can be interned at runtime if some
+    criteria are met.  One of these criteria can be the size of the entire rope.
+    For example, in chrome 38 a rope longer then 12 characters will not
+    intern, nor will segments of that rope.
+  
+    Some numbers: http://jsperf.com/eval-vs-keys/8
+  
+    Known Trick™
+  
+    @private
+    @return {String} interned version of the provided string
+  */
+  "use strict";
+
+  exports.default = intern;
+
+  function intern(str) {
+    var obj = {};
+    obj[str] = 1;
+    for (var key in obj) {
+      if (key === str) {
+        return key;
+      }
+    }
+    return str;
+  }
+});
+enifed('ember-utils/invoke', ['exports', 'ember-utils/apply-str'], function (exports, _emberUtilsApplyStr) {
+  'use strict';
+
+  exports.canInvoke = canInvoke;
+  exports.tryInvoke = tryInvoke;
+
+  /**
+    Checks to see if the `methodName` exists on the `obj`.
+  
+    ```javascript
+    let foo = { bar: function() { return 'bar'; }, baz: null };
+  
+    Ember.canInvoke(foo, 'bar'); // true
+    Ember.canInvoke(foo, 'baz'); // false
+    Ember.canInvoke(foo, 'bat'); // false
+    ```
+  
+    @method canInvoke
+    @for Ember
+    @param {Object} obj The object to check for the method
+    @param {String} methodName The method name to check for
+    @return {Boolean}
+    @private
+  */
+
+  function canInvoke(obj, methodName) {
+    return !!(obj && typeof obj[methodName] === 'function');
+  }
+
+  /**
+    Checks to see if the `methodName` exists on the `obj`,
+    and if it does, invokes it with the arguments passed.
+  
+    ```javascript
+    let d = new Date('03/15/2013');
+  
+    Ember.tryInvoke(d, 'getTime');              // 1363320000000
+    Ember.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000
+    Ember.tryInvoke(d, 'noSuchMethod', [2014]); // undefined
+    ```
+  
+    @method tryInvoke
+    @for Ember
+    @param {Object} obj The object to check for the method
+    @param {String} methodName The method name to check for
+    @param {Array} [args] The arguments to pass to the method
+    @return {*} the return value of the invoked method or undefined if it cannot be invoked
+    @public
+  */
+
+  function tryInvoke(obj, methodName, args) {
+    if (canInvoke(obj, methodName)) {
+      return args ? _emberUtilsApplyStr.default(obj, methodName, args) : _emberUtilsApplyStr.default(obj, methodName);
+    }
+  }
+});
+enifed("ember-utils/lookup-descriptor", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = lookupDescriptor;
+
+  function lookupDescriptor(obj, keyName) {
+    var current = obj;
+    while (current) {
+      var descriptor = Object.getOwnPropertyDescriptor(current, keyName);
+
+      if (descriptor) {
+        return descriptor;
+      }
+
+      current = Object.getPrototypeOf(current);
+    }
+
+    return null;
+  }
+});
+enifed("ember-utils/make-array", ["exports"], function (exports) {
+  /**
+   Forces the passed object to be part of an array. If the object is already
+   an array, it will return the object. Otherwise, it will add the object to
+   an array. If obj is `null` or `undefined`, it will return an empty array.
+  
+   ```javascript
+   Ember.makeArray();            // []
+   Ember.makeArray(null);        // []
+   Ember.makeArray(undefined);   // []
+   Ember.makeArray('lindsay');   // ['lindsay']
+   Ember.makeArray([1, 2, 42]);  // [1, 2, 42]
+  
+   let controller = Ember.ArrayProxy.create({ content: [] });
+  
+   Ember.makeArray(controller) === controller;  // true
+   ```
+  
+   @method makeArray
+   @for Ember
+   @param {Object} obj the object
+   @return {Array}
+   @private
+   */
+  "use strict";
+
+  exports.default = makeArray;
+
+  function makeArray(obj) {
+    if (obj === null || obj === undefined) {
+      return [];
+    }
+    return Array.isArray(obj) ? obj : [obj];
+  }
+});
+enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports, _emberUtilsSymbol) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
+  'use strict';
+
+  exports.getOwner = getOwner;
+  exports.setOwner = setOwner;
+  var OWNER = _emberUtilsSymbol.default('OWNER');
+
+  exports.OWNER = OWNER;
+  /**
+    Framework objects in an Ember application (components, services, routes, etc.)
+    are created via a factory and dependency injection system. Each of these
+    objects is the responsibility of an "owner", which handled its
+    instantiation and manages its lifetime.
+  
+    `getOwner` fetches the owner object responsible for an instance. This can
+    be used to lookup or resolve other class instances, or register new factories
+    into the owner.
+  
+    For example, this component dynamically looks up a service based on the
+    `audioType` passed as an attribute:
+  
+    ```
+    // app/components/play-audio.js
+    import Ember from 'ember';
+  
+    // Usage:
+    //
+    //   {{play-audio audioType=model.audioType audioFile=model.file}}
+    //
+    export default Ember.Component.extend({
+      audioService: Ember.computed('audioType', function() {
+        let owner = Ember.getOwner(this);
+        return owner.lookup(`service:${this.get('audioType')}`);
+      }),
+      click() {
+        let player = this.get('audioService');
+        player.play(this.get('audioFile'));
+      }
+    });
+    ```
+  
+    @method getOwner
+    @for Ember
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
+    @since 2.3.0
+    @public
+  */
+
+  function getOwner(object) {
+    return object[OWNER];
+  }
+
+  /**
+    `setOwner` forces a new owner on a given object instance. This is primarily
+    useful in some testing cases.
+  
+    @method setOwner
+    @for Ember
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
+    @since 2.3.0
+    @public
+  */
+
+  function setOwner(object, owner) {
+    object[OWNER] = owner;
+  }
+});
+enifed('ember-utils/super', ['exports'], function (exports) {
+  'use strict';
+
+  exports.wrap = wrap;
+  var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
+  var fnToString = Function.prototype.toString;
+
+  var checkHasSuper = (function () {
+    var sourceAvailable = fnToString.call(function () {
+      return this;
+    }).indexOf('return this') > -1;
+
+    if (sourceAvailable) {
+      return function checkHasSuper(func) {
+        return HAS_SUPER_PATTERN.test(fnToString.call(func));
+      };
+    }
+
+    return function checkHasSuper() {
+      return true;
+    };
+  })();
+
+  exports.checkHasSuper = checkHasSuper;
+  function ROOT() {}
+  ROOT.__hasSuper = false;
+
+  function hasSuper(func) {
+    if (func.__hasSuper === undefined) {
+      func.__hasSuper = checkHasSuper(func);
+    }
+    return func.__hasSuper;
+  }
+
+  /**
+    Wraps the passed function so that `this._super` will point to the superFunc
+    when the function is invoked. This is the primitive we use to implement
+    calls to super.
+  
+    @private
+    @method wrap
+    @for Ember
+    @param {Function} func The function to call
+    @param {Function} superFunc The super function.
+    @return {Function} wrapped function.
+  */
+
+  function wrap(func, superFunc) {
+    if (!hasSuper(func)) {
+      return func;
+    }
+    // ensure an unwrapped super that calls _super is wrapped with a terminal _super
+    if (!superFunc.wrappedFunction && hasSuper(superFunc)) {
+      return _wrap(func, _wrap(superFunc, ROOT));
+    }
+    return _wrap(func, superFunc);
+  }
+
+  function _wrap(func, superFunc) {
+    function superWrapper() {
+      var orig = this._super;
+      this._super = superFunc;
+      var ret = func.apply(this, arguments);
+      this._super = orig;
+      return ret;
+    }
+
+    superWrapper.wrappedFunction = func;
+    superWrapper.__ember_observes__ = func.__ember_observes__;
+    superWrapper.__ember_observesBefore__ = func.__ember_observesBefore__;
+    superWrapper.__ember_listens__ = func.__ember_listens__;
+
+    return superWrapper;
+  }
+});
+enifed('ember-utils/symbol', ['exports', 'ember-utils/guid', 'ember-utils/intern'], function (exports, _emberUtilsGuid, _emberUtilsIntern) {
+  'use strict';
+
+  exports.default = symbol;
+
+  function symbol(debugName) {
+    // TODO: Investigate using platform symbols, but we do not
+    // want to require non-enumerability for this API, which
+    // would introduce a large cost.
+
+    return _emberUtilsIntern.default(debugName + ' [id=' + _emberUtilsGuid.GUID_KEY + Math.floor(Math.random() * new Date()) + ']');
+  }
+});
+enifed("ember-utils/to-string", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = toString;
+  var objectToString = Object.prototype.toString;
+
+  /*
+   A `toString` util function that supports objects without a `toString`
+   method, e.g. an object created with `Object.create(null)`.
+  */
+
+  function toString(obj) {
+    if (obj && obj.toString) {
+      return obj.toString();
+    } else {
+      return objectToString.call(obj);
+    }
+  }
+});
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
@@ -12840,7 +11598,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.1-beta+cf016851";
+  exports.default = "2.9.0-beta.1-beta+5df20fd2";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
