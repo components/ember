@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+41c45a66
+ * @version   2.10.0-canary+64d23c0f
  */
 
 var enifed, requireModule, require, Ember;
@@ -7923,6 +7923,28 @@ babelHelpers.classCallCheck(this, _class);
       this.registerTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
       return this.visit('/').then(function () {
         _this11.assertComponentElement(_this11.firstChild, { content: '1<div>2</div>' });
+      });
+    };
+
+    _class.prototype['@test it allows a transition during route activate'] = function testItAllowsATransitionDuringRouteActivate(assert) {
+      var _this12 = this;
+
+      this.router.map(function () {
+        this.route('a');
+      });
+
+      this.registerRoute('index', _emberRouting.Route.extend({
+        activate: function () {
+          this.transitionTo('a');
+        }
+      }));
+
+      this.registerTemplate('a', 'Hello from A!');
+
+      return this.visit('/').then(function () {
+        _this12.assertComponentElement(_this12.firstChild, {
+          content: 'Hello from A!'
+        });
       });
     };
 

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+41c45a66
+ * @version   2.10.0-canary+64d23c0f
  */
 
 var enifed, requireModule, require, Ember;
@@ -25339,6 +25339,16 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         }
         defaultParentState = ownState;
       }
+
+      // when a transitionTo happens after the validation phase
+      // during the initial transition _setOutlets is called
+      // when no routes are active. However, it will get called
+      // again with the correct values during the next turn of
+      // the runloop
+      if (!liveRoutes) {
+        return;
+      }
+
       if (!this._toplevelView) {
         var owner = _emberUtils.getOwner(this);
         var OutletView = owner._lookupFactory('view:-outlet');
@@ -40938,7 +40948,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+41c45a66";
+  exports.default = "2.10.0-canary+64d23c0f";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
