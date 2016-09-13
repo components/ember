@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0+03174bef
+ * @version   2.8.0+664a3ecf
  */
 
 var enifed, requireModule, require, Ember;
@@ -41908,7 +41908,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0+03174bef";
+  exports.default = "2.8.0+664a3ecf";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -47480,8 +47480,8 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/utils'], functio
     this.targetName = undefined;
     this.pivotHandler = undefined;
     this.sequence = undefined;
-    this.isAborted = undefined;
-    this.isActive = undefined;
+    this.isAborted = false;
+    this.isActive = true;
 
     if (error) {
       this.promise = _rsvpPromise.default.reject(error);
@@ -47540,7 +47540,6 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/utils'], functio
     pivotHandler: null,
     resolveIndex: 0,
     resolvedModels: null,
-    isActive: true,
     state: null,
     queryParamsOnly: false,
 
