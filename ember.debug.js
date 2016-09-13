@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0+143342f7
+ * @version   2.8.0+e0f87edb
  */
 
 var enifed, requireModule, require, Ember;
@@ -10324,7 +10324,6 @@ enifed('ember-htmlbars/hooks/cleanup-render-node', ['exports'], function (export
         if (view.parentView && view.parentView === env.view) {
           view.parentView.removeChild(view);
         }
-        view.parentView = null;
 
         view._transitionTo('preRender');
       });
@@ -42928,6 +42927,10 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     this.renderer.revalidateTopLevelView(this);
     this.scheduledRevalidation = false;
   }, _Mixin$create.scheduleRevalidate = function (node, label, manualRerender) {
+    if (this.isDestroying) {
+      return;
+    }
+
     if (node && !this._dispatching && this._env.renderedNodes.has(node)) {
       if (manualRerender) {
         _emberMetalDebug.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 3.0', false, { id: 'ember-views.manual-parent-rerender', until: '3.0.0' });
@@ -44521,7 +44524,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0+143342f7";
+  exports.default = "2.8.0+e0f87edb";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';

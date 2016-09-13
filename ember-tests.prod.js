@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0+143342f7
+ * @version   2.8.0+e0f87edb
  */
 
 var enifed, requireModule, require, Ember;
@@ -13622,6 +13622,50 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.teardown();
 
       this.assert.ok(true, 'no errors during teardown');
+    };
+
+    _class.prototype['@test setting a property in willDestroyElement does not assert (GH#14273)'] = function testSettingAPropertyInWillDestroyElementDoesNotAssertGH14273(assert) {
+      assert.expect(2);
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.showFoo = true;
+          },
+
+          willDestroyElement: function () {
+            var _this71 = this;
+
+            _emberMetalRun_loop.default(function () {
+              return _this71.set('showFoo', false);
+            });
+            assert.ok(true, 'willDestroyElement was fired');
+            this._super.apply(this, arguments);
+          }
+        }),
+
+        template: '{{#if showFoo}}things{{/if}}'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('things');
+    };
+
+    _class.prototype['@test using parentView in the template does not error during destruction'] = function testUsingParentViewInTheTemplateDoesNotErrorDuringDestruction() {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          title: _emberMetalComputed.computed('parentView.title', function () {
+            return this.get('parentView.title');
+          })
+        }),
+        template: '{{title}}'
+      });
+
+      this.render('{{foo-bar}}', { title: 'things' });
+
+      this.assertText('things');
     };
 
     return _class;
