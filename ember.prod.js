@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+52cc16c7
+ * @version   2.10.0-canary+f66b62e2
  */
 
 var enifed, requireModule, require, Ember;
@@ -6592,7 +6592,7 @@ enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal', 'ember-gl
 enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-glimmer/templates/link-to', 'ember-glimmer/component'], function (exports, _emberConsole, _emberMetal, _emberRuntime, _emberViews, _emberGlimmerTemplatesLinkTo, _emberGlimmerComponent) {
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
 
   /**
@@ -6896,11 +6896,6 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
     @return {String} HTML string
     @see {Ember.LinkComponent}
     @public
-  */
-
-  /**
-  @module ember
-  @submodule ember-templates
   */
 
   'use strict';
@@ -7398,9 +7393,190 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
 enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/component', 'ember-views', 'ember-glimmer/templates/empty'], function (exports, _emberGlimmerComponent, _emberViews, _emberGlimmerTemplatesEmpty) {
   /**
   @module ember
-  @submodule ember-views
+  @submodule ember-glimmer
   */
   'use strict';
+
+  /**
+    `{{textarea}}` inserts a new instance of `<textarea>` tag into the template.
+    The attributes of `{{textarea}}` match those of the native HTML tags as
+    closely as possible.
+  
+    The following HTML attributes can be set:
+  
+      * `value`
+      * `name`
+      * `rows`
+      * `cols`
+      * `placeholder`
+      * `disabled`
+      * `maxlength`
+      * `tabindex`
+      * `selectionEnd`
+      * `selectionStart`
+      * `selectionDirection`
+      * `wrap`
+      * `readonly`
+      * `autofocus`
+      * `form`
+      * `spellcheck`
+      * `required`
+  
+    When set to a quoted string, these value will be directly applied to the HTML
+    element. When left unquoted, these values will be bound to a property on the
+    template's current rendering context (most typically a controller instance).
+  
+    Unbound:
+  
+    ```handlebars
+    {{textarea value="Lots of static text that ISN'T bound"}}
+    ```
+  
+    Would result in the following HTML:
+  
+    ```html
+    <textarea class="ember-text-area">
+      Lots of static text that ISN'T bound
+    </textarea>
+    ```
+  
+    Bound:
+  
+    In the following example, the `writtenWords` property on `App.ApplicationController`
+    will be updated live as the user types 'Lots of text that IS bound' into
+    the text area of their browser's window.
+  
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      writtenWords: "Lots of text that IS bound"
+    });
+    ```
+  
+    ```handlebars
+    {{textarea value=writtenWords}}
+    ```
+  
+     Would result in the following HTML:
+  
+    ```html
+    <textarea class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+    ```
+  
+    If you wanted a one way binding between the text area and a div tag
+    somewhere else on your screen, you could use `Ember.computed.oneWay`:
+  
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      writtenWords: "Lots of text that IS bound",
+      outputWrittenWords: Ember.computed.oneWay("writtenWords")
+    });
+    ```
+  
+    ```handlebars
+    {{textarea value=writtenWords}}
+    <div>
+      {{outputWrittenWords}}
+    </div>
+    ```
+  
+    Would result in the following HTML:
+  
+    ```html
+    <textarea class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+    <-- the following div will be updated in real time as you type -->
+    <div>
+      Lots of text that IS bound
+    </div>
+    ```
+  
+    Finally, this example really shows the power and ease of Ember when two
+    properties are bound to eachother via `Ember.computed.alias`. Type into
+    either text area box and they'll both stay in sync. Note that
+    `Ember.computed.alias` costs more in terms of performance, so only use it when
+    your really binding in both directions:
+  
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      writtenWords: "Lots of text that IS bound",
+      twoWayWrittenWords: Ember.computed.alias("writtenWords")
+    });
+    ```
+  
+    ```handlebars
+    {{textarea value=writtenWords}}
+    {{textarea value=twoWayWrittenWords}}
+    ```
+  
+    ```html
+    <textarea id="ember1" class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+    <-- both updated in real time -->
+    <textarea id="ember2" class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+    ```
+  
+    ### Actions
+  
+    The helper can send multiple actions based on user events.
+    The action property defines the action which is send when
+    the user presses the return key.
+  
+    ```handlebars
+    {{input action="submit"}}
+    ```
+  
+    The helper allows some user events to send actions.
+  
+    * `enter`
+    * `insert-newline`
+    * `escape-press`
+    * `focus-in`
+    * `focus-out`
+    * `key-press`
+  
+    For example, if you desire an action to be sent when the input is blurred,
+    you only need to setup the action name to the event name property.
+  
+    ```handlebars
+    {{textarea focus-in="alertMessage"}}
+    ```
+  
+    See more about [Text Support Actions](/api/classes/Ember.TextArea.html)
+  
+    ### Extension
+  
+    Internally, `{{textarea}}` creates an instance of `Ember.TextArea`, passing
+    arguments from the helper to `Ember.TextArea`'s `create` method. You can
+    extend the capabilities of text areas in your application by reopening this
+    class. For example, if you are building a Bootstrap project where `data-*`
+    attributes are used, you can globally add support for a `data-*` attribute
+    on all `{{textarea}}`s' in your app by reopening `Ember.TextArea` or
+    `Ember.TextSupport` and adding it to the `attributeBindings` concatenated
+    property:
+  
+    ```javascript
+    Ember.TextArea.reopen({
+      attributeBindings: ['data-error']
+    });
+    ```
+  
+    Keep in mind when writing `Ember.TextArea` subclasses that `Ember.TextArea`
+    itself extends `Ember.Component`. Expect isolated component semantics, not
+    legacy 1.x view semantics (like `controller` being present).
+  
+    See more about [Ember components](/api/classes/Ember.Component.html)
+  
+    @method textarea
+    @for Ember.Templates.helpers
+    @param {Hash} options
+    @public
+  */
 
   /**
     The internal class used to create textarea element when the `{{textarea}}`
@@ -7930,6 +8106,11 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
   exports.default = Environment;
 });
 enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', 'glimmer-reference'], function (exports, _emberUtils, _emberRuntime, _glimmerReference) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
+
   'use strict';
 
   var _EmberObject$extend;
@@ -8139,12 +8320,262 @@ enifed('ember-glimmer/helpers/-normalize-class', ['exports', 'ember-glimmer/util
   };
 });
 enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-metal'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberMetal) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
   exports.createClosureAction = createClosureAction;
   var INVOKE = _emberUtils.symbol('INVOKE');
 
   exports.INVOKE = INVOKE;
+  /**
+    The `{{action}}` helper provides a way to pass triggers for behavior (usually
+    just a function) between components, and into components from controllers.
+  
+    ### Passing functions with the action helper
+  
+    There are three contexts an action helper can be used in. The first two
+    contexts to discuss are attribute context, and Handlebars value context.
+  
+    ```handlebars
+    {{! An example of attribute context }}
+    <div onclick={{action "save"}}></div>
+    {{! Examples of Handlebars value context }}
+    {{input on-input=(action "save")}}
+    {{yield (action "refreshData") andAnotherParam}}
+    ```
+  
+    In these contexts,
+    the helper is called a "closure action" helper. Its behavior is simple:
+    If passed a function name, read that function off the `actions` property
+    of the current context. Once that function is read (or if a function was
+    passed), create a closure over that function and any arguments.
+    The resulting value of an action helper used this way is simply a function.
+  
+    For example, in the attribute context:
+  
+    ```handlebars
+    {{! An example of attribute context }}
+    <div onclick={{action "save"}}></div>
+    ```
+  
+    The resulting template render logic would be:
+  
+    ```js
+    var div = document.createElement('div');
+    var actionFunction = (function(context){
+      return function() {
+        return context.actions.save.apply(context, arguments);
+      };
+    })(context);
+    div.onclick = actionFunction;
+    ```
+  
+    Thus when the div is clicked, the action on that context is called.
+    Because the `actionFunction` is just a function, closure actions can be
+    passed between components and still execute in the correct context.
+  
+    Here is an example action handler on a component:
+  
+    ```js
+    export default Ember.Component.extend({
+      actions: {
+        save() {
+          this.get('model').save();
+        }
+      }
+    });
+    ```
+  
+    Actions are always looked up on the `actions` property of the current context.
+    This avoids collisions in the naming of common actions, such as `destroy`.
+    Two options can be passed to the `action` helper when it is used in this way.
+  
+    * `target=someProperty` will look to `someProperty` instead of the current
+      context for the `actions` hash. This can be useful when targetting a
+      service for actions.
+    * `value="target.value"` will read the path `target.value` off the first
+      argument to the action when it is called and rewrite the first argument
+      to be that value. This is useful when attaching actions to event listeners.
+  
+    ### Invoking an action
+  
+    Closure actions curry both their scope and any arguments. When invoked, any
+    additional arguments are added to the already curried list.
+    Actions should be invoked using the [sendAction](/api/classes/Ember.Component.html#method_sendAction)
+    method. The first argument to `sendAction` is the action to be called, and
+    additional arguments are passed to the action function. This has interesting
+    properties combined with currying of arguments. For example:
+  
+    ```js
+    export default Ember.Component.extend({
+      actions: {
+        // Usage {{input on-input=(action (action 'setName' model) value="target.value")}}
+        setName(model, name) {
+          model.set('name', name);
+        }
+      }
+    });
+    ```
+  
+    The first argument (`model`) was curried over, and the run-time argument (`event`)
+    becomes a second argument. Action calls can be nested this way because each simply
+    returns a function. Any function can be passed to the `{{action}}` helper, including
+    other actions.
+  
+    Actions invoked with `sendAction` have the same currying behavior as demonstrated
+    with `on-input` above. For example:
+  
+    ```js
+    export default Ember.Component.extend({
+      actions: {
+        setName(model, name) {
+          model.set('name', name);
+        }
+      }
+    });
+    ```
+  
+    ```handlebars
+    {{my-input submit=(action 'setName' model)}}
+    ```
+  
+    ```js
+    // app/components/my-component.js
+    export default Ember.Component.extend({
+      click() {
+        // Note that model is not passed, it was curried in the template
+        this.sendAction('submit', 'bob');
+      }
+    });
+    ```
+  
+    ### Attaching actions to DOM elements
+  
+    The third context of the `{{action}}` helper can be called "element space".
+    For example:
+  
+    ```handlebars
+    {{! An example of element space }}
+    <div {{action "save"}}></div>
+    ```
+  
+    Used this way, the `{{action}}` helper provides a useful shortcut for
+    registering an HTML element in a template for a single DOM event and
+    forwarding that interaction to the template's context (controller or component).
+    If the context of a template is a controller, actions used this way will
+    bubble to routes when the controller does not implement the specified action.
+    Once an action hits a route, it will bubble through the route hierarchy.
+  
+    ### Event Propagation
+  
+    `{{action}}` helpers called in element space can control event bubbling. Note
+    that the closure style actions cannot.
+  
+    Events triggered through the action helper will automatically have
+    `.preventDefault()` called on them. You do not need to do so in your event
+    handlers. If you need to allow event propagation (to handle file inputs for
+    example) you can supply the `preventDefault=false` option to the `{{action}}` helper:
+  
+    ```handlebars
+    <div {{action "sayHello" preventDefault=false}}>
+      <input type="file" />
+      <input type="checkbox" />
+    </div>
+    ```
+  
+    To disable bubbling, pass `bubbles=false` to the helper:
+  
+    ```handlebars
+    <button {{action 'edit' post bubbles=false}}>Edit</button>
+    ```
+  
+    To disable bubbling with closure style actions you must create your own
+    wrapper helper that makes use of `event.stopPropagation()`:
+  
+    ```handlebars
+    <div onclick={{disable-bubbling (action "sayHello")}}>Hello</div>
+    ```
+  
+    ```js
+    // app/helpers/disable-bubbling.js
+    import Ember from 'ember';
+    export function disableBubbling([action]) {
+      return function(event) {
+        event.stopPropagation();
+        return action(event);
+      };
+    }
+    export default Ember.Helper.helper(disableBubbling);
+    ```
+  
+    If you need the default handler to trigger you should either register your
+    own event handler, or use event methods on your view class. See
+    ["Responding to Browser Events"](/api/classes/Ember.View.html#toc_responding-to-browser-events)
+    in the documentation for Ember.View for more information.
+  
+    ### Specifying DOM event type
+  
+    `{{action}}` helpers called in element space can specify an event type.
+    By default the `{{action}}` helper registers for DOM `click` events. You can
+    supply an `on` option to the helper to specify a different DOM event name:
+  
+    ```handlebars
+    <div {{action "anActionName" on="doubleClick"}}>
+      click me
+    </div>
+    ```
+  
+    See ["Event Names"](/api/classes/Ember.View.html#toc_event-names) for a list of
+    acceptable DOM event names.
+  
+    ### Specifying whitelisted modifier keys
+  
+    `{{action}}` helpers called in element space can specify modifier keys.
+    By default the `{{action}}` helper will ignore click events with pressed modifier
+    keys. You can supply an `allowedKeys` option to specify which keys should not be ignored.
+  
+    ```handlebars
+    <div {{action "anActionName" allowedKeys="alt"}}>
+      click me
+    </div>
+    ```
+  
+    This way the action will fire when clicking with the alt key pressed down.
+    Alternatively, supply "any" to the `allowedKeys` option to accept any combination of modifier keys.
+  
+    ```handlebars
+    <div {{action "anActionName" allowedKeys="any"}}>
+      click me with any key pressed
+    </div>
+    ```
+  
+    ### Specifying a Target
+  
+    A `target` option can be provided to the helper to change
+    which object will receive the method call. This option must be a path
+    to an object, accessible in the current context:
+  
+    ```handlebars
+    {{! app/templates/application.hbs }}
+    <div {{action "anActionName" target=someService}}>
+      click me
+    </div>
+    ```
+  
+    ```javascript
+    // app/controllers/application.js
+    export default Ember.Controller.extend({
+      someService: Ember.inject.service()
+    });
+    ```
+  
+    @method action
+    @for Ember.Templates.helpers
+    @public
+  */
 
   var ClosureActionReference = (function (_CachedReference) {
     babelHelpers.inherits(ClosureActionReference, _CachedReference);
@@ -8280,7 +8711,81 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-glimmer
   }
 });
 enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/curly-component', 'glimmer-runtime', 'ember-metal'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberGlimmerSyntaxCurlyComponent, _glimmerRuntime, _emberMetal) {
+  /**
+    @module ember
+    @submodule ember-glimmer
+  */
   'use strict';
+
+  /**
+    The `{{component}}` helper lets you add instances of `Ember.Component` to a
+    template. See [Ember.Component](/api/classes/Ember.Component.html) for
+    additional information on how a `Component` functions.
+    `{{component}}`'s primary use is for cases where you want to dynamically
+    change which type of component is rendered as the state of your application
+    changes. The provided block will be applied as the template for the component.
+    Given an empty `<body>` the following template:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{component infographicComponentName}}
+    ```
+  
+    And the following application code:
+  
+    ```javascript
+    export default Ember.Controller.extend({
+      infographicComponentName: computed('isMarketOpen', {
+        get() {
+          if (this.get('isMarketOpen')) {
+            return 'live-updating-chart';
+          } else {
+            return 'market-close-summary';
+          }
+        }
+      })
+    });
+    ```
+  
+    The `live-updating-chart` component will be appended when `isMarketOpen` is
+    `true`, and the `market-close-summary` component will be appended when
+    `isMarketOpen` is `false`. If the value changes while the app is running,
+    the component will be automatically swapped out accordingly.
+    Note: You should not use this helper when you are consistently rendering the same
+    component. In that case, use standard component syntax, for example:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{live-updating-chart}}
+    ```
+  
+    ## Nested Usage
+  
+    The `component` helper can be used to package a component path with initial attrs.
+    The included attrs can then be merged during the final invocation.
+    For example, given a `person-form` component with the following template:
+  
+    ```handlebars
+    {{yield (hash
+        nameInput=(component "my-input-component" value=model.name placeholder="First Name"))}}
+    ```
+  
+    The following snippet:
+  
+    ```
+    {{#person-form as |form|}}
+      {{component form.nameInput placeholder="Username"}}
+    {{/person-form}}
+    ```
+  
+    would output an input whose value is already bound to `model.name` and `placeholder`
+    is "Username".
+  
+    @method component
+    @since 1.11.0
+    @for Ember.Templates.helpers
+    @public
+  */
 
   var ClosureComponentReference = (function (_CachedReference) {
     babelHelpers.inherits(ClosureComponentReference, _CachedReference);
@@ -8412,7 +8917,7 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/utils/referenc
 
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
 
   /**
@@ -8539,9 +9044,89 @@ enifed('ember-glimmer/helpers/debugger', ['exports', 'ember-metal/debug', 'glimm
   }
 });
 enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (exports, _emberUtils) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
   exports.isEachIn = isEachIn;
+
+  /**
+    The `{{#each}}` helper loops over elements in a collection. It is an extension
+    of the base Handlebars `{{#each}}` helper.
+    The default behavior of `{{#each}}` is to yield its inner block once for every
+    item in an array passing the item as the first block parameter.
+  
+    ```javascript
+    var developers = [{ name: 'Yehuda' },{ name: 'Tom' }, { name: 'Paul' }];
+    ```
+  
+    ```handlebars
+    {{#each developers key="name" as |person|}}
+      {{person.name}}
+      {{! `this` is whatever it was outside the #each }}
+    {{/each}}
+    ```
+  
+    The same rules apply to arrays of primitives.
+  
+    ```javascript
+    var developerNames = ['Yehuda', 'Tom', 'Paul']
+    ```
+  
+    ```handlebars
+    {{#each developerNames key="@index" as |name|}}
+      {{name}}
+    {{/each}}
+    ```
+  
+    During iteration, the index of each item in the array is provided as a second block parameter.
+  
+    ```handlebars
+    <ul>
+      {{#each people as |person index|}}
+        <li>Hello, {{person.name}}! You're number {{index}} in line</li>
+      {{/each}}
+    </ul>
+    ```
+  
+    ### Specifying Keys
+  
+    The `key` option is used to tell Ember how to determine if the array being
+    iterated over with `{{#each}}` has changed between renders. By helping Ember
+    detect that some elements in the array are the same, DOM elements can be
+    re-used, significantly improving rendering speed.
+  
+    For example, here's the `{{#each}}` helper with its `key` set to `id`:
+  
+    ```handlebars
+    {{#each model key="id" as |item|}}
+    {{/each}}
+    ```
+  
+    When this `{{#each}}` re-renders, Ember will match up the previously rendered
+    items (and reorder the generated DOM elements) based on each item's `id`
+    property.
+    By default the item's own reference is used.
+  
+    ### {{else}} condition
+  
+    `{{#each}}` can have a matching `{{else}}`. The contents of this block will render
+    if the collection is empty.
+  
+    ```handlebars
+    {{#each developers as |person|}}
+      {{person.name}}
+    {{else}}
+      <p>Sorry, nobody is available for this task.</p>
+    {{/each}}
+    ```
+  
+    @method each
+    @for Ember.Templates.helpers
+    @public
+   */
 
   /**
     The `{{each-in}}` helper loops over properties on an object.
@@ -8590,7 +9175,7 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal', 'ember-glimmer/ut
 
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
 
   /**
@@ -8703,7 +9288,7 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal', 'ember-glimmer/ut
 enifed("ember-glimmer/helpers/hash", ["exports"], function (exports) {
    /**
    @module ember
-   @submodule ember-templates
+   @submodule ember-glimmer
    */
 
    /**
@@ -8742,13 +9327,70 @@ enifed("ember-glimmer/helpers/hash", ["exports"], function (exports) {
 enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference) {
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
 
   'use strict';
 
   exports.inlineIf = inlineIf;
   exports.inlineUnless = inlineUnless;
+
+  /**
+    Use the `if` block helper to conditionally render a block depending on a
+    property. If the property is "falsey", for example: `false`, `undefined`,
+    `null`, `""`, `0`, `NaN` or an empty array, the block will not be rendered.
+  
+    ```handlebars
+    {{! will not render if foo is falsey}}
+    {{#if foo}}
+      Welcome to the {{foo.bar}}
+    {{/if}}
+    ```
+  
+    You can also specify a template to show if the property is falsey by using
+    the `else` helper.
+  
+    ```handlebars
+    {{! is it raining outside?}}
+    {{#if isRaining}}
+      Yes, grab an umbrella!
+    {{else}}
+      No, it's lovely outside!
+    {{/if}}
+    ```
+  
+    You are also able to combine `else` and `if` helpers to create more complex
+    conditional logic.
+  
+    ```handlebars
+    {{#if isMorning}}
+      Good morning
+    {{else if isAfternoon}}
+      Good afternoon
+    {{else}}
+      Good night
+    {{/if}}
+    ```
+  
+    You can use `if` inline to conditionally render a single property or string.
+    This helper acts like a ternary operator. If the first property is truthy,
+    the second argument will be displayed, if not, the third argument will be
+    displayed
+  
+    ```handlebars
+    {{if useLongGreeting "Hello" "Hi"}} Dave
+    ```
+  
+    Finally, you can use the `if` helper inside another helper as a subexpression.
+  
+    ```handlebars
+    {{some-component height=(if isBig "100" "10")}}
+    ```
+  
+    @method if
+    @for Ember.Templates.helpers
+    @public
+  */
 
   var ConditionalHelperReference = (function (_CachedReference) {
     babelHelpers.inherits(ConditionalHelperReference, _CachedReference);
@@ -8781,13 +9423,17 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal', 'ember-glim
       This helper acts like a ternary operator. If the first property is truthy,
       the second argument will be displayed, otherwise, the third argument will be
       displayed
+    
       ```handlebars
       {{if useLongGreeting "Hello" "Hi"}} Alex
       ```
+    
       You can use the `if` helper inside another helper as a subexpression.
+    
       ```handlebars
       {{some-component height=(if isBig "100" "10")}}
       ```
+    
       @method if
       @for Ember.Templates.helpers
       @public
@@ -8825,13 +9471,17 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal', 'ember-glim
     This helper acts like a ternary operator. If the first property is falsy,
     the second argument will be displayed, otherwise, the third argument will be
     displayed
+  
     ```handlebars
     {{unless useLongGreeting "Hi" "Hello"}} Ben
     ```
+  
     You can use the `unless` helper inside another helper as a subexpression.
+  
     ```handlebars
     {{some-component height=(unless isBig "10" "100")}}
     ```
+  
     @method unless
     @for Ember.Templates.helpers
     @public
@@ -8850,12 +9500,11 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal', 'ember-glim
   }
 });
 enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/utils/references', 'ember-runtime'], function (exports, _emberGlimmerUtilsReferences, _emberRuntime) {
-  'use strict';
-
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
+  'use strict';
 
   /**
     Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
@@ -8928,9 +9577,13 @@ enifed('ember-glimmer/helpers/log', ['exports', 'ember-glimmer/utils/references'
 
 /**
 @module ember
-@submodule ember-templates
+@submodule ember-glimmer
 */
 enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberMetal, _emberGlimmerUtilsReferences, _emberGlimmerHelpersAction) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
   exports.isMut = isMut;
@@ -9024,8 +9677,28 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-metal', 'e
   };
 });
 enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-metal', 'ember-routing'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberMetal, _emberRouting) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
+  /**
+    This is a helper to be used in conjunction with the link-to helper.
+    It will supply url query parameters to the target route.
+  
+    Example
+  
+    ```handlebars
+    {{#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+    ```
+  
+    @method query-params
+    @for Ember.Templates.helpers
+    @param {Object} hash takes a hash of query parameters
+    @return {Object} A `QueryParams` object for `{{link-to}}`
+    @public
+  */
   function queryParams(_ref) {
     var positional = _ref.positional;
     var named = _ref.named;
@@ -9040,6 +9713,10 @@ enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-utils', 'ember-gl
   };
 });
 enifed('ember-glimmer/helpers/readonly', ['exports', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/mut'], function (exports, _emberGlimmerUtilsReferences, _emberGlimmerHelpersMut) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
   exports.default = function (vm, args) {
@@ -9055,7 +9732,7 @@ enifed('ember-glimmer/helpers/readonly', ['exports', 'ember-glimmer/utils/refere
 enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal', 'ember-glimmer/utils/references'], function (exports, _emberMetal, _emberGlimmerUtilsReferences) {
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
 
   'use strict';
@@ -9094,6 +9771,205 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal', 'ember-glimme
   };
 });
 enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/syntax', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _emberGlimmerHelpersAction, _emberGlimmerTemplatesRoot, _emberGlimmerSyntax, _emberGlimmerTemplate, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_field, _emberGlimmerComponentsText_area, _emberGlimmerComponentsLinkTo, _emberGlimmerComponent, _emberGlimmerHelper, _emberGlimmerEnvironment, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString, _emberGlimmerRenderer, _emberGlimmerTemplate_registry, _emberGlimmerSetupRegistry, _emberGlimmerDom) {
+  /**
+    [Glimmer](https://github.com/tildeio/glimmer) is a [Handlebars](http://handlebarsjs.com/)
+    compatible templating engine used by Ember.js.
+    Any valid Handlebars syntax is valid in an Ember template.
+  
+    ### Showing a property
+  
+    Templates manage the flow of an application's UI, and display state (through
+    the DOM) to a user. For example, given a component with the property "name",
+    that component's template can use the name in several ways:
+  
+    ```javascript
+      // app/components/person.js
+      export default Ember.Component.extend({
+        name: 'Jill'
+      });
+    ```
+  
+    ```handlebars
+    {{! app/components/person.hbs }}
+    {{name}}
+    <div>{{name}}</div>
+    <span data-name={{name}}></span>
+    ```
+  
+    Any time the "name" property on the component changes, the DOM will be
+    updated.
+  
+    Properties can be chained as well:
+  
+    ```handlebars
+    {{aUserModel.name}}
+    <div>{{listOfUsers.firstObject.name}}</div>
+    ```
+  
+    ### Using Ember helpers
+  
+    When content is passed in mustaches `{{}}`, Ember will first try to find a helper
+    or component with that name. For example, the `if` helper:
+  
+    ```handlebars
+    {{if name "I have a name" "I have no name"}}
+    <span data-has-name={{if name true}}></span>
+    ```
+  
+    The returned value is placed where the `{{}}` is called. The above style is
+    called "inline". A second style of helper usage is called "block". For example:
+  
+    ```handlebars
+    {{#if name}}
+    I have a name
+    {{else}}
+    I have no name
+    {{/if}}
+    ```
+  
+    The block form of helpers allows you to control how the UI is created based
+    on the values of properties.
+    A third form of helper is called "nested". For example here the concat
+    helper will add " Doe" to a displayed name if the person has no last name:
+  
+    ```handlebars
+    <span data-name={{concat firstName (
+    if lastName (concat " " lastName) "Doe"
+    )}}></span>
+    ```
+  
+    Ember's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)
+    namespace. Documentation on creating custom helpers can be found under
+    [Ember.Helper](/api/classes/Ember.Helper.html).
+  
+    ### Invoking a Component
+  
+    Ember components represent state to the UI of an application. Further
+    reading on components can be found under [Ember.Component](/api/classes/Ember.Component.html).
+  
+    @module ember
+    @submodule ember-glimmer
+    @main ember-glimmer
+    @public
+   */
+
+  /**
+    Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful
+    for semantic clarity as it allows you to retain default scope or to reference a property from another
+    `{{with}}` block.
+  
+    If the aliased property is "falsey", for example: `false`, `undefined` `null`, `""`, `0`, NaN or
+    an empty array, the block will not be rendered.
+  
+    ```handlebars
+    {{! Will only render if user.posts contains items}}
+    {{#with user.posts as |blogPosts|}}
+      <div class="notice">
+        There are {{blogPosts.length}} blog posts written by {{user.name}}.
+      </div>
+      {{#each blogPosts as |post|}}
+        <li>{{post.title}}</li>
+      {{/each}}
+    {{/with}}
+    ```
+  
+    Without the `as` operator, it would be impossible to reference `user.name` in the example above.
+  
+    NOTE: The alias should not reuse a name from the bound property path.
+  
+    For example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using
+    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.
+  
+    @method with
+    @for Ember.Templates.helpers
+    @param {Object} options
+    @return {String} HTML string
+    @public
+   */
+
+  /**
+    Execute the `debugger` statement in the current template's context.
+  
+    ```handlebars
+    {{debugger}}
+    ```
+  
+    When using the debugger helper you will have access to a `get` function. This
+    function retrieves values available in the context of the template.
+    For example, if you're wondering why a value `{{foo}}` isn't rendering as
+    expected within a template, you could place a `{{debugger}}` statement and,
+    when the `debugger;` breakpoint is hit, you can attempt to retrieve this value:
+  
+    ```
+    > get('foo')
+    ```
+  
+    `get` is also aware of keywords. So in this situation
+  
+    ```handlebars
+    {{#each items as |item|}}
+      {{debugger}}
+    {{/each}}
+    ```
+  
+    You'll be able to get values from the current item:
+  
+    ```
+    > get('item.name')
+    ```
+  
+    You can also access the context of the view to make sure it is the object that
+    you expect:
+  
+    ```
+    > context
+    ```
+  
+    @method debugger
+    @for Ember.Templates.helpers
+    @public
+   */
+
+  /**
+    The `partial` helper renders another template without
+    changing the template context:
+  
+    ```handlebars
+    {{foo}}
+    {{partial "nav"}}
+    ```
+  
+    The above example template will render a template named
+    "-nav", which has the same context as the parent template
+    it's rendered into, so if the "-nav" template also referenced
+    `{{foo}}`, it would print the same thing as the `{{foo}}`
+    in the above example.
+  
+    If a "-nav" template isn't found, the `partial` helper will
+    fall back to a template named "nav".
+  
+    ### Bound template names
+  
+    The parameter supplied to `partial` can also be a path
+    to a property containing a template name, e.g.:
+  
+    ```handlebars
+    {{partial someTemplateName}}
+    ```
+  
+    The above example will look up the value of `someTemplateName`
+    on the template context (e.g. a controller) and use that
+    value as the name of the template to render. If the resolved
+    value is falsy, nothing will be rendered. If `someTemplateName`
+    changes, the partial will be re-rendered using the new template
+    name.
+  
+    @method partial
+    @for Ember.Templates.helpers
+    @param {String} partialName The name of the template to render minus the leading underscore.
+    @public
+  */
+
   'use strict';
 
   exports.INVOKE = _emberGlimmerHelpersAction.INVOKE;
@@ -9131,7 +10007,7 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
 enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal', 'ember-glimmer/helper'], function (exports, _emberMetal, _emberGlimmerHelper) {
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
   'use strict';
 
@@ -10479,6 +11355,10 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'glimmer-runtime', 
   })();
 });
 enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/bindings'], function (exports, _emberMetal, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerUtilsBindings) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
   function buildTextFieldSyntax(args, templates, getDefinition, symbolTable) {
@@ -10487,6 +11367,138 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/s
     return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax(args, definition, templates, symbolTable);
   }
 
+  /**
+    The `{{input}}` helper lets you create an HTML `<input />` component.
+    It causes an `Ember.TextField` component to be rendered.  For more info,
+    see the [Ember.TextField](/api/classes/Ember.TextField.html) docs and
+    the [templates guide](http://emberjs.com/guides/templates/input-helpers/).
+  
+    ```handlebars
+    {{input value="987"}}
+    ```
+  
+    renders as:
+  
+    ```HTML
+    <input type="text" value="987" />
+    ```
+  
+    ### Text field
+  
+    If no `type` option is specified, a default of type 'text' is used.
+    Many of the standard HTML attributes may be passed to this helper.
+    <table>
+      <tr><td>`readonly`</td><td>`required`</td><td>`autofocus`</td></tr>
+      <tr><td>`value`</td><td>`placeholder`</td><td>`disabled`</td></tr>
+      <tr><td>`size`</td><td>`tabindex`</td><td>`maxlength`</td></tr>
+      <tr><td>`name`</td><td>`min`</td><td>`max`</td></tr>
+      <tr><td>`pattern`</td><td>`accept`</td><td>`autocomplete`</td></tr>
+      <tr><td>`autosave`</td><td>`formaction`</td><td>`formenctype`</td></tr>
+      <tr><td>`formmethod`</td><td>`formnovalidate`</td><td>`formtarget`</td></tr>
+      <tr><td>`height`</td><td>`inputmode`</td><td>`multiple`</td></tr>
+      <tr><td>`step`</td><td>`width`</td><td>`form`</td></tr>
+      <tr><td>`selectionDirection`</td><td>`spellcheck`</td><td>&nbsp;</td></tr>
+    </table>
+    When set to a quoted string, these values will be directly applied to the HTML
+    element. When left unquoted, these values will be bound to a property on the
+    template's current rendering context (most typically a controller instance).
+    A very common use of this helper is to bind the `value` of an input to an Object's attribute:
+  
+    ```handlebars
+    Search:
+    {{input value=searchWord}}
+    ```
+  
+    In this example, the inital value in the `<input />` will be set to the value of `searchWord`.
+    If the user changes the text, the value of `searchWord` will also be updated.
+  
+    ### Actions
+  
+    The helper can send multiple actions based on user events.
+    The action property defines the action which is sent when
+    the user presses the return key.
+  
+    ```handlebars
+    {{input action="submit"}}
+    ```
+  
+    The helper allows some user events to send actions.
+  
+    * `enter`
+    * `insert-newline`
+    * `escape-press`
+    * `focus-in`
+    * `focus-out`
+    * `key-press`
+    * `key-up`
+  
+    For example, if you desire an action to be sent when the input is blurred,
+    you only need to setup the action name to the event name property.
+  
+    ```handlebars
+    {{input focus-out="alertMessage"}}
+    ```
+    See more about [Text Support Actions](/api/classes/Ember.TextField.html)
+  
+    ### Extending `Ember.TextField`
+  
+    Internally, `{{input type="text"}}` creates an instance of `Ember.TextField`, passing
+    arguments from the helper to `Ember.TextField`'s `create` method. You can extend the
+    capabilities of text inputs in your applications by reopening this class. For example,
+    if you are building a Bootstrap project where `data-*` attributes are used, you
+    can add one to the `TextField`'s `attributeBindings` property:
+  
+    ```javascript
+    Ember.TextField.reopen({
+      attributeBindings: ['data-error']
+    });
+    ```
+  
+    Keep in mind when writing `Ember.TextField` subclasses that `Ember.TextField`
+    itself extends `Ember.Component`. Expect isolated component semantics, not
+    legacy 1.x view semantics (like `controller` being present).
+    See more about [Ember components](/api/classes/Ember.Component.html)
+  
+    ### Checkbox
+  
+    Checkboxes are special forms of the `{{input}}` helper.  To create a `<checkbox />`:
+  
+    ```handlebars
+    Emberize Everything:
+    {{input type="checkbox" name="isEmberized" checked=isEmberized}}
+    ```
+  
+    This will bind checked state of this checkbox to the value of `isEmberized`  -- if either one changes,
+    it will be reflected in the other.
+  
+    The following HTML attributes can be set via the helper:
+  
+    * `checked`
+    * `disabled`
+    * `tabindex`
+    * `indeterminate`
+    * `name`
+    * `autofocus`
+    * `form`
+  
+    ### Extending `Ember.Checkbox`
+  
+    Internally, `{{input type="checkbox"}}` creates an instance of `Ember.Checkbox`, passing
+    arguments from the helper to `Ember.Checkbox`'s `create` method. You can extend the
+    capablilties of checkbox inputs in your applications by reopening this class. For example,
+    if you wanted to add a css class to all checkboxes in your application:
+  
+    ```javascript
+    Ember.Checkbox.reopen({
+      classNames: ['my-app-checkbox']
+    });
+    ```
+  
+    @method input
+    @for Ember.Templates.helpers
+    @param {Hash} options
+    @public
+  */
   var InputSyntax = {
     create: function (environment, args, templates, symbolTable) {
       var getDefinition = function (path) {
@@ -10515,7 +11527,32 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/s
   exports.InputSyntax = InputSyntax;
 });
 enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
+
+  /**
+    The `{{mount}}` helper lets you embed a routeless engine in a template.
+    Mounting an engine will cause an instance to be booted and its `application`
+    template to be rendered.
+  
+    For example, the following template mounts the `ember-chat` engine:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{mount "ember-chat"}}
+    ```
+  
+    Currently, the engine name is the only argument that can be passed to
+    `{{mount}}`.
+  
+    @method mount
+    @for Ember.Templates.helpers
+    @category ember-application-engines
+    @public
+  */
 
   var MountSyntax = (function (_StatementSyntax) {
     babelHelpers.inherits(MountSyntax, _StatementSyntax);
@@ -10617,6 +11654,10 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
   })(_glimmerRuntime.ComponentDefinition);
 });
 enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-metal', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberUtils, _glimmerRuntime, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
   function outletComponentFor(vm) {
@@ -10639,6 +11680,56 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
       return new OutletComponentReference(outletNameRef, outletState);
     }
   }
+
+  /**
+    The `{{outlet}}` helper lets you specify where a child route will render in
+    your template. An important use of the `{{outlet}}` helper is in your
+    application's `application.hbs` file:
+  
+    ```handlebars
+    {{! app/templates/application.hbs }}
+    <!-- header content goes here, and will always display -->
+    {{my-header}}
+    <div class="my-dynamic-content">
+      <!-- this content will change based on the current route, which depends on the current URL -->
+      {{outlet}}
+    </div>
+    <!-- footer content goes here, and will always display -->
+    {{my-footer}}
+    ```
+  
+    See [templates guide](http://emberjs.com/guides/templates/the-application-template/) for
+    additional information on using `{{outlet}}` in `application.hbs`.
+    You may also specify a name for the `{{outlet}}`, which is useful when using more than one
+    `{{outlet}}` in a template:
+  
+    ```handlebars
+    {{outlet "menu"}}
+    {{outlet "sidebar"}}
+    {{outlet "main"}}
+    ```
+  
+    Your routes can then render into a specific one of these `outlet`s by specifying the `outlet`
+    attribute in your `renderTemplate` function:
+  
+    ```javascript
+    // app/routes/menu.js
+    export default Ember.Route.extend({
+      renderTemplate() {
+        this.render({ outlet: 'menu' });
+      }
+    });
+    ```
+  
+    See the [routing guide](http://emberjs.com/guides/routing/rendering-a-template/) for more
+    information on how your `route` interacts with the `{{outlet}}` helper.
+    Note: Your content __will not render__ if there isn't an `{{outlet}}` for it.
+  
+    @method outlet
+    @param {String} [name]
+    @for Ember.Templates.helpers
+    @public
+  */
 
   var OutletSyntax = (function (_StatementSyntax) {
     babelHelpers.inherits(OutletSyntax, _StatementSyntax);
@@ -10939,6 +12030,10 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
   OutletLayoutCompiler.id = 'outlet';
 });
 enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet) {
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   'use strict';
 
   function makeComponentDefinition(vm) {
@@ -10966,6 +12061,76 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
       return new _glimmerReference.ConstReference(new RenderDefinition(controllerName, template, env, NON_SINGLETON_RENDER_MANAGER));
     }
   }
+
+  /**
+    Calling ``{{render}}`` from within a template will insert another
+    template that matches the provided name. The inserted template will
+    access its properties on its own controller (rather than the controller
+    of the parent template).
+  
+    If a view class with the same name exists, the view class also will be used.
+    Note: A given controller may only be used *once* in your app in this manner.
+    A singleton instance of the controller will be created for you.
+  
+    Example:
+  
+    ```javascript
+    App.NavigationController = Ember.Controller.extend({
+      who: "world"
+    });
+    ```
+  
+    ```handlebars
+    <!-- navigation.hbs -->
+    Hello, {{who}}.
+    ```
+  
+    ```handlebars
+    <!-- application.hbs -->
+    <h1>My great app</h1>
+    {{render "navigation"}}
+    ```
+  
+    ```html
+    <h1>My great app</h1>
+    <div class='ember-view'>
+      Hello, world.
+    </div>
+    ```
+  
+    Optionally you may provide a second argument: a property path
+    that will be bound to the `model` property of the controller.
+    If a `model` property path is specified, then a new instance of the
+    controller will be created and `{{render}}` can be used multiple times
+    with the same name.
+  
+    For example if you had this `author` template.
+  
+    ```handlebars
+    <div class="author">
+      Written by {{firstName}} {{lastName}}.
+      Total Posts: {{postCount}}
+    </div>
+    ```
+  
+    You could render it inside the `post` template using the `render` helper.
+  
+    ```handlebars
+    <div class="post">
+      <h1>{{title}}</h1>
+      <div>{{body}}</div>
+      {{render "author" author}}
+    </div>
+    ```
+  
+    @method render
+    @for Ember.Templates.helpers
+    @param {String} name
+    @param {Object?} context
+    @param {Hash} options
+    @return {String} HTML string
+    @public
+  */
 
   var RenderSyntax = (function (_StatementSyntax) {
     babelHelpers.inherits(RenderSyntax, _StatementSyntax);
@@ -12497,12 +13662,11 @@ enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime', 'ember-metal'
   }
 });
 enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-reference', 'ember-environment'], function (exports, _emberUtils, _glimmerReference, _emberEnvironment) {
-  'use strict';
-
   /**
   @module ember
-  @submodule ember-templates
+  @submodule ember-glimmer
   */
+  'use strict';
 
   var OutletStateReference = (function () {
     function OutletStateReference(outletView) {
@@ -38065,7 +39229,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+52cc16c7";
+  exports.default = "2.10.0-canary+f66b62e2";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

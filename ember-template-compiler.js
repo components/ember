@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+52cc16c7
+ * @version   2.10.0-canary+f66b62e2
  */
 
 var enifed, requireModule, require, Ember;
@@ -10614,11 +10614,6 @@ enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-metal', 'e
   'use strict';
 
   /**
-  @module ember
-  @submodule ember-templates
-  */
-
-  /**
     Find templates stored in the head tag as script tags and make them available
     to `Ember.CoreView` in the global `Ember.TEMPLATES` object.
   
@@ -11610,7 +11605,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+52cc16c7";
+  exports.default = "2.10.0-canary+f66b62e2";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
