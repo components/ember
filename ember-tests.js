@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0+664a3ecf
+ * @version   2.8.0+143342f7
  */
 
 var enifed, requireModule, require, Ember;
@@ -43873,6 +43873,38 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/testing', '
     _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', fakeTransitionAbort);
 
     ok(true, 'did not throw an error when dealing with TransitionAborted');
+  });
+
+  QUnit.test('Can reject with non-Error object', function (assert) {
+    var wasEmberTesting = _emberMetalTesting.isTesting();
+    _emberMetalTesting.setTesting(false);
+    expect(1);
+
+    try {
+      _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', 'foo');
+    } catch (e) {
+      ok(false, 'should not throw');
+    } finally {
+      _emberMetalTesting.setTesting(wasEmberTesting);
+    }
+
+    ok(true);
+  });
+
+  QUnit.test('Can reject with no arguments', function (assert) {
+    var wasEmberTesting = _emberMetalTesting.isTesting();
+    _emberMetalTesting.setTesting(false);
+    expect(1);
+
+    try {
+      _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject');
+    } catch (e) {
+      ok(false, 'should not throw');
+    } finally {
+      _emberMetalTesting.setTesting(wasEmberTesting);
+    }
+
+    ok(true);
   });
 
   QUnit.test('rejections like jqXHR which have errorThrown property work', function () {
