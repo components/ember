@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.1-beta+ca19183c
+ * @version   2.9.0-beta.1-beta+21e9ca88
  */
 
 var enifed, requireModule, require, Ember;
@@ -38047,7 +38047,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.1-beta+ca19183c";
+  exports.default = "2.9.0-beta.1-beta+21e9ca88";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
@@ -49925,8 +49925,8 @@ function Transition(router, intent, state, error) {
   this.targetName = undefined;
   this.pivotHandler = undefined;
   this.sequence = undefined;
-  this.isAborted = undefined;
-  this.isActive = undefined;
+  this.isAborted = false;
+  this.isActive = true;
 
   if (error) {
     this.promise = rsvp.Promise.reject(error);
@@ -49983,7 +49983,6 @@ Transition.prototype = {
   pivotHandler: null,
   resolveIndex: 0,
   resolvedModels: null,
-  isActive: true,
   state: null,
   queryParamsOnly: false,
 
