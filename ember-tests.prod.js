@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0+e0f87edb
+ * @version   2.8.0+0abc1b73
  */
 
 var enifed, requireModule, require, Ember;
@@ -13666,6 +13666,67 @@ enifed('ember-htmlbars/tests/integration/components/curly-components-test', ['ex
       this.render('{{foo-bar}}', { title: 'things' });
 
       this.assertText('things');
+    };
+
+    _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function testReturningTrueFromAnActionDoesNotBubbleIfTargetIsNotSpecifiedGH14275(assert) {
+      var _this72 = this;
+
+      this.registerComponent('display-toggle', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          actions: {
+            show: function () {
+              assert.ok(true, 'display-toggle show action was called');
+              return true;
+            }
+          }
+        }),
+
+        template: '<button {{action \'show\'}}>Show</button>'
+      });
+
+      this.render('{{display-toggle}}', {
+        send: function () {
+          assert.notOk(true, 'send should not be called when action is not "subscribed" to');
+        }
+      });
+
+      this.assertText('Show');
+
+      this.runTask(function () {
+        return _this72.$('button').click();
+      });
+    };
+
+    _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function testReturningTrueFromAnActionBubblesToTheTargetIfSpecified(assert) {
+      var _this73 = this;
+
+      assert.expect(4);
+
+      this.registerComponent('display-toggle', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+          actions: {
+            show: function () {
+              assert.ok(true, 'display-toggle show action was called');
+              return true;
+            }
+          }
+        }),
+
+        template: '<button {{action \'show\'}}>Show</button>'
+      });
+
+      this.render('{{display-toggle target=this}}', {
+        send: function (actionName) {
+          assert.ok(true, 'send should be called when action is "subscribed" to');
+          assert.equal(actionName, 'show');
+        }
+      });
+
+      this.assertText('Show');
+
+      this.runTask(function () {
+        return _this73.$('button').click();
+      });
     };
 
     return _class;

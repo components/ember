@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0+e0f87edb
+ * @version   2.8.0+0abc1b73
  */
 
 var enifed, requireModule, require, Ember;
@@ -41869,7 +41869,7 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'em
         }
       }
 
-      target = _emberMetalProperty_get.get(this, 'target') || _emberMetalProperty_get.get(this, '_targetObject');
+      target = _emberMetalProperty_get.get(this, 'target');
 
       if (target) {
         var _target;
@@ -44524,7 +44524,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0+e0f87edb";
+  exports.default = "2.8.0+0abc1b73";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
