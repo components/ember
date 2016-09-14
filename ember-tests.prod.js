@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.2
+ * @version   2.9.0-beta.2-beta+85bdf5bb
  */
 
 var enifed, requireModule, require, Ember;
@@ -13973,6 +13973,67 @@ babelHelpers.inherits(_class, _RenderingTest);
       }, /didInitAttrs called/);
     };
 
+    _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function testReturningTrueFromAnActionDoesNotBubbleIfTargetIsNotSpecifiedGH14275(assert) {
+      var _this73 = this;
+
+      this.registerComponent('display-toggle', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            show: function () {
+              assert.ok(true, 'display-toggle show action was called');
+              return true;
+            }
+          }
+        }),
+
+        template: '<button {{action \'show\'}}>Show</button>'
+      });
+
+      this.render('{{display-toggle}}', {
+        send: function () {
+          assert.notOk(true, 'send should not be called when action is not "subscribed" to');
+        }
+      });
+
+      this.assertText('Show');
+
+      this.runTask(function () {
+        return _this73.$('button').click();
+      });
+    };
+
+    _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function testReturningTrueFromAnActionBubblesToTheTargetIfSpecified(assert) {
+      var _this74 = this;
+
+      assert.expect(4);
+
+      this.registerComponent('display-toggle', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            show: function () {
+              assert.ok(true, 'display-toggle show action was called');
+              return true;
+            }
+          }
+        }),
+
+        template: '<button {{action \'show\'}}>Show</button>'
+      });
+
+      this.render('{{display-toggle target=this}}', {
+        send: function (actionName) {
+          assert.ok(true, 'send should be called when action is "subscribed" to');
+          assert.equal(actionName, 'show');
+        }
+      });
+
+      this.assertText('Show');
+
+      this.runTask(function () {
+        return _this74.$('button').click();
+      });
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
@@ -16603,7 +16664,7 @@ enifed("ember-glimmer/tests/integration/components/render-to-element-test", ["ex
 enifed('ember-glimmer/tests/integration/components/target-action-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-routing'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberRouting) {
   'use strict';
 
-  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#component-a}}\n        {{component-b bar="derp"}}\n      {{/component-a}}\n    '], ['\n      {{#component-a}}\n        {{component-b bar="derp"}}\n      {{/component-a}}\n    ']);
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#component-a}}\n          {{component-b bar="derp"}}\n        {{/component-a}}\n      '], ['\n        {{#component-a}}\n          {{component-b bar="derp"}}\n        {{/component-a}}\n      ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: sendAction', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
@@ -16847,7 +16908,26 @@ babelHelpers.inherits(_class, _RenderingTest);
     };
 
     _class.prototype['@test calling sendAction on a component within a block sends to the outer scope GH#14216'] = function testCallingSendActionOnAComponentWithinABlockSendsToTheOuterScopeGH14216(assert) {
-      this.registerTemplate('components/action-delegate', _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+      var testContext = this;
+      // overrides default action-delegate so actions can be added
+      this.registerComponent('action-delegate', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super();
+            testContext.delegate = this;
+            this.name = 'action-delegate';
+          },
+
+          actions: {
+            derp: function (arg1) {
+              assert.ok(true, 'action called on action-delgate');
+              assert.equal(arg1, 'something special', 'argument passed through properly');
+            }
+          }
+        }),
+
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject)
+      });
 
       this.registerComponent('component-a', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -16877,11 +16957,8 @@ babelHelpers.inherits(_class, _RenderingTest);
       this.renderDelegate();
 
       this.runTask(function () {
-        return innerChild.sendAction('bar');
+        return innerChild.sendAction('bar', 'something special');
       });
-
-      this.assertSendCount(1);
-      this.assertNamedSendCount('derp', 1);
     };
 
     return _class;
