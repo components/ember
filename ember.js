@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.0
+ * @version   2.8.1
  */
 
 var enifed, requireModule, require, Ember;
@@ -10324,7 +10324,6 @@ enifed('ember-htmlbars/hooks/cleanup-render-node', ['exports'], function (export
         if (view.parentView && view.parentView === env.view) {
           view.parentView.removeChild(view);
         }
-        view.parentView = null;
 
         view._transitionTo('preRender');
       });
@@ -19108,7 +19107,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
     var stack = error.stack;
     var message = error.message;
 
-    if (stack.indexOf(message) === -1) {
+    if (stack && stack.indexOf(message) === -1) {
       stack = message + '\n' + stack;
     }
 
@@ -25425,7 +25424,7 @@ enifed('ember-metal/weak_map', ['exports', 'ember-metal/utils', 'ember-metal/met
     return '[object WeakMap]';
   };
 });
-enifed('ember-routing/ext/controller', ['exports', 'ember-metal/property_get', 'ember-runtime/mixins/controller'], function (exports, _emberMetalProperty_get, _emberRuntimeMixinsController) {
+enifed('ember-routing/ext/controller', ['exports', 'ember-metal/property_get', 'ember-runtime/mixins/controller', 'ember-routing/utils', 'ember-metal/features'], function (exports, _emberMetalProperty_get, _emberRuntimeMixinsController, _emberRoutingUtils, _emberMetalFeatures) {
   'use strict';
 
   /**
@@ -25580,6 +25579,26 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/property_get', '
       return method.apply(target, arguments);
     }
   });
+
+  if (true) {
+    _emberRuntimeMixinsController.default.reopen({
+      transitionToRoute: function () {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        return this._super.apply(this, _emberRoutingUtils.prefixRouteNameArg(this, args));
+      },
+
+      replaceRoute: function () {
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        return this._super.apply(this, _emberRoutingUtils.prefixRouteNameArg(this, args));
+      }
+    });
+  }
 
   exports.default = _emberRuntimeMixinsController.default;
 });
@@ -29209,38 +29228,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
     _emberMetalDebug.deprecate('Configuring query parameter default values on controllers is deprecated. Please move the value for the property \'' + propName + '\' from the \'' + controllerName + '\' controller to the \'' + routeName + '\' route in the format: {queryParams: ' + propName + ': {defaultValue: <default value> }}', false, { id: 'ember-routing.deprecate-query-param-default-values-set-on-controller', until: '3.0.0' });
   }
 
-  /*
-    Returns an arguments array where the route name arg is prefixed based on the mount point
-  
-    @private
-  */
-  function prefixRouteNameArg(route, args) {
-    var routeName = args[0];
-    var owner = _containerOwner.getOwner(route);
-    var prefix = owner.mountPoint;
-
-    // only alter the routeName if it's actually referencing a route.
-    if (owner.routable && typeof routeName === 'string') {
-      if (resemblesURL(routeName)) {
-        throw new _emberMetalError.default('Route#transitionTo cannot be used for URLs. Please use the route name instead.');
-      } else {
-        routeName = prefix + '.' + routeName;
-        args[0] = routeName;
-      }
-    }
-
-    return args;
-  }
-
-  /*
-    Check if a routeName resembles a url instead
-  
-    @private
-  */
-  function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
-  }
-
   if (true) {
     Route.reopen({
       replaceWith: function () {
@@ -29248,7 +29235,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
           args[_key2] = arguments[_key2];
         }
 
-        return this._super.apply(this, prefixRouteNameArg(this, args));
+        return this._super.apply(this, _emberRoutingUtils.prefixRouteNameArg(this, args));
       },
 
       transitionTo: function () {
@@ -29256,7 +29243,15 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
           args[_key3] = arguments[_key3];
         }
 
-        return this._super.apply(this, prefixRouteNameArg(this, args));
+        return this._super.apply(this, _emberRoutingUtils.prefixRouteNameArg(this, args));
+      },
+
+      intermediateTransitionTo: function () {
+        for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+          args[_key4] = arguments[_key4];
+        }
+
+        return this._super.apply(this, _emberRoutingUtils.prefixRouteNameArg(this, args));
       },
 
       modelFor: function (_routeName) {
@@ -29271,8 +29266,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/debug', 'ember-met
           routeName = _routeName;
         }
 
-        for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-          args[_key4 - 1] = arguments[_key4];
+        for (var _len5 = arguments.length, args = Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+          args[_key5 - 1] = arguments[_key5];
         }
 
         return this._super.apply(this, [routeName].concat(args));
@@ -29725,22 +29720,21 @@ enifed('ember-routing/system/router', ['exports', 'ember-console', 'ember-metal/
     },
 
     willDestroy: function () {
-      if (true) {
-        var instances = this._engineInstances;
-        for (var _name in instances) {
-          for (var id in instances[_name]) {
-            _emberMetalRun_loop.default(instances[_name][id], 'destroy');
-          }
-        }
-      }
-
       if (this._toplevelView) {
         this._toplevelView.destroy();
         this._toplevelView = null;
       }
+
       this._super.apply(this, arguments);
 
       this.reset();
+
+      var instances = this._engineInstances;
+      for (var _name in instances) {
+        for (var id in instances[_name]) {
+          _emberMetalRun_loop.default(instances[_name][id], 'destroy');
+        }
+      }
     },
 
     _lookupActiveComponentNode: function (templateName) {
@@ -30727,7 +30721,7 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-metal/is_empty', 
     return true;
   }
 });
-enifed('ember-routing/utils', ['exports', 'ember-metal/assign', 'ember-metal/property_get'], function (exports, _emberMetalAssign, _emberMetalProperty_get) {
+enifed('ember-routing/utils', ['exports', 'ember-metal/assign', 'ember-metal/property_get', 'container/owner', 'ember-metal/error'], function (exports, _emberMetalAssign, _emberMetalProperty_get, _containerOwner, _emberMetalError) {
   'use strict';
 
   exports.routeArgs = routeArgs;
@@ -30735,6 +30729,7 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/assign', 'ember-metal/pro
   exports.stashParamNames = stashParamNames;
   exports.calculateCacheKey = calculateCacheKey;
   exports.normalizeControllerQueryParams = normalizeControllerQueryParams;
+  exports.prefixRouteNameArg = prefixRouteNameArg;
 
   var ALL_PERIODS_REGEX = /\./g;
 
@@ -30902,6 +30897,39 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/assign', 'ember-metal/pro
 
       accum[key] = tmp;
     }
+  }
+
+  /*
+    Check if a routeName resembles a url instead
+  
+    @private
+  */
+  function resemblesURL(str) {
+    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
+  }
+
+  /*
+    Returns an arguments array where the route name arg is prefixed based on the mount point
+  
+    @private
+  */
+
+  function prefixRouteNameArg(route, args) {
+    var routeName = args[0];
+    var owner = _containerOwner.getOwner(route);
+    var prefix = owner.mountPoint;
+
+    // only alter the routeName if it's actually referencing a route.
+    if (owner.routable && typeof routeName === 'string') {
+      if (resemblesURL(routeName)) {
+        throw new _emberMetalError.default('Route#transitionTo cannot be used for URLs. Please use the route name instead.');
+      } else {
+        routeName = prefix + '.' + routeName;
+        args[0] = routeName;
+      }
+    }
+
+    return args;
   }
 });
 enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtime/mixins/comparable'], function (exports, _emberRuntimeUtils, _emberRuntimeMixinsComparable) {
@@ -41841,7 +41869,7 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-metal/mixin', 'em
         }
       }
 
-      target = _emberMetalProperty_get.get(this, 'target') || _emberMetalProperty_get.get(this, '_targetObject');
+      target = _emberMetalProperty_get.get(this, 'target');
 
       if (target) {
         var _target;
@@ -42899,6 +42927,10 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
     this.renderer.revalidateTopLevelView(this);
     this.scheduledRevalidation = false;
   }, _Mixin$create.scheduleRevalidate = function (node, label, manualRerender) {
+    if (this.isDestroying) {
+      return;
+    }
+
     if (node && !this._dispatching && this._env.renderedNodes.has(node)) {
       if (manualRerender) {
         _emberMetalDebug.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 3.0', false, { id: 'ember-views.manual-parent-rerender', until: '3.0.0' });
@@ -44492,7 +44524,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.0";
+  exports.default = "2.8.1";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -50064,8 +50096,8 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/utils'], functio
     this.targetName = undefined;
     this.pivotHandler = undefined;
     this.sequence = undefined;
-    this.isAborted = undefined;
-    this.isActive = undefined;
+    this.isAborted = false;
+    this.isActive = true;
 
     if (error) {
       this.promise = _rsvpPromise.default.reject(error);
@@ -50124,7 +50156,6 @@ enifed('router/transition', ['exports', 'rsvp/promise', 'router/utils'], functio
     pivotHandler: null,
     resolveIndex: 0,
     resolvedModels: null,
-    isActive: true,
     state: null,
     queryParamsOnly: false,
 
