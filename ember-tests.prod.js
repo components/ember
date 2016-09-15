@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.2-beta+8a915fcb
+ * @version   2.9.0-beta.2-beta+51efb890
  */
 
 var enifed, requireModule, require, Ember;
@@ -15556,6 +15556,10 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
         }
       };
 
+      var assertState = function (hookName, expectedState, instance) {
+        _this.assert.equal(instance._state, expectedState, 'within ' + hookName + ' the expected _state is ' + expectedState);
+      };
+
       var ComponentClass = this.ComponentClass.extend({
         init: function () {
           var _this2 = this,
@@ -15602,12 +15606,14 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
           pushHook('didRender');
           assertParentView('didRender', this);
           assertElement('didRender', this);
+          assertState('didRender', 'inDOM', this);
         },
 
         didInsertElement: function () {
           pushHook('didInsertElement');
           assertParentView('didInsertElement', this);
           assertElement('didInsertElement', this);
+          assertState('didInsertElement', 'inDOM', this);
         },
 
         didUpdate: function (options) {
@@ -15620,6 +15626,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
           pushHook('willDestroyElement');
           assertParentView('willDestroyElement', this);
           assertElement('willDestroyElement', this);
+          assertState('willDestroyElement', 'inDOM', this);
         },
 
         willClearRender: function () {
@@ -15631,6 +15638,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
         didDestroyElement: function () {
           pushHook('didDestroyElement');
           assertNoElement('didDestroyElement', this);
+          assertState('didDestroyElement', 'destroying', this);
         },
 
         willDestroy: function () {
