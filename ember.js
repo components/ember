@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+122ae9e0
+ * @version   2.10.0-canary+e3cdc189
  */
 
 var enifed, requireModule, require, Ember;
@@ -11970,9 +11970,9 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
       var environment = _ref4.environment;
 
       if (environment.isInteractive) {
+        component._transitionTo('inDOM');
         component.trigger('didInsertElement');
         component.trigger('didRender');
-        component._transitionTo('inDOM');
       }
     };
 
@@ -42149,7 +42149,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+122ae9e0";
+  exports.default = "2.10.0-canary+e3cdc189";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
