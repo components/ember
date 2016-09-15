@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+fb4ee34f
+ * @version   2.10.0-canary+122ae9e0
  */
 
 var enifed, requireModule, require, Ember;
@@ -7931,11 +7931,13 @@ enifed('ember-glimmer/tests/integration/binding_integration_test', ['exports', '
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'ember-metal', 'ember-views', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetal, _emberViews, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'ember-metal', 'ember-views', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetal, _emberViews, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if showFooBar}}\n        {{foo-bar}}\n      {{else}}\n        {{baz-qux}}\n      {{/if}}\n    '], ['\n      {{#if showFooBar}}\n        {{foo-bar}}\n      {{else}}\n        {{baz-qux}}\n      {{/if}}\n    ']);
+
   var AbstractAppendTest = (function (_RenderingTest) {
-    babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
+babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
 
     function AbstractAppendTest() {
       _RenderingTest.call(this);
@@ -8152,11 +8154,171 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
       this.assert.equal(willDestroyCalled, 2);
     };
 
+    AbstractAppendTest.prototype['@test can appendTo while rendering'] = function testCanAppendToWhileRendering(assert) {
+      var _this4 = this;
+
+      var owner = this.owner;
+
+      var append = function (component) {
+        return _this4.append(component);
+      };
+
+      var wrapper1 = undefined,
+          wrapper2 = undefined,
+          element1 = undefined,
+          element2 = undefined;
+      this.registerComponent('first-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layout: _emberGlimmerTestsUtilsHelpers.compile('component-one'),
+
+          didInsertElement: function () {
+            element1 = this.element;
+            var SecondComponent = owner._lookupFactory('component:second-component');
+
+            wrapper2 = append(SecondComponent.create());
+          }
+        })
+      });
+
+      this.registerComponent('second-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layout: _emberGlimmerTestsUtilsHelpers.compile('component-two'),
+
+          didInsertElement: function () {
+            element2 = this.element;
+          }
+        })
+      });
+
+      var FirstComponent = this.owner._lookupFactory('component:first-component');
+
+      this.runTask(function () {
+        return wrapper1 = append(FirstComponent.create());
+      });
+
+      this.assertComponentElement(element1, { content: 'component-one' });
+      this.assertComponentElement(element2, { content: 'component-two' });
+    };
+
+    AbstractAppendTest.prototype['@test can appendTo and remove while rendering'] = function testCanAppendToAndRemoveWhileRendering(assert) {
+      var _this5 = this;
+
+      var owner = this.owner;
+
+      var append = function (component) {
+        return _this5.append(component);
+      };
+
+      var element1 = undefined,
+          element2 = undefined,
+          element3 = undefined,
+          element4 = undefined,
+          component1 = undefined,
+          component2 = undefined;
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layout: _emberGlimmerTestsUtilsHelpers.compile('foo-bar'),
+
+          init: function () {
+            this._super.apply(this, arguments);
+            component1 = this;
+          },
+
+          didInsertElement: function () {
+            element1 = this.element;
+            var OtherRoot = owner._lookupFactory('component:other-root');
+
+            this._instance = OtherRoot.create({
+              didInsertElement: function () {
+                element2 = this.element;
+              }
+            });
+
+            append(this._instance);
+          },
+
+          willDestroy: function () {
+            this._instance.destroy();
+          }
+        })
+      });
+
+      this.registerComponent('baz-qux', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layout: _emberGlimmerTestsUtilsHelpers.compile('baz-qux'),
+
+          init: function () {
+            this._super.apply(this, arguments);
+            component2 = this;
+          },
+
+          didInsertElement: function () {
+            element3 = this.element;
+            var OtherRoot = owner._lookupFactory('component:other-root');
+
+            this._instance = OtherRoot.create({
+              didInsertElement: function () {
+                element4 = this.element;
+              }
+            });
+
+            append(this._instance);
+          },
+
+          willDestroy: function () {
+            this._instance.destroy();
+          }
+        })
+      });
+
+      var instantiatedRoots = 0;
+      var destroyedRoots = 0;
+      this.registerComponent('other-root', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          layout: _emberGlimmerTestsUtilsHelpers.compile('fake-thing: {{counter}}'),
+          init: function () {
+            this._super.apply(this, arguments);
+            this.counter = instantiatedRoots++;
+          },
+          willDestroy: function () {
+            destroyedRoots++;
+            this._super.apply(this, arguments);
+          }
+        })
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), { showFooBar: true });
+
+      this.assertComponentElement(element1, {});
+      this.assertComponentElement(element2, { content: 'fake-thing: 0' });
+      assert.equal(instantiatedRoots, 1);
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(_this5.context, 'showFooBar', false);
+      });
+
+      assert.equal(instantiatedRoots, 2);
+      assert.equal(destroyedRoots, 1);
+
+      this.assertComponentElement(element3, {});
+      this.assertComponentElement(element4, { content: 'fake-thing: 1' });
+
+      this.runTask(function () {
+        component1.destroy();
+        component2.destroy();
+      });
+
+      assert.equal(instantiatedRoots, 2);
+      assert.equal(destroyedRoots, 2);
+    };
+
     return AbstractAppendTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('append: no arguments (attaching to document.body)', (function (_AbstractAppendTest) {
-    babelHelpers.inherits(_class, _AbstractAppendTest);
+babelHelpers.inherits(_class, _AbstractAppendTest);
 
     function _class() {
       _AbstractAppendTest.apply(this, arguments);
@@ -8174,7 +8336,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
   })(AbstractAppendTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('appendTo: a selector', (function (_AbstractAppendTest2) {
-    babelHelpers.inherits(_class2, _AbstractAppendTest2);
+babelHelpers.inherits(_class2, _AbstractAppendTest2);
 
     function _class2() {
       _AbstractAppendTest2.apply(this, arguments);
@@ -8189,7 +8351,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
     };
 
     _class2.prototype['@test raises an assertion when the target does not exist in the DOM'] = function testRaisesAnAssertionWhenTheTargetDoesNotExistInTheDOM(assert) {
-      var _this4 = this;
+      var _this6 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -8206,7 +8368,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
 
       this.runTask(function () {
         expectAssertion(function () {
-          _this4.component.appendTo('#does-not-exist-in-dom');
+          _this6.component.appendTo('#does-not-exist-in-dom');
         }, /You tried to append to \(#does-not-exist-in-dom\) but that isn't in the DOM/);
       });
 
@@ -8217,7 +8379,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
   })(AbstractAppendTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('appendTo: an element', (function (_AbstractAppendTest3) {
-    babelHelpers.inherits(_class3, _AbstractAppendTest3);
+babelHelpers.inherits(_class3, _AbstractAppendTest3);
 
     function _class3() {
       _AbstractAppendTest3.apply(this, arguments);
@@ -8235,14 +8397,32 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
     return _class3;
   })(AbstractAppendTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('renderToElement: no arguments (defaults to a body context)', (function (_AbstractAppendTest4) {
-    babelHelpers.inherits(_class4, _AbstractAppendTest4);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('appendTo: with multiple components', (function (_AbstractAppendTest4) {
+babelHelpers.inherits(_class4, _AbstractAppendTest4);
 
     function _class4() {
       _AbstractAppendTest4.apply(this, arguments);
     }
 
     _class4.prototype.append = function append(component) {
+      this.runTask(function () {
+        return component.appendTo('#qunit-fixture');
+      });
+      this.didAppend(component);
+      return _emberViews.jQuery('#qunit-fixture')[0];
+    };
+
+    return _class4;
+  })(AbstractAppendTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('renderToElement: no arguments (defaults to a body context)', (function (_AbstractAppendTest5) {
+babelHelpers.inherits(_class5, _AbstractAppendTest5);
+
+    function _class5() {
+      _AbstractAppendTest5.apply(this, arguments);
+    }
+
+    _class5.prototype.append = function append(component) {
       var wrapper = undefined;
 
       this.runTask(function () {
@@ -8257,17 +8437,17 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
       return wrapper;
     };
 
-    return _class4;
+    return _class5;
   })(AbstractAppendTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('renderToElement: a div', (function (_AbstractAppendTest5) {
-    babelHelpers.inherits(_class5, _AbstractAppendTest5);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('renderToElement: a div', (function (_AbstractAppendTest6) {
+babelHelpers.inherits(_class6, _AbstractAppendTest6);
 
-    function _class5() {
-      _AbstractAppendTest5.apply(this, arguments);
+    function _class6() {
+      _AbstractAppendTest6.apply(this, arguments);
     }
 
-    _class5.prototype.append = function append(component) {
+    _class6.prototype.append = function append(component) {
       var wrapper = undefined;
 
       this.runTask(function () {
@@ -8281,7 +8461,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'em
       return wrapper;
     };
 
-    return _class5;
+    return _class6;
   })(AbstractAppendTest));
 });
 enifed('ember-glimmer/tests/integration/components/attribute-bindings-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal) {
