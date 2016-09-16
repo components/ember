@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+d0fef8e7
+ * @version   2.10.0-canary+9edf40fc
  */
 
 var enifed, requireModule, require, Ember;
@@ -11254,7 +11254,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
       _templateObject37 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
       _templateObject38 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
       _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject40 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']);
+      _templateObject40 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']),
+      _templateObject41 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    '], ['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
@@ -14259,6 +14260,35 @@ babelHelpers.inherits(_class, _RenderingTest);
       this.runTask(function () {
         return _this74.$('button').click();
       });
+    };
+
+    _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function testComponentYieldingInAnEachHasCorrectBlockValuesAfterRerenderingGH14284() {
+      var _this75 = this;
+
+      this.registerComponent('list-items', {
+        template: '{{#each items as |item|}}{{yield item}}{{/each}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject41), {
+        editMode: false,
+        items: ['foo', 'bar', 'qux', 'baz']
+      });
+
+      this.assertText('|foo||bar||qux||baz|');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(_this75.context, 'editMode', true);
+      });
+
+      this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this75.context, 'editMode', false);
+      });
+
+      this.assertText('|foo||bar||qux||baz|');
     };
 
     return _class;
