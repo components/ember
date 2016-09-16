@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+39208f29
+ * @version   2.10.0-canary+63da0204
  */
 
 var enifed, requireModule, require, Ember;
@@ -5293,7 +5293,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.unwatchPath = _emberMetalWatch_path.unwatchPath;
   exports.destroy = _emberMetalWatching.destroy;
   exports.isWatching = _emberMetalWatching.isWatching;
-  exports.rewatch = _emberMetalWatching.rewatch;
   exports.unwatch = _emberMetalWatching.unwatch;
   exports.watch = _emberMetalWatching.watch;
   exports.watcherCount = _emberMetalWatching.watcherCount;
@@ -12520,11 +12519,9 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.lte = _emberRuntimeComputedComputed_macros.lte;
   exports.oneWay = _emberRuntimeComputedComputed_macros.oneWay;
   exports.readOnly = _emberRuntimeComputedComputed_macros.readOnly;
-  exports.defaultTo = _emberRuntimeComputedComputed_macros.defaultTo;
   exports.deprecatingAlias = _emberRuntimeComputedComputed_macros.deprecatingAlias;
   exports.and = _emberRuntimeComputedComputed_macros.and;
   exports.or = _emberRuntimeComputedComputed_macros.or;
-  exports.any = _emberRuntimeComputedComputed_macros.any;
   exports.sum = _emberRuntimeComputedReduce_computed_macros.sum;
   exports.min = _emberRuntimeComputedReduce_computed_macros.min;
   exports.max = _emberRuntimeComputedReduce_computed_macros.max;
@@ -19127,7 +19124,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+39208f29";
+  exports.default = "2.10.0-canary+63da0204";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
