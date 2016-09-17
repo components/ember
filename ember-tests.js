@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+9edf40fc
+ * @version   2.10.0-canary+6dc97146
  */
 
 var enifed, requireModule, require, Ember;
@@ -31943,6 +31943,26 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 
       assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
       assert.strictEqual(COUNTER.get('type-two+' + template.id), 1);
       assert.strictEqual(COUNTER.total, 2);
+    };
+
+    _class.prototype['@test a template instance is returned (ensures templates can be injected into layout property)'] = function testATemplateInstanceIsReturnedEnsuresTemplatesCanBeInjectedIntoLayoutProperty(assert) {
+      var _this = this;
+
+      var owner = this.owner;
+      var env = this.env;
+
+      var templateInstanceFor = function (content) {
+        var _Factory$create;
+
+        var Factory = _this.compile(content);
+        return Factory.create((_Factory$create = {}, _Factory$create[_emberUtils.OWNER] = owner, _Factory$create.env = env, _Factory$create));
+      };
+
+      var template1 = templateInstanceFor('Hello world!');
+      var template2 = templateInstanceFor('{{foo}} {{bar}}');
+
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _glimmerRuntime.CompiledBlock, 'should return a CompiledBlock');
     };
 
     return _class;

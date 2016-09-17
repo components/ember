@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+9edf40fc
+ * @version   2.10.0-canary+6dc97146
  */
 
 var enifed, requireModule, require, Ember;
@@ -8459,12 +8459,18 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       });
 
       this._templateCache = new _emberMetal.Cache(1000, function (_ref4) {
-        var _Template$create;
-
         var Template = _ref4.Template;
         var owner = _ref4.owner;
 
-        return Template.create((_Template$create = { env: _this }, _Template$create[_emberUtils.OWNER] = owner, _Template$create));
+        if (Template.create) {
+          var _Template$create;
+
+          // we received a factory
+          return Template.create((_Template$create = { env: _this }, _Template$create[_emberUtils.OWNER] = owner, _Template$create));
+        } else {
+          // we were provided an instance already
+          return Template;
+        }
       }, function (_ref5) {
         var Template = _ref5.Template;
         var owner = _ref5.owner;
@@ -42142,7 +42148,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+9edf40fc";
+  exports.default = "2.10.0-canary+6dc97146";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
