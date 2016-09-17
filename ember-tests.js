@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+6dc97146
+ * @version   2.10.0-canary+38434c8b
  */
 
 var enifed, requireModule, require, Ember;
@@ -9212,6 +9212,56 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div' });
+    };
+
+    _class.prototype['@test component with an `id` attribute binding of undefined'] = function testComponentWithAnIdAttributeBindingOfUndefined() {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['id'],
+
+          id: undefined
+        })
+      });
+
+      this.registerComponent('baz-qux', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['somethingUndefined:id'],
+
+          somethingUndefined: undefined
+        })
+      });
+      this.render('{{foo-bar}}{{baz-qux}}');
+
+      this.assertComponentElement(this.nthChild(0), { content: '' });
+      this.assertComponentElement(this.nthChild(1), { content: '' });
+
+      this.assert.ok(this.nthChild(0).id.match(/ember\d+/), 'a valid `id` was used');
+      this.assert.ok(this.nthChild(1).id.match(/ember\d+/), 'a valid `id` was used');
+    };
+
+    _class.prototype['@test component with an `id` attribute binding of null'] = function testComponentWithAnIdAttributeBindingOfNull() {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['id'],
+
+          id: null
+        })
+      });
+
+      this.registerComponent('baz-qux', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['somethingNull:id'],
+
+          somethingNull: null
+        })
+      });
+      this.render('{{foo-bar}}{{baz-qux}}');
+
+      this.assertComponentElement(this.nthChild(0), { content: '' });
+      this.assertComponentElement(this.nthChild(1), { content: '' });
+
+      this.assert.ok(this.nthChild(0).id.match(/ember\d+/), 'a valid `id` was used');
+      this.assert.ok(this.nthChild(1).id.match(/ember\d+/), 'a valid `id` was used');
     };
 
     return _class;
