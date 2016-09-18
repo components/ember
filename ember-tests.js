@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.2-beta+a7c49bf5
+ * @version   2.9.0-beta.2-beta+043aad98
  */
 
 var enifed, requireModule, require, Ember;
@@ -7460,8 +7460,34 @@ babelHelpers.classCallCheck(this, _class);
       }));
     };
 
-    _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
+    _class.prototype.setupEngineWithAttrs = function setupEngineWithAttrs(hooks) {
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{mount "chat-engine"}}'));
+
+      this.registerEngine('chat-engine', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:components/foo-bar', _emberGlimmerTestsUtilsHelpers.compile('{{partial "troll"}}'));
+          this.register('template:troll', _emberGlimmerTestsUtilsHelpers.compile('{{attrs.wat}}'));
+          this.register('controller:application', _emberRuntime.Controller.extend({
+            contextType: 'Engine'
+          }));
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine {{foo-bar wat=contextType}}'));
+        }
+      }));
+    };
+
+    _class.prototype['@test attrs in an engine'] = function testAttrsInAnEngine() {
       var _this = this;
+
+      this.setupEngineWithAttrs([]);
+
+      return this.visit('/').then(function () {
+        _this.assertText('ApplicationEngine Engine');
+      });
+    };
+
+    _class.prototype['@test sharing a template between engine and application has separate refinements'] = function testSharingATemplateBetweenEngineAndApplicationHasSeparateRefinements() {
+      var _this2 = this;
 
       this.assert.expect(1);
 
@@ -7491,27 +7517,11 @@ babelHelpers.classCallCheck(this, _class);
       }));
 
       return this.visit('/blog').then(function () {
-        _this.assertText('ApplicationController Data!EngineComponent!');
+        _this2.assertText('ApplicationController Data!EngineComponent!');
       });
     };
 
     _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndEngineTemplatesHaveRendered(assert) {
-      var _this2 = this;
-
-      assert.expect(2);
-
-      var hooks = [];
-
-      this.setupAppAndRoutableEngine(hooks);
-
-      return this.visit('/blog', { shouldRender: true }).then(function () {
-        _this2.assertText('ApplicationEngine');
-
-        _this2.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
-      });
-    };
-
-    _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
       var _this3 = this;
 
       assert.expect(2);
@@ -7520,15 +7530,31 @@ babelHelpers.classCallCheck(this, _class);
 
       this.setupAppAndRoutableEngine(hooks);
 
-      return this.visit('/blog', { shouldRender: false }).then(function () {
-        _this3.assertText('');
+      return this.visit('/blog', { shouldRender: true }).then(function () {
+        _this3.assertText('ApplicationEngine');
 
         _this3.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
       });
     };
 
-    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and routeless engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndRoutelessEngineTemplatesHaveRendered(assert) {
+    _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
       var _this4 = this;
+
+      assert.expect(2);
+
+      var hooks = [];
+
+      this.setupAppAndRoutableEngine(hooks);
+
+      return this.visit('/blog', { shouldRender: false }).then(function () {
+        _this4.assertText('');
+
+        _this4.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
+      });
+    };
+
+    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and routeless engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndRoutelessEngineTemplatesHaveRendered(assert) {
+      var _this5 = this;
 
       assert.expect(2);
 
@@ -7537,14 +7563,14 @@ babelHelpers.classCallCheck(this, _class);
       this.setupAppAndRoutelessEngine(hooks);
 
       return this.visit('/', { shouldRender: true }).then(function () {
-        _this4.assertText('ApplicationEngine');
+        _this5.assertText('ApplicationEngine');
 
-        _this4.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+        _this5.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
       });
     };
 
     _class.prototype['@test visit() with partials in routable engine'] = function testVisitWithPartialsInRoutableEngine(assert) {
-      var _this5 = this;
+      var _this6 = this;
 
       assert.expect(2);
 
@@ -7553,14 +7579,14 @@ babelHelpers.classCallCheck(this, _class);
       this.setupAppAndRoutableEngineWithPartial(hooks);
 
       return this.visit('/blog', { shouldRender: true }).then(function () {
-        _this5.assertText('ApplicationEngine foo partial');
+        _this6.assertText('ApplicationEngine foo partial');
 
-        _this5.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+        _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
       });
     };
 
     _class.prototype['@test visit() with partials in non-routable engine'] = function testVisitWithPartialsInNonRoutableEngine(assert) {
-      var _this6 = this;
+      var _this7 = this;
 
       assert.expect(2);
 
@@ -7569,14 +7595,14 @@ babelHelpers.classCallCheck(this, _class);
       this.setupAppAndRoutlessEngineWithPartial(hooks);
 
       return this.visit('/', { shouldRender: true }).then(function () {
-        _this6.assertText('ApplicationEngine foo partial');
+        _this7.assertText('ApplicationEngine foo partial');
 
-        _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+        _this7.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
       });
     };
 
     _class.prototype['@test deactivate should be called on Engine Routes before destruction'] = function testDeactivateShouldBeCalledOnEngineRoutesBeforeDestruction(assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       assert.expect(3);
 
@@ -7596,7 +7622,7 @@ babelHelpers.classCallCheck(this, _class);
       }));
 
       return this.visit('/blog').then(function () {
-        _this7.assertText('ApplicationEngine');
+        _this8.assertText('ApplicationEngine');
       });
     };
 
@@ -9190,6 +9216,56 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div' });
+    };
+
+    _class.prototype['@test component with an `id` attribute binding of undefined'] = function testComponentWithAnIdAttributeBindingOfUndefined() {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['id'],
+
+          id: undefined
+        })
+      });
+
+      this.registerComponent('baz-qux', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['somethingUndefined:id'],
+
+          somethingUndefined: undefined
+        })
+      });
+      this.render('{{foo-bar}}{{baz-qux}}');
+
+      this.assertComponentElement(this.nthChild(0), { content: '' });
+      this.assertComponentElement(this.nthChild(1), { content: '' });
+
+      this.assert.ok(this.nthChild(0).id.match(/ember\d+/), 'a valid `id` was used');
+      this.assert.ok(this.nthChild(1).id.match(/ember\d+/), 'a valid `id` was used');
+    };
+
+    _class.prototype['@test component with an `id` attribute binding of null'] = function testComponentWithAnIdAttributeBindingOfNull() {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['id'],
+
+          id: null
+        })
+      });
+
+      this.registerComponent('baz-qux', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          attributeBindings: ['somethingNull:id'],
+
+          somethingNull: null
+        })
+      });
+      this.render('{{foo-bar}}{{baz-qux}}');
+
+      this.assertComponentElement(this.nthChild(0), { content: '' });
+      this.assertComponentElement(this.nthChild(1), { content: '' });
+
+      this.assert.ok(this.nthChild(0).id.match(/ember\d+/), 'a valid `id` was used');
+      this.assert.ok(this.nthChild(1).id.match(/ember\d+/), 'a valid `id` was used');
     };
 
     return _class;
