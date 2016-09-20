@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.9.0-beta.2"
+        "version": "v2.9.0-beta.3"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
@@ -1937,7 +1937,7 @@
             },
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 233
+            "line": 232
         },
         "ember-application": {
             "name": "ember-application",
@@ -3891,7 +3891,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 233,
+            "line": 232,
             "access": "private",
             "tagname": ""
         }
@@ -19997,7 +19997,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 144,
+            "line": 143,
             "description": "The context that Ember searches for namespace instances on.",
             "access": "private",
             "tagname": "",
@@ -20006,7 +20006,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 182,
+            "line": 181,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -20024,7 +20024,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 209,
+            "line": 208,
             "description": "An empty function useful for some operations. Always returns `this`.",
             "itemtype": "method",
             "name": "K",
@@ -20039,7 +20039,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 421,
+            "line": 418,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -20051,7 +20051,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 437,
+            "line": 434,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -20063,7 +20063,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 509,
+            "line": 506,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -20075,7 +20075,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 529,
+            "line": 526,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -20087,7 +20087,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 545,
+            "line": 542,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
@@ -20292,7 +20292,7 @@
         },
         {
             "message": "Missing item type\nThe context that Ember searches for namespace instances on.",
-            "line": " packages/ember/lib/index.js:144"
+            "line": " packages/ember/lib/index.js:143"
         }
     ]
 }
