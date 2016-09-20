@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+0fdc8295
+ * @version   2.10.0-canary+ce641a24
  */
 
 var enifed, requireModule, require, Ember;
@@ -8634,72 +8634,64 @@ babelHelpers.inherits(_class, _RenderingTest);
       }, /Illegal attributeBinding: 'foo.bar' is not a valid attribute name./);
     };
 
-    _class.prototype['@test normalizes attributeBinding names'] = function testNormalizesAttributeBindingNames() {
+    _class.prototype['@test normalizes attributeBindings for property names'] = function testNormalizesAttributeBindingsForPropertyNames() {
       var _this5 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        attributeBindings: ['disAbled']
+        attributeBindings: ['tiTLe']
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
 
-      this.render('{{foo-bar disAbled=bool}}', {
-        bool: true
+      this.render('{{foo-bar tiTLe=name}}', {
+        name: 'qux'
       });
 
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { disabled: '' }, content: 'hello' });
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { title: 'qux' }, content: 'hello' });
+
+      this.assertStableRerender();
 
       this.runTask(function () {
-        return _this5.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { disabled: '' }, content: 'hello' });
-
-      this.runTask(function () {
-        return _emberMetal.set(_this5.context, 'bool', null);
+        return _emberMetal.set(_this5.context, 'name', null);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetal.set(_this5.context, 'bool', true);
+        return _emberMetal.set(_this5.context, 'name', 'qux');
       });
 
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { disabled: '' }, content: 'hello' });
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { title: 'qux' }, content: 'hello' });
     };
 
-    _class.prototype['@test normalizes attributeBinding names'] = function testNormalizesAttributeBindingNames() {
+    _class.prototype['@test normalizes attributeBindings for attribute names'] = function testNormalizesAttributeBindingsForAttributeNames() {
       var _this6 = this;
 
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
-        attributeBindings: ['disAbled']
+        attributeBindings: ['foo:data-FOO']
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
 
-      this.render('{{foo-bar disAbled=bool}}', {
-        bool: true
+      this.render('{{foo-bar foo=foo}}', {
+        foo: 'qux'
       });
 
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { disabled: '' }, content: 'hello' });
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'qux' }, content: 'hello' });
+
+      this.assertStableRerender();
 
       this.runTask(function () {
-        return _this6.rerender();
-      });
-
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { disabled: '' }, content: 'hello' });
-
-      this.runTask(function () {
-        return _emberMetal.set(_this6.context, 'bool', false);
+        return _emberMetal.set(_this6.context, 'foo', null);
       });
 
       this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: {}, content: 'hello' });
 
       this.runTask(function () {
-        return _emberMetal.set(_this6.context, 'bool', true);
+        return _emberMetal.set(_this6.context, 'foo', 'qux');
       });
 
-      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { disabled: '' }, content: 'hello' });
+      this.assertComponentElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': 'qux' }, content: 'hello' });
     };
 
     _class.prototype['@test attributeBindings handles null/undefined'] = function testAttributeBindingsHandlesNullUndefined() {
@@ -18879,7 +18871,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
     _class5.prototype.assertIsEmpty = function assertIsEmpty() {
       this.assert.strictEqual(this.nodesCount, 1, 'It should render exactly one <div> tag');
-      this.assertElement(this.firstChild, { tagName: 'div', attrs: { 'data-foo': '' }, content: '' });
+      this.assertElement(this.firstChild, { tagName: 'div', content: '' });
     };
 
     _class5.prototype.assertContent = function assertContent(content) {
@@ -25068,7 +25060,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     };
 
     InputRenderingTest.prototype.assertDisabled = function assertDisabled() {
-      this.assert.ok(this.$('input').is(':disabled'), 'The input is disabled');
+      this.assert.ok(this.$('input').prop('disabled'), 'The input is disabled');
     };
 
     InputRenderingTest.prototype.assertNotDisabled = function assertNotDisabled() {
@@ -28614,7 +28606,40 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     };
 
     _class.prototype['@test input disabled attribute'] = function testInputDisabledAttribute() {
-      this.runPropertyTest('disabled', [false, true]);
+      var _this4 = this;
+
+      var model = { model: { value: false } };
+
+      this.render('<input disabled={{model.value}}>', model);
+
+      this.assert.equal(this.$inputElement().prop('disabled'), false);
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assert.equal(this.$inputElement().prop('disabled'), false);
+
+      this.runTask(function () {
+        return _this4.context.set('model.value', true);
+      });
+
+      this.assert.equal(this.$inputElement().prop('disabled'), true);
+      this.assertHTML('<input disabled="">'); // Note the DOM output is <input disabled>
+
+      this.runTask(function () {
+        return _this4.context.set('model.value', 'wat');
+      });
+
+      this.assert.equal(this.$inputElement().prop('disabled'), true);
+      this.assertHTML('<input disabled="">'); // Note the DOM output is <input disabled>
+
+      this.runTask(function () {
+        return _this4.context.set('model', { value: false });
+      });
+
+      this.assert.equal(this.$inputElement().prop('disabled'), false);
+      this.assertHTML('<input>');
     };
 
     _class.prototype['@test input value attribute'] = function testInputValueAttribute() {
@@ -28722,10 +28747,10 @@ enifed('ember-glimmer/tests/integration/input-test', ['exports', 'ember-glimmer/
     };
 
     _class.prototype.setComponentValue = function setComponentValue(value) {
-      var _this4 = this;
+      var _this5 = this;
 
       this.runTask(function () {
-        return _emberMetal.set(_this4.context, 'value', value);
+        return _emberMetal.set(_this5.context, 'value', value);
       });
     };
 
