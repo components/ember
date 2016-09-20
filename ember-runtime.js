@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.2-beta+043aad98
+ * @version   2.9.0-beta.2-beta+8f8ec4ac
  */
 
 var enifed, requireModule, require, Ember;
@@ -2808,27 +2808,15 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
     return _emberMetalProperty_set.set(obj, this.altKey, value);
   };
 
-  AliasedProperty.prototype.willWatch = function (obj, keyName) {
-    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
-  };
-
-  AliasedProperty.prototype.didUnwatch = function (obj, keyName) {
-    _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
-  };
-
   AliasedProperty.prototype.setup = function (obj, keyName) {
     _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
     var m = _emberMetalMeta.meta(obj);
-    if (m.peekWatching(keyName)) {
-      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, m);
-    }
+    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, m);
   };
 
   AliasedProperty.prototype.teardown = function (obj, keyName) {
     var m = _emberMetalMeta.meta(obj);
-    if (m.peekWatching(keyName)) {
-      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, m);
-    }
+    _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, m);
   };
 
   AliasedProperty.prototype.readOnly = function () {
@@ -19116,7 +19104,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.2-beta+043aad98";
+  exports.default = "2.9.0-beta.2-beta+8f8ec4ac";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
