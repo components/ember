@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+ce641a24
+ * @version   2.10.0-canary+aacc8569
  */
 
 var enifed, requireModule, require, Ember;
@@ -6402,35 +6402,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    */
 
   /**
-   Called when the attributes passed into the component have been updated.
-   Called both during the initial render of a container and during a rerender.
-   Can be used in place of an observer; code placed here will be executed
-   every time any attribute updates.
-   @event didReceiveAttrs
-   @public
-   @since 1.13.0
-   */
-
-  /**
-   Called after a component has been rendered, both on initial render and
-   in subsequent rerenders.
-   @method didRender
-   @public
-   @since 1.13.0
-   */
-
-  /**
    Called after a component has been rendered, both on initial render and
    in subsequent rerenders.
    @event didRender
-   @public
-   @since 1.13.0
-   */
-
-  /**
-   Called before a component has been rendered, both on initial render and
-   in subsequent rerenders.
-   @method willRender
    @public
    @since 1.13.0
    */
@@ -6446,14 +6420,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   /**
    Called when the attributes passed into the component have been changed.
    Called only during a rerender, not during an initial render.
-   @method didUpdateAttrs
-   @public
-   @since 1.13.0
-   */
-
-  /**
-   Called when the attributes passed into the component have been changed.
-   Called only during a rerender, not during an initial render.
    @event didUpdateAttrs
    @public
    @since 1.13.0
@@ -6462,23 +6428,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   /**
    Called when the component is about to update and rerender itself.
    Called only during a rerender, not during an initial render.
-   @method willUpdate
-   @public
-   @since 1.13.0
-   */
-
-  /**
-   Called when the component is about to update and rerender itself.
-   Called only during a rerender, not during an initial render.
    @event willUpdate
-   @public
-   @since 1.13.0
-   */
-
-  /**
-   Called when the component has updated and rerendered itself.
-   Called only during a rerender, not during an initial render.
-   @method didUpdate
    @public
    @since 1.13.0
    */
@@ -39231,7 +39181,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+ce641a24";
+  exports.default = "2.10.0-canary+aacc8569";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
