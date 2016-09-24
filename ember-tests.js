@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+6ea3ed0c
+ * @version   2.10.0-canary+646a175e
  */
 
 var enifed, requireModule, require, Ember;
@@ -31455,6 +31455,49 @@ babelHelpers.classCallCheck(this, _class4);
     };
 
     return _class4;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/syntax/with-dynamic-var-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase) {
+  'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#-with-dynamic-vars foo="bar"}}\n          {{-get-dynamic-var \'foo\'}}\n        {{/-with-dynamic-vars}}\n      '], ['\n        {{#-with-dynamic-vars foo="bar"}}\n          {{-get-dynamic-var \'foo\'}}\n        {{/-with-dynamic-vars}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#-with-dynamic-vars outletState="bar"}}\n        {{-get-dynamic-var \'outletState\'}}\n      {{/-with-dynamic-vars}}\n    '], ['\n      {{#-with-dynamic-vars outletState="bar"}}\n        {{-get-dynamic-var \'outletState\'}}\n      {{/-with-dynamic-vars}}\n    ']);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('{{-with-dynamic-var}}', (function (_RenderingTest) {
+babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+babelHelpers.classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test does not allow setting values other than outletState'] = function testDoesNotAllowSettingValuesOtherThanOutletState(assert) {
+      var _this = this;
+
+      expectAssertion(function () {
+        _this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+      }, /Using `-with-dynamic-scope` is only supported for `outletState` \(you used `foo`\)./);
+    };
+
+    _class.prototype['@test allows setting/getting outletState'] = function testAllowsSettingGettingOutletState(assert) {
+      // this is simply asserting that we can write and read outletState
+      // the actual value being used here is not what is used in real life
+      // feel free to change the value being set and asserted as needed
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertText('bar');
+    };
+
+    _class.prototype['@test does not allow setting values other than outletState'] = function testDoesNotAllowSettingValuesOtherThanOutletState(assert) {
+      var _this2 = this;
+
+      expectAssertion(function () {
+        _this2.render('{{-get-dynamic-var \'foo\'}}');
+      }, /Using `-get-dynamic-scope` is only supported for `outletState` \(you used `foo`\)./);
+    };
+
+    return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests, _emberGlimmerTestsUtilsAbstractTestCase) {

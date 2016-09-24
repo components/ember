@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+6ea3ed0c
+ * @version   2.10.0-canary+646a175e
  */
 
 var enifed, requireModule, require, Ember;
@@ -11156,11 +11156,13 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     };
 
     DynamicScope.prototype.get = function get(key) {
-      return this[key];
+      _emberMetal.assert('Using `-get-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState');
+      return this.outletState;
     };
 
     DynamicScope.prototype.set = function set(key, value) {
-      this[key] = value;
+      _emberMetal.assert('Using `-with-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState');
+      this.outletState = value;
       return value;
     };
 
@@ -42131,7 +42133,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+6ea3ed0c";
+  exports.default = "2.10.0-canary+646a175e";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
