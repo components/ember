@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+51fe4d59
+ * @version   2.10.0-canary+473a4f5f
  */
 
 var enifed, requireModule, require, Ember;
@@ -21393,6 +21393,63 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       this.assertText('Click me');
     };
 
+    _class2.prototype['@test ensure closure action transform does not cause incidental rerendering [GH#14305]'] = function testEnsureClosureActionTransformDoesNotCauseIncidentalRerenderingGH14305(assert) {
+      var _this11 = this;
+
+      var counter = 0;
+      this.registerComponent('inner-component', {
+        template: 'Max',
+
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            counter++;
+          }
+        })
+      });
+
+      this.registerComponent('outer-component', {
+        template: '{{foo}} {{inner-component submit=(action "bar")}}',
+
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            bar: function () {}
+          }
+        })
+      });
+
+      this.render('{{outer-component foo=foo derp=derp}}', {
+        foo: 'hi',
+        derp: 'nope!'
+      });
+
+      this.assertText('hi Max');
+      assert.equal(counter, 1);
+
+      this.assertStableRerender();
+      assert.equal(counter, 1);
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'foo', 'bye');
+      });
+
+      this.assertText('bye Max');
+      assert.equal(counter, 1);
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'foo', 'hi');
+      });
+
+      this.assertText('hi Max');
+      assert.equal(counter, 1);
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'derp', 'yup!');
+      });
+
+      this.assertText('hi Max');
+      assert.equal(counter, 1);
+    };
+
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
@@ -34326,6 +34383,14 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'internal-test-helper
     _emberMetalProperty_get.get(obj, 'id');
 
     equal(count, 1);
+  });
+
+  QUnit.test('should be able to use an empty string as a property', function (assert) {
+    var obj = { '': 'empty string' };
+
+    var result = _emberMetalProperty_get.get(obj, '');
+
+    assert.equal(result, obj['']);
   });
 
   _internalTestHelpers.testBoth('should call unknownProperty on watched values if the value is undefined', function (get, set) {
