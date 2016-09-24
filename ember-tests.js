@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+f4646d3a
+ * @version   2.9.0-beta.3-beta+07d41dbc
  */
 
 var enifed, requireModule, require, Ember;
@@ -15773,6 +15773,13 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         }
 
         _this.assert.ok(instance.element, 'element property should be present on ' + instance + ' during ' + hookName);
+      };
+
+      var assertElementInDocument = function (hookName, instance) {
+        if (instance.tagName === '') {
+          return;
+        }
+
         _this.assert.ok(document.body.contains(instance.element), 'element for ' + instance + ' should be in the DOM during ' + hookName);
       };
 
@@ -15832,13 +15839,22 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
           pushHook('didRender');
           assertParentView('didRender', this);
           assertElement('didRender', this);
+          assertElementInDocument('didRender', this);
           assertState('didRender', 'inDOM', this);
+        },
+
+        willInsertElement: function () {
+          pushHook('willInsertElement');
+          assertParentView('willInsertElement', this);
+          assertElement('willInsertElement', this);
+          assertState('willInsertElement', 'hasElement', this);
         },
 
         didInsertElement: function () {
           pushHook('didInsertElement');
           assertParentView('didInsertElement', this);
           assertElement('didInsertElement', this);
+          assertElementInDocument('didInsertElement', this);
           assertState('didInsertElement', 'inDOM', this);
         },
 
@@ -15846,12 +15862,14 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
           pushHook('didUpdate', options);
           assertParentView('didUpdate', this);
           assertElement('didUpdate', this);
+          assertElementInDocument('didUpdate', this);
         },
 
         willDestroyElement: function () {
           pushHook('willDestroyElement');
           assertParentView('willDestroyElement', this);
           assertElement('willDestroyElement', this);
+          assertElementInDocument('willDestroyElement', this);
           assertState('willDestroyElement', 'inDOM', this);
         },
 
@@ -15859,6 +15877,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
           pushHook('willClearRender');
           assertParentView('willClearRender', this);
           assertElement('willClearRender', this);
+          assertElementInDocument('willClearRender', this);
         },
 
         didDestroyElement: function () {
@@ -15922,7 +15941,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -16084,7 +16103,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender'],
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
 
         // Async hooks
 
@@ -16272,7 +16291,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -16365,7 +16384,15 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.assertRegisteredViews('intial render');
 
       var initialHooks = function (count) {
-        return [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender']];
+        var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'willRender']];
+        if (_this6.isInteractive) {
+          ret.push(['an-item', 'willInsertElement']);
+        }
+        ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender']);
+        if (_this6.isInteractive) {
+          ret.push(['nested-item', 'willInsertElement']);
+        }
+        return ret;
       };
 
       var initialAfterRenderHooks = function (count) {
@@ -16403,7 +16430,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.assertHooks({
         label: 'reset to empty array',
 
-        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
 
         nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
       });
@@ -21317,6 +21344,63 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       });
 
       this.assertText('Click me');
+    };
+
+    _class2.prototype['@test ensure closure action transform does not cause incidental rerendering [GH#14305]'] = function testEnsureClosureActionTransformDoesNotCauseIncidentalRerenderingGH14305(assert) {
+      var _this11 = this;
+
+      var counter = 0;
+      this.registerComponent('inner-component', {
+        template: 'Max',
+
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          didReceiveAttrs: function () {
+            counter++;
+          }
+        })
+      });
+
+      this.registerComponent('outer-component', {
+        template: '{{foo}} {{inner-component submit=(action "bar")}}',
+
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            bar: function () {}
+          }
+        })
+      });
+
+      this.render('{{outer-component foo=foo derp=derp}}', {
+        foo: 'hi',
+        derp: 'nope!'
+      });
+
+      this.assertText('hi Max');
+      assert.equal(counter, 1);
+
+      this.assertStableRerender();
+      assert.equal(counter, 1);
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'foo', 'bye');
+      });
+
+      this.assertText('bye Max');
+      assert.equal(counter, 1);
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'foo', 'hi');
+      });
+
+      this.assertText('hi Max');
+      assert.equal(counter, 1);
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'derp', 'yup!');
+      });
+
+      this.assertText('hi Max');
+      assert.equal(counter, 1);
     };
 
     return _class2;
@@ -31410,6 +31494,49 @@ babelHelpers.classCallCheck(this, _class4);
     return _class4;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/syntax/with-dynamic-var-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase) {
+  'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#-with-dynamic-vars foo="bar"}}\n          {{-get-dynamic-var \'foo\'}}\n        {{/-with-dynamic-vars}}\n      '], ['\n        {{#-with-dynamic-vars foo="bar"}}\n          {{-get-dynamic-var \'foo\'}}\n        {{/-with-dynamic-vars}}\n      ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#-with-dynamic-vars outletState="bar"}}\n        {{-get-dynamic-var \'outletState\'}}\n      {{/-with-dynamic-vars}}\n    '], ['\n      {{#-with-dynamic-vars outletState="bar"}}\n        {{-get-dynamic-var \'outletState\'}}\n      {{/-with-dynamic-vars}}\n    ']);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('{{-with-dynamic-var}}', (function (_RenderingTest) {
+babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+babelHelpers.classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test does not allow setting values other than outletState'] = function testDoesNotAllowSettingValuesOtherThanOutletState(assert) {
+      var _this = this;
+
+      expectAssertion(function () {
+        _this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+      }, /Using `-with-dynamic-scope` is only supported for `outletState` \(you used `foo`\)./);
+    };
+
+    _class.prototype['@test allows setting/getting outletState'] = function testAllowsSettingGettingOutletState(assert) {
+      // this is simply asserting that we can write and read outletState
+      // the actual value being used here is not what is used in real life
+      // feel free to change the value being set and asserted as needed
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2));
+
+      this.assertText('bar');
+    };
+
+    _class.prototype['@test does not allow setting values other than outletState'] = function testDoesNotAllowSettingValuesOtherThanOutletState(assert) {
+      var _this2 = this;
+
+      expectAssertion(function () {
+        _this2.render('{{-get-dynamic-var \'foo\'}}');
+      }, /Using `-get-dynamic-scope` is only supported for `outletState` \(you used `foo`\)./);
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/integration/syntax/with-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests, _emberGlimmerTestsUtilsAbstractTestCase) {
   'use strict';
 
@@ -34209,6 +34336,14 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'internal-test-helper
     _emberMetalProperty_get.get(obj, 'id');
 
     equal(count, 1);
+  });
+
+  QUnit.test('should be able to use an empty string as a property', function (assert) {
+    var obj = { '': 'empty string' };
+
+    var result = _emberMetalProperty_get.get(obj, '');
+
+    assert.equal(result, obj['']);
   });
 
   _internalTestHelpers.testBoth('should call unknownProperty on watched values if the value is undefined', function (get, set) {

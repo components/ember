@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+f4646d3a
+ * @version   2.9.0-beta.3-beta+07d41dbc
  */
 
 var enifed, requireModule, require, Ember;
@@ -8738,11 +8738,6 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     _emberMetalDebug.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
     _emberMetalDebug.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalDebug.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
-
-    // Helpers that operate with 'this' within an #each
-    if (keyName === '') {
-      return obj;
-    }
 
     var value = obj[keyName];
     var desc = value !== null && typeof value === 'object' && value.isDescriptor ? value : undefined;
@@ -19104,7 +19099,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.3-beta+f4646d3a";
+  exports.default = "2.9.0-beta.3-beta+07d41dbc";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
