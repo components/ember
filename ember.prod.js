@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+646a175e
+ * @version   2.10.0-canary+bda23142
  */
 
 var enifed, requireModule, require, Ember;
@@ -37160,11 +37160,11 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     willInsertElement: K,
 
     /**
-      Called when the element of the view has been inserted into the DOM
-      or after the view was re-rendered. Override this function to do any
-      set up that requires an element in the document body.
+      Called when the element of the view has been inserted into the DOM.
+      Override this function to do any set up that requires an element
+      in the document body.
        When a view has children, didInsertElement will be called on the
-      child view(s) first, bubbling upwards through the hierarchy.
+      child view(s) first and on itself afterwards.
        @event didInsertElement
       @public
     */
@@ -39231,7 +39231,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+646a175e";
+  exports.default = "2.10.0-canary+bda23142";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
