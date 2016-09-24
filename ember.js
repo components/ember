@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+bda23142
+ * @version   2.10.0-canary+51fe4d59
  */
 
 var enifed, requireModule, require, Ember;
@@ -11893,10 +11893,6 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
       component.trigger('didInitAttrs', { attrs: attrs });
       component.trigger('didReceiveAttrs', { newAttrs: attrs });
 
-      if (environment.isInteractive) {
-        component.trigger('willInsertElement');
-      }
-
       component.trigger('willRender');
 
       var bucket = new ComponentStateBucket(environment, component, processedArgs, finalizer);
@@ -11945,6 +11941,7 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
     CurlyComponentManager.prototype.didCreateElement = function didCreateElement(_ref2, element, operations) {
       var component = _ref2.component;
       var classRef = _ref2.classRef;
+      var environment = _ref2.environment;
 
       component.element = element;
 
@@ -11976,6 +11973,10 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
       }
 
       component._transitionTo('hasElement');
+
+      if (environment.isInteractive) {
+        component.trigger('willInsertElement');
+      }
     };
 
     CurlyComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket, bounds) {
@@ -42133,7 +42134,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+bda23142";
+  exports.default = "2.10.0-canary+51fe4d59";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
