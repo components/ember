@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+7f975bd4
+ * @version   2.10.0-canary+c459927f
  */
 
 var enifed, requireModule, require, Ember;
@@ -8478,11 +8478,16 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       });
 
       this._compilerCache = new _emberMetal.Cache(10, function (Compiler) {
-        return new _emberMetal.Cache(2000, function (template) {
+        return new _emberMetal.Cache(2000, function (_ref6) {
+          var template = _ref6.template;
+
           var compilable = new Compiler(template);
           return _glimmerRuntime.compileLayout(compilable, _this);
-        }, function (template) {
-          return template.id;
+        }, function (_ref7) {
+          var template = _ref7.template;
+          var owner = _ref7.owner;
+
+          return _emberUtils.guidFor(owner) + '|' + template.id;
         });
       }, function (Compiler) {
         return Compiler.id;
@@ -8644,7 +8649,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
 
     Environment.prototype.getCompiledBlock = function getCompiledBlock(Compiler, template, owner) {
       var compilerCache = this._compilerCache.get(Compiler);
-      return compilerCache.get(template, owner);
+      return compilerCache.get({ template: template, owner: owner });
     };
 
     Environment.prototype.hasPartial = function hasPartial(name, symbolTable) {
@@ -11125,7 +11130,7 @@ enifed('ember-glimmer/protocol-for-url', ['exports', 'ember-environment'], funct
     return protocol === null ? ':' : protocol;
   }
 });
-enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal', 'glimmer-reference', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/syntax/curly-component'], function (exports, _emberGlimmerUtilsReferences, _emberMetal, _glimmerReference, _emberViews, _emberGlimmerComponent, _emberGlimmerSyntaxCurlyComponent) {
+enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal', 'glimmer-reference', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/outlet'], function (exports, _emberGlimmerUtilsReferences, _emberMetal, _glimmerReference, _emberViews, _emberGlimmerComponent, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxOutlet) {
   'use strict';
 
   var runInTransaction = undefined;
@@ -11142,17 +11147,16 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
   var backburner = _emberMetal.run.backburner;
 
   var DynamicScope = (function () {
-    function DynamicScope(view, outletState, rootOutletState, isTopLevel, targetObject) {
+    function DynamicScope(view, outletState, rootOutletState, targetObject) {
       babelHelpers.classCallCheck(this, DynamicScope);
 
       this.view = view;
       this.outletState = outletState;
       this.rootOutletState = rootOutletState;
-      this.isTopLevel = isTopLevel;
     }
 
     DynamicScope.prototype.child = function child() {
-      return new DynamicScope(this.view, this.outletState, this.rootOutletState, this.isTopLevel);
+      return new DynamicScope(this.view, this.outletState, this.rootOutletState);
     };
 
     DynamicScope.prototype.get = function get(key) {
@@ -11306,22 +11310,28 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
     // renderer HOOKS
 
     Renderer.prototype.appendOutletView = function appendOutletView(view, target) {
-      var self = new _emberGlimmerUtilsReferences.RootReference(view);
+      var definition = new _emberGlimmerSyntaxOutlet.TopLevelOutletComponentDefinition(view);
+      var outletStateReference = view.toReference();
       var targetObject = view.outletState.render.controller;
-      var ref = view.toReference();
-      var dynamicScope = new DynamicScope(null, ref, ref, true, targetObject);
-      var root = new RootState(view, this._env, view.template, self, target, dynamicScope);
 
-      this._renderRoot(root);
+      this._appendDefinition(view, definition, target, outletStateReference, targetObject);
     };
 
     Renderer.prototype.appendTo = function appendTo(view, target) {
       var rootDef = new _emberGlimmerSyntaxCurlyComponent.RootComponentDefinition(view);
-      var self = new _emberGlimmerUtilsReferences.RootReference(rootDef);
-      var dynamicScope = new DynamicScope(null, _glimmerReference.UNDEFINED_REFERENCE, _glimmerReference.UNDEFINED_REFERENCE, true, null);
-      var root = new RootState(view, this._env, this._rootTemplate, self, target, dynamicScope);
 
-      this._renderRoot(root);
+      this._appendDefinition(view, rootDef, target);
+    };
+
+    Renderer.prototype._appendDefinition = function _appendDefinition(root, definition, target) {
+      var outletStateReference = arguments.length <= 3 || arguments[3] === undefined ? _glimmerReference.UNDEFINED_REFERENCE : arguments[3];
+      var targetObject = arguments.length <= 4 || arguments[4] === undefined ? null : arguments[4];
+
+      var self = new _emberGlimmerUtilsReferences.RootReference(definition);
+      var dynamicScope = new DynamicScope(null, outletStateReference, outletStateReference, true, targetObject);
+      var rootState = new RootState(root, this._env, this._rootTemplate, self, target, dynamicScope);
+
+      this._renderRoot(rootState);
     };
 
     Renderer.prototype.rerender = function rerender(view) {
@@ -12569,21 +12579,16 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     var _vm$dynamicScope = vm.dynamicScope();
 
     var outletState = _vm$dynamicScope.outletState;
-    var isTopLevel = _vm$dynamicScope.isTopLevel;
 
-    if (isTopLevel) {
-      return new TopLevelOutletComponentReference(outletState);
+    var args = vm.getArgs();
+    var outletNameRef = undefined;
+    if (args.positional.length === 0) {
+      outletNameRef = new _glimmerReference.ConstReference('main');
     } else {
-      var args = vm.getArgs();
-      var outletNameRef = undefined;
-      if (args.positional.length === 0) {
-        outletNameRef = new _glimmerReference.ConstReference('main');
-      } else {
-        outletNameRef = args.positional.at(0);
-      }
-
-      return new OutletComponentReference(outletNameRef, outletState);
+      outletNameRef = args.positional.at(0);
     }
+
+    return new OutletComponentReference(outletNameRef, outletState);
   }
 
   /**
@@ -12665,37 +12670,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
   })(_glimmerRuntime.StatementSyntax);
 
   exports.OutletSyntax = OutletSyntax;
-
-  var TopLevelOutletComponentReference = (function () {
-    function TopLevelOutletComponentReference(reference) {
-      babelHelpers.classCallCheck(this, TopLevelOutletComponentReference);
-
-      this.outletReference = reference;
-      this.lastState = reference.value();
-      this.definition = new TopLevelOutletComponentDefinition(this.lastState.render.template);
-      this.tag = reference.tag;
-    }
-
-    TopLevelOutletComponentReference.prototype.value = function value() {
-      var lastState = this.lastState;
-      var outletReference = this.outletReference;
-      var definition = this.definition;
-
-      var newState = outletReference.value();
-
-      definition = revalidate(definition, lastState, newState);
-
-      if (definition) {
-        return definition;
-      } else {
-        return new TopLevelOutletComponentDefinition(newState.render.template);
-      }
-
-      return this.definition;
-    };
-
-    return TopLevelOutletComponentReference;
-  })();
 
   var OutletComponentReference = (function () {
     function OutletComponentReference(outletNameRef, parentOutletStateRef) {
@@ -12785,87 +12759,14 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     return StateBucket;
   })();
 
-  var AbstractOutletComponentManager = (function () {
-    function AbstractOutletComponentManager() {
-      babelHelpers.classCallCheck(this, AbstractOutletComponentManager);
-    }
-
-    AbstractOutletComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
-      return args;
-    };
-
-    AbstractOutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      throw new Error('Not implemented: create');
-    };
-
-    AbstractOutletComponentManager.prototype.getSelf = function getSelf(_ref2) {
-      var outletState = _ref2.outletState;
-
-      return new _emberGlimmerUtilsReferences.RootReference(outletState.render.controller);
-    };
-
-    AbstractOutletComponentManager.prototype.getTag = function getTag() {
-      return null;
-    };
-
-    AbstractOutletComponentManager.prototype.getDestructor = function getDestructor() {
-      return null;
-    };
-
-    AbstractOutletComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket) {
-      bucket.finalize();
-    };
-
-    AbstractOutletComponentManager.prototype.didCreateElement = function didCreateElement() {};
-
-    AbstractOutletComponentManager.prototype.didCreate = function didCreate(state) {};
-
-    AbstractOutletComponentManager.prototype.update = function update(bucket) {};
-
-    AbstractOutletComponentManager.prototype.didUpdateLayout = function didUpdateLayout(bucket) {};
-
-    AbstractOutletComponentManager.prototype.didUpdate = function didUpdate(state) {};
-
-    return AbstractOutletComponentManager;
-  })();
-
-  var TopLevelOutletComponentManager = (function (_AbstractOutletComponentManager) {
-    babelHelpers.inherits(TopLevelOutletComponentManager, _AbstractOutletComponentManager);
-
-    function TopLevelOutletComponentManager() {
-      babelHelpers.classCallCheck(this, TopLevelOutletComponentManager);
-
-      _AbstractOutletComponentManager.apply(this, arguments);
-    }
-
-    TopLevelOutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      dynamicScope.isTopLevel = false;
-      return new StateBucket(dynamicScope.outletState.value());
-    };
-
-    TopLevelOutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      var template = definition.template;
-
-      if (!template) {
-        template = env.owner.lookup('template:-outlet');
-      }
-
-      return env.getCompiledBlock(TopLevelOutletLayoutCompiler, template);
-    };
-
-    return TopLevelOutletComponentManager;
-  })(AbstractOutletComponentManager);
-
-  var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
-
-  var OutletComponentManager = (function (_AbstractOutletComponentManager2) {
-    babelHelpers.inherits(OutletComponentManager, _AbstractOutletComponentManager2);
-
+  var OutletComponentManager = (function () {
     function OutletComponentManager() {
       babelHelpers.classCallCheck(this, OutletComponentManager);
-
-      _AbstractOutletComponentManager2.apply(this, arguments);
     }
+
+    OutletComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
+      return args;
+    };
 
     OutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
       var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get('outlets').get(definition.outletName);
@@ -12874,40 +12775,87 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     };
 
     OutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      return env.getCompiledBlock(OutletLayoutCompiler, definition.template);
+      var template = definition.template;
+
+      var owner = template.meta.owner;
+
+      return env.getCompiledBlock(OutletLayoutCompiler, definition.template, owner);
     };
 
+    OutletComponentManager.prototype.getSelf = function getSelf(_ref2) {
+      var outletState = _ref2.outletState;
+
+      return new _emberGlimmerUtilsReferences.RootReference(outletState.render.controller);
+    };
+
+    OutletComponentManager.prototype.getTag = function getTag() {
+      return null;
+    };
+
+    OutletComponentManager.prototype.getDestructor = function getDestructor() {
+      return null;
+    };
+
+    OutletComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket) {
+      bucket.finalize();
+    };
+
+    OutletComponentManager.prototype.didCreateElement = function didCreateElement() {};
+
+    OutletComponentManager.prototype.didCreate = function didCreate(state) {};
+
+    OutletComponentManager.prototype.update = function update(bucket) {};
+
+    OutletComponentManager.prototype.didUpdateLayout = function didUpdateLayout(bucket) {};
+
+    OutletComponentManager.prototype.didUpdate = function didUpdate(state) {};
+
     return OutletComponentManager;
-  })(AbstractOutletComponentManager);
+  })();
 
   var MANAGER = new OutletComponentManager();
 
-  var AbstractOutletComponentDefinition = (function (_ComponentDefinition) {
-    babelHelpers.inherits(AbstractOutletComponentDefinition, _ComponentDefinition);
+  var TopLevelOutletComponentManager = (function (_OutletComponentManager) {
+    babelHelpers.inherits(TopLevelOutletComponentManager, _OutletComponentManager);
 
-    function AbstractOutletComponentDefinition(manager, outletName, template) {
-      babelHelpers.classCallCheck(this, AbstractOutletComponentDefinition);
+    function TopLevelOutletComponentManager() {
+      babelHelpers.classCallCheck(this, TopLevelOutletComponentManager);
 
-      _ComponentDefinition.call(this, 'outlet', manager, null);
-      this.outletName = outletName;
-      this.template = template;
+      _OutletComponentManager.apply(this, arguments);
+    }
+
+    TopLevelOutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
+      return new StateBucket(dynamicScope.outletState.value());
+    };
+
+    TopLevelOutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
+      var template = definition.template;
+
+      var owner = template.meta.owner;
+
+      return env.getCompiledBlock(TopLevelOutletLayoutCompiler, template, owner);
+    };
+
+    return TopLevelOutletComponentManager;
+  })(OutletComponentManager);
+
+  var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
+
+  var TopLevelOutletComponentDefinition = (function (_ComponentDefinition) {
+    babelHelpers.inherits(TopLevelOutletComponentDefinition, _ComponentDefinition);
+
+    function TopLevelOutletComponentDefinition(instance) {
+      babelHelpers.classCallCheck(this, TopLevelOutletComponentDefinition);
+
+      _ComponentDefinition.call(this, 'outlet', TOP_LEVEL_MANAGER, instance);
+      this.template = instance.template;
       _emberUtils.generateGuid(this);
     }
 
-    return AbstractOutletComponentDefinition;
+    return TopLevelOutletComponentDefinition;
   })(_glimmerRuntime.ComponentDefinition);
 
-  var TopLevelOutletComponentDefinition = (function (_AbstractOutletComponentDefinition) {
-    babelHelpers.inherits(TopLevelOutletComponentDefinition, _AbstractOutletComponentDefinition);
-
-    function TopLevelOutletComponentDefinition(template) {
-      babelHelpers.classCallCheck(this, TopLevelOutletComponentDefinition);
-
-      _AbstractOutletComponentDefinition.call(this, TOP_LEVEL_MANAGER, null, template);
-    }
-
-    return TopLevelOutletComponentDefinition;
-  })(AbstractOutletComponentDefinition);
+  exports.TopLevelOutletComponentDefinition = TopLevelOutletComponentDefinition;
 
   var TopLevelOutletLayoutCompiler = (function () {
     function TopLevelOutletLayoutCompiler(template) {
@@ -12928,17 +12876,20 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
 
   TopLevelOutletLayoutCompiler.id = 'top-level-outlet';
 
-  var OutletComponentDefinition = (function (_AbstractOutletComponentDefinition2) {
-    babelHelpers.inherits(OutletComponentDefinition, _AbstractOutletComponentDefinition2);
+  var OutletComponentDefinition = (function (_ComponentDefinition2) {
+    babelHelpers.inherits(OutletComponentDefinition, _ComponentDefinition2);
 
     function OutletComponentDefinition(outletName, template) {
       babelHelpers.classCallCheck(this, OutletComponentDefinition);
 
-      _AbstractOutletComponentDefinition2.call(this, MANAGER, outletName, template);
+      _ComponentDefinition2.call(this, 'outlet', MANAGER, null);
+      this.outletName = outletName;
+      this.template = template;
+      _emberUtils.generateGuid(this);
     }
 
     return OutletComponentDefinition;
-  })(AbstractOutletComponentDefinition);
+  })(_glimmerRuntime.ComponentDefinition);
 
   var OutletLayoutCompiler = (function () {
     function OutletLayoutCompiler(template) {
@@ -14724,12 +14675,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
       this.outletView.setOutletState(state);
     };
 
-    babelHelpers.createClass(OutletStateReference, [{
-      key: 'isTopLevel',
-      get: function () {
-        return true;
-      }
-    }]);
     return OutletStateReference;
   })();
 
@@ -14747,7 +14692,7 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
     OrphanedOutletStateReference.prototype.value = function value() {
       var rootState = this.root.value();
 
-      var orphans = rootState.outlets.__ember_orphans__;
+      var orphans = rootState.outlets.main.outlets.__ember_orphans__;
 
       if (!orphans) {
         return null;
@@ -14785,12 +14730,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
       return this.parent.value()[this.key];
     };
 
-    babelHelpers.createClass(ChildOutletStateReference, [{
-      key: 'isTopLevel',
-      get: function () {
-        return false;
-      }
-    }]);
     return ChildOutletStateReference;
   })();
 
@@ -14821,19 +14760,21 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
       _emberUtils.assign(this, injections);
     };
 
-    OutletView.create = function create(_ref) {
-      var _environment = _ref._environment;
-      var renderer = _ref.renderer;
-      var template = _ref.template;
+    OutletView.create = function create(options) {
+      var _environment = options._environment;
+      var renderer = options.renderer;
+      var template = options.template;
 
-      return new OutletView(_environment, renderer, template);
+      var owner = options[_emberUtils.OWNER];
+      return new OutletView(_environment, renderer, owner, template);
     };
 
-    function OutletView(_environment, renderer, template) {
+    function OutletView(_environment, renderer, owner, template) {
       babelHelpers.classCallCheck(this, OutletView);
 
       this._environment = _environment;
       this.renderer = renderer;
+      this.owner = owner;
       this.template = template;
       this.outletState = null;
       this._renderResult = null;
@@ -14860,7 +14801,20 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
     };
 
     OutletView.prototype.setOutletState = function setOutletState(state) {
-      this.outletState = state;
+      this.outletState = {
+        outlets: {
+          main: state
+        },
+        render: {
+          owner: undefined,
+          into: undefined,
+          outlet: 'main',
+          name: '-top-level',
+          controller: undefined,
+          ViewClass: undefined,
+          template: undefined
+        }
+      };
       this._tag.dirty();
     };
 
@@ -42229,7 +42183,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+7f975bd4";
+  exports.default = "2.10.0-canary+c459927f";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+7f975bd4
+ * @version   2.10.0-canary+c459927f
  */
 
 var enifed, requireModule, require, Ember;
@@ -29336,7 +29336,7 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       };
 
       this.runTask(function () {
-        return _this7.component.setOutletState({ render: {}, outlets: { main: outletState } });
+        return _this7.component.setOutletState(outletState);
       });
 
       _internalTestHelpers.runAppend(this.component);
