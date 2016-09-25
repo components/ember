@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+c459927f
+ * @version   2.10.0-canary+0271597e
  */
 
 var enifed, requireModule, require, Ember;
@@ -31280,6 +31280,115 @@ babelHelpers.inherits(_class4, _RenderingTest);
     };
 
     return _class4;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/syntax/in-element-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/component', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerComponent, _emberMetal) {
+  'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#-in-element someElement}}\n        {{text}}\n      {{/-in-element}}\n    '], ['\n      {{#-in-element someElement}}\n        {{text}}\n      {{/-in-element}}\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if showModal}}\n        {{#-in-element someElement}}\n          {{modal-display text=text}}\n        {{/-in-element}}\n      {{/if}}\n    '], ['\n      {{#if showModal}}\n        {{#-in-element someElement}}\n          {{modal-display text=text}}\n        {{/-in-element}}\n      {{/if}}\n    ']);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('{{-in-element}}', (function (_RenderingTest) {
+babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test allows rendering into an external element'] = function testAllowsRenderingIntoAnExternalElement(assert) {
+      var _this = this;
+
+      var someElement = document.createElement('div');
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
+        someElement: someElement,
+        text: 'Whoop!'
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(someElement, 'Whoop!');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(_this.context, 'text', 'Huzzah!!');
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(someElement, 'Huzzah!!');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this.context, 'text', 'Whoop!');
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(someElement, 'Whoop!');
+    };
+
+    _class.prototype['@test components are cleaned up properly'] = function testComponentsAreCleanedUpProperly(assert) {
+      var _this2 = this;
+
+      var hooks = [];
+
+      var someElement = document.createElement('div');
+
+      this.registerComponent('modal-display', {
+        ComponentClass: _emberGlimmerComponent.default.extend({
+          didInsertElement: function () {
+            hooks.push('didInsertElement');
+          },
+
+          willDestroyElement: function () {
+            hooks.push('willDestroyElement');
+          }
+        }),
+
+        template: '{{text}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
+        someElement: someElement,
+        text: 'Whoop!',
+        showModal: false
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(someElement, '');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(_this2.context, 'showModal', true);
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      this.assertComponentElement(someElement.firstChild, { content: 'Whoop!' });
+
+      this.runTask(function () {
+        return _emberMetal.set(_this2.context, 'text', 'Huzzah!');
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      this.assertComponentElement(someElement.firstChild, { content: 'Huzzah!' });
+
+      this.runTask(function () {
+        return _emberMetal.set(_this2.context, 'text', 'Whoop!');
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      this.assertComponentElement(someElement.firstChild, { content: 'Whoop!' });
+
+      this.runTask(function () {
+        return _emberMetal.set(_this2.context, 'showModal', false);
+      });
+
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(this.element, '<!---->');
+      _emberGlimmerTestsUtilsTestHelpers.equalTokens(someElement, '');
+
+      assert.deepEqual(hooks, ['didInsertElement', 'willDestroyElement']);
+    };
+
+    return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/with-dynamic-var-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase) {
