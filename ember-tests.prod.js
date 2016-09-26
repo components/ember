@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+0271597e
+ * @version   2.10.0-canary+6948415f
  */
 
 var enifed, requireModule, require, Ember;
@@ -18016,7 +18016,7 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['exports', 'emb
       var firstNode = _getViewBounds2.firstNode;
       var lastNode = _getViewBounds2.lastNode;
 
-      assert.equal(parentElement, this.element, 'a regular component should have the right parentElement');
+      assert.equal(parentElement, this.element, 'a tagless component should have the right parentElement');
       assert.equal(firstNode, this.$('#start-node')[0], 'a tagless component should have a range enclosing all of its nodes');
       assert.equal(lastNode, this.$('#before-end-node')[0].nextSibling, 'a tagless component should have a range enclosing all of its nodes');
     };
