@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+3141f835
+ * @version   2.10.0-canary+52a47d94
  */
 
 var enifed, requireModule, require, Ember;
@@ -14192,7 +14192,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       }
 
       if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
-        _emberMetal.watchKey(parentValue, propertyKey, _emberMetal.meta(parentValue));
+        _emberMetal.watchKey(parentValue, propertyKey);
       }
     }
 
@@ -14250,8 +14250,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
 
       if (typeof parentValue === 'object' && parentValue) {
         if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
-          var meta = _emberMetal.meta(parentValue);
-          _emberMetal.watchKey(parentValue, _propertyKey, meta);
+          _emberMetal.watchKey(parentValue, _propertyKey);
         }
 
         if (_emberMetal.isFeatureEnabled('ember-glimmer-detect-backtracking-rerender') || _emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
@@ -42286,7 +42285,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+3141f835";
+  exports.default = "2.10.0-canary+52a47d94";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
