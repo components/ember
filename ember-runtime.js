@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3
+ * @version   2.9.0-beta.4
  */
 
 var enifed, requireModule, require, Ember;
@@ -2800,23 +2800,40 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
 
   AliasedProperty.prototype = Object.create(_emberMetalProperties.Descriptor.prototype);
 
+  AliasedProperty.prototype.setup = function (obj, keyName) {
+    _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
+    var meta = _emberMetalMeta.meta(obj);
+    if (meta.peekWatching(keyName)) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype._addDependentKeyIfMissing = function (obj, keyName) {
+    var meta = _emberMetalMeta.meta(obj);
+    if (!meta.peekDeps(this.altKey, keyName)) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype._removeDependentKeyIfAdded = function (obj, keyName) {
+    var meta = _emberMetalMeta.meta(obj);
+    if (meta.peekDeps(this.altKey, keyName)) {
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype.willWatch = AliasedProperty.prototype._addDependentKeyIfMissing;
+  AliasedProperty.prototype.didUnwatch = AliasedProperty.prototype._removeDependentKeyIfAdded;
+  AliasedProperty.prototype.teardown = AliasedProperty.prototype._removeDependentKeyIfAdded;
+
   AliasedProperty.prototype.get = function AliasedProperty_get(obj, keyName) {
+    this._addDependentKeyIfMissing(obj, keyName);
+
     return _emberMetalProperty_get.get(obj, this.altKey);
   };
 
   AliasedProperty.prototype.set = function AliasedProperty_set(obj, keyName, value) {
     return _emberMetalProperty_set.set(obj, this.altKey, value);
-  };
-
-  AliasedProperty.prototype.setup = function (obj, keyName) {
-    _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
-    var m = _emberMetalMeta.meta(obj);
-    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, m);
-  };
-
-  AliasedProperty.prototype.teardown = function (obj, keyName) {
-    var m = _emberMetalMeta.meta(obj);
-    _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, m);
   };
 
   AliasedProperty.prototype.readOnly = function () {
@@ -8738,11 +8755,6 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     _emberMetalDebug.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
     _emberMetalDebug.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalDebug.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
-
-    // Helpers that operate with 'this' within an #each
-    if (keyName === '') {
-      return obj;
-    }
 
     var value = obj[keyName];
     var desc = value !== null && typeof value === 'object' && value.isDescriptor ? value : undefined;
@@ -19104,7 +19116,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.3";
+  exports.default = "2.9.0-beta.4";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
