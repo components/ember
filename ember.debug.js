@@ -53894,7 +53894,7 @@ RouteRecognizer.prototype = {
     pathLen = path.length;
     if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
       path = path.substr(0, pathLen - 1);
-      originalPath = originalPath.substr(0, originalPath.length - 1);
+      originalPath = originalPath.substr(0, pathLen - 1);
       isSlashDropped = true;
     }
 
@@ -53925,7 +53925,7 @@ RouteRecognizer.prototype = {
 
 RouteRecognizer.prototype.map = map;
 
-RouteRecognizer.VERSION = '0.2.7';
+RouteRecognizer.VERSION = '0.2.6';
 
 // Set to false to opt-out of encoding and decoding path segments.
 // See https://github.com/tildeio/route-recognizer/pull/55
