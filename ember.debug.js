@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+778ee33b
+ * @version   2.10.0-canary+27d67841
  */
 
 var enifed, requireModule, require, Ember;
@@ -14900,23 +14900,40 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
 
   AliasedProperty.prototype = Object.create(_emberMetalProperties.Descriptor.prototype);
 
+  AliasedProperty.prototype.setup = function (obj, keyName) {
+    _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
+    var meta = _emberMetalMeta.meta(obj);
+    if (meta.peekWatching(keyName)) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype._addDependentKeyIfMissing = function (obj, keyName) {
+    var meta = _emberMetalMeta.meta(obj);
+    if (!meta.peekDeps(this.altKey, keyName)) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype._removeDependentKeyIfAdded = function (obj, keyName) {
+    var meta = _emberMetalMeta.meta(obj);
+    if (meta.peekDeps(this.altKey, keyName)) {
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype.willWatch = AliasedProperty.prototype._addDependentKeyIfMissing;
+  AliasedProperty.prototype.didUnwatch = AliasedProperty.prototype._removeDependentKeyIfAdded;
+  AliasedProperty.prototype.teardown = AliasedProperty.prototype._removeDependentKeyIfAdded;
+
   AliasedProperty.prototype.get = function AliasedProperty_get(obj, keyName) {
+    this._addDependentKeyIfMissing(obj, keyName);
+
     return _emberMetalProperty_get.get(obj, this.altKey);
   };
 
   AliasedProperty.prototype.set = function AliasedProperty_set(obj, keyName, value) {
     return _emberMetalProperty_set.set(obj, this.altKey, value);
-  };
-
-  AliasedProperty.prototype.setup = function (obj, keyName) {
-    _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
-    var m = _emberMetalMeta.meta(obj);
-    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, m);
-  };
-
-  AliasedProperty.prototype.teardown = function (obj, keyName) {
-    var m = _emberMetalMeta.meta(obj);
-    _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, m);
   };
 
   AliasedProperty.prototype.readOnly = function () {
@@ -18577,7 +18594,6 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     mixins: inheritedMap,
     bindings: inheritedMap,
     values: inheritedMap,
-    deps: inheritedMapOfMaps,
     chainWatchers: ownCustomObject,
     chains: inheritedCustomObject,
     tag: ownCustomObject
@@ -18819,52 +18835,47 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
   exports.UNDEFINED = UNDEFINED;
   // Implements a member that provides a lazily created map of maps,
   // with inheritance at both levels.
-  function inheritedMapOfMaps(name, Meta) {
-    var key = memberProperty(name);
-    var capitalized = capitalize(name);
+  Meta.prototype.writeDeps = function writeDeps(subkey, itemkey, value) {
+    _emberMetalDebug.assert('Cannot call writeDeps after the object is destroyed.', !this.isMetaDestroyed());
 
-    Meta.prototype['write' + capitalized] = function (subkey, itemkey, value) {
-      _emberMetalDebug.assert('Cannot call write' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+    var outerMap = this._getOrCreateOwnMap('_deps');
+    var innerMap = outerMap[subkey];
+    if (!innerMap) {
+      innerMap = outerMap[subkey] = new _emberUtils.EmptyObject();
+    }
+    innerMap[itemkey] = value;
+  };
 
-      var outerMap = this._getOrCreateOwnMap(key);
-      var innerMap = outerMap[subkey];
-      if (!innerMap) {
-        innerMap = outerMap[subkey] = new _emberUtils.EmptyObject();
-      }
-      innerMap[itemkey] = value;
-    };
-
-    Meta.prototype['peek' + capitalized] = function (subkey, itemkey) {
-      var pointer = this;
-      while (pointer !== undefined) {
-        var map = pointer[key];
-        if (map) {
-          var value = map[subkey];
-          if (value) {
-            if (value[itemkey] !== undefined) {
-              return value[itemkey];
-            }
+  Meta.prototype.peekDeps = function peekDeps(subkey, itemkey) {
+    var pointer = this;
+    while (pointer !== undefined) {
+      var map = pointer._deps;
+      if (map) {
+        var value = map[subkey];
+        if (value) {
+          if (value[itemkey] !== undefined) {
+            return value[itemkey];
           }
         }
-        pointer = pointer.parent;
       }
-    };
+      pointer = pointer.parent;
+    }
+  };
 
-    Meta.prototype['has' + capitalized] = function (subkey) {
-      var pointer = this;
-      while (pointer !== undefined) {
-        if (pointer[key] && pointer[key][subkey]) {
-          return true;
-        }
-        pointer = pointer.parent;
+  Meta.prototype.hasDeps = function hasDeps(subkey) {
+    var pointer = this;
+    while (pointer !== undefined) {
+      if (pointer._deps && pointer._deps[subkey]) {
+        return true;
       }
-      return false;
-    };
+      pointer = pointer.parent;
+    }
+    return false;
+  };
 
-    Meta.prototype['forEachIn' + capitalized] = function (subkey, fn) {
-      return this._forEachIn(key, subkey, fn);
-    };
-  }
+  Meta.prototype.forEachInDeps = function forEachInDeps(subkey, fn) {
+    return this._forEachIn('_deps', subkey, fn);
+  };
 
   Meta.prototype._forEachIn = function (key, subkey, fn) {
     var pointer = this;
@@ -42281,7 +42292,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+778ee33b";
+  exports.default = "2.10.0-canary+27d67841";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
