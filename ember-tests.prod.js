@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+ca66d190
+ * @version   2.10.0-canary+e34ed31a
  */
 
 var enifed, requireModule, require, Ember;
@@ -15367,6 +15367,20 @@ babelHelpers.inherits(_class, _RenderingTest);
       });
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+      this.render('{{#foo-bar id=\'baz\'}}{{/foo-bar}}');
+      this.assertText('baz');
+    };
+
+    _class.prototype['@test does not throw an error if `tagName` is an empty string and `id` is specified via template and passed to child component'] = function testDoesNotThrowAnErrorIfTagNameIsAnEmptyStringAndIdIsSpecifiedViaTemplateAndPassedToChildComponent() {
+      var fooBarTemplate = '{{#baz-child id=id}}{{/baz-child}}';
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: ''
+      });
+      var BazChildComponent = _emberGlimmerTestsUtilsHelpers.Component.extend();
+      var bazChildTemplate = '{{id}}';
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: fooBarTemplate });
+      this.registerComponent('baz-child', { ComponentClass: BazChildComponent, template: bazChildTemplate });
       this.render('{{#foo-bar id=\'baz\'}}{{/foo-bar}}');
       this.assertText('baz');
     };

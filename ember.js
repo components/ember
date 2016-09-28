@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+ca66d190
+ * @version   2.10.0-canary+e34ed31a
  */
 
 var enifed, requireModule, require, Ember;
@@ -40729,7 +40729,11 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
    */
 
   function getViewId(view) {
-    return view.elementId || _emberUtils.guidFor(view);
+    if (view.tagName === '') {
+      return _emberUtils.guidFor(view);
+    } else {
+      return view.elementId || _emberUtils.guidFor(view);
+    }
   }
 
   var VIEW_ELEMENT = _emberUtils.symbol('VIEW_ELEMENT');
@@ -42198,7 +42202,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+ca66d190";
+  exports.default = "2.10.0-canary+e34ed31a";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
