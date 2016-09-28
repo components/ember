@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+edc0229b
+ * @version   2.9.0-beta.3-beta+9dfda2b1
  */
 
 var enifed, requireModule, require, Ember;
@@ -2800,23 +2800,40 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
 
   AliasedProperty.prototype = Object.create(_emberMetalProperties.Descriptor.prototype);
 
+  AliasedProperty.prototype.setup = function (obj, keyName) {
+    _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
+    var meta = _emberMetalMeta.meta(obj);
+    if (meta.peekWatching(keyName)) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype._addDependentKeyIfMissing = function (obj, keyName) {
+    var meta = _emberMetalMeta.meta(obj);
+    if (!meta.peekDeps(this.altKey, keyName)) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype._removeDependentKeyIfAdded = function (obj, keyName) {
+    var meta = _emberMetalMeta.meta(obj);
+    if (meta.peekDeps(this.altKey, keyName)) {
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
+    }
+  };
+
+  AliasedProperty.prototype.willWatch = AliasedProperty.prototype._addDependentKeyIfMissing;
+  AliasedProperty.prototype.didUnwatch = AliasedProperty.prototype._removeDependentKeyIfAdded;
+  AliasedProperty.prototype.teardown = AliasedProperty.prototype._removeDependentKeyIfAdded;
+
   AliasedProperty.prototype.get = function AliasedProperty_get(obj, keyName) {
+    this._addDependentKeyIfMissing(obj, keyName);
+
     return _emberMetalProperty_get.get(obj, this.altKey);
   };
 
   AliasedProperty.prototype.set = function AliasedProperty_set(obj, keyName, value) {
     return _emberMetalProperty_set.set(obj, this.altKey, value);
-  };
-
-  AliasedProperty.prototype.setup = function (obj, keyName) {
-    _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
-    var m = _emberMetalMeta.meta(obj);
-    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, m);
-  };
-
-  AliasedProperty.prototype.teardown = function (obj, keyName) {
-    var m = _emberMetalMeta.meta(obj);
-    _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, m);
   };
 
   AliasedProperty.prototype.readOnly = function () {
@@ -19099,7 +19116,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.3-beta+edc0229b";
+  exports.default = "2.9.0-beta.3-beta+9dfda2b1";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.

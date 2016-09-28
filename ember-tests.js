@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+edc0229b
+ * @version   2.9.0-beta.3-beta+9dfda2b1
  */
 
 var enifed, requireModule, require, Ember;
@@ -35396,8 +35396,9 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
     equal(count, 1);
   });
 
-  QUnit.test('object with alias is dirtied if interior object of alias is set', function () {
+  QUnit.test('object with alias is dirtied if interior object of alias is set after consumption', function () {
     _emberMetalProperties.defineProperty(obj, 'bar', _emberMetalAlias.default('foo.faz'));
+    _emberMetalProperty_get.get(obj, 'bar');
     assertDirty(obj, function () {
       return _emberMetalProperty_set.set(obj, 'foo.faz', 'BAR');
     }, 'setting the aliased key should dirty the object');
