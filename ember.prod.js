@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+52a47d94
+ * @version   2.10.0-canary+b60d73f3
  */
 
 var enifed, requireModule, require, Ember;
@@ -35658,12 +35658,8 @@ enifed("ember-utils/assign", ["exports"], function (exports) {
   exports.default = assign;
 
   function assign(original) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    for (var i = 0; i < args.length; i++) {
-      var arg = args[i];
+    for (var i = 1; i < arguments.length; i++) {
+      var arg = arguments[i];
       if (!arg) {
         continue;
       }
@@ -38840,6 +38836,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.wrap = _emberUtils.wrap;
   _emberMetal.default.applyStr = _emberUtils.applyStr;
   _emberMetal.default.uuid = _emberUtils.uuid;
+  _emberMetal.default.assign = Object.assign || _emberUtils.assign;
 
   // container exports
   _emberMetal.default.Container = _container.Container;
@@ -38860,7 +38857,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.deprecate = _emberMetal.deprecate;
   _emberMetal.default.deprecateFunc = _emberMetal.deprecateFunc;
   _emberMetal.default.runInDebug = _emberMetal.runInDebug;
-  _emberMetal.default.assign = Object.assign || _emberMetal.assign;
   _emberMetal.default.merge = _emberMetal.merge;
 
   _emberMetal.default.instrument = _emberMetal.instrument;
@@ -39352,7 +39348,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+52a47d94";
+  exports.default = "2.10.0-canary+b60d73f3";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
