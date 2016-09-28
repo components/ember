@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+a543a71d
+ * @version   2.9.0-beta.3-beta+66cb75dc
  */
 
 var enifed, requireModule, require, Ember;
@@ -39451,7 +39451,11 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
    */
 
   function getViewId(view) {
-    return view.elementId || _emberUtils.guidFor(view);
+    if (view.tagName === '') {
+      return _emberUtils.guidFor(view);
+    } else {
+      return view.elementId || _emberUtils.guidFor(view);
+    }
   }
 
   var VIEW_ELEMENT = _emberUtils.symbol('VIEW_ELEMENT');
@@ -40920,7 +40924,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.3-beta+a543a71d";
+  exports.default = "2.9.0-beta.3-beta+66cb75dc";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
@@ -52528,7 +52532,7 @@ RouteRecognizer.prototype = {
     pathLen = path.length;
     if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
       path = path.substr(0, pathLen - 1);
-      originalPath = originalPath.substr(0, pathLen - 1);
+      originalPath = originalPath.substr(0, originalPath.length - 1);
       isSlashDropped = true;
     }
 
@@ -52559,7 +52563,7 @@ RouteRecognizer.prototype = {
 
 RouteRecognizer.prototype.map = map;
 
-RouteRecognizer.VERSION = '0.2.6';
+RouteRecognizer.VERSION = '0.2.7';
 
 // Set to false to opt-out of encoding and decoding path segments.
 // See https://github.com/tildeio/route-recognizer/pull/55
