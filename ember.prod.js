@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.1
+ * @version   2.8.1+fb1bd7f1
  */
 
 var enifed, requireModule, require, Ember;
@@ -41911,7 +41911,7 @@ enifed('ember/index', ['exports', 'require', 'ember-metal', 'ember-runtime', 'em
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.8.1";
+  exports.default = "2.8.1+fb1bd7f1";
 });
 enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
@@ -45828,7 +45828,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
       pathLen = path.length;
       if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
         path = path.substr(0, pathLen - 1);
-        originalPath = originalPath.substr(0, pathLen - 1);
+        originalPath = originalPath.substr(0, originalPath.length - 1);
         isSlashDropped = true;
       }
 
@@ -45863,7 +45863,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
 
   RouteRecognizer.prototype.map = map;
 
-  RouteRecognizer.VERSION = '0.2.6';
+  RouteRecognizer.VERSION = '0.2.7';
 
   // Set to false to opt-out of encoding and decoding path segments.
   // See https://github.com/tildeio/route-recognizer/pull/55
