@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+66cb75dc
+ * @version   2.9.0-beta.3-beta+2ef47394
  */
 
 var enifed, requireModule, require, Ember;
@@ -1715,7 +1715,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       _emberMetal.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
 
-      if (_emberMetal.isFeatureEnabled('features-stripped-test')) {
+      if (false) {
         featuresWereStripped = false;
       }
 
@@ -10852,12 +10852,8 @@ enifed("ember-utils/assign", ["exports"], function (exports) {
   exports.default = assign;
 
   function assign(original) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    for (var i = 0; i < args.length; i++) {
-      var arg = args[i];
+    for (var i = 1; i < arguments.length; i++) {
+      var arg = arguments[i];
       if (!arg) {
         continue;
       }
@@ -11580,7 +11576,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.3-beta+66cb75dc";
+  exports.default = "2.9.0-beta.3-beta+2ef47394";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+66cb75dc
+ * @version   2.9.0-beta.3-beta+2ef47394
  */
 
 var enifed, requireModule, require, Ember;
@@ -9498,7 +9498,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
   var runInTransaction = undefined;
 
-  if (_emberMetal.isFeatureEnabled('ember-glimmer-detect-backtracking-rerender') || _emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+  if (false || false) {
     runInTransaction = _emberMetal.runInTransaction;
   } else {
     runInTransaction = function (context, methodName) {
@@ -12003,7 +12003,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
 
   var TwoWayFlushDetectionTag = undefined;
 
-  if (_emberMetal.isFeatureEnabled('ember-glimmer-detect-backtracking-rerender') || _emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+  if (false || false) {
     TwoWayFlushDetectionTag = (function () {
       function _class(tag, key, ref) {
         this.tag = tag;
@@ -12071,13 +12071,13 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       this._parentValue = parentValue;
       this._propertyKey = propertyKey;
 
-      if (_emberMetal.isFeatureEnabled('ember-glimmer-detect-backtracking-rerender') || _emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+      if (false || false) {
         this.tag = new TwoWayFlushDetectionTag(_emberMetal.tagFor(parentValue), propertyKey, this);
       } else {
         this.tag = _emberMetal.tagFor(parentValue);
       }
 
-      if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
+      if (false) {
         _emberMetal.watchKey(parentValue, propertyKey, _emberMetal.meta(parentValue));
       }
     }
@@ -12086,7 +12086,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       var _parentValue = this._parentValue;
       var _propertyKey = this._propertyKey;
 
-      if (_emberMetal.isFeatureEnabled('ember-glimmer-detect-backtracking-rerender') || _emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+      if (false || false) {
         this.tag.didCompute(_parentValue);
       }
 
@@ -12115,7 +12115,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       this._parentObjectTag = parentObjectTag;
       this._propertyKey = propertyKey;
 
-      if (_emberMetal.isFeatureEnabled('ember-glimmer-detect-backtracking-rerender') || _emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+      if (false || false) {
         var tag = _glimmerReference.combine([parentReferenceTag, parentObjectTag]);
         this.tag = new TwoWayFlushDetectionTag(tag, propertyKey, this);
       } else {
@@ -12133,12 +12133,12 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       _parentObjectTag.update(_emberMetal.tagFor(parentValue));
 
       if (typeof parentValue === 'object' && parentValue) {
-        if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
+        if (false) {
           var meta = _emberMetal.meta(parentValue);
           _emberMetal.watchKey(parentValue, _propertyKey, meta);
         }
 
-        if (_emberMetal.isFeatureEnabled('ember-glimmer-detect-backtracking-rerender') || _emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+        if (false || false) {
           this.tag.didCompute(parentValue);
         }
 
@@ -21995,7 +21995,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         var normalizedControllerQueryParameterConfiguration = _emberRoutingUtils.normalizeControllerQueryParams(controllerDefinedQueryParameterConfiguration);
         combinedQueryParameterConfiguration = mergeEachQueryParams(normalizedControllerQueryParameterConfiguration, queryParameterConfiguraton);
 
-        if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+        if (false) {
           if (controllerDefinedQueryParameterConfiguration.length) {}
         }
       } else if (hasRouterDefinedQueryParams) {
@@ -22024,7 +22024,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
         var desc = combinedQueryParameterConfiguration[propName];
 
-        if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+        if (false) {
           // apply default values to controllers
           // detect that default value defined on router config
           if (desc.hasOwnProperty('defaultValue')) {
@@ -23903,7 +23903,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     var keysAlreadyMergedOrSkippable = undefined;
     var qps = {};
 
-    if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+    if (false) {
       keysAlreadyMergedOrSkippable = {};
     } else {
       keysAlreadyMergedOrSkippable = {
@@ -28432,7 +28432,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }).readOnly(), _Mixin$create.lastObject = _emberMetal.computed(function () {
     return objectAt(this, _emberMetal.get(this, 'length') - 1);
   }).readOnly(), _Mixin$create.contains = function (obj) {
-    if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {}
+    if (true) {}
 
     return this.indexOf(obj) >= 0;
   }, _Mixin$create.slice = function (beginIndex, endIndex) {
@@ -28515,7 +28515,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     return this.__each;
   }).volatile(), _Mixin$create));
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+  if (true) {
     ArrayMixin.reopen({
       /**
         Returns `true` if the passed object can be found in the array.
@@ -29272,7 +29272,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @public
     */
     contains: function (obj) {
-      if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {}
+      if (true) {}
 
       var found = this.find(function (item) {
         return item === obj;
@@ -30058,7 +30058,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
     }
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-computed-uniq-by')) {
+  if (true) {
     Enumerable.reopen({
       /**
         Returns a new enumerable that contains only items containing a unique property value.
@@ -30089,7 +30089,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+  if (true) {
     Enumerable.reopen({
       /**
         Returns `true` if the passed object can be found in the enumerable.
@@ -30741,7 +30741,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
     addObject: function (obj) {
       var included = undefined;
 
-      if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+      if (true) {
         included = this.includes(obj);
       } else {
         included = this.contains(obj);
@@ -32396,7 +32396,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
               if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
+                if (false) {
                   _emberMetal.defineProperty(this, keyName, null, value); // setup mandatory setter
                 } else {
                     this[keyName] = value;
@@ -34332,12 +34332,8 @@ enifed("ember-utils/assign", ["exports"], function (exports) {
   exports.default = assign;
 
   function assign(original) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    for (var i = 0; i < args.length; i++) {
-      var arg = args[i];
+    for (var i = 1; i < arguments.length; i++) {
+      var arg = arguments[i];
       if (!arg) {
         continue;
       }
@@ -37514,6 +37510,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.wrap = _emberUtils.wrap;
   _emberMetal.default.applyStr = _emberUtils.applyStr;
   _emberMetal.default.uuid = _emberUtils.uuid;
+  _emberMetal.default.assign = Object.assign || _emberUtils.assign;
 
   // container exports
   _emberMetal.default.Container = _container.Container;
@@ -37534,7 +37531,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.deprecate = _emberMetal.deprecate;
   _emberMetal.default.deprecateFunc = _emberMetal.deprecateFunc;
   _emberMetal.default.runInDebug = _emberMetal.runInDebug;
-  _emberMetal.default.assign = Object.assign || _emberMetal.assign;
   _emberMetal.default.merge = _emberMetal.merge;
 
   _emberMetal.default.instrument = _emberMetal.instrument;
@@ -37618,7 +37614,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.Binding = _emberMetal.Binding;
   _emberMetal.default.isGlobalPath = _emberMetal.isGlobalPath;
 
-  if (_emberMetal.isFeatureEnabled('ember-metal-weakmap')) {
+  if (false) {
     _emberMetal.default.WeakMap = _emberMetal.WeakMap;
   }
 
@@ -37828,7 +37824,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   computed.filterBy = _emberRuntime.filterBy;
   computed.uniq = _emberRuntime.uniq;
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-computed-uniq-by')) {
+  if (true) {
     computed.uniqBy = _emberRuntime.uniqBy;
   }
   computed.union = _emberRuntime.union;
@@ -37898,7 +37894,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   EmberHandleBarsUtils.escapeExpression = _emberGlimmer.escapeExpression;
   _emberRuntime.String.htmlSafe = _emberGlimmer.htmlSafe;
 
-  if (_emberMetal.isFeatureEnabled('ember-string-ishtmlsafe')) {
+  if (true) {
     _emberRuntime.String.isHTMLSafe = _emberGlimmer.isHTMLSafe;
   }
   EmberHTMLBars.makeBoundHelper = _emberGlimmer.makeBoundHelper;
@@ -38026,7 +38022,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.3-beta+66cb75dc";
+  exports.default = "2.9.0-beta.3-beta+2ef47394";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

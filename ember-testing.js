@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+66cb75dc
+ * @version   2.9.0-beta.3-beta+2ef47394
  */
 
 var enifed, requireModule, require, Ember;
@@ -562,7 +562,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       _emberMetal.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
 
-      if (_emberMetal.isFeatureEnabled('features-stripped-test')) {
+      if (false) {
         featuresWereStripped = false;
       }
 
@@ -1849,7 +1849,7 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
     unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
   };
 
-  if (_emberMetal.isFeatureEnabled('ember-testing-check-waiters')) {
+  if (true) {
     Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
   }
 
@@ -2360,7 +2360,7 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
   }
 
   function generateDeprecatedWaitersArray() {
-    _emberMetal.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !_emberMetal.isFeatureEnabled('ember-testing-check-waiters'), { until: '2.8.0', id: 'ember-testing.test-waiters' });
+    _emberMetal.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !true, { until: '2.8.0', id: 'ember-testing.test-waiters' });
 
     var array = new Array(callbacks.length);
     for (var i = 0; i < callbacks.length; i++) {

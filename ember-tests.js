@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.3-beta+66cb75dc
+ * @version   2.9.0-beta.3-beta+2ef47394
  */
 
 var enifed, requireModule, require, Ember;
@@ -13558,7 +13558,7 @@ babelHelpers.classCallCheck(this, _class);
     _class.prototype['@test when a property is changed during children\'s rendering'] = function testWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this57 = this;
 
-      if (_emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+      if (false) {
         expectDeprecation(/modified value twice in a single render/);
       }
 
@@ -13609,7 +13609,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
-      if (!_emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+      if (!false) {
         expectAssertion(function () {
           _this57.runTask(function () {
             return outer.set('value', 2);
@@ -13644,7 +13644,7 @@ babelHelpers.classCallCheck(this, _class);
     _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function testWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this58 = this;
 
-      if (_emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+      if (false) {
         expectDeprecation(/modified wrapper.content twice in a single render/);
       }
 
@@ -13677,7 +13677,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '<div id="inner-value">{{wrapper.content}}</div>'
       });
 
-      if (!_emberMetal.isFeatureEnabled('ember-glimmer-allow-backtracking-rerender')) {
+      if (!false) {
         expectAssertion(function () {
           _this58.render('{{x-outer}}');
         }, /modified wrapper.content twice in a single render/);
@@ -13854,7 +13854,7 @@ babelHelpers.classCallCheck(this, _class);
 
       this.assertText('initial value - initial value');
 
-      if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
+      if (true) {
         expectAssertion(function () {
           component.bar = 'foo-bar';
         }, /You must use Ember\.set\(\) to set the `bar` property \(of .+\) to `foo-bar`\./);
@@ -16892,7 +16892,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['exports', 'e
 
       _ApplicationTest2.apply(this, arguments);
 
-      if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+      if (false) {
         this.registerRoute('index', _emberRouting.Route.extend({
           queryParams: {
             foo: {
@@ -20082,7 +20082,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher - Instrumentation', (function (_RenderingTest3) {
       babelHelpers.inherits(_class3, _RenderingTest3);
 
@@ -20256,7 +20256,7 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember
 enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
       babelHelpers.inherits(_class, _RenderingTest);
 
@@ -22695,7 +22695,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: element action instrumentation', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
 
@@ -34090,7 +34090,7 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/tests
     return _class;
   })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
 
-  if (_emberMetal.isFeatureEnabled('ember-string-ishtmlsafe')) {
+  if (true) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
       babelHelpers.inherits(_class2, _TestCase2);
 
@@ -45760,7 +45760,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     });
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-computed-uniq-by')) {
+  if (true) {
     QUnit.module('computed.uniqBy', {
       setup: function () {
         obj = _emberRuntimeSystemObject.default.extend({
@@ -50254,7 +50254,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
       }
     });
 
-    if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+    if (true) {
       X.reopen({
         includes: function () {
           return true;
@@ -50333,7 +50333,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
     equal(allWhite, true);
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+  if (true) {
     QUnit.test('should throw an error passing a second argument to includes', function () {
       var x = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default).create();
 
@@ -51258,7 +51258,7 @@ enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suit
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayLastIndexOf.default);
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayObjectAt.default);
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+  if (true) {
     ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayIncludes.default);
   }
 
@@ -51780,11 +51780,11 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableToArray.default);
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniq.default);
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-computed-uniq-by')) {
+  if (true) {
     EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+  if (true) {
     EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableIncludes.default);
   }
 
@@ -51894,7 +51894,7 @@ enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runt
     var data = this.newFixture(3);
     var obj = this.newObject(data);
 
-    if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+    if (true) {
       expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
     }
     equal(obj.contains(data[1]), true, 'should return true if contained');
@@ -51904,7 +51904,7 @@ enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runt
     var data = this.newFixture(1);
     var obj = this.newObject(this.newFixture(3));
 
-    if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+    if (true) {
       expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
     }
     equal(obj.contains(data[0]), false, 'should return false if not contained');
@@ -52781,7 +52781,7 @@ enifed('ember-runtime/tests/suites/enumerable/uniqBy', ['exports', 'ember-runtim
 
   suite.module('uniqBy');
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-computed-uniq-by')) {
+  if (true) {
     suite.test('should return new instance with duplicates removed', function () {
       var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
       deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
@@ -52812,7 +52812,7 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
     deepEqual(this.toArray(obj), before, 'should not have changed original');
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
+  if (true) {
     suite.test('should remove NaN value', function () {
       var before = undefined,
           after = undefined,
@@ -55828,7 +55828,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     equal(o.get('foo'), 'bar');
   });
 
-  if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
+  if (true) {
     QUnit.test('sets up mandatory setters for watched simple properties', function () {
       var MyClass = _emberRuntimeSystemObject.default.extend({
         foo: null,
@@ -55969,7 +55969,7 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
     ok(get(obj, 'isDestroyed'), 'object is destroyed after run loop finishes');
   });
 
-  if (_emberMetal.isFeatureEnabled('mandatory-setter')) {
+  if (true) {
     // MANDATORY_SETTER moves value to meta.values
     // a destroyed object removes meta but leaves the accessor
     // that looks it up
@@ -59875,7 +59875,7 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal', 'embe
     this.waiters.register();
 
     var waiters = undefined;
-    if (_emberMetal.isFeatureEnabled('ember-testing-check-waiters')) {
+    if (true) {
       expectDeprecation(function () {
         waiters = _emberTestingTestWaiters.generateDeprecatedWaitersArray();
       }, /Usage of `Ember.Test.waiters` is deprecated/);
@@ -61077,7 +61077,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViews.jQuery('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     QUnit.test('The {{link-to}} helper fires an interaction event', function (assert) {
       assert.expect(2);
       Router.map(function (match) {
@@ -62386,7 +62386,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('{{link-to}} populates href with default query param values even without query-params object', function () {
-    if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+    if (false) {
       App.IndexRoute = _emberRouting.Route.extend({
         queryParams: {
           foo: {
@@ -62407,7 +62407,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
   });
 
   QUnit.test('{{link-to}} populates href with default query param values with empty query-params object', function () {
-    if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+    if (false) {
       App.IndexRoute = _emberRouting.Route.extend({
         queryParams: {
           foo: {
@@ -62432,7 +62432,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       this.route('about');
     });
 
-    if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+    if (false) {
       App.ApplicationRoute = _emberRouting.Route.extend({
         queryParams: {
           foo: {
@@ -62467,7 +62467,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
       this.route('about');
     });
 
-    if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+    if (false) {
       App.ApplicationRoute = _emberRouting.Route.extend({
         queryParams: {
           foo: {
@@ -62814,7 +62814,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     _emberGlimmer.setTemplates({});
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+  if (false) {
     QUnit.module('The {{link-to}} helper: invoking with query params when defined on a route', {
       setup: function () {
         _emberMetal.run(function () {
@@ -63814,13 +63814,13 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
     });
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-string-ishtmlsafe')) {
+  if (true) {
     QUnit.test('Ember.String.isHTMLSafe exports correctly', function (assert) {
       _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-metal-weakmap')) {
+  if (false) {
     QUnit.test('Ember.WeakMap exports correctly', function (assert) {
       _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'WeakMap', 'ember-metal', 'WeakMap');
     });
@@ -67707,7 +67707,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
     }
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+  if (false) {
     QUnit.test('Single query params can be set on the route', function () {
       App.Router.map(function () {
         this.route('home', { path: '/' });
@@ -71155,7 +71155,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     return function () {
       var articleClass = _emberRuntime.String.classify(articleLookup);
 
-      if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+      if (false) {
         App[articleClass + 'Route'].reopen({
           queryParams: { q: { scope: 'controller' } }
         });
@@ -71301,7 +71301,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       });
 
-      if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+      if (false) {
         App.ArticleRoute.reopen({
           queryParams: {
             q: { defaultValue: 'wat' },
@@ -71392,7 +71392,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       });
 
-      if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+      if (false) {
         App.SiteArticleRoute.reopen({
           queryParams: {
             q: { defaultValue: 'wat' },
@@ -71505,7 +71505,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       });
 
-      if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+      if (false) {
         App.SiteRoute.reopen({
           queryParams: {
             country: { defaultValue: 'au' }
@@ -71966,7 +71966,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+  if (false) {
     QUnit.module('Query Params - overlapping query param property names when configured on the route', {
       setup: function () {
         sharedSetup();
@@ -72305,7 +72305,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
+  if (false) {
     testParamlessLinksWithRouteConfig('application');
     testParamlessLinksWithRouteConfig('index');
   } else {
