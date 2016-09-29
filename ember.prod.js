@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+b1a1baf5
+ * @version   2.10.0-canary+4a96d358
  */
 
 var enifed, requireModule, require, Ember;
@@ -12414,6 +12414,17 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'glimmer-runtime', 'ember-met
   }
 
   function referenceForParts(component, parts) {
+    var isAttrs = parts[0] === 'attrs';
+
+    // TODO deprecate this
+    if (isAttrs) {
+      parts.shift();
+
+      if (parts.length === 1) {
+        return referenceForKey(component, parts[0]);
+      }
+    }
+
     return _glimmerReference.referenceFromParts(component[_emberGlimmerComponent.ROOT_REF], parts);
   }
 
@@ -39364,7 +39375,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+b1a1baf5";
+  exports.default = "2.10.0-canary+4a96d358";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
