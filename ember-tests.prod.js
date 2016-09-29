@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.1+fb1bd7f1
+ * @version   2.8.1+291a1562
  */
 
 var enifed, requireModule, require, Ember;
@@ -14758,6 +14758,19 @@ enifed('ember-htmlbars/tests/integration/components/fragment-components-test', [
 
       this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
       this.render('{{#foo-bar id=\'baz\'}}{{/foo-bar}}');
+      this.assertText('baz');
+    };
+
+    _class.prototype['@test does not throw an error if `tagName` is an empty string and `id` is bound property specified via template'] = function testDoesNotThrowAnErrorIfTagNameIsAnEmptyStringAndIdIsBoundPropertySpecifiedViaTemplate() {
+      var template = '{{id}}';
+      var FooBarComponent = _emberHtmlbarsTestsUtilsHelpers.Component.extend({
+        tagName: ''
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: template });
+
+      this.render('{{#foo-bar id=fooBarId}}{{/foo-bar}}', { fooBarId: 'baz' });
+
       this.assertText('baz');
     };
 
