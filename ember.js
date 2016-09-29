@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.4
+ * @version   2.9.0-beta.4-beta+c1cb8ad4
  */
 
 var enifed, requireModule, require, Ember;
@@ -8888,8 +8888,10 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-glimmer
 
   exports.createClosureAction = createClosureAction;
   var INVOKE = _emberUtils.symbol('INVOKE');
-
   exports.INVOKE = INVOKE;
+  var ACTION = _emberUtils.symbol('ACTION');
+
+  exports.ACTION = ACTION;
 
   var ClosureActionReference = (function (_CachedReference) {
     babelHelpers.inherits(ClosureActionReference, _CachedReference);
@@ -9023,6 +9025,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-glimmer
       };
     }
 
+    closureAction[ACTION] = true;
     return closureAction;
   }
 });
@@ -12676,7 +12679,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
     return ArrayIterable;
   })();
 });
-enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-reference', 'ember-glimmer/component', 'ember-glimmer/utils/references', 'ember-views'], function (exports, _emberUtils, _glimmerReference, _emberGlimmerComponent, _emberGlimmerUtilsReferences, _emberViews) {
+enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-reference', 'ember-glimmer/component', 'ember-glimmer/utils/references', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _glimmerReference, _emberGlimmerComponent, _emberGlimmerUtilsReferences, _emberViews, _emberGlimmerHelpersAction) {
   'use strict';
 
   exports.default = processArgs;
@@ -12734,7 +12737,9 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-r
         var ref = namedArgs.get(_name);
         var value = attrs[_name];
 
-        if (ref[_emberGlimmerUtilsReferences.UPDATE]) {
+        if (typeof value === 'function' && value[_emberGlimmerHelpersAction.ACTION]) {
+          attrs[_name] = value;
+        } else if (ref[_emberGlimmerUtilsReferences.UPDATE]) {
           attrs[_name] = new MutableCell(ref, value);
         }
 
@@ -40937,7 +40942,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.4";
+  exports.default = "2.9.0-beta.4-beta+c1cb8ad4";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

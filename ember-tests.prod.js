@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.4
+ * @version   2.9.0-beta.4-beta+c1cb8ad4
  */
 
 var enifed, requireModule, require, Ember;
@@ -20992,7 +20992,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       this.assert.equal(actualValue, newValue, 'property is read');
     };
 
-    _class2.prototype['@test action closure does not get auto-mut wrapped'] = function testActionClosureDoesNotGetAutoMutWrapped() {
+    _class2.prototype['@test action closure does not get auto-mut wrapped'] = function testActionClosureDoesNotGetAutoMutWrapped(assert) {
       var first = 'raging robert';
       var second = 'mild machty';
       var returnValue = 'butch brian';
@@ -21008,7 +21008,14 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
           innerComponent = this;
         },
         fireAction: function () {
-          actualReturnedValue = this.attrs.submit(second);
+          this.get('submit')(second);
+          this.get('attrs-submit')(second);
+          var attrsSubmitReturnValue = this.attrs['attrs-submit'](second);
+          var submitReturnValue = this.attrs.submit(second);
+
+          assert.equal(attrsSubmitReturnValue, submitReturnValue, 'both attrs.foo and foo should behave the same');
+
+          return submitReturnValue;
         }
       });
 
@@ -21031,7 +21038,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
 
       this.registerComponent('middle-component', {
         ComponentClass: MiddleComponent,
-        template: '{{inner-component submit=attrs.submit}}'
+        template: '{{inner-component attrs-submit=attrs.submit submit=submit}}'
       });
 
       this.registerComponent('outer-component', {
@@ -21042,7 +21049,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       this.render('{{outer-component}}');
 
       this.runTask(function () {
-        innerComponent.fireAction();
+        actualReturnedValue = innerComponent.fireAction();
       });
 
       this.assert.equal(actualFirst, first, 'first argument is correct');
