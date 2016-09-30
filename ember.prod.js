@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+4a96d358
+ * @version   2.10.0-canary+5a8f3cb9
  */
 
 var enifed, requireModule, require, Ember;
@@ -23239,6 +23239,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     @extends Ember.Object
     @uses Ember.ActionHandler
     @uses Ember.Evented
+    @since 1.0.0
     @public
   */
   var Route = _emberRuntime.Object.extend(_emberRuntime.ActionHandler, _emberRuntime.Evented, {
@@ -23278,6 +23279,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @property queryParams
       @for Ember.Route
       @type Object
+      @since 1.6.0
       @public
     */
     queryParams: {},
@@ -23290,6 +23292,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @property routeName
       @for Ember.Route
       @type String
+      @since 1.0.0
       @public
     */
 
@@ -23527,6 +23530,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @method paramsFor
       @param {String} name
       @return {Object} hash containing the parameters of the route `name`
+      @since 1.4.0
       @public
     */
     paramsFor: function (name) {
@@ -23733,6 +23737,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       will be fired, enabling "bubbling" behavior for the event.
        @event willTransition
       @param {Transition} transition
+      @since 1.0.0
       @public
     */
 
@@ -23828,6 +23833,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @event error
       @param {Error} error
       @param {Transition} transition
+      @since 1.0.0
       @public
     */
 
@@ -24004,6 +24010,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       This hook is executed when the router completely exits this route. It is
       not executed when the model for the route changes.
        @method deactivate
+      @since 1.0.0
       @public
     */
     deactivate: K,
@@ -24012,6 +24019,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       This hook is executed when the router enters the route. It is not executed
       when the model for the route changes.
        @method activate
+      @since 1.0.0
       @public
     */
     activate: K,
@@ -24139,6 +24147,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         containing a mapping of query parameters
       @return {Transition} the transition object associated with this
         attempted transition
+      @since 1.0.0
       @public
     */
     transitionTo: function (name, context) {
@@ -24214,6 +24223,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         transitioning to the route.
       @return {Transition} the transition object associated with this
         attempted transition
+      @since 1.0.0
       @public
     */
     replaceWith: function () {
@@ -24249,6 +24259,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @method send
       @param {String} name the name of the action to trigger
       @param {...*} args
+      @since 1.0.0
       @public
     */
     send: function () {
@@ -24420,6 +24431,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         a promise, the transition will pause until the transition
         resolves. Otherwise, non-promise return values are not
         utilized in any way.
+      @since 1.0.0
       @public
     */
     beforeModel: K,
@@ -24451,6 +24463,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         a promise, the transition will pause until the transition
         resolves. Otherwise, non-promise return values are not
         utilized in any way.
+      @since 1.0.0
       @public
      */
     afterModel: K,
@@ -24475,6 +24488,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @method redirect
       @param {Object} model the model for this route
       @param {Transition} transition the transition object associated with the current transition
+      @since 1.0.0
       @public
     */
     redirect: K,
@@ -24542,6 +24556,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         a promise is returned, the transition will pause until
         the promise resolves, and the resolved value of the promise
         will be used as the model for this route.
+      @since 1.0.0
       @public
     */
     model: function (params, transition) {
@@ -24658,6 +24673,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @param {Array} params an Array of parameter names for the current
         route (in the example, `['post_id']`.
       @return {Object} the serialized parameters
+      @since 1.0.0
       @public
     */
     serialize: defaultSerialize,
@@ -24708,6 +24724,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @method setupController
       @param {Controller} controller instance
       @param {Object} model
+      @since 1.0.0
       @public
     */
     setupController: function (controller, context, transition) {
@@ -24731,6 +24748,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @method controllerFor
       @param {String} name the name of the route or controller
       @return {Ember.Controller}
+      @since 1.0.0
       @public
     */
     controllerFor: function (name, _skipAssert) {
@@ -24800,6 +24818,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @method modelFor
       @param {String} name the name of the route
       @return {Object} the model object
+      @since 1.0.0
       @public
     */
     modelFor: function (_name) {
@@ -24853,6 +24872,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        @method renderTemplate
       @param {Object} controller the route's controller
       @param {Object} model the route's model
+      @since 1.0.0
       @public
     */
     renderTemplate: function (controller, model) {
@@ -24956,6 +24976,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
                       referenced by name or as a controller instance. Defaults to the Route's paired controller
       @param {Object} [options.model] the model object to set on `options.controller`.
                       Defaults to the return value of the Route's model hook
+      @since 1.0.0
       @public
     */
     render: function (_name, options) {
@@ -25010,6 +25031,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       ```
        @method disconnectOutlet
       @param {Object|String} options the options hash or outlet name
+      @since 1.0.0
       @public
     */
     disconnectOutlet: function (options) {
@@ -39375,7 +39397,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+4a96d358";
+  exports.default = "2.10.0-canary+5a8f3cb9";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
