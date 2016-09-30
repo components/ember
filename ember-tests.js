@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+5a8f3cb9
+ * @version   2.10.0-canary+12e3ec06
  */
 
 var enifed, requireModule, require, Ember;
@@ -11668,6 +11668,25 @@ babelHelpers.classCallCheck(this, _class);
       this.render('{{foo-bar}}');
 
       this.assertText('so much layout wat hey');
+    };
+
+    _class.prototype['@test layout supports computed property'] = function testLayoutSupportsComputedProperty() {
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        elementId: 'blahzorz',
+        layout: _emberMetal.computed(function () {
+          return _emberGlimmerTestsUtilsHelpers.compile('so much layout wat {{lulz}}');
+        }),
+        init: function () {
+          this._super.apply(this, arguments);
+          this.lulz = 'heyo';
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('so much layout wat heyo');
     };
 
     _class.prototype['@test passing undefined elementId results in a default elementId'] = function testPassingUndefinedElementIdResultsInADefaultElementId(assert) {
