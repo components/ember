@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+f909d0be
+ * @version   2.10.0-canary+0e7668d1
  */
 
 var enifed, requireModule, require, Ember;
@@ -21115,6 +21115,10 @@ enifed('ember-metal/property_set', ['exports', 'ember-utils', 'ember-metal/debug
     and notifying observers and other listeners of the change. If the
     property is not defined but the object implements the `setUnknownProperty`
     method then that will be invoked as well.
+  
+    ```javascript
+    Ember.set(obj, "name", value);
+    ```
   
     @method set
     @for Ember
@@ -42298,7 +42302,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+f909d0be";
+  exports.default = "2.10.0-canary+0e7668d1";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
