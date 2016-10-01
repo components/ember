@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+18debdf6
+ * @version   2.10.0-canary+f909d0be
  */
 
 var enifed, requireModule, require, Ember;
@@ -8910,6 +8910,10 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     Gets the value of a property on an object. If the property is computed,
     the function will be invoked. If the property is not defined but the
     object implements the `unknownProperty` method then that will be invoked.
+  
+    ```javascript
+    Ember.get(obj, "name");
+    ```
   
     If you plan to run on IE8 and older browsers then you should use this
     method anytime you want to retrieve a property on an object that you don't
@@ -19300,7 +19304,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+18debdf6";
+  exports.default = "2.10.0-canary+f909d0be";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
