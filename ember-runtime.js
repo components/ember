@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+0e7668d1
+ * @version   2.10.0-canary+5857213b
  */
 
 var enifed, requireModule, require, Ember;
@@ -15924,9 +15924,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
        Computed properties are methods defined with the `property` modifier
       declared at the end, such as:
        ```javascript
-      fullName: function() {
+      fullName: Ember.computed('firstName', 'lastName', function() {
         return this.get('firstName') + ' ' + this.get('lastName');
-      }.property('firstName', 'lastName')
+      })
       ```
        When you call `get` on a computed property, the function will be
       called and the return value will be returned instead of the function
@@ -18767,14 +18767,14 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
   
     ```javascript
     ProxyWithComputedProperty = Ember.ObjectProxy.extend({
-      fullName: function() {
+      fullName: Ember.computed('firstName', 'lastName', function() {
         var firstName = this.get('firstName'),
             lastName = this.get('lastName');
         if (firstName && lastName) {
           return firstName + ' ' + lastName;
         }
         return firstName || lastName;
-      }.property('firstName', 'lastName')
+      })
     });
   
     proxy = ProxyWithComputedProperty.create();
@@ -19308,7 +19308,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+0e7668d1";
+  exports.default = "2.10.0-canary+5857213b";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
