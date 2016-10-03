@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.4-beta+1da48b66
+ * @version   2.9.0-beta.4-beta+79d440e2
  */
 
 var enifed, requireModule, require, Ember;
@@ -13633,7 +13633,7 @@ babelHelpers.classCallCheck(this, _class);
       var _this57 = this;
 
       if (false) {
-        expectDeprecation(/modified value twice in a single render/);
+        expectDeprecation(/modified value twice on <\(.+> in a single render/);
       }
 
       var outer = undefined,
@@ -13688,7 +13688,7 @@ babelHelpers.classCallCheck(this, _class);
           _this57.runTask(function () {
             return outer.set('value', 2);
           });
-        }, /modified value twice in a single render/);
+        }, /modified value twice on <\(.+> in a single render/);
 
         return;
       } else {
@@ -13719,7 +13719,7 @@ babelHelpers.classCallCheck(this, _class);
       var _this58 = this;
 
       if (false) {
-        expectDeprecation(/modified wrapper.content twice in a single render/);
+        expectDeprecation(/modified wrapper.content twice on <Ember.Object.+> in a single render/);
       }
 
       var outer = undefined,
@@ -13754,7 +13754,7 @@ babelHelpers.classCallCheck(this, _class);
       if (!false) {
         expectAssertion(function () {
           _this58.render('{{x-outer}}');
-        }, /modified wrapper.content twice in a single render/);
+        }, /modified wrapper.content twice on <Ember.Object.+> in a single render/);
 
         return;
       } else {

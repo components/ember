@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.4-beta+1da48b66
+ * @version   2.9.0-beta.4-beta+79d440e2
  */
 
 var enifed, requireModule, require, Ember;
@@ -19748,7 +19748,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
               label = 'the same value';
             }
 
-            return 'You modified ' + parts.join('.') + ' twice in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
+            return 'You modified ' + parts.join('.') + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
           })(), false);
 
           shouldReflush = true;
@@ -38055,7 +38055,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.4-beta+1da48b66";
+  exports.default = "2.9.0-beta.4-beta+79d440e2";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
