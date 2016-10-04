@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+94048fd2
+ * @version   2.10.0-canary+0f96d18e
  */
 
 var enifed, requireModule, require, Ember;
@@ -1990,7 +1990,6 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember', '
     _emberApplicationTestsTestHelpersRegistryCheck.verifyRegistration(application, _container.privatize(_templateObject));
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'router', '_bucketCache', _container.privatize(_templateObject));
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', '_bucketCache', _container.privatize(_templateObject));
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'controller', '_bucketCache', _container.privatize(_templateObject));
 
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(application, 'route', 'router', 'router:main');
 
@@ -3721,7 +3720,6 @@ enifed('ember-application/tests/system/engine_test', ['exports', 'ember-environm
 
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'router', '_bucketCache', _container.privatize(_templateObject));
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', '_bucketCache', _container.privatize(_templateObject));
-    _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'controller', '_bucketCache', _container.privatize(_templateObject));
 
     _emberApplicationTestsTestHelpersRegistryCheck.verifyInjection(engine, 'route', 'router', 'router:main');
 
