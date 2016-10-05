@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.4-beta+79d440e2
+ * @version   2.9.0-beta.4-beta+728b7f0a
  */
 
 var enifed, requireModule, require, Ember;
@@ -14384,6 +14384,15 @@ babelHelpers.inherits(_class, _RenderingTest);
       });
 
       this.assertText('|foo||bar||qux||baz|');
+    };
+
+    _class.prototype['@test unimplimented positionalParams do not cause an error GH#14416'] = function testUnimplimentedPositionalParamsDoNotCauseAnErrorGH14416(assert) {
+      this.registerComponent('foo-bar', {
+        template: 'hello'
+      });
+
+      this.render('{{foo-bar wat}}');
+      this.assertText('hello');
     };
 
     return _class;
