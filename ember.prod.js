@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+0f96d18e
+ * @version   2.10.0-canary+d56b9144
  */
 
 var enifed, requireModule, require, Ember;
@@ -23296,10 +23296,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         var controllerDefinedQueryParameterConfiguration = _emberMetal.get(controllerProto, 'queryParams');
         var normalizedControllerQueryParameterConfiguration = _emberRoutingUtils.normalizeControllerQueryParams(controllerDefinedQueryParameterConfiguration);
         combinedQueryParameterConfiguration = mergeEachQueryParams(normalizedControllerQueryParameterConfiguration, queryParameterConfiguraton);
-
-        if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
-          if (controllerDefinedQueryParameterConfiguration.length) {}
-        }
       } else if (hasRouterDefinedQueryParams) {
         // the developer has not defined a controller but *has* supplied route query params.
         // Generate a class for them so we can later insert default values
@@ -23325,20 +23321,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         }
 
         var desc = combinedQueryParameterConfiguration[propName];
-
-        if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
-          // apply default values to controllers
-          // detect that default value defined on router config
-          if (desc.hasOwnProperty('defaultValue')) {
-            // detect that property was not defined on controller
-            if (controllerProto[propName] === undefined) {
-              controllerProto[propName] = desc.defaultValue;
-            } else {
-              deprecateQueryParamDefaultValuesSetOnController(controllerName, this.routeName, propName);
-            }
-          }
-        }
-
         var scope = desc.scope || 'model';
         var parts = undefined;
 
@@ -25224,16 +25206,12 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     var keysAlreadyMergedOrSkippable = undefined;
     var qps = {};
 
-    if (_emberMetal.isFeatureEnabled('ember-routing-route-configured-query-params')) {
-      keysAlreadyMergedOrSkippable = {};
-    } else {
-      keysAlreadyMergedOrSkippable = {
-        defaultValue: true,
-        type: true,
-        scope: true,
-        as: true
-      };
-    }
+    keysAlreadyMergedOrSkippable = {
+      defaultValue: true,
+      type: true,
+      scope: true,
+      as: true
+    };
 
     // first loop over all controller qps, merging them with any matching route qps
     // into a new empty object to avoid mutating.
@@ -25272,8 +25250,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       controller.addObserver(prop + '.[]', controller, controller._qpChanged);
     });
   }
-
-  function deprecateQueryParamDefaultValuesSetOnController(controllerName, routeName, propName) {}
 
   function getEngineRouteName(engine, routeName) {
     if (engine.routable) {
@@ -38845,7 +38821,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -39375,7 +39351,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+0f96d18e";
+  exports.default = "2.10.0-canary+d56b9144";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
