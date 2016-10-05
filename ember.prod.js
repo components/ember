@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+d56b9144
+ * @version   2.10.0-canary+7d5c764c
  */
 
 var enifed, requireModule, require, Ember;
@@ -6501,7 +6501,8 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   Component[_emberMetal.NAME_KEY] = 'Ember.Component';
 
   Component.reopenClass({
-    isComponentFactory: true
+    isComponentFactory: true,
+    positionalParams: []
   });
 
   exports.default = Component;
@@ -39351,7 +39352,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+d56b9144";
+  exports.default = "2.10.0-canary+7d5c764c";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
