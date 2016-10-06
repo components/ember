@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+b685acbb
+ * @version   2.10.0-canary+8cb2107d
  */
 
 var enifed, requireModule, require, Ember;
@@ -42256,7 +42256,43 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+b685acbb";
+  exports.default = "2.10.0-canary+8cb2107d";
+});
+enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
+  'use strict';
+
+  exports.default = applyMixins;
+
+  function isGenerator(mixin) {
+    return Array.isArray(mixin.cases) && typeof mixin.generate === 'function';
+  }
+
+  function applyMixins(TestClass) {
+    for (var _len = arguments.length, mixins = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      mixins[_key - 1] = arguments[_key];
+    }
+
+    mixins.forEach(function (mixinOrGenerator) {
+      var mixin = undefined;
+
+      if (isGenerator(mixinOrGenerator)) {
+        (function () {
+          var generator = mixinOrGenerator;
+          mixin = {};
+
+          generator.cases.forEach(function (value, idx) {
+            _emberUtils.assign(mixin, generator.generate(value, idx));
+          });
+        })();
+      } else {
+        mixin = mixinOrGenerator;
+      }
+
+      _emberUtils.assign(TestClass.prototype, mixin);
+    });
+
+    return TestClass;
+  }
 });
 enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberRuntime) {
   'use strict';
@@ -42336,6 +42372,94 @@ enifed('internal-test-helpers/confirm-export', ['exports', 'require'], function 
     }
   }
 });
+enifed('internal-test-helpers/equal-inner-html', ['exports'], function (exports) {
+  // detect side-effects of cloning svg elements in IE9-11
+  'use strict';
+
+  exports.default = equalInnerHTML;
+  var ieSVGInnerHTML = (function () {
+    if (!document.createElementNS) {
+      return false;
+    }
+    var div = document.createElement('div');
+    var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    div.appendChild(node);
+    var clone = div.cloneNode(true);
+    return clone.innerHTML === '<svg xmlns="http://www.w3.org/2000/svg" />';
+  })();
+
+  function normalizeInnerHTML(actualHTML) {
+    if (ieSVGInnerHTML) {
+      // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
+      // drop namespace attribute
+      actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
+      // replace self-closing elements
+      actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function (tag, tagName) {
+        return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
+      });
+    }
+
+    return actualHTML;
+  }
+
+  function equalInnerHTML(fragment, html) {
+    var actualHTML = normalizeInnerHTML(fragment.innerHTML);
+    QUnit.push(actualHTML === html, actualHTML, html);
+  }
+});
+enifed('internal-test-helpers/equal-tokens', ['exports', 'simple-html-tokenizer'], function (exports, _simpleHtmlTokenizer) {
+  'use strict';
+
+  exports.default = equalTokens;
+
+  function generateTokens(containerOrHTML) {
+    if (typeof containerOrHTML === 'string') {
+      return {
+        tokens: _simpleHtmlTokenizer.tokenize(containerOrHTML),
+        html: containerOrHTML
+      };
+    } else {
+      return {
+        tokens: _simpleHtmlTokenizer.tokenize(containerOrHTML.innerHTML),
+        html: containerOrHTML.innerHTML
+      };
+    }
+  }
+
+  function normalizeTokens(tokens) {
+    tokens.forEach(function (token) {
+      if (token.type === 'StartTag') {
+        token.attributes = token.attributes.sort(function (a, b) {
+          if (a[0] > b[0]) {
+            return 1;
+          }
+          if (a[0] < b[0]) {
+            return -1;
+          }
+          return 0;
+        });
+      }
+    });
+  }
+
+  function equalTokens(actualContainer, expectedHTML) {
+    var message = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+    var actual = generateTokens(actualContainer);
+    var expected = generateTokens(expectedHTML);
+
+    normalizeTokens(actual.tokens);
+    normalizeTokens(expected.tokens);
+
+    var equiv = QUnit.equiv(actual.tokens, expected.tokens);
+
+    if (equiv && expected.html !== actual.html) {
+      deepEqual(actual.tokens, expected.tokens, message);
+    } else {
+      QUnit.push(QUnit.equiv(actual.tokens, expected.tokens), actual.html, expected.html, message);
+    }
+  }
+});
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
 
@@ -42406,16 +42530,186 @@ enifed('internal-test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/run', 'internal-test-helpers/test-groups'], function (exports, _internalTestHelpersFactory, _internalTestHelpersBuildOwner, _internalTestHelpersConfirmExport, _internalTestHelpersRun, _internalTestHelpersTestGroups) {
+enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering'], function (exports, _internalTestHelpersFactory, _internalTestHelpersBuildOwner, _internalTestHelpersConfirmExport, _internalTestHelpersEqualInnerHtml, _internalTestHelpersEqualTokens, _internalTestHelpersModuleFor, _internalTestHelpersStrip, _internalTestHelpersApplyMixins, _internalTestHelpersMatchers, _internalTestHelpersRun, _internalTestHelpersTestGroups, _internalTestHelpersTestCasesAbstract, _internalTestHelpersTestCasesAbstractApplication, _internalTestHelpersTestCasesApplication, _internalTestHelpersTestCasesAbstractRendering, _internalTestHelpersTestCasesRendering) {
   'use strict';
 
   exports.factory = _internalTestHelpersFactory.default;
   exports.buildOwner = _internalTestHelpersBuildOwner.default;
   exports.confirmExport = _internalTestHelpersConfirmExport.default;
+  exports.equalInnerHTML = _internalTestHelpersEqualInnerHtml.default;
+  exports.equalTokens = _internalTestHelpersEqualTokens.default;
+  exports.moduleFor = _internalTestHelpersModuleFor.default;
+  exports.strip = _internalTestHelpersStrip.default;
+  exports.applyMixins = _internalTestHelpersApplyMixins.default;
+  exports.equalsElement = _internalTestHelpersMatchers.equalsElement;
+  exports.classes = _internalTestHelpersMatchers.classes;
+  exports.styles = _internalTestHelpersMatchers.styles;
+  exports.regex = _internalTestHelpersMatchers.regex;
   exports.runAppend = _internalTestHelpersRun.runAppend;
   exports.runDestroy = _internalTestHelpersRun.runDestroy;
   exports.testBoth = _internalTestHelpersTestGroups.testBoth;
   exports.testWithDefault = _internalTestHelpersTestGroups.testWithDefault;
+  exports.AbstractTestCase = _internalTestHelpersTestCasesAbstract.default;
+  exports.AbstractApplicationTestCase = _internalTestHelpersTestCasesAbstractApplication.default;
+  exports.ApplicationTestCase = _internalTestHelpersTestCasesApplication.default;
+  exports.AbstractRenderingTestCase = _internalTestHelpersTestCasesAbstractRendering.default;
+  exports.RenderingTestCase = _internalTestHelpersTestCasesRendering.default;
+});
+enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
+  'use strict';
+
+  exports.regex = regex;
+  exports.classes = classes;
+  exports.styles = styles;
+  exports.equalsElement = equalsElement;
+  var HTMLElement = window.HTMLElement;
+  var MATCHER_BRAND = '3d4ef194-13be-4ccf-8dc7-862eea02c93e';
+
+  function isMatcher(obj) {
+    return typeof obj === 'object' && obj !== null && MATCHER_BRAND in obj;
+  }
+
+  function equalsAttr(expected) {
+    var _ref;
+
+    return _ref = {}, _ref[MATCHER_BRAND] = true, _ref.match = function (actual) {
+      return expected === actual;
+    }, _ref.expected = function () {
+      return expected;
+    }, _ref.message = function () {
+      return 'should equal ' + this.expected();
+    }, _ref;
+  }
+
+  function regex(r) {
+    var _ref2;
+
+    return _ref2 = {}, _ref2[MATCHER_BRAND] = true, _ref2.match = function (v) {
+      return r.test(v);
+    }, _ref2.expected = function () {
+      return r.toString();
+    }, _ref2.message = function () {
+      return 'should match ' + this.expected();
+    }, _ref2;
+  }
+
+  function classes(expected) {
+    var _ref3;
+
+    return _ref3 = {}, _ref3[MATCHER_BRAND] = true, _ref3.match = function (actual) {
+      actual = actual.trim();
+      return actual && expected.split(/\s+/).sort().join(' ') === actual.trim().split(/\s+/).sort().join(' ');
+    }, _ref3.expected = function () {
+      return expected;
+    }, _ref3.message = function () {
+      return 'should match ' + this.expected();
+    }, _ref3;
+  }
+
+  function styles(expected) {
+    var _ref4;
+
+    return _ref4 = {}, _ref4[MATCHER_BRAND] = true, _ref4.match = function (actual) {
+      // coerce `null` or `undefined` to an empty string
+      // needed for matching empty styles on IE9 - IE11
+      actual = actual || '';
+      actual = actual.trim();
+
+      return expected.split(';').map(function (s) {
+        return s.trim();
+      }).filter(function (s) {
+        return s;
+      }).sort().join('; ') === actual.split(';').map(function (s) {
+        return s.trim();
+      }).filter(function (s) {
+        return s;
+      }).sort().join('; ');
+    }, _ref4.expected = function () {
+      return expected;
+    }, _ref4.message = function () {
+      return 'should match ' + this.expected();
+    }, _ref4;
+  }
+
+  function equalsElement(element, tagName, attributes, content) {
+    QUnit.push(element.tagName === tagName.toUpperCase(), element.tagName.toLowerCase(), tagName, 'expect tagName to be ' + tagName);
+
+    var expectedAttrs = {};
+    var expectedCount = 0;
+
+    for (var _name in attributes) {
+      var expected = attributes[_name];
+      if (expected !== null) {
+        expectedCount++;
+      }
+
+      var matcher = isMatcher(expected) ? expected : equalsAttr(expected);
+
+      expectedAttrs[_name] = matcher;
+
+      QUnit.push(expectedAttrs[_name].match(element.getAttribute(_name)), element.getAttribute(_name), matcher.expected(), 'Element\'s ' + _name + ' attribute ' + matcher.message());
+    }
+
+    var actualAttributes = {};
+
+    for (var i = 0, l = element.attributes.length; i < l; i++) {
+      actualAttributes[element.attributes[i].name] = element.attributes[i].value;
+    }
+
+    if (!(element instanceof HTMLElement)) {
+      QUnit.push(element instanceof HTMLElement, null, null, 'Element must be an HTML Element, not an SVG Element');
+    } else {
+      QUnit.push(element.attributes.length === expectedCount || !attributes, element.attributes.length, expectedCount, 'Expected ' + expectedCount + ' attributes; got ' + element.outerHTML);
+
+      if (content !== null) {
+        QUnit.push(element.innerHTML === content, element.innerHTML, content, 'The element had \'' + content + '\' as its content');
+      }
+    }
+  }
+});
+enifed('internal-test-helpers/module-for', ['exports', 'internal-test-helpers/apply-mixins'], function (exports, _internalTestHelpersApplyMixins) {
+  'use strict';
+
+  exports.default = moduleFor;
+
+  function moduleFor(description, TestClass) {
+    var context = undefined;
+
+    QUnit.module(description, {
+      setup: function () {
+        context = new TestClass();
+      },
+
+      teardown: function () {
+        context.teardown();
+      }
+    });
+
+    for (var _len = arguments.length, mixins = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      mixins[_key - 2] = arguments[_key];
+    }
+
+    _internalTestHelpersApplyMixins.default(TestClass, mixins);
+
+    var proto = TestClass.prototype;
+
+    while (proto !== Object.prototype) {
+      Object.keys(proto).forEach(generateTest);
+      proto = Object.getPrototypeOf(proto);
+    }
+
+    function generateTest(name) {
+      if (name.indexOf('@test ') === 0) {
+        QUnit.test(name.slice(5), function (assert) {
+          return context[name](assert);
+        });
+      } else if (name.indexOf('@skip ') === 0) {
+        QUnit.skip(name.slice(5), function (assert) {
+          return context[name](assert);
+        });
+      }
+    }
+  }
 });
 enifed('internal-test-helpers/run', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   'use strict';
@@ -42432,6 +42726,488 @@ enifed('internal-test-helpers/run', ['exports', 'ember-metal'], function (export
       _emberMetal.run(toDestroy, 'destroy');
     }
   }
+});
+enifed('internal-test-helpers/strip', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = strip;
+
+  function strip(_ref) {
+    for (var _len = arguments.length, values = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      values[_key - 1] = arguments[_key];
+    }
+
+    var strings = _ref;
+
+    var str = strings.map(function (string, index) {
+      var interpolated = values[index];
+      return string + (interpolated !== undefined ? interpolated : '');
+    }).join('');
+    return str.split('\n').map(function (s) {
+      return s.trim();
+    }).join('');
+  }
+});
+enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-metal', 'ember-views', 'ember-application', 'ember-routing', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/run'], function (exports, _emberMetal, _emberViews, _emberApplication, _emberRouting, _emberTemplateCompiler, _internalTestHelpersTestCasesAbstract, _internalTestHelpersRun) {
+  'use strict';
+
+  var AbstractApplicationTestCase = (function (_AbstractTestCase) {
+    babelHelpers.inherits(AbstractApplicationTestCase, _AbstractTestCase);
+
+    function AbstractApplicationTestCase() {
+      babelHelpers.classCallCheck(this, AbstractApplicationTestCase);
+
+      _AbstractTestCase.call(this);
+
+      this.element = _emberViews.jQuery('#qunit-fixture')[0];
+
+      this.application = _emberMetal.run(_emberApplication.Application, 'create', this.applicationOptions);
+
+      this.router = this.application.Router = _emberRouting.Router.extend({
+        location: 'none'
+      });
+
+      this.applicationInstance = null;
+    }
+
+    AbstractApplicationTestCase.prototype.teardown = function teardown() {
+      if (this.applicationInstance) {
+        _internalTestHelpersRun.runDestroy(this.applicationInstance);
+      }
+
+      _internalTestHelpersRun.runDestroy(this.application);
+    };
+
+    AbstractApplicationTestCase.prototype.visit = function visit(url, options) {
+      var _this = this;
+
+      var applicationInstance = this.applicationInstance;
+
+      if (applicationInstance) {
+        return _emberMetal.run(applicationInstance, 'visit', url, options);
+      } else {
+        return _emberMetal.run(this.application, 'visit', url, options).then(function (instance) {
+          _this.applicationInstance = instance;
+        });
+      }
+    };
+
+    AbstractApplicationTestCase.prototype.compile = function compile(string, options) {
+      return _emberTemplateCompiler.compile.apply(undefined, arguments);
+    };
+
+    AbstractApplicationTestCase.prototype.registerRoute = function registerRoute(name, route) {
+      this.application.register('route:' + name, route);
+    };
+
+    AbstractApplicationTestCase.prototype.registerTemplate = function registerTemplate(name, template) {
+      this.application.register('template:' + name, this.compile(template, {
+        moduleName: name
+      }));
+    };
+
+    AbstractApplicationTestCase.prototype.registerComponent = function registerComponent(name, _ref) {
+      var _ref$ComponentClass = _ref.ComponentClass;
+      var ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass;
+      var _ref$template = _ref.template;
+      var template = _ref$template === undefined ? null : _ref$template;
+
+      if (ComponentClass) {
+        this.application.register('component:' + name, ComponentClass);
+      }
+
+      if (typeof template === 'string') {
+        this.application.register('template:components/' + name, this.compile(template, {
+          moduleName: 'components/' + name
+        }));
+      }
+    };
+
+    AbstractApplicationTestCase.prototype.registerController = function registerController(name, controller) {
+      this.application.register('controller:' + name, controller);
+    };
+
+    AbstractApplicationTestCase.prototype.registerEngine = function registerEngine(name, engine) {
+      this.application.register('engine:' + name, engine);
+    };
+
+    babelHelpers.createClass(AbstractApplicationTestCase, [{
+      key: 'applicationOptions',
+      get: function () {
+        return {
+          rootElement: '#qunit-fixture',
+          autoboot: false
+        };
+      }
+    }]);
+    return AbstractApplicationTestCase;
+  })(_internalTestHelpersTestCasesAbstract.default);
+
+  exports.default = AbstractApplicationTestCase;
+});
+enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember-utils', 'ember-template-compiler', 'ember-views', 'ember-glimmer', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/build-owner', 'internal-test-helpers/run'], function (exports, _emberUtils, _emberTemplateCompiler, _emberViews, _emberGlimmer, _internalTestHelpersTestCasesAbstract, _internalTestHelpersBuildOwner, _internalTestHelpersRun) {
+  'use strict';
+
+  var TextNode = window.Text;
+
+  var AbstractRenderingTestCase = (function (_AbstractTestCase) {
+    babelHelpers.inherits(AbstractRenderingTestCase, _AbstractTestCase);
+
+    function AbstractRenderingTestCase() {
+      babelHelpers.classCallCheck(this, AbstractRenderingTestCase);
+
+      _AbstractTestCase.call(this);
+      var owner = this.owner = _internalTestHelpersBuildOwner.default({
+        ownerOptions: this.getOwnerOptions(),
+        bootOptions: this.getBootOptions(),
+        resolver: this.getResolver()
+      });
+
+      this.renderer = this.owner.lookup('renderer:-dom');
+      this.element = _emberViews.jQuery('#qunit-fixture')[0];
+      this.component = null;
+
+      owner.register('event_dispatcher:main', _emberViews.EventDispatcher);
+      owner.inject('event_dispatcher:main', '_viewRegistry', '-view-registry:main');
+      owner.lookup('event_dispatcher:main').setup(this.getCustomDispatcherEvents(), this.element);
+    }
+
+    AbstractRenderingTestCase.prototype.compile = function compile() {
+      return _emberTemplateCompiler.compile.apply(undefined, arguments);
+    };
+
+    AbstractRenderingTestCase.prototype.getCustomDispatcherEvents = function getCustomDispatcherEvents() {
+      return {};
+    };
+
+    AbstractRenderingTestCase.prototype.getOwnerOptions = function getOwnerOptions() {};
+
+    AbstractRenderingTestCase.prototype.getBootOptions = function getBootOptions() {};
+
+    AbstractRenderingTestCase.prototype.getResolver = function getResolver() {};
+
+    AbstractRenderingTestCase.prototype.teardown = function teardown() {
+      if (this.component) {
+        _internalTestHelpersRun.runDestroy(this.component);
+      }
+      if (this.owner) {
+        _internalTestHelpersRun.runDestroy(this.owner);
+      }
+    };
+
+    AbstractRenderingTestCase.prototype.render = function render(templateStr) {
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var owner = this.owner;
+
+      owner.register('template:-top-level', this.compile(templateStr, {
+        moduleName: '-top-level'
+      }));
+
+      var attrs = _emberUtils.assign({}, context, {
+        tagName: '',
+        layoutName: '-top-level'
+      });
+
+      owner.register('component:-top-level', _emberGlimmer.Component.extend(attrs));
+
+      this.component = owner.lookup('component:-top-level');
+
+      _internalTestHelpersRun.runAppend(this.component);
+    };
+
+    AbstractRenderingTestCase.prototype.rerender = function rerender() {
+      this.component.rerender();
+    };
+
+    AbstractRenderingTestCase.prototype.registerHelper = function registerHelper(name, funcOrClassBody) {
+      var type = typeof funcOrClassBody;
+
+      if (type === 'function') {
+        this.owner.register('helper:' + name, _emberGlimmer.helper(funcOrClassBody));
+      } else if (type === 'object' && type !== null) {
+        this.owner.register('helper:' + name, _emberGlimmer.Helper.extend(funcOrClassBody));
+      } else {
+        throw new Error('Cannot register ' + funcOrClassBody + ' as a helper');
+      }
+    };
+
+    AbstractRenderingTestCase.prototype.registerPartial = function registerPartial(name, template) {
+      var owner = this.env.owner || this.owner;
+      if (typeof template === 'string') {
+        var moduleName = 'template:' + name;
+        owner.register(moduleName, this.compile(template, { moduleName: moduleName }));
+      }
+    };
+
+    AbstractRenderingTestCase.prototype.registerComponent = function registerComponent(name, _ref) {
+      var _ref$ComponentClass = _ref.ComponentClass;
+      var ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass;
+      var _ref$template = _ref.template;
+      var template = _ref$template === undefined ? null : _ref$template;
+      var owner = this.owner;
+
+      if (ComponentClass) {
+        owner.register('component:' + name, ComponentClass);
+      }
+
+      if (typeof template === 'string') {
+        owner.register('template:components/' + name, this.compile(template, {
+          moduleName: 'components/' + name
+        }));
+      }
+    };
+
+    AbstractRenderingTestCase.prototype.registerTemplate = function registerTemplate(name, template) {
+      var owner = this.owner;
+
+      if (typeof template === 'string') {
+        owner.register('template:' + name, this.compile(template, {
+          moduleName: name
+        }));
+      } else {
+        throw new Error('Registered template "' + name + '" must be a string');
+      }
+    };
+
+    AbstractRenderingTestCase.prototype.registerService = function registerService(name, klass) {
+      this.owner.register('service:' + name, klass);
+    };
+
+    AbstractRenderingTestCase.prototype.assertTextNode = function assertTextNode(node, text) {
+      if (!(node instanceof TextNode)) {
+        throw new Error('Expecting a text node, but got ' + node);
+      }
+
+      this.assert.strictEqual(node.textContent, text, 'node.textContent');
+    };
+
+    babelHelpers.createClass(AbstractRenderingTestCase, [{
+      key: 'context',
+      get: function () {
+        return this.component;
+      }
+    }]);
+    return AbstractRenderingTestCase;
+  })(_internalTestHelpersTestCasesAbstract.default);
+
+  exports.default = AbstractRenderingTestCase;
+});
+enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-utils', 'ember-metal', 'ember-views', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/matchers'], function (exports, _emberUtils, _emberMetal, _emberViews, _internalTestHelpersEqualInnerHtml, _internalTestHelpersEqualTokens, _internalTestHelpersMatchers) {
+  'use strict';
+
+  var TextNode = window.Text;
+  var HTMLElement = window.HTMLElement;
+  var Comment = window.Comment;
+
+  function isMarker(node) {
+    if (node instanceof Comment && node.textContent === '') {
+      return true;
+    }
+
+    if (node instanceof TextNode && node.textContent === '') {
+      return true;
+    }
+
+    return false;
+  }
+
+  var AbstractTestCase = (function () {
+    function AbstractTestCase() {
+      babelHelpers.classCallCheck(this, AbstractTestCase);
+
+      this.element = null;
+      this.snapshot = null;
+      this.assert = QUnit.config.current.assert;
+    }
+
+    AbstractTestCase.prototype.teardown = function teardown() {};
+
+    AbstractTestCase.prototype.runTask = function runTask(callback) {
+      _emberMetal.run(callback);
+    };
+
+    // The following methods require `this.element` to work
+
+    AbstractTestCase.prototype.nthChild = function nthChild(n) {
+      var i = 0;
+      var node = this.element.firstChild;
+
+      while (node) {
+        if (!isMarker(node)) {
+          i++;
+        }
+
+        if (i > n) {
+          break;
+        } else {
+          node = node.nextSibling;
+        }
+      }
+
+      return node;
+    };
+
+    AbstractTestCase.prototype.$ = function $(sel) {
+      return sel ? _emberViews.jQuery(sel, this.element) : _emberViews.jQuery(this.element);
+    };
+
+    AbstractTestCase.prototype.textValue = function textValue() {
+      return this.$().text();
+    };
+
+    AbstractTestCase.prototype.takeSnapshot = function takeSnapshot() {
+      var snapshot = this.snapshot = [];
+
+      var node = this.element.firstChild;
+
+      while (node) {
+        if (!isMarker(node)) {
+          snapshot.push(node);
+        }
+
+        node = node.nextSibling;
+      }
+
+      return snapshot;
+    };
+
+    AbstractTestCase.prototype.assertText = function assertText(text) {
+      this.assert.strictEqual(this.textValue(), text, '#qunit-fixture content should be: `' + text + '`');
+    };
+
+    AbstractTestCase.prototype.assertInnerHTML = function assertInnerHTML(html) {
+      _internalTestHelpersEqualInnerHtml.default(this.element, html);
+    };
+
+    AbstractTestCase.prototype.assertHTML = function assertHTML(html) {
+      _internalTestHelpersEqualTokens.default(this.element, html, '#qunit-fixture content should be: `' + html + '`');
+    };
+
+    AbstractTestCase.prototype.assertElement = function assertElement(node, _ref) {
+      var _ref$ElementType = _ref.ElementType;
+      var ElementType = _ref$ElementType === undefined ? HTMLElement : _ref$ElementType;
+      var tagName = _ref.tagName;
+      var _ref$attrs = _ref.attrs;
+      var attrs = _ref$attrs === undefined ? null : _ref$attrs;
+      var _ref$content = _ref.content;
+      var content = _ref$content === undefined ? null : _ref$content;
+
+      if (!(node instanceof ElementType)) {
+        throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
+      }
+
+      _internalTestHelpersMatchers.equalsElement(node, tagName, attrs, content);
+    };
+
+    AbstractTestCase.prototype.assertComponentElement = function assertComponentElement(node, _ref2) {
+      var _ref2$ElementType = _ref2.ElementType;
+      var ElementType = _ref2$ElementType === undefined ? HTMLElement : _ref2$ElementType;
+      var _ref2$tagName = _ref2.tagName;
+      var tagName = _ref2$tagName === undefined ? 'div' : _ref2$tagName;
+      var _ref2$attrs = _ref2.attrs;
+      var attrs = _ref2$attrs === undefined ? null : _ref2$attrs;
+      var _ref2$content = _ref2.content;
+      var content = _ref2$content === undefined ? null : _ref2$content;
+
+      attrs = _emberUtils.assign({}, { id: _internalTestHelpersMatchers.regex(/^ember\d*$/), class: _internalTestHelpersMatchers.classes('ember-view') }, attrs || {});
+      this.assertElement(node, { ElementType: ElementType, tagName: tagName, attrs: attrs, content: content });
+    };
+
+    AbstractTestCase.prototype.assertSameNode = function assertSameNode(actual, expected) {
+      this.assert.strictEqual(actual, expected, 'DOM node stability');
+    };
+
+    AbstractTestCase.prototype.assertInvariants = function assertInvariants(oldSnapshot, newSnapshot) {
+      oldSnapshot = oldSnapshot || this.snapshot;
+      newSnapshot = newSnapshot || this.takeSnapshot();
+
+      this.assert.strictEqual(newSnapshot.length, oldSnapshot.length, 'Same number of nodes');
+
+      for (var i = 0; i < oldSnapshot.length; i++) {
+        this.assertSameNode(newSnapshot[i], oldSnapshot[i]);
+      }
+    };
+
+    AbstractTestCase.prototype.assertPartialInvariants = function assertPartialInvariants(start, end) {
+      this.assertInvariants(this.snapshot, this.takeSnapshot().slice(start, end));
+    };
+
+    AbstractTestCase.prototype.assertStableRerender = function assertStableRerender() {
+      var _this = this;
+
+      this.takeSnapshot();
+      this.runTask(function () {
+        return _this.rerender();
+      });
+      this.assertInvariants();
+    };
+
+    babelHelpers.createClass(AbstractTestCase, [{
+      key: 'firstChild',
+      get: function () {
+        return this.nthChild(0);
+      }
+    }, {
+      key: 'nodesCount',
+      get: function () {
+        var count = 0;
+        var node = this.element.firstChild;
+
+        while (node) {
+          if (!isMarker(node)) {
+            count++;
+          }
+
+          node = node.nextSibling;
+        }
+
+        return count;
+      }
+    }]);
+    return AbstractTestCase;
+  })();
+
+  exports.default = AbstractTestCase;
+});
+enifed('internal-test-helpers/test-cases/application', ['exports', 'internal-test-helpers/test-cases/abstract-application'], function (exports, _internalTestHelpersTestCasesAbstractApplication) {
+  'use strict';
+
+  var ApplicationTestCase = (function (_AbstractApplicationTestCase) {
+    babelHelpers.inherits(ApplicationTestCase, _AbstractApplicationTestCase);
+
+    function ApplicationTestCase() {
+      babelHelpers.classCallCheck(this, ApplicationTestCase);
+
+      _AbstractApplicationTestCase.apply(this, arguments);
+    }
+
+    return ApplicationTestCase;
+  })(_internalTestHelpersTestCasesAbstractApplication.default);
+
+  exports.default = ApplicationTestCase;
+});
+enifed('internal-test-helpers/test-cases/rendering', ['exports', 'ember-views', 'internal-test-helpers/test-cases/abstract-rendering'], function (exports, _emberViews, _internalTestHelpersTestCasesAbstractRendering) {
+  'use strict';
+
+  var RenderingTestCase = (function (_AbstractRenderingTestCase) {
+    babelHelpers.inherits(RenderingTestCase, _AbstractRenderingTestCase);
+
+    function RenderingTestCase() {
+      babelHelpers.classCallCheck(this, RenderingTestCase);
+
+      _AbstractRenderingTestCase.call(this);
+      var owner = this.owner;
+
+      this.env = owner.lookup('service:-glimmer-environment');
+      owner.register('component-lookup:main', _emberViews.ComponentLookup);
+      owner.registerOptionsForType('helper', { instantiate: false });
+      owner.registerOptionsForType('component', { singleton: false });
+    }
+
+    return RenderingTestCase;
+  })(_internalTestHelpersTestCasesAbstractRendering.default);
+
+  exports.default = RenderingTestCase;
 });
 enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'ember-metal'], function (exports, _emberEnvironment, _emberMetal) {
   'use strict';
