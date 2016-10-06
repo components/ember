@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.4-beta+0ae7a758
+ * @version   2.9.0-beta.4-beta+d43685df
  */
 
 var enifed, requireModule, require, Ember;
@@ -8678,8 +8678,6 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
 enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', 'glimmer-reference'], function (exports, _emberUtils, _emberRuntime, _glimmerReference) {
   'use strict';
 
-  var _EmberObject$extend;
-
   exports.helper = helper;
   var RECOMPUTE_TAG = _emberUtils.symbol('RECOMPUTE_TAG');
 
@@ -8724,23 +8722,49 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', 'glim
     @public
     @since 1.13.0
   */
-  var Helper = _emberRuntime.Object.extend((_EmberObject$extend = {
-    isHelperInstance: true
+  var Helper = _emberRuntime.FrameworkObject.extend({
+    isHelperInstance: true,
 
-  }, _EmberObject$extend[_emberRuntime.POST_INIT] = function () {
-    this[RECOMPUTE_TAG] = new _glimmerReference.DirtyableTag();
-  }, _EmberObject$extend.recompute = function () {
-    this[RECOMPUTE_TAG].dirty();
-  }, _EmberObject$extend));
+    init: function () {
+      this._super.apply(this, arguments);
+      this[RECOMPUTE_TAG] = new _glimmerReference.DirtyableTag();
+    },
 
-  /**
-    Override this function when writing a class-based helper.
-     @method compute
-    @param {Array} params The positional arguments to the helper
-    @param {Object} hash The named arguments to the helper
-    @public
-    @since 1.13.0
-  */
+    /**
+      On a class-based helper, it may be useful to force a recomputation of that
+      helpers value. This is akin to `rerender` on a component.
+       For example, this component will rerender when the `currentUser` on a
+      session service changes:
+       ```js
+      // app/helpers/current-user-email.js
+      export default Ember.Helper.extend({
+        session: Ember.inject.service(),
+        onNewUser: Ember.observer('session.currentUser', function() {
+          this.recompute();
+        }),
+        compute() {
+          return this.get('session.currentUser.email');
+        }
+      });
+      ```
+       @method recompute
+      @public
+      @since 1.13.0
+    */
+    recompute: function () {
+      this[RECOMPUTE_TAG].dirty();
+    }
+
+    /**
+      Override this function when writing a class-based helper.
+       @method compute
+      @param {Array} params The positional arguments to the helper
+      @param {Object} hash The named arguments to the helper
+      @public
+      @since 1.13.0
+    */
+  });
+
   Helper.reopenClass({
     isHelperFactory: true
   });
@@ -8775,28 +8799,6 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', 'glim
 
   exports.default = Helper;
 });
-
-/**
-  On a class-based helper, it may be useful to force a recomputation of that
-  helpers value. This is akin to `rerender` on a component.
-   For example, this component will rerender when the `currentUser` on a
-  session service changes:
-   ```js
-  // app/helpers/current-user-email.js
-  export default Ember.Helper.extend({
-    session: Ember.inject.service(),
-    onNewUser: Ember.observer('session.currentUser', function() {
-      this.recompute();
-    }),
-    compute() {
-      return this.get('session.currentUser.email');
-    }
-  });
-  ```
-   @method recompute
-  @public
-  @since 1.13.0
-*/
 enifed('ember-glimmer/helpers/-class', ['exports', 'ember-glimmer/utils/references', 'ember-runtime'], function (exports, _emberGlimmerUtilsReferences, _emberRuntime) {
   'use strict';
 
@@ -10463,15 +10465,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       this._scheduleRevalidate();
     };
 
-    Renderer.prototype.componentInitAttrs = function componentInitAttrs() {
-      // TODO: Remove me
-    };
-
-    Renderer.prototype.ensureViewNotRendering = function ensureViewNotRendering() {
-      // TODO: Implement this
-      // throw new Error('Something you did caused a view to re-render after it rendered but before it was inserted into the DOM.');
-    };
-
     Renderer.prototype.register = function register(view) {
       var id = _emberViews.getViewId(view);
       _emberMetal.assert('Attempted to register a view with an id already in use: ' + id, !this._viewRegistry[id]);
@@ -10601,6 +10594,8 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
           globalShouldReflush = globalShouldReflush || shouldReflush;
         }
 
+        this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+
         env.commit();
       } while (globalShouldReflush || roots.length > initialRootsLength);
 
@@ -10628,10 +10623,14 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       // while we are actively rendering roots
       this._isRenderingRoots = true;
 
+      var completedWithoutError = false;
       try {
         this._renderRoots();
+        completedWithoutError = true;
       } finally {
-        this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+        if (!completedWithoutError) {
+          this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+        }
         this._isRenderingRoots = false;
       }
     };
@@ -11074,8 +11073,14 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
       component.trigger('didInitAttrs', { attrs: attrs });
       component.trigger('didReceiveAttrs', { newAttrs: attrs });
 
-      if (environment.isInteractive) {
-        component.trigger('willRender');
+      // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
+      if (component.tagName === '') {
+        component._transitionTo('hasElement');
+
+        if (environment.isInteractive) {
+          component.trigger('willInsertElement');
+          component.trigger('willRender');
+        }
       }
 
       var bucket = new ComponentStateBucket(environment, component, processedArgs, finalizer);
@@ -11159,6 +11164,7 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
 
       if (environment.isInteractive) {
         component.trigger('willInsertElement');
+        component.trigger('willRender');
       }
     };
 
@@ -11259,8 +11265,14 @@ babelHelpers.classCallCheck(this, TopComponentManager);
       component.trigger('didInitAttrs');
       component.trigger('didReceiveAttrs');
 
-      if (environment.isInteractive) {
-        component.trigger('willRender');
+      // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
+      if (component.tagName === '') {
+        component._transitionTo('hasElement');
+
+        if (environment.isInteractive) {
+          component.trigger('willInsertElement');
+          component.trigger('willRender');
+        }
       }
 
       processComponentInitializationAssertions(component, {});
@@ -20686,19 +20698,12 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function (exports, _emberMetalMeta, _require2) {
+enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 'require'], function (exports, _glimmerReference, _emberMetalMeta, _require) {
   'use strict';
 
   exports.setHasViews = setHasViews;
   exports.tagFor = tagFor;
-
-  var hasGlimmer = _require2.has('glimmer-reference');
-
-  var CONSTANT_TAG = undefined,
-      CURRENT_TAG = undefined,
-      DirtyableTag = undefined,
-      makeTag = undefined,
-      run = undefined;
+  exports.markObjectAsDirty = markObjectAsDirty;
 
   var hasViews = function () {
     return false;
@@ -20708,55 +20713,40 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
     hasViews = fn;
   }
 
-  var markObjectAsDirty = undefined;
-
-  exports.markObjectAsDirty = markObjectAsDirty;
+  function makeTag() {
+    return new _glimmerReference.DirtyableTag();
+  }
 
   function tagFor(object, _meta) {
-    if (!hasGlimmer) {
-      throw new Error('Cannot call tagFor without Glimmer');
-    }
-
     if (typeof object === 'object' && object) {
       var meta = _meta || _emberMetalMeta.meta(object);
       return meta.writableTag(makeTag);
     } else {
-      return CONSTANT_TAG;
+      return _glimmerReference.CONSTANT_TAG;
     }
   }
 
+  function markObjectAsDirty(meta) {
+    var tag = meta && meta.readableTag();
+
+    if (tag) {
+      ensureRunloop();
+      tag.dirty();
+    }
+  }
+
+  var run = undefined;
+
   function K() {}
+
   function ensureRunloop() {
     if (!run) {
-      run = _require2.default('ember-metal/run_loop').default;
+      run = _require.default('ember-metal/run_loop').default;
     }
 
     if (hasViews() && !run.backburner.currentInstance) {
       run.schedule('actions', K);
     }
-  }
-
-  if (hasGlimmer) {
-    var _require = _require2.default('glimmer-reference');
-
-    DirtyableTag = _require.DirtyableTag;
-    CONSTANT_TAG = _require.CONSTANT_TAG;
-    CURRENT_TAG = _require.CURRENT_TAG;
-
-    makeTag = function () {
-      return new DirtyableTag();
-    };
-
-    exports.markObjectAsDirty = markObjectAsDirty = function (meta) {
-      var tag = meta && meta.readableTag();
-
-      if (tag) {
-        ensureRunloop();
-        tag.dirty();
-      }
-    };
-  } else {
-    exports.markObjectAsDirty = markObjectAsDirty = function () {};
   }
 });
 enifed("ember-metal/testing", ["exports"], function (exports) {
@@ -28870,6 +28860,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   'use strict';
 
   exports.Object = _emberRuntimeSystemObject.default;
+  exports.FrameworkObject = _emberRuntimeSystemObject.FrameworkObject;
   exports.String = _emberRuntimeSystemString.default;
   exports.RegistryProxyMixin = _emberRuntimeMixinsRegistry_proxy.default;
   exports.buildFakeRegistryWithDeprecations = _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations;
@@ -28890,7 +28881,6 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.ArrayProxy = _emberRuntimeSystemArray_proxy.default;
   exports.ObjectProxy = _emberRuntimeSystemObject_proxy.default;
   exports.CoreObject = _emberRuntimeSystemCore_object.default;
-  exports.POST_INIT = _emberRuntimeSystemCore_object.POST_INIT;
   exports.NativeArray = _emberRuntimeSystemNative_array.default;
   exports.A = _emberRuntimeSystemNative_array.A;
   exports.ActionHandler = _emberRuntimeMixinsAction_handler.default;
@@ -29088,7 +29078,7 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/computed/computed_macros', 'ember-runtime/system/core_object', 'require'], function (exports, _emberUtils, _emberMetal, _emberRuntimeComputedComputed_macros, _emberRuntimeSystemCore_object, _require2) {
+enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-utils', 'ember-metal', 'ember-runtime/computed/computed_macros'], function (exports, _glimmerReference, _emberUtils, _emberMetal, _emberRuntimeComputedComputed_macros) {
   /**
   @module ember
   @submodule ember-runtime
@@ -29096,11 +29086,9 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-utils', 'ember-metal', 
 
   'use strict';
 
-  var _PROXY_MIXIN_PROPS;
+  var _Mixin$create;
 
   exports.isProxy = isProxy;
-
-  var hasGlimmer = _require2.has('glimmer-reference');
 
   var IS_PROXY = _emberUtils.symbol('IS_PROXY');
 
@@ -29124,31 +29112,66 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-utils', 'ember-metal', 
     _emberMetal.propertyDidChange(this, key);
   }
 
-  /**
-    `Ember.ProxyMixin` forwards all properties not defined by the proxy itself
-    to a proxied `content` object.  See Ember.ObjectProxy for more details.
-  
-    @class ProxyMixin
-    @namespace Ember
-    @private
-  */
-  var PROXY_MIXIN_PROPS = (_PROXY_MIXIN_PROPS = {}, _PROXY_MIXIN_PROPS[IS_PROXY] = true, _PROXY_MIXIN_PROPS.content = null, _PROXY_MIXIN_PROPS._contentDidChange = _emberMetal.observer('content', function () {
+  var ProxyTag = (function (_CachedTag) {
+    babelHelpers.inherits(ProxyTag, _CachedTag);
+
+    function ProxyTag(proxy) {
+      babelHelpers.classCallCheck(this, ProxyTag);
+
+      _CachedTag.call(this);
+
+      var content = _emberMetal.get(proxy, 'content');
+
+      this.proxy = proxy;
+      this.proxyWrapperTag = new _glimmerReference.DirtyableTag();
+      this.proxyContentTag = new _glimmerReference.UpdatableTag(_emberMetal.tagFor(content));
+    }
+
+    /**
+      `Ember.ProxyMixin` forwards all properties not defined by the proxy itself
+      to a proxied `content` object.  See Ember.ObjectProxy for more details.
+    
+      @class ProxyMixin
+      @namespace Ember
+      @private
+    */
+
+    ProxyTag.prototype.compute = function compute() {
+      return Math.max(this.proxyWrapperTag.value(), this.proxyContentTag.value());
+    };
+
+    ProxyTag.prototype.dirty = function dirty() {
+      this.proxyWrapperTag.dirty();
+    };
+
+    ProxyTag.prototype.contentDidChange = function contentDidChange() {
+      var content = _emberMetal.get(this.proxy, 'content');
+      this.proxyContentTag.update(_emberMetal.tagFor(content));
+    };
+
+    return ProxyTag;
+  })(_glimmerReference.CachedTag);
+
+  exports.default = _emberMetal.Mixin.create((_Mixin$create = {}, _Mixin$create[IS_PROXY] = true, _Mixin$create.content = null, _Mixin$create._initializeTag = _emberMetal.on('init', function () {
+    _emberMetal.meta(this)._tag = new ProxyTag(this);
+  }), _Mixin$create._contentDidChange = _emberMetal.observer('content', function () {
     _emberMetal.assert('Can\'t set Proxy\'s content to itself', _emberMetal.get(this, 'content') !== this);
-  }), _PROXY_MIXIN_PROPS.isTruthy = _emberRuntimeComputedComputed_macros.bool('content'), _PROXY_MIXIN_PROPS._debugContainerKey = null, _PROXY_MIXIN_PROPS.willWatchProperty = function (key) {
+    _emberMetal.tagFor(this).contentDidChange();
+  }), _Mixin$create.isTruthy = _emberRuntimeComputedComputed_macros.bool('content'), _Mixin$create._debugContainerKey = null, _Mixin$create.willWatchProperty = function (key) {
     var contentKey = 'content.' + key;
     _emberMetal._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
     _emberMetal.addObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _PROXY_MIXIN_PROPS.didUnwatchProperty = function (key) {
+  }, _Mixin$create.didUnwatchProperty = function (key) {
     var contentKey = 'content.' + key;
     _emberMetal._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
     _emberMetal.removeObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _PROXY_MIXIN_PROPS.unknownProperty = function (key) {
+  }, _Mixin$create.unknownProperty = function (key) {
     var content = _emberMetal.get(this, 'content');
     if (content) {
       _emberMetal.deprecate('You attempted to access `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
       return _emberMetal.get(content, key);
     }
-  }, _PROXY_MIXIN_PROPS.setUnknownProperty = function (key, value) {
+  }, _Mixin$create.setUnknownProperty = function (key, value) {
     var m = _emberMetal.meta(this);
     if (m.proto === this) {
       // if marked as prototype then just defineProperty
@@ -29162,55 +29185,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-utils', 'ember-metal', 
 
     _emberMetal.deprecate('You attempted to set `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
     return _emberMetal.set(content, key, value);
-  }, _PROXY_MIXIN_PROPS);
-
-  if (hasGlimmer) {
-    (function () {
-      var _require = _require2.default('glimmer-reference');
-
-      var CachedTag = _require.CachedTag;
-      var DirtyableTag = _require.DirtyableTag;
-      var UpdatableTag = _require.UpdatableTag;
-
-      var ProxyTag = (function (_CachedTag) {
-        babelHelpers.inherits(ProxyTag, _CachedTag);
-
-        function ProxyTag(proxy, content) {
-          babelHelpers.classCallCheck(this, ProxyTag);
-
-          _CachedTag.call(this);
-          this.proxyWrapperTag = new DirtyableTag();
-          this.proxyContentTag = new UpdatableTag(_emberMetal.tagFor(content));
-        }
-
-        ProxyTag.prototype.compute = function compute() {
-          return Math.max(this.proxyWrapperTag.value(), this.proxyContentTag.value());
-        };
-
-        ProxyTag.prototype.dirty = function dirty() {
-          this.proxyWrapperTag.dirty();
-        };
-
-        ProxyTag.prototype.contentDidChange = function contentDidChange(content) {
-          this.proxyContentTag.update(_emberMetal.tagFor(content));
-        };
-
-        return ProxyTag;
-      })(CachedTag);
-
-      PROXY_MIXIN_PROPS[_emberRuntimeSystemCore_object.POST_INIT] = function postInit() {
-        this._super();
-        _emberMetal.meta(this)._tag = new ProxyTag(this, _emberMetal.get(this, 'content'));
-      };
-
-      PROXY_MIXIN_PROPS._contentDidChange = _emberMetal.observer('content', function () {
-        _emberMetal.assert('Can\'t set Proxy\'s content to itself', _emberMetal.get(this, 'content') !== this);
-        _emberMetal.meta(this)._tag.contentDidChange(_emberMetal.get(this, 'content'));
-      });
-    })();
-  }
-
-  exports.default = _emberMetal.Mixin.create(PROXY_MIXIN_PROPS);
+  }, _Mixin$create));
 });
 
 /**
@@ -33539,10 +33514,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   // using ember-metal/lib/main here to ensure that ember-debug is setup
   // if present
 
-  var _Mixin$create;
-
-  var POST_INIT = _emberUtils.symbol('POST_INIT');
-  exports.POST_INIT = POST_INIT;
   var schedule = _emberMetal.run.schedule;
   var applyMixin = _emberMetal.Mixin._apply;
   var finishPartial = _emberMetal.Mixin.finishPartial;
@@ -33649,8 +33620,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
       this.init.apply(this, arguments);
 
-      this[POST_INIT]();
-
       m.proto = proto;
       _emberMetal.finishChains(this);
       _emberMetal.sendEvent(this, 'init');
@@ -33695,7 +33664,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   CoreObject.toString = function () {
     return 'Ember.CoreObject';
   };
-  CoreObject.PrototypeMixin = _emberMetal.Mixin.create((_Mixin$create = {
+  CoreObject.PrototypeMixin = _emberMetal.Mixin.create({
     reopen: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -33728,39 +33697,244 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
        @method init
       @public
     */
-    init: function () {}
+    init: function () {},
 
-  }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
-    Object.defineProperty(this, property.name, property.descriptor);
-    //this[property.name] = property.descriptor.value;
-  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
-    if (this.isDestroying) {
-      return;
-    }
-    this.isDestroying = true;
+    __defineNonEnumerable: function (property) {
+      Object.defineProperty(this, property.name, property.descriptor);
+      //this[property.name] = property.descriptor.value;
+    },
 
-    schedule('actions', this, this.willDestroy);
-    schedule('destroy', this, this._scheduledDestroy);
-    return this;
-  }, _Mixin$create.willDestroy = function () {}, _Mixin$create._scheduledDestroy = function () {
-    if (this.isDestroyed) {
-      return;
-    }
-    _emberMetal.destroy(this);
-    this.isDestroyed = true;
-  }, _Mixin$create.bind = function (to, from) {
-    if (!(from instanceof _emberMetal.Binding)) {
-      from = _emberMetal.Binding.from(from);
-    }
-    from.to(to).connect(this);
-    return from;
-  }, _Mixin$create.toString = function () {
-    var hasToStringExtension = typeof this.toStringExtension === 'function';
-    var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-    var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
+    /**
+      Defines the properties that will be concatenated from the superclass
+      (instead of overridden).
+       By default, when you extend an Ember class a property defined in
+      the subclass overrides a property with the same name that is defined
+      in the superclass. However, there are some cases where it is preferable
+      to build up a property's value by combining the superclass' property
+      value with the subclass' value. An example of this in use within Ember
+      is the `classNames` property of `Ember.View`.
+       Here is some sample code showing the difference between a concatenated
+      property and a normal one:
+       ```javascript
+      const Bar = Ember.Object.extend({
+        // Configure which properties to concatenate
+        concatenatedProperties: ['concatenatedProperty'],
+         someNonConcatenatedProperty: ['bar'],
+        concatenatedProperty: ['bar']
+      });
+       const FooBar = Bar.extend({
+        someNonConcatenatedProperty: ['foo'],
+        concatenatedProperty: ['foo']
+      });
+       let fooBar = FooBar.create();
+      fooBar.get('someNonConcatenatedProperty'); // ['foo']
+      fooBar.get('concatenatedProperty'); // ['bar', 'foo']
+      ```
+       This behavior extends to object creation as well. Continuing the
+      above example:
+       ```javascript
+      let fooBar = FooBar.create({
+        someNonConcatenatedProperty: ['baz'],
+        concatenatedProperty: ['baz']
+      })
+      fooBar.get('someNonConcatenatedProperty'); // ['baz']
+      fooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
+      ```
+       Adding a single property that is not an array will just add it in the array:
+       ```javascript
+      let fooBar = FooBar.create({
+        concatenatedProperty: 'baz'
+      })
+      view.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
+      ```
+       Using the `concatenatedProperties` property, we can tell Ember to mix the
+      content of the properties.
+       In `Ember.Component` the `classNames`, `classNameBindings` and
+      `attributeBindings` properties are concatenated.
+       This feature is available for you to use throughout the Ember object model,
+      although typical app developers are likely to use it infrequently. Since
+      it changes expectations about behavior of properties, you should properly
+      document its usage in each individual concatenated property (to not
+      mislead your users to think they can override the property in a subclass).
+       @property concatenatedProperties
+      @type Array
+      @default null
+      @public
+    */
+    concatenatedProperties: null,
 
-    return ret;
-  }, _Mixin$create));
+    /**
+      Defines the properties that will be merged from the superclass
+      (instead of overridden).
+       By default, when you extend an Ember class a property defined in
+      the subclass overrides a property with the same name that is defined
+      in the superclass. However, there are some cases where it is preferable
+      to build up a property's value by merging the superclass property value
+      with the subclass property's value. An example of this in use within Ember
+      is the `queryParams` property of routes.
+       Here is some sample code showing the difference between a merged
+      property and a normal one:
+       ```javascript
+      const Bar = Ember.Object.extend({
+        // Configure which properties are to be merged
+        mergedProperties: ['mergedProperty'],
+         someNonMergedProperty: {
+          nonMerged: 'superclass value of nonMerged'
+        },
+        mergedProperty: {
+          page: {replace: false},
+          limit: {replace: true}
+        }
+      });
+       const FooBar = Bar.extend({
+        someNonMergedProperty: {
+          completelyNonMerged: 'subclass value of nonMerged'
+        },
+        mergedProperty: {
+          limit: {replace: false}
+        }
+      });
+       let fooBar = FooBar.create();
+       fooBar.get('someNonMergedProperty');
+      // => { completelyNonMerged: 'subclass value of nonMerged' }
+      //
+      // Note the entire object, including the nonMerged property of
+      // the superclass object, has been replaced
+       fooBar.get('mergedProperty');
+      // => {
+      //   page: {replace: false},
+      //   limit: {replace: false}
+      // }
+      //
+      // Note the page remains from the superclass, and the
+      // `limit` property's value of `false` has been merged from
+      // the subclass.
+      ```
+       This behavior is not available during object `create` calls. It is only
+      available at `extend` time.
+       In `Ember.Route` the `queryParams` property is merged.
+       This feature is available for you to use throughout the Ember object model,
+      although typical app developers are likely to use it infrequently. Since
+      it changes expectations about behavior of properties, you should properly
+      document its usage in each individual merged property (to not
+      mislead your users to think they can override the property in a subclass).
+       @property mergedProperties
+      @type Array
+      @default null
+      @public
+    */
+    mergedProperties: null,
+
+    /**
+      Destroyed object property flag.
+       if this property is `true` the observers and bindings were already
+      removed by the effect of calling the `destroy()` method.
+       @property isDestroyed
+      @default false
+      @public
+    */
+    isDestroyed: false,
+
+    /**
+      Destruction scheduled flag. The `destroy()` method has been called.
+       The object stays intact until the end of the run loop at which point
+      the `isDestroyed` flag is set.
+       @property isDestroying
+      @default false
+      @public
+    */
+    isDestroying: false,
+
+    /**
+      Destroys an object by setting the `isDestroyed` flag and removing its
+      metadata, which effectively destroys observers and bindings.
+       If you try to set a property on a destroyed object, an exception will be
+      raised.
+       Note that destruction is scheduled for the end of the run loop and does not
+      happen immediately.  It will set an isDestroying flag immediately.
+       @method destroy
+      @return {Ember.Object} receiver
+      @public
+    */
+    destroy: function () {
+      if (this.isDestroying) {
+        return;
+      }
+      this.isDestroying = true;
+
+      schedule('actions', this, this.willDestroy);
+      schedule('destroy', this, this._scheduledDestroy);
+      return this;
+    },
+
+    /**
+      Override to implement teardown.
+       @method willDestroy
+      @public
+    */
+    willDestroy: function () {},
+
+    /**
+      Invoked by the run loop to actually destroy the object. This is
+      scheduled for execution by the `destroy` method.
+       @private
+      @method _scheduledDestroy
+    */
+    _scheduledDestroy: function () {
+      if (this.isDestroyed) {
+        return;
+      }
+      _emberMetal.destroy(this);
+      this.isDestroyed = true;
+    },
+
+    bind: function (to, from) {
+      if (!(from instanceof _emberMetal.Binding)) {
+        from = _emberMetal.Binding.from(from);
+      }
+      from.to(to).connect(this);
+      return from;
+    },
+
+    /**
+      Returns a string representation which attempts to provide more information
+      than Javascript's `toString` typically does, in a generic way for all Ember
+      objects.
+       ```javascript
+      const Person = Ember.Object.extend()
+      person = Person.create()
+      person.toString() //=> "<Person:ember1024>"
+      ```
+       If the object's class is not defined on an Ember namespace, it will
+      indicate it is a subclass of the registered superclass:
+      ```javascript
+      const Student = Person.extend()
+      let student = Student.create()
+      student.toString() //=> "<(subclass of Person):ember1025>"
+      ```
+       If the method `toStringExtension` is defined, its return value will be
+      included in the output.
+       ```javascript
+      const Teacher = Person.extend({
+        toStringExtension() {
+          return this.get('fullName');
+        }
+      });
+      teacher = Teacher.create()
+      teacher.toString(); //=> "<Teacher:ember1026:Tom Dale>"
+      ```
+       @method toString
+      @return {String} string representation
+      @public
+    */
+    toString: function () {
+      var hasToStringExtension = typeof this.toStringExtension === 'function';
+      var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
+      var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
+
+      return ret;
+    }
+  });
 
   CoreObject.PrototypeMixin.ownerConstructor = CoreObject;
 
@@ -34141,200 +34315,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
   exports.default = CoreObject;
 });
-
-/**
-  Defines the properties that will be concatenated from the superclass
-  (instead of overridden).
-   By default, when you extend an Ember class a property defined in
-  the subclass overrides a property with the same name that is defined
-  in the superclass. However, there are some cases where it is preferable
-  to build up a property's value by combining the superclass' property
-  value with the subclass' value. An example of this in use within Ember
-  is the `classNames` property of `Ember.View`.
-   Here is some sample code showing the difference between a concatenated
-  property and a normal one:
-   ```javascript
-  const Bar = Ember.Object.extend({
-    // Configure which properties to concatenate
-    concatenatedProperties: ['concatenatedProperty'],
-     someNonConcatenatedProperty: ['bar'],
-    concatenatedProperty: ['bar']
-  });
-   const FooBar = Bar.extend({
-    someNonConcatenatedProperty: ['foo'],
-    concatenatedProperty: ['foo']
-  });
-   let fooBar = FooBar.create();
-  fooBar.get('someNonConcatenatedProperty'); // ['foo']
-  fooBar.get('concatenatedProperty'); // ['bar', 'foo']
-  ```
-   This behavior extends to object creation as well. Continuing the
-  above example:
-   ```javascript
-  let fooBar = FooBar.create({
-    someNonConcatenatedProperty: ['baz'],
-    concatenatedProperty: ['baz']
-  })
-  fooBar.get('someNonConcatenatedProperty'); // ['baz']
-  fooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
-  ```
-   Adding a single property that is not an array will just add it in the array:
-   ```javascript
-  let fooBar = FooBar.create({
-    concatenatedProperty: 'baz'
-  })
-  view.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
-  ```
-   Using the `concatenatedProperties` property, we can tell Ember to mix the
-  content of the properties.
-   In `Ember.Component` the `classNames`, `classNameBindings` and
-  `attributeBindings` properties are concatenated.
-   This feature is available for you to use throughout the Ember object model,
-  although typical app developers are likely to use it infrequently. Since
-  it changes expectations about behavior of properties, you should properly
-  document its usage in each individual concatenated property (to not
-  mislead your users to think they can override the property in a subclass).
-   @property concatenatedProperties
-  @type Array
-  @default null
-  @public
-*/
-
-/**
-  Defines the properties that will be merged from the superclass
-  (instead of overridden).
-   By default, when you extend an Ember class a property defined in
-  the subclass overrides a property with the same name that is defined
-  in the superclass. However, there are some cases where it is preferable
-  to build up a property's value by merging the superclass property value
-  with the subclass property's value. An example of this in use within Ember
-  is the `queryParams` property of routes.
-   Here is some sample code showing the difference between a merged
-  property and a normal one:
-   ```javascript
-  const Bar = Ember.Object.extend({
-    // Configure which properties are to be merged
-    mergedProperties: ['mergedProperty'],
-     someNonMergedProperty: {
-      nonMerged: 'superclass value of nonMerged'
-    },
-    mergedProperty: {
-      page: {replace: false},
-      limit: {replace: true}
-    }
-  });
-   const FooBar = Bar.extend({
-    someNonMergedProperty: {
-      completelyNonMerged: 'subclass value of nonMerged'
-    },
-    mergedProperty: {
-      limit: {replace: false}
-    }
-  });
-   let fooBar = FooBar.create();
-   fooBar.get('someNonMergedProperty');
-  // => { completelyNonMerged: 'subclass value of nonMerged' }
-  //
-  // Note the entire object, including the nonMerged property of
-  // the superclass object, has been replaced
-   fooBar.get('mergedProperty');
-  // => {
-  //   page: {replace: false},
-  //   limit: {replace: false}
-  // }
-  //
-  // Note the page remains from the superclass, and the
-  // `limit` property's value of `false` has been merged from
-  // the subclass.
-  ```
-   This behavior is not available during object `create` calls. It is only
-  available at `extend` time.
-   In `Ember.Route` the `queryParams` property is merged.
-   This feature is available for you to use throughout the Ember object model,
-  although typical app developers are likely to use it infrequently. Since
-  it changes expectations about behavior of properties, you should properly
-  document its usage in each individual merged property (to not
-  mislead your users to think they can override the property in a subclass).
-   @property mergedProperties
-  @type Array
-  @default null
-  @public
-*/
-
-/**
-  Destroyed object property flag.
-   if this property is `true` the observers and bindings were already
-  removed by the effect of calling the `destroy()` method.
-   @property isDestroyed
-  @default false
-  @public
-*/
-
-/**
-  Destruction scheduled flag. The `destroy()` method has been called.
-   The object stays intact until the end of the run loop at which point
-  the `isDestroyed` flag is set.
-   @property isDestroying
-  @default false
-  @public
-*/
-
-/**
-  Destroys an object by setting the `isDestroyed` flag and removing its
-  metadata, which effectively destroys observers and bindings.
-   If you try to set a property on a destroyed object, an exception will be
-  raised.
-   Note that destruction is scheduled for the end of the run loop and does not
-  happen immediately.  It will set an isDestroying flag immediately.
-   @method destroy
-  @return {Ember.Object} receiver
-  @public
-*/
-
-/**
-  Override to implement teardown.
-   @method willDestroy
-  @public
-*/
-
-/**
-  Invoked by the run loop to actually destroy the object. This is
-  scheduled for execution by the `destroy` method.
-   @private
-  @method _scheduledDestroy
-*/
-
-/**
-  Returns a string representation which attempts to provide more information
-  than Javascript's `toString` typically does, in a generic way for all Ember
-  objects.
-   ```javascript
-  const Person = Ember.Object.extend()
-  person = Person.create()
-  person.toString() //=> "<Person:ember1024>"
-  ```
-   If the object's class is not defined on an Ember namespace, it will
-  indicate it is a subclass of the registered superclass:
-  ```javascript
-  const Student = Person.extend()
-  let student = Student.create()
-  student.toString() //=> "<(subclass of Person):ember1025>"
-  ```
-   If the method `toStringExtension` is defined, its return value will be
-  included in the output.
-   ```javascript
-  const Teacher = Person.extend({
-    toStringExtension() {
-      return this.get('fullName');
-    }
-  });
-  teacher = Teacher.create()
-  teacher.toString(); //=> "<Teacher:ember1026:Tom Dale>"
-  ```
-   @method toString
-  @return {String} string representation
-  @public
-*/
 enifed('ember-runtime/system/each_proxy', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsArray) {
   'use strict';
 
@@ -34918,7 +34898,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   exports.default = NativeArray;
 });
 // Ember.A circular
-enifed('ember-runtime/system/object', ['exports', 'ember-runtime/system/core_object', 'ember-runtime/mixins/observable'], function (exports, _emberRuntimeSystemCore_object, _emberRuntimeMixinsObservable) {
+enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/system/core_object', 'ember-runtime/mixins/observable'], function (exports, _emberUtils, _emberMetal, _emberRuntimeSystemCore_object, _emberRuntimeMixinsObservable) {
   /**
   @module ember
   @submodule ember-runtime
@@ -34941,6 +34921,26 @@ enifed('ember-runtime/system/object', ['exports', 'ember-runtime/system/core_obj
   EmberObject.toString = function () {
     return 'Ember.Object';
   };
+
+  var FrameworkObject = EmberObject;
+
+  exports.FrameworkObject = FrameworkObject;
+  _emberMetal.runInDebug(function () {
+    var _EmberObject$extend;
+
+    var INIT_WAS_CALLED = _emberUtils.symbol('INIT_WAS_CALLED');
+    var ASSERT_INIT_WAS_CALLED = _emberUtils.symbol('ASSERT_INIT_WAS_CALLED');
+
+    exports.FrameworkObject = FrameworkObject = EmberObject.extend((_EmberObject$extend = {
+      init: function () {
+        this._super.apply(this, arguments);
+        this[INIT_WAS_CALLED] = true;
+      }
+
+    }, _EmberObject$extend[ASSERT_INIT_WAS_CALLED] = _emberMetal.on('init', function () {
+      _emberMetal.assert('You must call `this._super(...arguments);` when overriding `init` on a framework object. Please update ' + this + ' to call `this._super(...arguments);` from `init`.', this[INIT_WAS_CALLED]);
+    }), _EmberObject$extend));
+  });
 
   exports.default = EmberObject;
 });
@@ -38596,12 +38596,8 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal'], func
     }
   });
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views/system/utils', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViewsSystemUtils, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-environment', 'ember-views/system/utils', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberEnvironment, _emberViewsSystemUtils, _emberViewsSystemJquery) {
   'use strict';
-
-  var _Mixin$create;
-
-  var INIT_WAS_CALLED = _emberUtils.symbol('INIT_WAS_CALLED');
 
   function K() {
     return this;
@@ -38612,7 +38608,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
    @namespace Ember
    @private
   */
-  exports.default = _emberMetal.Mixin.create((_Mixin$create = {
+  exports.default = _emberMetal.Mixin.create({
     concatenatedProperties: ['attributeBindings'],
 
     // ..........................................................
@@ -38985,51 +38981,35 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
         this.elementId = _emberUtils.guidFor(this);
       }
 
-      this[INIT_WAS_CALLED] = true;
-
-      if (typeof this.didInitAttrs === 'function') {
-        _emberMetal.deprecate('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', false, {
-          id: 'ember-views.did-init-attrs',
-          until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
-        });
-      }
+      _emberMetal.deprecate('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
+        id: 'ember-views.did-init-attrs',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      });
 
       _emberMetal.assert('Using a custom `.render` function is no longer supported.', !this.render);
+    },
+
+    __defineNonEnumerable: function (property) {
+      this[property.name] = property.descriptor.value;
+    },
+
+    // .......................................................
+    // EVENT HANDLING
+    //
+
+    /**
+      Handle events from `Ember.EventDispatcher`
+       @method handleEvent
+      @param eventName {String}
+      @param evt {Event}
+      @private
+    */
+    handleEvent: function (eventName, evt) {
+      return this._currentState.handleEvent(this, eventName, evt);
     }
-
-  }, _Mixin$create[_emberRuntime.POST_INIT] = function () {
-    this._super();
-
-    _emberMetal.assert('You must call `this._super(...arguments);` when implementing `init` in a component. Please update ' + this + ' to call `this._super` from `init`.', this[INIT_WAS_CALLED]);
-
-    this.renderer.componentInitAttrs(this, this.attrs || {});
-  }, _Mixin$create.__defineNonEnumerable = function (property) {
-    this[property.name] = property.descriptor.value;
-  }, _Mixin$create.handleEvent = function (eventName, evt) {
-    return this._currentState.handleEvent(this, eventName, evt);
-  }, _Mixin$create));
+  });
 });
-/*
- This is a special hook implemented in CoreObject, that allows Views/Components
- to have a way to ensure that `init` fires before `didInitAttrs` / `didReceiveAttrs`
- (so that `this._super` in init does not trigger `didReceiveAttrs` before the classes
- own `init` is finished).
-  @method __postInitInitialization
- @private
- */
-
-// .......................................................
-// EVENT HANDLING
-//
-
-/**
-  Handle events from `Ember.EventDispatcher`
-   @method handleEvent
-  @param eventName {String}
-  @param evt {Event}
-  @private
-*/
 enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   /**
   @module ember
@@ -39683,7 +39663,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/
     @uses Ember.ActionHandler
     @private
   */
-  var CoreView = _emberRuntime.Object.extend(_emberRuntime.Evented, _emberRuntime.ActionHandler, {
+  var CoreView = _emberRuntime.FrameworkObject.extend(_emberRuntime.Evented, _emberRuntime.ActionHandler, {
     isView: true,
 
     _states: _emberViewsViewsStates.cloneStates(_emberViewsViewsStates.states),
@@ -39820,11 +39800,9 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal'], function 
       return true; // continue event propagation
     },
 
-    destroy: function () {},
+    rerender: function () {},
 
-    rerender: function (view) {
-      view.renderer.ensureViewNotRendering(view);
-    }
+    destroy: function () {}
   };
 });
 enifed('ember-views/views/states/destroying', ['exports', 'ember-utils', 'ember-metal', 'ember-views/views/states/default'], function (exports, _emberUtils, _emberMetal, _emberViewsViewsStatesDefault) {
@@ -39859,10 +39837,7 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-utils', 'ember
       return sel ? _emberViewsSystemJquery.default(sel, elem) : _emberViewsSystemJquery.default(elem);
     },
 
-    // once the view has been inserted into the DOM, rerendering is
-    // deferred to allow bindings to synchronize.
     rerender: function (view) {
-      view.renderer.ensureViewNotRendering(view);
       view.renderer.rerender(view);
     },
 
@@ -40958,7 +40933,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.4-beta+0ae7a758";
+  exports.default = "2.9.0-beta.4-beta+d43685df";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

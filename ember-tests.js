@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.4-beta+0ae7a758
+ * @version   2.9.0-beta.4-beta+d43685df
  */
 
 var enifed, requireModule, require, Ember;
@@ -11456,44 +11456,46 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exp
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    '], ['\n      {{foo-bar class="bar baz"}}\n      {{foo-bar classNames="bar baz"}}\n      {{foo-bar}}\n    ']),
       _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#foo-bar id=1}}\n          {{#if cond2}}\n            {{#foo-bar id=2}}{{/foo-bar}}\n            {{#if cond3}}\n              {{#foo-bar id=3}}\n                {{#if cond4}}\n                  {{#foo-bar id=4}}\n                    {{#if cond5}}\n                      {{#foo-bar id=5}}{{/foo-bar}}\n                      {{#foo-bar id=6}}{{/foo-bar}}\n                      {{#foo-bar id=7}}{{/foo-bar}}\n                    {{/if}}\n                    {{#foo-bar id=8}}{{/foo-bar}}\n                  {{/foo-bar}}\n                {{/if}}\n              {{/foo-bar}}\n            {{/if}}\n          {{/if}}\n        {{/foo-bar}}\n      {{/if}}']),
       _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      '], ['\n        {{#if isStream}}\n          true\n        {{else}}\n          false\n        {{/if}}\n      ']),
-      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
-      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
-      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
-      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
-      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
-      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
-      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
-      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
-      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
-      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
-      _templateObject15 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
-      _templateObject16 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
-      _templateObject17 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
-      _templateObject18 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject19 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
-      _templateObject20 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject21 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
-      _templateObject22 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject23 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
-      _templateObject24 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject25 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
-      _templateObject26 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject27 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
-      _templateObject28 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
-      _templateObject29 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
-      _templateObject30 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
-      _templateObject31 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
-      _templateObject32 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
-      _templateObject33 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
-      _templateObject34 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
-      _templateObject35 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
-      _templateObject36 = babelHelpers.taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
-      _templateObject37 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject38 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
-      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
-      _templateObject40 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']),
-      _templateObject41 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    '], ['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    ']);
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n        Args: {{this.attrs.value}} | {{attrs.value}} | {{value}}\n        {{#each this.attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each items as |item|}}\n          {{item}}\n        {{/each}}\n      '], ['\n        Args: {{this.attrs.value}} | {{attrs.value}} | {{value}}\n        {{#each this.attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each attrs.items as |item|}}\n          {{item}}\n        {{/each}}\n        {{#each items as |item|}}\n          {{item}}\n        {{/each}}\n      ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['Args: lul | lul | lul111'], ['Args: lul | lul | lul111']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block someProp=prop}}\n        In template\n      {{/with-block}}']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each names as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}'], ['\n      {{sample-component "Foo" 4 "Bar" elementId="args-3"}}\n      {{sample-component "Foo" 4 "Bar" 5 "Baz" elementId="args-5"}}']),
+      _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}'], ['\n      {{sample-component "one" "two" elementId="two-positional"}}\n      {{sample-component "one" second="two" elementId="one-positional"}}\n      {{sample-component first="one" second="two" elementId="no-positional"}}']),
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}'], ['\n        {{#each n as |name|}}\n          {{name}}\n        {{/each}}']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}'], ['\n      {{#with-template name="with-block"}}\n        [In block - {{name}}]\n      {{/with-template}}\n      {{with-template name="without-block"}}']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          {{yield}}\n        {{else}}\n          No Block!\n        {{/if}}']),
+      _templateObject13 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In template\n      {{/with-block}}']),
+      _templateObject14 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}} - In Component\n        {{else}}\n          {{yield}} No Block!\n        {{/if}}']),
+      _templateObject15 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}'], ['\n      {{#with-block as |something|}}\n        In template\n      {{/with-block}}']),
+      _templateObject16 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          {{yield this}}\n        {{else}}\n          {{yield}} No Block Param!\n        {{/if}}']),
+      _templateObject17 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with-block}}\n        In block\n      {{/with-block}}'], ['\n      {{#with-block}}\n        In block\n      {{/with-block}}']),
+      _templateObject18 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}'], ['\n        {{#if predicate}}\n          Yes:{{yield someValue}}\n        {{else}}\n          No:{{yield to="inverse"}}\n        {{/if}}']),
+      _templateObject19 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}'], ['\n      {{#my-if predicate=activated someValue=42 as |result|}}\n        Hello{{result}}\n      {{else}}\n        Goodbye\n      {{/my-if}}']),
+      _templateObject20 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject21 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse}}{{else}}{{/check-inverse}}']),
+      _templateObject22 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlock)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject23 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}'], ['\n      {{check-block}}\n      {{#check-block}}{{/check-block}}']),
+      _templateObject24 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams "inverse")}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject25 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}'], ['\n      {{#check-inverse}}{{/check-inverse}}\n      {{#check-inverse as |something|}}{{/check-inverse}}']),
+      _templateObject26 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if (hasBlockParams)}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject27 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}'], ['\n      {{#check-block}}{{/check-block}}\n      {{#check-block as |something|}}{{/check-block}}']),
+      _templateObject28 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlock}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject29 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}'], ['\n      {{#check-params}}{{/check-params}}\n      {{#check-params as |foo|}}{{/check-params}}']),
+      _templateObject30 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}'], ['\n        {{#if hasBlockParams}}\n          Yes\n        {{else}}\n          No\n        {{/if}}']),
+      _templateObject31 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}'], ['\n      {{check-attr}}\n      {{#check-attr}}{{/check-attr}}']),
+      _templateObject32 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr}}{{else}}{{/check-attr}}']),
+      _templateObject33 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}'], ['\n      {{#check-attr}}{{/check-attr}}\n      {{#check-attr as |something|}}{{/check-attr}}']),
+      _templateObject34 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}'], ['\n      {{check-helper}}\n      {{#check-helper}}{{/check-helper}}']),
+      _templateObject35 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper}}{{else}}{{/check-helper}}']),
+      _templateObject36 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}'], ['\n      {{#check-helper}}{{/check-helper}}\n      {{#check-helper as |something|}}{{/check-helper}}']),
+      _templateObject37 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}'], ['\n      {{#x-outer}}\n        {{#if showInner}}\n          {{x-inner}}\n        {{/if}}\n      {{/x-outer}}']),
+      _templateObject38 = babelHelpers.taggedTemplateLiteralLoose(['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}'], ['\n        In layout. {{#each items as |item|}}\n          [{{child-non-block item=item}}]\n        {{/each}}']),
+      _templateObject39 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing classNames="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject40 = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}'], ['\n        {{#each blahzz as |p|}}\n          {{p}}\n        {{/each}}\n        - {{yield}}']),
+      _templateObject41 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}'], ['\n      {{#some-clicky-thing blahzz="baz"}}\n        Click Me\n      {{/some-clicky-thing}}']),
+      _templateObject42 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    '], ['\n      {{#x-select value=value as |select|}}\n        {{#x-option value="1" select=select}}1{{/x-option}}\n        {{#x-option value="2" select=select}}2{{/x-option}}\n      {{/x-select}}\n    ']),
+      _templateObject43 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    '], ['\n      {{#list-items items=items as |thing|}}\n        |{{thing}}|\n\n        {{#if editMode}}\n          Remove {{thing}}\n        {{/if}}\n      {{/list-items}}\n    ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: curly components', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
@@ -12803,8 +12805,38 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: wycats');
     };
 
-    _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
+    _class.prototype['@test this.attrs.foo === attrs.foo === foo'] = function testThisAttrsFooAttrsFooFoo() {
       var _this37 = this;
+
+      this.registerComponent('foo-bar', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4)
+      });
+
+      this.render('{{foo-bar value=model.value items=model.items}}', {
+        model: {
+          value: 'wat',
+          items: [1, 2, 3]
+        }
+      });
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        _this37.context.set('model.value', 'lul');
+        _this37.context.set('model.items', [1]);
+      });
+
+      this.assertText(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+
+      this.runTask(function () {
+        return _this37.context.set('model', { value: 'wat', items: [1, 2, 3] });
+      });
+
+      this.assertText('Args: wat | wat | wat123123123');
+    };
+
+    _class.prototype['@test non-block with properties on self'] = function testNonBlockWithPropertiesOnSelf() {
+      var _this38 = this;
 
       this.registerComponent('non-block', {
         template: 'In layout - someProp: {{someProp}}'
@@ -12817,64 +12849,32 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this37.rerender();
+        return _this38.rerender();
       });
 
       this.assertText('In layout - someProp: something here');
 
       this.runTask(function () {
-        return _this37.context.set('prop', 'something else');
+        return _this38.context.set('prop', 'something else');
       });
 
       this.assertText('In layout - someProp: something else');
 
       this.runTask(function () {
-        return _this37.context.set('prop', 'something here');
+        return _this38.context.set('prop', 'something here');
       });
 
       this.assertText('In layout - someProp: something here');
     };
 
     _class.prototype['@test block with properties on self'] = function testBlockWithPropertiesOnSelf() {
-      var _this38 = this;
+      var _this39 = this;
 
       this.registerComponent('with-block', {
         template: 'In layout - someProp: {{someProp}} - {{yield}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
-        prop: 'something here'
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this38.rerender();
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-
-      this.runTask(function () {
-        return _this38.context.set('prop', 'something else');
-      });
-
-      this.assertText('In layout - someProp: something else - In template');
-
-      this.runTask(function () {
-        return _this38.context.set('prop', 'something here');
-      });
-
-      this.assertText('In layout - someProp: something here - In template');
-    };
-
-    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
-      var _this39 = this;
-
-      this.registerComponent('with-block', {
-        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
-      });
-
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6), {
         prop: 'something here'
       });
 
@@ -12899,23 +12899,55 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout - someProp: something here - In template');
     };
 
-    _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
+    _class.prototype['@test block with properties on attrs'] = function testBlockWithPropertiesOnAttrs() {
       var _this40 = this;
+
+      this.registerComponent('with-block', {
+        template: 'In layout - someProp: {{attrs.someProp}} - {{yield}}'
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6), {
+        prop: 'something here'
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this40.rerender();
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+
+      this.runTask(function () {
+        return _this40.context.set('prop', 'something else');
+      });
+
+      this.assertText('In layout - someProp: something else - In template');
+
+      this.runTask(function () {
+        return _this40.context.set('prop', 'something here');
+      });
+
+      this.assertText('In layout - someProp: something here - In template');
+    };
+
+    _class.prototype['@test static arbitrary number of positional parameters'] = function testStaticArbitraryNumberOfPositionalParameters(assert) {
+      var _this41 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8));
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
       assert.equal(this.$('#args-5').text(), 'Foo4Bar5Baz');
 
       this.runTask(function () {
-        return _this40.rerender();
+        return _this41.rerender();
       });
 
       assert.equal(this.$('#args-3').text(), 'Foo4Bar');
@@ -12923,30 +12955,30 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test arbitrary positional parameter conflict with hash parameter is reported'] = function testArbitraryPositionalParameterConflictWithHashParameterIsReported() {
-      var _this41 = this;
-
-      this.registerComponent('sample-component', {
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
-          positionalParams: 'names'
-        }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)
-      });
-
-      expectAssertion(function () {
-        _this41.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
-          numbers: [1, 2, 3]
-        });
-      }, 'You cannot specify positional parameters and the hash argument `names`.');
-    };
-
-    _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
       var _this42 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'names'
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
+      });
+
+      expectAssertion(function () {
+        _this42.render('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}', {
+          numbers: [1, 2, 3]
+        });
+      }, 'You cannot specify positional parameters and the hash argument `names`.');
+    };
+
+    _class.prototype['@test can use hash parameter instead of arbitrary positional param [GH #12444]'] = function testCanUseHashParameterInsteadOfArbitraryPositionalParamGH12444(assert) {
+      var _this43 = this;
+
+      this.registerComponent('sample-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'names'
+        }),
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7)
       });
 
       this.render('{{sample-component names=things}}', {
@@ -12956,38 +12988,38 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this42.rerender();
+        return _this43.rerender();
       });
 
       this.assertText('Foo4Bar');
 
       this.runTask(function () {
-        return _this42.context.get('things').pushObject(5);
+        return _this43.context.get('things').pushObject(5);
       });
 
       this.assertText('Foo4Bar5');
 
       this.runTask(function () {
-        return _this42.context.get('things').shiftObject();
+        return _this43.context.get('things').shiftObject();
       });
 
       this.assertText('4Bar5');
 
       this.runTask(function () {
-        return _this42.context.get('things').clear();
+        return _this43.context.get('things').clear();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this42.context.set('things', _emberRuntime.A(['Foo', 4, 'Bar']));
+        return _this43.context.set('things', _emberRuntime.A(['Foo', 4, 'Bar']));
       });
 
       this.assertText('Foo4Bar');
     };
 
     _class.prototype['@test can use hash parameter instead of positional param'] = function testCanUseHashParameterInsteadOfPositionalParam(assert) {
-      var _this43 = this;
+      var _this44 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -12997,14 +13029,14 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       // TODO: Fix when id is implemented
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9));
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
       assert.equal(this.$('#one-positional').text(), 'one - two');
       assert.equal(this.$('#no-positional').text(), 'one - two');
 
       this.runTask(function () {
-        return _this43.rerender();
+        return _this44.rerender();
       });
 
       assert.equal(this.$('#two-positional').text(), 'one - two');
@@ -13013,13 +13045,13 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test dynamic arbitrary number of positional parameters'] = function testDynamicArbitraryNumberOfPositionalParameters(assert) {
-      var _this44 = this;
+      var _this45 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
           positionalParams: 'n'
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
       });
 
       this.render('{{sample-component user1 user2}}', {
@@ -13030,33 +13062,33 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this44.rerender();
+        return _this45.rerender();
       });
 
       this.assertText('Foo4');
 
       this.runTask(function () {
-        return _this44.context.set('user1', 'Bar');
+        return _this45.context.set('user1', 'Bar');
       });
 
       this.assertText('Bar4');
 
       this.runTask(function () {
-        return _this44.context.set('user2', '5');
+        return _this45.context.set('user2', '5');
       });
 
       this.assertText('Bar5');
 
       this.runTask(function () {
-        _this44.context.set('user1', 'Foo');
-        _this44.context.set('user2', 4);
+        _this45.context.set('user1', 'Foo');
+        _this45.context.set('user2', 4);
       });
 
       this.assertText('Foo4');
     };
 
     _class.prototype['@test with ariaRole specified'] = function testWithAriaRoleSpecified() {
-      var _this45 = this;
+      var _this46 = this;
 
       this.registerComponent('aria-test', {
         template: 'Here!'
@@ -13069,26 +13101,26 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this45.rerender();
+        return _this46.rerender();
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
 
       this.runTask(function () {
-        return _this45.context.set('role', 'input');
+        return _this46.context.set('role', 'input');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'input' } });
 
       this.runTask(function () {
-        return _this45.context.set('role', 'main');
+        return _this46.context.set('role', 'main');
       });
 
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
     _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
-      var _this46 = this;
+      var _this47 = this;
 
       this.registerComponent('with-template', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13097,69 +13129,33 @@ babelHelpers.classCallCheck(this, _class);
         template: '[In layout - {{name}}] {{yield}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject9), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11), {
         name: 'Whoop, whoop!'
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.rerender();
+        return _this47.rerender();
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.context.set('name', 'Ole, ole');
+        return _this47.context.set('name', 'Ole, ole');
       });
 
       this.assertText('[In layout - with-block] [In block - Ole, ole][In layout - without-block] ');
 
       this.runTask(function () {
-        return _this46.context.set('name', 'Whoop, whoop!');
+        return _this47.context.set('name', 'Whoop, whoop!');
       });
 
       this.assertText('[In layout - with-block] [In block - Whoop, whoop!][In layout - without-block] ');
     };
 
     _class.prototype['@test hasBlock is true when block supplied'] = function testHasBlockIsTrueWhenBlockSupplied() {
-      var _this47 = this;
-
-      this.registerComponent('with-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
-      });
-
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11));
-
-      this.assertText('In template');
-
-      this.runTask(function () {
-        return _this47.rerender();
-      });
-
-      this.assertText('In template');
-    };
-
-    _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
       var _this48 = this;
-
-      this.registerComponent('with-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject10)
-      });
-
-      this.render('{{with-block}}');
-
-      this.assertText('No Block!');
-
-      this.runTask(function () {
-        return _this48.rerender();
-      });
-
-      this.assertText('No Block!');
-    };
-
-    _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
-      var _this49 = this;
 
       this.registerComponent('with-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12)
@@ -13167,16 +13163,34 @@ babelHelpers.classCallCheck(this, _class);
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject13));
 
-      this.assertText('In template - In Component');
+      this.assertText('In template');
+
+      this.runTask(function () {
+        return _this48.rerender();
+      });
+
+      this.assertText('In template');
+    };
+
+    _class.prototype['@test hasBlock is false when no block supplied'] = function testHasBlockIsFalseWhenNoBlockSupplied() {
+      var _this49 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12)
+      });
+
+      this.render('{{with-block}}');
+
+      this.assertText('No Block!');
 
       this.runTask(function () {
         return _this49.rerender();
       });
 
-      this.assertText('In template - In Component');
+      this.assertText('No Block!');
     };
 
-    _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
+    _class.prototype['@test hasBlockParams is true when block param supplied'] = function testHasBlockParamsIsTrueWhenBlockParamSupplied() {
       var _this50 = this;
 
       this.registerComponent('with-block', {
@@ -13185,17 +13199,35 @@ babelHelpers.classCallCheck(this, _class);
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject15));
 
-      this.assertText('In block No Block Param!');
+      this.assertText('In template - In Component');
 
       this.runTask(function () {
         return _this50.rerender();
+      });
+
+      this.assertText('In template - In Component');
+    };
+
+    _class.prototype['@test hasBlockParams is false when no block param supplied'] = function testHasBlockParamsIsFalseWhenNoBlockParamSupplied() {
+      var _this51 = this;
+
+      this.registerComponent('with-block', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject17));
+
+      this.assertText('In block No Block Param!');
+
+      this.runTask(function () {
+        return _this51.rerender();
       });
 
       this.assertText('In block No Block Param!');
     };
 
     _class.prototype['@test static named positional parameters'] = function testStaticNamedPositionalParameters() {
-      var _this51 = this;
+      var _this52 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -13209,14 +13241,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this51.rerender();
+        return _this52.rerender();
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test dynamic named positional parameters'] = function testDynamicNamedPositionalParameters() {
-      var _this52 = this;
+      var _this53 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -13233,33 +13265,33 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this52.rerender();
+        return _this53.rerender();
       });
 
       this.assertText('Quint4');
 
       this.runTask(function () {
-        return _this52.context.set('myName', 'Sergio');
+        return _this53.context.set('myName', 'Sergio');
       });
 
       this.assertText('Sergio4');
 
       this.runTask(function () {
-        return _this52.context.set('myAge', 2);
+        return _this53.context.set('myAge', 2);
       });
 
       this.assertText('Sergio2');
 
       this.runTask(function () {
-        _this52.context.set('myName', 'Quint');
-        _this52.context.set('myAge', 4);
+        _this53.context.set('myName', 'Quint');
+        _this53.context.set('myAge', 4);
       });
 
       this.assertText('Quint4');
     };
 
     _class.prototype['@test if a value is passed as a non-positional parameter, it raises an assertion'] = function testIfAValueIsPassedAsANonPositionalParameterItRaisesAnAssertion() {
-      var _this53 = this;
+      var _this54 = this;
 
       this.registerComponent('sample-component', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -13269,7 +13301,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this53.render('{{sample-component notMyName name=myName}}', {
+        _this54.render('{{sample-component notMyName name=myName}}', {
           myName: 'Quint',
           notMyName: 'Sergio'
         });
@@ -13277,32 +13309,32 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test yield to inverse'] = function testYieldToInverse() {
-      var _this54 = this;
+      var _this55 = this;
 
       this.registerComponent('my-if', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject16)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject18)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject17), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject19), {
         activated: true
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this54.rerender();
+        return _this55.rerender();
       });
 
       this.assertText('Yes:Hello42');
 
       this.runTask(function () {
-        return _this54.context.set('activated', false);
+        return _this55.context.set('activated', false);
       });
 
       this.assertText('No:Goodbye');
 
       this.runTask(function () {
-        return _this54.context.set('activated', true);
+        return _this55.context.set('activated', true);
       });
 
       this.assertText('Yes:Hello42');
@@ -13310,19 +13342,6 @@ babelHelpers.classCallCheck(this, _class);
 
     _class.prototype['@test expression hasBlock inverse'] = function testExpressionHasBlockInverse(assert) {
       this.registerComponent('check-inverse', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject18)
-      });
-
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject19));
-
-      this.assertComponentElement(this.firstChild, { content: 'No' });
-      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
-
-      this.assertStableRerender();
-    };
-
-    _class.prototype['@test expression hasBlock default'] = function testExpressionHasBlockDefault(assert) {
-      this.registerComponent('check-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject20)
       });
 
@@ -13334,12 +13353,25 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
     };
 
-    _class.prototype['@test expression hasBlockParams inverse'] = function testExpressionHasBlockParamsInverse(assert) {
-      this.registerComponent('check-inverse', {
+    _class.prototype['@test expression hasBlock default'] = function testExpressionHasBlockDefault(assert) {
+      this.registerComponent('check-block', {
         template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject22)
       });
 
       this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject23));
+
+      this.assertComponentElement(this.firstChild, { content: 'No' });
+      this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
+
+      this.assertStableRerender();
+    };
+
+    _class.prototype['@test expression hasBlockParams inverse'] = function testExpressionHasBlockParamsInverse(assert) {
+      this.registerComponent('check-inverse', {
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24)
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject25));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'No' });
@@ -13349,10 +13381,10 @@ babelHelpers.classCallCheck(this, _class);
 
     _class.prototype['@test expression hasBlockParams default'] = function testExpressionHasBlockParamsDefault(assert) {
       this.registerComponent('check-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject25));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -13362,10 +13394,10 @@ babelHelpers.classCallCheck(this, _class);
 
     _class.prototype['@test non-expression hasBlock'] = function testNonExpressionHasBlock(assert) {
       this.registerComponent('check-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject28)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject21));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject23));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -13375,10 +13407,10 @@ babelHelpers.classCallCheck(this, _class);
 
     _class.prototype['@test expression hasBlockParams'] = function testExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject24)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject26)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -13388,10 +13420,10 @@ babelHelpers.classCallCheck(this, _class);
 
     _class.prototype['@test non-expression hasBlockParams'] = function testNonExpressionHasBlockParams(assert) {
       this.registerComponent('check-params', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject28)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject27));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29));
 
       this.assertComponentElement(this.firstChild, { content: 'No' });
       this.assertComponentElement(this.nthChild(1), { content: 'Yes' });
@@ -13404,7 +13436,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '<button name={{hasBlock}}></button>'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject29));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -13417,7 +13449,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '<button name={{hasBlock "inverse"}}></button>'
       }, '');
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject30));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -13430,7 +13462,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '<button name={{hasBlockParams}}></button>'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'true' }, '');
@@ -13443,7 +13475,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '<button name={{hasBlockParams "inverse"}}></button>'
       }, '');
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject31));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
 
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[0], 'button', { name: 'false' }, '');
       _emberGlimmerTestsUtilsTestHelpers.equalsElement(this.$('button')[1], 'button', { name: 'false' }, '');
@@ -13456,7 +13488,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '{{if hasBlock "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -13469,7 +13501,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '{{if (hasBlock) "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject32));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -13482,7 +13514,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '{{if (hasBlock "inverse") "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject33));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject35));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -13495,7 +13527,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '{{if hasBlockParams "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -13508,7 +13540,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '{{if (hasBlockParams) "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'true' });
@@ -13521,7 +13553,7 @@ babelHelpers.classCallCheck(this, _class);
         template: '{{if (hasBlockParams "inverse") "true" "false"}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject34));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36));
 
       this.assertComponentElement(this.firstChild, { content: 'false' });
       this.assertComponentElement(this.nthChild(1), { content: 'false' });
@@ -13530,7 +13562,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test component in template of a yielding component should have the proper parentView'] = function testComponentInTemplateOfAYieldingComponentShouldHaveTheProperParentView(assert) {
-      var _this55 = this;
+      var _this56 = this;
 
       var outer = undefined,
           innerTemplate = undefined,
@@ -13571,7 +13603,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this55.rerender();
+        return _this56.rerender();
       });
 
       assert.equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
@@ -13580,7 +13612,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test newly-added sub-components get correct parentView'] = function testNewlyAddedSubComponentsGetCorrectParentView(assert) {
-      var _this56 = this;
+      var _this57 = this;
 
       var outer = undefined,
           inner = undefined;
@@ -13603,34 +13635,34 @@ babelHelpers.classCallCheck(this, _class);
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject35), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37), {
         showInner: false
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
 
       this.runTask(function () {
-        return _this56.rerender();
+        return _this57.rerender();
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView (after rerender)');
 
       this.runTask(function () {
-        return _this56.context.set('showInner', true);
+        return _this57.context.set('showInner', true);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
       assert.equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
 
       this.runTask(function () {
-        return _this56.context.set('showInner', false);
+        return _this57.context.set('showInner', false);
       });
 
       assert.equal(outer.parentView, this.context, 'x-outer receives the ambient scope as its parentView');
     };
 
     _class.prototype['@test when a property is changed during children\'s rendering'] = function testWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
-      var _this57 = this;
+      var _this58 = this;
 
       if (false) {
         expectDeprecation(/modified value twice on <\(.+> in a single render/);
@@ -13677,7 +13709,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
       this.runTask(function () {
-        return _this57.rerender();
+        return _this58.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -13685,7 +13717,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (!false) {
         expectAssertion(function () {
-          _this57.runTask(function () {
+          _this58.runTask(function () {
             return outer.set('value', 2);
           });
         }, /modified value twice on <\(.+> in a single render/);
@@ -13716,7 +13748,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function testWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
-      var _this58 = this;
+      var _this59 = this;
 
       if (false) {
         expectDeprecation(/modified wrapper.content twice on <Ember.Object.+> in a single render/);
@@ -13753,7 +13785,7 @@ babelHelpers.classCallCheck(this, _class);
 
       if (!false) {
         expectAssertion(function () {
-          _this58.render('{{x-outer}}');
+          _this59.render('{{x-outer}}');
         }, /modified wrapper.content twice on <Ember.Object.+> in a single render/);
 
         return;
@@ -13765,7 +13797,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#outer-value').text(), '1', 'initial render of outer');
 
       this.runTask(function () {
-        return _this58.rerender();
+        return _this59.rerender();
       });
 
       assert.equal(this.$('#inner-value').text(), '1', 're-render of inner');
@@ -13794,10 +13826,10 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test non-block with each rendering child components'] = function testNonBlockWithEachRenderingChildComponents() {
-      var _this59 = this;
+      var _this60 = this;
 
       this.registerComponent('non-block', {
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject36)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject38)
       });
 
       this.registerComponent('child-non-block', {
@@ -13811,32 +13843,32 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this59.rerender();
+        return _this60.rerender();
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
 
       this.runTask(function () {
-        return _this59.context.get('items').pushObject('Sergio');
+        return _this60.context.get('items').pushObject('Sergio');
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this59.context.get('items').shiftObject();
+        return _this60.context.get('items').shiftObject();
       });
 
       this.assertText('In layout. [Child: Dick.][Child: Harry.][Child: Sergio.]');
 
       this.runTask(function () {
-        return _this59.context.set('items', _emberRuntime.A(['Tom', 'Dick', 'Harry']));
+        return _this60.context.set('items', _emberRuntime.A(['Tom', 'Dick', 'Harry']));
       });
 
       this.assertText('In layout. [Child: Tom.][Child: Dick.][Child: Harry.]');
     };
 
     _class.prototype['@test specifying classNames results in correct class'] = function testSpecifyingClassNamesResultsInCorrectClass(assert) {
-      var _this60 = this;
+      var _this61 = this;
 
       var clickyThing = undefined;
 
@@ -13851,7 +13883,7 @@ babelHelpers.classCallCheck(this, _class);
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject37));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject39));
 
       // TODO: ember-view is no longer viewable in the classNames array. Bug or
       // feature?
@@ -13863,7 +13895,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertComponentElement(this.firstChild, { tagName: 'button', attrs: { 'class': _emberGlimmerTestsUtilsTestHelpers.classes(expectedClassNames.join(' ')) } });
 
       this.runTask(function () {
-        return _this60.rerender();
+        return _this61.rerender();
       });
 
       assert.ok(this.$('button').is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + this.$('button').attr('class') + ' (rerender)');
@@ -13873,7 +13905,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test specifying custom concatenatedProperties avoids clobbering'] = function testSpecifyingCustomConcatenatedPropertiesAvoidsClobbering(assert) {
-      var _this61 = this;
+      var _this62 = this;
 
       var clickyThing = undefined;
       this.registerComponent('some-clicky-thing', {
@@ -13885,22 +13917,22 @@ babelHelpers.classCallCheck(this, _class);
             clickyThing = this;
           }
         }),
-        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject38)
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject40)
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject39));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject41));
 
       this.assertText('blarkporybaz- Click Me');
 
       this.runTask(function () {
-        return _this61.rerender();
+        return _this62.rerender();
       });
 
       this.assertText('blarkporybaz- Click Me');
     };
 
     _class.prototype['@test a two way binding flows upstream when consumed in the template'] = function testATwoWayBindingFlowsUpstreamWhenConsumedInTheTemplate() {
-      var _this62 = this;
+      var _this63 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13923,7 +13955,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this62.rerender();
+        return _this63.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -13949,14 +13981,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText(' - ');
 
       this.runTask(function () {
-        _this62.component.set('localBar', 'initial value');
+        _this63.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP when consumed in the template'] = function testATwoWayBindingFlowsUpstreamThroughACPWhenConsumedInTheTemplate() {
-      var _this63 = this;
+      var _this64 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -13990,7 +14022,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value - initial value');
 
       this.runTask(function () {
-        return _this63.rerender();
+        return _this64.rerender();
       });
 
       this.assertText('initial value - initial value');
@@ -14002,14 +14034,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('updated value - updated value');
 
       this.runTask(function () {
-        _this63.component.set('localBar', 'initial value');
+        _this64.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value - initial value');
     };
 
     _class.prototype['@test a two way binding flows upstream through a CP without template consumption'] = function testATwoWayBindingFlowsUpstreamThroughACPWithoutTemplateConsumption() {
-      var _this64 = this;
+      var _this65 = this;
 
       var component = undefined;
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14042,7 +14074,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('initial value');
 
       this.runTask(function () {
-        return _this64.rerender();
+        return _this65.rerender();
       });
 
       this.assertText('initial value');
@@ -14054,14 +14086,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('updated value');
 
       this.runTask(function () {
-        _this64.component.set('localBar', 'initial value');
+        _this65.component.set('localBar', 'initial value');
       });
 
       this.assertText('initial value');
     };
 
     _class.prototype['@test services can be injected into components'] = function testServicesCanBeInjectedIntoComponents() {
-      var _this65 = this;
+      var _this66 = this;
 
       var service = undefined;
       this.registerService('name', _emberRuntime.Service.extend({
@@ -14084,7 +14116,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Jackson');
 
       this.runTask(function () {
-        return _this65.rerender();
+        return _this66.rerender();
       });
 
       this.assertText('Jackson');
@@ -14103,7 +14135,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test can access `actions` hash via `_actions` [DEPRECATED]'] = function testCanAccessActionsHashVia_actionsDEPRECATED() {
-      var _this66 = this;
+      var _this67 = this;
 
       var component = undefined;
 
@@ -14127,12 +14159,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assert.strictEqual(component.actions.derp, derp);
 
       expectDeprecation(function () {
-        _this66.assert.strictEqual(component._actions.derp, derp);
+        _this67.assert.strictEqual(component._actions.derp, derp);
       }, 'Usage of `_actions` is deprecated, use `actions` instead.');
     };
 
     _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
-      var _this67 = this;
+      var _this68 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14141,16 +14173,16 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectAssertion(function () {
-        _this67.render('{{foo-bar}}');
-      }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
+        _this68.render('{{foo-bar}}');
+      }, /You must call `this._super\(...arguments\);` when overriding `init` on a framework object. Please update .* to call `this._super\(...arguments\);` from `init`./);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function testShouldToggleVisibilityWithIsVisible(assert) {
-      var _this68 = this;
+      var _this69 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberGlimmerTestsUtilsTestHelpers.styles(expected);
-        var actual = _this68.firstChild.getAttribute('style');
+        var actual = _this69.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -14173,18 +14205,18 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetal.set(_this68.context, 'visible', true);
+        _emberMetal.set(_this69.context, 'visible', true);
       });
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetal.set(_this68.context, 'visible', false);
+        _emberMetal.set(_this69.context, 'visible', false);
       });
       assertStyle('display: none;');
     };
 
     _class.prototype['@test isVisible does not overwrite component style'] = function testIsVisibleDoesNotOverwriteComponentStyle(assert) {
-      var _this69 = this;
+      var _this70 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14207,7 +14239,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetal.set(_this69.context, 'visible', true);
+        _emberMetal.set(_this70.context, 'visible', true);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -14216,7 +14248,7 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       this.runTask(function () {
-        _emberMetal.set(_this69.context, 'visible', false);
+        _emberMetal.set(_this70.context, 'visible', false);
       });
 
       this.assertComponentElement(this.firstChild, {
@@ -14226,11 +14258,11 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test adds isVisible binding when style binding is missing and other bindings exist'] = function testAddsIsVisibleBindingWhenStyleBindingIsMissingAndOtherBindingsExist(assert) {
-      var _this70 = this;
+      var _this71 = this;
 
       var assertStyle = function (expected) {
         var matcher = _emberGlimmerTestsUtilsTestHelpers.styles(expected);
-        var actual = _this70.firstChild.getAttribute('style');
+        var actual = _this71.firstChild.getAttribute('style');
 
         assert.pushResult({
           result: matcher.match(actual),
@@ -14258,14 +14290,14 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetal.set(_this70.context, 'visible', true);
+        _emberMetal.set(_this71.context, 'visible', true);
       });
 
       assertStyle('');
 
       this.runTask(function () {
-        _emberMetal.set(_this70.context, 'visible', false);
-        _emberMetal.set(_this70.context, 'foo', 'woo');
+        _emberMetal.set(_this71.context, 'visible', false);
+        _emberMetal.set(_this71.context, 'foo', 'woo');
       });
 
       assertStyle('display: none;');
@@ -14273,14 +14305,14 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test it can use readDOMAttr to read input value'] = function testItCanUseReadDOMAttrToReadInputValue() {
-      var _this71 = this;
+      var _this72 = this;
 
       var component = undefined;
       var assertElement = function (expectedValue) {
         // value is a property, not an attribute
-        _this71.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
-        _this71.assert.equal(_this71.firstChild.value, expectedValue, 'value property is correct');
-        _this71.assert.equal(_emberMetal.get(component, 'value'), expectedValue, 'component.get("value") is correct');
+        _this72.assertHTML('<input class="ember-view" id="' + component.elementId + '">');
+        _this72.assert.equal(_this72.firstChild.value, expectedValue, 'value property is correct');
+        _this72.assert.equal(_emberMetal.get(component, 'value'), expectedValue, 'component.get("value") is correct');
       };
 
       this.registerComponent('one-way-input', {
@@ -14309,15 +14341,15 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _this71.firstChild.value = 'bar';
-        _this71.$('input').trigger('change');
+        _this72.firstChild.value = 'bar';
+        _this72.$('input').trigger('change');
       });
 
       assertElement('bar');
 
       this.runTask(function () {
-        _this71.firstChild.value = 'foo';
-        _this71.$('input').trigger('change');
+        _this72.firstChild.value = 'foo';
+        _this72.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -14329,8 +14361,8 @@ babelHelpers.classCallCheck(this, _class);
       assertElement('bar');
 
       this.runTask(function () {
-        _this71.firstChild.value = 'foo';
-        _this71.$('input').trigger('change');
+        _this72.firstChild.value = 'foo';
+        _this72.$('input').trigger('change');
       });
 
       assertElement('foo');
@@ -14393,7 +14425,7 @@ babelHelpers.classCallCheck(this, _class);
         })
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject40));
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject42));
 
       this.teardown();
 
@@ -14401,7 +14433,7 @@ babelHelpers.classCallCheck(this, _class);
     };
 
     _class.prototype['@test using didInitAttrs as an event is deprecated'] = function testUsingDidInitAttrsAsAnEventIsDeprecated(assert) {
-      var _this72 = this;
+      var _this73 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14412,12 +14444,12 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       expectDeprecation(function () {
-        _this72.render('{{foo-bar}}');
+        _this73.render('{{foo-bar}}');
       }, /didInitAttrs called/);
     };
 
     _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function testReturningTrueFromAnActionDoesNotBubbleIfTargetIsNotSpecifiedGH14275(assert) {
-      var _this73 = this;
+      var _this74 = this;
 
       this.registerComponent('display-toggle', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14441,12 +14473,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this73.$('button').click();
+        return _this74.$('button').click();
       });
     };
 
     _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function testReturningTrueFromAnActionBubblesToTheTargetIfSpecified(assert) {
-      var _this74 = this;
+      var _this75 = this;
 
       assert.expect(4);
 
@@ -14473,18 +14505,18 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this74.$('button').click();
+        return _this75.$('button').click();
       });
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function testComponentYieldingInAnEachHasCorrectBlockValuesAfterRerenderingGH14284() {
-      var _this75 = this;
+      var _this76 = this;
 
       this.registerComponent('list-items', {
         template: '{{#each items as |item|}}{{yield item}}{{/each}}'
       });
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject41), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject43), {
         editMode: false,
         items: ['foo', 'bar', 'qux', 'baz']
       });
@@ -14494,13 +14526,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetal.set(_this75.context, 'editMode', true);
+        return _emberMetal.set(_this76.context, 'editMode', true);
       });
 
       this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
 
       this.runTask(function () {
-        return _emberMetal.set(_this75.context, 'editMode', false);
+        return _emberMetal.set(_this76.context, 'editMode', false);
       });
 
       this.assertText('|foo||bar||qux||baz|');
@@ -15948,24 +15980,24 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
           }
         },
 
-        willRender: function () {
-          pushHook('willRender');
-          assertParentView('willRender', this);
-
-          if (this.isInitialRender) {
-            assertNoElement('willRender', this);
-            assertState('willRender', 'preRender', this);
-          } else {
-            assertElement('willRender', this);
-            assertState('willRender', 'inDOM', this);
-          }
-        },
-
         willInsertElement: function () {
           pushHook('willInsertElement');
           assertParentView('willInsertElement', this);
           assertElement('willInsertElement', this, false);
           assertState('willInsertElement', 'hasElement', this);
+        },
+
+        willRender: function () {
+          pushHook('willRender');
+          assertParentView('willRender', this);
+
+          if (this.isInitialRender) {
+            assertElement('willRender', this, false);
+            assertState('willRender', 'hasElement', this);
+          } else {
+            assertElement('willRender', this);
+            assertState('willRender', 'inDOM', this);
+          }
         },
 
         didInsertElement: function () {
@@ -16082,7 +16114,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willInsertElement'], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willInsertElement'], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willInsertElement'], ['the-bottom', 'willRender'],
 
         // Async hooks
 
@@ -16239,7 +16271,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willInsertElement'], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willInsertElement'], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willInsertElement'], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willInsertElement'], ['the-last-child', 'willRender'],
 
         // Async hooks
 
@@ -16415,7 +16447,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willInsertElement'], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willInsertElement'], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willInsertElement'], ['the-bottom', 'willRender'],
 
         // Async hooks
 
@@ -16510,11 +16542,11 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       var initialHooks = function (count) {
         var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }]];
         if (_this6.isInteractive) {
-          ret.push(['an-item', 'willRender'], ['an-item', 'willInsertElement']);
+          ret.push(['an-item', 'willInsertElement'], ['an-item', 'willRender']);
         }
         ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }]);
         if (_this6.isInteractive) {
-          ret.push(['nested-item', 'willRender'], ['nested-item', 'willInsertElement']);
+          ret.push(['nested-item', 'willInsertElement'], ['nested-item', 'willRender']);
         }
         return ret;
       };
@@ -16554,7 +16586,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.assertHooks({
         label: 'reset to empty array',
 
-        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willInsertElement'], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willInsertElement'], ['nested-item', 'willRender'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
 
         nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
       });
@@ -16594,16 +16626,16 @@ babelHelpers.createClass(LifeCycleHooksTest, [{
     return LifeCycleHooksTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: interactive lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
-babelHelpers.inherits(_class, _LifeCycleHooksTest);
+  var CurlyComponentsTest = (function (_LifeCycleHooksTest) {
+babelHelpers.inherits(CurlyComponentsTest, _LifeCycleHooksTest);
 
-    function _class() {
-babelHelpers.classCallCheck(this, _class);
+    function CurlyComponentsTest() {
+babelHelpers.classCallCheck(this, CurlyComponentsTest);
 
       _LifeCycleHooksTest.apply(this, arguments);
     }
 
-    _class.prototype.invocationFor = function invocationFor(name) {
+    CurlyComponentsTest.prototype.invocationFor = function invocationFor(name) {
       var _this7 = this;
 
       var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -16614,13 +16646,13 @@ babelHelpers.classCallCheck(this, _class);
       return '{{' + name + ' ' + attrs + '}}';
     };
 
-    _class.prototype.attrFor = function attrFor(name) {
+    CurlyComponentsTest.prototype.attrFor = function attrFor(name) {
       return '' + name;
     };
 
     /* private */
 
-    _class.prototype.val = function val(value) {
+    CurlyComponentsTest.prototype.val = function val(value) {
       if (value.isString) {
         return JSON.stringify(value.value);
       } else if (value.isExpr) {
@@ -16630,10 +16662,64 @@ babelHelpers.classCallCheck(this, _class);
       }
     };
 
-babelHelpers.createClass(_class, [{
+babelHelpers.createClass(CurlyComponentsTest, [{
       key: 'ComponentClass',
       get: function () {
         return _emberGlimmerTestsUtilsHelpers.Component;
+      }
+    }]);
+    return CurlyComponentsTest;
+  })(LifeCycleHooksTest);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: interactive lifecycle hooks (curly components)', (function (_CurlyComponentsTest) {
+babelHelpers.inherits(_class, _CurlyComponentsTest);
+
+    function _class() {
+babelHelpers.classCallCheck(this, _class);
+
+      _CurlyComponentsTest.apply(this, arguments);
+    }
+
+babelHelpers.createClass(_class, [{
+      key: 'isInteractive',
+      get: function () {
+        return true;
+      }
+    }]);
+    return _class;
+  })(CurlyComponentsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: non-interactive lifecycle hooks (curly components)', (function (_CurlyComponentsTest2) {
+babelHelpers.inherits(_class2, _CurlyComponentsTest2);
+
+    function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
+      _CurlyComponentsTest2.apply(this, arguments);
+    }
+
+babelHelpers.createClass(_class2, [{
+      key: 'isInteractive',
+      get: function () {
+        return false;
+      }
+    }]);
+    return _class2;
+  })(CurlyComponentsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: interactive lifecycle hooks (tagless curly components)', (function (_CurlyComponentsTest3) {
+babelHelpers.inherits(_class3, _CurlyComponentsTest3);
+
+    function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
+      _CurlyComponentsTest3.apply(this, arguments);
+    }
+
+babelHelpers.createClass(_class3, [{
+      key: 'ComponentClass',
+      get: function () {
+        return _emberGlimmerTestsUtilsHelpers.Component.extend({ tagName: '' });
       }
     }, {
       key: 'isInteractive',
@@ -16641,49 +16727,22 @@ babelHelpers.createClass(_class, [{
         return true;
       }
     }]);
-    return _class;
-  })(LifeCycleHooksTest));
+    return _class3;
+  })(CurlyComponentsTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: non-interactive lifecycle hooks (curly components)', (function (_LifeCycleHooksTest2) {
-babelHelpers.inherits(_class2, _LifeCycleHooksTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: non-interactive lifecycle hooks (tagless curly components)', (function (_CurlyComponentsTest4) {
+babelHelpers.inherits(_class4, _CurlyComponentsTest4);
 
-    function _class2() {
-babelHelpers.classCallCheck(this, _class2);
+    function _class4() {
+babelHelpers.classCallCheck(this, _class4);
 
-      _LifeCycleHooksTest2.apply(this, arguments);
+      _CurlyComponentsTest4.apply(this, arguments);
     }
 
-    _class2.prototype.invocationFor = function invocationFor(name) {
-      var _this8 = this;
-
-      var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-      var attrs = Object.keys(namedArgs).map(function (k) {
-        return k + '=' + _this8.val(namedArgs[k]);
-      }).join(' ');
-      return '{{' + name + ' ' + attrs + '}}';
-    };
-
-    _class2.prototype.attrFor = function attrFor(name) {
-      return '' + name;
-    };
-
-    /* private */
-
-    _class2.prototype.val = function val(value) {
-      if (value.isString) {
-        return JSON.stringify(value.value);
-      } else if (value.isExpr) {
-        return '(readonly ' + value.value + ')';
-      } else {
-        throw new Error('Unknown value: ' + value);
-      }
-    };
-
-babelHelpers.createClass(_class2, [{
+babelHelpers.createClass(_class4, [{
       key: 'ComponentClass',
       get: function () {
-        return _emberGlimmerTestsUtilsHelpers.Component;
+        return _emberGlimmerTestsUtilsHelpers.Component.extend({ tagName: '' });
       }
     }, {
       key: 'isInteractive',
@@ -16691,28 +16750,28 @@ babelHelpers.createClass(_class2, [{
         return false;
       }
     }]);
-    return _class2;
-  })(LifeCycleHooksTest));
+    return _class4;
+  })(CurlyComponentsTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
-babelHelpers.inherits(_class3, _RenderingTest2);
+babelHelpers.inherits(_class5, _RenderingTest2);
 
-    function _class3() {
-babelHelpers.classCallCheck(this, _class3);
+    function _class5() {
+babelHelpers.classCallCheck(this, _class5);
 
       _RenderingTest2.apply(this, arguments);
     }
 
-    _class3.prototype['@test afterRender set'] = function testAfterRenderSet() {
-      var _this10 = this;
+    _class5.prototype['@test afterRender set'] = function testAfterRenderSet() {
+      var _this9 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         width: '5',
         didInsertElement: function () {
-          var _this9 = this;
+          var _this8 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            _this9.set('width', '10');
+            _this8.set('width', '10');
           });
         }
       });
@@ -16725,21 +16784,21 @@ babelHelpers.classCallCheck(this, _class3);
       this.assertText('10');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this9.rerender();
       });
 
       this.assertText('10');
     };
 
-    _class3.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
-      var _this12 = this;
+    _class5.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
+      var _this11 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         didInsertElement: function () {
-          var _this11 = this;
+          var _this10 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            var parent = _this11.get('parent');
+            var parent = _this10.get('parent');
             parent.set('foo', 'wat');
           });
         }
@@ -16754,13 +16813,13 @@ babelHelpers.classCallCheck(this, _class3);
       this.assertText('wat');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('wat');
     };
 
-    return _class3;
+    return _class5;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   function bind(func, thisArg) {
@@ -21862,8 +21921,20 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('hello | hello world');
     };
 
-    _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
+    _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
       var _this6 = this;
+
+      this.registerHelper('hello-world', {
+        init: function () {}
+      });
+
+      expectAssertion(function () {
+        _this6.render('{{hello-world}}');
+      }, /You must call `this._super\(...arguments\);` when overriding `init` on a framework object. Please update .* to call `this._super\(...arguments\);` from `init`./);
+    };
+
+    _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
+      var _this7 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -21888,7 +21959,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('1');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('1');
@@ -21903,7 +21974,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper with static arguments can recompute a new value'] = function testClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
-      var _this7 = this;
+      var _this8 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -21928,7 +21999,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('1');
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertText('1');
@@ -21943,7 +22014,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test simple helper is called for param changes'] = function testSimpleHelperIsCalledForParamChanges() {
-      var _this8 = this;
+      var _this9 = this;
 
       var computeCount = 0;
 
@@ -21952,58 +22023,6 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
 
         computeCount++;
         return value + '-value';
-      });
-
-      this.render('{{hello-world model.name}}', {
-        model: { name: 'bob' }
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _this8.rerender();
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _emberMetal.set(_this8.context, 'model.name', 'sal');
-      });
-
-      this.assertText('sal-value');
-
-      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
-
-      this.runTask(function () {
-        return _emberMetal.set(_this8.context, 'model', { name: 'bob' });
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-    };
-
-    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
-      var _this9 = this;
-
-      var createCount = 0;
-      var computeCount = 0;
-
-      this.registerHelper('hello-world', {
-        init: function () {
-          this._super.apply(this, arguments);
-          createCount++;
-        },
-        compute: function (_ref2) {
-          var value = _ref2[0];
-
-          computeCount++;
-          return value + '-value';
-        }
       });
 
       this.render('{{hello-world model.name}}', {
@@ -22037,57 +22056,66 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('bob-value');
 
       assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
+    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
       var _this10 = this;
 
-      this.registerHelper('hello-world', function (_params, _hash) {
-        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-      });
+      var createCount = 0;
+      var computeCount = 0;
 
-      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
-        model: {
-          name: 'bob',
-          age: 42
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          createCount++;
+        },
+        compute: function (_ref2) {
+          var value = _ref2[0];
+
+          computeCount++;
+          return value + '-value';
         }
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _this10.rerender();
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _emberMetal.set(_this10.context, 'model.name', 'sal');
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetal.set(_this10.context, 'model.age', 28);
+        return _emberMetal.set(_this10.context, 'model', { name: 'bob' });
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+      this.assertText('bob-value');
 
-      this.runTask(function () {
-        return _emberMetal.set(_this10.context, 'model', { name: 'bob', age: 42 });
-      });
-
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
+    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
       var _this11 = this;
 
-      this.registerHelper('hello-world', {
-        compute: function (_params, _hash) {
-          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-        }
+      this.registerHelper('hello-world', function (_params, _hash) {
+        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
       });
 
       this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
@@ -22124,8 +22152,51 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
     };
 
-    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
       var _this12 = this;
+
+      this.registerHelper('hello-world', {
+        compute: function (_params, _hash) {
+          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+        }
+      });
+
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this12.context, 'model.name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this12.context, 'model.age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this12.context, 'model', { name: 'bob', age: 42 });
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+      var _this13 = this;
 
       this.registerHelper('join-words', {
         compute: function (params) {
@@ -22140,26 +22211,26 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetal.set(_this12.context, 'model.reason', 'Nickleback');
+        return _emberMetal.set(_this13.context, 'model.reason', 'Nickleback');
       });
 
       this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetal.set(_this12.context, 'model', { reason: 'force' });
+        return _emberMetal.set(_this13.context, 'model', { reason: 'force' });
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
     _class.prototype['@test parameterless helper is usable in subexpressions'] = function testParameterlessHelperIsUsableInSubexpressions() {
-      var _this13 = this;
+      var _this14 = this;
 
       this.registerHelper('should-show', function () {
         return true;
@@ -22170,14 +22241,14 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('true');
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this14.rerender();
       });
 
       this.assertText('true');
     };
 
     _class.prototype['@test parameterless helper is usable in attributes'] = function testParameterlessHelperIsUsableInAttributes() {
-      var _this14 = this;
+      var _this15 = this;
 
       this.registerHelper('foo-bar', function () {
         return 'baz';
@@ -22188,53 +22259,53 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertHTML('<div data-foo-bar="baz"></div>');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertHTML('<div data-foo-bar="baz"></div>');
     };
 
     _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
-      var _this15 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this15.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
-    };
-
-    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this16 = this;
 
-      this.registerHelper('some-helper', {
-        compute: function () {}
-      });
+      this.registerHelper('some-helper', function () {});
 
       expectAssertion(function () {
         _this16.render('{{#some-helper}}{{/some-helper}}');
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this17 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this17.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
-    };
-
-    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
-      var _this18 = this;
 
       this.registerHelper('some-helper', {
         compute: function () {}
       });
 
       expectAssertion(function () {
+        _this17.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+      var _this18 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
         _this18.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+      var _this19 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this19.render('<div {{some-helper}}></div>');
       }, /Helpers may not be used in the element form/);
     };
 
@@ -22259,7 +22330,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
-      var _this19 = this;
+      var _this20 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -22285,7 +22356,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -22308,7 +22379,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
-      var _this20 = this;
+      var _this21 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -22338,7 +22409,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -22447,11 +22518,11 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         }
 
         HelperMutatingArgsTests.prototype.buildCompute = function buildCompute() {
-          var _this21 = this;
+          var _this22 = this;
 
           return function (params, hash) {
             if (pushingIntoFrozenArrayThrows) {
-              _this21.assert.throws(function () {
+              _this22.assert.throws(function () {
                 params.push('foo');
 
                 // cannot assert error message as it varies by platform
@@ -22459,7 +22530,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
             }
 
             if (assigningExistingFrozenPropertyThrows) {
-              _this21.assert.throws(function () {
+              _this22.assert.throws(function () {
                 hash.foo = 'bar';
 
                 // cannot assert error message as it varies by platform
@@ -22467,7 +22538,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
             }
 
             if (addingPropertyToFrozenObjectThrows) {
-              _this21.assert.throws(function () {
+              _this22.assert.throws(function () {
                 hash.someUnusedHashProperty = 'bar';
 
                 // cannot assert error message as it varies by platform
@@ -30398,11 +30469,12 @@ babelHelpers.createClass(_class3, [{
     return _class3;
   })(EachInProxyTest));
 });
-enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetal, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntime, _emberGlimmerTestsUtilsSharedConditionalTests) {
+enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetal, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
-      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']);
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each list as |item|}}\n        <li>Prev</li>\n        {{foo-bar item=item}}\n        <li>Next</li>\n      {{/each}}\n    '], ['\n      {{#each list as |item|}}\n        <li>Prev</li>\n        {{foo-bar item=item}}\n        <li>Next</li>\n      {{/each}}\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']);
 
   var ArrayLike = (function () {
     function ArrayLike(content) {
@@ -30957,8 +31029,48 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertText('aaa');
     };
 
-    SingleEachTest.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
+    SingleEachTest.prototype['@test updating and setting within #each'] = function testUpdatingAndSettingWithinEach(assert) {
       var _this10 = this;
+
+      this.makeList([{ value: 1 }, { value: 2 }, { value: 3 }]);
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.isEven = true;
+          this.tagName = 'li';
+        },
+
+        _isEven: function () {
+          this.set('isEven', this.get('item.value') % 2 === 0);
+        },
+
+        didUpdate: function () {
+          this._isEven();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{#if isEven}}{{item.value}}{{/if}}' });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      this.assertText('Prev1NextPrev2NextPrev3Next');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(_this10.context.list.objectAt(0), 'value', 3);
+      });
+
+      this.assertText('PrevNextPrev2NextPrev3Next');
+
+      this.replaceList([{ value: 1 }, { value: 2 }, { value: 3 }]);
+
+      this.assertText('Prev1NextPrev2NextPrev3Next');
+    };
+
+    SingleEachTest.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
+      var _this11 = this;
 
       var duplicateItem = { text: 'foo' };
 
@@ -30971,13 +31083,13 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _this10.pushObject(duplicateItem);
+        return _this11.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoo');
 
       this.runTask(function () {
-        return _this10.pushObject(duplicateItem);
+        return _this11.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoofoo');
@@ -30988,7 +31100,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test it maintains DOM stability when condition changes between objects with the same keys'] = function testItMaintainsDOMStabilityWhenConditionChangesBetweenObjectsWithTheSameKeys() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
@@ -30999,10 +31111,10 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.takeSnapshot();
 
       this.runTask(function () {
-        _this11.popObject();
-        _this11.popObject();
-        _this11.pushObject({ text: ' ' });
-        _this11.pushObject({ text: 'world' });
+        _this12.popObject();
+        _this12.popObject();
+        _this12.pushObject({ text: ' ' });
+        _this12.pushObject({ text: 'world' });
       });
 
       this.assertText('Hello world');
@@ -31017,7 +31129,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
@@ -31030,10 +31142,10 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       var oldSnapshot = this.takeSnapshot();
 
       this.runTask(function () {
-        _this12.unshiftObject({ text: ', ' });
-        _this12.unshiftObject({ text: 'Hi' });
-        _this12.pushObject({ text: '!' });
-        _this12.pushObject({ text: 'earth' });
+        _this13.unshiftObject({ text: ', ' });
+        _this13.unshiftObject({ text: 'Hi' });
+        _this13.pushObject({ text: '!' });
+        _this13.pushObject({ text: 'earth' });
       });
 
       this.assertText('Hi, Hello world!earth');
@@ -31048,7 +31160,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
-      var _this13 = this;
+      var _this14 = this;
 
       this.makeList([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }]);
 
@@ -31057,7 +31169,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertText('HelloHelloHello');
 
       this.runTask(function () {
-        _this13.forEach(function (hash) {
+        _this14.forEach(function (hash) {
           return _emberMetal.set(hash, 'text', 'Goodbye');
         });
       });
@@ -31070,7 +31182,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
-      var _this14 = this;
+      var _this15 = this;
 
       this.makeList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
 
@@ -31083,19 +31195,19 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _this14.shiftObject();
+        return _this15.shiftObject();
       });
 
       this.assertText('Joel-JoelJoel-Joel');
 
       this.runTask(function () {
-        return _emberMetal.set(_this14.context, 'name', 'Godfrey');
+        return _emberMetal.set(_this15.context, 'name', 'Godfrey');
       });
 
       this.assertText('Godfrey-GodfreyGodfrey-Godfrey');
 
       this.runTask(function () {
-        return _emberMetal.set(_this14.context, 'name', 'Joel');
+        return _emberMetal.set(_this15.context, 'name', 'Joel');
       });
       this.replaceList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
 
@@ -31103,7 +31215,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test can access the item and the original scope'] = function testCanAccessTheItemAndTheOriginalScope() {
-      var _this15 = this;
+      var _this16 = this;
 
       this.makeList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
 
@@ -31114,23 +31226,23 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
 
       this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
 
       this.runTask(function () {
-        _emberMetal.set(_this15.objectAt(1), 'name', 'Stefan Penner');
-        _this15.removeAt(0);
-        _this15.pushObject({ name: 'Tom Dale' });
-        _this15.insertAt(1, { name: 'Chad Hietala' });
-        _emberMetal.set(_this15.context, 'title', 'Principal Engineer');
+        _emberMetal.set(_this16.objectAt(1), 'name', 'Stefan Penner');
+        _this16.removeAt(0);
+        _this16.pushObject({ name: 'Tom Dale' });
+        _this16.insertAt(1, { name: 'Chad Hietala' });
+        _emberMetal.set(_this16.context, 'title', 'Principal Engineer');
       });
 
       this.assertText('[Principal Engineer: Stefan Penner][Principal Engineer: Chad Hietala][Principal Engineer: Godfrey Chan][Principal Engineer: Tom Dale]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this15.context, 'title', 'Señor Engineer');
+        return _emberMetal.set(_this16.context, 'title', 'Señor Engineer');
       });
       this.replaceList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
 
@@ -31138,7 +31250,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test the scoped variable is not available outside the {{#each}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this16 = this;
+      var _this17 = this;
 
       this.makeList(['Yehuda']);
 
@@ -31149,25 +31261,25 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertText('Stef-Yehuda-Stef');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('Stef-Yehuda-Stef');
 
       this.runTask(function () {
-        return _this16.pushObjects([' ', 'Katz']);
+        return _this17.pushObjects([' ', 'Katz']);
       });
 
       this.assertText('Stef-Yehuda Katz-Stef');
 
       this.runTask(function () {
-        return _emberMetal.set(_this16.context, 'name', 'Tom');
+        return _emberMetal.set(_this17.context, 'name', 'Tom');
       });
 
       this.assertText('Tom-Yehuda Katz-Tom');
 
       this.runTask(function () {
-        return _emberMetal.set(_this16.context, 'name', 'Stef');
+        return _emberMetal.set(_this17.context, 'name', 'Stef');
       });
       this.replaceList(['Yehuda']);
 
@@ -31175,7 +31287,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
-      var _this17 = this;
+      var _this18 = this;
 
       this.makeList([]);
 
@@ -31186,31 +31298,31 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _emberMetal.set(_this17.context, 'otherThing', 'biz');
+        return _emberMetal.set(_this18.context, 'otherThing', 'biz');
       });
 
       this.assertText('No Thing biz');
 
       this.runTask(function () {
-        return _this17.pushObject('non-empty');
+        return _this18.pushObject('non-empty');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        return _emberMetal.set(_this17.context, 'otherThing', 'baz');
+        return _emberMetal.set(_this18.context, 'otherThing', 'baz');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        return _emberMetal.set(_this17.context, 'otherThing', 'bar');
+        return _emberMetal.set(_this18.context, 'otherThing', 'bar');
       });
       this.replaceList([]);
 
@@ -31218,7 +31330,7 @@ babelHelpers.classCallCheck(this, SingleEachTest);
     };
 
     SingleEachTest.prototype['@test content that are not initially present updates correctly GH#13983'] = function testContentThatAreNotInitiallyPresentUpdatesCorrectlyGH13983() {
-      var _this18 = this;
+      var _this19 = this;
 
       // The root cause of this bug is that Glimmer did not call `didInitializeChildren`
       // on the inserted `TryOpcode`, causing that `TryOpcode` to have an uninitialized
@@ -31234,43 +31346,43 @@ babelHelpers.classCallCheck(this, SingleEachTest);
       this.assertText('');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this18.pushObject({ text: 'foo' });
+        return _this19.pushObject({ text: 'foo' });
       });
 
       this.assertText('[foo]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this18.objectAt(0), 'text', 'FOO');
+        return _emberMetal.set(_this19.objectAt(0), 'text', 'FOO');
       });
 
       this.assertText('[FOO]');
 
       this.runTask(function () {
-        return _this18.pushObject({ text: 'bar' });
+        return _this19.pushObject({ text: 'bar' });
       });
 
       this.assertText('[FOO][bar]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this18.objectAt(1), 'text', 'BAR');
+        return _emberMetal.set(_this19.objectAt(1), 'text', 'BAR');
       });
 
       this.assertText('[FOO][BAR]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this18.objectAt(1), 'text', 'baz');
+        return _emberMetal.set(_this19.objectAt(1), 'text', 'baz');
       });
 
       this.assertText('[FOO][baz]');
 
       this.runTask(function () {
-        return _this18.replace(1, 1, [{ text: 'BAZ' }]);
+        return _this19.replace(1, 1, [{ text: 'BAZ' }]);
       });
 
       this.assertText('[FOO][BAZ]');
@@ -31346,10 +31458,10 @@ babelHelpers.classCallCheck(this, _class8);
     };
 
     _class8.prototype.replaceList = function replaceList(list) {
-      var _this19 = this;
+      var _this20 = this;
 
       this.runTask(function () {
-        return _this19.list.set('content', _emberRuntime.A(list));
+        return _this20.list.set('content', _emberRuntime.A(list));
       });
     };
 
@@ -31368,7 +31480,7 @@ babelHelpers.classCallCheck(this, _class9);
     }
 
     _class9.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
-      var _this20 = this;
+      var _this21 = this;
 
       this.render('Admin: {{#each admins key="name" as |person|}}[{{person.name}}]{{/each}} User: {{#each users key="name" as |person|}}[{{person.name}}]{{/each}}', {
         admins: _emberRuntime.A([{ name: 'Tom Dale' }]),
@@ -31378,30 +31490,30 @@ babelHelpers.classCallCheck(this, _class9);
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        _emberMetal.get(_this20.context, 'admins').pushObject({ name: 'Godfrey Chan' });
-        _emberMetal.set(_emberMetal.get(_this20.context, 'users').objectAt(0), 'name', 'Stefan Penner');
+        _emberMetal.get(_this21.context, 'admins').pushObject({ name: 'Godfrey Chan' });
+        _emberMetal.set(_emberMetal.get(_this21.context, 'users').objectAt(0), 'name', 'Stefan Penner');
       });
 
       this.assertText('Admin: [Tom Dale][Godfrey Chan] User: [Stefan Penner]');
 
       this.runTask(function () {
-        _emberMetal.set(_this20.context, 'admins', [{ name: 'Tom Dale' }]);
-        _emberMetal.set(_this20.context, 'users', [{ name: 'Yehuda Katz' }]);
+        _emberMetal.set(_this21.context, 'admins', [{ name: 'Tom Dale' }]);
+        _emberMetal.set(_this21.context, 'users', [{ name: 'Yehuda Katz' }]);
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
     };
 
     _class9.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
-      var _this21 = this;
+      var _this22 = this;
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
         content: _emberRuntime.A(['X', 'Y']),
         options: _emberRuntime.A([{ label: 'One', value: 1 }, { label: 'Two', value: 2 }])
       });
@@ -31411,22 +31523,22 @@ babelHelpers.classCallCheck(this, _class9);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetal.get(_this21.context, 'content').pushObject('Z');
-        _emberMetal.set(_emberMetal.get(_this21.context, 'options').objectAt(0), 'value', 0);
+        _emberMetal.get(_this22.context, 'content').pushObject('Z');
+        _emberMetal.set(_emberMetal.get(_this22.context, 'options').objectAt(0), 'value', 0);
       });
 
       this.assertText('X-0:One2:TwoY-0:One2:TwoZ-0:One2:Two');
 
       this.runTask(function () {
-        _emberMetal.set(_this21.context, 'content', ['X', 'Y']);
-        _emberMetal.set(_this21.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
+        _emberMetal.set(_this22.context, 'content', ['X', 'Y']);
+        _emberMetal.set(_this22.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
       });
 
       this.assertText('X-1:One2:TwoY-1:One2:Two');
     };
 
     _class9.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this22 = this;
+      var _this23 = this;
 
       this.render('{{ring}}-{{#each first as |ring|}}{{ring}}-{{#each fifth as |ring|}}{{ring}}-{{#each ninth as |ring|}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}', {
         ring: 'Greed',
@@ -31438,37 +31550,37 @@ babelHelpers.classCallCheck(this, _class9);
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this23.rerender();
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        _emberMetal.set(_this22.context, 'ring', 'O');
-        _emberMetal.get(_this22.context, 'fifth').insertAt(0, 'D');
+        _emberMetal.set(_this23.context, 'ring', 'O');
+        _emberMetal.get(_this23.context, 'fifth').insertAt(0, 'D');
       });
 
       this.assertText('O-Limbo-D-Treachery-D-Wrath-Treachery-Wrath-Limbo-O');
 
       this.runTask(function () {
-        _emberMetal.get(_this22.context, 'first').pushObject('I');
-        _emberMetal.get(_this22.context, 'ninth').replace(0, 1, 'K');
+        _emberMetal.get(_this23.context, 'first').pushObject('I');
+        _emberMetal.get(_this23.context, 'ninth').replace(0, 1, 'K');
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
 
       this.runTask(function () {
-        _emberMetal.set(_this22.context, 'ring', 'Greed');
-        _emberMetal.set(_this22.context, 'first', ['Limbo']);
-        _emberMetal.set(_this22.context, 'fifth', ['Wrath']);
-        _emberMetal.set(_this22.context, 'ninth', ['Treachery']);
+        _emberMetal.set(_this23.context, 'ring', 'Greed');
+        _emberMetal.set(_this23.context, 'first', ['Limbo']);
+        _emberMetal.set(_this23.context, 'fifth', ['Wrath']);
+        _emberMetal.set(_this23.context, 'ninth', ['Treachery']);
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
     };
 
     _class9.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
-      var _this23 = this;
+      var _this24 = this;
 
       this.render('{{#each name key="@index" as |foo|}}{{#each foo as |bar|}}{{bar}}{{/each}}{{/each}}', {
         name: _emberRuntime.A([_emberRuntime.A(['caterpillar'])])
@@ -31477,13 +31589,13 @@ babelHelpers.classCallCheck(this, _class9);
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        var name = _emberMetal.get(_this23.context, 'name');
+        var name = _emberMetal.get(_this24.context, 'name');
         name.objectAt(0).replace(0, 1, 'lady');
         name.pushObject(['bird']);
       });
@@ -31491,7 +31603,7 @@ babelHelpers.classCallCheck(this, _class9);
       this.assertText('ladybird');
 
       this.runTask(function () {
-        return _emberMetal.set(_this23.context, 'name', [['caterpillar']]);
+        return _emberMetal.set(_this24.context, 'name', [['caterpillar']]);
       });
 
       this.assertText('caterpillar');
@@ -31510,26 +31622,26 @@ babelHelpers.classCallCheck(this, _class10);
     }
 
     _class10.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
-      var _this24 = this;
+      var _this25 = this;
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: {} });
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3), { foo: {} });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this25.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _emberMetal.set(_this24.context, 'foo', { bar: { baz: ['Here!'] } });
+        return _emberMetal.set(_this25.context, 'foo', { bar: { baz: ['Here!'] } });
       });
 
       this.assertText('Here!');
 
       this.runTask(function () {
-        return _emberMetal.set(_this24.context, 'foo', {});
+        return _emberMetal.set(_this25.context, 'foo', {});
       });
 
       this.assertText('');
