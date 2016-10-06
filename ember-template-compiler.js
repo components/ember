@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+8aeb9dc2
+ * @version   2.10.0-canary+70c30db0
  */
 
 var enifed, requireModule, require, Ember;
@@ -10052,6 +10052,21 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
     this.syntax = null;
   }
 
+  function isAttrs(node) {
+    if (node.parts[0] === 'attrs') {
+      return true;
+    }
+
+    var _this = node.parts[0];
+    var attrs = node.parts[1];
+
+    if (_this === null && attrs === 'attrs') {
+      node.parts.shift();
+      node.original = node.original.slice(5);
+      return true;
+    }
+  }
+
   /**
     @private
     @method transform
@@ -10064,7 +10079,7 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
 
     traverse(ast, {
       PathExpression: function (node) {
-        if (node.parts[0] === 'attrs') {
+        if (isAttrs(node)) {
           var path = b.path(node.original.substr(6));
           path.original = '@' + path.original;
           path.data = true;
@@ -11753,7 +11768,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+8aeb9dc2";
+  exports.default = "2.10.0-canary+70c30db0";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
