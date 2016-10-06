@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+8cb2107d
+ * @version   2.10.0-canary+d3ceb224
  */
 
 var enifed, requireModule, require, Ember;
@@ -38251,12 +38251,6 @@ enifed('ember-testing/test/promise', ['exports', 'ember-runtime', 'ember-testing
       @param {String} label An optional string for identifying the promise.
     */
 
-    TestPromise.resolve = function resolve(val) {
-      return new TestPromise(function (resolve) {
-        return resolve(val);
-      });
-    };
-
     TestPromise.prototype.then = function then(onFulfillment) {
       var _RSVP$Promise$prototype$then;
 
@@ -38291,10 +38285,8 @@ enifed('ember-testing/test/promise', ['exports', 'ember-runtime', 'ember-testing
     @since 1.2.0
   */
 
-  function resolve(result) {
-    return new TestPromise(function (resolve) {
-      return resolve(result);
-    });
+  function resolve(result, label) {
+    return TestPromise.resolve(result, label);
   }
 
   function getLastPromise() {
@@ -42256,7 +42248,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+8cb2107d";
+  exports.default = "2.10.0-canary+d3ceb224";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
