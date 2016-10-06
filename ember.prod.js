@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+5790671e
+ * @version   2.10.0-canary+d6c1670b
  */
 
 var enifed, requireModule, require, Ember;
@@ -10708,6 +10708,8 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
           globalShouldReflush = globalShouldReflush || shouldReflush;
         }
 
+        this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+
         env.commit();
       } while (globalShouldReflush || roots.length > initialRootsLength);
 
@@ -10735,10 +10737,14 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       // while we are actively rendering roots
       this._isRenderingRoots = true;
 
+      var completedWithoutError = false;
       try {
         this._renderRoots();
+        completedWithoutError = true;
       } finally {
-        this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+        if (!completedWithoutError) {
+          this._lastRevision = _glimmerReference.CURRENT_TAG.value();
+        }
         this._isRenderingRoots = false;
       }
     };
@@ -39356,7 +39362,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+5790671e";
+  exports.default = "2.10.0-canary+d6c1670b";
 });
 enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberRuntime) {
   'use strict';

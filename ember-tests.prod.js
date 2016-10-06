@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+5790671e
+ * @version   2.10.0-canary+d6c1670b
  */
 
 var enifed, requireModule, require, Ember;
@@ -30291,15 +30291,16 @@ babelHelpers.createClass(_class3, [{
     return _class3;
   })(EachInProxyTest));
 });
-enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetal, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntime, _emberGlimmerTestsUtilsSharedConditionalTests) {
+enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberMetal, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsSharedConditionalTests) {
   'use strict';
 
-  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
-      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']),
-      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      '], ['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      ']),
-      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      '], ['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      ']),
-      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']),
-      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']);
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each list as |item|}}\n        <li>Prev</li>\n        {{foo-bar item=item}}\n        <li>Next</li>\n      {{/each}}\n    '], ['\n      {{#each list as |item|}}\n        <li>Prev</li>\n        {{foo-bar item=item}}\n        <li>Next</li>\n      {{/each}}\n    ']),
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      '], ['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      '], ['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']);
 
   var ArrayLike = (function () {
     function ArrayLike(content) {
@@ -30834,8 +30835,48 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertText('aaa');
     };
 
-    SingleEachTest.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
+    SingleEachTest.prototype['@test updating and setting within #each'] = function testUpdatingAndSettingWithinEach(assert) {
       var _this10 = this;
+
+      this.makeList([{ value: 1 }, { value: 2 }, { value: 3 }]);
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.isEven = true;
+          this.tagName = 'li';
+        },
+
+        _isEven: function () {
+          this.set('isEven', this.get('item.value') % 2 === 0);
+        },
+
+        didUpdate: function () {
+          this._isEven();
+        }
+      });
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: '{{#if isEven}}{{item.value}}{{/if}}' });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject));
+
+      this.assertText('Prev1NextPrev2NextPrev3Next');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(_this10.context.list.objectAt(0), 'value', 3);
+      });
+
+      this.assertText('PrevNextPrev2NextPrev3Next');
+
+      this.replaceList([{ value: 1 }, { value: 2 }, { value: 3 }]);
+
+      this.assertText('Prev1NextPrev2NextPrev3Next');
+    };
+
+    SingleEachTest.prototype['@test it can render duplicate objects'] = function testItCanRenderDuplicateObjects() {
+      var _this11 = this;
 
       var duplicateItem = { text: 'foo' };
 
@@ -30848,13 +30889,13 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _this10.pushObject(duplicateItem);
+        return _this11.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoo');
 
       this.runTask(function () {
-        return _this10.pushObject(duplicateItem);
+        return _this11.pushObject(duplicateItem);
       });
 
       this.assertText('foofoobarbazfoofoo');
@@ -30865,7 +30906,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test it maintains DOM stability when condition changes between objects with the same keys'] = function testItMaintainsDOMStabilityWhenConditionChangesBetweenObjectsWithTheSameKeys() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
@@ -30876,10 +30917,10 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.takeSnapshot();
 
       this.runTask(function () {
-        _this11.popObject();
-        _this11.popObject();
-        _this11.pushObject({ text: ' ' });
-        _this11.pushObject({ text: 'world' });
+        _this12.popObject();
+        _this12.popObject();
+        _this12.pushObject({ text: ' ' });
+        _this12.pushObject({ text: 'world' });
       });
 
       this.assertText('Hello world');
@@ -30894,7 +30935,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test it maintains DOM stability for stable keys when list is updated'] = function testItMaintainsDOMStabilityForStableKeysWhenListIsUpdated() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.makeList([{ text: 'Hello' }, { text: ' ' }, { text: 'world' }]);
 
@@ -30907,10 +30948,10 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       var oldSnapshot = this.takeSnapshot();
 
       this.runTask(function () {
-        _this12.unshiftObject({ text: ', ' });
-        _this12.unshiftObject({ text: 'Hi' });
-        _this12.pushObject({ text: '!' });
-        _this12.pushObject({ text: 'earth' });
+        _this13.unshiftObject({ text: ', ' });
+        _this13.unshiftObject({ text: 'Hi' });
+        _this13.pushObject({ text: '!' });
+        _this13.pushObject({ text: 'earth' });
       });
 
       this.assertText('Hi, Hello world!earth');
@@ -30925,7 +30966,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test it renders all items with duplicate key values'] = function testItRendersAllItemsWithDuplicateKeyValues() {
-      var _this13 = this;
+      var _this14 = this;
 
       this.makeList([{ text: 'Hello' }, { text: 'Hello' }, { text: 'Hello' }]);
 
@@ -30934,7 +30975,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertText('HelloHelloHello');
 
       this.runTask(function () {
-        _this13.forEach(function (hash) {
+        _this14.forEach(function (hash) {
           return _emberMetal.set(hash, 'text', 'Goodbye');
         });
       });
@@ -30947,7 +30988,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test context is not changed to the inner scope inside an {{#each as}} block'] = function testContextIsNotChangedToTheInnerScopeInsideAnEachAsBlock() {
-      var _this14 = this;
+      var _this15 = this;
 
       this.makeList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
 
@@ -30960,19 +31001,19 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _this14.shiftObject();
+        return _this15.shiftObject();
       });
 
       this.assertText('Joel-JoelJoel-Joel');
 
       this.runTask(function () {
-        return _emberMetal.set(_this14.context, 'name', 'Godfrey');
+        return _emberMetal.set(_this15.context, 'name', 'Godfrey');
       });
 
       this.assertText('Godfrey-GodfreyGodfrey-Godfrey');
 
       this.runTask(function () {
-        return _emberMetal.set(_this14.context, 'name', 'Joel');
+        return _emberMetal.set(_this15.context, 'name', 'Joel');
       });
       this.replaceList([{ name: 'Chad' }, { name: 'Zack' }, { name: 'Asa' }]);
 
@@ -30980,7 +31021,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test can access the item and the original scope'] = function testCanAccessTheItemAndTheOriginalScope() {
-      var _this15 = this;
+      var _this16 = this;
 
       this.makeList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
 
@@ -30991,23 +31032,23 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
 
       this.assertText('[Señor Engineer: Tom Dale][Señor Engineer: Yehuda Katz][Señor Engineer: Godfrey Chan]');
 
       this.runTask(function () {
-        _emberMetal.set(_this15.objectAt(1), 'name', 'Stefan Penner');
-        _this15.removeAt(0);
-        _this15.pushObject({ name: 'Tom Dale' });
-        _this15.insertAt(1, { name: 'Chad Hietala' });
-        _emberMetal.set(_this15.context, 'title', 'Principal Engineer');
+        _emberMetal.set(_this16.objectAt(1), 'name', 'Stefan Penner');
+        _this16.removeAt(0);
+        _this16.pushObject({ name: 'Tom Dale' });
+        _this16.insertAt(1, { name: 'Chad Hietala' });
+        _emberMetal.set(_this16.context, 'title', 'Principal Engineer');
       });
 
       this.assertText('[Principal Engineer: Stefan Penner][Principal Engineer: Chad Hietala][Principal Engineer: Godfrey Chan][Principal Engineer: Tom Dale]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this15.context, 'title', 'Señor Engineer');
+        return _emberMetal.set(_this16.context, 'title', 'Señor Engineer');
       });
       this.replaceList([{ name: 'Tom Dale' }, { name: 'Yehuda Katz' }, { name: 'Godfrey Chan' }]);
 
@@ -31015,7 +31056,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test the scoped variable is not available outside the {{#each}} block.'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this16 = this;
+      var _this17 = this;
 
       this.makeList(['Yehuda']);
 
@@ -31026,25 +31067,25 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertText('Stef-Yehuda-Stef');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this17.rerender();
       });
 
       this.assertText('Stef-Yehuda-Stef');
 
       this.runTask(function () {
-        return _this16.pushObjects([' ', 'Katz']);
+        return _this17.pushObjects([' ', 'Katz']);
       });
 
       this.assertText('Stef-Yehuda Katz-Stef');
 
       this.runTask(function () {
-        return _emberMetal.set(_this16.context, 'name', 'Tom');
+        return _emberMetal.set(_this17.context, 'name', 'Tom');
       });
 
       this.assertText('Tom-Yehuda Katz-Tom');
 
       this.runTask(function () {
-        return _emberMetal.set(_this16.context, 'name', 'Stef');
+        return _emberMetal.set(_this17.context, 'name', 'Stef');
       });
       this.replaceList(['Yehuda']);
 
@@ -31052,7 +31093,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test inverse template is displayed with context'] = function testInverseTemplateIsDisplayedWithContext() {
-      var _this17 = this;
+      var _this18 = this;
 
       this.makeList([]);
 
@@ -31063,31 +31104,31 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _this17.rerender();
+        return _this18.rerender();
       });
 
       this.assertText('No Thing bar');
 
       this.runTask(function () {
-        return _emberMetal.set(_this17.context, 'otherThing', 'biz');
+        return _emberMetal.set(_this18.context, 'otherThing', 'biz');
       });
 
       this.assertText('No Thing biz');
 
       this.runTask(function () {
-        return _this17.pushObject('non-empty');
+        return _this18.pushObject('non-empty');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        return _emberMetal.set(_this17.context, 'otherThing', 'baz');
+        return _emberMetal.set(_this18.context, 'otherThing', 'baz');
       });
 
       this.assertText('Has Thing');
 
       this.runTask(function () {
-        return _emberMetal.set(_this17.context, 'otherThing', 'bar');
+        return _emberMetal.set(_this18.context, 'otherThing', 'bar');
       });
       this.replaceList([]);
 
@@ -31095,7 +31136,7 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
     };
 
     SingleEachTest.prototype['@test content that are not initially present updates correctly GH#13983'] = function testContentThatAreNotInitiallyPresentUpdatesCorrectlyGH13983() {
-      var _this18 = this;
+      var _this19 = this;
 
       // The root cause of this bug is that Glimmer did not call `didInitializeChildren`
       // on the inserted `TryOpcode`, causing that `TryOpcode` to have an uninitialized
@@ -31111,43 +31152,43 @@ babelHelpers.inherits(SingleEachTest, _AbstractEachTest);
       this.assertText('');
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this19.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this18.pushObject({ text: 'foo' });
+        return _this19.pushObject({ text: 'foo' });
       });
 
       this.assertText('[foo]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this18.objectAt(0), 'text', 'FOO');
+        return _emberMetal.set(_this19.objectAt(0), 'text', 'FOO');
       });
 
       this.assertText('[FOO]');
 
       this.runTask(function () {
-        return _this18.pushObject({ text: 'bar' });
+        return _this19.pushObject({ text: 'bar' });
       });
 
       this.assertText('[FOO][bar]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this18.objectAt(1), 'text', 'BAR');
+        return _emberMetal.set(_this19.objectAt(1), 'text', 'BAR');
       });
 
       this.assertText('[FOO][BAR]');
 
       this.runTask(function () {
-        return _emberMetal.set(_this18.objectAt(1), 'text', 'baz');
+        return _emberMetal.set(_this19.objectAt(1), 'text', 'baz');
       });
 
       this.assertText('[FOO][baz]');
 
       this.runTask(function () {
-        return _this18.replace(1, 1, [{ text: 'BAZ' }]);
+        return _this19.replace(1, 1, [{ text: 'BAZ' }]);
       });
 
       this.assertText('[FOO][BAZ]');
@@ -31215,10 +31256,10 @@ babelHelpers.inherits(_class8, _SingleEachTest4);
     };
 
     _class8.prototype.replaceList = function replaceList(list) {
-      var _this19 = this;
+      var _this20 = this;
 
       this.runTask(function () {
-        return _this19.list.set('content', _emberRuntime.A(list));
+        return _this20.list.set('content', _emberRuntime.A(list));
       });
     };
 
@@ -31235,7 +31276,7 @@ babelHelpers.inherits(_class9, _RenderingTest2);
     }
 
     _class9.prototype['@test re-using the same variable with different {{#each}} blocks does not override each other'] = function testReUsingTheSameVariableWithDifferentEachBlocksDoesNotOverrideEachOther() {
-      var _this20 = this;
+      var _this21 = this;
 
       this.render('Admin: {{#each admins key="name" as |person|}}[{{person.name}}]{{/each}} User: {{#each users key="name" as |person|}}[{{person.name}}]{{/each}}', {
         admins: _emberRuntime.A([{ name: 'Tom Dale' }]),
@@ -31245,30 +31286,30 @@ babelHelpers.inherits(_class9, _RenderingTest2);
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
 
       this.runTask(function () {
-        _emberMetal.get(_this20.context, 'admins').pushObject({ name: 'Godfrey Chan' });
-        _emberMetal.set(_emberMetal.get(_this20.context, 'users').objectAt(0), 'name', 'Stefan Penner');
+        _emberMetal.get(_this21.context, 'admins').pushObject({ name: 'Godfrey Chan' });
+        _emberMetal.set(_emberMetal.get(_this21.context, 'users').objectAt(0), 'name', 'Stefan Penner');
       });
 
       this.assertText('Admin: [Tom Dale][Godfrey Chan] User: [Stefan Penner]');
 
       this.runTask(function () {
-        _emberMetal.set(_this20.context, 'admins', [{ name: 'Tom Dale' }]);
-        _emberMetal.set(_this20.context, 'users', [{ name: 'Yehuda Katz' }]);
+        _emberMetal.set(_this21.context, 'admins', [{ name: 'Tom Dale' }]);
+        _emberMetal.set(_this21.context, 'users', [{ name: 'Yehuda Katz' }]);
       });
 
       this.assertText('Admin: [Tom Dale] User: [Yehuda Katz]');
     };
 
     _class9.prototype['@test an outer {{#each}}\'s scoped variable does not clobber an inner {{#each}}\'s property if they share the same name - Issue #1315'] = function testAnOuterEachSScopedVariableDoesNotClobberAnInnerEachSPropertyIfTheyShareTheSameNameIssue1315() {
-      var _this21 = this;
+      var _this22 = this;
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), {
         content: _emberRuntime.A(['X', 'Y']),
         options: _emberRuntime.A([{ label: 'One', value: 1 }, { label: 'Two', value: 2 }])
       });
@@ -31278,22 +31319,22 @@ babelHelpers.inherits(_class9, _RenderingTest2);
       this.assertStableRerender();
 
       this.runTask(function () {
-        _emberMetal.get(_this21.context, 'content').pushObject('Z');
-        _emberMetal.set(_emberMetal.get(_this21.context, 'options').objectAt(0), 'value', 0);
+        _emberMetal.get(_this22.context, 'content').pushObject('Z');
+        _emberMetal.set(_emberMetal.get(_this22.context, 'options').objectAt(0), 'value', 0);
       });
 
       this.assertText('X-0:One2:TwoY-0:One2:TwoZ-0:One2:Two');
 
       this.runTask(function () {
-        _emberMetal.set(_this21.context, 'content', ['X', 'Y']);
-        _emberMetal.set(_this21.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
+        _emberMetal.set(_this22.context, 'content', ['X', 'Y']);
+        _emberMetal.set(_this22.context, 'options', [{ label: 'One', value: 1 }, { label: 'Two', value: 2 }]);
       });
 
       this.assertText('X-1:One2:TwoY-1:One2:Two');
     };
 
     _class9.prototype['@test the scoped variable is not available outside the {{#each}} block'] = function testTheScopedVariableIsNotAvailableOutsideTheEachBlock() {
-      var _this22 = this;
+      var _this23 = this;
 
       this.render('{{ring}}-{{#each first as |ring|}}{{ring}}-{{#each fifth as |ring|}}{{ring}}-{{#each ninth as |ring|}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}-{{/each}}{{ring}}', {
         ring: 'Greed',
@@ -31305,37 +31346,37 @@ babelHelpers.inherits(_class9, _RenderingTest2);
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        return _this22.rerender();
+        return _this23.rerender();
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
 
       this.runTask(function () {
-        _emberMetal.set(_this22.context, 'ring', 'O');
-        _emberMetal.get(_this22.context, 'fifth').insertAt(0, 'D');
+        _emberMetal.set(_this23.context, 'ring', 'O');
+        _emberMetal.get(_this23.context, 'fifth').insertAt(0, 'D');
       });
 
       this.assertText('O-Limbo-D-Treachery-D-Wrath-Treachery-Wrath-Limbo-O');
 
       this.runTask(function () {
-        _emberMetal.get(_this22.context, 'first').pushObject('I');
-        _emberMetal.get(_this22.context, 'ninth').replace(0, 1, 'K');
+        _emberMetal.get(_this23.context, 'first').pushObject('I');
+        _emberMetal.get(_this23.context, 'ninth').replace(0, 1, 'K');
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
 
       this.runTask(function () {
-        _emberMetal.set(_this22.context, 'ring', 'Greed');
-        _emberMetal.set(_this22.context, 'first', ['Limbo']);
-        _emberMetal.set(_this22.context, 'fifth', ['Wrath']);
-        _emberMetal.set(_this22.context, 'ninth', ['Treachery']);
+        _emberMetal.set(_this23.context, 'ring', 'Greed');
+        _emberMetal.set(_this23.context, 'first', ['Limbo']);
+        _emberMetal.set(_this23.context, 'fifth', ['Wrath']);
+        _emberMetal.set(_this23.context, 'ninth', ['Treachery']);
       });
 
       this.assertText('Greed-Limbo-Wrath-Treachery-Wrath-Limbo-Greed');
     };
 
     _class9.prototype['@test it should support {{#each name as |foo|}}, then {{#each foo as |bar|}}'] = function testItShouldSupportEachNameAsFooThenEachFooAsBar() {
-      var _this23 = this;
+      var _this24 = this;
 
       this.render('{{#each name key="@index" as |foo|}}{{#each foo as |bar|}}{{bar}}{{/each}}{{/each}}', {
         name: _emberRuntime.A([_emberRuntime.A(['caterpillar'])])
@@ -31344,13 +31385,13 @@ babelHelpers.inherits(_class9, _RenderingTest2);
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        return _this23.rerender();
+        return _this24.rerender();
       });
 
       this.assertText('caterpillar');
 
       this.runTask(function () {
-        var name = _emberMetal.get(_this23.context, 'name');
+        var name = _emberMetal.get(_this24.context, 'name');
         name.objectAt(0).replace(0, 1, 'lady');
         name.pushObject(['bird']);
       });
@@ -31358,7 +31399,7 @@ babelHelpers.inherits(_class9, _RenderingTest2);
       this.assertText('ladybird');
 
       this.runTask(function () {
-        return _emberMetal.set(_this23.context, 'name', [['caterpillar']]);
+        return _emberMetal.set(_this24.context, 'name', [['caterpillar']]);
       });
 
       this.assertText('caterpillar');
@@ -31375,26 +31416,26 @@ babelHelpers.inherits(_class10, _RenderingTest3);
     }
 
     _class10.prototype['@test keying off of `undefined` does not render'] = function testKeyingOffOfUndefinedDoesNotRender(assert) {
-      var _this24 = this;
+      var _this25 = this;
 
-      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject2), { foo: {} });
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3), { foo: {} });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _this24.rerender();
+        return _this25.rerender();
       });
 
       this.assertText('');
 
       this.runTask(function () {
-        return _emberMetal.set(_this24.context, 'foo', { bar: { baz: ['Here!'] } });
+        return _emberMetal.set(_this25.context, 'foo', { bar: { baz: ['Here!'] } });
       });
 
       this.assertText('Here!');
 
       this.runTask(function () {
-        return _emberMetal.set(_this24.context, 'foo', {});
+        return _emberMetal.set(_this25.context, 'foo', {});
       });
 
       this.assertText('');
@@ -31435,43 +31476,43 @@ babelHelpers.inherits(_class11, _RenderingTest4);
       };
 
       _class11.prototype['@test {{#each}} should not mutate a subtree when the array has not changed [GH #14332]'] = function testEachShouldNotMutateASubtreeWhenTheArrayHasNotChangedGH14332(assert) {
-        var _this25 = this;
+        var _this26 = this;
 
         var page = { title: 'Blog Posts' };
 
         var model = [{ title: 'Rails is omakase' }, { title: 'Ember is omakase' }];
 
-        this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3), { page: page, model: model });
+        this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), { page: page, model: model });
 
-        this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4));
+        this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
 
         this.observe(this.$('#posts')[0]);
 
         // MutationObserver is async
         return _emberRuntime.RSVP.Promise.resolve(function () {
-          _this25.assertStableRerender();
+          _this26.assertStableRerender();
         }).then(function () {
-          _this25.assertNoMutation();
+          _this26.assertNoMutation();
 
-          _this25.runTask(function () {
-            return _emberMetal.set(_this25.context, 'page', { title: 'Essays' });
+          _this26.runTask(function () {
+            return _emberMetal.set(_this26.context, 'page', { title: 'Essays' });
           });
 
-          _this25.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+          _this26.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
         }).then(function () {
           // 'page' and 'model' is keyed off the same object, so we do expect Glimmer
           // to re-iterate the list
-          _this25.expectMutations();
+          _this26.expectMutations();
 
-          _this25.runTask(function () {
-            return _emberMetal.set(_this25.context.page, 'title', 'Think Pieces™');
+          _this26.runTask(function () {
+            return _emberMetal.set(_this26.context.page, 'title', 'Think Pieces™');
           });
 
-          _this25.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
+          _this26.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7));
         }).then(function () {
           // The last set is localized to the `page` object, so we do not expect Glimmer
           // to re-iterate the list
-          _this25.assertNoMutation();
+          _this26.assertNoMutation();
         });
       };
 
