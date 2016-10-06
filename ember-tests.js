@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+d6c1670b
+ * @version   2.10.0-canary+b685acbb
  */
 
 var enifed, requireModule, require, Ember;
@@ -14213,7 +14213,7 @@ babelHelpers.classCallCheck(this, _class);
 
       expectAssertion(function () {
         _this68.render('{{foo-bar}}');
-      }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
+      }, /You must call `this._super\(...arguments\);` when overriding `init` on a framework object. Please update .* to call `this._super\(...arguments\);` from `init`./);
     };
 
     _class.prototype['@test should toggle visibility with isVisible'] = function testShouldToggleVisibilityWithIsVisible(assert) {
@@ -16073,24 +16073,24 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
           }
         },
 
-        willRender: function () {
-          pushHook('willRender');
-          assertParentView('willRender', this);
-
-          if (this.isInitialRender) {
-            assertNoElement('willRender', this);
-            assertState('willRender', 'preRender', this);
-          } else {
-            assertElement('willRender', this);
-            assertState('willRender', 'inDOM', this);
-          }
-        },
-
         willInsertElement: function () {
           pushHook('willInsertElement');
           assertParentView('willInsertElement', this);
           assertElement('willInsertElement', this, false);
           assertState('willInsertElement', 'hasElement', this);
+        },
+
+        willRender: function () {
+          pushHook('willRender');
+          assertParentView('willRender', this);
+
+          if (this.isInitialRender) {
+            assertElement('willRender', this, false);
+            assertState('willRender', 'hasElement', this);
+          } else {
+            assertElement('willRender', this);
+            assertState('willRender', 'inDOM', this);
+          }
         },
 
         didInsertElement: function () {
@@ -16207,7 +16207,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willInsertElement'], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willInsertElement'], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willInsertElement'], ['the-bottom', 'willRender'],
 
         // Async hooks
 
@@ -16364,7 +16364,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'willInsertElement'], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'willInsertElement'], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'willInsertElement'], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'willInsertElement'], ['the-last-child', 'willRender'],
 
         // Async hooks
 
@@ -16540,7 +16540,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'willInsertElement'], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'willInsertElement'], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'willInsertElement'], ['the-bottom', 'willRender'],
 
         // Async hooks
 
@@ -16635,11 +16635,11 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       var initialHooks = function (count) {
         var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }]];
         if (_this6.isInteractive) {
-          ret.push(['an-item', 'willRender'], ['an-item', 'willInsertElement']);
+          ret.push(['an-item', 'willInsertElement'], ['an-item', 'willRender']);
         }
         ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }]);
         if (_this6.isInteractive) {
-          ret.push(['nested-item', 'willRender'], ['nested-item', 'willInsertElement']);
+          ret.push(['nested-item', 'willInsertElement'], ['nested-item', 'willRender']);
         }
         return ret;
       };
@@ -16679,7 +16679,7 @@ babelHelpers.classCallCheck(this, LifeCycleHooksTest);
       this.assertHooks({
         label: 'reset to empty array',
 
-        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'willInsertElement'], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'willInsertElement'], ['nested-item', 'willRender'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
 
         nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
       });
@@ -16719,16 +16719,16 @@ babelHelpers.createClass(LifeCycleHooksTest, [{
     return LifeCycleHooksTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: interactive lifecycle hooks (curly components)', (function (_LifeCycleHooksTest) {
-babelHelpers.inherits(_class, _LifeCycleHooksTest);
+  var CurlyComponentsTest = (function (_LifeCycleHooksTest) {
+babelHelpers.inherits(CurlyComponentsTest, _LifeCycleHooksTest);
 
-    function _class() {
-babelHelpers.classCallCheck(this, _class);
+    function CurlyComponentsTest() {
+babelHelpers.classCallCheck(this, CurlyComponentsTest);
 
       _LifeCycleHooksTest.apply(this, arguments);
     }
 
-    _class.prototype.invocationFor = function invocationFor(name) {
+    CurlyComponentsTest.prototype.invocationFor = function invocationFor(name) {
       var _this7 = this;
 
       var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -16739,13 +16739,13 @@ babelHelpers.classCallCheck(this, _class);
       return '{{' + name + ' ' + attrs + '}}';
     };
 
-    _class.prototype.attrFor = function attrFor(name) {
+    CurlyComponentsTest.prototype.attrFor = function attrFor(name) {
       return '' + name;
     };
 
     /* private */
 
-    _class.prototype.val = function val(value) {
+    CurlyComponentsTest.prototype.val = function val(value) {
       if (value.isString) {
         return JSON.stringify(value.value);
       } else if (value.isExpr) {
@@ -16755,10 +16755,64 @@ babelHelpers.classCallCheck(this, _class);
       }
     };
 
-babelHelpers.createClass(_class, [{
+babelHelpers.createClass(CurlyComponentsTest, [{
       key: 'ComponentClass',
       get: function () {
         return _emberGlimmerTestsUtilsHelpers.Component;
+      }
+    }]);
+    return CurlyComponentsTest;
+  })(LifeCycleHooksTest);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: interactive lifecycle hooks (curly components)', (function (_CurlyComponentsTest) {
+babelHelpers.inherits(_class, _CurlyComponentsTest);
+
+    function _class() {
+babelHelpers.classCallCheck(this, _class);
+
+      _CurlyComponentsTest.apply(this, arguments);
+    }
+
+babelHelpers.createClass(_class, [{
+      key: 'isInteractive',
+      get: function () {
+        return true;
+      }
+    }]);
+    return _class;
+  })(CurlyComponentsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: non-interactive lifecycle hooks (curly components)', (function (_CurlyComponentsTest2) {
+babelHelpers.inherits(_class2, _CurlyComponentsTest2);
+
+    function _class2() {
+babelHelpers.classCallCheck(this, _class2);
+
+      _CurlyComponentsTest2.apply(this, arguments);
+    }
+
+babelHelpers.createClass(_class2, [{
+      key: 'isInteractive',
+      get: function () {
+        return false;
+      }
+    }]);
+    return _class2;
+  })(CurlyComponentsTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: interactive lifecycle hooks (tagless curly components)', (function (_CurlyComponentsTest3) {
+babelHelpers.inherits(_class3, _CurlyComponentsTest3);
+
+    function _class3() {
+babelHelpers.classCallCheck(this, _class3);
+
+      _CurlyComponentsTest3.apply(this, arguments);
+    }
+
+babelHelpers.createClass(_class3, [{
+      key: 'ComponentClass',
+      get: function () {
+        return _emberGlimmerTestsUtilsHelpers.Component.extend({ tagName: '' });
       }
     }, {
       key: 'isInteractive',
@@ -16766,49 +16820,22 @@ babelHelpers.createClass(_class, [{
         return true;
       }
     }]);
-    return _class;
-  })(LifeCycleHooksTest));
+    return _class3;
+  })(CurlyComponentsTest));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: non-interactive lifecycle hooks (curly components)', (function (_LifeCycleHooksTest2) {
-babelHelpers.inherits(_class2, _LifeCycleHooksTest2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: non-interactive lifecycle hooks (tagless curly components)', (function (_CurlyComponentsTest4) {
+babelHelpers.inherits(_class4, _CurlyComponentsTest4);
 
-    function _class2() {
-babelHelpers.classCallCheck(this, _class2);
+    function _class4() {
+babelHelpers.classCallCheck(this, _class4);
 
-      _LifeCycleHooksTest2.apply(this, arguments);
+      _CurlyComponentsTest4.apply(this, arguments);
     }
 
-    _class2.prototype.invocationFor = function invocationFor(name) {
-      var _this8 = this;
-
-      var namedArgs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
-      var attrs = Object.keys(namedArgs).map(function (k) {
-        return k + '=' + _this8.val(namedArgs[k]);
-      }).join(' ');
-      return '{{' + name + ' ' + attrs + '}}';
-    };
-
-    _class2.prototype.attrFor = function attrFor(name) {
-      return '' + name;
-    };
-
-    /* private */
-
-    _class2.prototype.val = function val(value) {
-      if (value.isString) {
-        return JSON.stringify(value.value);
-      } else if (value.isExpr) {
-        return '(readonly ' + value.value + ')';
-      } else {
-        throw new Error('Unknown value: ' + value);
-      }
-    };
-
-babelHelpers.createClass(_class2, [{
+babelHelpers.createClass(_class4, [{
       key: 'ComponentClass',
       get: function () {
-        return _emberGlimmerTestsUtilsHelpers.Component;
+        return _emberGlimmerTestsUtilsHelpers.Component.extend({ tagName: '' });
       }
     }, {
       key: 'isInteractive',
@@ -16816,28 +16843,28 @@ babelHelpers.createClass(_class2, [{
         return false;
       }
     }]);
-    return _class2;
-  })(LifeCycleHooksTest));
+    return _class4;
+  })(CurlyComponentsTest));
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Run loop and lifecycle hooks', (function (_RenderingTest2) {
-babelHelpers.inherits(_class3, _RenderingTest2);
+babelHelpers.inherits(_class5, _RenderingTest2);
 
-    function _class3() {
-babelHelpers.classCallCheck(this, _class3);
+    function _class5() {
+babelHelpers.classCallCheck(this, _class5);
 
       _RenderingTest2.apply(this, arguments);
     }
 
-    _class3.prototype['@test afterRender set'] = function testAfterRenderSet() {
-      var _this10 = this;
+    _class5.prototype['@test afterRender set'] = function testAfterRenderSet() {
+      var _this9 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         width: '5',
         didInsertElement: function () {
-          var _this9 = this;
+          var _this8 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            _this9.set('width', '10');
+            _this8.set('width', '10');
           });
         }
       });
@@ -16850,21 +16877,21 @@ babelHelpers.classCallCheck(this, _class3);
       this.assertText('10');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this9.rerender();
       });
 
       this.assertText('10');
     };
 
-    _class3.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
-      var _this12 = this;
+    _class5.prototype['@test afterRender set on parent'] = function testAfterRenderSetOnParent() {
+      var _this11 = this;
 
       var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
         didInsertElement: function () {
-          var _this11 = this;
+          var _this10 = this;
 
           _emberMetal.run.scheduleOnce('afterRender', function () {
-            var parent = _this11.get('parent');
+            var parent = _this10.get('parent');
             parent.set('foo', 'wat');
           });
         }
@@ -16879,13 +16906,13 @@ babelHelpers.classCallCheck(this, _class3);
       this.assertText('wat');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('wat');
     };
 
-    return _class3;
+    return _class5;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
   function bind(func, thisArg) {
@@ -22054,8 +22081,20 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('hello | hello world');
     };
 
-    _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
+    _class.prototype['@test throws if `this._super` is not called from `init`'] = function testThrowsIfThis_superIsNotCalledFromInit() {
       var _this6 = this;
+
+      this.registerHelper('hello-world', {
+        init: function () {}
+      });
+
+      expectAssertion(function () {
+        _this6.render('{{hello-world}}');
+      }, /You must call `this._super\(...arguments\);` when overriding `init` on a framework object. Please update .* to call `this._super\(...arguments\);` from `init`./);
+    };
+
+    _class.prototype['@test class-based helper can recompute a new value'] = function testClassBasedHelperCanRecomputeANewValue() {
+      var _this7 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -22080,7 +22119,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('1');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('1');
@@ -22095,7 +22134,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper with static arguments can recompute a new value'] = function testClassBasedHelperWithStaticArgumentsCanRecomputeANewValue() {
-      var _this7 = this;
+      var _this8 = this;
 
       var destroyCount = 0;
       var computeCount = 0;
@@ -22120,7 +22159,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('1');
 
       this.runTask(function () {
-        return _this7.rerender();
+        return _this8.rerender();
       });
 
       this.assertText('1');
@@ -22135,7 +22174,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test simple helper is called for param changes'] = function testSimpleHelperIsCalledForParamChanges() {
-      var _this8 = this;
+      var _this9 = this;
 
       var computeCount = 0;
 
@@ -22144,58 +22183,6 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
 
         computeCount++;
         return value + '-value';
-      });
-
-      this.render('{{hello-world model.name}}', {
-        model: { name: 'bob' }
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _this8.rerender();
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
-
-      this.runTask(function () {
-        return _emberMetal.set(_this8.context, 'model.name', 'sal');
-      });
-
-      this.assertText('sal-value');
-
-      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
-
-      this.runTask(function () {
-        return _emberMetal.set(_this8.context, 'model', { name: 'bob' });
-      });
-
-      this.assertText('bob-value');
-
-      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-    };
-
-    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
-      var _this9 = this;
-
-      var createCount = 0;
-      var computeCount = 0;
-
-      this.registerHelper('hello-world', {
-        init: function () {
-          this._super.apply(this, arguments);
-          createCount++;
-        },
-        compute: function (_ref2) {
-          var value = _ref2[0];
-
-          computeCount++;
-          return value + '-value';
-        }
       });
 
       this.render('{{hello-world model.name}}', {
@@ -22229,57 +22216,66 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('bob-value');
 
       assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
-      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
+    _class.prototype['@test class-based helper compute is called for param changes'] = function testClassBasedHelperComputeIsCalledForParamChanges() {
       var _this10 = this;
 
-      this.registerHelper('hello-world', function (_params, _hash) {
-        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-      });
+      var createCount = 0;
+      var computeCount = 0;
 
-      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
-        model: {
-          name: 'bob',
-          age: 42
+      this.registerHelper('hello-world', {
+        init: function () {
+          this._super.apply(this, arguments);
+          createCount++;
+        },
+        compute: function (_ref2) {
+          var value = _ref2[0];
+
+          computeCount++;
+          return value + '-value';
         }
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.render('{{hello-world model.name}}', {
+        model: { name: 'bob' }
+      });
+
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _this10.rerender();
       });
 
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('bob-value');
+
+      assert.strictEqual(computeCount, 1, 'compute is called exactly 1 time');
 
       this.runTask(function () {
         return _emberMetal.set(_this10.context, 'model.name', 'sal');
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+      this.assertText('sal-value');
+
+      assert.strictEqual(computeCount, 2, 'compute is called exactly 2 times');
 
       this.runTask(function () {
-        return _emberMetal.set(_this10.context, 'model.age', 28);
+        return _emberMetal.set(_this10.context, 'model', { name: 'bob' });
       });
 
-      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+      this.assertText('bob-value');
 
-      this.runTask(function () {
-        return _emberMetal.set(_this10.context, 'model', { name: 'bob', age: 42 });
-      });
-
-      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+      assert.strictEqual(computeCount, 3, 'compute is called exactly 3 times');
+      assert.strictEqual(createCount, 1, 'helper is only created once');
     };
 
-    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
+    _class.prototype['@test simple helper receives params, hash'] = function testSimpleHelperReceivesParamsHash() {
       var _this11 = this;
 
-      this.registerHelper('hello-world', {
-        compute: function (_params, _hash) {
-          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
-        }
+      this.registerHelper('hello-world', function (_params, _hash) {
+        return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
       });
 
       this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
@@ -22316,8 +22312,51 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
     };
 
-    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+    _class.prototype['@test class-based helper receives params, hash'] = function testClassBasedHelperReceivesParamsHash() {
       var _this12 = this;
+
+      this.registerHelper('hello-world', {
+        compute: function (_params, _hash) {
+          return 'params: ' + JSON.stringify(_params) + ', hash: ' + JSON.stringify(_hash);
+        }
+      });
+
+      this.render('{{hello-world model.name "rich" first=model.age last="sam"}}', {
+        model: {
+          name: 'bob',
+          age: 42
+        }
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _this12.rerender();
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this12.context, 'model.name', 'sal');
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":42,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this12.context, 'model.age', 28);
+      });
+
+      this.assertText('params: ["sal","rich"], hash: {"first":28,"last":"sam"}');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this12.context, 'model', { name: 'bob', age: 42 });
+      });
+
+      this.assertText('params: ["bob","rich"], hash: {"first":42,"last":"sam"}');
+    };
+
+    _class.prototype['@test class-based helper usable in subexpressions'] = function testClassBasedHelperUsableInSubexpressions() {
+      var _this13 = this;
 
       this.registerHelper('join-words', {
         compute: function (params) {
@@ -22332,26 +22371,26 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetal.set(_this12.context, 'model.reason', 'Nickleback');
+        return _emberMetal.set(_this13.context, 'model.reason', 'Nickleback');
       });
 
       this.assertText('Who overcomes by Nickleback hath overcome but half his foe');
 
       this.runTask(function () {
-        return _emberMetal.set(_this12.context, 'model', { reason: 'force' });
+        return _emberMetal.set(_this13.context, 'model', { reason: 'force' });
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
     };
 
     _class.prototype['@test parameterless helper is usable in subexpressions'] = function testParameterlessHelperIsUsableInSubexpressions() {
-      var _this13 = this;
+      var _this14 = this;
 
       this.registerHelper('should-show', function () {
         return true;
@@ -22362,14 +22401,14 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('true');
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this14.rerender();
       });
 
       this.assertText('true');
     };
 
     _class.prototype['@test parameterless helper is usable in attributes'] = function testParameterlessHelperIsUsableInAttributes() {
-      var _this14 = this;
+      var _this15 = this;
 
       this.registerHelper('foo-bar', function () {
         return 'baz';
@@ -22380,53 +22419,53 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertHTML('<div data-foo-bar="baz"></div>');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertHTML('<div data-foo-bar="baz"></div>');
     };
 
     _class.prototype['@test simple helper not usable with a block'] = function testSimpleHelperNotUsableWithABlock() {
-      var _this15 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this15.render('{{#some-helper}}{{/some-helper}}');
-      }, /Helpers may not be used in the block form/);
-    };
-
-    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this16 = this;
 
-      this.registerHelper('some-helper', {
-        compute: function () {}
-      });
+      this.registerHelper('some-helper', function () {});
 
       expectAssertion(function () {
         _this16.render('{{#some-helper}}{{/some-helper}}');
       }, /Helpers may not be used in the block form/);
     };
 
-    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+    _class.prototype['@test class-based helper not usable with a block'] = function testClassBasedHelperNotUsableWithABlock() {
       var _this17 = this;
-
-      this.registerHelper('some-helper', function () {});
-
-      expectAssertion(function () {
-        _this17.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
-    };
-
-    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
-      var _this18 = this;
 
       this.registerHelper('some-helper', {
         compute: function () {}
       });
 
       expectAssertion(function () {
+        _this17.render('{{#some-helper}}{{/some-helper}}');
+      }, /Helpers may not be used in the block form/);
+    };
+
+    _class.prototype['@test simple helper not usable within element'] = function testSimpleHelperNotUsableWithinElement() {
+      var _this18 = this;
+
+      this.registerHelper('some-helper', function () {});
+
+      expectAssertion(function () {
         _this18.render('<div {{some-helper}}></div>');
+      }, /Helpers may not be used in the element form/);
+    };
+
+    _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
+      var _this19 = this;
+
+      this.registerHelper('some-helper', {
+        compute: function () {}
+      });
+
+      expectAssertion(function () {
+        _this19.render('<div {{some-helper}}></div>');
       }, /Helpers may not be used in the element form/);
     };
 
@@ -22451,7 +22490,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute'] = function testClassBasedHelperUsedInSubexpressionCanRecompute() {
-      var _this19 = this;
+      var _this20 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -22477,7 +22516,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this20.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -22500,7 +22539,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     };
 
     _class.prototype['@test class-based helper used in subexpression can recompute component'] = function testClassBasedHelperUsedInSubexpressionCanRecomputeComponent() {
-      var _this20 = this;
+      var _this21 = this;
 
       var helper = undefined;
       var phrase = 'overcomes by';
@@ -22530,7 +22569,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('Who overcomes by force hath overcome but half his foe');
 
       this.runTask(function () {
-        return _this20.rerender();
+        return _this21.rerender();
       });
 
       this.assertText('Who overcomes by force hath overcome but half his foe');
@@ -22639,11 +22678,11 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         }
 
         HelperMutatingArgsTests.prototype.buildCompute = function buildCompute() {
-          var _this21 = this;
+          var _this22 = this;
 
           return function (params, hash) {
             if (pushingIntoFrozenArrayThrows) {
-              _this21.assert.throws(function () {
+              _this22.assert.throws(function () {
                 params.push('foo');
 
                 // cannot assert error message as it varies by platform
@@ -22651,7 +22690,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
             }
 
             if (assigningExistingFrozenPropertyThrows) {
-              _this21.assert.throws(function () {
+              _this22.assert.throws(function () {
                 hash.foo = 'bar';
 
                 // cannot assert error message as it varies by platform
@@ -22659,7 +22698,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
             }
 
             if (addingPropertyToFrozenObjectThrows) {
-              _this21.assert.throws(function () {
+              _this22.assert.throws(function () {
                 hash.someUnusedHashProperty = 'bar';
 
                 // cannot assert error message as it varies by platform

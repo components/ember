@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+d6c1670b
+ * @version   2.10.0-canary+b685acbb
  */
 
 var enifed, requireModule, require, Ember;
@@ -9212,19 +9212,12 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function (exports, _emberMetalMeta, _require2) {
+enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 'require'], function (exports, _glimmerReference, _emberMetalMeta, _require) {
   'use strict';
 
   exports.setHasViews = setHasViews;
   exports.tagFor = tagFor;
-
-  var hasGlimmer = _require2.has('glimmer-reference');
-
-  var CONSTANT_TAG = undefined,
-      CURRENT_TAG = undefined,
-      DirtyableTag = undefined,
-      makeTag = undefined,
-      run = undefined;
+  exports.markObjectAsDirty = markObjectAsDirty;
 
   var hasViews = function () {
     return false;
@@ -9234,55 +9227,40 @@ enifed('ember-metal/tags', ['exports', 'ember-metal/meta', 'require'], function 
     hasViews = fn;
   }
 
-  var markObjectAsDirty = undefined;
-
-  exports.markObjectAsDirty = markObjectAsDirty;
+  function makeTag() {
+    return new _glimmerReference.DirtyableTag();
+  }
 
   function tagFor(object, _meta) {
-    if (!hasGlimmer) {
-      throw new Error('Cannot call tagFor without Glimmer');
-    }
-
     if (typeof object === 'object' && object) {
       var meta = _meta || _emberMetalMeta.meta(object);
       return meta.writableTag(makeTag);
     } else {
-      return CONSTANT_TAG;
+      return _glimmerReference.CONSTANT_TAG;
     }
   }
 
+  function markObjectAsDirty(meta) {
+    var tag = meta && meta.readableTag();
+
+    if (tag) {
+      ensureRunloop();
+      tag.dirty();
+    }
+  }
+
+  var run = undefined;
+
   function K() {}
+
   function ensureRunloop() {
     if (!run) {
-      run = _require2.default('ember-metal/run_loop').default;
+      run = _require.default('ember-metal/run_loop').default;
     }
 
     if (hasViews() && !run.backburner.currentInstance) {
       run.schedule('actions', K);
     }
-  }
-
-  if (hasGlimmer) {
-    var _require = _require2.default('glimmer-reference');
-
-    DirtyableTag = _require.DirtyableTag;
-    CONSTANT_TAG = _require.CONSTANT_TAG;
-    CURRENT_TAG = _require.CURRENT_TAG;
-
-    makeTag = function () {
-      return new DirtyableTag();
-    };
-
-    exports.markObjectAsDirty = markObjectAsDirty = function (meta) {
-      var tag = meta && meta.readableTag();
-
-      if (tag) {
-        ensureRunloop();
-        tag.dirty();
-      }
-    };
-  } else {
-    exports.markObjectAsDirty = markObjectAsDirty = function () {};
   }
 });
 enifed("ember-metal/testing", ["exports"], function (exports) {
@@ -11768,7 +11746,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+d6c1670b";
+  exports.default = "2.10.0-canary+b685acbb";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
