@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-canary+0d445912
+ * @version   2.10.0-canary+5790671e
  */
 
 var enifed, requireModule, require, Ember;
@@ -39356,7 +39356,85 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-canary+0d445912";
+  exports.default = "2.10.0-canary+5790671e";
+});
+enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberRuntime) {
+  'use strict';
+
+  exports.default = buildOwner;
+
+  function buildOwner() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+    var ownerOptions = options.ownerOptions || {};
+    var resolver = options.resolver;
+    var bootOptions = options.bootOptions || {};
+
+    var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin);
+
+    var namespace = _emberRuntime.Object.create({
+      Resolver: { create: function () {
+          return resolver;
+        } }
+    });
+
+    var fallbackRegistry = _emberApplication.Application.buildRegistry(namespace);
+    fallbackRegistry.register('router:main', _emberRouting.Router);
+
+    var registry = new _container.Registry({
+      fallback: fallbackRegistry
+    });
+
+    _emberApplication.ApplicationInstance.setupRegistry(registry, bootOptions);
+
+    var owner = Owner.create({
+      __registry__: registry,
+      __container__: null
+    }, ownerOptions);
+
+    var container = registry.container({ owner: owner });
+    owner.__container__ = container;
+
+    return owner;
+  }
+});
+enifed('internal-test-helpers/confirm-export', ['exports', 'require'], function (exports, _require) {
+  'use strict';
+
+  exports.default = confirmExport;
+
+  function getDescriptor(obj, path) {
+    var parts = path.split('.');
+    var value = obj;
+    for (var i = 0; i < parts.length - 1; i++) {
+      var part = parts[i];
+      value = value[part];
+      if (!value) {
+        return undefined;
+      }
+    }
+    var last = parts[parts.length - 1];
+    return Object.getOwnPropertyDescriptor(value, last);
+  }
+
+  function confirmExport(Ember, assert, path, moduleId, exportName) {
+    var desc = getDescriptor(Ember, path);
+    assert.ok(desc, 'the property exists on the global');
+
+    var mod = _require.default(moduleId);
+    if (typeof exportName === 'string') {
+      assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
+      assert.notEqual(mod[exportName], undefined, 'Ember.' + path + ' is not `undefined`');
+    } else {
+      assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
+      assert.notEqual(desc.get, undefined, 'Ember.' + path + ' getter is not undefined');
+
+      if (exportName.set) {
+        assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
+        assert.notEqual(desc.set, undefined, 'Ember.' + path + ' setter is not undefined');
+      }
+    }
+  }
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
@@ -39428,84 +39506,38 @@ enifed('internal-test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('internal-test-helpers/index', ['exports', 'container', 'ember-application', 'ember-routing', 'ember-runtime', 'ember-environment', 'ember-metal', 'require', 'internal-test-helpers/factory'], function (exports, _container, _emberApplication, _emberRouting, _emberRuntime, _emberEnvironment, _emberMetal, _require, _internalTestHelpersFactory) {
+enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/run', 'internal-test-helpers/test-groups'], function (exports, _internalTestHelpersFactory, _internalTestHelpersBuildOwner, _internalTestHelpersConfirmExport, _internalTestHelpersRun, _internalTestHelpersTestGroups) {
   'use strict';
 
-  exports.buildOwner = buildOwner;
-  exports.confirmExport = confirmExport;
-  exports.testBoth = testBoth;
-  exports.testWithDefault = testWithDefault;
+  exports.factory = _internalTestHelpersFactory.default;
+  exports.buildOwner = _internalTestHelpersBuildOwner.default;
+  exports.confirmExport = _internalTestHelpersConfirmExport.default;
+  exports.runAppend = _internalTestHelpersRun.runAppend;
+  exports.runDestroy = _internalTestHelpersRun.runDestroy;
+  exports.testBoth = _internalTestHelpersTestGroups.testBoth;
+  exports.testWithDefault = _internalTestHelpersTestGroups.testWithDefault;
+});
+enifed('internal-test-helpers/run', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+  'use strict';
+
   exports.runAppend = runAppend;
   exports.runDestroy = runDestroy;
-  exports.factory = _internalTestHelpersFactory.default;
 
-  function buildOwner() {
-    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    var ownerOptions = options.ownerOptions || {};
-    var resolver = options.resolver;
-    var bootOptions = options.bootOptions || {};
-
-    var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin);
-
-    var namespace = _emberRuntime.Object.create({
-      Resolver: { create: function () {
-          return resolver;
-        } }
-    });
-
-    var fallbackRegistry = _emberApplication.Application.buildRegistry(namespace);
-    fallbackRegistry.register('router:main', _emberRouting.Router);
-
-    var registry = new _container.Registry({
-      fallback: fallbackRegistry
-    });
-
-    _emberApplication.ApplicationInstance.setupRegistry(registry, bootOptions);
-
-    var owner = Owner.create({
-      __registry__: registry,
-      __container__: null
-    }, ownerOptions);
-
-    var container = registry.container({ owner: owner });
-    owner.__container__ = container;
-
-    return owner;
+  function runAppend(view) {
+    _emberMetal.run(view, 'appendTo', '#qunit-fixture');
   }
 
-  function confirmExport(Ember, assert, path, moduleId, exportName) {
-    var desc = getDescriptor(Ember, path);
-    assert.ok(desc, 'the property exists on the global');
-
-    var mod = _require.default(moduleId);
-    if (typeof exportName === 'string') {
-      assert.equal(desc.value, mod[exportName], 'Ember.' + path + ' is exported correctly');
-      assert.notEqual(mod[exportName], undefined, 'Ember.' + path + ' is not `undefined`');
-    } else {
-      assert.equal(desc.get, mod[exportName.get], 'Ember.' + path + ' getter is exported correctly');
-      assert.notEqual(desc.get, undefined, 'Ember.' + path + ' getter is not undefined');
-
-      if (exportName.set) {
-        assert.equal(desc.set, mod[exportName.set], 'Ember.' + path + ' setter is exported correctly');
-        assert.notEqual(desc.set, undefined, 'Ember.' + path + ' setter is not undefined');
-      }
+  function runDestroy(toDestroy) {
+    if (toDestroy) {
+      _emberMetal.run(toDestroy, 'destroy');
     }
   }
+});
+enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'ember-metal'], function (exports, _emberEnvironment, _emberMetal) {
+  'use strict';
 
-  function getDescriptor(obj, path) {
-    var parts = path.split('.');
-    var value = obj;
-    for (var i = 0; i < parts.length - 1; i++) {
-      var part = parts[i];
-      value = value[part];
-      if (!value) {
-        return undefined;
-      }
-    }
-    var last = parts[parts.length - 1];
-    return Object.getOwnPropertyDescriptor(value, last);
-  }
+  exports.testBoth = testBoth;
+  exports.testWithDefault = testWithDefault;
 
   // used by unit tests to test both accessor mode and non-accessor mode
 
@@ -39579,16 +39611,6 @@ enifed('internal-test-helpers/index', ['exports', 'container', 'ember-applicatio
         ok('SKIPPING ACCESSORS');
       }
     });
-  }
-
-  function runAppend(view) {
-    _emberMetal.run(view, 'appendTo', '#qunit-fixture');
-  }
-
-  function runDestroy(toDestroy) {
-    if (toDestroy) {
-      _emberMetal.run(toDestroy, 'destroy');
-    }
   }
 });
 enifed('glimmer-node/index', ['exports', 'glimmer-node/lib/node-dom-helper'], function (exports, _glimmerNodeLibNodeDomHelper) {
