@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+c3fcb378
+ * @version   2.10.0-alpha.1-canary+e340677c
  */
 
 var enifed, requireModule, require, Ember;
@@ -59104,6 +59104,29 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing', 'ember-r
 
     App.testHelpers.pauseTest();
   });
+
+  if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+    QUnit.test('resumeTest resumes paused tests', function () {
+      expect(1);
+
+      var pausePromise = App.testHelpers.pauseTest();
+      setTimeout(function () {
+        return App.testHelpers.resumeTest();
+      }, 0);
+
+      return pausePromise.then(function () {
+        return ok(true, 'pauseTest promise was resolved');
+      });
+    });
+
+    QUnit.test('resumeTest throws if nothing to resume', function () {
+      expect(1);
+
+      throws(function () {
+        return App.testHelpers.resumeTest();
+      }, /Testing has not been paused. There is nothing to resume./);
+    });
+  }
 
   QUnit.module('ember-testing routing helpers', {
     setup: function () {
