@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.8.1"
+        "version": "v2.8.2"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
