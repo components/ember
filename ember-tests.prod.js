@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+e340677c
+ * @version   2.10.0-alpha.1-canary+9e2b53a9
  */
 
 var enifed, requireModule, require, Ember;
@@ -17083,7 +17083,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
       this.assertText('Nested template says: Hi!', 'Re-render works');
     };
 
-    _class.prototype['@test tagless blockless component can lookup local template'] = function testTaglessBlocklessComponentCanLookupLocalTemplate(assert) {
+    _class.prototype['@test tagless blockless component can lookup local template'] = function testTaglessBlocklessComponentCanLookupLocalTemplate() {
       var _this2 = this;
 
       this.registerComponent('x-outer/x-inner', { template: 'Nested template says: {{yield}}' });
