@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5
+ * @version   2.9.0-beta.5-beta+c5ac34b5
  */
 
 var enifed, requireModule, require, Ember;
@@ -11050,7 +11050,6 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
 
       var _processedArgs$value = processedArgs.value();
 
-      var attrs = _processedArgs$value.attrs;
       var props = _processedArgs$value.props;
 
       aliasIdToElementId(args, props);
@@ -11069,9 +11068,6 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
       if (parentView !== null) {
         parentView.appendChild(component);
       }
-
-      component.trigger('didInitAttrs', { attrs: attrs });
-      component.trigger('didReceiveAttrs', { newAttrs: attrs });
 
       // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
       if (component.tagName === '') {
@@ -33514,12 +33510,17 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   // using ember-metal/lib/main here to ensure that ember-debug is setup
   // if present
 
+  var _Mixin$create;
+
   var schedule = _emberMetal.run.schedule;
   var applyMixin = _emberMetal.Mixin._apply;
   var finishPartial = _emberMetal.Mixin.finishPartial;
   var reopen = _emberMetal.Mixin.prototype.reopen;
   var hasCachedComputedProperties = false;
 
+  var POST_INIT = _emberUtils.symbol('POST_INIT');
+
+  exports.POST_INIT = POST_INIT;
   function makeCtor() {
     // Note: avoid accessing any properties on the object since it makes the
     // method a lot faster. This is glue code so we want it to be as fast as
@@ -33620,6 +33621,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
       this.init.apply(this, arguments);
 
+      this[POST_INIT]();
+
       m.proto = proto;
       _emberMetal.finishChains(this);
       _emberMetal.sendEvent(this, 'init');
@@ -33664,7 +33667,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   CoreObject.toString = function () {
     return 'Ember.CoreObject';
   };
-  CoreObject.PrototypeMixin = _emberMetal.Mixin.create({
+  CoreObject.PrototypeMixin = _emberMetal.Mixin.create((_Mixin$create = {
     reopen: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -33697,244 +33700,39 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
        @method init
       @public
     */
-    init: function () {},
+    init: function () {}
 
-    __defineNonEnumerable: function (property) {
-      Object.defineProperty(this, property.name, property.descriptor);
-      //this[property.name] = property.descriptor.value;
-    },
-
-    /**
-      Defines the properties that will be concatenated from the superclass
-      (instead of overridden).
-       By default, when you extend an Ember class a property defined in
-      the subclass overrides a property with the same name that is defined
-      in the superclass. However, there are some cases where it is preferable
-      to build up a property's value by combining the superclass' property
-      value with the subclass' value. An example of this in use within Ember
-      is the `classNames` property of `Ember.View`.
-       Here is some sample code showing the difference between a concatenated
-      property and a normal one:
-       ```javascript
-      const Bar = Ember.Object.extend({
-        // Configure which properties to concatenate
-        concatenatedProperties: ['concatenatedProperty'],
-         someNonConcatenatedProperty: ['bar'],
-        concatenatedProperty: ['bar']
-      });
-       const FooBar = Bar.extend({
-        someNonConcatenatedProperty: ['foo'],
-        concatenatedProperty: ['foo']
-      });
-       let fooBar = FooBar.create();
-      fooBar.get('someNonConcatenatedProperty'); // ['foo']
-      fooBar.get('concatenatedProperty'); // ['bar', 'foo']
-      ```
-       This behavior extends to object creation as well. Continuing the
-      above example:
-       ```javascript
-      let fooBar = FooBar.create({
-        someNonConcatenatedProperty: ['baz'],
-        concatenatedProperty: ['baz']
-      })
-      fooBar.get('someNonConcatenatedProperty'); // ['baz']
-      fooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
-      ```
-       Adding a single property that is not an array will just add it in the array:
-       ```javascript
-      let fooBar = FooBar.create({
-        concatenatedProperty: 'baz'
-      })
-      view.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
-      ```
-       Using the `concatenatedProperties` property, we can tell Ember to mix the
-      content of the properties.
-       In `Ember.Component` the `classNames`, `classNameBindings` and
-      `attributeBindings` properties are concatenated.
-       This feature is available for you to use throughout the Ember object model,
-      although typical app developers are likely to use it infrequently. Since
-      it changes expectations about behavior of properties, you should properly
-      document its usage in each individual concatenated property (to not
-      mislead your users to think they can override the property in a subclass).
-       @property concatenatedProperties
-      @type Array
-      @default null
-      @public
-    */
-    concatenatedProperties: null,
-
-    /**
-      Defines the properties that will be merged from the superclass
-      (instead of overridden).
-       By default, when you extend an Ember class a property defined in
-      the subclass overrides a property with the same name that is defined
-      in the superclass. However, there are some cases where it is preferable
-      to build up a property's value by merging the superclass property value
-      with the subclass property's value. An example of this in use within Ember
-      is the `queryParams` property of routes.
-       Here is some sample code showing the difference between a merged
-      property and a normal one:
-       ```javascript
-      const Bar = Ember.Object.extend({
-        // Configure which properties are to be merged
-        mergedProperties: ['mergedProperty'],
-         someNonMergedProperty: {
-          nonMerged: 'superclass value of nonMerged'
-        },
-        mergedProperty: {
-          page: {replace: false},
-          limit: {replace: true}
-        }
-      });
-       const FooBar = Bar.extend({
-        someNonMergedProperty: {
-          completelyNonMerged: 'subclass value of nonMerged'
-        },
-        mergedProperty: {
-          limit: {replace: false}
-        }
-      });
-       let fooBar = FooBar.create();
-       fooBar.get('someNonMergedProperty');
-      // => { completelyNonMerged: 'subclass value of nonMerged' }
-      //
-      // Note the entire object, including the nonMerged property of
-      // the superclass object, has been replaced
-       fooBar.get('mergedProperty');
-      // => {
-      //   page: {replace: false},
-      //   limit: {replace: false}
-      // }
-      //
-      // Note the page remains from the superclass, and the
-      // `limit` property's value of `false` has been merged from
-      // the subclass.
-      ```
-       This behavior is not available during object `create` calls. It is only
-      available at `extend` time.
-       In `Ember.Route` the `queryParams` property is merged.
-       This feature is available for you to use throughout the Ember object model,
-      although typical app developers are likely to use it infrequently. Since
-      it changes expectations about behavior of properties, you should properly
-      document its usage in each individual merged property (to not
-      mislead your users to think they can override the property in a subclass).
-       @property mergedProperties
-      @type Array
-      @default null
-      @public
-    */
-    mergedProperties: null,
-
-    /**
-      Destroyed object property flag.
-       if this property is `true` the observers and bindings were already
-      removed by the effect of calling the `destroy()` method.
-       @property isDestroyed
-      @default false
-      @public
-    */
-    isDestroyed: false,
-
-    /**
-      Destruction scheduled flag. The `destroy()` method has been called.
-       The object stays intact until the end of the run loop at which point
-      the `isDestroyed` flag is set.
-       @property isDestroying
-      @default false
-      @public
-    */
-    isDestroying: false,
-
-    /**
-      Destroys an object by setting the `isDestroyed` flag and removing its
-      metadata, which effectively destroys observers and bindings.
-       If you try to set a property on a destroyed object, an exception will be
-      raised.
-       Note that destruction is scheduled for the end of the run loop and does not
-      happen immediately.  It will set an isDestroying flag immediately.
-       @method destroy
-      @return {Ember.Object} receiver
-      @public
-    */
-    destroy: function () {
-      if (this.isDestroying) {
-        return;
-      }
-      this.isDestroying = true;
-
-      schedule('actions', this, this.willDestroy);
-      schedule('destroy', this, this._scheduledDestroy);
-      return this;
-    },
-
-    /**
-      Override to implement teardown.
-       @method willDestroy
-      @public
-    */
-    willDestroy: function () {},
-
-    /**
-      Invoked by the run loop to actually destroy the object. This is
-      scheduled for execution by the `destroy` method.
-       @private
-      @method _scheduledDestroy
-    */
-    _scheduledDestroy: function () {
-      if (this.isDestroyed) {
-        return;
-      }
-      _emberMetal.destroy(this);
-      this.isDestroyed = true;
-    },
-
-    bind: function (to, from) {
-      if (!(from instanceof _emberMetal.Binding)) {
-        from = _emberMetal.Binding.from(from);
-      }
-      from.to(to).connect(this);
-      return from;
-    },
-
-    /**
-      Returns a string representation which attempts to provide more information
-      than Javascript's `toString` typically does, in a generic way for all Ember
-      objects.
-       ```javascript
-      const Person = Ember.Object.extend()
-      person = Person.create()
-      person.toString() //=> "<Person:ember1024>"
-      ```
-       If the object's class is not defined on an Ember namespace, it will
-      indicate it is a subclass of the registered superclass:
-      ```javascript
-      const Student = Person.extend()
-      let student = Student.create()
-      student.toString() //=> "<(subclass of Person):ember1025>"
-      ```
-       If the method `toStringExtension` is defined, its return value will be
-      included in the output.
-       ```javascript
-      const Teacher = Person.extend({
-        toStringExtension() {
-          return this.get('fullName');
-        }
-      });
-      teacher = Teacher.create()
-      teacher.toString(); //=> "<Teacher:ember1026:Tom Dale>"
-      ```
-       @method toString
-      @return {String} string representation
-      @public
-    */
-    toString: function () {
-      var hasToStringExtension = typeof this.toStringExtension === 'function';
-      var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-      var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
-
-      return ret;
+  }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
+    Object.defineProperty(this, property.name, property.descriptor);
+    //this[property.name] = property.descriptor.value;
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
+    if (this.isDestroying) {
+      return;
     }
-  });
+    this.isDestroying = true;
+
+    schedule('actions', this, this.willDestroy);
+    schedule('destroy', this, this._scheduledDestroy);
+    return this;
+  }, _Mixin$create.willDestroy = function () {}, _Mixin$create._scheduledDestroy = function () {
+    if (this.isDestroyed) {
+      return;
+    }
+    _emberMetal.destroy(this);
+    this.isDestroyed = true;
+  }, _Mixin$create.bind = function (to, from) {
+    if (!(from instanceof _emberMetal.Binding)) {
+      from = _emberMetal.Binding.from(from);
+    }
+    from.to(to).connect(this);
+    return from;
+  }, _Mixin$create.toString = function () {
+    var hasToStringExtension = typeof this.toStringExtension === 'function';
+    var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
+    var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
+
+    return ret;
+  }, _Mixin$create));
 
   CoreObject.PrototypeMixin.ownerConstructor = CoreObject;
 
@@ -33949,7 +33747,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     isClass: true,
 
     isMethod: false,
-
     /**
       Creates a new subclass.
        ```javascript
@@ -34315,6 +34112,201 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
   exports.default = CoreObject;
 });
+// Private, and only for didInitAttrs willRecieveAttrs
+
+/**
+  Defines the properties that will be concatenated from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by combining the superclass' property
+  value with the subclass' value. An example of this in use within Ember
+  is the `classNames` property of `Ember.View`.
+   Here is some sample code showing the difference between a concatenated
+  property and a normal one:
+   ```javascript
+  const Bar = Ember.Object.extend({
+    // Configure which properties to concatenate
+    concatenatedProperties: ['concatenatedProperty'],
+     someNonConcatenatedProperty: ['bar'],
+    concatenatedProperty: ['bar']
+  });
+   const FooBar = Bar.extend({
+    someNonConcatenatedProperty: ['foo'],
+    concatenatedProperty: ['foo']
+  });
+   let fooBar = FooBar.create();
+  fooBar.get('someNonConcatenatedProperty'); // ['foo']
+  fooBar.get('concatenatedProperty'); // ['bar', 'foo']
+  ```
+   This behavior extends to object creation as well. Continuing the
+  above example:
+   ```javascript
+  let fooBar = FooBar.create({
+    someNonConcatenatedProperty: ['baz'],
+    concatenatedProperty: ['baz']
+  })
+  fooBar.get('someNonConcatenatedProperty'); // ['baz']
+  fooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
+  ```
+   Adding a single property that is not an array will just add it in the array:
+   ```javascript
+  let fooBar = FooBar.create({
+    concatenatedProperty: 'baz'
+  })
+  view.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
+  ```
+   Using the `concatenatedProperties` property, we can tell Ember to mix the
+  content of the properties.
+   In `Ember.Component` the `classNames`, `classNameBindings` and
+  `attributeBindings` properties are concatenated.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual concatenated property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property concatenatedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Defines the properties that will be merged from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by merging the superclass property value
+  with the subclass property's value. An example of this in use within Ember
+  is the `queryParams` property of routes.
+   Here is some sample code showing the difference between a merged
+  property and a normal one:
+   ```javascript
+  const Bar = Ember.Object.extend({
+    // Configure which properties are to be merged
+    mergedProperties: ['mergedProperty'],
+     someNonMergedProperty: {
+      nonMerged: 'superclass value of nonMerged'
+    },
+    mergedProperty: {
+      page: {replace: false},
+      limit: {replace: true}
+    }
+  });
+   const FooBar = Bar.extend({
+    someNonMergedProperty: {
+      completelyNonMerged: 'subclass value of nonMerged'
+    },
+    mergedProperty: {
+      limit: {replace: false}
+    }
+  });
+   let fooBar = FooBar.create();
+   fooBar.get('someNonMergedProperty');
+  // => { completelyNonMerged: 'subclass value of nonMerged' }
+  //
+  // Note the entire object, including the nonMerged property of
+  // the superclass object, has been replaced
+   fooBar.get('mergedProperty');
+  // => {
+  //   page: {replace: false},
+  //   limit: {replace: false}
+  // }
+  //
+  // Note the page remains from the superclass, and the
+  // `limit` property's value of `false` has been merged from
+  // the subclass.
+  ```
+   This behavior is not available during object `create` calls. It is only
+  available at `extend` time.
+   In `Ember.Route` the `queryParams` property is merged.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual merged property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property mergedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Destroyed object property flag.
+   if this property is `true` the observers and bindings were already
+  removed by the effect of calling the `destroy()` method.
+   @property isDestroyed
+  @default false
+  @public
+*/
+
+/**
+  Destruction scheduled flag. The `destroy()` method has been called.
+   The object stays intact until the end of the run loop at which point
+  the `isDestroyed` flag is set.
+   @property isDestroying
+  @default false
+  @public
+*/
+
+/**
+  Destroys an object by setting the `isDestroyed` flag and removing its
+  metadata, which effectively destroys observers and bindings.
+   If you try to set a property on a destroyed object, an exception will be
+  raised.
+   Note that destruction is scheduled for the end of the run loop and does not
+  happen immediately.  It will set an isDestroying flag immediately.
+   @method destroy
+  @return {Ember.Object} receiver
+  @public
+*/
+
+/**
+  Override to implement teardown.
+   @method willDestroy
+  @public
+*/
+
+/**
+  Invoked by the run loop to actually destroy the object. This is
+  scheduled for execution by the `destroy` method.
+   @private
+  @method _scheduledDestroy
+*/
+
+/**
+  Returns a string representation which attempts to provide more information
+  than Javascript's `toString` typically does, in a generic way for all Ember
+  objects.
+   ```javascript
+  const Person = Ember.Object.extend()
+  person = Person.create()
+  person.toString() //=> "<Person:ember1024>"
+  ```
+   If the object's class is not defined on an Ember namespace, it will
+  indicate it is a subclass of the registered superclass:
+  ```javascript
+  const Student = Person.extend()
+  let student = Student.create()
+  student.toString() //=> "<(subclass of Person):ember1025>"
+  ```
+   If the method `toStringExtension` is defined, its return value will be
+  included in the output.
+   ```javascript
+  const Teacher = Person.extend({
+    toStringExtension() {
+      return this.get('fullName');
+    }
+  });
+  teacher = Teacher.create()
+  teacher.toString(); //=> "<Teacher:ember1026:Tom Dale>"
+  ```
+   @method toString
+  @return {String} string representation
+  @public
+*/
 enifed('ember-runtime/system/each_proxy', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsArray) {
   'use strict';
 
@@ -38596,8 +38588,10 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal'], func
     }
   });
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-environment', 'ember-views/system/utils', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberEnvironment, _emberViewsSystemUtils, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-environment', 'ember-views/system/utils', 'ember-runtime/system/core_object', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberEnvironment, _emberViewsSystemUtils, _emberRuntimeSystemCore_object, _emberViewsSystemJquery) {
   'use strict';
+
+  var _Mixin$create;
 
   function K() {
     return this;
@@ -38608,408 +38602,389 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
    @namespace Ember
    @private
   */
-  exports.default = _emberMetal.Mixin.create({
-    concatenatedProperties: ['attributeBindings'],
+  exports.default = _emberMetal.Mixin.create((_Mixin$create = {
+    concatenatedProperties: ['attributeBindings']
+  }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
+    this.trigger('didInitAttrs', { attrs: this.attrs });
+    this.trigger('didReceiveAttrs', { newAttrs: this.attrs });
+  }, _Mixin$create.nearestOfType = function (klass) {
+    var view = this.parentView;
+    var isOfType = klass instanceof _emberMetal.Mixin ? function (view) {
+      return klass.detect(view);
+    } : function (view) {
+      return klass.detect(view.constructor);
+    };
 
-    // ..........................................................
-    // TEMPLATE SUPPORT
-    //
-
-    /**
-      Return the nearest ancestor that is an instance of the provided
-      class or mixin.
-       @method nearestOfType
-      @param {Class,Mixin} klass Subclass of Ember.View (or Ember.View itself),
-             or an instance of Ember.Mixin.
-      @return Ember.View
-      @deprecated use `yield` and contextual components for composition instead.
-      @private
-    */
-    nearestOfType: function (klass) {
-      var view = this.parentView;
-      var isOfType = klass instanceof _emberMetal.Mixin ? function (view) {
-        return klass.detect(view);
-      } : function (view) {
-        return klass.detect(view.constructor);
-      };
-
-      while (view) {
-        if (isOfType(view)) {
-          return view;
-        }
-        view = view.parentView;
+    while (view) {
+      if (isOfType(view)) {
+        return view;
       }
-    },
-
-    /**
-      Return the nearest ancestor that has a given property.
-       @method nearestWithProperty
-      @param {String} property A property name
-      @return Ember.View
-      @deprecated use `yield` and contextual components for composition instead.
-      @private
-    */
-    nearestWithProperty: function (property) {
-      var view = this.parentView;
-
-      while (view) {
-        if (property in view) {
-          return view;
-        }
-        view = view.parentView;
-      }
-    },
-
-    /**
-      Renders the view again. This will work regardless of whether the
-      view is already in the DOM or not. If the view is in the DOM, the
-      rendering process will be deferred to give bindings a chance
-      to synchronize.
-       If children were added during the rendering process using `appendChild`,
-      `rerender` will remove them, because they will be added again
-      if needed by the next `render`.
-       In general, if the display of your view changes, you should modify
-      the DOM element directly instead of manually calling `rerender`, which can
-      be slow.
-       @method rerender
-      @public
-    */
-    rerender: function () {
-      return this._currentState.rerender(this);
-    },
-
-    // ..........................................................
-    // ELEMENT SUPPORT
-    //
-
-    /**
-      Returns the current DOM element for the view.
-       @property element
-      @type DOMElement
-      @public
-    */
-    element: _emberMetal.descriptor({
-      configurable: false,
-      enumerable: false,
-      get: function () {
-        return this.renderer.getElement(this);
-      }
-    }),
-
-    /**
-      Returns a jQuery object for this view's element. If you pass in a selector
-      string, this method will return a jQuery object, using the current element
-      as its buffer.
-       For example, calling `view.$('li')` will return a jQuery object containing
-      all of the `li` elements inside the DOM element of this view.
-       @method $
-      @param {String} [selector] a jQuery-compatible selector string
-      @return {jQuery} the jQuery object for the DOM node
-      @public
-    */
-    $: function (sel) {
-      _emberMetal.assert('You cannot access this.$() on a component with `tagName: \'\'` specified.', this.tagName !== '');
-      return this._currentState.$(this, sel);
-    },
-
-    /**
-      Appends the view's element to the specified parent element.
-       Note that this method just schedules the view to be appended; the DOM
-      element will not be appended to the given element until all bindings have
-      finished synchronizing.
-       This is not typically a function that you will need to call directly when
-      building your application. If you do need to use `appendTo`, be sure that
-      the target element you are providing is associated with an `Ember.Application`
-      and does not have an ancestor element that is associated with an Ember view.
-       @method appendTo
-      @param {String|DOMElement|jQuery} A selector, element, HTML string, or jQuery object
-      @return {Ember.View} receiver
-      @private
-    */
-    appendTo: function (selector) {
-      var env = this._environment || _emberEnvironment.environment;
-      var target = undefined;
-
-      if (env.hasDOM) {
-        target = typeof selector === 'string' ? document.querySelector(selector) : selector;
-
-        _emberMetal.assert('You tried to append to (' + selector + ') but that isn\'t in the DOM', target);
-        _emberMetal.assert('You cannot append to an existing Ember.View.', !_emberViewsSystemUtils.matches(target, '.ember-view'));
-        _emberMetal.assert('You cannot append to an existing Ember.View.', (function () {
-          var node = target.parentNode;
-          while (node) {
-            if (node.nodeType !== 9 && _emberViewsSystemUtils.matches(node, '.ember-view')) {
-              return false;
-            }
-
-            node = node.parentNode;
-          }
-
-          return true;
-        })());
-      } else {
-        target = selector;
-
-        _emberMetal.assert('You tried to append to a selector string (' + selector + ') in an environment without jQuery', typeof target !== 'string');
-        _emberMetal.assert('You tried to append to a non-Element (' + selector + ') in an environment without jQuery', typeof selector.appendChild === 'function');
-      }
-
-      this.renderer.appendTo(this, target);
-
-      return this;
-    },
-
-    /**
-      Creates a new DOM element, renders the view into it, then returns the
-      element.
-       By default, the element created and rendered into will be a `BODY` element,
-      since this is the default context that views are rendered into when being
-      inserted directly into the DOM.
-       ```js
-      let element = view.renderToElement();
-      element.tagName; // => "BODY"
-      ```
-       You can override the kind of element rendered into and returned by
-      specifying an optional tag name as the first argument.
-       ```js
-      let element = view.renderToElement('table');
-      element.tagName; // => "TABLE"
-      ```
-       This method is useful if you want to render the view into an element that
-      is not in the document's body. Instead, a new `body` element, detached from
-      the DOM is returned. FastBoot uses this to serialize the rendered view into
-      a string for transmission over the network.
-       ```js
-      app.visit('/').then(function(instance) {
-        let element;
-        Ember.run(function() {
-          element = renderToElement(instance);
-        });
-         res.send(serialize(element));
-      });
-      ```
-       @method renderToElement
-      @param {String} tagName The tag of the element to create and render into. Defaults to "body".
-      @return {HTMLBodyElement} element
-      @private
-    */
-    renderToElement: function (tagName) {
-      tagName = tagName || 'body';
-
-      var element = this.renderer.createElement(tagName);
-
-      this.renderer.appendTo(this, element);
-      return element;
-    },
-
-    /**
-      Replaces the content of the specified parent element with this view's
-      element. If the view does not have an HTML representation yet,
-      the element will be generated automatically.
-       Note that this method just schedules the view to be appended; the DOM
-      element will not be appended to the given element until all bindings have
-      finished synchronizing
-       @method replaceIn
-      @param {String|DOMElement|jQuery} target A selector, element, HTML string, or jQuery object
-      @return {Ember.View} received
-      @private
-    */
-    replaceIn: function (selector) {
-      var target = _emberViewsSystemJquery.default(selector);
-
-      _emberMetal.assert('You tried to replace in (' + selector + ') but that isn\'t in the DOM', target.length > 0);
-      _emberMetal.assert('You cannot replace an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
-
-      this.renderer.replaceIn(this, target[0]);
-
-      return this;
-    },
-
-    /**
-      Appends the view's element to the document body. If the view does
-      not have an HTML representation yet
-      the element will be generated automatically.
-       If your application uses the `rootElement` property, you must append
-      the view within that element. Rendering views outside of the `rootElement`
-      is not supported.
-       Note that this method just schedules the view to be appended; the DOM
-      element will not be appended to the document body until all bindings have
-      finished synchronizing.
-       @method append
-      @return {Ember.View} receiver
-      @private
-    */
-    append: function () {
-      return this.appendTo(document.body);
-    },
-
-    /**
-      The HTML `id` of the view's element in the DOM. You can provide this
-      value yourself but it must be unique (just as in HTML):
-       ```handlebars
-        {{my-component elementId="a-really-cool-id"}}
-      ```
-       If not manually set a default value will be provided by the framework.
-       Once rendered an element's `elementId` is considered immutable and you
-      should never change it. If you need to compute a dynamic value for the
-      `elementId`, you should do this when the component or element is being
-      instantiated:
-       ```javascript
-        export default Ember.Component.extend({
-          init() {
-            this._super(...arguments);
-            let index = this.get('index');
-            this.set('elementId', 'component-id' + index);
-          }
-        });
-      ```
-       @property elementId
-      @type String
-      @public
-    */
-    elementId: null,
-
-    /**
-      Attempts to discover the element in the parent element. The default
-      implementation looks for an element with an ID of `elementId` (or the
-      view's guid if `elementId` is null). You can override this method to
-      provide your own form of lookup. For example, if you want to discover your
-      element using a CSS class name instead of an ID.
-       @method findElementInParentElement
-      @param {DOMElement} parentElement The parent's DOM element
-      @return {DOMElement} The discovered element
-      @private
-    */
-    findElementInParentElement: function (parentElem) {
-      var id = '#' + this.elementId;
-      return _emberViewsSystemJquery.default(id)[0] || _emberViewsSystemJquery.default(id, parentElem)[0];
-    },
-
-    /**
-      Called when a view is going to insert an element into the DOM.
-       @event willInsertElement
-      @public
-    */
-    willInsertElement: K,
-
-    /**
-      Called when the element of the view has been inserted into the DOM
-      or after the view was re-rendered. Override this function to do any
-      set up that requires an element in the document body.
-       When a view has children, didInsertElement will be called on the
-      child view(s) first, bubbling upwards through the hierarchy.
-       @event didInsertElement
-      @public
-    */
-    didInsertElement: K,
-
-    /**
-      Called when the view is about to rerender, but before anything has
-      been torn down. This is a good opportunity to tear down any manual
-      observers you have installed based on the DOM state
-       @event willClearRender
-      @public
-    */
-    willClearRender: K,
-
-    /**
-      You must call `destroy` on a view to destroy the view (and all of its
-      child views). This will remove the view from any parent node, then make
-      sure that the DOM element managed by the view can be released by the
-      memory manager.
-       @method destroy
-      @private
-    */
-    destroy: function () {
-      this._super.apply(this, arguments);
-      this._currentState.destroy(this);
-    },
-
-    /**
-      Called when the element of the view is going to be destroyed. Override
-      this function to do any teardown that requires an element, like removing
-      event listeners.
-       Please note: any property changes made during this event will have no
-      effect on object observers.
-       @event willDestroyElement
-      @public
-    */
-    willDestroyElement: K,
-
-    /**
-      Called when the parentView property has changed.
-       @event parentViewDidChange
-      @private
-    */
-    parentViewDidChange: K,
-
-    // ..........................................................
-    // STANDARD RENDER PROPERTIES
-    //
-
-    /**
-      Tag name for the view's outer element. The tag name is only used when an
-      element is first created. If you change the `tagName` for an element, you
-      must destroy and recreate the view element.
-       By default, the render buffer will use a `<div>` tag for views.
-       @property tagName
-      @type String
-      @default null
-      @public
-    */
-
-    // We leave this null by default so we can tell the difference between
-    // the default case and a user-specified tag.
-    tagName: null,
-
-    // .......................................................
-    // CORE DISPLAY METHODS
-    //
-
-    /**
-      Setup a view, but do not finish waking it up.
-       * configure `childViews`
-      * register the view with the global views hash, which is used for event
-        dispatch
-       @method init
-      @private
-    */
-    init: function () {
-      this._super.apply(this, arguments);
-
-      if (!this.elementId && this.tagName !== '') {
-        this.elementId = _emberUtils.guidFor(this);
-      }
-
-      _emberMetal.deprecate('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
-        id: 'ember-views.did-init-attrs',
-        until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
-      });
-
-      _emberMetal.assert('Using a custom `.render` function is no longer supported.', !this.render);
-    },
-
-    __defineNonEnumerable: function (property) {
-      this[property.name] = property.descriptor.value;
-    },
-
-    // .......................................................
-    // EVENT HANDLING
-    //
-
-    /**
-      Handle events from `Ember.EventDispatcher`
-       @method handleEvent
-      @param eventName {String}
-      @param evt {Event}
-      @private
-    */
-    handleEvent: function (eventName, evt) {
-      return this._currentState.handleEvent(this, eventName, evt);
+      view = view.parentView;
     }
-  });
+  }, _Mixin$create.nearestWithProperty = function (property) {
+    var view = this.parentView;
+
+    while (view) {
+      if (property in view) {
+        return view;
+      }
+      view = view.parentView;
+    }
+  }, _Mixin$create.rerender = function () {
+    return this._currentState.rerender(this);
+  }, _Mixin$create.element = _emberMetal.descriptor({
+    configurable: false,
+    enumerable: false,
+    get: function () {
+      return this.renderer.getElement(this);
+    }
+  }), _Mixin$create.$ = function (sel) {
+    _emberMetal.assert('You cannot access this.$() on a component with `tagName: \'\'` specified.', this.tagName !== '');
+    return this._currentState.$(this, sel);
+  }, _Mixin$create.appendTo = function (selector) {
+    var env = this._environment || _emberEnvironment.environment;
+    var target = undefined;
+
+    if (env.hasDOM) {
+      target = typeof selector === 'string' ? document.querySelector(selector) : selector;
+
+      _emberMetal.assert('You tried to append to (' + selector + ') but that isn\'t in the DOM', target);
+      _emberMetal.assert('You cannot append to an existing Ember.View.', !_emberViewsSystemUtils.matches(target, '.ember-view'));
+      _emberMetal.assert('You cannot append to an existing Ember.View.', (function () {
+        var node = target.parentNode;
+        while (node) {
+          if (node.nodeType !== 9 && _emberViewsSystemUtils.matches(node, '.ember-view')) {
+            return false;
+          }
+
+          node = node.parentNode;
+        }
+
+        return true;
+      })());
+    } else {
+      target = selector;
+
+      _emberMetal.assert('You tried to append to a selector string (' + selector + ') in an environment without jQuery', typeof target !== 'string');
+      _emberMetal.assert('You tried to append to a non-Element (' + selector + ') in an environment without jQuery', typeof selector.appendChild === 'function');
+    }
+
+    this.renderer.appendTo(this, target);
+
+    return this;
+  }, _Mixin$create.renderToElement = function (tagName) {
+    tagName = tagName || 'body';
+
+    var element = this.renderer.createElement(tagName);
+
+    this.renderer.appendTo(this, element);
+    return element;
+  }, _Mixin$create.replaceIn = function (selector) {
+    var target = _emberViewsSystemJquery.default(selector);
+
+    _emberMetal.assert('You tried to replace in (' + selector + ') but that isn\'t in the DOM', target.length > 0);
+    _emberMetal.assert('You cannot replace an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
+
+    this.renderer.replaceIn(this, target[0]);
+
+    return this;
+  }, _Mixin$create.append = function () {
+    return this.appendTo(document.body);
+  }, _Mixin$create.elementId = null, _Mixin$create.findElementInParentElement = function (parentElem) {
+    var id = '#' + this.elementId;
+    return _emberViewsSystemJquery.default(id)[0] || _emberViewsSystemJquery.default(id, parentElem)[0];
+  }, _Mixin$create.willInsertElement = K, _Mixin$create.didInsertElement = K, _Mixin$create.willClearRender = K, _Mixin$create.destroy = function () {
+    this._super.apply(this, arguments);
+    this._currentState.destroy(this);
+  }, _Mixin$create.willDestroyElement = K, _Mixin$create.parentViewDidChange = K, _Mixin$create.tagName = null, _Mixin$create.init = function () {
+    this._super.apply(this, arguments);
+
+    if (!this.elementId && this.tagName !== '') {
+      this.elementId = _emberUtils.guidFor(this);
+    }
+
+    _emberMetal.deprecate('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
+      id: 'ember-views.did-init-attrs',
+      until: '3.0.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+    });
+
+    _emberMetal.assert('Using a custom `.render` function is no longer supported.', !this.render);
+  }, _Mixin$create.__defineNonEnumerable = function (property) {
+    this[property.name] = property.descriptor.value;
+  }, _Mixin$create.handleEvent = function (eventName, evt) {
+    return this._currentState.handleEvent(this, eventName, evt);
+  }, _Mixin$create));
 });
+
+// ..........................................................
+// TEMPLATE SUPPORT
+//
+
+/**
+  Return the nearest ancestor that is an instance of the provided
+  class or mixin.
+   @method nearestOfType
+  @param {Class,Mixin} klass Subclass of Ember.View (or Ember.View itself),
+         or an instance of Ember.Mixin.
+  @return Ember.View
+  @deprecated use `yield` and contextual components for composition instead.
+  @private
+*/
+
+/**
+  Return the nearest ancestor that has a given property.
+   @method nearestWithProperty
+  @param {String} property A property name
+  @return Ember.View
+  @deprecated use `yield` and contextual components for composition instead.
+  @private
+*/
+
+/**
+  Renders the view again. This will work regardless of whether the
+  view is already in the DOM or not. If the view is in the DOM, the
+  rendering process will be deferred to give bindings a chance
+  to synchronize.
+   If children were added during the rendering process using `appendChild`,
+  `rerender` will remove them, because they will be added again
+  if needed by the next `render`.
+   In general, if the display of your view changes, you should modify
+  the DOM element directly instead of manually calling `rerender`, which can
+  be slow.
+   @method rerender
+  @public
+*/
+
+// ..........................................................
+// ELEMENT SUPPORT
+//
+
+/**
+  Returns the current DOM element for the view.
+   @property element
+  @type DOMElement
+  @public
+*/
+
+/**
+  Returns a jQuery object for this view's element. If you pass in a selector
+  string, this method will return a jQuery object, using the current element
+  as its buffer.
+   For example, calling `view.$('li')` will return a jQuery object containing
+  all of the `li` elements inside the DOM element of this view.
+   @method $
+  @param {String} [selector] a jQuery-compatible selector string
+  @return {jQuery} the jQuery object for the DOM node
+  @public
+*/
+
+/**
+  Appends the view's element to the specified parent element.
+   Note that this method just schedules the view to be appended; the DOM
+  element will not be appended to the given element until all bindings have
+  finished synchronizing.
+   This is not typically a function that you will need to call directly when
+  building your application. If you do need to use `appendTo`, be sure that
+  the target element you are providing is associated with an `Ember.Application`
+  and does not have an ancestor element that is associated with an Ember view.
+   @method appendTo
+  @param {String|DOMElement|jQuery} A selector, element, HTML string, or jQuery object
+  @return {Ember.View} receiver
+  @private
+*/
+
+/**
+  Creates a new DOM element, renders the view into it, then returns the
+  element.
+   By default, the element created and rendered into will be a `BODY` element,
+  since this is the default context that views are rendered into when being
+  inserted directly into the DOM.
+   ```js
+  let element = view.renderToElement();
+  element.tagName; // => "BODY"
+  ```
+   You can override the kind of element rendered into and returned by
+  specifying an optional tag name as the first argument.
+   ```js
+  let element = view.renderToElement('table');
+  element.tagName; // => "TABLE"
+  ```
+   This method is useful if you want to render the view into an element that
+  is not in the document's body. Instead, a new `body` element, detached from
+  the DOM is returned. FastBoot uses this to serialize the rendered view into
+  a string for transmission over the network.
+   ```js
+  app.visit('/').then(function(instance) {
+    let element;
+    Ember.run(function() {
+      element = renderToElement(instance);
+    });
+     res.send(serialize(element));
+  });
+  ```
+   @method renderToElement
+  @param {String} tagName The tag of the element to create and render into. Defaults to "body".
+  @return {HTMLBodyElement} element
+  @private
+*/
+
+/**
+  Replaces the content of the specified parent element with this view's
+  element. If the view does not have an HTML representation yet,
+  the element will be generated automatically.
+   Note that this method just schedules the view to be appended; the DOM
+  element will not be appended to the given element until all bindings have
+  finished synchronizing
+   @method replaceIn
+  @param {String|DOMElement|jQuery} target A selector, element, HTML string, or jQuery object
+  @return {Ember.View} received
+  @private
+*/
+
+/**
+  Appends the view's element to the document body. If the view does
+  not have an HTML representation yet
+  the element will be generated automatically.
+   If your application uses the `rootElement` property, you must append
+  the view within that element. Rendering views outside of the `rootElement`
+  is not supported.
+   Note that this method just schedules the view to be appended; the DOM
+  element will not be appended to the document body until all bindings have
+  finished synchronizing.
+   @method append
+  @return {Ember.View} receiver
+  @private
+*/
+
+/**
+  The HTML `id` of the view's element in the DOM. You can provide this
+  value yourself but it must be unique (just as in HTML):
+   ```handlebars
+    {{my-component elementId="a-really-cool-id"}}
+  ```
+   If not manually set a default value will be provided by the framework.
+   Once rendered an element's `elementId` is considered immutable and you
+  should never change it. If you need to compute a dynamic value for the
+  `elementId`, you should do this when the component or element is being
+  instantiated:
+   ```javascript
+    export default Ember.Component.extend({
+      init() {
+        this._super(...arguments);
+        let index = this.get('index');
+        this.set('elementId', 'component-id' + index);
+      }
+    });
+  ```
+   @property elementId
+  @type String
+  @public
+*/
+
+/**
+  Attempts to discover the element in the parent element. The default
+  implementation looks for an element with an ID of `elementId` (or the
+  view's guid if `elementId` is null). You can override this method to
+  provide your own form of lookup. For example, if you want to discover your
+  element using a CSS class name instead of an ID.
+   @method findElementInParentElement
+  @param {DOMElement} parentElement The parent's DOM element
+  @return {DOMElement} The discovered element
+  @private
+*/
+
+/**
+  Called when a view is going to insert an element into the DOM.
+   @event willInsertElement
+  @public
+*/
+
+/**
+  Called when the element of the view has been inserted into the DOM
+  or after the view was re-rendered. Override this function to do any
+  set up that requires an element in the document body.
+   When a view has children, didInsertElement will be called on the
+  child view(s) first, bubbling upwards through the hierarchy.
+   @event didInsertElement
+  @public
+*/
+
+/**
+  Called when the view is about to rerender, but before anything has
+  been torn down. This is a good opportunity to tear down any manual
+  observers you have installed based on the DOM state
+   @event willClearRender
+  @public
+*/
+
+/**
+  You must call `destroy` on a view to destroy the view (and all of its
+  child views). This will remove the view from any parent node, then make
+  sure that the DOM element managed by the view can be released by the
+  memory manager.
+   @method destroy
+  @private
+*/
+
+/**
+  Called when the element of the view is going to be destroyed. Override
+  this function to do any teardown that requires an element, like removing
+  event listeners.
+   Please note: any property changes made during this event will have no
+  effect on object observers.
+   @event willDestroyElement
+  @public
+*/
+
+/**
+  Called when the parentView property has changed.
+   @event parentViewDidChange
+  @private
+*/
+
+// ..........................................................
+// STANDARD RENDER PROPERTIES
+//
+
+/**
+  Tag name for the view's outer element. The tag name is only used when an
+  element is first created. If you change the `tagName` for an element, you
+  must destroy and recreate the view element.
+   By default, the render buffer will use a `<div>` tag for views.
+   @property tagName
+  @type String
+  @default null
+  @public
+*/
+
+// We leave this null by default so we can tell the difference between
+// the default case and a user-specified tag.
+
+// .......................................................
+// CORE DISPLAY METHODS
+//
+
+/**
+  Setup a view, but do not finish waking it up.
+   * configure `childViews`
+  * register the view with the global views hash, which is used for event
+    dispatch
+   @method init
+  @private
+*/
+
+// .......................................................
+// EVENT HANDLING
+//
+
+/**
+  Handle events from `Ember.EventDispatcher`
+   @method handleEvent
+  @param eventName {String}
+  @param evt {Event}
+  @private
+*/
 enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   /**
   @module ember
@@ -40933,7 +40908,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.5";
+  exports.default = "2.9.0-beta.5-beta+c5ac34b5";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5
+ * @version   2.9.0-beta.5-beta+c5ac34b5
  */
 
 var enifed, requireModule, require, Ember;
@@ -14448,8 +14448,62 @@ babelHelpers.classCallCheck(this, _class);
       }, /didInitAttrs called/);
     };
 
-    _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function testReturningTrueFromAnActionDoesNotBubbleIfTargetIsNotSpecifiedGH14275(assert) {
+    _class.prototype['@test did{Init,Receive}Attrs fires after .init() but before observers become active'] = function testDidInitReceiveAttrsFiresAfterInitButBeforeObserversBecomeActive(assert) {
       var _this74 = this;
+
+      expectDeprecation(/didInitAttrs called/);
+
+      var fooDidChangeCount = 0;
+      var barDidChangeCount = 0;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.didInit = true;
+          },
+          didInitAttrs: function (attrs) {
+            assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
+            this.set('foo', attrs.foo);
+          },
+
+          willReceieveAttrs: function (attrs) {
+            assert.ok(this.didInit, 'expected init to have run before willReceieveAttrs');
+            this.set('bar', attrs.bar);
+          },
+
+          fooDidChange: _emberMetal.observer('foo', function () {
+            fooDidChangeCount++;
+          }),
+          barDidChange: _emberMetal.observer('bar', function () {
+            barDidChangeCount++;
+          })
+        }),
+        template: ''
+      });
+
+      this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 1 });
+
+      assert.equal(fooDidChangeCount, 0, 'expected NO observer firing for: foo');
+      assert.equal(barDidChangeCount, 0, 'expected NO observer firing for: bar');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this74.context, 'foo', 2);
+      });
+
+      assert.equal(fooDidChangeCount, 1, 'expected observer firing for: foo');
+      assert.equal(barDidChangeCount, 0, 'expected NO observer firing for: bar');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this74.context, 'bar', 2);
+      });
+
+      assert.equal(fooDidChangeCount, 1, 'expected observer firing for: foo');
+      assert.equal(barDidChangeCount, 1, 'expected observer firing for: bar');
+    };
+
+    _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function testReturningTrueFromAnActionDoesNotBubbleIfTargetIsNotSpecifiedGH14275(assert) {
+      var _this75 = this;
 
       this.registerComponent('display-toggle', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14473,12 +14527,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this74.$('button').click();
+        return _this75.$('button').click();
       });
     };
 
     _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function testReturningTrueFromAnActionBubblesToTheTargetIfSpecified(assert) {
-      var _this75 = this;
+      var _this76 = this;
 
       assert.expect(4);
 
@@ -14505,12 +14559,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this75.$('button').click();
+        return _this76.$('button').click();
       });
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function testComponentYieldingInAnEachHasCorrectBlockValuesAfterRerenderingGH14284() {
-      var _this76 = this;
+      var _this77 = this;
 
       this.registerComponent('list-items', {
         template: '{{#each items as |item|}}{{yield item}}{{/each}}'
@@ -14526,13 +14580,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetal.set(_this76.context, 'editMode', true);
+        return _emberMetal.set(_this77.context, 'editMode', true);
       });
 
       this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
 
       this.runTask(function () {
-        return _emberMetal.set(_this76.context, 'editMode', false);
+        return _emberMetal.set(_this77.context, 'editMode', false);
       });
 
       this.assertText('|foo||bar||qux||baz|');
@@ -55476,7 +55530,7 @@ enifed('ember-runtime/tests/system/array_proxy/watching_and_listening_test', ['e
     equal(_emberMetal.watcherCount(item2c, 'id'), 3);
   });
 });
-enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime/system/core_object'], function (exports, _emberRuntimeSystemCore_object) {
+enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime/system/core_object', 'ember-metal/property_set', 'ember-metal/mixin'], function (exports, _emberRuntimeSystemCore_object, _emberMetalProperty_set, _emberMetalMixin) {
   'use strict';
 
   QUnit.module('Ember.CoreObject');
@@ -55514,6 +55568,43 @@ enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime
     obj.toString();
 
     notOk(obj.hasOwnProperty('toString'), 'Calling toString() should not create a toString class property');
+  });
+
+  QUnit.test('[POST_INIT] invoked during construction', function (assert) {
+    var _CoreObject$extend;
+
+    var callCount = 0;
+    var Obj = _emberRuntimeSystemCore_object.default.extend((_CoreObject$extend = {}, _CoreObject$extend[_emberRuntimeSystemCore_object.POST_INIT] = function () {
+      callCount++;
+    }, _CoreObject$extend));
+
+    equal(callCount, 0);
+
+    Obj.create();
+
+    equal(callCount, 1);
+  });
+
+  QUnit.test('[POST_INIT] invoked before finishChains', function (assert) {
+    var _CoreObject$extend2;
+
+    var callCount = 0;
+
+    var Obj = _emberRuntimeSystemCore_object.default.extend((_CoreObject$extend2 = {}, _CoreObject$extend2[_emberRuntimeSystemCore_object.POST_INIT] = function () {
+      _emberMetalProperty_set.set(this, 'hi', 1);
+    }, _CoreObject$extend2.hiDidChange = _emberMetalMixin.observer('hi', function () {
+      callCount++;
+    }), _CoreObject$extend2));
+
+    equal(callCount, 0);
+
+    var obj = Obj.create();
+
+    equal(callCount, 0);
+
+    _emberMetalProperty_set.set(obj, 'hi', 2);
+
+    equal(callCount, 1);
   });
 });
 enifed('ember-runtime/tests/system/lazy_load_test', ['exports', 'ember-metal', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntimeSystemLazy_load) {
