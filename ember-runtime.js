@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+e5174c7d
+ * @version   2.10.0-alpha.1-canary+1b75abfd
  */
 
 var enifed, requireModule, require, Ember;
@@ -17251,6 +17251,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   // using ember-metal/lib/main here to ensure that ember-debug is setup
   // if present
 
+  var _Mixin$create;
+
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['.'], ['.']);
 
   var schedule = _emberMetal.run.schedule;
@@ -17259,6 +17261,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   var reopen = _emberMetal.Mixin.prototype.reopen;
   var hasCachedComputedProperties = false;
 
+  var POST_INIT = _emberUtils.symbol('POST_INIT');
+
+  exports.POST_INIT = POST_INIT;
   function makeCtor() {
     // Note: avoid accessing any properties on the object since it makes the
     // method a lot faster. This is glue code so we want it to be as fast as
@@ -17359,6 +17364,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
       this.init.apply(this, arguments);
 
+      this[POST_INIT]();
+
       m.proto = proto;
       _emberMetal.finishChains(this);
       _emberMetal.sendEvent(this, 'init');
@@ -17403,7 +17410,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   CoreObject.toString = function () {
     return 'Ember.CoreObject';
   };
-  CoreObject.PrototypeMixin = _emberMetal.Mixin.create({
+  CoreObject.PrototypeMixin = _emberMetal.Mixin.create((_Mixin$create = {
     reopen: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -17436,273 +17443,68 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
        @method init
       @public
     */
-    init: function () {},
+    init: function () {}
 
-    __defineNonEnumerable: function (property) {
-      Object.defineProperty(this, property.name, property.descriptor);
-      //this[property.name] = property.descriptor.value;
+  }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
+    Object.defineProperty(this, property.name, property.descriptor);
+    //this[property.name] = property.descriptor.value;
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = _emberMetal.descriptor({
+    get: function () {
+      return _emberMetal.meta(this).isSourceDestroyed();
     },
 
-    /**
-      Defines the properties that will be concatenated from the superclass
-      (instead of overridden).
-       By default, when you extend an Ember class a property defined in
-      the subclass overrides a property with the same name that is defined
-      in the superclass. However, there are some cases where it is preferable
-      to build up a property's value by combining the superclass' property
-      value with the subclass' value. An example of this in use within Ember
-      is the `classNames` property of `Ember.View`.
-       Here is some sample code showing the difference between a concatenated
-      property and a normal one:
-       ```javascript
-      const Bar = Ember.Object.extend({
-        // Configure which properties to concatenate
-        concatenatedProperties: ['concatenatedProperty'],
-         someNonConcatenatedProperty: ['bar'],
-        concatenatedProperty: ['bar']
-      });
-       const FooBar = Bar.extend({
-        someNonConcatenatedProperty: ['foo'],
-        concatenatedProperty: ['foo']
-      });
-       let fooBar = FooBar.create();
-      fooBar.get('someNonConcatenatedProperty'); // ['foo']
-      fooBar.get('concatenatedProperty'); // ['bar', 'foo']
-      ```
-       This behavior extends to object creation as well. Continuing the
-      above example:
-       ```javascript
-      let fooBar = FooBar.create({
-        someNonConcatenatedProperty: ['baz'],
-        concatenatedProperty: ['baz']
-      })
-      fooBar.get('someNonConcatenatedProperty'); // ['baz']
-      fooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
-      ```
-       Adding a single property that is not an array will just add it in the array:
-       ```javascript
-      let fooBar = FooBar.create({
-        concatenatedProperty: 'baz'
-      })
-      view.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
-      ```
-       Using the `concatenatedProperties` property, we can tell Ember to mix the
-      content of the properties.
-       In `Ember.Component` the `classNames`, `classNameBindings` and
-      `attributeBindings` properties are concatenated.
-       This feature is available for you to use throughout the Ember object model,
-      although typical app developers are likely to use it infrequently. Since
-      it changes expectations about behavior of properties, you should properly
-      document its usage in each individual concatenated property (to not
-      mislead your users to think they can override the property in a subclass).
-       @property concatenatedProperties
-      @type Array
-      @default null
-      @public
-    */
-    concatenatedProperties: null,
-
-    /**
-      Defines the properties that will be merged from the superclass
-      (instead of overridden).
-       By default, when you extend an Ember class a property defined in
-      the subclass overrides a property with the same name that is defined
-      in the superclass. However, there are some cases where it is preferable
-      to build up a property's value by merging the superclass property value
-      with the subclass property's value. An example of this in use within Ember
-      is the `queryParams` property of routes.
-       Here is some sample code showing the difference between a merged
-      property and a normal one:
-       ```javascript
-      const Bar = Ember.Object.extend({
-        // Configure which properties are to be merged
-        mergedProperties: ['mergedProperty'],
-         someNonMergedProperty: {
-          nonMerged: 'superclass value of nonMerged'
-        },
-        mergedProperty: {
-          page: {replace: false},
-          limit: {replace: true}
-        }
-      });
-       const FooBar = Bar.extend({
-        someNonMergedProperty: {
-          completelyNonMerged: 'subclass value of nonMerged'
-        },
-        mergedProperty: {
-          limit: {replace: false}
-        }
-      });
-       let fooBar = FooBar.create();
-       fooBar.get('someNonMergedProperty');
-      // => { completelyNonMerged: 'subclass value of nonMerged' }
-      //
-      // Note the entire object, including the nonMerged property of
-      // the superclass object, has been replaced
-       fooBar.get('mergedProperty');
-      // => {
-      //   page: {replace: false},
-      //   limit: {replace: false}
-      // }
-      //
-      // Note the page remains from the superclass, and the
-      // `limit` property's value of `false` has been merged from
-      // the subclass.
-      ```
-       This behavior is not available during object `create` calls. It is only
-      available at `extend` time.
-       In `Ember.Route` the `queryParams` property is merged.
-       This feature is available for you to use throughout the Ember object model,
-      although typical app developers are likely to use it infrequently. Since
-      it changes expectations about behavior of properties, you should properly
-      document its usage in each individual merged property (to not
-      mislead your users to think they can override the property in a subclass).
-       @property mergedProperties
-      @type Array
-      @default null
-      @public
-    */
-    mergedProperties: null,
-
-    /**
-      Destroyed object property flag.
-       if this property is `true` the observers and bindings were already
-      removed by the effect of calling the `destroy()` method.
-       @property isDestroyed
-      @default false
-      @public
-    */
-    isDestroyed: _emberMetal.descriptor({
-      get: function () {
-        return _emberMetal.meta(this).isSourceDestroyed();
-      },
-
-      set: function (value) {
-        // prevent setting while applying mixins
-        if (typeof value === 'object' && value !== null && value.isDescriptor) {
-          return;
-        }
-
-        _emberMetal.assert(('You cannot set `' + this + '.isDestroyed` directly, please use ').destroy()(_templateObject), false);
-      }
-    }),
-
-    /**
-      Destruction scheduled flag. The `destroy()` method has been called.
-       The object stays intact until the end of the run loop at which point
-      the `isDestroyed` flag is set.
-       @property isDestroying
-      @default false
-      @public
-    */
-    isDestroying: _emberMetal.descriptor({
-      get: function () {
-        return _emberMetal.meta(this).isSourceDestroying();
-      },
-
-      set: function (value) {
-        // prevent setting while applying mixins
-        if (typeof value === 'object' && value !== null && value.isDescriptor) {
-          return;
-        }
-
-        _emberMetal.assert(('You cannot set `' + this + '.isDestroying` directly, please use ').destroy()(_templateObject), false);
-      }
-    }),
-
-    /**
-      Destroys an object by setting the `isDestroyed` flag and removing its
-      metadata, which effectively destroys observers and bindings.
-       If you try to set a property on a destroyed object, an exception will be
-      raised.
-       Note that destruction is scheduled for the end of the run loop and does not
-      happen immediately.  It will set an isDestroying flag immediately.
-       @method destroy
-      @return {Ember.Object} receiver
-      @public
-    */
-    destroy: function () {
-      var m = _emberMetal.meta(this);
-      if (m.isSourceDestroying()) {
+    set: function (value) {
+      // prevent setting while applying mixins
+      if (typeof value === 'object' && value !== null && value.isDescriptor) {
         return;
       }
 
-      m.setSourceDestroying();
-
-      schedule('actions', this, this.willDestroy);
-      schedule('destroy', this, this._scheduledDestroy, m);
-
-      return this;
-    },
-
-    /**
-      Override to implement teardown.
-       @method willDestroy
-      @public
-    */
-    willDestroy: function () {},
-
-    /**
-      Invoked by the run loop to actually destroy the object. This is
-      scheduled for execution by the `destroy` method.
-       @private
-      @method _scheduledDestroy
-    */
-    _scheduledDestroy: function (m) {
-      if (m.isSourceDestroyed()) {
-        return;
-      }
-      _emberMetal.destroy(this);
-      m.setSourceDestroyed();
-    },
-
-    bind: function (to, from) {
-      if (!(from instanceof _emberMetal.Binding)) {
-        from = _emberMetal.Binding.from(from);
-      }
-      from.to(to).connect(this);
-      return from;
-    },
-
-    /**
-      Returns a string representation which attempts to provide more information
-      than Javascript's `toString` typically does, in a generic way for all Ember
-      objects.
-       ```javascript
-      const Person = Ember.Object.extend()
-      person = Person.create()
-      person.toString() //=> "<Person:ember1024>"
-      ```
-       If the object's class is not defined on an Ember namespace, it will
-      indicate it is a subclass of the registered superclass:
-      ```javascript
-      const Student = Person.extend()
-      let student = Student.create()
-      student.toString() //=> "<(subclass of Person):ember1025>"
-      ```
-       If the method `toStringExtension` is defined, its return value will be
-      included in the output.
-       ```javascript
-      const Teacher = Person.extend({
-        toStringExtension() {
-          return this.get('fullName');
-        }
-      });
-      teacher = Teacher.create()
-      teacher.toString(); //=> "<Teacher:ember1026:Tom Dale>"
-      ```
-       @method toString
-      @return {String} string representation
-      @public
-    */
-    toString: function () {
-      var hasToStringExtension = typeof this.toStringExtension === 'function';
-      var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-      var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
-
-      return ret;
+      _emberMetal.assert(('You cannot set `' + this + '.isDestroyed` directly, please use ').destroy()(_templateObject), false);
     }
-  });
+  }), _Mixin$create.isDestroying = _emberMetal.descriptor({
+    get: function () {
+      return _emberMetal.meta(this).isSourceDestroying();
+    },
+
+    set: function (value) {
+      // prevent setting while applying mixins
+      if (typeof value === 'object' && value !== null && value.isDescriptor) {
+        return;
+      }
+
+      _emberMetal.assert(('You cannot set `' + this + '.isDestroying` directly, please use ').destroy()(_templateObject), false);
+    }
+  }), _Mixin$create.destroy = function () {
+    var m = _emberMetal.meta(this);
+    if (m.isSourceDestroying()) {
+      return;
+    }
+
+    m.setSourceDestroying();
+
+    schedule('actions', this, this.willDestroy);
+    schedule('destroy', this, this._scheduledDestroy, m);
+
+    return this;
+  }, _Mixin$create.willDestroy = function () {}, _Mixin$create._scheduledDestroy = function (m) {
+    if (m.isSourceDestroyed()) {
+      return;
+    }
+    _emberMetal.destroy(this);
+    m.setSourceDestroyed();
+  }, _Mixin$create.bind = function (to, from) {
+    if (!(from instanceof _emberMetal.Binding)) {
+      from = _emberMetal.Binding.from(from);
+    }
+    from.to(to).connect(this);
+    return from;
+  }, _Mixin$create.toString = function () {
+    var hasToStringExtension = typeof this.toStringExtension === 'function';
+    var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
+    var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
+
+    return ret;
+  }, _Mixin$create));
 
   CoreObject.PrototypeMixin.ownerConstructor = CoreObject;
 
@@ -17717,7 +17519,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     isClass: true,
 
     isMethod: false,
-
     /**
       Creates a new subclass.
        ```javascript
@@ -18083,6 +17884,201 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
   exports.default = CoreObject;
 });
+// Private, and only for didInitAttrs willRecieveAttrs
+
+/**
+  Defines the properties that will be concatenated from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by combining the superclass' property
+  value with the subclass' value. An example of this in use within Ember
+  is the `classNames` property of `Ember.View`.
+   Here is some sample code showing the difference between a concatenated
+  property and a normal one:
+   ```javascript
+  const Bar = Ember.Object.extend({
+    // Configure which properties to concatenate
+    concatenatedProperties: ['concatenatedProperty'],
+     someNonConcatenatedProperty: ['bar'],
+    concatenatedProperty: ['bar']
+  });
+   const FooBar = Bar.extend({
+    someNonConcatenatedProperty: ['foo'],
+    concatenatedProperty: ['foo']
+  });
+   let fooBar = FooBar.create();
+  fooBar.get('someNonConcatenatedProperty'); // ['foo']
+  fooBar.get('concatenatedProperty'); // ['bar', 'foo']
+  ```
+   This behavior extends to object creation as well. Continuing the
+  above example:
+   ```javascript
+  let fooBar = FooBar.create({
+    someNonConcatenatedProperty: ['baz'],
+    concatenatedProperty: ['baz']
+  })
+  fooBar.get('someNonConcatenatedProperty'); // ['baz']
+  fooBar.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
+  ```
+   Adding a single property that is not an array will just add it in the array:
+   ```javascript
+  let fooBar = FooBar.create({
+    concatenatedProperty: 'baz'
+  })
+  view.get('concatenatedProperty'); // ['bar', 'foo', 'baz']
+  ```
+   Using the `concatenatedProperties` property, we can tell Ember to mix the
+  content of the properties.
+   In `Ember.Component` the `classNames`, `classNameBindings` and
+  `attributeBindings` properties are concatenated.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual concatenated property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property concatenatedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Defines the properties that will be merged from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by merging the superclass property value
+  with the subclass property's value. An example of this in use within Ember
+  is the `queryParams` property of routes.
+   Here is some sample code showing the difference between a merged
+  property and a normal one:
+   ```javascript
+  const Bar = Ember.Object.extend({
+    // Configure which properties are to be merged
+    mergedProperties: ['mergedProperty'],
+     someNonMergedProperty: {
+      nonMerged: 'superclass value of nonMerged'
+    },
+    mergedProperty: {
+      page: {replace: false},
+      limit: {replace: true}
+    }
+  });
+   const FooBar = Bar.extend({
+    someNonMergedProperty: {
+      completelyNonMerged: 'subclass value of nonMerged'
+    },
+    mergedProperty: {
+      limit: {replace: false}
+    }
+  });
+   let fooBar = FooBar.create();
+   fooBar.get('someNonMergedProperty');
+  // => { completelyNonMerged: 'subclass value of nonMerged' }
+  //
+  // Note the entire object, including the nonMerged property of
+  // the superclass object, has been replaced
+   fooBar.get('mergedProperty');
+  // => {
+  //   page: {replace: false},
+  //   limit: {replace: false}
+  // }
+  //
+  // Note the page remains from the superclass, and the
+  // `limit` property's value of `false` has been merged from
+  // the subclass.
+  ```
+   This behavior is not available during object `create` calls. It is only
+  available at `extend` time.
+   In `Ember.Route` the `queryParams` property is merged.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual merged property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property mergedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Destroyed object property flag.
+   if this property is `true` the observers and bindings were already
+  removed by the effect of calling the `destroy()` method.
+   @property isDestroyed
+  @default false
+  @public
+*/
+
+/**
+  Destruction scheduled flag. The `destroy()` method has been called.
+   The object stays intact until the end of the run loop at which point
+  the `isDestroyed` flag is set.
+   @property isDestroying
+  @default false
+  @public
+*/
+
+/**
+  Destroys an object by setting the `isDestroyed` flag and removing its
+  metadata, which effectively destroys observers and bindings.
+   If you try to set a property on a destroyed object, an exception will be
+  raised.
+   Note that destruction is scheduled for the end of the run loop and does not
+  happen immediately.  It will set an isDestroying flag immediately.
+   @method destroy
+  @return {Ember.Object} receiver
+  @public
+*/
+
+/**
+  Override to implement teardown.
+   @method willDestroy
+  @public
+*/
+
+/**
+  Invoked by the run loop to actually destroy the object. This is
+  scheduled for execution by the `destroy` method.
+   @private
+  @method _scheduledDestroy
+*/
+
+/**
+  Returns a string representation which attempts to provide more information
+  than Javascript's `toString` typically does, in a generic way for all Ember
+  objects.
+   ```javascript
+  const Person = Ember.Object.extend()
+  person = Person.create()
+  person.toString() //=> "<Person:ember1024>"
+  ```
+   If the object's class is not defined on an Ember namespace, it will
+  indicate it is a subclass of the registered superclass:
+  ```javascript
+  const Student = Person.extend()
+  let student = Student.create()
+  student.toString() //=> "<(subclass of Person):ember1025>"
+  ```
+   If the method `toStringExtension` is defined, its return value will be
+  included in the output.
+   ```javascript
+  const Teacher = Person.extend({
+    toStringExtension() {
+      return this.get('fullName');
+    }
+  });
+  teacher = Teacher.create()
+  teacher.toString(); //=> "<Teacher:ember1026:Tom Dale>"
+  ```
+   @method toString
+  @return {String} string representation
+  @public
+*/
 enifed('ember-runtime/system/each_proxy', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsArray) {
   'use strict';
 
@@ -19299,7 +19295,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+e5174c7d";
+  exports.default = "2.10.0-alpha.1-canary+1b75abfd";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
