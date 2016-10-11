@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+1b75abfd
+ * @version   2.10.0-alpha.1-canary+8cb34f3b
  */
 
 var enifed, requireModule, require, Ember;
@@ -14512,13 +14512,19 @@ babelHelpers.classCallCheck(this, _class);
       }, /didInitAttrs called/);
     };
 
-    _class.prototype['@test did{Init,Receive}Attrs fires after .init() but before observers become active'] = function testDidInitReceiveAttrsFiresAfterInitButBeforeObserversBecomeActive(assert) {
+    // This test is a replication of the "component unit tests" scenario. When we deprecate
+    // and remove them, this test could be removed as well. This is not fully/intentionally
+    // supported, and it is unclear that this particular behavior is actually relied on.
+    // Since there is no real "invocation" here, it has other issues and inconsistencies,
+    // like there is no real "attrs" here, and there is no "update" pass.
+
+    _class.prototype['@test did{Init,Receive}Attrs fires even if component is not rendered'] = function testDidInitReceiveAttrsFiresEvenIfComponentIsNotRendered(assert) {
       var _this74 = this;
 
       expectDeprecation(/didInitAttrs called/);
 
-      var fooDidChangeCount = 0;
-      var barDidChangeCount = 0;
+      var didInitAttrsCount = 0;
+      var didReceiveAttrsCount = 0;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14526,48 +14532,102 @@ babelHelpers.classCallCheck(this, _class);
             this._super.apply(this, arguments);
             this.didInit = true;
           },
-          didInitAttrs: function (attrs) {
+
+          didInitAttrs: function () {
             assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
-            this.set('foo', attrs.foo);
+            didInitAttrsCount++;
           },
 
-          willReceieveAttrs: function (attrs) {
-            assert.ok(this.didInit, 'expected init to have run before willReceieveAttrs');
-            this.set('bar', attrs.bar);
+          didReceiveAttrs: function () {
+            assert.ok(this.didInit, 'expected init to have run before didReceiveAttrs');
+            didReceiveAttrsCount++;
           },
 
-          fooDidChange: _emberMetal.observer('foo', function () {
-            fooDidChangeCount++;
+          willRender: function () {
+            throw new Error('Unexpected render!');
+          }
+        })
+      });
+
+      assert.strictEqual(didInitAttrsCount, 0, 'precond: didInitAttrs is not fired');
+      assert.strictEqual(didReceiveAttrsCount, 0, 'precond: didReceiveAttrs is not fired');
+
+      this.runTask(function () {
+        return _this74.component = _this74.owner.lookup('component:foo-bar');
+      });
+
+      assert.strictEqual(didInitAttrsCount, 1, 'precond: didInitAttrs is fired');
+      assert.strictEqual(didReceiveAttrsCount, 1, 'precond: didReceiveAttrs is fired');
+    };
+
+    _class.prototype['@test did{Init,Receive}Attrs fires after .init() but before observers become active'] = function testDidInitReceiveAttrsFiresAfterInitButBeforeObserversBecomeActive(assert) {
+      var _this75 = this;
+
+      expectDeprecation(/didInitAttrs called/);
+
+      var fooCopyDidChangeCount = 0;
+      var barCopyDidChangeCount = 0;
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.didInit = true;
+          },
+
+          didInitAttrs: function (_ref2) {
+            var attrs = _ref2.attrs;
+
+            assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
+            this.set('fooCopy', attrs.foo.value + 1);
+          },
+
+          didReceiveAttrs: function (_ref3) {
+            var newAttrs = _ref3.newAttrs;
+
+            assert.ok(this.didInit, 'expected init to have run before didReceiveAttrs');
+            this.set('barCopy', newAttrs.bar.value + 1);
+          },
+
+          fooCopyDidChange: _emberMetal.observer('fooCopy', function () {
+            fooCopyDidChangeCount++;
           }),
-          barDidChange: _emberMetal.observer('bar', function () {
-            barDidChangeCount++;
+          barCopyDidChange: _emberMetal.observer('barCopy', function () {
+            barCopyDidChangeCount++;
           })
         }),
-        template: ''
+
+        template: '{{foo}}-{{fooCopy}}-{{bar}}-{{barCopy}}'
       });
 
-      this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 1 });
+      this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
 
-      assert.equal(fooDidChangeCount, 0, 'expected NO observer firing for: foo');
-      assert.equal(barDidChangeCount, 0, 'expected NO observer firing for: bar');
+      this.assertText('1-2-3-4');
+
+      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected NO observer firing for: fooCopy');
+      assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
 
       this.runTask(function () {
-        return _emberMetal.set(_this74.context, 'foo', 2);
+        return _emberMetal.set(_this75.context, 'foo', 5);
       });
 
-      assert.equal(fooDidChangeCount, 1, 'expected observer firing for: foo');
-      assert.equal(barDidChangeCount, 0, 'expected NO observer firing for: bar');
+      this.assertText('5-2-3-4');
+
+      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected observer firing for: fooCopy');
+      assert.strictEqual(barCopyDidChangeCount, 0, 'expected NO observer firing for: barCopy');
 
       this.runTask(function () {
-        return _emberMetal.set(_this74.context, 'bar', 2);
+        return _emberMetal.set(_this75.context, 'bar', 7);
       });
 
-      assert.equal(fooDidChangeCount, 1, 'expected observer firing for: foo');
-      assert.equal(barDidChangeCount, 1, 'expected observer firing for: bar');
+      this.assertText('5-2-7-8');
+
+      assert.strictEqual(fooCopyDidChangeCount, 0, 'expected observer firing for: fooCopy');
+      assert.strictEqual(barCopyDidChangeCount, 1, 'expected observer firing for: barCopy');
     };
 
     _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function testReturningTrueFromAnActionDoesNotBubbleIfTargetIsNotSpecifiedGH14275(assert) {
-      var _this75 = this;
+      var _this76 = this;
 
       this.registerComponent('display-toggle', {
         ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
@@ -14591,12 +14651,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this75.$('button').click();
+        return _this76.$('button').click();
       });
     };
 
     _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function testReturningTrueFromAnActionBubblesToTheTargetIfSpecified(assert) {
-      var _this76 = this;
+      var _this77 = this;
 
       assert.expect(4);
 
@@ -14623,12 +14683,12 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this76.$('button').click();
+        return _this77.$('button').click();
       });
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function testComponentYieldingInAnEachHasCorrectBlockValuesAfterRerenderingGH14284() {
-      var _this77 = this;
+      var _this78 = this;
 
       this.registerComponent('list-items', {
         template: '{{#each items as |item|}}{{yield item}}{{/each}}'
@@ -14644,13 +14704,13 @@ babelHelpers.classCallCheck(this, _class);
       this.assertStableRerender();
 
       this.runTask(function () {
-        return _emberMetal.set(_this77.context, 'editMode', true);
+        return _emberMetal.set(_this78.context, 'editMode', true);
       });
 
       this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
 
       this.runTask(function () {
-        return _emberMetal.set(_this77.context, 'editMode', false);
+        return _emberMetal.set(_this78.context, 'editMode', false);
       });
 
       this.assertText('|foo||bar||qux||baz|');
