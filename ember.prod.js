@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5-beta+c5ac34b5
+ * @version   2.9.0-beta.5-beta+78885cdb
  */
 
 var enifed, requireModule, require, Ember;
@@ -10178,37 +10178,14 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
     CurlyComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       validatePositionalParameters(args.named, args.positional.values, definition.ComponentClass.positionalParams);
 
-      if (definition.args) {
-        var newNamed = args.named.map;
-        var newPositional = args.positional.values;
-
-        var oldNamed = definition.args.named.map;
-        var oldPositional = definition.args.positional.values;
-
-        // Merge positional arrays
-        var mergedPositional = [];
-
-        mergedPositional.push.apply(mergedPositional, oldPositional);
-        mergedPositional.splice.apply(mergedPositional, [0, newPositional.length].concat(newPositional));
-
-        // Merge named maps
-        var mergedNamed = _emberUtils.assign({}, oldNamed, newNamed);
-
-        // THOUGHT: It might be nice to have a static method on EvaluatedArgs that
-        // can merge two sets of args for us.
-        var mergedArgs = _glimmerRuntime.EvaluatedArgs.create(_glimmerRuntime.EvaluatedPositionalArgs.create(mergedPositional), _glimmerRuntime.EvaluatedNamedArgs.create(mergedNamed));
-
-        return mergedArgs;
-      }
-
-      return args;
+      return _emberGlimmerUtilsProcessArgs.gatherArgs(args, definition);
     };
 
     CurlyComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, callerSelfRef, hasBlock) {
       var parentView = dynamicScope.view;
 
       var klass = definition.ComponentClass;
-      var processedArgs = _emberGlimmerUtilsProcessArgs.default(args, klass.positionalParams);
+      var processedArgs = _emberGlimmerUtilsProcessArgs.ComponentArgs.create(args);
 
       var _processedArgs$value = processedArgs.value();
 
@@ -11776,24 +11753,58 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
     return ArrayIterable;
   })();
 });
-enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-reference', 'ember-glimmer/component', 'ember-glimmer/utils/references', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _glimmerReference, _emberGlimmerComponent, _emberGlimmerUtilsReferences, _emberViews, _emberGlimmerHelpersAction) {
+enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-reference', 'ember-glimmer/component', 'ember-glimmer/utils/references', 'ember-views', 'ember-glimmer/helpers/action', 'glimmer-runtime'], function (exports, _emberUtils, _glimmerReference, _emberGlimmerComponent, _emberGlimmerUtilsReferences, _emberViews, _emberGlimmerHelpersAction, _glimmerRuntime) {
   'use strict';
 
-  exports.default = processArgs;
+  exports.gatherArgs = gatherArgs;
 
-  function processArgs(args, positionalParamsDefinition) {
-    if (!positionalParamsDefinition || positionalParamsDefinition.length === 0 || args.positional.length === 0) {
-      return SimpleArgs.create(args);
-    } else if (typeof positionalParamsDefinition === 'string') {
-      return RestArgs.create(args, positionalParamsDefinition);
+  // Maps all variants of positional and dynamically scoped arguments
+  // into the named arguments. Input `args` and return value are both
+  // `EvaluatedArgs`.
+
+  function gatherArgs(args, definition) {
+    var namedMap = gatherNamedMap(args, definition);
+    var positionalValues = gatherPositionalValues(args, definition);
+    return mergeArgs(namedMap, positionalValues, definition.ComponentClass);
+  }
+
+  function gatherNamedMap(args, definition) {
+    var namedMap = args.named.map;
+    if (definition.args) {
+      return _emberUtils.assign({}, definition.args.named.map, namedMap);
     } else {
-      return PositionalArgs.create(args, positionalParamsDefinition);
+      return namedMap;
     }
+  }
+
+  function gatherPositionalValues(args, definition) {
+    var positionalValues = args.positional.values;
+    if (definition.args) {
+      var oldPositional = definition.args.positional.values;
+      var newPositional = [];
+      newPositional.push.apply(newPositional, oldPositional);
+      newPositional.splice.apply(newPositional, [0, positionalValues.length].concat(positionalValues));
+      return newPositional;
+    } else {
+      return positionalValues;
+    }
+  }
+
+  function mergeArgs(namedMap, positionalValues, componentClass) {
+    var positionalParamsDefinition = componentClass.positionalParams;
+
+    if (positionalParamsDefinition && positionalParamsDefinition.length > 0 && positionalValues.length > 0) {
+      if (typeof positionalParamsDefinition === 'string') {
+        namedMap = mergeRestArg(namedMap, positionalValues, positionalParamsDefinition);
+      } else {
+        namedMap = mergePositionalParams(namedMap, positionalValues, positionalParamsDefinition);
+      }
+    }
+    return _glimmerRuntime.EvaluatedArgs.named(namedMap);
   }
 
   var EMPTY_ARGS = {
     tag: _glimmerReference.CONSTANT_TAG,
-
     value: function () {
       var _props;
 
@@ -11801,23 +11812,25 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-r
     }
   };
 
-  var SimpleArgs = (function () {
-    SimpleArgs.create = function create(_ref) {
-      var named = _ref.named;
+  // ComponentArgs takes EvaluatedNamedArgs and converts them into the
+  // inputs needed by CurlyComponents (attrs and props, with mutable
+  // cells, etc).
 
-      if (named.keys.length === 0) {
+  var ComponentArgs = (function () {
+    ComponentArgs.create = function create(args) {
+      if (args.named.keys.length === 0) {
         return EMPTY_ARGS;
       } else {
-        return new SimpleArgs(named);
+        return new ComponentArgs(args.named);
       }
     };
 
-    function SimpleArgs(namedArgs) {
+    function ComponentArgs(namedArgs) {
       this.tag = namedArgs.tag;
       this.namedArgs = namedArgs;
     }
 
-    SimpleArgs.prototype.value = function value() {
+    ComponentArgs.prototype.value = function value() {
       var namedArgs = this.namedArgs;
 
       var keys = namedArgs.keys;
@@ -11847,8 +11860,26 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-r
       return { attrs: attrs, props: props };
     };
 
-    return SimpleArgs;
+    return ComponentArgs;
   })();
+
+  exports.ComponentArgs = ComponentArgs;
+
+  function mergeRestArg(namedMap, positionalValues, restArgName) {
+    var mergedNamed = _emberUtils.assign({}, namedMap);
+    mergedNamed[restArgName] = _glimmerRuntime.EvaluatedPositionalArgs.create(positionalValues);
+    return mergedNamed;
+  }
+
+  function mergePositionalParams(namedMap, values, positionalParamNames) {
+    var mergedNamed = _emberUtils.assign({}, namedMap);
+    var length = Math.min(values.length, positionalParamNames.length);
+    for (var i = 0; i < length; i++) {
+      var _name2 = positionalParamNames[i];
+      mergedNamed[_name2] = values[i];
+    }
+    return mergedNamed;
+  }
 
   var REF = _emberUtils.symbol('REF');
 
@@ -11864,69 +11895,6 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-r
     };
 
     return MutableCell;
-  })();
-
-  var RestArgs = (function () {
-    RestArgs.create = function create(args, restArgName) {
-      return new RestArgs(args, restArgName);
-    };
-
-    function RestArgs(args, restArgName) {
-      this.tag = args.tag;
-      this.simpleArgs = SimpleArgs.create(args);
-      this.positionalArgs = args.positional;
-      this.restArgName = restArgName;
-    }
-
-    RestArgs.prototype.value = function value() {
-      var simpleArgs = this.simpleArgs;
-      var positionalArgs = this.positionalArgs;
-      var restArgName = this.restArgName;
-
-      var result = simpleArgs.value();
-
-      result.props[_emberGlimmerComponent.ARGS] = positionalArgs;
-      result.attrs[restArgName] = result.props[restArgName] = positionalArgs.value();
-
-      return result;
-    };
-
-    return RestArgs;
-  })();
-
-  var PositionalArgs = (function () {
-    PositionalArgs.create = function create(args, positionalParamNames) {
-      if (args.positional.length < positionalParamNames.length) {
-        positionalParamNames = positionalParamNames.slice(0, args.positional.length);
-      }
-
-      return new PositionalArgs(args, positionalParamNames);
-    };
-
-    function PositionalArgs(args, positionalParamNames) {
-      this.tag = args.tag;
-      this.simpleArgs = SimpleArgs.create(args);
-      this.positionalArgs = args.positional;
-      this.positionalParamNames = positionalParamNames;
-    }
-
-    PositionalArgs.prototype.value = function value() {
-      var simpleArgs = this.simpleArgs;
-      var positionalArgs = this.positionalArgs;
-      var positionalParamNames = this.positionalParamNames;
-
-      var result = simpleArgs.value();
-
-      for (var i = 0; i < positionalParamNames.length; i++) {
-        var _name2 = positionalParamNames[i];
-        var reference = result.props[_emberGlimmerComponent.ARGS][_name2] = positionalArgs.at(i);
-        result.attrs[_name2] = result.props[_name2] = reference.value();
-      }
-
-      return result;
-    };
-
-    return PositionalArgs;
   })();
 });
 enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime'], function (exports, _emberUtils, _emberMetal, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntime) {
@@ -37997,7 +37965,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.5-beta+c5ac34b5";
+  exports.default = "2.9.0-beta.5-beta+78885cdb";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
