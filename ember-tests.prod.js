@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+6a3706a8
+ * @version   2.10.0-alpha.1-canary+e5174c7d
  */
 
 var enifed, requireModule, require, Ember;
@@ -49327,6 +49327,14 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal', 'inte
     }));
 
     equal(called, 1, 'calls observer when object is pushed');
+  });
+
+  QUnit.test('@each is readOnly', function () {
+    expect(1);
+
+    throws(function () {
+      _emberMetal.set(ary, '@each', 'foo');
+    }, /Cannot set read-only property "@each"/);
   });
 
   QUnit.test('using @each to observe arrays that does not return objects raise error', function () {

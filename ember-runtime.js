@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+6a3706a8
+ * @version   2.10.0-alpha.1-canary+e5174c7d
  */
 
 var enifed, requireModule, require, Ember;
@@ -13435,7 +13435,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     }
 
     return this.__each;
-  }).volatile(), _Mixin$create));
+  }).volatile().readOnly(), _Mixin$create));
 
   if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
     ArrayMixin.reopen({
@@ -19299,7 +19299,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+6a3706a8";
+  exports.default = "2.10.0-alpha.1-canary+e5174c7d";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
