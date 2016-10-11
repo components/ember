@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+dacff2b1
+ * @version   2.10.0-alpha.1-canary+6a3706a8
  */
 
 var enifed, requireModule, require, Ember;
@@ -33307,7 +33307,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
        @method objectAtContent
       @param {Number} idx The index to retrieve.
       @return {Object} the value or undefined if none found
-      @private
+      @public
     */
     objectAtContent: function (idx) {
       return _emberRuntimeMixinsArray.objectAt(_emberMetal.get(this, 'arrangedContent'), idx);
@@ -39318,7 +39318,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+dacff2b1";
+  exports.default = "2.10.0-alpha.1-canary+6a3706a8";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
