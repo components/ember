@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+1ca3fd71
+ * @version   2.10.0-alpha.1-canary+e9b33b43
  */
 
 var enifed, requireModule, require, Ember;
@@ -14974,6 +14974,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
   }
 
   ComputedProperty.prototype = new _emberMetalProperties.Descriptor();
+  ComputedProperty.prototype.constructor = ComputedProperty;
 
   var ComputedPropertyPrototype = ComputedProperty.prototype;
 
@@ -39285,7 +39286,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+1ca3fd71";
+  exports.default = "2.10.0-alpha.1-canary+e9b33b43";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
