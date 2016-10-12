@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+e907e182
+ * @version   2.10.0-alpha.1-canary+ae0ca0f3
  */
 
 var enifed, requireModule, require, Ember;
@@ -24630,6 +24630,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @public
     */
     paramsFor: function (name) {
+      var _this2 = this;
+
       var route = _emberUtils.getOwner(this).lookup('route:' + name);
 
       if (!route) {
@@ -24639,14 +24641,15 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var transition = this.router.router.activeTransition;
       var state = transition ? transition.state : this.router.router.state;
 
-      var params = {};
       var fullName = getEngineRouteName(_emberUtils.getOwner(this), name);
+      var params = _emberUtils.assign({}, state.params[fullName]);
+      var queryParams = getQueryParamsFor(route, state);
 
-      _emberUtils.assign(params, state.params[fullName]);
-
-      _emberUtils.assign(params, getQueryParamsFor(route, state));
-
-      return params;
+      return Object.keys(queryParams).reduce(function (params, key) {
+        _emberMetal.assert('The route \'' + _this2.routeName + '\' has both a dynamic segment and query param with name \'' + key + '\'. Please rename one to avoid collisions.', !params[key]);
+        params[key] = queryParams[key];
+        return params;
+      }, params);
     },
 
     /**
@@ -25383,7 +25386,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @method setup
     */
     setup: function (context, transition) {
-      var _this2 = this;
+      var _this3 = this;
 
       var controller = undefined;
 
@@ -25410,11 +25413,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       if (transition) {
         (function () {
           // Update the model dep values used to calculate cache keys.
-          _emberRoutingUtils.stashParamNames(_this2.router, transition.state.handlerInfos);
+          _emberRoutingUtils.stashParamNames(_this3.router, transition.state.handlerInfos);
 
           var params = transition.params;
           var allParams = queryParams.propertyNames;
-          var cache = _this2._bucketCache;
+          var cache = _this3._bucketCache;
 
           allParams.forEach(function (prop) {
             var aQp = queryParams.map[prop];
@@ -27034,26 +27037,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     _serializeQueryParams: function (targetRouteName, queryParams) {
-      var groupedByUrlKey = {};
-
       forEachQueryParam(this, targetRouteName, queryParams, function (key, value, qp) {
-        var urlKey = qp.urlKey;
-        if (!groupedByUrlKey[urlKey]) {
-          groupedByUrlKey[urlKey] = [];
-        }
-        groupedByUrlKey[urlKey].push({
-          qp: qp,
-          value: value
-        });
         delete queryParams[key];
+        queryParams[qp.urlKey] = qp.route.serializeQueryParam(value, qp.urlKey, qp.type);
       });
-
-      for (var key in groupedByUrlKey) {
-        var qps = groupedByUrlKey[key];
-        _emberMetal.assert('You\'re not allowed to have more than one controller property map to the same query param key, but both `' + qps[0].qp.scopedPropertyName + '` and `' + (qps[1] ? qps[1].qp.scopedPropertyName : '') + '` map to `' + qps[0].qp.urlKey + '`. You can fix this by mapping one of the controller properties to a different query param key via the `as` config option, e.g. `' + qps[0].qp.prop + ': { as: \'other-' + qps[0].qp.prop + '\' }`', qps.length <= 1);
-        var qp = qps[0].qp;
-        queryParams[qp.urlKey] = qp.route.serializeQueryParam(qps[0].value, qp.urlKey, qp.type);
-      }
     },
 
     _deserializeQueryParams: function (targetRouteName, queryParams) {
@@ -27131,6 +27118,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         return this._qpCache[leafRouteName];
       }
 
+      var qpsByUrlKey = {};
       var map = {};
       var qps = [];
       this._qpCache[leafRouteName] = {
@@ -27150,8 +27138,21 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           continue;
         }
 
+        // Loop over each QP to make sure we don't have any collisions by urlKey
+        for (var _i = 0; _i < qpMeta.qps.length; _i++) {
+          var qp = qpMeta.qps[_i];
+          var urlKey = qp.urlKey;
+
+          if (qpsByUrlKey[urlKey]) {
+            var otherQP = qpsByUrlKey[urlKey];
+            _emberMetal.assert('You\'re not allowed to have more than one controller property map to the same query param key, but both `' + otherQP.scopedPropertyName + '` and `' + qp.scopedPropertyName + '` map to `' + urlKey + '`. You can fix this by mapping one of the controller properties to a different query param key via the `as` config option, e.g. `' + otherQP.prop + ': { as: \'other-' + otherQP.prop + '\' }`', false);
+          }
+
+          qpsByUrlKey[urlKey] = qp;
+          qps.push(qp);
+        }
+
         _emberUtils.assign(map, qpMeta.map);
-        qps.push.apply(qps, qpMeta.qps);
       }
 
       return {
@@ -42260,7 +42261,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+e907e182";
+  exports.default = "2.10.0-alpha.1-canary+ae0ca0f3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -42534,7 +42535,7 @@ enifed('internal-test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering'], function (exports, _internalTestHelpersFactory, _internalTestHelpersBuildOwner, _internalTestHelpersConfirmExport, _internalTestHelpersEqualInnerHtml, _internalTestHelpersEqualTokens, _internalTestHelpersModuleFor, _internalTestHelpersStrip, _internalTestHelpersApplyMixins, _internalTestHelpersMatchers, _internalTestHelpersRun, _internalTestHelpersTestGroups, _internalTestHelpersTestCasesAbstract, _internalTestHelpersTestCasesAbstractApplication, _internalTestHelpersTestCasesApplication, _internalTestHelpersTestCasesAbstractRendering, _internalTestHelpersTestCasesRendering) {
+enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering'], function (exports, _internalTestHelpersFactory, _internalTestHelpersBuildOwner, _internalTestHelpersConfirmExport, _internalTestHelpersEqualInnerHtml, _internalTestHelpersEqualTokens, _internalTestHelpersModuleFor, _internalTestHelpersStrip, _internalTestHelpersApplyMixins, _internalTestHelpersMatchers, _internalTestHelpersRun, _internalTestHelpersTestGroups, _internalTestHelpersTestCasesAbstract, _internalTestHelpersTestCasesAbstractApplication, _internalTestHelpersTestCasesApplication, _internalTestHelpersTestCasesQueryParam, _internalTestHelpersTestCasesAbstractRendering, _internalTestHelpersTestCasesRendering) {
   'use strict';
 
   exports.factory = _internalTestHelpersFactory.default;
@@ -42556,6 +42557,7 @@ enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory
   exports.AbstractTestCase = _internalTestHelpersTestCasesAbstract.default;
   exports.AbstractApplicationTestCase = _internalTestHelpersTestCasesAbstractApplication.default;
   exports.ApplicationTestCase = _internalTestHelpersTestCasesApplication.default;
+  exports.QueryParamTestCase = _internalTestHelpersTestCasesQueryParam.default;
   exports.AbstractRenderingTestCase = _internalTestHelpersTestCasesAbstractRendering.default;
   exports.RenderingTestCase = _internalTestHelpersTestCasesRendering.default;
 });
@@ -42767,9 +42769,7 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
 
       this.application = _emberMetal.run(_emberApplication.Application, 'create', this.applicationOptions);
 
-      this.router = this.application.Router = _emberRouting.Router.extend({
-        location: 'none'
-      });
+      this.router = this.application.Router = _emberRouting.Router.extend(this.routerOptions);
 
       this.applicationInstance = null;
     }
@@ -42841,6 +42841,13 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
         return {
           rootElement: '#qunit-fixture',
           autoboot: false
+        };
+      }
+    }, {
+      key: 'routerOptions',
+      get: function () {
+        return {
+          location: 'none'
         };
       }
     }]);
@@ -43189,6 +43196,98 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'internal-tes
   })(_internalTestHelpersTestCasesAbstractApplication.default);
 
   exports.default = ApplicationTestCase;
+});
+enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-routing', 'ember-metal', 'internal-test-helpers/test-cases/application'], function (exports, _emberRouting, _emberMetal, _internalTestHelpersTestCasesApplication) {
+  'use strict';
+
+  var QueryParamTestCase = (function (_ApplicationTestCase) {
+    babelHelpers.inherits(QueryParamTestCase, _ApplicationTestCase);
+
+    function QueryParamTestCase() {
+      babelHelpers.classCallCheck(this, QueryParamTestCase);
+
+      _ApplicationTestCase.call(this);
+
+      var testCase = this;
+      testCase.expectedPushURL = null;
+      testCase.expectedReplaceURL = null;
+      this.application.register('location:test', _emberRouting.NoneLocation.extend({
+        setURL: function (path) {
+          if (testCase.expectedReplaceURL) {
+            testCase.assert.ok(false, 'pushState occurred but a replaceState was expected');
+          }
+
+          if (testCase.expectedPushURL) {
+            testCase.assert.equal(path, testCase.expectedPushURL, 'an expected pushState occurred');
+            testCase.expectedPushURL = null;
+          }
+
+          this.set('path', path);
+        },
+
+        replaceURL: function (path) {
+          if (testCase.expectedPushURL) {
+            testCase.assert.ok(false, 'replaceState occurred but a pushState was expected');
+          }
+
+          if (testCase.expectedReplaceURL) {
+            testCase.assert.equal(path, testCase.expectedReplaceURL, 'an expected replaceState occurred');
+            testCase.expectedReplaceURL = null;
+          }
+
+          this.set('path', path);
+        }
+      }));
+    }
+
+    QueryParamTestCase.prototype.visitAndAssert = function visitAndAssert(path) {
+      var _this = this;
+
+      return this.visit.apply(this, arguments).then(function () {
+        _this.assertCurrentPath(path);
+      });
+    };
+
+    QueryParamTestCase.prototype.getController = function getController(name) {
+      return this.applicationInstance.lookup('controller:' + name);
+    };
+
+    QueryParamTestCase.prototype.getRoute = function getRoute(name) {
+      return this.applicationInstance.lookup('route:' + name);
+    };
+
+    QueryParamTestCase.prototype.setAndFlush = function setAndFlush(obj, prop, value) {
+      return _emberMetal.run(obj, 'set', prop, value);
+    };
+
+    QueryParamTestCase.prototype.assertCurrentPath = function assertCurrentPath(path) {
+      var message = arguments.length <= 1 || arguments[1] === undefined ? 'current path equals \'' + path + '\'' : arguments[1];
+      return (function () {
+        this.assert.equal(this.appRouter.get('location.path'), path, message);
+      }).apply(this, arguments);
+    };
+
+    QueryParamTestCase.prototype.transitionTo = function transitionTo() {
+      return _emberMetal.run.apply(undefined, [this.appRouter, 'transitionTo'].concat(babelHelpers.slice.call(arguments)));
+    };
+
+    babelHelpers.createClass(QueryParamTestCase, [{
+      key: 'appRouter',
+      get: function () {
+        return this.applicationInstance.lookup('router:main');
+      }
+    }, {
+      key: 'routerOptions',
+      get: function () {
+        return {
+          location: 'test'
+        };
+      }
+    }]);
+    return QueryParamTestCase;
+  })(_internalTestHelpersTestCasesApplication.default);
+
+  exports.default = QueryParamTestCase;
 });
 enifed('internal-test-helpers/test-cases/rendering', ['exports', 'ember-views', 'internal-test-helpers/test-cases/abstract-rendering'], function (exports, _emberViews, _internalTestHelpersTestCasesAbstractRendering) {
   'use strict';
