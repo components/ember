@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5-beta+9f49f211
+ * @version   2.9.0-beta.5-beta+add4de15
  */
 
 var enifed, requireModule, require, Ember;
@@ -13239,7 +13239,7 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
 
   exports.Binding = Binding;
 });
-enifed('ember-metal/cache', ['exports', 'ember-utils'], function (exports, _emberUtils) {
+enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], function (exports, _emberUtils, _emberMetalMeta) {
   'use strict';
 
   var Cache = (function () {
@@ -13259,7 +13259,7 @@ enifed('ember-metal/cache', ['exports', 'ember-utils'], function (exports, _embe
       if (value === undefined) {
         this.misses++;
         value = this._set(key, this.func(obj));
-      } else if (value === UNDEFINED) {
+      } else if (value === _emberMetalMeta.UNDEFINED) {
         this.hits++;
         value = undefined;
       } else {
@@ -13279,7 +13279,7 @@ enifed('ember-metal/cache', ['exports', 'ember-utils'], function (exports, _embe
       if (this.limit > this.size) {
         this.size++;
         if (value === undefined) {
-          this.store.set(key, UNDEFINED);
+          this.store.set(key, _emberMetalMeta.UNDEFINED);
         } else {
           this.store.set(key, value);
         }
@@ -13299,8 +13299,6 @@ enifed('ember-metal/cache', ['exports', 'ember-utils'], function (exports, _embe
   })();
 
   exports.default = Cache;
-
-  function UNDEFINED() {}
 
   var DefaultStore = (function () {
     function DefaultStore() {
@@ -13690,8 +13688,6 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
   @submodule ember-metal
   */
 
-  function UNDEFINED() {}
-
   var DEEP_EACH_REGEX = /\.@each\.[^.]+\./;
 
   /**
@@ -13981,7 +13977,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
     var cache = meta.writableCache();
 
     var result = cache[keyName];
-    if (result === UNDEFINED) {
+    if (result === _emberMetalMeta.UNDEFINED) {
       return undefined;
     } else if (result !== undefined) {
       return result;
@@ -13989,7 +13985,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
 
     var ret = this._getter.call(obj, keyName);
     if (ret === undefined) {
-      cache[keyName] = UNDEFINED;
+      cache[keyName] = _emberMetalMeta.UNDEFINED;
     } else {
       cache[keyName] = ret;
     }
@@ -14052,7 +14048,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
     var hadCachedValue = false;
     var cachedValue = undefined;
     if (cache[keyName] !== undefined) {
-      if (cache[keyName] !== UNDEFINED) {
+      if (cache[keyName] !== _emberMetalMeta.UNDEFINED) {
         cachedValue = cache[keyName];
       }
       hadCachedValue = true;
@@ -14076,7 +14072,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
     }
 
     if (ret === undefined) {
-      cache[keyName] = UNDEFINED;
+      cache[keyName] = _emberMetalMeta.UNDEFINED;
     } else {
       cache[keyName] = ret;
     }
@@ -14221,7 +14217,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
     var cache = meta && meta.source === obj && meta.readableCache();
     var ret = cache && cache[key];
 
-    if (ret === UNDEFINED) {
+    if (ret === _emberMetalMeta.UNDEFINED) {
       return undefined;
     }
     return ret;
@@ -14229,7 +14225,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
 
   cacheFor.set = function (cache, key, value) {
     if (value === undefined) {
-      cache[key] = UNDEFINED;
+      cache[key] = _emberMetalMeta.UNDEFINED;
     } else {
       cache[key] = value;
     }
@@ -14237,7 +14233,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
 
   cacheFor.get = function (cache, key) {
     var ret = cache[key];
-    if (ret === UNDEFINED) {
+    if (ret === _emberMetalMeta.UNDEFINED) {
       return undefined;
     }
     return ret;
@@ -20014,7 +20010,6 @@ enifed('ember-metal/weak_map', ['exports', 'ember-utils', 'ember-metal/meta'], f
   exports.default = WeakMap;
 
   var id = 0;
-  function UNDEFINED() {}
 
   // Returns whether Type(value) is Object according to the terminology in the spec
   function isObject(value) {
@@ -20071,7 +20066,7 @@ enifed('ember-metal/weak_map', ['exports', 'ember-utils', 'ember-metal/meta'], f
     if (meta) {
       var map = meta.readableWeak();
       if (map) {
-        if (map[this._id] === UNDEFINED) {
+        if (map[this._id] === _emberMetalMeta.UNDEFINED) {
           return undefined;
         }
 
@@ -20092,7 +20087,7 @@ enifed('ember-metal/weak_map', ['exports', 'ember-utils', 'ember-metal/meta'], f
     }
 
     if (value === undefined) {
-      value = UNDEFINED;
+      value = _emberMetalMeta.UNDEFINED;
     }
 
     _emberMetalMeta.meta(obj).writableWeak()[this._id] = value;
@@ -37962,7 +37957,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.5-beta+9f49f211";
+  exports.default = "2.9.0-beta.5-beta+add4de15";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
