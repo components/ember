@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5-beta+7c5205c3
+ * @version   2.9.0-beta.5-beta+9f49f211
  */
 
 var enifed, requireModule, require, Ember;
@@ -10394,9 +10394,6 @@ babelHelpers.inherits(TopComponentManager, _CurlyComponentManager);
       var finalizer = _emberMetal._instrumentStart('render.component', initialRenderInstrumentDetails, component);
 
       dynamicScope.view = component;
-
-      component.trigger('didInitAttrs');
-      component.trigger('didReceiveAttrs');
 
       // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
       if (component.tagName === '') {
@@ -37965,7 +37962,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.5-beta+7c5205c3";
+  exports.default = "2.9.0-beta.5-beta+9f49f211";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
