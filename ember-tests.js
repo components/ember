@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+48f2e1d5
+ * @version   2.10.0-alpha.1-canary+05401923
  */
 
 var enifed, requireModule, require, Ember;
@@ -14883,6 +14883,21 @@ babelHelpers.classCallCheck(this, _class);
 
       this.render('{{foo-bar wat}}');
       this.assertText('hello');
+    };
+
+    _class.prototype['@test using attrs for positional params'] = function testUsingAttrsForPositionalParams(assert) {
+      var MyComponent = _emberGlimmerTestsUtilsHelpers.Component.extend();
+
+      this.registerComponent('foo-bar', {
+        ComponentClass: MyComponent.reopenClass({
+          positionalParams: ['myVar']
+        }),
+        template: 'MyVar1: {{attrs.myVar}} {{myVar}} MyVar2: {{myVar2}} {{attrs.myVar2}}'
+      });
+
+      this.render('{{foo-bar 1 myVar2=2}}');
+
+      this.assertText('MyVar1: 1 1 MyVar2: 2 2');
     };
 
     return _class;
