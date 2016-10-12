@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+05401923
+ * @version   2.10.0-alpha.1-canary+e907e182
  */
 
 var enifed, requireModule, require, Ember;
@@ -8114,7 +8114,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
 
       this.element = this.append(this.component);
 
-      assert.deepEqual(hooks, [['x-parent', 'willInsertElement'], ['x-parent', 'willRender'], ['x-child', 'init'], ['x-child', 'didInitAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'on(init)'], ['x-child', 'willInsertElement'], ['x-child', 'willRender'], ['x-child', 'didInsertElement'], ['x-child', 'didRender'], ['x-parent', 'didInsertElement'], ['x-parent', 'didRender']], 'appending of x-parent');
+      assert.deepEqual(hooks, [['x-parent', 'willInsertElement'], ['x-child', 'init'], ['x-child', 'didInitAttrs'], ['x-child', 'didReceiveAttrs'], ['x-child', 'on(init)'], ['x-child', 'willRender'], ['x-child', 'willInsertElement'], ['x-child', 'didInsertElement'], ['x-child', 'didRender'], ['x-parent', 'didInsertElement'], ['x-parent', 'didRender']], 'appending of x-parent');
 
       hooks.length = 0;
 
@@ -16049,7 +16049,7 @@ enifed('ember-glimmer/tests/integration/components/instrumentation-test', ['expo
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-views'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberViews) {
+enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-views', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberViews, _emberGlimmerTestsUtilsTestHelpers) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
@@ -16250,8 +16250,8 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
           assertParentView('willRender', this);
 
           if (this.isInitialRender) {
-            assertElement('willRender', this, false);
-            assertState('willRender', 'hasElement', this);
+            assertNoElement('willRender', this, false);
+            assertState('willRender', 'preRender', this);
           } else {
             assertElement('willRender', this);
             assertState('willRender', 'inDOM', this);
@@ -16372,7 +16372,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-top', 'willInsertElement'], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-middle', 'willInsertElement'], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'on(init)'], ['the-bottom', 'willInsertElement'], ['the-bottom', 'willRender'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -16529,7 +16529,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'on(init)'], ['the-parent', 'willInsertElement'], ['the-parent', 'willRender'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'on(init)'], ['the-first-child', 'willInsertElement'], ['the-first-child', 'willRender'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'on(init)'], ['the-second-child', 'willInsertElement'], ['the-second-child', 'willRender'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'on(init)'], ['the-last-child', 'willInsertElement'], ['the-last-child', 'willRender'],
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { newAttrs: parentAttrs }], ['the-parent', 'on(init)'], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { newAttrs: firstAttrs }], ['the-first-child', 'on(init)'], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { newAttrs: secondAttrs }], ['the-second-child', 'on(init)'], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { newAttrs: lastAttrs }], ['the-last-child', 'on(init)'], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
 
         // Async hooks
 
@@ -16705,7 +16705,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-top', 'willInsertElement'], ['the-top', 'willRender'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-middle', 'willInsertElement'], ['the-middle', 'willRender'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'on(init)'], ['the-bottom', 'willInsertElement'], ['the-bottom', 'willRender'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs }], ['the-top', 'didReceiveAttrs', { newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -16800,11 +16800,11 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       var initialHooks = function (count) {
         var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count } }], ['an-item', 'didReceiveAttrs', { newAttrs: { count: count } }], ['an-item', 'on(init)']];
         if (_this6.isInteractive) {
-          ret.push(['an-item', 'willInsertElement'], ['an-item', 'willRender']);
+          ret.push(['an-item', 'willRender'], ['an-item', 'willInsertElement']);
         }
         ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'on(init)']);
         if (_this6.isInteractive) {
-          ret.push(['nested-item', 'willInsertElement'], ['nested-item', 'willRender']);
+          ret.push(['nested-item', 'willRender'], ['nested-item', 'willInsertElement']);
         }
         return ret;
       };
@@ -16844,7 +16844,7 @@ babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
       this.assertHooks({
         label: 'reset to empty array',
 
-        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'on(init)'], ['no-items', 'willInsertElement'], ['no-items', 'willRender'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'on(init)'], ['nested-item', 'willInsertElement'], ['nested-item', 'willRender'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'on(init)'], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'on(init)'], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
 
         nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {} }], ['no-items', 'didReceiveAttrs', { newAttrs: {} }], ['no-items', 'on(init)'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {} }], ['nested-item', 'didReceiveAttrs', { newAttrs: {} }], ['nested-item', 'on(init)'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
       });
@@ -17063,6 +17063,32 @@ babelHelpers.inherits(_class5, _RenderingTest2);
       });
 
       this.assertText('wat');
+    };
+
+    _class5.prototype['@test `willRender` can set before render (GH#14458)'] = function testWillRenderCanSetBeforeRenderGH14458(assert) {
+      var ComponentClass = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: 'a',
+        customHref: 'http://google.com',
+        attributeBindings: ['customHref:href'],
+        willRender: function () {
+          this.set('customHref', 'http://willRender.com');
+        }
+      });
+
+      var template = 'Hello World';
+
+      this.registerComponent('foo-bar', { ComponentClass: ComponentClass, template: template });
+
+      this.render('{{foo-bar id="foo"}}');
+
+      this.assertElement(this.firstChild, {
+        tagName: 'a',
+        attrs: {
+          id: 'foo',
+          href: 'http://willRender.com',
+          class: _emberGlimmerTestsUtilsTestHelpers.classes('ember-view')
+        }
+      });
     };
 
     return _class5;

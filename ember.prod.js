@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+05401923
+ * @version   2.10.0-alpha.1-canary+e907e182
  */
 
 var enifed, requireModule, require, Ember;
@@ -11091,11 +11091,14 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
 
       // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
       if (component.tagName === '') {
+        if (environment.isInteractive) {
+          component.trigger('willRender');
+        }
+
         component._transitionTo('hasElement');
 
         if (environment.isInteractive) {
           component.trigger('willInsertElement');
-          component.trigger('willRender');
         }
       }
 
@@ -11106,6 +11109,10 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
       }
 
       processComponentInitializationAssertions(component, props);
+
+      if (environment.isInteractive && component.tagName !== '') {
+        component.trigger('willRender');
+      }
 
       return bucket;
     };
@@ -11180,7 +11187,6 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
 
       if (environment.isInteractive) {
         component.trigger('willInsertElement');
-        component.trigger('willRender');
       }
     };
 
@@ -11278,11 +11284,14 @@ babelHelpers.inherits(TopComponentManager, _CurlyComponentManager);
 
       // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
       if (component.tagName === '') {
+        if (environment.isInteractive) {
+          component.trigger('willRender');
+        }
+
         component._transitionTo('hasElement');
 
         if (environment.isInteractive) {
           component.trigger('willInsertElement');
-          component.trigger('willRender');
         }
       }
 
@@ -39292,7 +39301,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+05401923";
+  exports.default = "2.10.0-alpha.1-canary+e907e182";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
