@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+e9b33b43
+ * @version   2.10.0-alpha.1-canary+48f2e1d5
  */
 
 var enifed, requireModule, require, Ember;
@@ -8150,21 +8150,11 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
 
       hooks.length = 0;
 
-      // TODO: deletion needs to be tested, but has other issues and will join us in a later PR
-      // this.runTask(() => this.component.destroy());
+      this.runTask(function () {
+        return _this3.component.destroy();
+      });
 
-      // assert.deepEqual(hooks, [
-      //   [ 'x-parent', 'didDestroyElement' ],
-      //   [ 'x-parent', 'willDestroyElement' ],
-      //   [ 'x-parent', 'willClearRender' ],
-
-      //   [ 'x-child', 'willDestroyElement' ],
-      //   [ 'x-child', 'willClearRender' ],
-      //   [ 'x-child', 'didDestroyElement' ],
-
-      //   [ 'x-parent', 'willDestroy' ],
-      //   [ 'x-child', 'willDestroy' ]
-      // ], 'destroy');
+      assert.deepEqual(hooks, [['x-parent', 'willDestroyElement'], ['x-parent', 'willClearRender'], ['x-child', 'willDestroyElement'], ['x-child', 'willClearRender'], ['x-parent', 'didDestroyElement'], ['x-child', 'didDestroyElement'], ['x-parent', 'willDestroy'], ['x-child', 'willDestroy']], 'destroy');
     };
 
     AbstractAppendTest.prototype['@test appending, updating and destroying a single component'] = function testAppendingUpdatingAndDestroyingASingleComponent(assert) {
