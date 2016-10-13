@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+0004e08a
+ * @version   2.10.0-alpha.1-canary+9bdb6043
  */
 
 var enifed, requireModule, require, Ember;
@@ -24535,12 +24535,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           urlKey: urlKey,
           prop: propName,
           scopedPropertyName: scopedPropertyName,
-          ctrl: controllerName,
+          controllerName: controllerName,
           route: this,
           parts: parts, // provided later when stashNames is called if 'model' scope
           values: null, // provided later when setup is called. no idea why.
-          scope: scope,
-          prefix: ''
+          scope: scope
         };
 
         map[propName] = map[urlKey] = map[scopedPropertyName] = qp;
@@ -24619,7 +24618,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         if (qp.scope === 'model') {
           qp.parts = namePaths;
         }
-        qp.prefix = qp.ctrl;
       }
     },
 
@@ -25470,7 +25468,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
             var aQp = queryParams.map[prop];
 
             aQp.values = params;
-            var cacheKey = _emberRoutingUtils.calculateCacheKey(aQp.prefix, aQp.parts, aQp.values);
+            var cacheKey = _emberRoutingUtils.calculateCacheKey(aQp.controllerName, aQp.parts, aQp.values);
 
             if (cache) {
               var value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
@@ -25504,7 +25502,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         return;
       }
 
-      var cacheKey = _emberRoutingUtils.calculateCacheKey(qp.prefix || '', qp.parts, qp.values);
+      var cacheKey = _emberRoutingUtils.calculateCacheKey(qp.controllerName, qp.parts, qp.values);
 
       // Update model-dep cache
       var cache = this._bucketCache;
@@ -27253,7 +27251,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
               delete queryParams[presentProp];
             }
           } else {
-            var cacheKey = _emberRoutingUtils.calculateCacheKey(qp.ctrl, qp.parts, state.params);
+            var cacheKey = _emberRoutingUtils.calculateCacheKey(qp.controllerName, qp.parts, state.params);
             queryParams[qp.scopedPropertyName] = appCache.lookup(cacheKey, qp.prop, qp.defaultValue);
           }
         }
@@ -42298,7 +42296,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+0004e08a";
+  exports.default = "2.10.0-alpha.1-canary+9bdb6043";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
