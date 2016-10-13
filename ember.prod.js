@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+83fc16b4
+ * @version   2.10.0-alpha.1-canary+0004e08a
  */
 
 var enifed, requireModule, require, Ember;
@@ -12401,7 +12401,7 @@ enifed("ember-glimmer/templates/root", ["exports", "ember-glimmer/template"], fu
 
   exports.default = _emberGlimmerTemplate.default({ "id": "Eaf3RPY3", "block": "{\"statements\":[[\"append\",[\"helper\",[\"component\"],[[\"get\",[null]]],null],false]],\"locals\":[],\"named\":[],\"yields\":[],\"blocks\":[],\"hasPartials\":false}", "meta": { "moduleName": "ember-glimmer/templates/root.hbs" } });
 });
-enifed('ember-glimmer/utils/bindings', ['exports', 'glimmer-runtime', 'ember-metal', 'ember-runtime', 'glimmer-reference', 'ember-glimmer/component', 'ember-glimmer/utils/string'], function (exports, _glimmerRuntime, _emberMetal, _emberRuntime, _glimmerReference, _emberGlimmerComponent, _emberGlimmerUtilsString) {
+enifed('ember-glimmer/utils/bindings', ['exports', 'glimmer-reference', 'glimmer-runtime', 'ember-metal', 'ember-runtime', 'ember-glimmer/component', 'ember-glimmer/utils/string'], function (exports, _glimmerReference, _glimmerRuntime, _emberMetal, _emberRuntime, _emberGlimmerComponent, _emberGlimmerUtilsString) {
   'use strict';
 
   exports.wrapComponentClassAttribute = wrapComponentClassAttribute;
@@ -12495,7 +12495,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'glimmer-runtime', 'ember-met
     function StyleBindingReference(inner, isVisible) {
       _CachedReference.call(this);
 
-      this.tag = inner.tag;
+      this.tag = _glimmerReference.combine([inner.tag, isVisible.tag]);
       this.inner = inner;
       this.isVisible = isVisible;
     }
@@ -12827,7 +12827,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
 
       valueTag.update(_emberMetal.tagFor(iterable));
 
-      if (_emberRuntime.isProxy(iterable)) {
+      if (_emberMetal.isProxy(iterable)) {
         iterable = _emberMetal.get(iterable, 'content');
       }
 
@@ -12883,7 +12883,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
 
       var iterable = ref.value();
 
-      valueTag.update(_emberMetal.tagFor(iterable));
+      valueTag.update(_emberMetal.tagForProperty(iterable, '[]'));
 
       if (!iterable || typeof iterable !== 'object') {
         return EMPTY_ITERATOR;
@@ -13073,7 +13073,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-r
     return MutableCell;
   })();
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-runtime'], function (exports, _emberUtils, _emberMetal, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberRuntime) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal', 'glimmer-reference', 'glimmer-runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper'], function (exports, _emberUtils, _emberMetal, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper) {
   'use strict';
 
   var UPDATE = _emberUtils.symbol('UPDATE');
@@ -13241,9 +13241,9 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       this._propertyKey = propertyKey;
 
       if (false || false) {
-        this.tag = new TwoWayFlushDetectionTag(_emberMetal.tagFor(parentValue), propertyKey, this);
+        this.tag = new TwoWayFlushDetectionTag(_emberMetal.tagForProperty(parentValue, propertyKey), propertyKey, this);
       } else {
-        this.tag = _emberMetal.tagFor(parentValue);
+        this.tag = _emberMetal.tagForProperty(parentValue, propertyKey);
       }
 
       if (false) {
@@ -13299,7 +13299,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
 
       var parentValue = _parentReference.value();
 
-      _parentObjectTag.update(_emberMetal.tagFor(parentValue));
+      _parentObjectTag.update(_emberMetal.tagForProperty(parentValue, _propertyKey));
 
       if (typeof parentValue === 'string' && _propertyKey === 'length') {
         return parentValue.length;
@@ -13381,7 +13381,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       if (_glimmerReference.isConst(reference)) {
         var value = reference.value();
 
-        if (_emberRuntime.isProxy(value)) {
+        if (_emberMetal.isProxy(value)) {
           return new RootPropertyReference(value, 'isTruthy');
         } else {
           return new PrimitiveReference(_emberGlimmerUtilsToBool.default(value));
@@ -13399,11 +13399,11 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
     }
 
     ConditionalReference.prototype.toBool = function toBool(predicate) {
-      this.objectTag.update(_emberMetal.tagFor(predicate));
-
-      if (_emberRuntime.isProxy(predicate)) {
+      if (_emberMetal.isProxy(predicate)) {
+        this.objectTag.update(_emberMetal.tagForProperty(predicate, 'isTruthy'));
         return _emberMetal.get(predicate, 'isTruthy');
       } else {
+        this.objectTag.update(_emberMetal.tagFor(predicate));
         return _emberGlimmerUtilsToBool.default(predicate);
       }
     };
@@ -16267,7 +16267,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalDescriptor) {
+enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/is_proxy', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalIs_proxy, _emberMetalDescriptor) {
   /**
   @module ember
   @submodule ember-metal
@@ -16387,12 +16387,15 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.isGlobalPath = _emberMetalPath_cache.isGlobalPath;
   exports.InjectedProperty = _emberMetalInjected_property.default;
   exports.setHasViews = _emberMetalTags.setHasViews;
+  exports.tagForProperty = _emberMetalTags.tagForProperty;
   exports.tagFor = _emberMetalTags.tagFor;
   exports.markObjectAsDirty = _emberMetalTags.markObjectAsDirty;
   exports.replace = _emberMetalReplace.default;
   exports.runInTransaction = _emberMetalTransaction.default;
   exports.didRender = _emberMetalTransaction.didRender;
   exports.assertNotRendered = _emberMetalTransaction.assertNotRendered;
+  exports.IS_PROXY = _emberMetalIs_proxy.IS_PROXY;
+  exports.isProxy = _emberMetalIs_proxy.isProxy;
   exports.descriptor = _emberMetalDescriptor.default;
 
   // TODO: this needs to be deleted once we refactor the build tooling
@@ -16887,6 +16890,18 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
 
   function isPresent(obj) {
     return !_emberMetalIs_blank.default(obj);
+  }
+});
+enifed('ember-metal/is_proxy', ['exports', 'ember-utils'], function (exports, _emberUtils) {
+  'use strict';
+
+  exports.isProxy = isProxy;
+  var IS_PROXY = _emberUtils.symbol('IS_PROXY');
+
+  exports.IS_PROXY = IS_PROXY;
+
+  function isProxy(value) {
+    return typeof value === 'object' && value && value[IS_PROXY];
   }
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
@@ -17528,8 +17543,8 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
    peekBindings, clearBindings, writeValues,
    peekValues, clearValues, writeDeps, forEachInDeps
    writableChainWatchers, readableChainWatchers, writableChains,
-   readableChains, writableTag, readableTag
-  
+   readableChains, writableTag, readableTag, writableTags,
+   readableTags
   */
   var members = {
     cache: ownMap,
@@ -17540,7 +17555,8 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     values: inheritedMap,
     chainWatchers: ownCustomObject,
     chains: inheritedCustomObject,
-    tag: ownCustomObject
+    tag: ownCustomObject,
+    tags: ownMap
   };
 
   var SOURCE_DESTROYING = 1 << 1;
@@ -17567,6 +17583,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     this._chainWatchers = undefined;
     this._chains = undefined;
     this._tag = undefined;
+    this._tags = undefined;
 
     // initial value for all flags right now is false
     // see FLAGS const for detailed list of flags used
@@ -19700,7 +19717,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-utils', 'ember-metal/me
       return;
     }
 
-    _emberMetalTags.markObjectAsDirty(meta);
+    _emberMetalTags.markObjectAsDirty(meta, keyName);
 
     if (false || false) {
       _emberMetalTransaction.assertNotRendered(obj, keyName, meta);
@@ -20911,10 +20928,11 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 'require'], function (exports, _glimmerReference, _emberMetalMeta, _require) {
+enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 'require', 'ember-metal/is_proxy'], function (exports, _glimmerReference, _emberMetalMeta, _require, _emberMetalIs_proxy) {
   'use strict';
 
   exports.setHasViews = setHasViews;
+  exports.tagForProperty = tagForProperty;
   exports.tagFor = tagFor;
   exports.markObjectAsDirty = markObjectAsDirty;
 
@@ -20930,6 +20948,25 @@ enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 
     return new _glimmerReference.DirtyableTag();
   }
 
+  function tagForProperty(object, propertyKey, _meta) {
+    if (_emberMetalIs_proxy.isProxy(object)) {
+      return tagFor(object, _meta);
+    }
+
+    if (typeof object === 'object' && object) {
+      var meta = _meta || _emberMetalMeta.meta(object);
+      var tags = meta.writableTags();
+      var tag = tags[propertyKey];
+      if (tag) {
+        return tag;
+      }
+
+      return tags[propertyKey] = makeTag();
+    } else {
+      return _glimmerReference.CONSTANT_TAG;
+    }
+  }
+
   function tagFor(object, _meta) {
     if (typeof object === 'object' && object) {
       var meta = _meta || _emberMetalMeta.meta(object);
@@ -20939,12 +20976,22 @@ enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 
     }
   }
 
-  function markObjectAsDirty(meta) {
-    var tag = meta && meta.readableTag();
+  function markObjectAsDirty(meta, propertyKey) {
+    var objectTag = meta && meta.readableTag();
 
-    if (tag) {
+    if (objectTag) {
+      objectTag.dirty();
+    }
+
+    var tags = meta && meta.readableTags();
+    var propertyTag = tags && tags[propertyKey];
+
+    if (propertyTag) {
+      propertyTag.dirty();
+    }
+
+    if (objectTag || propertyTag) {
       ensureRunloop();
-      tag.dirty();
     }
   }
 
@@ -29002,7 +29049,6 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
   exports.Freezable = _emberRuntimeMixinsFreezable.Freezable;
   exports.FROZEN_ERROR = _emberRuntimeMixinsFreezable.FROZEN_ERROR;
   exports._ProxyMixin = _emberRuntimeMixinsProxy.default;
-  exports.isProxy = _emberRuntimeMixinsProxy.isProxy;
   exports.onLoad = _emberRuntimeSystemLazy_load.onLoad;
   exports.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
   exports._loaded = _emberRuntimeSystemLazy_load._loaded;
@@ -29188,7 +29234,7 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-utils', 'ember-metal', 'ember-runtime/computed/computed_macros'], function (exports, _glimmerReference, _emberUtils, _emberMetal, _emberRuntimeComputedComputed_macros) {
+enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-metal', 'ember-runtime/computed/computed_macros'], function (exports, _glimmerReference, _emberMetal, _emberRuntimeComputedComputed_macros) {
   /**
   @module ember
   @submodule ember-runtime
@@ -29197,14 +29243,6 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-ut
   'use strict';
 
   var _Mixin$create;
-
-  exports.isProxy = isProxy;
-
-  var IS_PROXY = _emberUtils.symbol('IS_PROXY');
-
-  function isProxy(value) {
-    return typeof value === 'object' && value && value[IS_PROXY];
-  }
 
   function contentPropertyWillChange(content, contentKey) {
     var key = contentKey.slice(8); // remove "content."
@@ -29260,7 +29298,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-ut
     return ProxyTag;
   })(_glimmerReference.CachedTag);
 
-  exports.default = _emberMetal.Mixin.create((_Mixin$create = {}, _Mixin$create[IS_PROXY] = true, _Mixin$create.content = null, _Mixin$create._initializeTag = _emberMetal.on('init', function () {
+  exports.default = _emberMetal.Mixin.create((_Mixin$create = {}, _Mixin$create[_emberMetal.IS_PROXY] = true, _Mixin$create.content = null, _Mixin$create._initializeTag = _emberMetal.on('init', function () {
     _emberMetal.meta(this)._tag = new ProxyTag(this);
   }), _Mixin$create._contentDidChange = _emberMetal.observer('content', function () {
     _emberMetal.tagFor(this).contentDidChange();
@@ -29590,8 +29628,6 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }
 
   function arrayContentDidChange(array, startIdx, removeAmt, addAmt) {
-    _emberMetal.markObjectAsDirty(_emberMetal.meta(array));
-
     // if no args are passed assume everything changes
     if (startIdx === undefined) {
       startIdx = 0;
@@ -39298,7 +39334,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+83fc16b4";
+  exports.default = "2.10.0-alpha.1-canary+0004e08a";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

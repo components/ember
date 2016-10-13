@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+83fc16b4
+ * @version   2.10.0-alpha.1-canary+0004e08a
  */
 
 var enifed, requireModule, require, Ember;
@@ -32147,7 +32147,7 @@ babelHelpers.classCallCheck(this, _class11);
 
       _class11.prototype.observe = function observe(element) {
         var observer = this.observer = new MutationObserver(function () {});
-        observer.observe(element, { childList: true });
+        observer.observe(element, { childList: true, characterData: true });
       };
 
       _class11.prototype.teardown = function teardown() {
@@ -32191,9 +32191,7 @@ babelHelpers.classCallCheck(this, _class11);
 
           _this26.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
         }).then(function () {
-          // 'page' and 'model' is keyed off the same object, so we do expect Glimmer
-          // to re-iterate the list
-          _this26.expectMutations();
+          _this26.assertNoMutation();
 
           _this26.runTask(function () {
             return _emberMetal.set(_this26.context.page, 'title', 'Think Pieces™');

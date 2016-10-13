@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+83fc16b4
+ * @version   2.10.0-alpha.1-canary+0004e08a
  */
 
 var enifed, requireModule, require, Ember;
@@ -4505,7 +4505,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalDescriptor) {
+enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/is_proxy', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalIs_proxy, _emberMetalDescriptor) {
   /**
   @module ember
   @submodule ember-metal
@@ -4625,12 +4625,15 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.isGlobalPath = _emberMetalPath_cache.isGlobalPath;
   exports.InjectedProperty = _emberMetalInjected_property.default;
   exports.setHasViews = _emberMetalTags.setHasViews;
+  exports.tagForProperty = _emberMetalTags.tagForProperty;
   exports.tagFor = _emberMetalTags.tagFor;
   exports.markObjectAsDirty = _emberMetalTags.markObjectAsDirty;
   exports.replace = _emberMetalReplace.default;
   exports.runInTransaction = _emberMetalTransaction.default;
   exports.didRender = _emberMetalTransaction.didRender;
   exports.assertNotRendered = _emberMetalTransaction.assertNotRendered;
+  exports.IS_PROXY = _emberMetalIs_proxy.IS_PROXY;
+  exports.isProxy = _emberMetalIs_proxy.isProxy;
   exports.descriptor = _emberMetalDescriptor.default;
 
   // TODO: this needs to be deleted once we refactor the build tooling
@@ -5128,6 +5131,18 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
 
   function isPresent(obj) {
     return !_emberMetalIs_blank.default(obj);
+  }
+});
+enifed('ember-metal/is_proxy', ['exports', 'ember-utils'], function (exports, _emberUtils) {
+  'use strict';
+
+  exports.isProxy = isProxy;
+  var IS_PROXY = _emberUtils.symbol('IS_PROXY');
+
+  exports.IS_PROXY = IS_PROXY;
+
+  function isProxy(value) {
+    return typeof value === 'object' && value && value[IS_PROXY];
   }
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
@@ -5771,8 +5786,8 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
    peekBindings, clearBindings, writeValues,
    peekValues, clearValues, writeDeps, forEachInDeps
    writableChainWatchers, readableChainWatchers, writableChains,
-   readableChains, writableTag, readableTag
-  
+   readableChains, writableTag, readableTag, writableTags,
+   readableTags
   */
   var members = {
     cache: ownMap,
@@ -5783,7 +5798,8 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     values: inheritedMap,
     chainWatchers: ownCustomObject,
     chains: inheritedCustomObject,
-    tag: ownCustomObject
+    tag: ownCustomObject,
+    tags: ownMap
   };
 
   var SOURCE_DESTROYING = 1 << 1;
@@ -5813,6 +5829,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     this._chainWatchers = undefined;
     this._chains = undefined;
     this._tag = undefined;
+    this._tags = undefined;
 
     // initial value for all flags right now is false
     // see FLAGS const for detailed list of flags used
@@ -7984,7 +8001,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-utils', 'ember-metal/me
       return;
     }
 
-    _emberMetalTags.markObjectAsDirty(meta);
+    _emberMetalTags.markObjectAsDirty(meta, keyName);
 
     if (true || false) {
       _emberMetalTransaction.assertNotRendered(obj, keyName, meta);
@@ -9209,10 +9226,11 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 'require'], function (exports, _glimmerReference, _emberMetalMeta, _require) {
+enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 'require', 'ember-metal/is_proxy'], function (exports, _glimmerReference, _emberMetalMeta, _require, _emberMetalIs_proxy) {
   'use strict';
 
   exports.setHasViews = setHasViews;
+  exports.tagForProperty = tagForProperty;
   exports.tagFor = tagFor;
   exports.markObjectAsDirty = markObjectAsDirty;
 
@@ -9228,6 +9246,25 @@ enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 
     return new _glimmerReference.DirtyableTag();
   }
 
+  function tagForProperty(object, propertyKey, _meta) {
+    if (_emberMetalIs_proxy.isProxy(object)) {
+      return tagFor(object, _meta);
+    }
+
+    if (typeof object === 'object' && object) {
+      var meta = _meta || _emberMetalMeta.meta(object);
+      var tags = meta.writableTags();
+      var tag = tags[propertyKey];
+      if (tag) {
+        return tag;
+      }
+
+      return tags[propertyKey] = makeTag();
+    } else {
+      return _glimmerReference.CONSTANT_TAG;
+    }
+  }
+
   function tagFor(object, _meta) {
     if (typeof object === 'object' && object) {
       var meta = _meta || _emberMetalMeta.meta(object);
@@ -9237,12 +9274,22 @@ enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 
     }
   }
 
-  function markObjectAsDirty(meta) {
-    var tag = meta && meta.readableTag();
+  function markObjectAsDirty(meta, propertyKey) {
+    var objectTag = meta && meta.readableTag();
 
-    if (tag) {
+    if (objectTag) {
+      objectTag.dirty();
+    }
+
+    var tags = meta && meta.readableTags();
+    var propertyTag = tags && tags[propertyKey];
+
+    if (propertyTag) {
+      propertyTag.dirty();
+    }
+
+    if (objectTag || propertyTag) {
       ensureRunloop();
-      tag.dirty();
     }
   }
 
@@ -11742,7 +11789,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+83fc16b4";
+  exports.default = "2.10.0-alpha.1-canary+0004e08a";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
