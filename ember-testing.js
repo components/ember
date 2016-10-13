@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+ae0ca0f3
+ * @version   2.10.0-alpha.1-canary+83fc16b4
  */
 
 var enifed, requireModule, require, Ember;
@@ -1504,6 +1504,7 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
    Pauses the current test - this is useful for debugging while testing or for test-driving.
    It allows you to inspect the state of your application at any point.
    Example (The test will pause before clicking the button):
+  
    ```javascript
    visit('/')
    return pauseTest();
