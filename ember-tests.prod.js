@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+9bdb6043
+ * @version   2.10.0-alpha.1-canary+b84dc446
  */
 
 var enifed, requireModule, require, Ember;
@@ -69209,18 +69209,27 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       return this.visit('/parent/child');
     };
 
+    _class.prototype.setMappedQPController = function setMappedQPController(routeName) {
+      var prop = arguments.length <= 1 || arguments[1] === undefined ? 'page' : arguments[1];
+      var urlKey = arguments.length <= 2 || arguments[2] === undefined ? 'parentPage' : arguments[2];
+      var defaultValue = arguments.length <= 3 || arguments[3] === undefined ? 1 : arguments[3];
+
+      var _queryParams, _Controller$extend;
+
+      var options = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
+
+      this.registerController(routeName, _emberRuntime.Controller.extend((_Controller$extend = {
+        queryParams: (_queryParams = {}, _queryParams[prop] = urlKey, _queryParams)
+      }, _Controller$extend[prop] = defaultValue, _Controller$extend), options));
+    };
+
     _class.prototype['@test can remap same-named qp props'] = function testCanRemapSameNamedQpProps(assert) {
       var _this = this;
 
-      this.registerController('parent', _emberRuntime.Controller.extend({
-        queryParams: { page: 'parentPage' },
-        page: 1
-      }));
+      assert.expect(7);
 
-      this.registerController('parent.child', _emberRuntime.Controller.extend({
-        queryParams: { page: 'childPage' },
-        page: 1
-      }));
+      this.setMappedQPController('parent');
+      this.setMappedQPController('parent.child', 'page', 'childPage');
 
       return this.setupBase().then(function () {
         _this.assertCurrentPath('/parent/child');
@@ -69254,26 +69263,84 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       });
     };
 
-    _class.prototype['@test query params in the same route hierarchy with the same url key get auto-scoped'] = function testQueryParamsInTheSameRouteHierarchyWithTheSameUrlKeyGetAutoScoped(assert) {
+    _class.prototype['@test query params can be either controller property or url key'] = function testQueryParamsCanBeEitherControllerPropertyOrUrlKey(assert) {
       var _this2 = this;
 
-      this.registerController('parent', _emberRuntime.Controller.extend({
-        queryParams: { foo: 'shared' },
-        foo: 1
-      }));
+      assert.expect(3);
 
-      this.registerController('parent.child', _emberRuntime.Controller.extend({
-        queryParams: { bar: 'shared' },
-        bar: 1
-      }));
+      this.setMappedQPController('parent');
+
+      return this.setupBase().then(function () {
+        _this2.assertCurrentPath('/parent/child');
+
+        _this2.transitionTo('parent.child', { queryParams: { page: 2 } });
+        _this2.assertCurrentPath('/parent/child?parentPage=2');
+
+        _this2.transitionTo('parent.child', { queryParams: { parentPage: 3 } });
+        _this2.assertCurrentPath('/parent/child?parentPage=3');
+      });
+    };
+
+    _class.prototype['@test query param matching a url key and controller property'] = function testQueryParamMatchingAUrlKeyAndControllerProperty(assert) {
+      var _this3 = this;
+
+      assert.expect(3);
+
+      this.setMappedQPController('parent', 'page', 'parentPage');
+      this.setMappedQPController('parent.child', 'index', 'page');
+
+      return this.setupBase().then(function () {
+        _this3.transitionTo('parent.child', { queryParams: { page: 2 } });
+        _this3.assertCurrentPath('/parent/child?parentPage=2');
+
+        _this3.transitionTo('parent.child', { queryParams: { parentPage: 3 } });
+        _this3.assertCurrentPath('/parent/child?parentPage=3');
+
+        _this3.transitionTo('parent.child', { queryParams: { index: 2, page: 2 } });
+        _this3.assertCurrentPath('/parent/child?page=2&parentPage=2');
+      });
+    };
+
+    _class.prototype['@test query param matching same property on two controllers use the urlKey higher in the chain'] = function testQueryParamMatchingSamePropertyOnTwoControllersUseTheUrlKeyHigherInTheChain(assert) {
+      var _this4 = this;
+
+      assert.expect(4);
+
+      this.setMappedQPController('parent', 'page', 'parentPage');
+      this.setMappedQPController('parent.child', 'page', 'childPage');
+
+      return this.setupBase().then(function () {
+        _this4.transitionTo('parent.child', { queryParams: { page: 2 } });
+        _this4.assertCurrentPath('/parent/child?parentPage=2');
+
+        _this4.transitionTo('parent.child', { queryParams: { parentPage: 3 } });
+        _this4.assertCurrentPath('/parent/child?parentPage=3');
+
+        _this4.transitionTo('parent.child', { queryParams: { childPage: 2, page: 2 } });
+        _this4.assertCurrentPath('/parent/child?childPage=2&parentPage=2');
+
+        _this4.transitionTo('parent.child', { queryParams: { childPage: 3, parentPage: 4 } });
+        _this4.assertCurrentPath('/parent/child?childPage=3&parentPage=4');
+      });
+    };
+
+    _class.prototype['@test query params in the same route hierarchy with the same url key get auto-scoped'] = function testQueryParamsInTheSameRouteHierarchyWithTheSameUrlKeyGetAutoScoped(assert) {
+      var _this5 = this;
+
+      assert.expect(1);
+
+      this.setMappedQPController('parent');
+      this.setMappedQPController('parent.child');
 
       expectAssertion(function () {
-        _this2.setupBase();
-      }, 'You\'re not allowed to have more than one controller property map to the same query param key, but both `parent:foo` and `parent.child:bar` map to `shared`. You can fix this by mapping one of the controller properties to a different query param key via the `as` config option, e.g. `foo: { as: \'other-foo\' }`');
+        _this5.setupBase();
+      }, 'You\'re not allowed to have more than one controller property map to the same query param key, but both `parent:page` and `parent.child:page` map to `parentPage`. You can fix this by mapping one of the controller properties to a different query param key via the `as` config option, e.g. `page: { as: \'other-page\' }`');
     };
 
     _class.prototype['@test Support shared but overridable mixin pattern'] = function testSupportSharedButOverridableMixinPattern(assert) {
-      var _this3 = this;
+      var _this6 = this;
+
+      assert.expect(7);
 
       var HasPage = _emberMetal.Mixin.create({
         queryParams: 'page',
@@ -69287,18 +69354,18 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       this.registerController('parent.child', _emberRuntime.Controller.extend(HasPage));
 
       return this.setupBase().then(function () {
-        _this3.assertCurrentPath('/parent/child');
+        _this6.assertCurrentPath('/parent/child');
 
-        var parentController = _this3.getController('parent');
-        var parentChildController = _this3.getController('parent.child');
+        var parentController = _this6.getController('parent');
+        var parentChildController = _this6.getController('parent.child');
 
-        _this3.setAndFlush(parentChildController, 'page', 2);
-        _this3.assertCurrentPath('/parent/child?page=2');
+        _this6.setAndFlush(parentChildController, 'page', 2);
+        _this6.assertCurrentPath('/parent/child?page=2');
         assert.equal(parentController.get('page'), 1);
         assert.equal(parentChildController.get('page'), 2);
 
-        _this3.setAndFlush(parentController, 'page', 2);
-        _this3.assertCurrentPath('/parent/child?page=2&yespage=2');
+        _this6.setAndFlush(parentController, 'page', 2);
+        _this6.assertCurrentPath('/parent/child?page=2&yespage=2');
         assert.equal(parentController.get('page'), 2);
         assert.equal(parentChildController.get('page'), 2);
       });
