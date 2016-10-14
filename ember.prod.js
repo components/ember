@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5-beta+6f913c25
+ * @version   2.9.0-beta.5-beta+eb543d78
  */
 
 var enifed, requireModule, require, Ember;
@@ -9575,6 +9575,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       this.destroyed = true;
 
       this.env = null;
+      var root = this.root;
       this.root = null;
       this.result = null;
       this.render = null;
@@ -9597,6 +9598,10 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
         result.destroy();
 
         if (needsTransaction) {
+          if (typeof root.trigger === 'function') {
+            // when in append mode, the root is the component we must trigger destroy on.
+            root.trigger('didDestroyElement');
+          }
           env.commit();
         }
       }
@@ -9712,7 +9717,9 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
       _emberViews.setViewElement(view, null);
 
-      if (this._destinedForDOM) {
+      if (this._destinedForDOM && view.parentView !== null) {
+        // trigger only for non root views, if the root is a view (during
+        // appendTo) env.commit() handles this...
         view.trigger('didDestroyElement');
       }
 
@@ -9736,7 +9743,6 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
       var i = this._roots.length;
       while (i--) {
         var root = roots[i];
-        // check if the view being removed is a root view
         if (root.isFor(view)) {
           root.destroy();
         }
@@ -38002,7 +38008,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.5-beta+6f913c25";
+  exports.default = "2.9.0-beta.5-beta+eb543d78";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
