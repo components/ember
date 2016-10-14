@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+8b9ca0cd
+ * @version   2.10.0-alpha.1-canary+900c6fbe
  */
 
 var enifed, requireModule, require, Ember;
@@ -43683,6 +43683,56 @@ enifed('ember-routing/tests/location/util_test', ['exports', 'ember-utils', 'emb
   });
   // jscs:enable
 });
+enifed('ember-routing/tests/system/cache_test', ['exports', 'ember-routing/system/cache'], function (exports, _emberRoutingSystemCache) {
+  'use strict';
+
+  QUnit.module('BucketCache', {
+    setup: function () {
+      this.cache = _emberRoutingSystemCache.default.create();
+    }
+  });
+
+  QUnit.test('has - returns false when bucket is not in cache', function (assert) {
+    assert.strictEqual(this.cache.has('foo'), false);
+    assert.strictEqual(this.cache.has('constructor'), false);
+  });
+
+  QUnit.test('has - returns true when bucket is in cache', function (assert) {
+    var token = {};
+
+    this.cache.stash('foo', 'bar', token);
+    this.cache.stash('constructor', 'bar', token);
+
+    assert.strictEqual(this.cache.has('foo'), true);
+    assert.strictEqual(this.cache.has('constructor'), true);
+  });
+
+  QUnit.test('lookup - returns stashed value if key does exist in bucket', function (assert) {
+    var token = {};
+    var defaultValue = {};
+
+    this.cache.stash('foo', 'bar', token);
+
+    assert.strictEqual(this.cache.lookup('foo', 'bar', defaultValue), token);
+  });
+
+  QUnit.test('lookup - returns default value if key does not exist in bucket', function (assert) {
+    var token = {};
+    var defaultValue = {};
+
+    this.cache.stash('foo', 'bar', token);
+
+    assert.strictEqual(this.cache.lookup('foo', 'boo', defaultValue), defaultValue);
+    assert.strictEqual(this.cache.lookup('foo', 'constructor', defaultValue), defaultValue);
+  });
+
+  QUnit.test('lookup - returns default value if bucket does not exist', function (assert) {
+    var defaultValue = {};
+
+    assert.strictEqual(this.cache.lookup('boo', 'bar', defaultValue), defaultValue);
+    assert.strictEqual(this.cache.lookup('constructor', 'bar', defaultValue), defaultValue);
+  });
+});
 enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberRoutingSystemController_for, _emberRoutingSystemGenerate_controller, _internalTestHelpers) {
   'use strict';
 
@@ -67331,21 +67381,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       _QueryParamTestCase.apply(this, arguments);
     }
 
-    // Sets up a controller with a single query param
-
-    _class.prototype.setSingleQPController = function setSingleQPController(routeName) {
-      var param = arguments.length <= 1 || arguments[1] === undefined ? 'foo' : arguments[1];
-      var defaultValue = arguments.length <= 2 || arguments[2] === undefined ? 'bar' : arguments[2];
-
-      var _Controller$extend;
-
-      var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
-
-      this.registerController(routeName, _emberRuntime.Controller.extend((_Controller$extend = {
-        queryParams: [param]
-      }, _Controller$extend[param] = defaultValue, _Controller$extend), options));
-    };
-
     _class.prototype.refreshModelWhileLoadingTest = function refreshModelWhileLoadingTest(loadingReturn) {
       var _actions,
           _this = this;
@@ -69632,20 +69667,6 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       });
 
       return this.visit('/parent/child');
-    };
-
-    _class.prototype.setMappedQPController = function setMappedQPController(routeName) {
-      var prop = arguments.length <= 1 || arguments[1] === undefined ? 'page' : arguments[1];
-      var urlKey = arguments.length <= 2 || arguments[2] === undefined ? 'parentPage' : arguments[2];
-      var defaultValue = arguments.length <= 3 || arguments[3] === undefined ? 1 : arguments[3];
-
-      var _queryParams, _Controller$extend;
-
-      var options = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
-
-      this.registerController(routeName, _emberRuntime.Controller.extend((_Controller$extend = {
-        queryParams: (_queryParams = {}, _queryParams[prop] = urlKey, _queryParams)
-      }, _Controller$extend[prop] = defaultValue, _Controller$extend), options));
     };
 
     _class.prototype['@test can remap same-named qp props'] = function testCanRemapSameNamedQpProps(assert) {

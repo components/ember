@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+8b9ca0cd
+ * @version   2.10.0-alpha.1-canary+900c6fbe
  */
 
 var enifed, requireModule, require, Ember;
@@ -24019,30 +24019,43 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
     return req;
   }
 });
-enifed('ember-routing/system/cache', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
+enifed('ember-routing/system/cache', ['exports', 'ember-utils', 'ember-runtime'], function (exports, _emberUtils, _emberRuntime) {
   'use strict';
 
+  /**
+    A two-tiered cache with support for fallback values when doing lookups.
+    Uses "buckets" and then "keys" to cache values.
+  
+    @private
+    @class BucketCache
+  */
   exports.default = _emberRuntime.Object.extend({
     init: function () {
-      this.cache = {};
+      this.cache = new _emberUtils.EmptyObject();
     },
+
     has: function (bucketKey) {
-      return bucketKey in this.cache;
+      return !!this.cache[bucketKey];
     },
+
     stash: function (bucketKey, key, value) {
       var bucket = this.cache[bucketKey];
+
       if (!bucket) {
-        bucket = this.cache[bucketKey] = {};
+        bucket = this.cache[bucketKey] = new _emberUtils.EmptyObject();
       }
+
       bucket[key] = value;
     },
+
     lookup: function (bucketKey, prop, defaultValue) {
       var cache = this.cache;
-      if (!(bucketKey in cache)) {
+      if (!this.has(bucketKey)) {
         return defaultValue;
       }
+
       var bucket = cache[bucketKey];
-      if (prop in bucket) {
+      if (prop in bucket && bucket[prop] !== undefined) {
         return bucket[prop];
       } else {
         return defaultValue;
@@ -42296,7 +42309,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+8b9ca0cd";
+  exports.default = "2.10.0-alpha.1-canary+900c6fbe";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -43232,7 +43245,7 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'internal-tes
 
   exports.default = ApplicationTestCase;
 });
-enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-routing', 'ember-metal', 'internal-test-helpers/test-cases/application'], function (exports, _emberRouting, _emberMetal, _internalTestHelpersTestCasesApplication) {
+enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-runtime', 'ember-routing', 'ember-metal', 'internal-test-helpers/test-cases/application'], function (exports, _emberRuntime, _emberRouting, _emberMetal, _internalTestHelpersTestCasesApplication) {
   'use strict';
 
   var QueryParamTestCase = (function (_ApplicationTestCase) {
@@ -43304,6 +43317,46 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-routin
 
     QueryParamTestCase.prototype.transitionTo = function transitionTo() {
       return _emberMetal.run.apply(undefined, [this.appRouter, 'transitionTo'].concat(babelHelpers.slice.call(arguments)));
+    };
+
+    /**
+      Sets up a Controller for a given route with a single query param and default
+      value. Can optionally extend the controller with an object.
+       @public
+      @method setSingleQPController
+    */
+
+    QueryParamTestCase.prototype.setSingleQPController = function setSingleQPController(routeName) {
+      var param = arguments.length <= 1 || arguments[1] === undefined ? 'foo' : arguments[1];
+      var defaultValue = arguments.length <= 2 || arguments[2] === undefined ? 'bar' : arguments[2];
+
+      var _Controller$extend;
+
+      var options = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
+
+      this.registerController(routeName, _emberRuntime.Controller.extend((_Controller$extend = {
+        queryParams: [param]
+      }, _Controller$extend[param] = defaultValue, _Controller$extend), options));
+    };
+
+    /**
+      Sets up a Controller for a given route with a custom property/url key mapping.
+       @public
+      @method setMappedQPController
+    */
+
+    QueryParamTestCase.prototype.setMappedQPController = function setMappedQPController(routeName) {
+      var prop = arguments.length <= 1 || arguments[1] === undefined ? 'page' : arguments[1];
+      var urlKey = arguments.length <= 2 || arguments[2] === undefined ? 'parentPage' : arguments[2];
+      var defaultValue = arguments.length <= 3 || arguments[3] === undefined ? 1 : arguments[3];
+
+      var _queryParams, _Controller$extend2;
+
+      var options = arguments.length <= 4 || arguments[4] === undefined ? {} : arguments[4];
+
+      this.registerController(routeName, _emberRuntime.Controller.extend((_Controller$extend2 = {
+        queryParams: (_queryParams = {}, _queryParams[prop] = urlKey, _queryParams)
+      }, _Controller$extend2[prop] = defaultValue, _Controller$extend2), options));
     };
 
     babelHelpers.createClass(QueryParamTestCase, [{
