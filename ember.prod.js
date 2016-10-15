@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+45f1416d
+ * @version   2.10.0-alpha.1-canary+77c51f6e
  */
 
 var enifed, requireModule, require, Ember;
@@ -23326,6 +23326,27 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     */
 
     /**
+      Sets the name for this route, including a fully resolved name for routes
+      inside engines.
+       @private
+      @method _setRouteName
+      @param {String} name
+    */
+    _setRouteName: function (name) {
+      this.routeName = name;
+      this.fullRouteName = getEngineRouteName(_emberUtils.getOwner(this), name);
+    },
+
+    /**
+      Populates the QP meta information in the BucketCache.
+       @private
+      @method _populateQPMeta
+    */
+    _populateQPMeta: function () {
+      this._bucketCache.stash('route-meta', this.fullRouteName, this.get('_qp'));
+    },
+
+    /**
       @private
        @property _qp
     */
@@ -23335,7 +23356,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var controllerProto = undefined,
           combinedQueryParameterConfiguration = undefined;
 
-      var controllerName = this.controllerName || this.routeName;
+      var controllerName = this.controllerName || this.fullRouteName;
       var definedControllerClass = _emberUtils.getOwner(this)._lookupFactory('controller:' + controllerName);
       var queryParameterConfiguraton = _emberMetal.get(this, 'queryParams');
       var hasRouterDefinedQueryParams = !!Object.keys(queryParameterConfiguraton).length;
@@ -23552,7 +23573,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var transition = this.router.router.activeTransition;
       var state = transition ? transition.state : this.router.router.state;
 
-      var fullName = getEngineRouteName(_emberUtils.getOwner(this), name);
+      var fullName = route.fullRouteName;
       var params = _emberUtils.assign({}, state.params[fullName]);
       var queryParams = getQueryParamsFor(route, state);
 
@@ -23584,10 +23605,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       // urlKey isn't used here, but anyone overriding
       // can use it to provide serialization specific
       // to a certain query param.
-      if (defaultValueType === 'array') {
-        return JSON.stringify(value);
-      }
-      return '' + value;
+      return this.router._serializeQueryParam(value, defaultValueType);
     },
 
     /**
@@ -23602,17 +23620,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       // urlKey isn't used here, but anyone overriding
       // can use it to provide deserialization specific
       // to a certain query param.
-
-      // Use the defaultValueType of the default value (the initial value assigned to a
-      // controller query param property), to intelligently deserialize and cast.
-      if (defaultValueType === 'boolean') {
-        return value === 'true' ? true : false;
-      } else if (defaultValueType === 'number') {
-        return Number(value).valueOf();
-      } else if (defaultValueType === 'array') {
-        return _emberRuntime.A(JSON.parse(value));
-      }
-      return value;
+      return this.router._deserializeQueryParam(value, defaultValueType);
     },
 
     /**
@@ -23927,7 +23935,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       },
 
       finalizeQueryParamChange: function (params, finalParams, transition) {
-        if (this.routeName !== 'application') {
+        if (this.fullRouteName !== 'application') {
           return true;
         }
 
@@ -23938,7 +23946,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
         var handlerInfos = transition.state.handlerInfos;
         var router = this.router;
-        var qpMeta = router._queryParamsFor(handlerInfos[handlerInfos.length - 1].name);
+        var qpMeta = router._queryParamsFor(handlerInfos);
         var changes = router._qpUpdates;
         var replaceUrl = undefined;
 
@@ -25209,16 +25217,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     state.fullQueryParams = {};
     _emberUtils.assign(state.fullQueryParams, state.queryParams);
 
-    var targetRouteName = state.handlerInfos[state.handlerInfos.length - 1].name;
-    router._deserializeQueryParams(targetRouteName, state.fullQueryParams);
+    router._deserializeQueryParams(state.handlerInfos, state.fullQueryParams);
     return state.fullQueryParams;
   }
 
   function getQueryParamsFor(route, state) {
     state.queryParamsFor = state.queryParamsFor || {};
-    var name = route.routeName;
-
-    name = getEngineRouteName(_emberUtils.getOwner(route), name);
+    var name = route.fullRouteName;
 
     if (state.queryParamsFor[name]) {
       return state.queryParamsFor[name];
@@ -25871,7 +25876,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           if (_emberMetal.get(_this2, 'namespace.LOG_ACTIVE_GENERATION')) {}
         }
 
-        handler.routeName = routeName;
+        handler._setRouteName(routeName);
+        handler._populateQPMeta();
 
         if (engineInfo && !_emberRoutingSystemRoute.hasDefaultSerialize(handler)) {
           throw new Error('Defining a custom serialize method on an Engine route is not supported.');
@@ -25934,22 +25940,91 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       };
     },
 
-    _serializeQueryParams: function (targetRouteName, queryParams) {
-      forEachQueryParam(this, targetRouteName, queryParams, function (key, value, qp) {
-        delete queryParams[key];
-        queryParams[qp.urlKey] = qp.route.serializeQueryParam(value, qp.urlKey, qp.type);
+    /**
+      Serializes the given query params according to their QP meta information.
+       @private
+      @method _serializeQueryParams
+      @param {Arrray<HandlerInfo>} handlerInfos
+      @param {Object} queryParams
+      @return {Void}
+    */
+    _serializeQueryParams: function (handlerInfos, queryParams) {
+      var _this4 = this;
+
+      forEachQueryParam(this, handlerInfos, queryParams, function (key, value, qp) {
+        if (qp) {
+          delete queryParams[key];
+          queryParams[qp.urlKey] = qp.route.serializeQueryParam(value, qp.urlKey, qp.type);
+        } else {
+          queryParams[key] = _this4._serializeQueryParam(value, _emberRuntime.typeOf(value));
+        }
       });
     },
 
-    _deserializeQueryParams: function (targetRouteName, queryParams) {
-      forEachQueryParam(this, targetRouteName, queryParams, function (key, value, qp) {
-        delete queryParams[key];
-        queryParams[qp.prop] = qp.route.deserializeQueryParam(value, qp.urlKey, qp.type);
+    /**
+      Serializes the value of a query parameter based on a type
+       @private
+      @method _serializeQueryParam
+      @param {Object} value
+      @param {String} type
+    */
+    _serializeQueryParam: function (value, type) {
+      if (type === 'array') {
+        return JSON.stringify(value);
+      }
+
+      return '' + value;
+    },
+
+    /**
+      Deserializes the given query params according to their QP meta information.
+       @private
+      @method _deserializeQueryParams
+      @param {Array<HandlerInfo>} handlerInfos
+      @param {Object} queryParams
+      @return {Void}
+    */
+    _deserializeQueryParams: function (handlerInfos, queryParams) {
+      forEachQueryParam(this, handlerInfos, queryParams, function (key, value, qp) {
+        // If we don't have QP meta info for a given key, then we do nothing
+        // because all values will be treated as strings
+        if (qp) {
+          delete queryParams[key];
+          queryParams[qp.prop] = qp.route.deserializeQueryParam(value, qp.urlKey, qp.type);
+        }
       });
     },
 
-    _pruneDefaultQueryParamValues: function (targetRouteName, queryParams) {
-      var qps = this._queryParamsFor(targetRouteName);
+    /**
+      Deserializes the value of a query parameter based on a default type
+       @private
+      @method _deserializeQueryParam
+      @param {Object} value
+      @param {String} defaultType
+    */
+    _deserializeQueryParam: function (value, defaultType) {
+      if (defaultType === 'boolean') {
+        return value === 'true' ? true : false;
+      } else if (defaultType === 'number') {
+        return Number(value).valueOf();
+      } else if (defaultType === 'array') {
+        return _emberRuntime.A(JSON.parse(value));
+      }
+
+      return value;
+    },
+
+    /**
+      Removes (prunes) any query params with default values from the given QP
+      object. Default values are determined from the QP meta information per key.
+       @private
+      @method _pruneDefaultQueryParamValues
+      @param {Array<HandlerInfo>} handlerInfos
+      @param {Object} queryParams
+      @return {Void}
+    */
+    _pruneDefaultQueryParamValues: function (handlerInfos, queryParams) {
+      var qps = this._queryParamsFor(handlerInfos);
       for (var key in queryParams) {
         var qp = qps.map[key];
         if (qp && qp.serializedDefaultValue === queryParams[key]) {
@@ -25999,39 +26074,60 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       _emberUtils.assign(queryParams, unchangedQPs);
     },
 
+    /**
+      Prepares the query params for a URL or Transition. Restores any undefined QP
+      keys/values, serializes all values, and then prunes any default values.
+       @private
+      @method _prepareQueryParams
+      @param {String} targetRouteName
+      @param {Array<Object>} models
+      @param {Object} queryParams
+      @return {Void}
+    */
     _prepareQueryParams: function (targetRouteName, models, queryParams) {
-      this._hydrateUnsuppliedQueryParams(targetRouteName, models, queryParams);
-      this._serializeQueryParams(targetRouteName, queryParams);
-      this._pruneDefaultQueryParamValues(targetRouteName, queryParams);
+      var state = calculatePostTransitionState(this, targetRouteName, models);
+      this._hydrateUnsuppliedQueryParams(state, queryParams);
+      this._serializeQueryParams(state.handlerInfos, queryParams);
+      this._pruneDefaultQueryParamValues(state.handlerInfos, queryParams);
     },
 
     /**
-      Returns a merged query params meta object for a given route.
-      Useful for asking a route what its known query params are.
+      Returns the meta information for the query params of a given route. This
+      will be overriden to allow support for lazy routes.
        @private
+      @method _getQPMeta
+      @param {HandlerInfo} handlerInfo
+      @return {Object}
+    */
+    _getQPMeta: function (handlerInfo) {
+      var route = handlerInfo.handler;
+      return route && _emberMetal.get(route, '_qp');
+    },
+
+    /**
+      Returns a merged query params meta object for a given set of handlerInfos.
+      Useful for knowing what query params are available for a given route hierarchy.
+       @private
+      @method _queryParamsFor
+      @param {Array<HandlerInfo>} handlerInfos
+      @return {Object}
      */
-    _queryParamsFor: function (leafRouteName) {
+    _queryParamsFor: function (handlerInfos) {
+      var leafRouteName = handlerInfos[handlerInfos.length - 1].name;
       if (this._qpCache[leafRouteName]) {
         return this._qpCache[leafRouteName];
       }
 
+      var shouldCache = true;
       var qpsByUrlKey = {};
       var map = {};
       var qps = [];
-      this._qpCache[leafRouteName] = {
-        map: map,
-        qps: qps
-      };
 
-      var routerjs = this.router;
-      var recogHandlerInfos = routerjs.recognizer.handlersFor(leafRouteName);
-
-      for (var i = 0; i < recogHandlerInfos.length; ++i) {
-        var recogHandler = recogHandlerInfos[i];
-        var route = routerjs.getHandler(recogHandler.handler);
-        var qpMeta = _emberMetal.get(route, '_qp');
+      for (var i = 0; i < handlerInfos.length; ++i) {
+        var qpMeta = this._getQPMeta(handlerInfos[i]);
 
         if (!qpMeta) {
+          shouldCache = false;
           continue;
         }
 
@@ -26051,20 +26147,38 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         _emberUtils.assign(map, qpMeta.map);
       }
 
-      return {
+      var finalQPMeta = {
         qps: qps,
         map: map
       };
+
+      if (shouldCache) {
+        this._qpCache[leafRouteName] = finalQPMeta;
+      }
+
+      return finalQPMeta;
     },
 
+    /**
+      Maps all query param keys to their fully scoped property name of the form
+      `controllerName:propName`.
+       @private
+      @method _fullyScopeQueryParams
+      @param {String} leafRouteName
+      @param {Array<Object>} contexts
+      @param {Object} queryParams
+      @return {Void}
+    */
     _fullyScopeQueryParams: function (leafRouteName, contexts, queryParams) {
       var state = calculatePostTransitionState(this, leafRouteName, contexts);
       var handlerInfos = state.handlerInfos;
-      _emberRoutingUtils.stashParamNames(this, handlerInfos);
 
       for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-        var route = handlerInfos[i].handler;
-        var qpMeta = _emberMetal.get(route, '_qp');
+        var qpMeta = this._getQPMeta(handlerInfos[i]);
+
+        if (!qpMeta) {
+          continue;
+        }
 
         for (var j = 0, qpLen = qpMeta.qps.length; j < qpLen; ++j) {
           var qp = qpMeta.qps[j];
@@ -26081,15 +26195,26 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
     },
 
-    _hydrateUnsuppliedQueryParams: function (leafRouteName, contexts, queryParams) {
-      var state = calculatePostTransitionState(this, leafRouteName, contexts);
+    /**
+      Hydrates (adds/restores) any query params that have pre-existing values into
+      the given queryParams hash. This is what allows query params to be "sticky"
+      and restore their last known values for their scope.
+       @private
+      @method _hydrateUnsuppliedQueryParams
+      @param {TransitionState} state
+      @param {Object} queryParams
+      @return {Void}
+    */
+    _hydrateUnsuppliedQueryParams: function (state, queryParams) {
       var handlerInfos = state.handlerInfos;
       var appCache = this._bucketCache;
-      _emberRoutingUtils.stashParamNames(this, handlerInfos);
 
       for (var i = 0; i < handlerInfos.length; ++i) {
-        var route = handlerInfos[i].handler;
-        var qpMeta = _emberMetal.get(route, '_qp');
+        var qpMeta = this._getQPMeta(handlerInfos[i]);
+
+        if (!qpMeta) {
+          continue;
+        }
 
         for (var j = 0, qpLen = qpMeta.qps.length; j < qpLen; ++j) {
           var qp = qpMeta.qps[j];
@@ -26396,10 +26521,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     for (var i = 0; i < handlerInfos.length; ++i) {
       var handlerInfo = handlerInfos[i];
+
+      // If the handlerInfo is not resolved, we serialize the context into params
       if (!handlerInfo.isResolved) {
-        handlerInfo = handlerInfo.becomeResolved(null, handlerInfo.context);
+        params[handlerInfo.name] = handlerInfo.serialize(handlerInfo.context);
+      } else {
+        params[handlerInfo.name] = handlerInfo.params;
       }
-      params[handlerInfo.name] = handlerInfo.params;
     }
     return state;
   }
@@ -26551,8 +26679,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
   }
 
-  function forEachQueryParam(router, targetRouteName, queryParams, callback) {
-    var qpCache = router._queryParamsFor(targetRouteName);
+  function forEachQueryParam(router, handlerInfos, queryParams, callback) {
+    var qpCache = router._queryParamsFor(handlerInfos);
 
     for (var key in queryParams) {
       if (!queryParams.hasOwnProperty(key)) {
@@ -26561,9 +26689,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       var value = queryParams[key];
       var qp = qpCache.map[key];
 
-      if (qp) {
-        callback(key, value, qp);
-      }
+      callback(key, value, qp);
     }
   }
 
@@ -39340,7 +39466,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+45f1416d";
+  exports.default = "2.10.0-alpha.1-canary+77c51f6e";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

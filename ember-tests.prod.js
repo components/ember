@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+45f1416d
+ * @version   2.10.0-alpha.1-canary+77c51f6e
  */
 
 var enifed, requireModule, require, Ember;
@@ -44237,8 +44237,8 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'inte
       }
     });
 
-    var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application' });
-    var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts' });
+    var applicationRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'application', fullRouteName: 'foo.bar' });
+    var postsRoute = _emberRoutingSystemRoute.default.create({ router: router, routeName: 'posts', fullRouteName: 'foo.bar.posts' });
     var route = _emberRoutingSystemRoute.default.create({ router: router });
 
     _emberUtils.setOwner(applicationRoute, engineInstance);
@@ -69530,6 +69530,203 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       });
     };
 
+    return _class;
+  })(_internalTestHelpers.QueryParamTestCase));
+});
+enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test', ['exports', 'ember-runtime', 'internal-test-helpers'], function (exports, _emberRuntime, _internalTestHelpers) {
+  'use strict';
+
+  // These tests mimic what happens with lazily loaded Engines.
+  _internalTestHelpers.moduleFor('Query Params - async get handler', (function (_QueryParamTestCase) {
+    babelHelpers.inherits(_class, _QueryParamTestCase);
+
+    function _class() {
+      _QueryParamTestCase.apply(this, arguments);
+    }
+
+    _class.prototype['@test can render a link to an asynchronously loaded route without fetching the route'] = function testCanRenderALinkToAnAsynchronouslyLoadedRouteWithoutFetchingTheRoute(assert) {
+      var _this = this;
+
+      assert.expect(4);
+
+      this.router.map(function () {
+        this.route('post', { path: '/post/:id' });
+      });
+
+      this.setSingleQPController('post');
+
+      var setupAppTemplate = function () {
+        _this.registerTemplate('application', '\n        {{link-to \'Post\' \'post\' 1337 (query-params foo=\'bar\') class=\'post-link\'}}\n        {{link-to \'Post\' \'post\' 7331 (query-params foo=\'boo\') class=\'post-link\'}}\n        {{outlet}}\n      ');
+      };
+
+      setupAppTemplate();
+
+      return this.visitAndAssert('/').then(function () {
+        assert.equal(_this.$('.post-link').eq(0).attr('href'), '/post/1337?foo=bar', 'renders correctly with default QP value');
+        assert.equal(_this.$('.post-link').eq(1).attr('href'), '/post/7331?foo=boo', 'renders correctly with non-default QP value');
+        assert.deepEqual(_this.fetchedHandlers, ['application', 'index'], 'only fetched the handlers for the route we\'re on');
+      });
+    };
+
+    _class.prototype['@test can transitionTo to an asynchronously loaded route with simple query params'] = function testCanTransitionToToAnAsynchronouslyLoadedRouteWithSimpleQueryParams(assert) {
+      var _this2 = this;
+
+      assert.expect(6);
+
+      this.router.map(function () {
+        this.route('post', { path: '/post/:id' });
+        this.route('posts');
+      });
+
+      this.setSingleQPController('post');
+
+      var postController = undefined;
+      return this.visitAndAssert('/').then(function () {
+        postController = _this2.getController('post');
+
+        return _this2.transitionTo('posts').then(function () {
+          _this2.assertCurrentPath('/posts');
+        });
+      }).then(function () {
+        return _this2.transitionTo('post', 1337, { queryParams: { foo: 'boo' } }).then(function () {
+          assert.equal(postController.get('foo'), 'boo', 'simple QP is correctly set on controller');
+          _this2.assertCurrentPath('/post/1337?foo=boo');
+        });
+      }).then(function () {
+        return _this2.transitionTo('post', 1337, { queryParams: { foo: 'bar' } }).then(function () {
+          assert.equal(postController.get('foo'), 'bar', 'simple QP is correctly set with default value');
+          _this2.assertCurrentPath('/post/1337');
+        });
+      });
+    };
+
+    _class.prototype['@test can transitionTo to an asynchronously loaded route with array query params'] = function testCanTransitionToToAnAsynchronouslyLoadedRouteWithArrayQueryParams(assert) {
+      var _this3 = this;
+
+      assert.expect(5);
+
+      this.router.map(function () {
+        this.route('post', { path: '/post/:id' });
+      });
+
+      this.setSingleQPController('post', 'comments', []);
+
+      var postController = undefined;
+      return this.visitAndAssert('/').then(function () {
+        postController = _this3.getController('post');
+        return _this3.transitionTo('post', 1337, { queryParams: { comments: [1, 2] } }).then(function () {
+          assert.deepEqual(postController.get('comments'), [1, 2], 'array QP is correctly set with default value');
+          _this3.assertCurrentPath('/post/1337?comments=%5B1%2C2%5D');
+        });
+      }).then(function () {
+        return _this3.transitionTo('post', 1338).then(function () {
+          assert.deepEqual(postController.get('comments'), [], 'array QP is correctly set on controller');
+          _this3.assertCurrentPath('/post/1338');
+        });
+      });
+    };
+
+    _class.prototype['@test can transitionTo to an asynchronously loaded route with mapped query params'] = function testCanTransitionToToAnAsynchronouslyLoadedRouteWithMappedQueryParams(assert) {
+      var _this4 = this;
+
+      assert.expect(7);
+
+      this.router.map(function () {
+        this.route('post', { path: '/post/:id' }, function () {
+          this.route('index', { path: '/' });
+        });
+      });
+
+      this.setSingleQPController('post');
+      this.setMappedQPController('post.index', 'comment', 'note');
+
+      var postController = undefined;
+      var postIndexController = undefined;
+
+      return this.visitAndAssert('/').then(function () {
+        postController = _this4.getController('post');
+        postIndexController = _this4.getController('post.index');
+
+        return _this4.transitionTo('post.index', 1337, { queryParams: { note: 6, foo: 'boo' } }).then(function () {
+          assert.equal(postController.get('foo'), 'boo', 'simple QP is correctly set on controller');
+          assert.equal(postIndexController.get('comment'), 6, 'mapped QP is correctly set on controller');
+          _this4.assertCurrentPath('/post/1337?foo=boo&note=6');
+        });
+      }).then(function () {
+        return _this4.transitionTo('post', 1337, { queryParams: { foo: 'bar' } }).then(function () {
+          assert.equal(postController.get('foo'), 'bar', 'simple QP is correctly set with default value');
+          assert.equal(postIndexController.get('comment'), 6, 'mapped QP retains value scoped to model');
+          _this4.assertCurrentPath('/post/1337?note=6');
+        });
+      });
+    };
+
+    _class.prototype['@test can transitionTo with a URL'] = function testCanTransitionToWithAURL(assert) {
+      var _this5 = this;
+
+      assert.expect(7);
+
+      this.router.map(function () {
+        this.route('post', { path: '/post/:id' }, function () {
+          this.route('index', { path: '/' });
+        });
+      });
+
+      this.setSingleQPController('post');
+      this.setMappedQPController('post.index', 'comment', 'note');
+
+      var postController = undefined;
+      var postIndexController = undefined;
+
+      return this.visitAndAssert('/').then(function () {
+        postController = _this5.getController('post');
+        postIndexController = _this5.getController('post.index');
+
+        return _this5.transitionTo('/post/1337?foo=boo&note=6').then(function () {
+          assert.equal(postController.get('foo'), 'boo', 'simple QP is correctly deserialized on controller');
+          assert.equal(postIndexController.get('comment'), 6, 'mapped QP is correctly deserialized on controller');
+          _this5.assertCurrentPath('/post/1337?foo=boo&note=6');
+        });
+      }).then(function () {
+        return _this5.transitionTo('/post/1337?note=6').then(function () {
+          assert.equal(postController.get('foo'), 'bar', 'simple QP is correctly deserialized with default value');
+          assert.equal(postIndexController.get('comment'), 6, 'mapped QP retains value scoped to model');
+          _this5.assertCurrentPath('/post/1337?note=6');
+        });
+      });
+    };
+
+    babelHelpers.createClass(_class, [{
+      key: 'routerOptions',
+      get: function () {
+        var fetchedHandlers = this.fetchedHandlers = [];
+
+        return {
+          location: 'test',
+
+          _getQPMeta: function (handlerInfo) {
+            return this._bucketCache.lookup('route-meta', handlerInfo.name);
+          },
+
+          _getHandlerFunction: function () {
+            var getHandler = this._super.apply(this, arguments);
+            var cache = {};
+
+            return function (routeName) {
+              fetchedHandlers.push(routeName);
+
+              // Cache the returns so we don't have more than one Promise for a
+              // given handler.
+              return cache[routeName] || (cache[routeName] = new _emberRuntime.RSVP.Promise(function (resolve) {
+                setTimeout(function () {
+                  return resolve(getHandler(routeName));
+                }, 10);
+              }));
+            };
+          }
+        };
+      }
+    }]);
     return _class;
   })(_internalTestHelpers.QueryParamTestCase));
 });
