@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5-beta+eb543d78
+ * @version   2.9.0-beta.5-beta+471c5e6a
  */
 
 var enifed, requireModule, require, Ember;
@@ -8134,7 +8134,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
         return _this3.component.destroy();
       });
 
-      assert.deepEqual(hooks, [['x-parent', 'willDestroyElement'], ['x-parent', 'willClearRender'], ['x-child', 'willDestroyElement'], ['x-child', 'willClearRender'], ['x-parent', 'didDestroyElement'], ['x-child', 'didDestroyElement'], ['x-parent', 'willDestroy'], ['x-child', 'willDestroy']], 'destroy');
+      assert.deepEqual(hooks, [['x-parent', 'willDestroyElement'], ['x-parent', 'willClearRender'], ['x-child', 'willDestroyElement'], ['x-child', 'willClearRender'], ['x-child', 'didDestroyElement'], ['x-parent', 'didDestroyElement'], ['x-parent', 'willDestroy'], ['x-child', 'willDestroy']], 'destroy');
     };
 
     AbstractAppendTest.prototype['@test appending, updating and destroying a single component'] = function testAppendingUpdatingAndDestroyingASingleComponent(assert) {
@@ -15941,7 +15941,7 @@ enifed('ember-glimmer/tests/integration/components/instrumentation-test', ['expo
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-views', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberViews, _emberGlimmerTestsUtilsTestHelpers) {
+enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-views', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberViews, _emberGlimmerTestsUtilsTestHelpers) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
@@ -15953,7 +15953,9 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports',
       _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Bottom: {{', '}}\n      </div>'], ['\n      <div>\n        Bottom: {{', '}}\n      </div>']),
       _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#nested-item}}Item: {{count}}{{/nested-item}}\n    '], ['\n      {{#nested-item}}Item: {{count}}{{/nested-item}}\n    ']),
       _templateObject9 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#nested-item}}Nothing to see here{{/nested-item}}\n    '], ['\n      {{#nested-item}}Nothing to see here{{/nested-item}}\n    ']),
-      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']);
+      _templateObject10 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    '], ['\n      {{#each items as |item|}}\n        ', '\n      {{else}}\n        ', '\n      {{/each}}\n    ']),
+      _templateObject11 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{yield}}\n      <ul>\n        {{#nested-component nestedId=(concat itemId \'-A\')}}A{{/nested-component}}\n        {{#nested-component nestedId=(concat itemId \'-B\')}}B{{/nested-component}}\n      </ul>\n    '], ['\n      {{yield}}\n      <ul>\n        {{#nested-component nestedId=(concat itemId \'-A\')}}A{{/nested-component}}\n        {{#nested-component nestedId=(concat itemId \'-B\')}}B{{/nested-component}}\n      </ul>\n    ']),
+      _templateObject12 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each items as |item|}}\n        {{#parent-component itemId=item.id}}{{item.id}}{{/parent-component}}\n      {{/each}}\n      {{#if model.shouldShow}}\n        {{#parent-component itemId=6}}6{{/parent-component}}\n      {{/if}}\n      {{#if model.shouldShow}}\n        {{#parent-component itemId=7}}7{{/parent-component}}\n      {{/if}}\n    '], ['\n      {{#each items as |item|}}\n        {{#parent-component itemId=item.id}}{{item.id}}{{/parent-component}}\n      {{/each}}\n      {{#if model.shouldShow}}\n        {{#parent-component itemId=6}}6{{/parent-component}}\n      {{/if}}\n      {{#if model.shouldShow}}\n        {{#parent-component itemId=7}}7{{/parent-component}}\n      {{/if}}\n    ']);
 
   var LifeCycleHooksTest = (function (_RenderingTest) {
 babelHelpers.inherits(LifeCycleHooksTest, _RenderingTest);
@@ -16983,8 +16985,144 @@ babelHelpers.inherits(_class5, _RenderingTest2);
       });
     };
 
+    _class5.prototype['@test that thing about destroying'] = function testThatThingAboutDestroying(assert) {
+      var _this12 = this;
+
+      var ParentDestroyedElements = [];
+      var ChildDestroyedElements = [];
+
+      var ParentComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        willDestroyElement: function () {
+          ParentDestroyedElements.push({
+            id: this.itemId,
+            name: 'parent-component',
+            hasParent: !!this.element.parentNode,
+            nextSibling: !!this.element.nextSibling,
+            previousSibling: !!this.element.previousSibling
+          });
+        }
+      });
+
+      var PartentTemplate = _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject11);
+
+      var NestedComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        willDestroyElement: function () {
+          ChildDestroyedElements.push({
+            id: this.nestedId,
+            name: 'nested-component',
+            hasParent: !!this.element.parentNode,
+            nextSibling: !!this.element.nextSibling,
+            previousSibling: !!this.element.previousSibling
+          });
+        }
+      });
+
+      var NestedTemplate = '{{yield}}';
+
+      this.registerComponent('parent-component', {
+        ComponentClass: ParentComponent,
+        template: PartentTemplate
+      });
+
+      this.registerComponent('nested-component', {
+        ComponentClass: NestedComponent,
+        template: NestedTemplate
+      });
+
+      var array = _emberRuntime.A([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }]);
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject12), {
+        items: array,
+        model: { shouldShow: true }
+      });
+
+      this.assertText('1AB2AB3AB4AB5AB6AB7AB');
+
+      this.runTask(function () {
+        array.removeAt(2);
+        array.removeAt(2);
+        _emberMetal.set(_this12.context, 'model.shouldShow', false);
+      });
+
+      this.assertText('1AB2AB5AB');
+
+      assertDestroyHooks(assert, [].concat(ParentDestroyedElements), [{
+        id: 3,
+        hasParent: true,
+        nextSibling: true,
+        previousSibling: true
+      }, {
+        id: 4,
+        hasParent: true,
+        nextSibling: true,
+        previousSibling: true
+      }, {
+        id: 6,
+        hasParent: true,
+        nextSibling: true,
+        previousSibling: true
+      }, {
+        id: 7,
+        hasParent: true,
+        nextSibling: false,
+        previousSibling: true
+      }]);
+
+      assertDestroyHooks(assert, [].concat(ChildDestroyedElements), [{
+        id: '3-A',
+        hasParent: true,
+        nextSibling: true,
+        previousSibling: false
+      }, {
+        id: '3-B',
+        hasParent: true,
+        nextSibling: false,
+        previousSibling: true
+      }, {
+        id: '4-A',
+        hasParent: true,
+        nextSibling: true,
+        previousSibling: false
+      }, {
+        id: '4-B',
+        hasParent: true,
+        nextSibling: false,
+        previousSibling: true
+      }, {
+        id: '6-A',
+        hasParent: true,
+        nextSibling: true,
+        previousSibling: false
+      }, {
+        id: '6-B',
+        hasParent: true,
+        nextSibling: false,
+        previousSibling: true
+      }, {
+        id: '7-A',
+        hasParent: true,
+        nextSibling: true,
+        previousSibling: false
+      }, {
+        id: '7-B',
+        hasParent: true,
+        nextSibling: false,
+        previousSibling: true
+      }]);
+    };
+
     return _class5;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  function assertDestroyHooks(assert, _actual, _expected) {
+    _expected.forEach(function (expected, i) {
+      var name = expected.name;
+      assert.equal(expected.id, _actual[i].id, name + ' id is the same');
+      assert.equal(expected.hasParent, _actual[i].hasParent, name + ' has parent node');
+      assert.equal(expected.nextSibling, _actual[i].nextSibling, name + ' has next sibling node');
+      assert.equal(expected.previousSibling, _actual[i].previousSibling, name + ' has previous sibling node');
+    });
+  }
 
   function bind(func, thisArg) {
     return function () {
