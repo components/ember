@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+77c51f6e
+ * @version   2.10.0-alpha.1-canary+6642ed02
  */
 
 var enifed, requireModule, require, Ember;
@@ -23356,7 +23356,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var controllerProto = undefined,
           combinedQueryParameterConfiguration = undefined;
 
-      var controllerName = this.controllerName || this.fullRouteName;
+      var controllerName = this.controllerName || this.routeName;
       var definedControllerClass = _emberUtils.getOwner(this)._lookupFactory('controller:' + controllerName);
       var queryParameterConfiguraton = _emberMetal.get(this, 'queryParams');
       var hasRouterDefinedQueryParams = !!Object.keys(queryParameterConfiguraton).length;
@@ -39466,7 +39466,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+77c51f6e";
+  exports.default = "2.10.0-alpha.1-canary+6642ed02";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+77c51f6e
+ * @version   2.10.0-alpha.1-canary+6642ed02
  */
 
 var enifed, requireModule, require, Ember;
@@ -7291,7 +7291,11 @@ babelHelpers.inherits(_class, _ApplicationTest);
       this.registerEngine('blog', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
-          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{outlet}}'));
+          this.register('controller:application', _emberRuntime.Controller.extend({
+            queryParams: ['lang'],
+            lang: ''
+          }));
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{lang}}{{outlet}}'));
           this.register('route:application', _emberRouting.Route.extend({
             model: function () {
               hooks.push('engine - application');
@@ -7535,6 +7539,16 @@ babelHelpers.inherits(_class, _ApplicationTest);
 
       return this.visit('/blog').then(function () {
         _this8.assertText('ApplicationEngine');
+      });
+    };
+
+    _class.prototype['@test engine should lookup and use correct controller'] = function testEngineShouldLookupAndUseCorrectController(assert) {
+      var _this9 = this;
+
+      this.setupAppAndRoutableEngine();
+
+      return this.visit('/blog?lang=English').then(function () {
+        _this9.assertText('ApplicationEngineEnglish');
       });
     };
 
