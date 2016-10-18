@@ -1719,7 +1719,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       _emberMetal.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
 
-      if (_emberMetal.isFeatureEnabled('features-stripped-test')) {
+      if (false) {
         featuresWereStripped = false;
       }
 
@@ -4811,7 +4811,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-me
   }
 
   var flaggedInstrument = undefined;
-  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+  if (false) {
     exports.flaggedInstrument = flaggedInstrument = instrument;
   } else {
     exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
@@ -5207,7 +5207,7 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
     }
   };
 
-  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
+  if (false) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -11784,7 +11784,7 @@ enifed("ember-utils/to-string", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": false, "ember-libraries-isregistered": false, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": false, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": false, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": false, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";

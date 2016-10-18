@@ -566,7 +566,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       _emberMetal.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
 
-      if (_emberMetal.isFeatureEnabled('features-stripped-test')) {
+      if (false) {
         featuresWereStripped = false;
       }
 
@@ -1150,7 +1150,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal', 'ember-testing/test/h
   _emberTestingTestHelpers.registerHelper('currentPath', _emberTestingHelpersCurrent_path.default);
   _emberTestingTestHelpers.registerHelper('currentURL', _emberTestingHelpersCurrent_url.default);
 
-  if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+  if (false) {
     _emberTestingTestHelpers.registerHelper('resumeTest', _emberTestingHelpersPause_test.resumeTest);
   }
 });
@@ -1517,12 +1517,12 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
   */
 
   function pauseTest() {
-    if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+    if (false) {
       _emberConsole.default.info('Testing paused. Use `resumeTest()` to continue.');
     }
 
     return new _emberRuntime.RSVP.Promise(function (resolve) {
-      if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+      if (false) {
         resume = resolve;
       }
     }, 'TestAdapter paused promise');

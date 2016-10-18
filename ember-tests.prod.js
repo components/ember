@@ -20758,7 +20758,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher - Instrumentation', (function (_RenderingTest3) {
       babelHelpers.inherits(_class3, _RenderingTest3);
 
@@ -20926,7 +20926,7 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember
 enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
       babelHelpers.inherits(_class, _RenderingTest);
 
@@ -23368,7 +23368,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: element action instrumentation', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
 
@@ -37824,7 +37824,7 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'emb
     equal(registry.length, 1);
   });
 
-  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
+  if (false) {
     QUnit.test('isRegistered returns correct value', function () {
       expect(3);
 
@@ -59296,7 +59296,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing', 'ember-r
     App.testHelpers.pauseTest();
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+  if (false) {
     QUnit.test('resumeTest resumes paused tests', function () {
       expect(1);
 
@@ -61068,7 +61068,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViews.jQuery('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (false) {
     QUnit.test('The {{link-to}} helper fires an interaction event', function (assert) {
       assert.expect(2);
       Router.map(function (match) {
@@ -63368,7 +63368,7 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-metal-weakmap')) {
+  if (false) {
     QUnit.test('Ember.WeakMap exports correctly', function (assert) {
       _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'WeakMap', 'ember-metal', 'WeakMap');
     });

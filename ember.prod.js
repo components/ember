@@ -16553,7 +16553,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-me
   }
 
   var flaggedInstrument = undefined;
-  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+  if (false) {
     exports.flaggedInstrument = flaggedInstrument = instrument;
   } else {
     exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
@@ -16947,7 +16947,7 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
     }
   };
 
-  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
+  if (false) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -38924,7 +38924,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+  exports.default = { "features-stripped-test": false, "ember-libraries-isregistered": false, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": false, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": false, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": false, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -39046,7 +39046,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.Binding = _emberMetal.Binding;
   _emberMetal.default.isGlobalPath = _emberMetal.isGlobalPath;
 
-  if (_emberMetal.isFeatureEnabled('ember-metal-weakmap')) {
+  if (false) {
     _emberMetal.default.WeakMap = _emberMetal.WeakMap;
   }
 
