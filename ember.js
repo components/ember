@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5-beta+471c5e6a
+ * @version   2.9.0-beta.5-beta+a3c0e2da
  */
 
 var enifed, requireModule, require, Ember;
@@ -8300,15 +8300,11 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       });
 
       this._compilerCache = new _emberMetal.Cache(10, function (Compiler) {
-        return new _emberMetal.Cache(2000, function (_ref6) {
-          var template = _ref6.template;
-
+        return new _emberMetal.Cache(2000, function (template) {
           var compilable = new Compiler(template);
           return _glimmerRuntime.compileLayout(compilable, _this);
-        }, function (_ref7) {
-          var template = _ref7.template;
-          var owner = _ref7.owner;
-
+        }, function (template) {
+          var owner = template.meta.owner;
           return _emberUtils.guidFor(owner) + '|' + template.id;
         });
       }, function (Compiler) {
@@ -8469,9 +8465,9 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
 
     // a Compiler can wrap the template so it needs its own cache
 
-    Environment.prototype.getCompiledBlock = function getCompiledBlock(Compiler, template, owner) {
+    Environment.prototype.getCompiledBlock = function getCompiledBlock(Compiler, template) {
       var compilerCache = this._compilerCache.get(Compiler);
-      return compilerCache.get({ template: template, owner: owner });
+      return compilerCache.get(template);
     };
 
     Environment.prototype.hasPartial = function hasPartial(name, symbolTable) {
@@ -11521,7 +11517,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
       var engine = _ref2.engine;
 
       var template = engine.lookup('template:application');
-      return env.getCompiledBlock(_emberGlimmerSyntaxOutlet.OutletLayoutCompiler, template, engine);
+      return env.getCompiledBlock(_emberGlimmerSyntaxOutlet.OutletLayoutCompiler, template);
     };
 
     MountManager.prototype.getSelf = function getSelf(_ref3) {
@@ -11724,11 +11720,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     };
 
     OutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      var template = definition.template;
-
-      var owner = template.meta.owner;
-
-      return env.getCompiledBlock(OutletLayoutCompiler, definition.template, owner);
+      return env.getCompiledBlock(OutletLayoutCompiler, definition.template);
     };
 
     OutletComponentManager.prototype.getSelf = function getSelf(_ref2) {
@@ -11778,11 +11770,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     };
 
     TopLevelOutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      var template = definition.template;
-
-      var owner = template.meta.owner;
-
-      return env.getCompiledBlock(TopLevelOutletLayoutCompiler, template, owner);
+      return env.getCompiledBlock(TopLevelOutletLayoutCompiler, definition.template);
     };
 
     return TopLevelOutletComponentManager;
@@ -40910,7 +40898,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.9.0-beta.5-beta+471c5e6a";
+  exports.default = "2.9.0-beta.5-beta+a3c0e2da";
 });
 enifed('internal-test-helpers/factory', ['exports'], function (exports) {
   'use strict';
