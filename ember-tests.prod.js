@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+6642ed02
+ * @version   2.10.0-alpha.1-canary+f0e63cd0
  */
 
 var enifed, requireModule, require, Ember;
@@ -7260,11 +7260,15 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['exports', '
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
 });
-enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-application', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberApplication, _emberRouting) {
+enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    '], ['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    ']),
-      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n        <p>Component!</p>\n      '], ['\n        <p>Component!</p>\n      ']);
+      _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n        <p>Component!</p>\n      '], ['\n        <p>Component!</p>\n      ']),
+      _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{ambiguous-curlies}}\n    '], ['\n      {{ambiguous-curlies}}\n    ']),
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      <h1>Application</h1>\n      {{my-component ambiguous-curlies="Local Data!"}}\n      {{outlet}}\n    '], ['\n      <h1>Application</h1>\n      {{my-component ambiguous-curlies="Local Data!"}}\n      {{outlet}}\n    ']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Engine</h1>\n          {{my-component}}\n          {{outlet}}\n        '], ['\n          <h1>Engine</h1>\n          {{my-component}}\n          {{outlet}}\n        ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n          <p>Component!</p>\n        '], ['\n          <p>Component!</p>\n        ']);
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: engine rendering', (function (_ApplicationTest) {
 babelHelpers.inherits(_class, _ApplicationTest);
@@ -7437,23 +7441,41 @@ babelHelpers.inherits(_class, _ApplicationTest);
       });
     };
 
-    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndEngineTemplatesHaveRendered(assert) {
+    _class.prototype['@test sharing a layout between engine and application has separate refinements'] = function testSharingALayoutBetweenEngineAndApplicationHasSeparateRefinements() {
       var _this3 = this;
 
-      assert.expect(2);
+      this.assert.expect(1);
 
-      var hooks = [];
+      var sharedLayout = _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject3));
 
-      this.setupAppAndRoutableEngine(hooks);
+      var sharedComponent = _emberGlimmer.Component.extend({
+        layout: sharedLayout
+      });
 
-      return this.visit('/blog', { shouldRender: true }).then(function () {
-        _this3.assertText('ApplicationEngine');
+      this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4)));
 
-        _this3.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
+      this.application.register('component:my-component', sharedComponent);
+
+      this.router.map(function () {
+        this.mount('blog');
+      });
+      this.application.register('route-map:blog', function () {});
+
+      this.registerEngine('blog', _emberApplication.Engine.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5)));
+          this.register('component:my-component', sharedComponent);
+          this.register('template:components/ambiguous-curlies', _emberGlimmerTestsUtilsHelpers.compile(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6)));
+        }
+      }));
+
+      return this.visit('/blog').then(function () {
+        _this3.assertText('ApplicationLocal Data!EngineComponent!');
       });
     };
 
-    _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
+    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndEngineTemplatesHaveRendered(assert) {
       var _this4 = this;
 
       assert.expect(2);
@@ -7462,15 +7484,31 @@ babelHelpers.inherits(_class, _ApplicationTest);
 
       this.setupAppAndRoutableEngine(hooks);
 
-      return this.visit('/blog', { shouldRender: false }).then(function () {
-        _this4.assertText('');
+      return this.visit('/blog', { shouldRender: true }).then(function () {
+        _this4.assertText('ApplicationEngine');
 
         _this4.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
       });
     };
 
-    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and routeless engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndRoutelessEngineTemplatesHaveRendered(assert) {
+    _class.prototype['@test visit() with `shouldRender: false` returns a promise that resolves without rendering'] = function testVisitWithShouldRenderFalseReturnsAPromiseThatResolvesWithoutRendering(assert) {
       var _this5 = this;
+
+      assert.expect(2);
+
+      var hooks = [];
+
+      this.setupAppAndRoutableEngine(hooks);
+
+      return this.visit('/blog', { shouldRender: false }).then(function () {
+        _this5.assertText('');
+
+        _this5.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected model hooks were fired');
+      });
+    };
+
+    _class.prototype['@test visit() with `shouldRender: true` returns a promise that resolves when application and routeless engine templates have rendered'] = function testVisitWithShouldRenderTrueReturnsAPromiseThatResolvesWhenApplicationAndRoutelessEngineTemplatesHaveRendered(assert) {
+      var _this6 = this;
 
       assert.expect(2);
 
@@ -7479,14 +7517,14 @@ babelHelpers.inherits(_class, _ApplicationTest);
       this.setupAppAndRoutelessEngine(hooks);
 
       return this.visit('/', { shouldRender: true }).then(function () {
-        _this5.assertText('ApplicationEngine');
+        _this6.assertText('ApplicationEngine');
 
-        _this5.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+        _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
       });
     };
 
     _class.prototype['@test visit() with partials in routable engine'] = function testVisitWithPartialsInRoutableEngine(assert) {
-      var _this6 = this;
+      var _this7 = this;
 
       assert.expect(2);
 
@@ -7495,14 +7533,14 @@ babelHelpers.inherits(_class, _ApplicationTest);
       this.setupAppAndRoutableEngineWithPartial(hooks);
 
       return this.visit('/blog', { shouldRender: true }).then(function () {
-        _this6.assertText('ApplicationEngine foo partial');
+        _this7.assertText('ApplicationEngine foo partial');
 
-        _this6.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+        _this7.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
       });
     };
 
     _class.prototype['@test visit() with partials in non-routable engine'] = function testVisitWithPartialsInNonRoutableEngine(assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       assert.expect(2);
 
@@ -7511,14 +7549,14 @@ babelHelpers.inherits(_class, _ApplicationTest);
       this.setupAppAndRoutlessEngineWithPartial(hooks);
 
       return this.visit('/', { shouldRender: true }).then(function () {
-        _this7.assertText('ApplicationEngine foo partial');
+        _this8.assertText('ApplicationEngine foo partial');
 
-        _this7.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
+        _this8.assert.deepEqual(hooks, ['application - application', 'engine - application'], 'the expected hooks were fired');
       });
     };
 
     _class.prototype['@test deactivate should be called on Engine Routes before destruction'] = function testDeactivateShouldBeCalledOnEngineRoutesBeforeDestruction(assert) {
-      var _this8 = this;
+      var _this9 = this;
 
       assert.expect(3);
 
@@ -7538,17 +7576,17 @@ babelHelpers.inherits(_class, _ApplicationTest);
       }));
 
       return this.visit('/blog').then(function () {
-        _this8.assertText('ApplicationEngine');
+        _this9.assertText('ApplicationEngine');
       });
     };
 
     _class.prototype['@test engine should lookup and use correct controller'] = function testEngineShouldLookupAndUseCorrectController(assert) {
-      var _this9 = this;
+      var _this10 = this;
 
       this.setupAppAndRoutableEngine();
 
       return this.visit('/blog?lang=English').then(function () {
-        _this9.assertText('ApplicationEngineEnglish');
+        _this10.assertText('ApplicationEngineEnglish');
       });
     };
 
