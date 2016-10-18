@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+f0e63cd0
+ * @version   2.10.0-alpha.1-canary+e9782456
  */
 
 var enifed, requireModule, require, Ember;
@@ -4632,7 +4632,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.runInTransaction = _emberMetalTransaction.default;
   exports.didRender = _emberMetalTransaction.didRender;
   exports.assertNotRendered = _emberMetalTransaction.assertNotRendered;
-  exports.IS_PROXY = _emberMetalIs_proxy.IS_PROXY;
   exports.isProxy = _emberMetalIs_proxy.isProxy;
   exports.descriptor = _emberMetalDescriptor.default;
 
@@ -5133,16 +5132,18 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     return !_emberMetalIs_blank.default(obj);
   }
 });
-enifed('ember-metal/is_proxy', ['exports', 'ember-utils'], function (exports, _emberUtils) {
+enifed('ember-metal/is_proxy', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
   'use strict';
 
   exports.isProxy = isProxy;
-  var IS_PROXY = _emberUtils.symbol('IS_PROXY');
-
-  exports.IS_PROXY = IS_PROXY;
 
   function isProxy(value) {
-    return typeof value === 'object' && value && value[IS_PROXY];
+    if (typeof value === 'object' && value) {
+      var meta = _emberMetalMeta.peekMeta(value);
+      return meta && meta.isProxy();
+    }
+
+    return false;
   }
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
@@ -5802,9 +5803,11 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     tags: ownMap
   };
 
+  // FLAGS
   var SOURCE_DESTROYING = 1 << 1;
   var SOURCE_DESTROYED = 1 << 2;
   var META_DESTROYED = 1 << 3;
+  var IS_PROXY = 1 << 4;
 
   if (true || false) {
     members.lastRendered = ownMap;
@@ -5938,6 +5941,14 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
   Meta.prototype.setMetaDestroyed = function setMetaDestroyed() {
     this._flags |= META_DESTROYED;
+  };
+
+  Meta.prototype.isProxy = function isProxy() {
+    return (this._flags & IS_PROXY) !== 0;
+  };
+
+  Meta.prototype.setProxy = function setProxy() {
+    this._flags |= IS_PROXY;
   };
 
   // Implements a member that is a lazily created, non-inheritable
@@ -11789,7 +11800,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+f0e63cd0";
+  exports.default = "2.10.0-alpha.1-canary+e9782456";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";

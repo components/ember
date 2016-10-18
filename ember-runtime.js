@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+f0e63cd0
+ * @version   2.10.0-alpha.1-canary+e9782456
  */
 
 var enifed, requireModule, require, Ember;
@@ -5336,7 +5336,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.runInTransaction = _emberMetalTransaction.default;
   exports.didRender = _emberMetalTransaction.didRender;
   exports.assertNotRendered = _emberMetalTransaction.assertNotRendered;
-  exports.IS_PROXY = _emberMetalIs_proxy.IS_PROXY;
   exports.isProxy = _emberMetalIs_proxy.isProxy;
   exports.descriptor = _emberMetalDescriptor.default;
 
@@ -5837,16 +5836,18 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     return !_emberMetalIs_blank.default(obj);
   }
 });
-enifed('ember-metal/is_proxy', ['exports', 'ember-utils'], function (exports, _emberUtils) {
+enifed('ember-metal/is_proxy', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
   'use strict';
 
   exports.isProxy = isProxy;
-  var IS_PROXY = _emberUtils.symbol('IS_PROXY');
-
-  exports.IS_PROXY = IS_PROXY;
 
   function isProxy(value) {
-    return typeof value === 'object' && value && value[IS_PROXY];
+    if (typeof value === 'object' && value) {
+      var meta = _emberMetalMeta.peekMeta(value);
+      return meta && meta.isProxy();
+    }
+
+    return false;
   }
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
@@ -6506,9 +6507,11 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     tags: ownMap
   };
 
+  // FLAGS
   var SOURCE_DESTROYING = 1 << 1;
   var SOURCE_DESTROYED = 1 << 2;
   var META_DESTROYED = 1 << 3;
+  var IS_PROXY = 1 << 4;
 
   if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     members.lastRendered = ownMap;
@@ -6642,6 +6645,14 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
   Meta.prototype.setMetaDestroyed = function setMetaDestroyed() {
     this._flags |= META_DESTROYED;
+  };
+
+  Meta.prototype.isProxy = function isProxy() {
+    return (this._flags & IS_PROXY) !== 0;
+  };
+
+  Meta.prototype.setProxy = function setProxy() {
+    this._flags |= IS_PROXY;
   };
 
   // Implements a member that is a lazily created, non-inheritable
@@ -12864,8 +12875,6 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-me
 
   'use strict';
 
-  var _Mixin$create;
-
   function contentPropertyWillChange(content, contentKey) {
     var key = contentKey.slice(8); // remove "content."
     if (key in this) {
@@ -12920,49 +12929,71 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-me
     return ProxyTag;
   })(_glimmerReference.CachedTag);
 
-  exports.default = _emberMetal.Mixin.create((_Mixin$create = {}, _Mixin$create[_emberMetal.IS_PROXY] = true, _Mixin$create.content = null, _Mixin$create._initializeTag = _emberMetal.on('init', function () {
-    _emberMetal.meta(this)._tag = new ProxyTag(this);
-  }), _Mixin$create._contentDidChange = _emberMetal.observer('content', function () {
-    _emberMetal.assert('Can\'t set Proxy\'s content to itself', _emberMetal.get(this, 'content') !== this);
-    _emberMetal.tagFor(this).contentDidChange();
-  }), _Mixin$create.isTruthy = _emberRuntimeComputedComputed_macros.bool('content'), _Mixin$create._debugContainerKey = null, _Mixin$create.willWatchProperty = function (key) {
-    var contentKey = 'content.' + key;
-    _emberMetal._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
-    _emberMetal.addObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _Mixin$create.didUnwatchProperty = function (key) {
-    var contentKey = 'content.' + key;
-    _emberMetal._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
-    _emberMetal.removeObserver(this, contentKey, null, contentPropertyDidChange);
-  }, _Mixin$create.unknownProperty = function (key) {
-    var content = _emberMetal.get(this, 'content');
-    if (content) {
-      _emberMetal.deprecate('You attempted to access `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
-      return _emberMetal.get(content, key);
-    }
-  }, _Mixin$create.setUnknownProperty = function (key, value) {
-    var m = _emberMetal.meta(this);
-    if (m.proto === this) {
-      // if marked as prototype then just defineProperty
-      // rather than delegate
-      _emberMetal.defineProperty(this, key, null, value);
-      return value;
-    }
+  exports.default = _emberMetal.Mixin.create({
+    /**
+      The object whose properties will be forwarded.
+       @property content
+      @type Ember.Object
+      @default null
+      @private
+    */
+    content: null,
 
-    var content = _emberMetal.get(this, 'content');
-    _emberMetal.assert('Cannot delegate set(\'' + key + '\', ' + value + ') to the \'content\' property of object proxy ' + this + ': its \'content\' is undefined.', content);
+    init: function () {
+      this._super.apply(this, arguments);
+      _emberMetal.meta(this).setProxy();
+    },
 
-    _emberMetal.deprecate('You attempted to set `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
-    return _emberMetal.set(content, key, value);
-  }, _Mixin$create));
+    _initializeTag: _emberMetal.on('init', function () {
+      _emberMetal.meta(this)._tag = new ProxyTag(this);
+    }),
+
+    _contentDidChange: _emberMetal.observer('content', function () {
+      _emberMetal.assert('Can\'t set Proxy\'s content to itself', _emberMetal.get(this, 'content') !== this);
+      _emberMetal.tagFor(this).contentDidChange();
+    }),
+
+    isTruthy: _emberRuntimeComputedComputed_macros.bool('content'),
+
+    _debugContainerKey: null,
+
+    willWatchProperty: function (key) {
+      var contentKey = 'content.' + key;
+      _emberMetal._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+      _emberMetal.addObserver(this, contentKey, null, contentPropertyDidChange);
+    },
+
+    didUnwatchProperty: function (key) {
+      var contentKey = 'content.' + key;
+      _emberMetal._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+      _emberMetal.removeObserver(this, contentKey, null, contentPropertyDidChange);
+    },
+
+    unknownProperty: function (key) {
+      var content = _emberMetal.get(this, 'content');
+      if (content) {
+        _emberMetal.deprecate('You attempted to access `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
+        return _emberMetal.get(content, key);
+      }
+    },
+
+    setUnknownProperty: function (key, value) {
+      var m = _emberMetal.meta(this);
+      if (m.proto === this) {
+        // if marked as prototype then just defineProperty
+        // rather than delegate
+        _emberMetal.defineProperty(this, key, null, value);
+        return value;
+      }
+
+      var content = _emberMetal.get(this, 'content');
+      _emberMetal.assert('Cannot delegate set(\'' + key + '\', ' + value + ') to the \'content\' property of object proxy ' + this + ': its \'content\' is undefined.', content);
+
+      _emberMetal.deprecate('You attempted to set `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
+      return _emberMetal.set(content, key, value);
+    }
+  });
 });
-
-/**
-  The object whose properties will be forwarded.
-   @property content
-  @type Ember.Object
-  @default null
-  @private
-*/
 enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   /**
   @module ember
@@ -19327,7 +19358,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+f0e63cd0";
+  exports.default = "2.10.0-alpha.1-canary+e9782456";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
