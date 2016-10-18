@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.9.0-beta.5
+ * @version   2.9.0
  */
 
 var enifed, requireModule, require, Ember;
@@ -112,85 +112,12 @@ var mainContext = this;
   }
 })();
 
-var babelHelpers;
-
-function classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError('Cannot call a class as a function');
-  }
-}
-
-function inherits(subClass, superClass) {
-  if (typeof superClass !== 'function' && superClass !== null) {
-    throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : defaults(subClass, superClass);
-}
-
-function taggedTemplateLiteralLoose(strings, raw) {
-  strings.raw = raw;
-  return strings;
-}
-
-function defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ('value' in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) defineProperties(Constructor, staticProps);
-  return Constructor;
-}
-
-function interopExportWildcard(obj, defaults) {
-  var newObj = defaults({}, obj);
-  delete newObj['default'];
-  return newObj;
-}
-
-function defaults(obj, defaults) {
-  var keys = Object.getOwnPropertyNames(defaults);
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
-    var value = Object.getOwnPropertyDescriptor(defaults, key);
-    if (value && value.configurable && obj[key] === undefined) {
-      Object.defineProperty(obj, key, value);
-    }
-  }
-  return obj;
-}
-
-babelHelpers = {
-  classCallCheck: classCallCheck,
-  inherits: inherits,
-  taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
-  slice: Array.prototype.slice,
-  createClass: createClass,
-  interopExportWildcard: interopExportWildcard,
-  defaults: defaults
-};
-
-enifed('ember-debug/deprecate', ['exports', 'ember-metal', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _emberMetal, _emberConsole, _emberEnvironment, _emberDebugHandlers) {
+enifed('ember-debug/deprecate', ['exports', 'ember-metal/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _emberMetalError, _emberConsole, _emberEnvironment, _emberDebugHandlers) {
   /*global __fail__*/
 
   'use strict';
 
+  var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = deprecate;
 
@@ -265,7 +192,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal', 'ember-console', 'emb
     if (_emberEnvironment.ENV.RAISE_ON_DEPRECATION) {
       var updatedMessage = formatMessage(message);
 
-      throw new _emberMetal.Error(updatedMessage);
+      throw new _emberMetalError.default(updatedMessage);
     } else {
       next.apply(undefined, arguments);
     }
@@ -331,7 +258,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal', 'ember-console', 'emb
       });
     }
 
-    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(babelHelpers.slice.call(arguments)));
+    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(_slice.call(arguments)));
   }
 });
 enifed("ember-debug/handlers", ["exports"], function (exports) {
@@ -367,7 +294,7 @@ enifed("ember-debug/handlers", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'ember-console', 'ember-debug/deprecate', 'ember-debug/warn'], function (exports, _emberMetal, _emberEnvironment, _emberConsole, _emberDebugDeprecate, _emberDebugWarn) {
+enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-environment', 'ember-metal/testing', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-console', 'ember-debug/deprecate', 'ember-debug/warn'], function (exports, _emberMetalCore, _emberEnvironment, _emberMetalTesting, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberConsole, _emberDebugDeprecate, _emberDebugWarn) {
   'use strict';
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
@@ -403,9 +330,9 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       falsy, an exception will be thrown.
     @public
   */
-  _emberMetal.setDebugFunction('assert', function assert(desc, test) {
+  _emberMetalDebug.setDebugFunction('assert', function assert(desc, test) {
     if (!test) {
-      throw new _emberMetal.Error('Assertion Failed: ' + desc);
+      throw new _emberMetalError.default('Assertion Failed: ' + desc);
     }
   });
 
@@ -423,7 +350,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @param {String} message A debug message to display.
     @public
   */
-  _emberMetal.setDebugFunction('debug', function debug(message) {
+  _emberMetalDebug.setDebugFunction('debug', function debug(message) {
     _emberConsole.default.debug('DEBUG: ' + message);
   });
 
@@ -436,7 +363,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @method info
     @private
   */
-  _emberMetal.setDebugFunction('info', function info() {
+  _emberMetalDebug.setDebugFunction('info', function info() {
     _emberConsole.default.info.apply(undefined, arguments);
   });
 
@@ -459,7 +386,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @return {Function} A new function that wraps the original function with a deprecation warning
     @private
   */
-  _emberMetal.setDebugFunction('deprecateFunc', function deprecateFunc() {
+  _emberMetalDebug.setDebugFunction('deprecateFunc', function deprecateFunc() {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
@@ -472,7 +399,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
 
         return {
           v: function () {
-            _emberMetal.deprecate(message, false, options);
+            _emberMetalDebug.deprecate(message, false, options);
             return func.apply(this, arguments);
           }
         };
@@ -486,7 +413,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
 
         return {
           v: function () {
-            _emberMetal.deprecate(message);
+            _emberMetalDebug.deprecate(message);
             return func.apply(this, arguments);
           }
         };
@@ -517,17 +444,17 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @since 1.5.0
     @public
   */
-  _emberMetal.setDebugFunction('runInDebug', function runInDebug(func) {
+  _emberMetalDebug.setDebugFunction('runInDebug', function runInDebug(func) {
     func();
   });
 
-  _emberMetal.setDebugFunction('debugSeal', function debugSeal(obj) {
+  _emberMetalDebug.setDebugFunction('debugSeal', function debugSeal(obj) {
     Object.seal(obj);
   });
 
-  _emberMetal.setDebugFunction('deprecate', _emberDebugDeprecate.default);
+  _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);
 
-  _emberMetal.setDebugFunction('warn', _emberDebugWarn.default);
+  _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
 
   /**
     Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or
@@ -542,7 +469,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
 
   function _warnIfUsingStrippedFeatureFlags(FEATURES, knownFeatures, featuresWereStripped) {
     if (featuresWereStripped) {
-      _emberMetal.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+      _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
       var keys = Object.keys(FEATURES || {});
       for (var i = 0; i < keys.length; i++) {
@@ -551,23 +478,23 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
           continue;
         }
 
-        _emberMetal.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
+        _emberMetalDebug.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
       }
     }
   }
 
-  if (!_emberMetal.isTesting()) {
+  if (!_emberMetalTesting.isTesting()) {
     (function () {
       // Complain if they're using FEATURE flags in builds other than canary
-      _emberMetal.FEATURES['features-stripped-test'] = true;
+      _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
 
       if (false) {
         featuresWereStripped = false;
       }
 
-      delete _emberMetal.FEATURES['features-stripped-test'];
-      _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberMetal.DEFAULT_FEATURES, featuresWereStripped);
+      delete _emberMetalFeatures.FEATURES['features-stripped-test'];
+      _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberMetalFeatures.DEFAULT_FEATURES, featuresWereStripped);
 
       // Inform the developer about the Ember Inspector if not installed.
       var isFirefox = _emberEnvironment.environment.isFirefox;
@@ -584,7 +511,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
               downloadURL = 'https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/';
             }
 
-            _emberMetal.debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
+            _emberMetalDebug.debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
           }
         }, false);
       }
@@ -594,7 +521,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @public
     @class Ember.Debug
   */
-  _emberMetal.default.Debug = {};
+  _emberMetalCore.default.Debug = {};
 
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
@@ -631,7 +558,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
-  _emberMetal.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
+  _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
   /**
     Allows for runtime registration of handler functions that override the default warning behavior.
     Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
@@ -660,7 +587,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @param handler {Function} A function to handle warnings.
     @since 2.1.0
   */
-  _emberMetal.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
+  _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
@@ -673,13 +600,14 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
   var runningNonEmberDebugJS = false;
   exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
   if (runningNonEmberDebugJS) {
-    _emberMetal.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
+    _emberMetalDebug.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
 // reexports
-enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal', 'ember-debug/handlers'], function (exports, _emberConsole, _emberMetal, _emberDebugHandlers) {
+enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal/debug', 'ember-debug/handlers'], function (exports, _emberConsole, _emberMetalDebug, _emberDebugHandlers) {
   'use strict';
 
+  var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = warn;
 
@@ -724,7 +652,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal', 'ember-de
 
   function warn(message, test, options) {
     if (!options) {
-      _emberMetal.deprecate(missingOptionsDeprecation, false, {
+      _emberMetalDebug.deprecate(missingOptionsDeprecation, false, {
         id: 'ember-debug.warn-options-missing',
         until: '3.0.0',
         url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
@@ -732,17 +660,17 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal', 'ember-de
     }
 
     if (options && !options.id) {
-      _emberMetal.deprecate(missingOptionsIdDeprecation, false, {
+      _emberMetalDebug.deprecate(missingOptionsIdDeprecation, false, {
         id: 'ember-debug.warn-id-missing',
         until: '3.0.0',
         url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
       });
     }
 
-    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(babelHelpers.slice.call(arguments)));
+    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(_slice.call(arguments)));
   }
 });
-enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
+enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
   'use strict';
 
   function K() {
@@ -762,7 +690,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime'], function 
     @namespace Ember.Test
     @public
   */
-  exports.default = _emberRuntime.Object.extend({
+  exports.default = _emberRuntimeSystemObject.default.extend({
     /**
       This callback will be called whenever an async operation is about to start.
        Override this to call your framework's methods that handle async
@@ -798,7 +726,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime'], function 
     }
   });
 });
-enifed('ember-testing/adapters/qunit', ['exports', 'ember-utils', 'ember-testing/adapters/adapter'], function (exports, _emberUtils, _emberTestingAdaptersAdapter) {
+enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapter', 'ember-metal/utils'], function (exports, _emberTestingAdaptersAdapter, _emberMetalUtils) {
   'use strict';
 
   /**
@@ -818,11 +746,11 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-utils', 'ember-testing
       QUnit.start();
     },
     exception: function (error) {
-      ok(false, _emberUtils.inspect(error));
+      ok(false, _emberMetalUtils.inspect(error));
     }
   });
 });
-enifed('ember-testing/events', ['exports', 'ember-views', 'ember-metal'], function (exports, _emberViews, _emberMetal) {
+enifed('ember-testing/events', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop) {
   'use strict';
 
   exports.focus = focus;
@@ -836,11 +764,11 @@ enifed('ember-testing/events', ['exports', 'ember-views', 'ember-metal'], functi
     if (!el) {
       return;
     }
-    var $el = _emberViews.jQuery(el);
+    var $el = _emberViewsSystemJquery.default(el);
     if ($el.is(':input, [contenteditable=true]')) {
       var type = $el.prop('type');
       if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-        _emberMetal.run(null, function () {
+        _emberMetalRun_loop.default(null, function () {
           // Firefox does not trigger the `focusin` event if the window
           // does not have focus. If the document doesn't have focus just
           // use trigger('focusin') instead.
@@ -874,7 +802,7 @@ enifed('ember-testing/events', ['exports', 'ember-views', 'ember-metal'], functi
         clientX: x,
         clientY: y
       };
-      event = buildMouseEvent(type, _emberViews.jQuery.extend(simulatedCoordinates, options));
+      event = buildMouseEvent(type, _emberViewsSystemJquery.default.extend(simulatedCoordinates, options));
     } else {
       event = buildBasicEvent(type, options);
     }
@@ -886,7 +814,7 @@ enifed('ember-testing/events', ['exports', 'ember-views', 'ember-metal'], functi
 
     var event = document.createEvent('Events');
     event.initEvent(type, true, true);
-    _emberViews.jQuery.extend(event, options);
+    _emberViewsSystemJquery.default.extend(event, options);
     return event;
   }
 
@@ -896,7 +824,7 @@ enifed('ember-testing/events', ['exports', 'ember-views', 'ember-metal'], functi
     var event = undefined;
     try {
       event = document.createEvent('MouseEvents');
-      var eventOpts = _emberViews.jQuery.extend({}, DEFAULT_EVENT_OPTIONS, options);
+      var eventOpts = _emberViewsSystemJquery.default.extend({}, DEFAULT_EVENT_OPTIONS, options);
       event.initMouseEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.detail, eventOpts.screenX, eventOpts.screenY, eventOpts.clientX, eventOpts.clientY, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.button, eventOpts.relatedTarget);
     } catch (e) {
       event = buildBasicEvent(type, options);
@@ -910,7 +838,7 @@ enifed('ember-testing/events', ['exports', 'ember-views', 'ember-metal'], functi
     var event = undefined;
     try {
       event = document.createEvent('KeyEvents');
-      var eventOpts = _emberViews.jQuery.extend({}, DEFAULT_EVENT_OPTIONS, options);
+      var eventOpts = _emberViewsSystemJquery.default.extend({}, DEFAULT_EVENT_OPTIONS, options);
       event.initKeyEvent(type, eventOpts.canBubble, eventOpts.cancelable, window, eventOpts.ctrlKey, eventOpts.altKey, eventOpts.shiftKey, eventOpts.metaKey, eventOpts.keyCode, eventOpts.charCode);
     } catch (e) {
       event = buildBasicEvent(type, options);
@@ -918,10 +846,10 @@ enifed('ember-testing/events', ['exports', 'ember-views', 'ember-metal'], functi
     return event;
   }
 });
-enifed('ember-testing/ext/application', ['exports', 'ember-application', 'ember-testing/setup_for_testing', 'ember-testing/test/helpers', 'ember-testing/test/promise', 'ember-testing/test/run', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/adapter'], function (exports, _emberApplication, _emberTestingSetup_for_testing, _emberTestingTestHelpers, _emberTestingTestPromise, _emberTestingTestRun, _emberTestingTestOn_inject_helpers, _emberTestingTestAdapter) {
+enifed('ember-testing/ext/application', ['exports', 'ember-application/system/application', 'ember-testing/setup_for_testing', 'ember-testing/test/helpers', 'ember-testing/test/promise', 'ember-testing/test/run', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/adapter'], function (exports, _emberApplicationSystemApplication, _emberTestingSetup_for_testing, _emberTestingTestHelpers, _emberTestingTestPromise, _emberTestingTestRun, _emberTestingTestOn_inject_helpers, _emberTestingTestAdapter) {
   'use strict';
 
-  _emberApplication.Application.reopen({
+  _emberApplicationSystemApplication.default.reopen({
     /**
      This property contains the testing helpers for the current application. These
      are created once you call `injectTestHelpers` on your `Ember.Application`
@@ -1108,65 +1036,53 @@ enifed('ember-testing/ext/application', ['exports', 'ember-application', 'ember-
     };
   }
 });
-enifed('ember-testing/ext/rsvp', ['exports', 'ember-runtime', 'ember-metal', 'ember-testing/test/adapter'], function (exports, _emberRuntime, _emberMetal, _emberTestingTestAdapter) {
+enifed('ember-testing/ext/rsvp', ['exports', 'ember-runtime/ext/rsvp', 'ember-metal/run_loop', 'ember-metal/testing', 'ember-testing/test/adapter'], function (exports, _emberRuntimeExtRsvp, _emberMetalRun_loop, _emberMetalTesting, _emberTestingTestAdapter) {
   'use strict';
 
-  _emberRuntime.RSVP.configure('async', function (callback, promise) {
+  _emberRuntimeExtRsvp.default.configure('async', function (callback, promise) {
     // if schedule will cause autorun, we need to inform adapter
-    if (_emberMetal.isTesting() && !_emberMetal.run.backburner.currentInstance) {
+    if (_emberMetalTesting.isTesting() && !_emberMetalRun_loop.default.backburner.currentInstance) {
       _emberTestingTestAdapter.asyncStart();
-      _emberMetal.run.backburner.schedule('actions', function () {
+      _emberMetalRun_loop.default.backburner.schedule('actions', function () {
         _emberTestingTestAdapter.asyncEnd();
         callback(promise);
       });
     } else {
-      _emberMetal.run.backburner.schedule('actions', function () {
+      _emberMetalRun_loop.default.backburner.schedule('actions', function () {
         return callback(promise);
       });
     }
   });
 
-  exports.default = _emberRuntime.RSVP;
+  exports.default = _emberRuntimeExtRsvp.default;
 });
 enifed('ember-testing/helpers', ['exports', 'ember-testing/test/helpers', 'ember-testing/helpers/and_then', 'ember-testing/helpers/click', 'ember-testing/helpers/current_path', 'ember-testing/helpers/current_route_name', 'ember-testing/helpers/current_url', 'ember-testing/helpers/fill_in', 'ember-testing/helpers/find', 'ember-testing/helpers/find_with_assert', 'ember-testing/helpers/key_event', 'ember-testing/helpers/pause_test', 'ember-testing/helpers/trigger_event', 'ember-testing/helpers/visit', 'ember-testing/helpers/wait'], function (exports, _emberTestingTestHelpers, _emberTestingHelpersAnd_then, _emberTestingHelpersClick, _emberTestingHelpersCurrent_path, _emberTestingHelpersCurrent_route_name, _emberTestingHelpersCurrent_url, _emberTestingHelpersFill_in, _emberTestingHelpersFind, _emberTestingHelpersFind_with_assert, _emberTestingHelpersKey_event, _emberTestingHelpersPause_test, _emberTestingHelpersTrigger_event, _emberTestingHelpersVisit, _emberTestingHelpersWait) {
   'use strict';
 
+  /**
+  @module ember
+  @submodule ember-testing
+  */
+
+  /**
+    Loads a route, sets up any controllers, and renders any templates associated
+    with the route as though a real user had triggered the route change while
+    using your app.
+  
+    Example:
+  
+    ```javascript
+    visit('posts/index').then(function() {
+      // assert something
+    });
+    ```
+  
+    @method visit
+    @param {String} url the name of the route
+    @return {RSVP.Promise}
+    @public
+  */
   _emberTestingTestHelpers.registerAsyncHelper('visit', _emberTestingHelpersVisit.default);
-  _emberTestingTestHelpers.registerAsyncHelper('click', _emberTestingHelpersClick.default);
-  _emberTestingTestHelpers.registerAsyncHelper('keyEvent', _emberTestingHelpersKey_event.default);
-  _emberTestingTestHelpers.registerAsyncHelper('fillIn', _emberTestingHelpersFill_in.default);
-  _emberTestingTestHelpers.registerAsyncHelper('wait', _emberTestingHelpersWait.default);
-  _emberTestingTestHelpers.registerAsyncHelper('andThen', _emberTestingHelpersAnd_then.default);
-  _emberTestingTestHelpers.registerAsyncHelper('pauseTest', _emberTestingHelpersPause_test.default);
-  _emberTestingTestHelpers.registerAsyncHelper('triggerEvent', _emberTestingHelpersTrigger_event.default);
-
-  _emberTestingTestHelpers.registerHelper('find', _emberTestingHelpersFind.default);
-  _emberTestingTestHelpers.registerHelper('findWithAssert', _emberTestingHelpersFind_with_assert.default);
-  _emberTestingTestHelpers.registerHelper('currentRouteName', _emberTestingHelpersCurrent_route_name.default);
-  _emberTestingTestHelpers.registerHelper('currentPath', _emberTestingHelpersCurrent_path.default);
-  _emberTestingTestHelpers.registerHelper('currentURL', _emberTestingHelpersCurrent_url.default);
-});
-enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
-  "use strict";
-
-  exports.default = andThen;
-
-  function andThen(app, callback) {
-    return app.testHelpers.wait(callback(app));
-  }
-});
-enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
-  'use strict';
-
-  exports.default = click;
 
   /**
     Clicks an element and triggers any actions triggered by the element's `click`
@@ -1186,30 +1102,111 @@ enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], funct
     @return {RSVP.Promise}
     @public
   */
+  _emberTestingTestHelpers.registerAsyncHelper('click', _emberTestingHelpersClick.default);
 
-  function click(app, selector, context) {
-    var $el = app.testHelpers.findWithAssert(selector, context);
-    var el = $el[0];
-
-    _emberTestingEvents.fireEvent(el, 'mousedown');
-
-    _emberTestingEvents.focus(el);
-
-    _emberTestingEvents.fireEvent(el, 'mouseup');
-    _emberTestingEvents.fireEvent(el, 'click');
-
-    return app.testHelpers.wait();
-  }
-});
-enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal'], function (exports, _emberMetal) {
   /**
-  @module ember
-  @submodule ember-testing
+    Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
+  
+    Example:
+  
+    ```javascript
+    keyEvent('.some-jQuery-selector', 'keypress', 13).then(function() {
+     // assert something
+    });
+    ```
+  
+    @method keyEvent
+    @param {String} selector jQuery selector for finding element on the DOM
+    @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
+    @param {Number} keyCode the keyCode of the simulated key event
+    @return {RSVP.Promise}
+    @since 1.5.0
+    @public
   */
-  'use strict';
+  _emberTestingTestHelpers.registerAsyncHelper('keyEvent', _emberTestingHelpersKey_event.default);
 
-  exports.default = currentPath;
+  /**
+    Fills in an input element with some text.
+  
+    Example:
+  
+    ```javascript
+    fillIn('#email', 'you@example.com').then(function() {
+      // assert something
+    });
+    ```
+  
+    @method fillIn
+    @param {String} selector jQuery selector finding an input element on the DOM
+    to fill text with
+    @param {String} text text to place inside the input element
+    @return {RSVP.Promise}
+    @public
+  */
+  _emberTestingTestHelpers.registerAsyncHelper('fillIn', _emberTestingHelpersFill_in.default);
 
+  /**
+    Finds an element in the context of the app's container element. A simple alias
+    for `app.$(selector)`.
+  
+    Example:
+  
+    ```javascript
+    var $el = find('.my-selector');
+    ```
+  
+    @method find
+    @param {String} selector jQuery string selector for element lookup
+    @return {Object} jQuery object representing the results of the query
+    @public
+  */
+  _emberTestingTestHelpers.registerHelper('find', _emberTestingHelpersFind.default);
+
+  /**
+    Like `find`, but throws an error if the element selector returns no results.
+  
+    Example:
+  
+    ```javascript
+    var $el = findWithAssert('.doesnt-exist'); // throws error
+    ```
+  
+    @method findWithAssert
+    @param {String} selector jQuery selector string for finding an element within
+    the DOM
+    @return {Object} jQuery object representing the results of the query
+    @throws {Error} throws error if jQuery object returned has a length of 0
+    @public
+  */
+  _emberTestingTestHelpers.registerHelper('findWithAssert', _emberTestingHelpersFind_with_assert.default);
+
+  /**
+    Causes the run loop to process any pending events. This is used to ensure that
+    any async operations from other helpers (or your assertions) have been processed.
+  
+    This is most often used as the return value for the helper functions (see 'click',
+    'fillIn','visit',etc).
+  
+    Example:
+  
+    ```javascript
+    Ember.Test.registerAsyncHelper('loginUser', function(app, username, password) {
+      visit('secured/path/here')
+      .fillIn('#username', username)
+      .fillIn('#password', password)
+      .click('.submit')
+  
+      return app.testHelpers.wait();
+    });
+  
+    @method wait
+    @param {Object} value The value to be returned.
+    @return {RSVP.Promise}
+    @public
+  */
+  _emberTestingTestHelpers.registerAsyncHelper('wait', _emberTestingHelpersWait.default);
+  _emberTestingTestHelpers.registerAsyncHelper('andThen', _emberTestingHelpersAnd_then.default);
+  _emberTestingTestHelpers.registerHelper('currentRouteName', _emberTestingHelpersCurrent_route_name.default);
   /**
     Returns the current path.
   
@@ -1228,13 +1225,69 @@ enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal'], functio
   @since 1.5.0
   @public
   */
+  _emberTestingTestHelpers.registerHelper('currentPath', _emberTestingHelpersCurrent_path.default);
+
+  /**
+    Returns the current URL.
+  
+  Example:
+  
+  ```javascript
+  function validateURL() {
+    equal(currentURL(), '/some/path', "correct URL was transitioned into.");
+  }
+  
+  click('#some-link-id').then(validateURL);
+  ```
+  
+  @method currentURL
+  @return {Object} The currently active URL.
+  @since 1.5.0
+  @public
+  */
+  _emberTestingTestHelpers.registerHelper('currentURL', _emberTestingHelpersCurrent_url.default);
+  _emberTestingTestHelpers.registerAsyncHelper('pauseTest', _emberTestingHelpersPause_test.default);
+  _emberTestingTestHelpers.registerAsyncHelper('triggerEvent', _emberTestingHelpersTrigger_event.default);
+});
+enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = andThen;
+
+  function andThen(app, callback) {
+    return app.testHelpers.wait(callback(app));
+  }
+});
+enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
+  'use strict';
+
+  exports.default = click;
+
+  function click(app, selector, context) {
+    var $el = app.testHelpers.findWithAssert(selector, context);
+    var el = $el[0];
+
+    _emberTestingEvents.fireEvent(el, 'mousedown');
+
+    _emberTestingEvents.focus(el);
+
+    _emberTestingEvents.fireEvent(el, 'mouseup');
+    _emberTestingEvents.fireEvent(el, 'click');
+
+    return app.testHelpers.wait();
+  }
+});
+enifed('ember-testing/helpers/current_path', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+  'use strict';
+
+  exports.default = currentPath;
 
   function currentPath(app) {
     var routingService = app.__container__.lookup('service:-routing');
-    return _emberMetal.get(routingService, 'currentPath');
+    return _emberMetalProperty_get.get(routingService, 'currentPath');
   }
 });
-enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
   /**
   @module ember
   @submodule ember-testing
@@ -1260,69 +1313,23 @@ enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal'], f
 
   function currentRouteName(app) {
     var routingService = app.__container__.lookup('service:-routing');
-    return _emberMetal.get(routingService, 'currentRouteName');
+    return _emberMetalProperty_get.get(routingService, 'currentRouteName');
   }
 });
-enifed('ember-testing/helpers/current_url', ['exports', 'ember-metal'], function (exports, _emberMetal) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
+enifed('ember-testing/helpers/current_url', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
   'use strict';
 
   exports.default = currentURL;
 
-  /**
-    Returns the current URL.
-  
-  Example:
-  
-  ```javascript
-  function validateURL() {
-    equal(currentURL(), '/some/path', "correct URL was transitioned into.");
-  }
-  
-  click('#some-link-id').then(validateURL);
-  ```
-  
-  @method currentURL
-  @return {Object} The currently active URL.
-  @since 1.5.0
-  @public
-  */
-
   function currentURL(app) {
     var router = app.__container__.lookup('router:main');
-    return _emberMetal.get(router, 'location').getURL();
+    return _emberMetalProperty_get.get(router, 'location').getURL();
   }
 });
 enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
   'use strict';
 
   exports.default = fillIn;
-
-  /**
-    Fills in an input element with some text.
-  
-    Example:
-  
-    ```javascript
-    fillIn('#email', 'you@example.com').then(function() {
-      // assert something
-    });
-    ```
-  
-    @method fillIn
-    @param {String} selector jQuery selector finding an input element on the DOM
-    to fill text with
-    @param {String} text text to place inside the input element
-    @return {RSVP.Promise}
-    @public
-  */
 
   function fillIn(app, selector, contextOrText, text) {
     var $el = undefined,
@@ -1344,75 +1351,19 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], fun
     return app.testHelpers.wait();
   }
 });
-enifed('ember-testing/helpers/find', ['exports', 'ember-metal'], function (exports, _emberMetal) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
+enifed('ember-testing/helpers/find', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
   'use strict';
 
   exports.default = find;
 
-  /**
-    Finds an element in the context of the app's container element. A simple alias
-    for `app.$(selector)`.
-  
-    Example:
-  
-    ```javascript
-    var $el = find('.my-selector');
-    ```
-  
-    With the `context` param:
-  
-    ```javascript
-    var $el = find('.my-selector', '.parent-element-class');
-    ```
-  
-    @method find
-    @param {String} selector jQuery string selector for element lookup
-    @param {String} [context] (optional) jQuery selector that will limit the selector
-                              argument to find only within the context's children
-    @return {Object} jQuery object representing the results of the query
-    @public
-  */
-
   function find(app, selector, context) {
     var $el = undefined;
-    context = context || _emberMetal.get(app, 'rootElement');
+    context = context || _emberMetalProperty_get.get(app, 'rootElement');
     $el = app.$(selector, context);
     return $el;
   }
 });
 enifed('ember-testing/helpers/find_with_assert', ['exports'], function (exports) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
-  /**
-    Like `find`, but throws an error if the element selector returns no results.
-  
-    Example:
-  
-    ```javascript
-    var $el = findWithAssert('.doesnt-exist'); // throws error
-    ```
-  
-    With the `context` param:
-  
-    ```javascript
-    var $el = findWithAssert('.selector-id', '.parent-element-class'); // assert will pass
-    ```
-  
-    @method findWithAssert
-    @param {String} selector jQuery selector string for finding an element within
-    the DOM
-    @param {String} [context] (optional) jQuery selector that will limit the
-    selector argument to find only within the context's children
-    @return {Object} jQuery object representing the results of the query
-    @throws {Error} throws error if jQuery object returned has a length of 0
-    @public
-  */
   'use strict';
 
   exports.default = findWithAssert;
@@ -1426,26 +1377,6 @@ enifed('ember-testing/helpers/find_with_assert', ['exports'], function (exports)
   }
 });
 enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
-  /**
-    Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
-    Example:
-    ```javascript
-    keyEvent('.some-jQuery-selector', 'keypress', 13).then(function() {
-     // assert something
-    });
-    ```
-    @method keyEvent
-    @param {String} selector jQuery selector for finding element on the DOM
-    @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
-    @param {Number} keyCode the keyCode of the simulated key event
-    @return {RSVP.Promise}
-    @since 1.5.0
-    @public
-  */
   'use strict';
 
   exports.default = keyEvent;
@@ -1466,7 +1397,7 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
   }
 });
-enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
+enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime/ext/rsvp'], function (exports, _emberRuntimeExtRsvp) {
   /**
   @module ember
   @submodule ember-testing
@@ -1491,7 +1422,7 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime'], functio
   */
 
   function pauseTest() {
-    return new _emberRuntime.RSVP.Promise(function () {}, 'TestAdapter paused promise');
+    return new _emberRuntimeExtRsvp.default.Promise(function () {}, 'TestAdapter paused promise');
   }
 });
 enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'], function (exports, _emberTestingEvents) {
@@ -1565,33 +1496,10 @@ enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'
     return app.testHelpers.wait();
   }
 });
-enifed('ember-testing/helpers/visit', ['exports', 'ember-metal'], function (exports, _emberMetal) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
+enifed('ember-testing/helpers/visit', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
   'use strict';
 
   exports.default = visit;
-
-  /**
-    Loads a route, sets up any controllers, and renders any templates associated
-    with the route as though a real user had triggered the route change while
-    using your app.
-  
-    Example:
-  
-    ```javascript
-    visit('posts/index').then(function() {
-      // assert something
-    });
-    ```
-  
-    @method visit
-    @param {String} url the name of the route
-    @return {RSVP.Promise}
-    @public
-  */
 
   function visit(app, url) {
     var router = app.__container__.lookup('router:main');
@@ -1601,13 +1509,13 @@ enifed('ember-testing/helpers/visit', ['exports', 'ember-metal'], function (expo
       router.location.setURL(url);
 
       if (shouldHandleURL) {
-        _emberMetal.run(app.__deprecatedInstance__, 'handleURL', url);
+        _emberMetalRun_loop.default(app.__deprecatedInstance__, 'handleURL', url);
       }
     });
 
     if (app._readinessDeferrals > 0) {
       router['initialURL'] = url;
-      _emberMetal.run(app, 'advanceReadiness');
+      _emberMetalRun_loop.default(app, 'advanceReadiness');
       delete router['initialURL'];
     } else {
       shouldHandleURL = true;
@@ -1616,42 +1524,13 @@ enifed('ember-testing/helpers/visit', ['exports', 'ember-metal'], function (expo
     return app.testHelpers.wait();
   }
 });
-enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', 'ember-runtime', 'ember-metal', 'ember-testing/test/pending_requests'], function (exports, _emberTestingTestWaiters, _emberRuntime, _emberMetal, _emberTestingTestPending_requests) {
-  /**
-  @module ember
-  @submodule ember-testing
-  */
+enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', 'ember-runtime/ext/rsvp', 'ember-metal/run_loop', 'ember-testing/test/pending_requests'], function (exports, _emberTestingTestWaiters, _emberRuntimeExtRsvp, _emberMetalRun_loop, _emberTestingTestPending_requests) {
   'use strict';
 
   exports.default = wait;
 
-  /**
-    Causes the run loop to process any pending events. This is used to ensure that
-    any async operations from other helpers (or your assertions) have been processed.
-  
-    This is most often used as the return value for the helper functions (see 'click',
-    'fillIn','visit',etc).
-  
-    Example:
-  
-    ```javascript
-    Ember.Test.registerAsyncHelper('loginUser', function(app, username, password) {
-      visit('secured/path/here')
-      .fillIn('#username', username)
-      .fillIn('#password', password)
-      .click('.submit')
-  
-      return app.testHelpers.wait();
-    });
-  
-    @method wait
-    @param {Object} value The value to be returned.
-    @return {RSVP.Promise}
-    @public
-  */
-
   function wait(app, value) {
-    return new _emberRuntime.RSVP.Promise(function (resolve) {
+    return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
       var router = app.__container__.lookup('router:main');
 
       // Every 10ms, poll for the async thing to have finished
@@ -1668,7 +1547,7 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
         }
 
         // 3. If there are scheduled timers or we are inside of a run loop, keep polling
-        if (_emberMetal.run.hasScheduledTimers() || _emberMetal.run.currentRunLoop) {
+        if (_emberMetalRun_loop.default.hasScheduledTimers() || _emberMetalRun_loop.default.currentRunLoop) {
           return;
         }
 
@@ -1680,34 +1559,39 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
         clearInterval(watcher);
 
         // Synchronously resolve the promise
-        _emberMetal.run(null, resolve, value);
+        _emberMetalRun_loop.default(null, resolve, value);
       }, 10);
     });
   }
 });
-enifed('ember-testing/index', ['exports', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'ember-testing/adapters/qunit'], function (exports, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _emberTestingAdaptersQunit) {
+enifed('ember-testing/index', ['exports', 'ember-metal/core', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/setup_for_testing', 'require', 'ember-testing/support', 'ember-testing/ext/application', 'ember-testing/ext/rsvp', 'ember-testing/helpers', 'ember-testing/initializers'], function (exports, _emberMetalCore, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingSetup_for_testing, _require, _emberTestingSupport, _emberTestingExtApplication, _emberTestingExtRsvp, _emberTestingHelpers, _emberTestingInitializers) {
   'use strict';
 
-  exports.Test = _emberTestingTest.default;
-  exports.Adapter = _emberTestingAdaptersAdapter.default;
-  exports.setupForTesting = _emberTestingSetup_for_testing.default;
-  exports.QUnitAdapter = _emberTestingAdaptersQunit.default;
-});
-// to handle various edge cases
-// setup RSVP + run loop integration
-// adds helpers to helpers object in Test
-// to setup initializer
+  // to setup initializer
 
-/**
-  @module ember
-  @submodule ember-testing
-*/
-enifed('ember-testing/initializers', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
+  /**
+    @module ember
+    @submodule ember-testing
+  */
+
+  _emberMetalCore.default.Test = _emberTestingTest.default;
+  _emberMetalCore.default.Test.Adapter = _emberTestingAdaptersAdapter.default;
+  _emberMetalCore.default.setupForTesting = _emberTestingSetup_for_testing.default;
+  Object.defineProperty(_emberTestingTest.default, 'QUnitAdapter', {
+    get: function () {
+      return _require.default('ember-testing/adapters/qunit').default;
+    }
+  });
+});
+// reexports
+// to handle various edge cases
+// adds helpers to helpers object in Test
+enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
   'use strict';
 
   var name = 'deferReadiness in `testing` mode';
 
-  _emberRuntime.onLoad('Ember.Application', function (Application) {
+  _emberRuntimeSystemLazy_load.onLoad('Ember.Application', function (Application) {
     if (!Application.initializers[name]) {
       Application.initializer({
         name: name,
@@ -1721,7 +1605,7 @@ enifed('ember-testing/initializers', ['exports', 'ember-runtime'], function (exp
     }
   });
 });
-enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal', 'ember-views', 'ember-testing/test/adapter', 'ember-testing/test/pending_requests', 'ember-testing/adapters/qunit'], function (exports, _emberMetal, _emberViews, _emberTestingTestAdapter, _emberTestingTestPending_requests, _emberTestingAdaptersQunit) {
+enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/testing', 'ember-views/system/jquery', 'ember-testing/test/adapter', 'ember-testing/test/pending_requests', 'require'], function (exports, _emberMetalTesting, _emberViewsSystemJquery, _emberTestingTestAdapter, _emberTestingTestPending_requests, _require) {
   'use strict';
 
   exports.default = setupForTesting;
@@ -1740,24 +1624,25 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal', 'ember-view
   */
 
   function setupForTesting() {
-    _emberMetal.setTesting(true);
+    _emberMetalTesting.setTesting(true);
 
     var adapter = _emberTestingTestAdapter.getAdapter();
     // if adapter is not manually set default to QUnit
     if (!adapter) {
-      _emberTestingTestAdapter.setAdapter(new _emberTestingAdaptersQunit.default());
+      var QUnitAdapter = _require.default('ember-testing/adapters/qunit').default;
+      _emberTestingTestAdapter.setAdapter(new QUnitAdapter());
     }
 
-    _emberViews.jQuery(document).off('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
-    _emberViews.jQuery(document).off('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
+    _emberViewsSystemJquery.default(document).off('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
+    _emberViewsSystemJquery.default(document).off('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
 
     _emberTestingTestPending_requests.clearPendingRequests();
 
-    _emberViews.jQuery(document).on('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
-    _emberViews.jQuery(document).on('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
+    _emberViewsSystemJquery.default(document).on('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
+    _emberViewsSystemJquery.default(document).on('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
   }
 });
-enifed('ember-testing/support', ['exports', 'ember-metal', 'ember-views', 'ember-environment'], function (exports, _emberMetal, _emberViews, _emberEnvironment) {
+enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/system/jquery', 'ember-environment'], function (exports, _emberMetalDebug, _emberViewsSystemJquery, _emberEnvironment) {
   'use strict';
 
   /**
@@ -1765,7 +1650,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal', 'ember-views', 'ember
     @submodule ember-testing
   */
 
-  var $ = _emberViews.jQuery;
+  var $ = _emberViewsSystemJquery.default;
 
   /**
     This method creates a checkbox and triggers the click event to fire the
@@ -1776,11 +1661,10 @@ enifed('ember-testing/support', ['exports', 'ember-metal', 'ember-views', 'ember
     @method testCheckboxClick
   */
   function testCheckboxClick(handler) {
-    var input = document.createElement('input');
-    $(input).attr('type', 'checkbox').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
+    $('<input type="checkbox">').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
   }
 
-  if (_emberEnvironment.environment.hasDOM && typeof $ === 'function') {
+  if (_emberEnvironment.environment.hasDOM) {
     $(function () {
       /*
         Determine whether a checkbox checked using jQuery's "click" method will have
@@ -1805,12 +1689,12 @@ enifed('ember-testing/support', ['exports', 'ember-metal', 'ember-views', 'ember
 
       // Try again to verify that the patch took effect or blow up.
       testCheckboxClick(function () {
-        _emberMetal.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
+        _emberMetalDebug.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
       });
     });
   }
 });
-enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetal) {
+enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal/features'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetalFeatures) {
   /**
     @module ember
     @submodule ember-testing
@@ -1884,7 +1768,7 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
 
   exports.default = Test;
 });
-enifed('ember-testing/test/adapter', ['exports', 'ember-console', 'ember-metal'], function (exports, _emberConsole, _emberMetal) {
+enifed('ember-testing/test/adapter', ['exports', 'ember-console', 'ember-metal/error_handler'], function (exports, _emberConsole, _emberMetalError_handler) {
   'use strict';
 
   exports.getAdapter = getAdapter;
@@ -1901,9 +1785,9 @@ enifed('ember-testing/test/adapter', ['exports', 'ember-console', 'ember-metal']
   function setAdapter(value) {
     adapter = value;
     if (value) {
-      _emberMetal.setDispatchOverride(adapterDispatch);
+      _emberMetalError_handler.setDispatchOverride(adapterDispatch);
     } else {
-      _emberMetal.setDispatchOverride(null);
+      _emberMetalError_handler.setDispatchOverride(null);
     }
   }
 
@@ -2114,20 +1998,26 @@ enifed("ember-testing/test/pending_requests", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-testing/test/promise', ['exports', 'ember-runtime', 'ember-testing/test/run'], function (exports, _emberRuntime, _emberTestingTestRun) {
+enifed('ember-testing/test/promise', ['exports', 'ember-runtime/ext/rsvp', 'ember-testing/test/run'], function (exports, _emberRuntimeExtRsvp, _emberTestingTestRun) {
   'use strict';
 
   exports.promise = promise;
   exports.resolve = resolve;
   exports.getLastPromise = getLastPromise;
 
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
   var lastPromise = undefined;
 
   var TestPromise = (function (_RSVP$Promise) {
-    babelHelpers.inherits(TestPromise, _RSVP$Promise);
+    _inherits(TestPromise, _RSVP$Promise);
 
     function TestPromise() {
-      babelHelpers.classCallCheck(this, TestPromise);
+      _classCallCheck(this, TestPromise);
 
       _RSVP$Promise.apply(this, arguments);
       lastPromise = this;
@@ -2166,7 +2056,7 @@ enifed('ember-testing/test/promise', ['exports', 'ember-runtime', 'ember-testing
     };
 
     return TestPromise;
-  })(_emberRuntime.RSVP.Promise);
+  })(_emberRuntimeExtRsvp.default.Promise);
 
   exports.default = TestPromise;
 
@@ -2226,20 +2116,20 @@ enifed('ember-testing/test/promise', ['exports', 'ember-runtime', 'ember-testing
     }
   }
 });
-enifed('ember-testing/test/run', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-testing/test/run', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
   'use strict';
 
   exports.default = run;
 
   function run(fn) {
-    if (!_emberMetal.run.currentRunLoop) {
-      return _emberMetal.run(fn);
+    if (!_emberMetalRun_loop.default.currentRunLoop) {
+      return _emberMetalRun_loop.default(fn);
     } else {
       return fn();
     }
   }
 });
-enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-testing/test/waiters', ['exports', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalFeatures, _emberMetalDebug) {
   'use strict';
 
   exports.registerWaiter = registerWaiter;
@@ -2253,10 +2143,7 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
   /**
      This allows ember-testing to play nicely with other asynchronous
      events, such as an application that is waiting for a CSS3
-     transition or an IndexDB transaction. The waiter runs periodically
-     after each async helper (i.e. `click`, `andThen`, `visit`, etc) has executed,
-     until the returning result is truthy. After the waiters finish, the next async helper
-     is executed and the process repeats.
+     transition or an IndexDB transaction.
   
      For example:
   
@@ -2360,7 +2247,7 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
   }
 
   function generateDeprecatedWaitersArray() {
-    _emberMetal.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !true, { until: '2.8.0', id: 'ember-testing.test-waiters' });
+    _emberMetalDebug.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !true, { until: '2.8.0', id: 'ember-testing.test-waiters' });
 
     var array = new Array(callbacks.length);
     for (var i = 0; i < callbacks.length; i++) {
