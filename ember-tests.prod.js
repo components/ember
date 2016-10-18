@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.1
+ * @version   2.10.0-beta.1-beta+f4fd68f6
  */
 
 var enifed, requireModule, require, Ember;
@@ -7195,7 +7195,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-glimmer/tests/integration/application/actions-test', ['exports', 'ember-runtime', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberRuntime, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/application/actions-test', ['exports', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Application test: actions', (function (_ApplicationTest) {
@@ -7259,6 +7259,39 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['exports', '
 
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.ApplicationTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Rendering test: non-interactive actions', (function (_RenderingTest) {
+    babelHelpers.inherits(_class2, _RenderingTest);
+
+    function _class2() {
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class2.prototype.getBootOptions = function getBootOptions() {
+      return { isInteractive: false };
+    };
+
+    _class2.prototype['@test doesn\'t attatch actions'] = function testDoesnTAttatchActions(assert) {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          actions: {
+            fire: function () {
+              assert.ok(false);
+            }
+          }
+        }),
+        template: '<button {{action \'fire\'}}>Fire!</button>'
+      });
+
+      this.render('{{foo-bar tagName=""}}');
+
+      this.assertHTML('<button>Fire!</button>');
+
+      this.$('button').click();
+    };
+
+    return _class2;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/application/engine-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting) {
   'use strict';
