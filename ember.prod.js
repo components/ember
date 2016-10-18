@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+e9782456
+ * @version   2.10.0-alpha.1-canary+b0801b77
  */
 
 var enifed, requireModule, require, Ember;
@@ -10125,6 +10125,10 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
       var actionId = actionState.actionId;
 
       var actions = _emberViews.ActionManager.registeredActions[actionId];
+
+      if (!actions) {
+        return;
+      }
 
       var index = actions.indexOf(actionState);
 
@@ -39485,7 +39489,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+e9782456";
+  exports.default = "2.10.0-alpha.1-canary+b0801b77";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
