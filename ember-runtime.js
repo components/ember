@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.1-beta+f4fd68f6
+ * @version   2.10.0-beta.1-beta+55b0a460
  */
 
 var enifed, requireModule, require, Ember;
@@ -13325,20 +13325,19 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     _emberMetal.sendEvent(array, '@array:change', [array, startIdx, removeAmt, addAmt]);
 
-    var length = _emberMetal.get(array, 'length');
-    var cachedFirst = _emberMetal.cacheFor(array, 'firstObject');
-    var cachedLast = _emberMetal.cacheFor(array, 'lastObject');
+    var meta = _emberMetal.peekMeta(array);
+    var cache = meta && meta.readableCache();
 
-    if (objectAt(array, 0) !== cachedFirst) {
-      _emberMetal.propertyWillChange(array, 'firstObject');
-      _emberMetal.propertyDidChange(array, 'firstObject');
+    if (cache) {
+      if (cache.firstObject !== undefined && objectAt(array, 0) !== _emberMetal.cacheFor.get(cache, 'firstObject')) {
+        _emberMetal.propertyWillChange(array, 'firstObject');
+        _emberMetal.propertyDidChange(array, 'firstObject');
+      }
+      if (cache.lastObject !== undefined && objectAt(array, _emberMetal.get(array, 'length') - 1) !== _emberMetal.cacheFor.get(cache, 'lastObject')) {
+        _emberMetal.propertyWillChange(array, 'lastObject');
+        _emberMetal.propertyDidChange(array, 'lastObject');
+      }
     }
-
-    if (objectAt(array, length - 1) !== cachedLast) {
-      _emberMetal.propertyWillChange(array, 'lastObject');
-      _emberMetal.propertyDidChange(array, 'lastObject');
-    }
-
     return array;
   }
 
@@ -19358,7 +19357,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.1-beta+f4fd68f6";
+  exports.default = "2.10.0-beta.1-beta+55b0a460";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
