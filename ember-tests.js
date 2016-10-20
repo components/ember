@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.1-beta+55b0a460
+ * @version   2.10.0-beta.1-beta+7da2f964
  */
 
 var enifed, requireModule, require, Ember;
@@ -36161,6 +36161,16 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
     var childObj = Object.create(obj);
     _emberMetalChains.finishChains(childObj);
     ok(_emberMetalMeta.peekMeta(obj) !== _emberMetalMeta.peekMeta(childObj).readableChains(), 'The chains object is copied');
+  });
+
+  QUnit.test('does not observe primative values', function (assert) {
+    var obj = {
+      foo: { bar: 'STRING' }
+    };
+
+    _emberMetalObserver.addObserver(obj, 'foo.bar.baz', null, function () {});
+    var meta = _emberMetalMeta.peekMeta(obj);
+    assert.notOk(meta._object);
   });
 
   QUnit.test('observer and CP chains', function () {

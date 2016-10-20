@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.1-beta+55b0a460
+ * @version   2.10.0-beta.1-beta+7da2f964
  */
 
 var enifed, requireModule, require, Ember;
@@ -14593,10 +14593,6 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
   }
 
   function addChainWatcher(obj, keyName, node) {
-    if (!isObject(obj)) {
-      return;
-    }
-
     var m = _emberMetalMeta.meta(obj);
     m.writableChainWatchers(makeChainWatcher).add(keyName, node);
     _emberMetalWatch_key.watchKey(obj, keyName, m);
@@ -14643,10 +14639,15 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
     this._value = value;
     this._paths = {};
     if (this._watching) {
-      this._object = parent.value();
-      if (this._object) {
-        addChainWatcher(this._object, this._key, this);
+      var obj = parent.value();
+
+      if (!isObject(obj)) {
+        return;
       }
+
+      this._object = obj;
+
+      addChainWatcher(this._object, this._key, this);
     }
   }
 
@@ -14779,11 +14780,19 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
 
     notify: function (revalidate, affected) {
       if (revalidate && this._watching) {
-        var obj = this._parent.value();
-        if (obj !== this._object) {
-          removeChainWatcher(this._object, this._key, this);
-          this._object = obj;
-          addChainWatcher(obj, this._key, this);
+        var parentValue = this._parent.value();
+
+        if (parentValue !== this._object) {
+          if (this._object) {
+            removeChainWatcher(this._object, this._key, this);
+          }
+
+          if (isObject(parentValue)) {
+            this._object = parentValue;
+            addChainWatcher(parentValue, this._key, this);
+          } else {
+            this._object = undefined;
+          }
         }
         this._value = undefined;
       }
@@ -39488,7 +39497,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.1-beta+55b0a460";
+  exports.default = "2.10.0-beta.1-beta+7da2f964";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
