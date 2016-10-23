@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+292bb927
+ * @version   2.10.0-alpha.1-canary+9420cdd5
  */
 
 var enifed, requireModule, require, Ember;
@@ -9519,19 +9519,34 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glim
   
     ```handlebars
     {{yield (hash
-        nameInput=(component "my-input-component" value=model.name placeholder="First Name"))}}
+      nameInput=(component "my-input-component" value=model.name placeholder="First Name")
+    )}}
     ```
   
-    The following snippet:
+    When yielding the component via the `hash` helper, the component is invocked directly.
+    See the following snippet:
   
     ```
     {{#person-form as |form|}}
-      {{component form.nameInput placeholder="Username"}}
+      {{form.nameInput placeholder="Username"}}
     {{/person-form}}
     ```
   
-    would output an input whose value is already bound to `model.name` and `placeholder`
+    Which outputs an input whose value is already bound to `model.name` and `placeholder`
     is "Username".
+  
+    When yielding the component without the hash helper use the `component` helper.
+    For example, below is a `full-name` component template:
+  
+    ```handlebars
+    {{yield (component "my-input-component" value=model.name placeholder="Name")}}
+    ```
+  
+    ```
+    {{#full-name as |field|}}
+      {{component field placeholder="Full name"}}
+    {{/full-name}}
+    ```
   
     @method component
     @since 1.11.0
@@ -42452,7 +42467,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+292bb927";
+  exports.default = "2.10.0-alpha.1-canary+9420cdd5";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
