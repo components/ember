@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.1-beta+7da2f964
+ * @version   2.10.0-beta.1-beta+db98275a
  */
 
 var enifed, requireModule, require, Ember;
@@ -33020,6 +33020,39 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 
 
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/unit/outlet-test', ['exports', 'ember-glimmer/views/outlet', 'ember-metal'], function (exports, _emberGlimmerViewsOutlet, _emberMetal) {
+  'use strict';
+
+  QUnit.module('Glimmer OutletView');
+
+  QUnit.test('render in the render queue', function (assert) {
+    var didAppendOutletView = 0;
+    var expectedOutlet = '#foo.bar';
+
+    var renderer = {
+      appendOutletView: function (view, target) {
+        didAppendOutletView++;
+        assert.equal(view, outletView);
+        assert.equal(target, expectedOutlet);
+      }
+    };
+
+    var outletView = new _emberGlimmerViewsOutlet.default({}, renderer);
+
+    _emberMetal.run(function () {
+      assert.equal(didAppendOutletView, 0, 'appendOutletView should not yet have been called (before appendTo)');
+      outletView.appendTo(expectedOutlet);
+      assert.equal(didAppendOutletView, 0, 'appendOutletView should not yet have been called (sync after appendTo)');
+
+      _emberMetal.run.schedule('actions', function () {
+        return assert.equal(didAppendOutletView, 0, 'appendOutletView should not yet have been called (in actions)');
+      });
+      _emberMetal.run.schedule('render', function () {
+        return assert.equal(didAppendOutletView, 1, 'appendOutletView should be invoked in render');
+      });
+    });
+  });
 });
 enifed('ember-glimmer/tests/unit/template-factory-test', ['exports', 'ember-template-compiler', 'ember-glimmer/index', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberTemplateCompiler, _emberGlimmerIndex, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
