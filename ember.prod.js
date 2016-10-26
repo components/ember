@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+9420cdd5
+ * @version   2.10.0-alpha.1-canary+9d35d9c6
  */
 
 var enifed, requireModule, require, Ember;
@@ -13698,7 +13698,7 @@ enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime', 'ember-metal'
     return true;
   }
 });
-enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-reference', 'ember-environment'], function (exports, _emberUtils, _glimmerReference, _emberEnvironment) {
+enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-reference', 'ember-environment', 'ember-metal'], function (exports, _emberUtils, _glimmerReference, _emberEnvironment, _emberMetal) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -13825,7 +13825,6 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
       this.owner = owner;
       this.template = template;
       this.outletState = null;
-      this._renderResult = null;
       this._tag = new _glimmerReference.DirtyableTag();
     }
 
@@ -13839,14 +13838,10 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
         target = selector;
       }
 
-      this._renderResult = this.renderer.appendOutletView(this, target);
+      _emberMetal.run.schedule('render', this.renderer, 'appendOutletView', this, target);
     };
 
-    OutletView.prototype.rerender = function rerender() {
-      if (this._renderResult) {
-        this.renderer.rerender(this);
-      }
-    };
+    OutletView.prototype.rerender = function rerender() {};
 
     OutletView.prototype.setOutletState = function setOutletState(state) {
       this.outletState = {
@@ -13870,13 +13865,7 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', 'glimmer-referen
       return new OutletStateReference(this);
     };
 
-    OutletView.prototype.destroy = function destroy() {
-      if (this._renderResult) {
-        var renderResult = this._renderResult;
-        this._renderResult = null;
-        renderResult.destroy();
-      }
-    };
+    OutletView.prototype.destroy = function destroy() {};
 
     return OutletView;
   })();
@@ -39503,7 +39492,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+9420cdd5";
+  exports.default = "2.10.0-alpha.1-canary+9d35d9c6";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
