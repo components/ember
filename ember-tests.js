@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.2+dd1aa0ba
+ * @version   2.8.2+18f86cd2
  */
 
 var enifed, requireModule, require, Ember;
@@ -9828,7 +9828,7 @@ enifed('ember-htmlbars/tests/integration/components/class-bindings-test', ['expo
     return _class2;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty) {
+enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['exports', 'ember-htmlbars/tests/utils/helpers', 'ember-htmlbars/tests/utils/abstract-test-case', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/assign', 'ember-metal/is_empty', 'ember-runtime/system/native_array'], function (exports, _emberHtmlbarsTestsUtilsHelpers, _emberHtmlbarsTestsUtilsAbstractTestCase, _emberHtmlbarsTestsUtilsTestCase, _emberMetalAssign, _emberMetalIs_empty, _emberRuntimeSystemNative_array) {
   'use strict';
 
   var _templateObject = _taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
@@ -10757,6 +10757,112 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       assert.equal(this.$().text(), '');
     };
 
+    _class.prototype['@test GH#14508 rest positional params are received when passed as named parameter'] = function testGH14508RestPositionalParamsAreReceivedWhenPassedAsNamedParameter() {
+      var _this29 = this;
+
+      this.registerComponent('my-link', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component "my-link") params=allParams}}', {
+        allParams: _emberRuntimeSystemNative_array.A(['a', 'b'])
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this29.rerender();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this29.context.get('allParams').pushObject('c');
+      });
+
+      this.assertText('abc');
+
+      this.runTask(function () {
+        return _this29.context.get('allParams').popObject();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this29.context.get('allParams').clear();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this29.context.set('allParams', _emberRuntimeSystemNative_array.A(['1', '2']));
+      });
+
+      this.assertText('12');
+
+      this.runTask(function () {
+        return _this29.context.set('allParams', _emberRuntimeSystemNative_array.A(['a', 'b']));
+      });
+
+      this.assertText('ab');
+    };
+
+    _class.prototype['@test GH#14508 rest positional params are received when passed as named parameter with dot notation'] = function testGH14508RestPositionalParamsAreReceivedWhenPassedAsNamedParameterWithDotNotation() {
+      var _this30 = this;
+
+      this.registerComponent('my-link', {
+        ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{#with (hash link=(component "my-link")) as |c|}}{{c.link params=allParams}}{{/with}}', {
+        allParams: _emberRuntimeSystemNative_array.A(['a', 'b'])
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this30.rerender();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this30.context.get('allParams').pushObject('c');
+      });
+
+      this.assertText('abc');
+
+      this.runTask(function () {
+        return _this30.context.get('allParams').popObject();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this30.context.get('allParams').clear();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this30.context.set('allParams', _emberRuntimeSystemNative_array.A(['1', '2']));
+      });
+
+      this.assertText('12');
+
+      this.runTask(function () {
+        return _this30.context.set('allParams', _emberRuntimeSystemNative_array.A(['a', 'b']));
+      });
+
+      this.assertText('ab');
+    };
+
     return _class;
   })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 
@@ -10792,7 +10898,7 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this29 = this;
+        var _this31 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberHtmlbarsTestsUtilsHelpers.Component.extend().reopenClass({
@@ -10806,19 +10912,19 @@ enifed('ember-htmlbars/tests/integration/components/closure-components-test', ['
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this29.rerender();
+          return _this31.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this29.$('.my-button').click();
+          return _this31.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this29.context.set('model', { val2: 8 });
+          return _this31.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
