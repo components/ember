@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+cf703950
+ * @version   2.10.0-alpha.1-canary+cb9959b2
  */
 
 var enifed, requireModule, require, Ember;
@@ -10087,7 +10087,7 @@ babelHelpers.inherits(_class, _RenderingTest);
         init: function () {
           this._super();
 
-          var bindings = this.classNameBindings;
+          var bindings = this.classNameBindings = this.classNameBindings.slice();
 
           if (this.get('bindIsEnabled')) {
             bindings.push('isEnabled:enabled');
@@ -12156,6 +12156,7 @@ babelHelpers.inherits(_class, _RenderingTest);
       var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
         init: function () {
           this._super();
+          this.classNames = this.classNames.slice();
           this.classNames.push('foo', 'bar', 'outside-' + this.get('extraClass'));
         }
       });
@@ -44876,15 +44877,6 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
 
   QUnit.module('Routing query parameter utils - normalizeControllerQueryParams');
 
-  QUnit.test('returns the cached value if that has been previously set', function (assert) {
-    var cached = {};
-    var params = ['foo'];
-    params._qpMap = cached;
-
-    var normalized = _emberRoutingUtils.normalizeControllerQueryParams(params);
-    equal(cached, normalized, 'cached value returned if previously set');
-  });
-
   QUnit.test('converts array style into verbose object style', function (assert) {
     var paramName = 'foo';
     var params = [paramName];
@@ -56350,6 +56342,203 @@ enifed('ember-runtime/tests/system/object/detect_test', ['exports', 'ember-runti
     ok(!C.detect(A), 'A is not a C class');
     ok(!C.detect(B), 'B is not a C class');
     ok(C.detect(C), 'C is a C class');
+  });
+});
+enifed('ember-runtime/tests/system/object/es-compatibility-test', ['exports', 'ember-runtime/system/object', 'ember-metal'], function (exports, _emberRuntimeSystemObject, _emberMetal) {
+  'use strict';
+
+  QUnit.module('EmberObject ES Compatibility');
+
+  QUnit.test('extending an Ember.Object', function (assert) {
+    var calls = [];
+
+    var MyObject = (function (_EmberObject) {
+      babelHelpers.inherits(MyObject, _EmberObject);
+
+      function MyObject() {
+        calls.push('constructor');
+        _EmberObject.apply(this, arguments);
+        this.postInitProperty = 'post-init-property';
+      }
+
+      MyObject.prototype.init = function init() {
+        var _EmberObject$prototype$init;
+
+        calls.push('init');
+        (_EmberObject$prototype$init = _EmberObject.prototype.init).call.apply(_EmberObject$prototype$init, [this].concat(babelHelpers.slice.call(arguments)));
+        this.initProperty = 'init-property';
+      };
+
+      return MyObject;
+    })(_emberRuntimeSystemObject.default);
+
+    var myObject = MyObject.create({ passedProperty: 'passed-property' });
+
+    assert.deepEqual(calls, ['constructor', 'init'], 'constructor then init called (create)');
+    assert.equal(myObject.postInitProperty, 'post-init-property', 'constructor property available on instance (create)');
+    assert.equal(myObject.initProperty, 'init-property', 'init property available on instance (create)');
+    assert.equal(myObject.passedProperty, 'passed-property', 'passed property available on instance (create)');
+
+    calls = [];
+    myObject = new MyObject({ passedProperty: 'passed-property' });
+
+    assert.deepEqual(calls, ['constructor', 'init'], 'constructor then init called (new)');
+    assert.equal(myObject.postInitProperty, 'post-init-property', 'constructor property available on instance (new)');
+    assert.equal(myObject.initProperty, 'init-property', 'init property available on instance (new)');
+    assert.equal(myObject.passedProperty, 'passed-property', 'passed property available on instance (new)');
+  });
+
+  QUnit.test('using super', function (assert) {
+    var calls = [];
+
+    var SuperSuperObject = _emberRuntimeSystemObject.default.extend({
+      method: function () {
+        calls.push('super-super-method');
+      }
+    });
+
+    var SuperObject = SuperSuperObject.extend({
+      method: function () {
+        this._super();
+        calls.push('super-method');
+      }
+    });
+
+    var MyObject = (function (_SuperObject) {
+      babelHelpers.inherits(MyObject, _SuperObject);
+
+      function MyObject() {
+        _SuperObject.apply(this, arguments);
+      }
+
+      MyObject.prototype.method = function method() {
+        _SuperObject.prototype.method.call(this);
+        calls.push('method');
+      };
+
+      return MyObject;
+    })(SuperObject);
+
+    var myObject = new MyObject();
+    myObject.method();
+
+    assert.deepEqual(calls, ['super-super-method', 'super-method', 'method'], 'chain of prototype methods called with super');
+  });
+
+  QUnit.test('using mixins', function (assert) {
+    var Mixin1 = _emberMetal.Mixin.create({
+      property1: 'data-1'
+    });
+
+    var Mixin2 = _emberMetal.Mixin.create({
+      property2: 'data-2'
+    });
+
+    var MyObject = (function (_EmberObject$extend) {
+      babelHelpers.inherits(MyObject, _EmberObject$extend);
+
+      function MyObject() {
+        _EmberObject$extend.apply(this, arguments);
+      }
+
+      return MyObject;
+    })(_emberRuntimeSystemObject.default.extend(Mixin1, Mixin2));
+
+    var myObject = new MyObject();
+    assert.equal(myObject.property1, 'data-1', 'includes the first mixin');
+    assert.equal(myObject.property2, 'data-2', 'includes the second mixin');
+  });
+
+  QUnit.test('using instanceof', function (assert) {
+    var MyObject = (function (_EmberObject2) {
+      babelHelpers.inherits(MyObject, _EmberObject2);
+
+      function MyObject() {
+        _EmberObject2.apply(this, arguments);
+      }
+
+      return MyObject;
+    })(_emberRuntimeSystemObject.default);
+
+    var myObject1 = MyObject.create();
+    var myObject2 = new MyObject();
+
+    assert.ok(myObject1 instanceof MyObject);
+    assert.ok(myObject1 instanceof _emberRuntimeSystemObject.default);
+
+    assert.ok(myObject2 instanceof MyObject);
+    assert.ok(myObject2 instanceof _emberRuntimeSystemObject.default);
+  });
+
+  QUnit.test('extending an ES subclass of EmberObject', function (assert) {
+    var calls = [];
+
+    var SubEmberObject = (function (_EmberObject3) {
+      babelHelpers.inherits(SubEmberObject, _EmberObject3);
+
+      function SubEmberObject() {
+        calls.push('constructor');
+        _EmberObject3.apply(this, arguments);
+      }
+
+      SubEmberObject.prototype.init = function init() {
+        var _EmberObject3$prototype$init;
+
+        calls.push('init');
+        (_EmberObject3$prototype$init = _EmberObject3.prototype.init).call.apply(_EmberObject3$prototype$init, [this].concat(babelHelpers.slice.call(arguments)));
+      };
+
+      return SubEmberObject;
+    })(_emberRuntimeSystemObject.default);
+
+    var MyObject = (function (_SubEmberObject) {
+      babelHelpers.inherits(MyObject, _SubEmberObject);
+
+      function MyObject() {
+        _SubEmberObject.apply(this, arguments);
+      }
+
+      return MyObject;
+    })(SubEmberObject);
+
+    var myObject = MyObject.create();
+    assert.deepEqual(calls, ['constructor', 'init'], 'constructor then init called (create)');
+
+    calls = [];
+    myObject = new MyObject();
+    assert.deepEqual(calls, ['constructor', 'init'], 'constructor then init called (new)');
+  });
+
+  // TODO: Needs to be fixed. Currently only `init` is called.
+  QUnit.skip('calling extend on an ES subclass of EmberObject', function (assert) {
+    var calls = [];
+
+    var SubEmberObject = (function (_EmberObject4) {
+      babelHelpers.inherits(SubEmberObject, _EmberObject4);
+
+      function SubEmberObject() {
+        calls.push('constructor');
+        _EmberObject4.apply(this, arguments);
+      }
+
+      SubEmberObject.prototype.init = function init() {
+        var _EmberObject4$prototype$init;
+
+        calls.push('init');
+        (_EmberObject4$prototype$init = _EmberObject4.prototype.init).call.apply(_EmberObject4$prototype$init, [this].concat(babelHelpers.slice.call(arguments)));
+      };
+
+      return SubEmberObject;
+    })(_emberRuntimeSystemObject.default);
+
+    var MyObject = SubEmberObject.extend({});
+
+    var myObject = MyObject.create();
+    assert.deepEqual(calls, ['constructor', 'init'], 'constructor then init called (create)');
+
+    calls = [];
+    myObject = new MyObject();
+    assert.deepEqual(calls, ['constructor', 'init'], 'constructor then init called (new)');
   });
 });
 enifed('ember-runtime/tests/system/object/events_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/mixins/evented'], function (exports, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented) {
