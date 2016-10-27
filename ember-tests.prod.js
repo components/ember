@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+267fb272
+ * @version   2.10.0-alpha.1-canary+cf703950
  */
 
 var enifed, requireModule, require, Ember;
@@ -10306,7 +10306,7 @@ babelHelpers.inherits(_class2, _RenderingTest2);
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal'], function (exports, _emberUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal) {
+enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-runtime/system/native_array'], function (exports, _emberUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal, _emberRuntimeSystemNative_array) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
@@ -11490,6 +11490,112 @@ babelHelpers.inherits(_class, _RenderingTest);
       assert.equal(this.$().text(), 'my-comp: open');
     };
 
+    _class.prototype['@test GH#14508 rest positional params are received when passed as named parameter'] = function testGH14508RestPositionalParamsAreReceivedWhenPassedAsNamedParameter() {
+      var _this33 = this;
+
+      this.registerComponent('my-link', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{component (component "my-link") params=allParams}}', {
+        allParams: _emberRuntimeSystemNative_array.A(['a', 'b'])
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this33.rerender();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this33.context.get('allParams').pushObject('c');
+      });
+
+      this.assertText('abc');
+
+      this.runTask(function () {
+        return _this33.context.get('allParams').popObject();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this33.context.get('allParams').clear();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this33.context.set('allParams', _emberRuntimeSystemNative_array.A(['1', '2']));
+      });
+
+      this.assertText('12');
+
+      this.runTask(function () {
+        return _this33.context.set('allParams', _emberRuntimeSystemNative_array.A(['a', 'b']));
+      });
+
+      this.assertText('ab');
+    };
+
+    _class.prototype['@test GH#14508 rest positional params are received when passed as named parameter with dot notation'] = function testGH14508RestPositionalParamsAreReceivedWhenPassedAsNamedParameterWithDotNotation() {
+      var _this34 = this;
+
+      this.registerComponent('my-link', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
+          positionalParams: 'params'
+        }),
+        template: '{{#each params as |p|}}{{p}}{{/each}}'
+      });
+
+      this.render('{{#with (hash link=(component "my-link")) as |c|}}{{c.link params=allParams}}{{/with}}', {
+        allParams: _emberRuntimeSystemNative_array.A(['a', 'b'])
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this34.rerender();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this34.context.get('allParams').pushObject('c');
+      });
+
+      this.assertText('abc');
+
+      this.runTask(function () {
+        return _this34.context.get('allParams').popObject();
+      });
+
+      this.assertText('ab');
+
+      this.runTask(function () {
+        return _this34.context.get('allParams').clear();
+      });
+
+      this.assertText('');
+
+      this.runTask(function () {
+        return _this34.context.set('allParams', _emberRuntimeSystemNative_array.A(['1', '2']));
+      });
+
+      this.assertText('12');
+
+      this.runTask(function () {
+        return _this34.context.set('allParams', _emberRuntimeSystemNative_array.A(['a', 'b']));
+      });
+
+      this.assertText('ab');
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
@@ -11521,7 +11627,7 @@ babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
-        var _this33 = this;
+        var _this35 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -11535,19 +11641,19 @@ babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this33.rerender();
+          return _this35.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this33.$('.my-button').click();
+          return _this35.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this33.context.set('model', { val2: 8 });
+          return _this35.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
