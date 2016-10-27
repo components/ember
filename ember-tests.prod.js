@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.8.2+7d7779a6
+ * @version   2.8.2+dd1aa0ba
  */
 
 var enifed, requireModule, require, Ember;
@@ -38612,11 +38612,7 @@ enifed('ember-metal/tests/utils_test', ['exports', 'ember-environment', 'ember-m
   QUnit.module('Ember Metal Utils');
 
   QUnit.test('inspect outputs the toString() representation of Symbols', function () {
-    // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
-    // for it's existence (where a simple `if (Symbol)` would ReferenceError)
-    var Symbol = Symbol || null;
-
-    if (Symbol) {
+    if (typeof Symbol !== 'undefined') {
       var symbol = Symbol('test');
       equal(_emberMetalUtils.inspect(symbol), 'Symbol(test)');
     } else {
