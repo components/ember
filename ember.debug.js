@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+73dc4726
+ * @version   2.10.0-alpha.1-canary+c44f0cea
  */
 
 var enifed, requireModule, require, Ember;
@@ -10411,6 +10411,25 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-metal', 'e
     ```
   
     The `mut` helper changes the `totalClicks` value to what was provided as the action argument.
+  
+    The `mut` helper, when used with `action`, will return a function that
+    sets the value passed to `mut` to its first argument. This works like any other
+    closure action and interacts with the other features `action` provides.
+    As an example, we can create a button that increments a value passing the value
+    directly to the `action`:
+  
+    ```handlebars
+    {{! inc helper is not provided by Ember }}
+    <button onclick={{action (mut count) (inc count)}}>
+      Increment count
+    </button>
+    ```
+  
+    You can also use the `value` option:
+  
+    ```handlebars
+    <input value={{name}} oninput={{action (mut name) value="target.value"}}>
+    ```
   
     @method mut
     @param {Object} [attr] the "two-way" attribute that can be modified.
@@ -42510,7 +42529,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+73dc4726";
+  exports.default = "2.10.0-alpha.1-canary+c44f0cea";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
