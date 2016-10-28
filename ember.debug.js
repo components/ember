@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+c44f0cea
+ * @version   2.10.0-alpha.1-canary+d37d38b8
  */
 
 var enifed, requireModule, require, Ember;
@@ -27202,9 +27202,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         if (qp) {
           delete queryParams[key];
           queryParams[qp.urlKey] = qp.route.serializeQueryParam(value, qp.urlKey, qp.type);
+        } else if (value === undefined) {
+          return; // We don't serialize undefined values
         } else {
-          queryParams[key] = _this4._serializeQueryParam(value, _emberRuntime.typeOf(value));
-        }
+            queryParams[key] = _this4._serializeQueryParam(value, _emberRuntime.typeOf(value));
+          }
       });
     },
 
@@ -42529,7 +42531,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+c44f0cea";
+  exports.default = "2.10.0-alpha.1-canary+d37d38b8";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
