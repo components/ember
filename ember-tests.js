@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.2
+ * @version   2.10.0-beta.2-beta+3bff1c8a
  */
 
 var enifed, requireModule, require, Ember;
@@ -68947,16 +68947,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       });
     };
 
-    _class.prototype['@test Undefined isn\'t deserialized into a string'] = function testUndefinedIsnTDeserializedIntoAString(assert) {
+    _class.prototype['@test undefined isn\'t serialized or deserialized into a string'] = function testUndefinedIsnTSerializedOrDeserializedIntoAString(assert) {
       var _this35 = this;
 
-      assert.expect(3);
+      assert.expect(4);
 
       this.router.map(function () {
         this.route('example');
       });
 
-      this.registerTemplate('application', '{{link-to \'Example\' \'example\' id=\'the-link\'}}');
+      this.registerTemplate('application', '{{link-to \'Example\' \'example\' (query-params foo=undefined) id=\'the-link\'}}');
 
       this.setSingleQPController('example', 'foo', undefined, {
         foo: undefined
@@ -68968,13 +68968,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
         }
       }));
 
-      return this.visit('/').then(function () {
-        var $link = _emberViews.jQuery('#the-link');
-        assert.equal($link.attr('href'), '/example');
-        _emberMetal.run($link, 'click');
+      return this.visitAndAssert('/').then(function () {
+        assert.equal(_this35.$('#the-link').attr('href'), '/example', 'renders without undefined qp serialized');
 
-        var controller = _this35.getController('example');
-        assert.equal(_emberMetal.get(controller, 'foo'), undefined);
+        return _this35.transitionTo('example', { queryParams: { foo: undefined } }).then(function () {
+          _this35.assertCurrentPath('/example');
+        });
       });
     };
 
@@ -70105,7 +70104,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     return _class;
   })(_internalTestHelpers.QueryParamTestCase));
 });
-enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test', ['exports', 'ember-runtime', 'internal-test-helpers'], function (exports, _emberRuntime, _internalTestHelpers) {
+enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test', ['exports', 'ember-runtime', 'ember-routing', 'internal-test-helpers'], function (exports, _emberRuntime, _emberRouting, _internalTestHelpers) {
   'use strict';
 
   // These tests mimic what happens with lazily loaded Engines.
@@ -70266,6 +70265,36 @@ enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test
           assert.equal(postController.get('foo'), 'bar', 'simple QP is correctly deserialized with default value');
           assert.equal(postIndexController.get('comment'), 6, 'mapped QP retains value scoped to model');
           _this5.assertCurrentPath('/post/1337?note=6');
+        });
+      });
+    };
+
+    _class.prototype['@test undefined isn\'t serialized or deserialized into a string'] = function testUndefinedIsnTSerializedOrDeserializedIntoAString(assert) {
+      var _this6 = this;
+
+      assert.expect(4);
+
+      this.router.map(function () {
+        this.route('example');
+      });
+
+      this.registerTemplate('application', '{{link-to \'Example\' \'example\' (query-params foo=undefined) id=\'the-link\'}}');
+
+      this.setSingleQPController('example', 'foo', undefined, {
+        foo: undefined
+      });
+
+      this.registerRoute('example', _emberRouting.Route.extend({
+        model: function (params) {
+          assert.deepEqual(params, { foo: undefined });
+        }
+      }));
+
+      return this.visitAndAssert('/').then(function () {
+        assert.equal(_this6.$('#the-link').attr('href'), '/example', 'renders without undefined qp serialized');
+
+        return _this6.transitionTo('example', { queryParams: { foo: undefined } }).then(function () {
+          _this6.assertCurrentPath('/example');
         });
       });
     };
