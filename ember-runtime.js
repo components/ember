@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+b307387a
+ * @version   2.10.0-alpha.1-canary+86f0a302
  */
 
 var enifed, requireModule, require, Ember;
@@ -19364,7 +19364,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+b307387a";
+  exports.default = "2.10.0-alpha.1-canary+86f0a302";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.

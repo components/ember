@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+b307387a
+ * @version   2.10.0-alpha.1-canary+86f0a302
  */
 
 var enifed, requireModule, require, Ember;
@@ -42581,7 +42581,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+b307387a";
+  exports.default = "2.10.0-alpha.1-canary+86f0a302";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -54667,6 +54667,19 @@ function isArray(test) {
   return Object.prototype.toString.call(test) === "[object Array]";
 }
 
+function getParam(params, key) {
+  if (typeof params !== "object" || params === null) {
+    throw new Error("You must pass an object as the second argument to `generate`.");
+  }
+  if (!params.hasOwnProperty(key)) {
+    throw new Error("You must provide param `" + key + "` to `generate`.");
+  }
+  if (("" + params[key]).length === 0) {
+    throw new Error("You must provide a param `" + key + "`.");
+  }
+
+  return params[key];
+}
 
 // A Segment represents a segment in the original route description.
 // Each Segment type provides an `eachChar` and `regex` method.
@@ -54718,10 +54731,12 @@ DynamicSegment.prototype = {
   },
 
   generate: function(params) {
+    var value = getParam(params, this.name);
+
     if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-      return encodePathSegment(params[this.name]);
+      return encodePathSegment(value);
     } else {
-      return params[this.name];
+      return value;
     }
   }
 };
@@ -54737,7 +54752,7 @@ StarSegment.prototype = {
   },
 
   generate: function(params) {
-    return params[this.name];
+    return getParam(params, this.name);
   }
 };
 
@@ -55025,6 +55040,13 @@ RouteRecognizer.prototype = {
     currentState.regex = new RegExp(regex + "$");
     currentState.types = types;
 
+    if (typeof options === "object" && options !== null && options.hasOwnProperty("as")) {
+      name = options.as;
+    }
+    if (this.names.hasOwnProperty(name)) {
+      throw new Error("You may not add a duplicate route named `" + name + "`.");
+    }
+
     if (name = options && options.as) {
       this.names[name] = {
         segments: allSegments,
@@ -55199,7 +55221,7 @@ RouteRecognizer.prototype = {
 
 RouteRecognizer.prototype.map = map;
 
-RouteRecognizer.VERSION = '0.2.7';
+RouteRecognizer.VERSION = '0.2.8';
 
 // Set to false to opt-out of encoding and decoding path segments.
 // See https://github.com/tildeio/route-recognizer/pull/55
