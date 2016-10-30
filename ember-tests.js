@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+6c73eb35
+ * @version   2.10.0-alpha.1-canary+1699a4f2
  */
 
 var enifed, requireModule, require, Ember;
@@ -63423,6 +63423,20 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     _emberViews.jQuery('#about-link', '#qunit-fixture').trigger(event);
 
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+  });
+
+  QUnit.test('the {{link-to}} helper throws a useful error if you invoke it wrong', function () {
+    expect(1);
+
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'post'}}Post{{/link-to}}"));
+
+    Router.map(function () {
+      this.route('post', { path: 'post/:post_id' });
+    });
+
+    QUnit.throws(function () {
+      bootApplication();
+    }, /(You attempted to define a `\{\{link-to "post"\}\}` but did not pass the parameters required for generating its dynamic segments.|You must provide param `post_id` to `generate`)/);
   });
 
   QUnit.test('the {{link-to}} helper does not throw an error if its route has exited', function () {

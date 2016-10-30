@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+6c73eb35
+ * @version   2.10.0-alpha.1-canary+1699a4f2
  */
 
 var enifed, requireModule, require, Ember;
@@ -7940,6 +7940,26 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
 
       var routing = _emberMetal.get(this, '_routing');
       var queryParams = _emberMetal.get(this, 'queryParams.values');
+
+      _emberMetal.runInDebug(function () {
+        /*
+         * Unfortunately, to get decent error messages, we need to do this.
+         * In some future state we should be able to use a "feature flag"
+         * which allows us to strip this without needing to call it twice.
+         *
+         * if (isDebugBuild()) {
+         *   // Do the useful debug thing, probably including try/catch.
+         * } else {
+         *   // Do the performant thing.
+         * }
+         */
+        try {
+          routing.generateURL(qualifiedRouteName, models, queryParams);
+        } catch (e) {
+          _emberMetal.assert('You attempted to define a `{{link-to "' + qualifiedRouteName + '"}}` but did not pass the parameters required for generating its dynamic segments. ' + e.message);
+        }
+      });
+
       return routing.generateURL(qualifiedRouteName, models, queryParams);
     }),
 
@@ -42622,7 +42642,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+6c73eb35";
+  exports.default = "2.10.0-alpha.1-canary+1699a4f2";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
