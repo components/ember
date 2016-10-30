@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.2-beta+3bff1c8a
+ * @version   2.10.0-beta.2-beta+7e1afe71
  */
 
 var enifed, requireModule, require, Ember;
@@ -7401,12 +7401,19 @@ babelHelpers.classCallCheck(this, _class);
     _class.prototype.setupAppAndRoutableEngine = function setupAppAndRoutableEngine() {
       var hooks = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
+      var self = this;
+
       this.application.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Application{{outlet}}'));
 
       this.router.map(function () {
         this.mount('blog');
       });
-      this.application.register('route-map:blog', function () {});
+      this.application.register('route-map:blog', function () {
+        this.route('post', function () {
+          this.route('comments');
+          this.route('likes');
+        });
+      });
       this.registerRoute('application', _emberRouting.Route.extend({
         model: function () {
           hooks.push('application - application');
@@ -7426,6 +7433,10 @@ babelHelpers.classCallCheck(this, _class);
               hooks.push('engine - application');
             }
           }));
+
+          if (self._additionalEngineRegistrations) {
+            self._additionalEngineRegistrations.call(this);
+          }
         }
       }));
     };
@@ -7499,6 +7510,10 @@ babelHelpers.classCallCheck(this, _class);
           }));
         }
       }));
+    };
+
+    _class.prototype.additionalEngineRegistrations = function additionalEngineRegistrations(callback) {
+      this._additionalEngineRegistrations = callback;
     };
 
     _class.prototype.setupEngineWithAttrs = function setupEngineWithAttrs(hooks) {
@@ -7708,6 +7723,256 @@ babelHelpers.classCallCheck(this, _class);
 
       return this.visit('/blog?lang=English').then(function () {
         _this10.assertText('ApplicationEngineEnglish');
+      });
+    };
+
+    _class.prototype['@test error substate route works for the application route of an Engine'] = function testErrorSubstateRouteWorksForTheApplicationRouteOfAnEngine(assert) {
+      var _this11 = this;
+
+      assert.expect(2);
+
+      this.setupAppAndRoutableEngine();
+      this.application.__registry__.resolver.moduleBasedResolver = true;
+      this.additionalEngineRegistrations(function () {
+        this.register('template:application_error', _emberGlimmerTestsUtilsHelpers.compile('Error! {{model.message}}'));
+        this.register('route:post', _emberRouting.Route.extend({
+          model: function () {
+            return _emberRuntime.RSVP.reject(new Error('Oh, noes!'));
+          }
+        }));
+      });
+
+      return this.visit('/').then(function () {
+        _this11.assertText('Application');
+        return _this11.transitionTo('blog.post');
+      }).catch(function () {
+        _this11.assertText('ApplicationError! Oh, noes!');
+      });
+    };
+
+    _class.prototype['@test error route works for the application route of an Engine'] = function testErrorRouteWorksForTheApplicationRouteOfAnEngine(assert) {
+      var _this12 = this;
+
+      assert.expect(2);
+
+      this.setupAppAndRoutableEngine();
+      this.application.__registry__.resolver.moduleBasedResolver = true;
+      this.additionalEngineRegistrations(function () {
+        this.register('template:error', _emberGlimmerTestsUtilsHelpers.compile('Error! {{model.message}}'));
+        this.register('route:post', _emberRouting.Route.extend({
+          model: function () {
+            return _emberRuntime.RSVP.reject(new Error('Oh, noes!'));
+          }
+        }));
+      });
+
+      return this.visit('/').then(function () {
+        _this12.assertText('Application');
+        return _this12.transitionTo('blog.post');
+      }).catch(function () {
+        _this12.assertText('ApplicationEngineError! Oh, noes!');
+      });
+    };
+
+    _class.prototype['@test error substate route works for a child route of an Engine'] = function testErrorSubstateRouteWorksForAChildRouteOfAnEngine(assert) {
+      var _this13 = this;
+
+      assert.expect(2);
+
+      this.setupAppAndRoutableEngine();
+      this.application.__registry__.resolver.moduleBasedResolver = true;
+      this.additionalEngineRegistrations(function () {
+        this.register('template:post_error', _emberGlimmerTestsUtilsHelpers.compile('Error! {{model.message}}'));
+        this.register('route:post', _emberRouting.Route.extend({
+          model: function () {
+            return _emberRuntime.RSVP.reject(new Error('Oh, noes!'));
+          }
+        }));
+      });
+
+      return this.visit('/').then(function () {
+        _this13.assertText('Application');
+        return _this13.transitionTo('blog.post');
+      }).catch(function () {
+        _this13.assertText('ApplicationEngineError! Oh, noes!');
+      });
+    };
+
+    _class.prototype['@test error route works for a child route of an Engine'] = function testErrorRouteWorksForAChildRouteOfAnEngine(assert) {
+      var _this14 = this;
+
+      assert.expect(2);
+
+      this.setupAppAndRoutableEngine();
+      this.application.__registry__.resolver.moduleBasedResolver = true;
+      this.additionalEngineRegistrations(function () {
+        this.register('template:post.error', _emberGlimmerTestsUtilsHelpers.compile('Error! {{model.message}}'));
+        this.register('route:post.comments', _emberRouting.Route.extend({
+          model: function () {
+            return _emberRuntime.RSVP.reject(new Error('Oh, noes!'));
+          }
+        }));
+      });
+
+      return this.visit('/').then(function () {
+        _this14.assertText('Application');
+        return _this14.transitionTo('blog.post.comments');
+      }).catch(function () {
+        _this14.assertText('ApplicationEngineError! Oh, noes!');
+      });
+    };
+
+    _class.prototype['@test loading substate route works for the application route of an Engine'] = function testLoadingSubstateRouteWorksForTheApplicationRouteOfAnEngine(assert) {
+      var _this15 = this;
+
+      assert.expect(3);
+
+      var resolveLoading = undefined;
+
+      this.setupAppAndRoutableEngine();
+      this.application.__registry__.resolver.moduleBasedResolver = true;
+      this.additionalEngineRegistrations(function () {
+        this.register('template:application_loading', _emberGlimmerTestsUtilsHelpers.compile('Loading'));
+        this.register('template:post', _emberGlimmerTestsUtilsHelpers.compile('Post'));
+        this.register('route:post', _emberRouting.Route.extend({
+          model: function () {
+            return new _emberRuntime.RSVP.Promise(function (resolve) {
+              resolveLoading = resolve;
+            });
+          }
+        }));
+      });
+
+      return this.visit('/').then(function () {
+        _this15.assertText('Application');
+        var transition = _this15.transitionTo('blog.post');
+
+        _this15.runTaskNext(function () {
+          _this15.assertText('ApplicationLoading');
+          resolveLoading();
+        });
+
+        return transition.then(function () {
+          _this15.runTaskNext(function () {
+            return _this15.assertText('ApplicationEnginePost');
+          });
+        });
+      });
+    };
+
+    _class.prototype['@test loading route works for the application route of an Engine'] = function testLoadingRouteWorksForTheApplicationRouteOfAnEngine(assert) {
+      var _this16 = this;
+
+      assert.expect(3);
+
+      var resolveLoading = undefined;
+
+      this.setupAppAndRoutableEngine();
+      this.additionalEngineRegistrations(function () {
+        this.register('template:loading', _emberGlimmerTestsUtilsHelpers.compile('Loading'));
+        this.register('template:post', _emberGlimmerTestsUtilsHelpers.compile('Post'));
+        this.register('route:post', _emberRouting.Route.extend({
+          model: function () {
+            return new _emberRuntime.RSVP.Promise(function (resolve) {
+              resolveLoading = resolve;
+            });
+          }
+        }));
+      });
+
+      return this.visit('/').then(function () {
+        _this16.assertText('Application');
+        var transition = _this16.transitionTo('blog.post');
+
+        _this16.runTaskNext(function () {
+          _this16.assertText('ApplicationEngineLoading');
+          resolveLoading();
+        });
+
+        return transition.then(function () {
+          _this16.runTaskNext(function () {
+            return _this16.assertText('ApplicationEnginePost');
+          });
+        });
+      });
+    };
+
+    _class.prototype['@test loading substate route works for a child route of an Engine'] = function testLoadingSubstateRouteWorksForAChildRouteOfAnEngine(assert) {
+      var _this17 = this;
+
+      assert.expect(3);
+
+      var resolveLoading = undefined;
+
+      this.setupAppAndRoutableEngine();
+      this.application.__registry__.resolver.moduleBasedResolver = true;
+      this.additionalEngineRegistrations(function () {
+        this.register('template:post', _emberGlimmerTestsUtilsHelpers.compile('{{outlet}}'));
+        this.register('template:post.comments', _emberGlimmerTestsUtilsHelpers.compile('Comments'));
+        this.register('template:post.likes_loading', _emberGlimmerTestsUtilsHelpers.compile('Loading'));
+        this.register('template:post.likes', _emberGlimmerTestsUtilsHelpers.compile('Likes'));
+        this.register('route:post.likes', _emberRouting.Route.extend({
+          model: function () {
+            return new _emberRuntime.RSVP.Promise(function (resolve) {
+              resolveLoading = resolve;
+            });
+          }
+        }));
+      });
+
+      return this.visit('/blog/post/comments').then(function () {
+        _this17.assertText('ApplicationEngineComments');
+        var transition = _this17.transitionTo('blog.post.likes');
+
+        _this17.runTaskNext(function () {
+          _this17.assertText('ApplicationEngineLoading');
+          resolveLoading();
+        });
+
+        return transition.then(function () {
+          _this17.runTaskNext(function () {
+            return _this17.assertText('ApplicationEngineLikes');
+          });
+        });
+      });
+    };
+
+    _class.prototype['@test loading route works for a child route of an Engine'] = function testLoadingRouteWorksForAChildRouteOfAnEngine(assert) {
+      var _this18 = this;
+
+      assert.expect(3);
+
+      var resolveLoading = undefined;
+
+      this.setupAppAndRoutableEngine();
+      this.additionalEngineRegistrations(function () {
+        this.register('template:post', _emberGlimmerTestsUtilsHelpers.compile('{{outlet}}'));
+        this.register('template:post.comments', _emberGlimmerTestsUtilsHelpers.compile('Comments'));
+        this.register('template:post.loading', _emberGlimmerTestsUtilsHelpers.compile('Loading'));
+        this.register('template:post.likes', _emberGlimmerTestsUtilsHelpers.compile('Likes'));
+        this.register('route:post.likes', _emberRouting.Route.extend({
+          model: function () {
+            return new _emberRuntime.RSVP.Promise(function (resolve) {
+              resolveLoading = resolve;
+            });
+          }
+        }));
+      });
+
+      return this.visit('/blog/post/comments').then(function () {
+        _this18.assertText('ApplicationEngineComments');
+        var transition = _this18.transitionTo('blog.post.likes');
+
+        _this18.runTaskNext(function () {
+          _this18.assertText('ApplicationEngineLoading');
+          resolveLoading();
+        });
+
+        return transition.then(function () {
+          _this18.runTaskNext(function () {
+            return _this18.assertText('ApplicationEngineLikes');
+          });
+        });
       });
     };
 
@@ -71517,111 +71782,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime', 'ember
     _emberMetal.run(router, 'transitionTo', 'index');
 
     equal(_emberViews.jQuery('#app', '#qunit-fixture').text(), 'INDEX');
-  });
-
-  QUnit.test('Slow Promise from an Engine application route enters the mounts loading state', function () {
-    expect(1);
-
-    templates['news/blog_loading'] = 'BLOG LOADING';
-
-    // Register engine
-    var BlogEngine = _emberApplication.Engine.extend();
-    registry.register('engine:blog', BlogEngine);
-
-    // Register engine route map
-    var BlogMap = function () {};
-    registry.register('route-map:blog', BlogMap);
-
-    Router.map(function () {
-      this.route('news', function () {
-        this.mount('blog');
-      });
-    });
-
-    var deferred = _emberRuntime.RSVP.defer();
-    var BlogRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-
-    var blog = container.lookup('engine:blog');
-    blog.register('route:application', BlogRoute);
-
-    bootApplication('/news/blog');
-
-    equal(_emberViews.jQuery('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
-
-    _emberMetal.run(deferred, 'resolve');
-  });
-
-  QUnit.test('Rejected Promise from an Engine application route enters the mounts error state', function () {
-    expect(1);
-
-    templates['news/blog_error'] = 'BLOG ERROR';
-
-    // Register engine
-    var BlogEngine = _emberApplication.Engine.extend();
-    registry.register('engine:blog', BlogEngine);
-
-    // Register engine route map
-    var BlogMap = function () {};
-    registry.register('route-map:blog', BlogMap);
-
-    Router.map(function () {
-      this.route('news', function () {
-        this.mount('blog');
-      });
-    });
-
-    var BlogRoute = _emberRouting.Route.extend({
-      model: function () {
-        return _emberRuntime.RSVP.Promise.reject();
-      }
-    });
-
-    var blog = container.lookup('engine:blog');
-    blog.register('route:application', BlogRoute);
-
-    bootApplication('/news/blog');
-
-    equal(_emberViews.jQuery('#app', '#qunit-fixture').text(), 'BLOG ERROR', 'news/blog_loading was entered');
-  });
-
-  QUnit.test('Slow Promise from an Engine application route enters the mounts loading state with resetNamespace', function () {
-    expect(1);
-
-    templates['blog_loading'] = 'BLOG LOADING';
-
-    // Register engine
-    var BlogEngine = _emberApplication.Engine.extend();
-    registry.register('engine:blog', BlogEngine);
-
-    // Register engine route map
-    var BlogMap = function () {};
-    registry.register('route-map:blog', BlogMap);
-
-    Router.map(function () {
-      this.route('news', function () {
-        this.mount('blog', { resetNamespace: true });
-      });
-    });
-
-    var deferred = _emberRuntime.RSVP.defer();
-    var BlogRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-
-    var blog = container.lookup('engine:blog');
-    blog.register('route:application', BlogRoute);
-
-    bootApplication('/news/blog');
-
-    equal(_emberViews.jQuery('#app', '#qunit-fixture').text(), 'BLOG LOADING', 'news/blog_loading was entered');
-
-    _emberMetal.run(deferred, 'resolve');
   });
 });
 enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember-metal', 'ember-template-compiler', 'ember-application', 'ember-views', 'ember-routing', 'ember-glimmer'], function (exports, _emberMetal, _emberTemplateCompiler, _emberApplication, _emberViews, _emberRouting, _emberGlimmer) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.2-beta+3bff1c8a
+ * @version   2.10.0-beta.2-beta+7e1afe71
  */
 
 var enifed, requireModule, require, Ember;
@@ -23111,6 +23111,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
     }
 
     var callback = undefined;
+    var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
     if (engineRouteMap) {
       var shouldResetEngineInfo = false;
       var oldEngineInfo = this.options.engineInfo;
@@ -23122,6 +23123,9 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
       var optionsForChild = _emberUtils.assign({ engineInfo: engineInfo }, this.options);
       var childDSL = new DSL(fullName, optionsForChild);
 
+      createRoute(childDSL, 'loading');
+      createRoute(childDSL, 'error', { path: dummyErrorRoute });
+
       engineRouteMap.call(childDSL);
 
       callback = childDSL.generate();
@@ -23131,14 +23135,24 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
       }
     }
 
-    if (this.enableLoadingSubstates) {
-      var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
-      createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
-      createRoute(this, name + '_error', { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
-    }
-
     var localFullName = 'application';
     var routeInfo = _emberUtils.assign({ localFullName: localFullName }, engineInfo);
+
+    if (this.enableLoadingSubstates) {
+      // These values are important to register the loading routes under their
+      // proper names for the Router and within the Engine's registry.
+      var substateName = name + '_loading';
+      var _localFullName = 'application_loading';
+      var _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
+      createRoute(this, substateName, { resetNamespace: options.resetNamespace });
+      this.options.addRouteForEngine(substateName, _routeInfo);
+
+      substateName = name + '_error';
+      _localFullName = 'application_error';
+      _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
+      createRoute(this, substateName, { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
+      this.options.addRouteForEngine(substateName, _routeInfo);
+    }
 
     this.options.addRouteForEngine(fullName, routeInfo);
 
@@ -26313,36 +26327,39 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   });
 
   /*
-    Helper function for iterating root-ward, starting
-    from (but not including) the provided `originRoute`.
+    Helper function for iterating over routes in a set of handlerInfos that are
+    at or above the given origin route. Example: if `originRoute` === 'foo.bar'
+    and the handlerInfos given were for 'foo.bar.baz', then the given callback
+    will be invoked with the routes for 'foo.bar', 'foo', and 'application'
+    individually.
   
-    Returns true if the last callback fired requested
-    to bubble upward.
+    If the callback returns anything other than `true`, then iteration will stop.
   
     @private
+    @param {Route} originRoute
+    @param {Array<HandlerInfo>} handlerInfos
+    @param {Function} callback
+    @return {Void}
    */
-  function forEachRouteAbove(originRoute, transition, callback) {
-    var handlerInfos = transition.state.handlerInfos;
+  function forEachRouteAbove(originRoute, handlerInfos, callback) {
     var originRouteFound = false;
-    var handlerInfo = undefined,
-        route = undefined;
 
     for (var i = handlerInfos.length - 1; i >= 0; --i) {
-      handlerInfo = handlerInfos[i];
-      route = handlerInfo.handler;
+      var handlerInfo = handlerInfos[i];
+      var route = handlerInfo.handler;
+
+      if (originRoute === route) {
+        originRouteFound = true;
+      }
 
       if (!originRouteFound) {
-        if (originRoute === route) {
-          originRouteFound = true;
-        }
         continue;
       }
 
-      if (callback(route, handlerInfos[i + 1].handler) !== true) {
-        return false;
+      if (callback(route) !== true) {
+        return;
       }
     }
-    return true;
   }
 
   // These get invoked when an action bubbles above ApplicationRoute
@@ -26353,55 +26370,63 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       originRoute.router._scheduleLoadingEvent(transition, originRoute);
     },
 
+    // Attempt to find an appropriate error route or substate to enter.
     error: function (error, transition, originRoute) {
-      // Attempt to find an appropriate error substate to enter.
+      var handlerInfos = transition.state.handlerInfos;
       var router = originRoute.router;
 
-      var tryTopLevel = forEachRouteAbove(originRoute, transition, function (route, childRoute) {
-        var childErrorRouteName = findChildRouteName(route, childRoute, 'error');
-        if (childErrorRouteName) {
-          router.intermediateTransitionTo(childErrorRouteName, error);
-          return;
+      forEachRouteAbove(originRoute, handlerInfos, function (route) {
+        // Check for the existence of an 'error' route.
+        // We don't check for an 'error' route on the originRoute, since that would
+        // technically be below where we're at in the route hierarchy.
+        if (originRoute !== route) {
+          var errorRouteName = findRouteStateName(route, 'error');
+          if (errorRouteName) {
+            router.intermediateTransitionTo(errorRouteName, error);
+            return false;
+          }
         }
+
+        // Check for an 'error' substate route
+        var errorSubstateName = findRouteSubstateName(route, 'error');
+        if (errorSubstateName) {
+          router.intermediateTransitionTo(errorSubstateName, error);
+          return false;
+        }
+
         return true;
       });
-
-      if (tryTopLevel) {
-        // Check for top-level error state to enter.
-        if (routeHasBeenDefined(originRoute.router, 'application_error')) {
-          router.intermediateTransitionTo('application_error', error);
-          return;
-        }
-      }
 
       logError(error, 'Error while processing route: ' + transition.targetName);
     },
 
+    // Attempt to find an appropriate loading route or substate to enter.
     loading: function (transition, originRoute) {
-      // Attempt to find an appropriate loading substate to enter.
+      var handlerInfos = transition.state.handlerInfos;
       var router = originRoute.router;
 
-      var tryTopLevel = forEachRouteAbove(originRoute, transition, function (route, childRoute) {
-        var childLoadingRouteName = findChildRouteName(route, childRoute, 'loading');
+      forEachRouteAbove(originRoute, handlerInfos, function (route) {
+        // Check for the existence of a 'loading' route.
+        // We don't check for a 'loading' route on the originRoute, since that would
+        // technically be below where we're at in the route hierarchy.
+        if (originRoute !== route) {
+          var loadingRouteName = findRouteStateName(route, 'loading');
+          if (loadingRouteName) {
+            router.intermediateTransitionTo(loadingRouteName);
+            return false;
+          }
+        }
 
-        if (childLoadingRouteName) {
-          router.intermediateTransitionTo(childLoadingRouteName);
-          return;
+        // Check for loading substate
+        var loadingSubstateName = findRouteSubstateName(route, 'loading');
+        if (loadingSubstateName) {
+          router.intermediateTransitionTo(loadingSubstateName);
+          return false;
         }
 
         // Don't bubble above pivot route.
-        if (transition.pivotHandler !== route) {
-          return true;
-        }
+        return transition.pivotHandler !== route;
       });
-
-      if (tryTopLevel) {
-        // Check for top-level loading state to enter.
-        if (routeHasBeenDefined(originRoute.router, 'application_loading')) {
-          router.intermediateTransitionTo('application_loading');
-          return;
-        }
-      }
     }
   };
 
@@ -26434,44 +26459,66 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     _emberConsole.default.error.apply(this, errorArgs);
   }
 
-  function findChildRouteName(parentRoute, originatingChildRoute, name) {
-    var router = parentRoute.router;
-    var childName = undefined;
-    var originatingChildRouteName = originatingChildRoute.routeName;
+  /**
+    Finds the name of the substate route if it exists for the given route. A
+    substate route is of the form `route_state`, such as `foo_loading`.
+  
+    @private
+    @param {Route} route
+    @param {String} state
+    @return {String}
+  */
+  function findRouteSubstateName(route, state) {
+    var router = route.router;
+    var owner = _emberUtils.getOwner(route);
 
-    // The only time the originatingChildRoute's name should be 'application'
-    // is if we're entering an engine
-    if (originatingChildRouteName === 'application') {
-      originatingChildRouteName = _emberUtils.getOwner(originatingChildRoute).mountPoint;
-    }
+    var routeName = route.routeName;
+    var substateName = routeName + '_' + state;
 
-    // First, try a named loading state of the route, e.g. 'foo_loading'
-    childName = originatingChildRouteName + '_' + name;
-    if (routeHasBeenDefined(router, childName)) {
-      return childName;
-    }
+    var routeNameFull = route.fullRouteName;
+    var substateNameFull = routeNameFull + '_' + state;
 
-    // Second, try general loading state of the parent, e.g. 'loading'
-    var originatingChildRouteParts = originatingChildRouteName.split('.').slice(0, -1);
-    var namespace = undefined;
-
-    // If there is a namespace on the route, then we use that, otherwise we use
-    // the parent route as the namespace.
-    if (originatingChildRouteParts.length) {
-      namespace = originatingChildRouteParts.join('.') + '.';
-    } else {
-      namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
-    }
-
-    childName = namespace + name;
-    if (routeHasBeenDefined(router, childName)) {
-      return childName;
-    }
+    return routeHasBeenDefined(owner, router, substateName, substateNameFull) ? substateNameFull : '';
   }
 
-  function routeHasBeenDefined(router, name) {
-    var owner = _emberUtils.getOwner(router);
-    return router.hasRoute(name) && (owner.hasRegistration('template:' + name) || owner.hasRegistration('route:' + name));
+  /**
+    Finds the name of the state route if it exists for the given route. A state
+    route is of the form `route.state`, such as `foo.loading`. Properly Handles
+    `application` named routes.
+  
+    @private
+    @param {Route} route
+    @param {String} state
+    @return {String}
+  */
+  function findRouteStateName(route, state) {
+    var router = route.router;
+    var owner = _emberUtils.getOwner(route);
+
+    var routeName = route.routeName;
+    var stateName = routeName === 'application' ? state : routeName + '.' + state;
+
+    var routeNameFull = route.fullRouteName;
+    var stateNameFull = routeNameFull === 'application' ? state : routeNameFull + '.' + state;
+
+    return routeHasBeenDefined(owner, router, stateName, stateNameFull) ? stateNameFull : '';
+  }
+
+  /**
+    Determines whether or not a route has been defined by checking that the route
+    is in the Router's map and the owner has a registration for that route.
+  
+    @private
+    @param {Owner} owner
+    @param {Ember.Router} router
+    @param {String} localName
+    @param {String} fullName
+    @return {Boolean}
+  */
+  function routeHasBeenDefined(owner, router, localName, fullName) {
+    var routerHasRoute = router.hasRoute(fullName);
+    var ownerHasRoute = owner.hasRegistration('template:' + localName) || owner.hasRegistration('route:' + localName);
+    return routerHasRoute && ownerHasRoute;
   }
 
   function triggerEvent(handlerInfos, ignoreFailure, args) {
@@ -39488,7 +39535,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.2-beta+3bff1c8a";
+  exports.default = "2.10.0-beta.2-beta+7e1afe71";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -40021,6 +40068,10 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       }
     };
 
+    AbstractApplicationTestCase.prototype.transitionTo = function transitionTo() {
+      return _emberMetal.run.apply(undefined, [this.appRouter, 'transitionTo'].concat(babelHelpers.slice.call(arguments)));
+    };
+
     AbstractApplicationTestCase.prototype.compile = function compile(string, options) {
       return _emberTemplateCompiler.compile.apply(undefined, arguments);
     };
@@ -40074,6 +40125,11 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
         return {
           location: 'none'
         };
+      }
+    }, {
+      key: 'appRouter',
+      get: function () {
+        return this.applicationInstance.lookup('router:main');
       }
     }]);
     return AbstractApplicationTestCase;
@@ -40256,6 +40312,10 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-utils', '
 
     AbstractTestCase.prototype.runTask = function runTask(callback) {
       _emberMetal.run(callback);
+    };
+
+    AbstractTestCase.prototype.runTaskNext = function runTaskNext(callback) {
+      _emberMetal.run.next(callback);
     };
 
     // The following methods require `this.element` to work
@@ -40484,10 +40544,6 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-runtim
       }).apply(this, arguments);
     };
 
-    QueryParamTestCase.prototype.transitionTo = function transitionTo() {
-      return _emberMetal.run.apply(undefined, [this.appRouter, 'transitionTo'].concat(babelHelpers.slice.call(arguments)));
-    };
-
     /**
       Sets up a Controller for a given route with a single query param and default
       value. Can optionally extend the controller with an object.
@@ -40529,11 +40585,6 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-runtim
     };
 
     babelHelpers.createClass(QueryParamTestCase, [{
-      key: 'appRouter',
-      get: function () {
-        return this.applicationInstance.lookup('router:main');
-      }
-    }, {
       key: 'routerOptions',
       get: function () {
         return {
@@ -51558,6 +51609,19 @@ function isArray(test) {
   return Object.prototype.toString.call(test) === "[object Array]";
 }
 
+function getParam(params, key) {
+  if (typeof params !== "object" || params === null) {
+    throw new Error("You must pass an object as the second argument to `generate`.");
+  }
+  if (!params.hasOwnProperty(key)) {
+    throw new Error("You must provide param `" + key + "` to `generate`.");
+  }
+  if (("" + params[key]).length === 0) {
+    throw new Error("You must provide a param `" + key + "`.");
+  }
+
+  return params[key];
+}
 
 // A Segment represents a segment in the original route description.
 // Each Segment type provides an `eachChar` and `regex` method.
@@ -51609,10 +51673,12 @@ DynamicSegment.prototype = {
   },
 
   generate: function(params) {
+    var value = getParam(params, this.name);
+
     if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-      return encodePathSegment(params[this.name]);
+      return encodePathSegment(value);
     } else {
-      return params[this.name];
+      return value;
     }
   }
 };
@@ -51628,7 +51694,7 @@ StarSegment.prototype = {
   },
 
   generate: function(params) {
-    return params[this.name];
+    return getParam(params, this.name);
   }
 };
 
@@ -51916,6 +51982,13 @@ RouteRecognizer.prototype = {
     currentState.regex = new RegExp(regex + "$");
     currentState.types = types;
 
+    if (typeof options === "object" && options !== null && options.hasOwnProperty("as")) {
+      name = options.as;
+    }
+    if (this.names.hasOwnProperty(name)) {
+      throw new Error("You may not add a duplicate route named `" + name + "`.");
+    }
+
     if (name = options && options.as) {
       this.names[name] = {
         segments: allSegments,
@@ -52090,7 +52163,7 @@ RouteRecognizer.prototype = {
 
 RouteRecognizer.prototype.map = map;
 
-RouteRecognizer.VERSION = '0.2.7';
+RouteRecognizer.VERSION = '0.2.8';
 
 // Set to false to opt-out of encoding and decoding path segments.
 // See https://github.com/tildeio/route-recognizer/pull/55
