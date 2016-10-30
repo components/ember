@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+62a2c1c5
+ * @version   2.10.0-alpha.1-canary+b307387a
  */
 
 var enifed, requireModule, require, Ember;
@@ -42187,6 +42187,19 @@ enifed('ember-metal/tests/run_loop/schedule_test', ['exports', 'ember-metal/run_
     });
 
     equal(cnt, 2, 'should flush actions now');
+  });
+
+  QUnit.test('a scheduled item can be canceled', function (assert) {
+    var hasRan = false;
+
+    _emberMetalRun_loop.default(function () {
+      var cancelId = _emberMetalRun_loop.default.schedule('actions', function () {
+        return hasRan = true;
+      });
+      _emberMetalRun_loop.default.cancel(cancelId);
+    });
+
+    assert.notOk(hasRan, 'should not have ran callback run');
   });
 
   QUnit.test('nested runs should queue each phase independently', function () {
