@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-alpha.1-canary+86f0a302
+ * @version   2.10.0-alpha.1-canary+6c73eb35
  */
 
 var enifed, requireModule, require, Ember;
@@ -8736,17 +8736,19 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glim
     additional information on how a `Component` functions.
     `{{component}}`'s primary use is for cases where you want to dynamically
     change which type of component is rendered as the state of your application
-    changes. The provided block will be applied as the template for the component.
-    Given an empty `<body>` the following template:
+    changes. This helper has three modes: inline, block, and nested.
   
-    ```handlebars
-    {{! application.hbs }}
+    ### Inline Form
+  
+    Given the following template:
+  
+    ```app/application.hbs
     {{component infographicComponentName}}
     ```
   
     And the following application code:
   
-    ```javascript
+    ```app/controllers/application.js
     export default Ember.Controller.extend({
       infographicComponentName: computed('isMarketOpen', {
         get() {
@@ -8767,18 +8769,57 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glim
     Note: You should not use this helper when you are consistently rendering the same
     component. In that case, use standard component syntax, for example:
   
-    ```handlebars
-    {{! application.hbs }}
+    ```app/templates/application.hbs
     {{live-updating-chart}}
     ```
   
-    ## Nested Usage
+    ### Block Form
+  
+    Using the block form of this helper is similar to using the block form
+    of a component. Given the following application template:
+  
+    ```app/templates/application.hbs
+    {{#component infographicComponentName}}
+      Last update: {{lastUpdateTimestamp}}
+    {{/component}}
+    ```
+  
+    The following controller code:
+  
+    ```app/controllers/application.js
+    export default Ember.Controller.extend({
+      lastUpdateTimestamp: computed(function() {
+        return new Date();
+      }),
+  
+      infographicComponentName: computed('isMarketOpen', {
+        get() {
+          if (this.get('isMarketOpen')) {
+            return 'live-updating-chart';
+          } else {
+            return 'market-close-summary';
+          }
+        }
+      })
+    });
+    ```
+  
+    And the following component template:
+  
+    ```app/templates/components/live-updating-chart.hbs
+    {{! chart }}
+    {{yield}}
+    ```
+  
+    The `Last Update: {{lastUpdateTimestamp}}` will be rendered in place of the `{{yield}}`.
+  
+    ### Nested Usage
   
     The `component` helper can be used to package a component path with initial attrs.
     The included attrs can then be merged during the final invocation.
     For example, given a `person-form` component with the following template:
   
-    ```handlebars
+    ```app/templates/components/person-form.hbs
     {{yield (hash
       nameInput=(component "my-input-component" value=model.name placeholder="First Name")
     )}}
@@ -39610,7 +39651,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-alpha.1-canary+86f0a302";
+  exports.default = "2.10.0-alpha.1-canary+6c73eb35";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
