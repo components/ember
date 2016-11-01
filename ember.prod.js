@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+cfd8d1dc
+ * @version   2.11.0-alpha.1-canary+c1919f20
  */
 
 var enifed, requireModule, require, Ember;
@@ -24890,7 +24890,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     },
 
     /**
-      Returns the controller for a particular route or name.
+      Returns the resolved model of the current route, or a parent (or any ancestor)
+      route in a route hierarchy.
        The controller instance must already have been created, either through entering the
       associated route or using `generateController`.
        ```app/routes/post.js
@@ -39664,7 +39665,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+cfd8d1dc";
+  exports.default = "2.11.0-alpha.1-canary+c1919f20";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
