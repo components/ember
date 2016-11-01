@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+c1919f20
+ * @version   2.11.0-alpha.1-canary+cb35de6f
  */
 
 var enifed, requireModule, require, Ember;
@@ -39665,7 +39665,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+c1919f20";
+  exports.default = "2.11.0-alpha.1-canary+cb35de6f";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -52665,7 +52665,7 @@ TransitionState.prototype = {
   @param {Object} error
   @private
  */
-function Transition(router, intent, state, error) {
+function Transition(router, intent, state, error, previousTransition) {
   var transition = this;
   this.state = state || router.state;
   this.intent = intent;
@@ -52689,6 +52689,18 @@ function Transition(router, intent, state, error) {
     return;
   }
 
+  // if you're doing multiple redirects, need the new transition to know if it
+  // is actually part of the first transition or not. Any further redirects
+  // in the initial transition also need to know if they are part of the
+  // initial transition
+  this.isCausedByAbortingTransition = !!previousTransition;
+  this.isCausedByInitialTransition = (
+    previousTransition && (
+      previousTransition.isCausedByInitialTransition ||
+      previousTransition.sequence === 0
+    )
+  );
+
   if (state) {
     this.params = state.params;
     this.queryParams = state.queryParams;
@@ -52707,16 +52719,9 @@ function Transition(router, intent, state, error) {
       this.pivotHandler = handlerInfo.handler;
     }
 
-    this.sequence = Transition.currentSequence++;
-    this.promise = state.resolve(checkForAbort, this)['catch'](function(result) {
-      if (result.wasAborted || transition.isAborted) {
-        return rsvp.Promise.reject(logAbort(transition));
-      } else {
-        transition.trigger('error', result.error, transition, result.handlerWithError);
-        transition.abort();
-        return rsvp.Promise.reject(result.error);
-      }
-    }, promiseLabel('Handle Abort'));
+    this.sequence = router.currentSequence++;
+    this.promise = state.resolve(checkForAbort, this)['catch'](
+      catchHandlerForTransition(transition), promiseLabel('Handle Abort'));
   } else {
     this.promise = rsvp.Promise.resolve(this.state);
     this.params = {};
@@ -52729,7 +52734,18 @@ function Transition(router, intent, state, error) {
   }
 }
 
-Transition.currentSequence = 0;
+function catchHandlerForTransition(transition) {
+  return function(result) {
+    if (result.wasAborted || transition.isAborted) {
+      return rsvp.Promise.reject(logAbort(transition));
+    } else {
+      transition.trigger('error', result.error, transition, result.handlerWithError);
+      transition.abort();
+      return rsvp.Promise.reject(result.error);
+    }
+  };
+}
+
 
 Transition.prototype = {
   targetName: null,
@@ -53623,6 +53639,7 @@ function Router(_options) {
   this.oldState = undefined;
   this.currentHandlerInfos = undefined;
   this.state = undefined;
+  this.currentSequence = 0;
 
   this.recognizer = new RouteRecognizer();
   this.reset();
@@ -53656,7 +53673,7 @@ function getTransitionByIntent(intent, isIntermediate) {
   }
 
   // Create a new transition to the destination route.
-  newTransition = new Transition(this, intent, newState);
+  newTransition = new Transition(this, intent, newState, undefined, this.activeTransition);
 
   // Abort and usurp any previously active transition.
   if (this.activeTransition) {
@@ -54222,7 +54239,27 @@ function updateURL(transition, state/*, inputUrl*/) {
     params.queryParams = transition._visibleQueryParams || state.queryParams;
     var url = router.recognizer.generate(handlerName, params);
 
-    if (urlMethod === 'replace') {
+    // transitions during the initial transition must always use replaceURL.
+    // When the app boots, you are at a url, e.g. /foo. If some handler
+    // redirects to bar as part of the initial transition, you don't want to
+    // add a history entry for /foo. If you do, pressing back will immediately
+    // hit the redirect again and take you back to /bar, thus killing the back
+    // button
+    var initial = transition.isCausedByInitialTransition;
+
+    // say you are at / and you click a link to route /foo. In /foo's
+    // handler, the transition is aborted using replacewith('/bar').
+    // Because the current url is still /, the history entry for / is
+    // removed from the history. Clicking back will take you to the page
+    // you were on before /, which is often not even the app, thus killing
+    // the back button. That's why updateURL is always correct for an
+    // aborting transition that's not the initial transition
+    var replaceAndNotAborting = (
+      urlMethod === 'replace' &&
+      !transition.isCausedByAbortingTransition
+    );
+
+    if (initial || replaceAndNotAborting) {
       router.replaceURL(url);
     } else {
       router.updateURL(url);
