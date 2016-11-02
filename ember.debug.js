@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.2-beta+06892432
+ * @version   2.10.0-beta.2-beta+b135cae8
  */
 
 var enifed, requireModule, require, Ember;
@@ -15668,7 +15668,7 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
   }
 
   function lazyGet(obj, key) {
-    if (!obj) {
+    if (!isObject(obj)) {
       return;
     }
 
@@ -22240,6 +22240,9 @@ enifed('ember-metal/watch_key', ['exports', 'ember-utils', 'ember-metal/features
   var handleMandatorySetter = undefined;
 
   function watchKey(obj, keyName, meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var m = meta || _emberMetalMeta.meta(obj);
 
     // activate watching first time
@@ -22313,6 +22316,9 @@ enifed('ember-metal/watch_key', ['exports', 'ember-utils', 'ember-metal/features
   }
 
   function unwatchKey(obj, keyName, _meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var meta = _meta || _emberMetalMeta.meta(obj);
 
     // do nothing of this object has already been destroyed
@@ -22390,6 +22396,9 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/meta', 'ember-metal/ch
   }
 
   function watchPath(obj, keyPath, meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var m = meta || _emberMetalMeta.meta(obj);
     var counter = m.peekWatching(keyPath) || 0;
     if (!counter) {
@@ -22402,6 +22411,9 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/meta', 'ember-metal/ch
   }
 
   function unwatchPath(obj, keyPath, meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var m = meta || _emberMetalMeta.meta(obj);
     var counter = m.peekWatching(keyPath) || 0;
 
@@ -22449,6 +22461,9 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/watch_key', 'ember-metal
   exports.watch = watch;
 
   function isWatching(obj, key) {
+    if (typeof obj !== 'object' || obj === null) {
+      return false;
+    }
     var meta = _emberMetalMeta.peekMeta(obj);
     return (meta && meta.peekWatching(key)) > 0;
   }
@@ -42500,7 +42515,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.2-beta+06892432";
+  exports.default = "2.10.0-beta.2-beta+b135cae8";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
