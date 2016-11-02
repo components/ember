@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.10.0-beta.2"
+        "version": "v2.10.0-beta.3"
     },
     "files": {
         "bower_components/router.js/lib/router/router.js": {
@@ -3993,7 +3993,7 @@
     "classitems": [
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 88,
+            "line": 89,
             "description": "The main entry point into the router. The API is essentially\nthe same as the `map` method in `route-recognizer`.\n\nThis method extracts the String handler at the last `.to()`\ncall and uses it as the name of the whole route.",
             "params": [
                 {
@@ -4006,13 +4006,13 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 161,
+            "line": 162,
             "description": "Clears the current and target route handlers and triggers exit\non each of them starting at the leaf and traversing up through\nits ancestors.",
             "class": "Transition"
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 181,
+            "line": 182,
             "description": "var handler = handlerInfo.handler;\nThe entry point for handling a change to the URL (usually\nvia the back and forward button).\n\nReturns an Array of handlers and the parameters associated\nwith those parameters.",
             "params": [
                 {
@@ -4029,7 +4029,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 202,
+            "line": 203,
             "description": "Hook point for updating the URL.",
             "params": [
                 {
@@ -4042,7 +4042,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 211,
+            "line": 212,
             "description": "Hook point for replacing the current URL, i.e. with replaceState\n\nBy default this behaves the same as `updateURL`",
             "params": [
                 {
@@ -4055,7 +4055,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 222,
+            "line": 223,
             "description": "Transition into the specified named route.\n\nIf necessary, trigger the exit callback on any handlers\nthat are no longer represented by the target route.",
             "params": [
                 {
@@ -4068,7 +4068,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 258,
+            "line": 259,
             "description": "Identical to `transitionTo` except that the current URL will be replaced\nif possible.\n\nThis method is intended primarily for use with `replaceState`.",
             "params": [
                 {
@@ -4081,7 +4081,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 270,
+            "line": 271,
             "description": "Take a named route and context objects and generate a\nURL.",
             "params": [
                 {
@@ -4103,7 +4103,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 374,
+            "line": 375,
             "description": "Hook point for logging transition status updates.",
             "params": [
                 {
@@ -4116,14 +4116,14 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 382,
+            "line": 383,
             "access": "private",
             "tagname": "Fires queryParamsDidChange event",
             "class": "Transition"
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 400,
+            "line": 401,
             "access": "private",
             "tagname": "Takes an Array of `HandlerInfo`s, figures out which ones are\nexiting, entering, or changing contexts, and calls the\nproper handler hooks.\n\nFor example, consider the following tree of handlers. Each handler is\nfollowed by the URL segment it handles.\n\n```\n|~index (\"/\")\n| |~posts (\"/posts\")\n| | |-showPost (\"/:id\")\n| | |-newPost (\"/new\")\n| | |-editPost (\"/edit\")\n| |~about (\"/about/:id\")\n```\n\nConsider the following transitions:\n\n1. A URL transition to `/posts/1`.\n   1. Triggers the `*model` callbacks on the\n      `index`, `posts`, and `showPost` handlers\n   2. Triggers the `enter` callback on the same\n   3. Triggers the `setup` callback on the same\n2. A direct transition to `newPost`\n   1. Triggers the `exit` callback on `showPost`\n   2. Triggers the `enter` callback on `newPost`\n   3. Triggers the `setup` callback on `newPost`\n3. A direct transition to `about` with a specified\n   context object\n   1. Triggers the `exit` callback on `newPost`\n      and `posts`\n   2. Triggers the `serialize` callback on `about`\n   3. Triggers the `enter` callback on `about`\n   4. Triggers the `setup` callback on `about`",
             "params": [
@@ -4142,14 +4142,14 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 480,
+            "line": 481,
             "access": "private",
             "tagname": "Helper method used by setupContexts. Handles errors or redirects\nthat may happen in enter/setup.",
             "class": "Transition"
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 521,
+            "line": 522,
             "access": "private",
             "tagname": "This function is called when transitioning from one URL to\nanother to determine which handlers are no longer active,\nwhich handlers are newly active, and which handlers remain\nactive but have their context changed.\n\nTake a list of old handlers and new handlers and partition\nthem into four buckets:\n\n* unchanged: the handler was active in both the old and\n  new URL, and its context remains the same\n* updated context: the handler was active in both the\n  old and new URL, but its context changed. The handler's\n  `setup` method, if any, will be called with the new\n  context.\n* exited: the handler was active in the old URL, but is\n  no longer active.\n* entered: the handler was not active in the old URL, but\n  is now active.\n\nThe PartitionedHandlers structure has four fields:\n\n* `updatedContext`: a list of `HandlerInfo` objects that\n  represent handlers that remain active but have a changed\n  context\n* `entered`: a list of `HandlerInfo` objects that represent\n  handlers that are newly active\n* `exited`: a list of `HandlerInfo` objects that are no\n  longer active.\n* `unchanged`: a list of `HanderInfo` objects that remain active.",
             "params": [
@@ -4172,14 +4172,14 @@
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 636,
+            "line": 657,
             "access": "private",
             "tagname": "Updates the URL (if necessary) and calls `setupContexts`\nto update the router's array of `currentHandlerInfos`.",
             "class": "Transition"
         },
         {
             "file": "bower_components/router.js/lib/router/router.js",
-            "line": 687,
+            "line": 708,
             "access": "private",
             "tagname": "Begins and returns a Transition based on the provided\narguments. Accepts arguments in the form of both URL\ntransitions and named transitions.",
             "params": [
@@ -4198,7 +4198,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 108,
+            "line": 124,
             "description": "The Transition's internal promise. Calling `.then` on this property\nis that same as calling `.then` on the Transition object itself, but\nthis property is exposed for when you want to pass around a\nTransition's promise, but not the Transition object itself, since\nTransition object can be externally `abort`ed, while the promise\ncannot.",
             "itemtype": "property",
             "name": "promise",
@@ -4209,7 +4209,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 122,
+            "line": 138,
             "description": "Custom state can be stored on a Transition's `data` object.\nThis can be useful for decorating a Transition within an earlier\nhook and shared with a later hook. Properties set on `data` will\nbe copied to new transitions generated by calling `retry` on this\ntransition.",
             "itemtype": "property",
             "name": "data",
@@ -4220,7 +4220,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 135,
+            "line": 151,
             "description": "A standard promise hook that resolves if the transition\nsucceeds and rejects if it fails/redirects/aborts.\n\nForwards to the internal `promise` property which you can\nuse in situations where you want to pass around a thennable,\nbut not the Transition itself.",
             "itemtype": "method",
             "name": "then",
@@ -4251,7 +4251,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 155,
+            "line": 171,
             "description": "Forwards to the internal `promise` property which you can\n    use in situations where you want to pass around a thennable,\n    but not the Transition itself.",
             "itemtype": "method",
             "name": "catch",
@@ -4277,7 +4277,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 172,
+            "line": 188,
             "description": "Forwards to the internal `promise` property which you can\n    use in situations where you want to pass around a thennable,\n    but not the Transition itself.",
             "itemtype": "method",
             "name": "finally",
@@ -4303,7 +4303,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 189,
+            "line": 205,
             "description": "Aborts the Transition. Note you can also implicitly abort a transition\nby initiating another transition while a previous one is underway.",
             "itemtype": "method",
             "name": "abort",
@@ -4317,7 +4317,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 207,
+            "line": 223,
             "description": "Retries a previously-aborted transition (making sure to abort the\n    transition if it's still active). Returns a new transition that\n    represents the new attempt to transition.",
             "itemtype": "method",
             "name": "retry",
@@ -4331,7 +4331,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 223,
+            "line": 239,
             "description": "Sets the URL-changing method to be employed at the end of a\n    successful transition. By default, a new Transition will just\n    use `updateURL`, but passing 'replace' to this method will\n    cause the URL to update using 'replaceWith' instead. Omitting\n    a parameter will disable the URL change, allowing for transitions\n    that don't update the URL at completion (this is also used for\n    handleURL, since the URL has already changed before the\n    transition took place).",
             "itemtype": "method",
             "name": "method",
@@ -4352,7 +4352,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 248,
+            "line": 264,
             "description": "Fires an event on the current list of resolved/resolving\n    handlers within this transition. Useful for firing events\n    on route hierarchies that haven't fully been entered yet.\nNote: This method is also aliased as `send`",
             "itemtype": "method",
             "name": "trigger",
@@ -4376,7 +4376,7 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 272,
+            "line": 288,
             "description": "Transitions are aborted and their promises rejected\nwhen redirects occur; this method returns a promise\nthat will follow any redirects that occur and fulfill\nwith the value fulfilled by any redirecting transitions\nthat occur.",
             "itemtype": "method",
             "name": "followRedirects",
@@ -4390,14 +4390,14 @@
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 298,
+            "line": 314,
             "access": "private",
             "tagname": "",
             "class": "Transition"
         },
         {
             "file": "bower_components/router.js/lib/router/transition.js",
-            "line": 309,
+            "line": 325,
             "access": "private",
             "tagname": "Logs and returns a TransitionAborted error.",
             "class": "Transition"
@@ -10971,8 +10971,8 @@
                 }
             ],
             "return": {
-                "description": "",
-                "type": "Void"
+                "description": "Timer information for use in cancelling, see `run.cancel`.",
+                "type": "*"
             },
             "access": "public",
             "tagname": "",
@@ -10982,7 +10982,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 285,
+            "line": 286,
             "description": "Immediately flushes any events scheduled in the 'sync' queue. Bindings\nuse this queue so this method is a useful way to immediately force all\nbindings in the application to sync.\n\nYou should call this method anytime you need any changed state to propagate\nthroughout the app immediately without repainting the UI (which happens\nin the later 'render' queue added by the `ember-views` package).\n\n```javascript\nrun.sync();\n```",
             "itemtype": "method",
             "name": "sync",
@@ -10998,7 +10998,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 308,
+            "line": 309,
             "description": "Invokes the passed target/method and optional arguments after a specified\nperiod of time. The last parameter of this method must always be a number\nof milliseconds.\n\nYou should use this method whenever you need to run some action after a\nperiod of time instead of using `setTimeout()`. This method will ensure that\nitems that expire during the same script execution cycle all execute\ntogether, which is often more efficient than using a real setTimeout.\n\n```javascript\nrun.later(myContext, function() {\n  // code here will execute within a RunLoop in about 500ms with this == myContext\n}, 500);\n```",
             "itemtype": "method",
             "name": "later",
@@ -11038,7 +11038,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 338,
+            "line": 339,
             "description": "Schedule a function to run one time during the current RunLoop. This is equivalent\nto calling `scheduleOnce` with the \"actions\" queue.",
             "itemtype": "method",
             "name": "once",
@@ -11073,7 +11073,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 361,
+            "line": 362,
             "description": "Schedules a function to run one time in a given queue of the current RunLoop.\nCalling this method with the same queue/target/method combination will have\nno effect (past the initial call).\n\nNote that although you can pass optional arguments these will not be\nconsidered when looking for duplicates. New arguments will replace previous\ncalls.\n\n```javascript\nfunction sayHi() {\n  console.log('hi');\n}\n\nrun(function() {\n  run.scheduleOnce('afterRender', myContext, sayHi);\n  run.scheduleOnce('afterRender', myContext, sayHi);\n  // sayHi will only be executed once, in the afterRender queue of the RunLoop\n});\n```\n\nAlso note that passing an anonymous function to `run.scheduleOnce` will\nnot prevent additional calls with an identical anonymous function from\nscheduling the items multiple times, e.g.:\n\n```javascript\nfunction scheduleIt() {\n  run.scheduleOnce('actions', myContext, function() {\n    console.log('Closure');\n  });\n}\n\nscheduleIt();\nscheduleIt();\n\n// \"Closure\" will print twice, even though we're using `run.scheduleOnce`,\n// because the function we pass to it is anonymous and won't match the\n// previously scheduled operation.\n```\n\nAvailable queues, and their order, can be found at `run.queues`",
             "itemtype": "method",
             "name": "scheduleOnce",
@@ -11114,7 +11114,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 422,
+            "line": 423,
             "description": "Schedules an item to run from within a separate run loop, after\ncontrol has been returned to the system. This is equivalent to calling\n`run.later` with a wait time of 1ms.\n\n```javascript\nrun.next(myContext, function() {\n  // code to be executed in the next run loop,\n  // which will be scheduled after the current one\n});\n```\n\nMultiple operations scheduled with `run.next` will coalesce\ninto the same later run loop, along with any other operations\nscheduled by `run.later` that expire right around the same\ntime that `run.next` operations will fire.\n\nNote that there are often alternatives to using `run.next`.\nFor instance, if you'd like to schedule an operation to happen\nafter all DOM element operations have completed within the current\nrun loop, you can make use of the `afterRender` run loop queue (added\nby the `ember-views` package, along with the preceding `render` queue\nwhere all the DOM element operations happen).\n\nExample:\n\n```javascript\nexport default Ember.Component.extend({\n  didInsertElement() {\n    this._super(...arguments);\n    run.scheduleOnce('afterRender', this, 'processChildElements');\n  },\n\n  processChildElements() {\n    // ... do something with component's child component\n    // elements after they've finished rendering, which\n    // can't be done within this component's\n    // `didInsertElement` hook because that gets run\n    // before the child elements have been added to the DOM.\n  }\n});\n```\n\nOne benefit of the above approach compared to using `run.next` is\nthat you will be able to perform DOM/CSS operations before unprocessed\nelements are rendered to the screen, which may prevent flickering or\nother artifacts caused by delaying processing until after rendering.\n\nThe other major benefit to the above approach is that `run.next`\nintroduces an element of non-determinism, which can make things much\nharder to test, due to its reliance on `setTimeout`; it's much harder\nto guarantee the order of scheduled operations when they are scheduled\noutside of the current run loop, i.e. with `run.next`.",
             "itemtype": "method",
             "name": "next",
@@ -11149,7 +11149,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 490,
+            "line": 491,
             "description": "Cancels a scheduled item. Must be a value returned by `run.later()`,\n`run.once()`, `run.scheduleOnce()`, `run.next()`, `run.debounce()`, or\n`run.throttle()`.\n\n```javascript\nlet runNext = run.next(myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runNext);\n\nlet runLater = run.later(myContext, function() {\n  // will not be executed\n}, 500);\n\nrun.cancel(runLater);\n\nlet runScheduleOnce = run.scheduleOnce('afterRender', myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runScheduleOnce);\n\nlet runOnce = run.once(myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runOnce);\n\nlet throttle = run.throttle(myContext, function() {\n  // will not be executed\n}, 1, false);\n\nrun.cancel(throttle);\n\nlet debounce = run.debounce(myContext, function() {\n  // will not be executed\n}, 1);\n\nrun.cancel(debounce);\n\nlet debounceImmediate = run.debounce(myContext, function() {\n  // will be executed since we passed in true (immediate)\n}, 100, true);\n\n// the 100ms delay until this method can be called again will be cancelled\nrun.cancel(debounceImmediate);\n```",
             "itemtype": "method",
             "name": "cancel",
@@ -11172,7 +11172,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 549,
+            "line": 550,
             "description": "Delay calling the target method until the debounce period has elapsed\nwith no additional debounce calls. If `debounce` is called again before\nthe specified time has elapsed, the timer is reset and the entire period\nmust pass again before the target method is called.\n\nThis method should be used when an event may be called multiple times\nbut the action should only be called once when the event is done firing.\nA common example is for scroll events where you only want updates to\nhappen once scrolling has ceased.\n\n```javascript\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nlet myContext = { name: 'debounce' };\n\nrun.debounce(myContext, whoRan, 150);\n\n// less than 150ms passes\nrun.debounce(myContext, whoRan, 150);\n\n// 150ms passes\n// whoRan is invoked with context myContext\n// console logs 'debounce ran.' one time.\n```\n\nImmediate allows you to run the function immediately, but debounce\nother calls for this function until the wait time has elapsed. If\n`debounce` is called again before the specified time has elapsed,\nthe timer is reset and the entire period must pass again before\nthe method can be called again.\n\n```javascript\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nlet myContext = { name: 'debounce' };\n\nrun.debounce(myContext, whoRan, 150, true);\n\n// console logs 'debounce ran.' one time immediately.\n// 100ms passes\nrun.debounce(myContext, whoRan, 150, true);\n\n// 150ms passes and nothing else is logged to the console and\n// the debouncee is no longer being watched\nrun.debounce(myContext, whoRan, 150, true);\n\n// console logs 'debounce ran.' one time immediately.\n// 150ms passes and nothing else is logged to the console and\n// the debouncee is no longer being watched\n\n```",
             "itemtype": "method",
             "name": "debounce",
@@ -11217,7 +11217,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 622,
+            "line": 623,
             "description": "Ensure that the target method is never called more frequently than\nthe specified spacing period. The target method is called immediately.\n\n```javascript\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nlet myContext = { name: 'throttle' };\n\nrun.throttle(myContext, whoRan, 150);\n// whoRan is invoked with context myContext\n// console logs 'throttle ran.'\n\n// 50ms passes\nrun.throttle(myContext, whoRan, 150);\n\n// 50ms passes\nrun.throttle(myContext, whoRan, 150);\n\n// 150ms passes\nrun.throttle(myContext, whoRan, 150);\n// whoRan is invoked with context myContext\n// console logs 'throttle ran.'\n```",
             "itemtype": "method",
             "name": "throttle",
@@ -11262,7 +11262,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 665,
+            "line": 666,
             "description": "Add a new named queue after the specified queue.\n\nThe queue to add will only be added once.",
             "itemtype": "method",
             "name": "_addQueue",
@@ -11334,7 +11334,7 @@
         },
         {
             "file": "packages/ember-metal/lib/watching.js",
-            "line": 62,
+            "line": 65,
             "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
             "itemtype": "method",
             "name": "destroy",
@@ -13476,7 +13476,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 678,
+            "line": 680,
             "description": "Serializes the value of a query parameter based on a type",
             "access": "private",
             "tagname": "",
@@ -13501,7 +13501,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 694,
+            "line": 696,
             "description": "Deserializes the given query params according to their QP meta information.",
             "access": "private",
             "tagname": "",
@@ -13530,7 +13530,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 714,
+            "line": 716,
             "description": "Deserializes the value of a query parameter based on a default type",
             "access": "private",
             "tagname": "",
@@ -13555,7 +13555,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 734,
+            "line": 736,
             "description": "Removes (prunes) any query params with default values from the given QP\nobject. Default values are determined from the QP meta information per key.",
             "access": "private",
             "tagname": "",
@@ -13584,7 +13584,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 794,
+            "line": 796,
             "description": "Prepares the query params for a URL or Transition. Restores any undefined QP\nkeys/values, serializes all values, and then prunes any default values.",
             "access": "private",
             "tagname": "",
@@ -13618,7 +13618,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 812,
+            "line": 814,
             "description": "Returns the meta information for the query params of a given route. This\nwill be overriden to allow support for lazy routes.",
             "access": "private",
             "tagname": "",
@@ -13642,7 +13642,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 826,
+            "line": 828,
             "description": "Returns a merged query params meta object for a given set of handlerInfos.\nUseful for knowing what query params are available for a given route hierarchy.",
             "access": "private",
             "tagname": "",
@@ -13666,7 +13666,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 883,
+            "line": 885,
             "description": "Maps all query param keys to their fully scoped property name of the form\n`controllerName:propName`.",
             "access": "private",
             "tagname": "",
@@ -13700,7 +13700,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 920,
+            "line": 922,
             "description": "Hydrates (adds/restores) any query params that have pre-existing values into\nthe given queryParams hash. This is what allows query params to be \"sticky\"\nand restore their last known values for their scope.",
             "access": "private",
             "tagname": "",
@@ -13729,7 +13729,98 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1283,
+            "line": 1163,
+            "description": "Finds the name of the substate route if it exists for the given route. A\nsubstate route is of the form `route_state`, such as `foo_loading`.",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "route",
+                    "description": "",
+                    "type": "Route"
+                },
+                {
+                    "name": "state",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "Ember.Router",
+            "module": "ember",
+            "submodule": "ember-routing",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-routing/lib/system/router.js",
+            "line": 1187,
+            "description": "Finds the name of the state route if it exists for the given route. A state\nroute is of the form `route.state`, such as `foo.loading`. Properly Handles\n`application` named routes.",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "route",
+                    "description": "",
+                    "type": "Route"
+                },
+                {
+                    "name": "state",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "String"
+            },
+            "class": "Ember.Router",
+            "module": "ember",
+            "submodule": "ember-routing",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-routing/lib/system/router.js",
+            "line": 1212,
+            "description": "Determines whether or not a route has been defined by checking that the route\nis in the Router's map and the owner has a registration for that route.",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "owner",
+                    "description": "",
+                    "type": "Owner"
+                },
+                {
+                    "name": "router",
+                    "description": "",
+                    "type": "Ember.Router"
+                },
+                {
+                    "name": "localName",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "fullName",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Boolean"
+            },
+            "class": "Ember.Router",
+            "module": "ember",
+            "submodule": "ember-routing",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-routing/lib/system/router.js",
+            "line": 1322,
             "description": "The `Router.map` function allows you to define mappings from URLs to routes\nin your application. These mappings are defined within the\nsupplied callback function using `this.route`.\n\nThe first parameter is the name of the route which is used by default as the\npath name as well.\n\nThe second parameter is the optional options hash. Available options are:\n\n  * `path`: allows you to provide your own path as well as mark dynamic\n    segments.\n  * `resetNamespace`: false by default; when nesting routes, ember will\n    combine the route names to form the fully-qualified route name, which is\n    used with `{{link-to}}` or manually transitioning to routes. Setting\n    `resetNamespace: true` will cause the route not to inherit from its\n    parent route's names. This is handy for preventing extremely long route names.\n    Keep in mind that the actual URL path behavior is still retained.\n\nThe third parameter is a function, which can be used to nest routes.\nNested routes, by default, will have the parent route tree's route name and\npath prepended to it's own.\n\n```javascript\nApp.Router.map(function(){\n  this.route('post', { path: '/post/:post_id' }, function() {\n    this.route('edit');\n    this.route('comments', { resetNamespace: true }, function() {\n      this.route('new');\n    });\n  });\n});\n```\n\nFor more detailed documentation and examples please see\n[the guides](http://emberjs.com/guides/routing/defining-your-routes/).",
             "itemtype": "method",
             "name": "map",
@@ -20799,71 +20890,71 @@
         },
         {
             "message": "Missing item type\nThe main entry point into the router. The API is essentially\nthe same as the `map` method in `route-recognizer`.\n\nThis method extracts the String handler at the last `.to()`\ncall and uses it as the name of the whole route.",
-            "line": " bower_components/router.js/lib/router/router.js:88"
+            "line": " bower_components/router.js/lib/router/router.js:89"
         },
         {
             "message": "Missing item type\nClears the current and target route handlers and triggers exit\non each of them starting at the leaf and traversing up through\nits ancestors.",
-            "line": " bower_components/router.js/lib/router/router.js:161"
+            "line": " bower_components/router.js/lib/router/router.js:162"
         },
         {
             "message": "Missing item type\nvar handler = handlerInfo.handler;\nThe entry point for handling a change to the URL (usually\nvia the back and forward button).\n\nReturns an Array of handlers and the parameters associated\nwith those parameters.",
-            "line": " bower_components/router.js/lib/router/router.js:181"
+            "line": " bower_components/router.js/lib/router/router.js:182"
         },
         {
             "message": "Missing item type\nHook point for updating the URL.",
-            "line": " bower_components/router.js/lib/router/router.js:202"
+            "line": " bower_components/router.js/lib/router/router.js:203"
         },
         {
             "message": "Missing item type\nHook point for replacing the current URL, i.e. with replaceState\n\nBy default this behaves the same as `updateURL`",
-            "line": " bower_components/router.js/lib/router/router.js:211"
+            "line": " bower_components/router.js/lib/router/router.js:212"
         },
         {
             "message": "Missing item type\nTransition into the specified named route.\n\nIf necessary, trigger the exit callback on any handlers\nthat are no longer represented by the target route.",
-            "line": " bower_components/router.js/lib/router/router.js:222"
+            "line": " bower_components/router.js/lib/router/router.js:223"
         },
         {
             "message": "Missing item type\nIdentical to `transitionTo` except that the current URL will be replaced\nif possible.\n\nThis method is intended primarily for use with `replaceState`.",
-            "line": " bower_components/router.js/lib/router/router.js:258"
+            "line": " bower_components/router.js/lib/router/router.js:259"
         },
         {
             "message": "Missing item type\nTake a named route and context objects and generate a\nURL.",
-            "line": " bower_components/router.js/lib/router/router.js:270"
+            "line": " bower_components/router.js/lib/router/router.js:271"
         },
         {
             "message": "Missing item type\nHook point for logging transition status updates.",
-            "line": " bower_components/router.js/lib/router/router.js:374"
+            "line": " bower_components/router.js/lib/router/router.js:375"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/router.js:382"
+            "line": " bower_components/router.js/lib/router/router.js:383"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/router.js:400"
+            "line": " bower_components/router.js/lib/router/router.js:401"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/router.js:480"
+            "line": " bower_components/router.js/lib/router/router.js:481"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/router.js:521"
+            "line": " bower_components/router.js/lib/router/router.js:522"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/router.js:636"
+            "line": " bower_components/router.js/lib/router/router.js:657"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/router.js:687"
+            "line": " bower_components/router.js/lib/router/router.js:708"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/transition.js:298"
+            "line": " bower_components/router.js/lib/router/transition.js:314"
         },
         {
             "message": "Missing item type",
-            "line": " bower_components/router.js/lib/router/transition.js:309"
+            "line": " bower_components/router.js/lib/router/transition.js:325"
         },
         {
             "message": "Missing item type\nPromise reject reasons passed to promise rejection\nhandlers for failed transitions.",
@@ -20952,6 +21043,18 @@
         {
             "message": "Missing item type\nReplaces the current location, making sure we explicitly include the origin\nto prevent redirecting to a different origin.",
             "line": " packages/ember-routing/lib/location/util.js:105"
+        },
+        {
+            "message": "Missing item type\nFinds the name of the substate route if it exists for the given route. A\nsubstate route is of the form `route_state`, such as `foo_loading`.",
+            "line": " packages/ember-routing/lib/system/router.js:1163"
+        },
+        {
+            "message": "Missing item type\nFinds the name of the state route if it exists for the given route. A state\nroute is of the form `route.state`, such as `foo.loading`. Properly Handles\n`application` named routes.",
+            "line": " packages/ember-routing/lib/system/router.js:1187"
+        },
+        {
+            "message": "Missing item type\nDetermines whether or not a route has been defined by checking that the route\nis in the Router's map and the owner has a registration for that route.",
+            "line": " packages/ember-routing/lib/system/router.js:1212"
         },
         {
             "message": "Missing item type",

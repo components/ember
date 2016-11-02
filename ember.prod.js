@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.2
+ * @version   2.10.0-beta.3
  */
 
 var enifed, requireModule, require, Ember;
@@ -14641,7 +14641,7 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
   }
 
   function lazyGet(obj, key) {
-    if (!obj) {
+    if (!isObject(obj)) {
       return;
     }
 
@@ -20469,11 +20469,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-metal/debug', '
       will be resolved on the target object at the time the scheduled item is
       invoked allowing you to change the target function.
     @param {Object} [arguments*] Optional arguments to be passed to the queued method.
-    @return {void}
+    @return {*} Timer information for use in cancelling, see `run.cancel`.
     @public
   */
   run.schedule = function () /* queue, target, method */{
-    backburner.schedule.apply(backburner, arguments);
+
+    return backburner.schedule.apply(backburner, arguments);
   };
 
   // Used by global test teardown
@@ -21120,6 +21121,9 @@ enifed('ember-metal/watch_key', ['exports', 'ember-utils', 'ember-metal/features
   var handleMandatorySetter = undefined;
 
   function watchKey(obj, keyName, meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var m = meta || _emberMetalMeta.meta(obj);
 
     // activate watching first time
@@ -21193,6 +21197,9 @@ enifed('ember-metal/watch_key', ['exports', 'ember-utils', 'ember-metal/features
   }
 
   function unwatchKey(obj, keyName, _meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var meta = _meta || _emberMetalMeta.meta(obj);
 
     // do nothing of this object has already been destroyed
@@ -21270,6 +21277,9 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/meta', 'ember-metal/ch
   }
 
   function watchPath(obj, keyPath, meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var m = meta || _emberMetalMeta.meta(obj);
     var counter = m.peekWatching(keyPath) || 0;
     if (!counter) {
@@ -21282,6 +21292,9 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/meta', 'ember-metal/ch
   }
 
   function unwatchPath(obj, keyPath, meta) {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
     var m = meta || _emberMetalMeta.meta(obj);
     var counter = m.peekWatching(keyPath) || 0;
 
@@ -21329,6 +21342,9 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/watch_key', 'ember-metal
   exports.watch = watch;
 
   function isWatching(obj, key) {
+    if (typeof obj !== 'object' || obj === null) {
+      return false;
+    }
     var meta = _emberMetalMeta.peekMeta(obj);
     return (meta && meta.peekWatching(key)) > 0;
   }
@@ -23111,6 +23127,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
     }
 
     var callback = undefined;
+    var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
     if (engineRouteMap) {
       var shouldResetEngineInfo = false;
       var oldEngineInfo = this.options.engineInfo;
@@ -23122,6 +23139,9 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
       var optionsForChild = _emberUtils.assign({ engineInfo: engineInfo }, this.options);
       var childDSL = new DSL(fullName, optionsForChild);
 
+      createRoute(childDSL, 'loading');
+      createRoute(childDSL, 'error', { path: dummyErrorRoute });
+
       engineRouteMap.call(childDSL);
 
       callback = childDSL.generate();
@@ -23131,14 +23151,24 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
       }
     }
 
-    if (this.enableLoadingSubstates) {
-      var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
-      createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
-      createRoute(this, name + '_error', { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
-    }
-
     var localFullName = 'application';
     var routeInfo = _emberUtils.assign({ localFullName: localFullName }, engineInfo);
+
+    if (this.enableLoadingSubstates) {
+      // These values are important to register the loading routes under their
+      // proper names for the Router and within the Engine's registry.
+      var substateName = name + '_loading';
+      var _localFullName = 'application_loading';
+      var _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
+      createRoute(this, substateName, { resetNamespace: options.resetNamespace });
+      this.options.addRouteForEngine(substateName, _routeInfo);
+
+      substateName = name + '_error';
+      _localFullName = 'application_error';
+      _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
+      createRoute(this, substateName, { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
+      this.options.addRouteForEngine(substateName, _routeInfo);
+    }
 
     this.options.addRouteForEngine(fullName, routeInfo);
 
@@ -25956,9 +25986,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         if (qp) {
           delete queryParams[key];
           queryParams[qp.urlKey] = qp.route.serializeQueryParam(value, qp.urlKey, qp.type);
+        } else if (value === undefined) {
+          return; // We don't serialize undefined values
         } else {
-          queryParams[key] = _this4._serializeQueryParam(value, _emberRuntime.typeOf(value));
-        }
+            queryParams[key] = _this4._serializeQueryParam(value, _emberRuntime.typeOf(value));
+          }
       });
     },
 
@@ -26311,36 +26343,39 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   });
 
   /*
-    Helper function for iterating root-ward, starting
-    from (but not including) the provided `originRoute`.
+    Helper function for iterating over routes in a set of handlerInfos that are
+    at or above the given origin route. Example: if `originRoute` === 'foo.bar'
+    and the handlerInfos given were for 'foo.bar.baz', then the given callback
+    will be invoked with the routes for 'foo.bar', 'foo', and 'application'
+    individually.
   
-    Returns true if the last callback fired requested
-    to bubble upward.
+    If the callback returns anything other than `true`, then iteration will stop.
   
     @private
+    @param {Route} originRoute
+    @param {Array<HandlerInfo>} handlerInfos
+    @param {Function} callback
+    @return {Void}
    */
-  function forEachRouteAbove(originRoute, transition, callback) {
-    var handlerInfos = transition.state.handlerInfos;
+  function forEachRouteAbove(originRoute, handlerInfos, callback) {
     var originRouteFound = false;
-    var handlerInfo = undefined,
-        route = undefined;
 
     for (var i = handlerInfos.length - 1; i >= 0; --i) {
-      handlerInfo = handlerInfos[i];
-      route = handlerInfo.handler;
+      var handlerInfo = handlerInfos[i];
+      var route = handlerInfo.handler;
+
+      if (originRoute === route) {
+        originRouteFound = true;
+      }
 
       if (!originRouteFound) {
-        if (originRoute === route) {
-          originRouteFound = true;
-        }
         continue;
       }
 
-      if (callback(route, handlerInfos[i + 1].handler) !== true) {
-        return false;
+      if (callback(route) !== true) {
+        return;
       }
     }
-    return true;
   }
 
   // These get invoked when an action bubbles above ApplicationRoute
@@ -26351,55 +26386,63 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       originRoute.router._scheduleLoadingEvent(transition, originRoute);
     },
 
+    // Attempt to find an appropriate error route or substate to enter.
     error: function (error, transition, originRoute) {
-      // Attempt to find an appropriate error substate to enter.
+      var handlerInfos = transition.state.handlerInfos;
       var router = originRoute.router;
 
-      var tryTopLevel = forEachRouteAbove(originRoute, transition, function (route, childRoute) {
-        var childErrorRouteName = findChildRouteName(route, childRoute, 'error');
-        if (childErrorRouteName) {
-          router.intermediateTransitionTo(childErrorRouteName, error);
-          return;
+      forEachRouteAbove(originRoute, handlerInfos, function (route) {
+        // Check for the existence of an 'error' route.
+        // We don't check for an 'error' route on the originRoute, since that would
+        // technically be below where we're at in the route hierarchy.
+        if (originRoute !== route) {
+          var errorRouteName = findRouteStateName(route, 'error');
+          if (errorRouteName) {
+            router.intermediateTransitionTo(errorRouteName, error);
+            return false;
+          }
         }
+
+        // Check for an 'error' substate route
+        var errorSubstateName = findRouteSubstateName(route, 'error');
+        if (errorSubstateName) {
+          router.intermediateTransitionTo(errorSubstateName, error);
+          return false;
+        }
+
         return true;
       });
-
-      if (tryTopLevel) {
-        // Check for top-level error state to enter.
-        if (routeHasBeenDefined(originRoute.router, 'application_error')) {
-          router.intermediateTransitionTo('application_error', error);
-          return;
-        }
-      }
 
       logError(error, 'Error while processing route: ' + transition.targetName);
     },
 
+    // Attempt to find an appropriate loading route or substate to enter.
     loading: function (transition, originRoute) {
-      // Attempt to find an appropriate loading substate to enter.
+      var handlerInfos = transition.state.handlerInfos;
       var router = originRoute.router;
 
-      var tryTopLevel = forEachRouteAbove(originRoute, transition, function (route, childRoute) {
-        var childLoadingRouteName = findChildRouteName(route, childRoute, 'loading');
+      forEachRouteAbove(originRoute, handlerInfos, function (route) {
+        // Check for the existence of a 'loading' route.
+        // We don't check for a 'loading' route on the originRoute, since that would
+        // technically be below where we're at in the route hierarchy.
+        if (originRoute !== route) {
+          var loadingRouteName = findRouteStateName(route, 'loading');
+          if (loadingRouteName) {
+            router.intermediateTransitionTo(loadingRouteName);
+            return false;
+          }
+        }
 
-        if (childLoadingRouteName) {
-          router.intermediateTransitionTo(childLoadingRouteName);
-          return;
+        // Check for loading substate
+        var loadingSubstateName = findRouteSubstateName(route, 'loading');
+        if (loadingSubstateName) {
+          router.intermediateTransitionTo(loadingSubstateName);
+          return false;
         }
 
         // Don't bubble above pivot route.
-        if (transition.pivotHandler !== route) {
-          return true;
-        }
+        return transition.pivotHandler !== route;
       });
-
-      if (tryTopLevel) {
-        // Check for top-level loading state to enter.
-        if (routeHasBeenDefined(originRoute.router, 'application_loading')) {
-          router.intermediateTransitionTo('application_loading');
-          return;
-        }
-      }
     }
   };
 
@@ -26432,44 +26475,66 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     _emberConsole.default.error.apply(this, errorArgs);
   }
 
-  function findChildRouteName(parentRoute, originatingChildRoute, name) {
-    var router = parentRoute.router;
-    var childName = undefined;
-    var originatingChildRouteName = originatingChildRoute.routeName;
+  /**
+    Finds the name of the substate route if it exists for the given route. A
+    substate route is of the form `route_state`, such as `foo_loading`.
+  
+    @private
+    @param {Route} route
+    @param {String} state
+    @return {String}
+  */
+  function findRouteSubstateName(route, state) {
+    var router = route.router;
+    var owner = _emberUtils.getOwner(route);
 
-    // The only time the originatingChildRoute's name should be 'application'
-    // is if we're entering an engine
-    if (originatingChildRouteName === 'application') {
-      originatingChildRouteName = _emberUtils.getOwner(originatingChildRoute).mountPoint;
-    }
+    var routeName = route.routeName;
+    var substateName = routeName + '_' + state;
 
-    // First, try a named loading state of the route, e.g. 'foo_loading'
-    childName = originatingChildRouteName + '_' + name;
-    if (routeHasBeenDefined(router, childName)) {
-      return childName;
-    }
+    var routeNameFull = route.fullRouteName;
+    var substateNameFull = routeNameFull + '_' + state;
 
-    // Second, try general loading state of the parent, e.g. 'loading'
-    var originatingChildRouteParts = originatingChildRouteName.split('.').slice(0, -1);
-    var namespace = undefined;
-
-    // If there is a namespace on the route, then we use that, otherwise we use
-    // the parent route as the namespace.
-    if (originatingChildRouteParts.length) {
-      namespace = originatingChildRouteParts.join('.') + '.';
-    } else {
-      namespace = parentRoute.routeName === 'application' ? '' : parentRoute.routeName + '.';
-    }
-
-    childName = namespace + name;
-    if (routeHasBeenDefined(router, childName)) {
-      return childName;
-    }
+    return routeHasBeenDefined(owner, router, substateName, substateNameFull) ? substateNameFull : '';
   }
 
-  function routeHasBeenDefined(router, name) {
-    var owner = _emberUtils.getOwner(router);
-    return router.hasRoute(name) && (owner.hasRegistration('template:' + name) || owner.hasRegistration('route:' + name));
+  /**
+    Finds the name of the state route if it exists for the given route. A state
+    route is of the form `route.state`, such as `foo.loading`. Properly Handles
+    `application` named routes.
+  
+    @private
+    @param {Route} route
+    @param {String} state
+    @return {String}
+  */
+  function findRouteStateName(route, state) {
+    var router = route.router;
+    var owner = _emberUtils.getOwner(route);
+
+    var routeName = route.routeName;
+    var stateName = routeName === 'application' ? state : routeName + '.' + state;
+
+    var routeNameFull = route.fullRouteName;
+    var stateNameFull = routeNameFull === 'application' ? state : routeNameFull + '.' + state;
+
+    return routeHasBeenDefined(owner, router, stateName, stateNameFull) ? stateNameFull : '';
+  }
+
+  /**
+    Determines whether or not a route has been defined by checking that the route
+    is in the Router's map and the owner has a registration for that route.
+  
+    @private
+    @param {Owner} owner
+    @param {Ember.Router} router
+    @param {String} localName
+    @param {String} fullName
+    @return {Boolean}
+  */
+  function routeHasBeenDefined(owner, router, localName, fullName) {
+    var routerHasRoute = router.hasRoute(fullName);
+    var ownerHasRoute = owner.hasRegistration('template:' + localName) || owner.hasRegistration('route:' + localName);
+    return routerHasRoute && ownerHasRoute;
   }
 
   function triggerEvent(handlerInfos, ignoreFailure, args) {
@@ -39486,7 +39551,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.2";
+  exports.default = "2.10.0-beta.3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -40019,6 +40084,10 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       }
     };
 
+    AbstractApplicationTestCase.prototype.transitionTo = function transitionTo() {
+      return _emberMetal.run.apply(undefined, [this.appRouter, 'transitionTo'].concat(babelHelpers.slice.call(arguments)));
+    };
+
     AbstractApplicationTestCase.prototype.compile = function compile(string, options) {
       return _emberTemplateCompiler.compile.apply(undefined, arguments);
     };
@@ -40072,6 +40141,11 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
         return {
           location: 'none'
         };
+      }
+    }, {
+      key: 'appRouter',
+      get: function () {
+        return this.applicationInstance.lookup('router:main');
       }
     }]);
     return AbstractApplicationTestCase;
@@ -40254,6 +40328,10 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-utils', '
 
     AbstractTestCase.prototype.runTask = function runTask(callback) {
       _emberMetal.run(callback);
+    };
+
+    AbstractTestCase.prototype.runTaskNext = function runTaskNext(callback) {
+      _emberMetal.run.next(callback);
     };
 
     // The following methods require `this.element` to work
@@ -40482,10 +40560,6 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-runtim
       }).apply(this, arguments);
     };
 
-    QueryParamTestCase.prototype.transitionTo = function transitionTo() {
-      return _emberMetal.run.apply(undefined, [this.appRouter, 'transitionTo'].concat(babelHelpers.slice.call(arguments)));
-    };
-
     /**
       Sets up a Controller for a given route with a single query param and default
       value. Can optionally extend the controller with an object.
@@ -40527,11 +40601,6 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-runtim
     };
 
     babelHelpers.createClass(QueryParamTestCase, [{
-      key: 'appRouter',
-      get: function () {
-        return this.applicationInstance.lookup('router:main');
-      }
-    }, {
       key: 'routerOptions',
       get: function () {
         return {
@@ -52460,7 +52529,7 @@ TransitionState.prototype = {
   @param {Object} error
   @private
  */
-function Transition(router, intent, state, error) {
+function Transition(router, intent, state, error, previousTransition) {
   var transition = this;
   this.state = state || router.state;
   this.intent = intent;
@@ -52484,6 +52553,18 @@ function Transition(router, intent, state, error) {
     return;
   }
 
+  // if you're doing multiple redirects, need the new transition to know if it
+  // is actually part of the first transition or not. Any further redirects
+  // in the initial transition also need to know if they are part of the
+  // initial transition
+  this.isCausedByAbortingTransition = !!previousTransition;
+  this.isCausedByInitialTransition = (
+    previousTransition && (
+      previousTransition.isCausedByInitialTransition ||
+      previousTransition.sequence === 0
+    )
+  );
+
   if (state) {
     this.params = state.params;
     this.queryParams = state.queryParams;
@@ -52502,16 +52583,9 @@ function Transition(router, intent, state, error) {
       this.pivotHandler = handlerInfo.handler;
     }
 
-    this.sequence = Transition.currentSequence++;
-    this.promise = state.resolve(checkForAbort, this)['catch'](function(result) {
-      if (result.wasAborted || transition.isAborted) {
-        return rsvp.Promise.reject(logAbort(transition));
-      } else {
-        transition.trigger('error', result.error, transition, result.handlerWithError);
-        transition.abort();
-        return rsvp.Promise.reject(result.error);
-      }
-    }, promiseLabel('Handle Abort'));
+    this.sequence = router.currentSequence++;
+    this.promise = state.resolve(checkForAbort, this)['catch'](
+      catchHandlerForTransition(transition), promiseLabel('Handle Abort'));
   } else {
     this.promise = rsvp.Promise.resolve(this.state);
     this.params = {};
@@ -52524,7 +52598,18 @@ function Transition(router, intent, state, error) {
   }
 }
 
-Transition.currentSequence = 0;
+function catchHandlerForTransition(transition) {
+  return function(result) {
+    if (result.wasAborted || transition.isAborted) {
+      return rsvp.Promise.reject(logAbort(transition));
+    } else {
+      transition.trigger('error', result.error, transition, result.handlerWithError);
+      transition.abort();
+      return rsvp.Promise.reject(result.error);
+    }
+  };
+}
+
 
 Transition.prototype = {
   targetName: null,
@@ -53418,6 +53503,7 @@ function Router(_options) {
   this.oldState = undefined;
   this.currentHandlerInfos = undefined;
   this.state = undefined;
+  this.currentSequence = 0;
 
   this.recognizer = new RouteRecognizer();
   this.reset();
@@ -53451,7 +53537,7 @@ function getTransitionByIntent(intent, isIntermediate) {
   }
 
   // Create a new transition to the destination route.
-  newTransition = new Transition(this, intent, newState);
+  newTransition = new Transition(this, intent, newState, undefined, this.activeTransition);
 
   // Abort and usurp any previously active transition.
   if (this.activeTransition) {
@@ -54017,7 +54103,27 @@ function updateURL(transition, state/*, inputUrl*/) {
     params.queryParams = transition._visibleQueryParams || state.queryParams;
     var url = router.recognizer.generate(handlerName, params);
 
-    if (urlMethod === 'replace') {
+    // transitions during the initial transition must always use replaceURL.
+    // When the app boots, you are at a url, e.g. /foo. If some handler
+    // redirects to bar as part of the initial transition, you don't want to
+    // add a history entry for /foo. If you do, pressing back will immediately
+    // hit the redirect again and take you back to /bar, thus killing the back
+    // button
+    var initial = transition.isCausedByInitialTransition;
+
+    // say you are at / and you click a link to route /foo. In /foo's
+    // handler, the transition is aborted using replacewith('/bar').
+    // Because the current url is still /, the history entry for / is
+    // removed from the history. Clicking back will take you to the page
+    // you were on before /, which is often not even the app, thus killing
+    // the back button. That's why updateURL is always correct for an
+    // aborting transition that's not the initial transition
+    var replaceAndNotAborting = (
+      urlMethod === 'replace' &&
+      !transition.isCausedByAbortingTransition
+    );
+
+    if (initial || replaceAndNotAborting) {
       router.replaceURL(url);
     } else {
       router.updateURL(url);
