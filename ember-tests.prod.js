@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+c607b5b2
+ * @version   2.11.0-alpha.1-canary+255d6004
  */
 
 var enifed, requireModule, Ember;
@@ -20955,6 +20955,46 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
         });
 
         this.assertNoWarning();
+      };
+
+      _class9.prototype['@test no warnings are triggered when a safe string is quoted'] = function testNoWarningsAreTriggeredWhenASafeStringIsQuoted(assert) {
+        this.render('<div style="{{userValue}}"></div>', {
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('width: 42px')
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when an unsafe string is quoted'] = function testBindingWarningIsTriggeredWhenAnUnsafeStringIsQuoted(assert) {
+        this.render('<div style="{{userValue}}"></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when a safe string for a complete property is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForACompletePropertyIsConcatenatedInPlace(assert) {
+        this.render('<div style="color: green; {{userValue}}"></div>', {
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('width: 42px')
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when a safe string for a value is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAValueIsConcatenatedInPlace(assert) {
+        this.render('<div style="color: green; width: {{userValue}}"></div>', {
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('42px')
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when a safe string for a property name is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAPropertyNameIsConcatenatedInPlace(assert) {
+        this.render('<div style="color: green; {{userProperty}}: 42px"></div>', {
+          userProperty: new _emberGlimmerTestsUtilsHelpers.SafeString('width')
+        });
+
+        this.assertStyleWarning();
       };
 
       return _class9;
