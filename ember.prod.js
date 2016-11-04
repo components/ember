@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+255d6004
+ * @version   2.11.0-alpha.1-canary+d5acb2d4
  */
 
 var enifed, requireModule, Ember;
@@ -33001,16 +33001,20 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-r
     });
 
     return promise.then(function (value) {
-      _emberMetal.setProperties(proxy, {
-        content: value,
-        isFulfilled: true
-      });
+      if (!proxy.isDestroyed && !proxy.isDestroying) {
+        _emberMetal.setProperties(proxy, {
+          content: value,
+          isFulfilled: true
+        });
+      }
       return value;
     }, function (reason) {
-      _emberMetal.setProperties(proxy, {
-        reason: reason,
-        isRejected: true
-      });
+      if (!proxy.isDestroyed && !proxy.isDestroying) {
+        _emberMetal.setProperties(proxy, {
+          reason: reason,
+          isRejected: true
+        });
+      }
       throw reason;
     }, 'Ember: PromiseProxy');
   }
@@ -39680,7 +39684,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+255d6004";
+  exports.default = "2.11.0-alpha.1-canary+d5acb2d4";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

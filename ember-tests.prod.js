@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+255d6004
+ * @version   2.11.0-alpha.1-canary+d5acb2d4
  */
 
 var enifed, requireModule, Ember;
@@ -51465,6 +51465,84 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['exports', 'ember-metal
     } catch (e) {
       equal(e, error);
     }
+  });
+
+  QUnit.test('should not error if promise is resolved after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function () {}, function () {});
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'resolve', true);
+
+    ok(true, 'resolving the promise after the proxy has been destroyed does not raise an error');
+  });
+
+  QUnit.test('should not error if promise is rejected after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function () {}, function () {});
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'reject', 'some reason');
+
+    ok(true, 'rejecting the promise after the proxy has been destroyed does not raise an error');
+  });
+
+  QUnit.test('promise chain is not broken if promised is resolved after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+    var expectedValue = {};
+    var receivedValue = undefined;
+    var didResolveCount = 0;
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function (value) {
+      receivedValue = value;
+      didResolveCount++;
+    }, function () {});
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'resolve', expectedValue);
+
+    equal(didResolveCount, 1, 'callback called');
+    equal(receivedValue, expectedValue, 'passed value is the value the promise was resolved with');
+  });
+
+  QUnit.test('promise chain is not broken if promised is rejected after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+    var expectedReason = 'some reason';
+    var receivedReason = undefined;
+    var didRejectCount = 0;
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function () {}, function (reason) {
+      receivedReason = reason;
+      didRejectCount++;
+    });
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'reject', expectedReason);
+
+    equal(didRejectCount, 1, 'callback called');
+    equal(receivedReason, expectedReason, 'passed reason is the reason the promise was rejected for');
   });
 });
 enifed('ember-runtime/tests/mixins/target_action_support_test', ['exports', 'ember-environment', 'ember-runtime/system/object', 'ember-runtime/mixins/target_action_support'], function (exports, _emberEnvironment, _emberRuntimeSystemObject, _emberRuntimeMixinsTarget_action_support) {
