@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+90268df1
+ * @version   2.11.0-alpha.1-canary+edd73d97
  */
 
 var enifed, requireModule, Ember;
@@ -15237,6 +15237,59 @@ babelHelpers.inherits(_class, _RenderingTest);
       this.assertText('MyVar1: 1 1 MyVar2: 2 2');
     };
 
+    _class.prototype['@test can use `{{this}}` to emit the component\'s toString value [GH#14581]'] = function testCanUseThisToEmitTheComponentSToStringValueGH14581(assert) {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          toString: function () {
+            return 'special sauce goes here!';
+          }
+        }),
+        template: '{{this}}'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('special sauce goes here!');
+    };
+
+    _class.prototype['@test can use `{{this` to access paths on current context [GH#14581]'] = function testCanUseThisToAccessPathsOnCurrentContextGH14581(assert) {
+      var instance = undefined;
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+
+            instance = this;
+          },
+
+          foo: {
+            bar: {
+              baz: 'huzzah!'
+            }
+          }
+        }),
+        template: '{{this.foo.bar.baz}}'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('huzzah!');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(instance, 'foo.bar.baz', 'yippie!');
+      });
+
+      this.assertText('yippie!');
+
+      this.runTask(function () {
+        return _emberMetal.set(instance, 'foo.bar.baz', 'huzzah!');
+      });
+
+      this.assertText('huzzah!');
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
@@ -28240,12 +28293,39 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     }
 
     _class.prototype['@test should render given template'] = function testShouldRenderGivenTemplate() {
-      this.owner.register('controller:home', _emberRuntime.Controller.extend());
       this.registerTemplate('home', '<p>BYE</p>');
 
       this.render('<h1>HI</h1>{{render \'home\'}}');
 
       this.assertText('HIBYE');
+    };
+
+    _class.prototype['@test uses `controller:basic` as the basis for a generated controller when none exists for specified name'] = function testUsesControllerBasicAsTheBasisForAGeneratedControllerWhenNoneExistsForSpecifiedName() {
+      this.owner.register('controller:basic', _emberRuntime.Controller.extend({
+        isBasicController: true
+      }));
+      this.registerTemplate('home', '{{isBasicController}}');
+
+      this.render('{{render \'home\'}}');
+
+      this.assertText('true');
+    };
+
+    _class.prototype['@test generates a controller if none exists'] = function testGeneratesAControllerIfNoneExists() {
+      this.registerTemplate('home', '<p>{{this}}</p>');
+
+      this.render('<h1>HI</h1>{{render \'home\'}}');
+
+      this.assertText('HI(generated home controller)');
+    };
+
+    _class.prototype['@test should use controller with the same name as template if present'] = function testShouldUseControllerWithTheSameNameAsTemplateIfPresent() {
+      this.owner.register('controller:home', _emberRuntime.Controller.extend({ name: 'home' }));
+      this.registerTemplate('home', '{{name}}<p>BYE</p>');
+
+      this.render('<h1>HI</h1>{{render \'home\'}}');
+
+      this.assertText('HIhomeBYE');
     };
 
     _class.prototype['@test should render nested helpers'] = function testShouldRenderNestedHelpers() {

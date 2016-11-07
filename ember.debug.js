@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+90268df1
+ * @version   2.11.0-alpha.1-canary+edd73d97
  */
 
 var enifed, requireModule, Ember;
@@ -8602,7 +8602,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
 
         if (internalKey) {
           definition = this.getComponentDefinition([internalKey], symbolTable);
-        } else if (key.indexOf('-') >= 0) {
+        } else if (typeof key === 'string' && key.indexOf('-') >= 0) {
           definition = this.getComponentDefinition(path, symbolTable);
         }
 
@@ -13239,7 +13239,7 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
       var name = definition.name;
       var env = definition.env;
 
-      var controller = env.owner.lookup('controller:' + name);
+      var controller = env.owner.lookup('controller:' + name) || _emberRouting.generateController(env.owner, name);
 
       if (dynamicScope.rootOutletState) {
         dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
@@ -42682,7 +42682,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+90268df1";
+  exports.default = "2.11.0-alpha.1-canary+edd73d97";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
