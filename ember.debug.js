@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+edd73d97
+ * @version   2.11.0-alpha.1-canary+306b88fd
  */
 
 var enifed, requireModule, Ember;
@@ -24458,7 +24458,7 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal'], f
     @private
   */
 
-  function generateControllerFactory(owner, controllerName, context) {
+  function generateControllerFactory(owner, controllerName) {
     var Factory = owner._lookupFactory('controller:basic').extend({
       isGenerated: true,
       toString: function () {
@@ -24474,12 +24474,8 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal'], f
   }
 
   /**
-    Generates and instantiates a controller.
-  
-    The type of the generated controller factory is derived
-    from the context. If the context is an array an array controller
-    is generated, if an object, an object controller otherwise, a basic
-    controller is generated.
+    Generates and instantiates a controller extending from `controller:basic`
+    if present, or `Ember.Controller` if not.
   
     @for Ember
     @method generateController
@@ -24487,8 +24483,8 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal'], f
     @since 1.3.0
   */
 
-  function generateController(owner, controllerName, context) {
-    generateControllerFactory(owner, controllerName, context);
+  function generateController(owner, controllerName) {
+    generateControllerFactory(owner, controllerName);
 
     var fullName = 'controller:' + controllerName;
     var instance = owner.lookup(fullName);
@@ -25667,7 +25663,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var definedController = this.controllerFor(controllerName, true);
 
       if (!definedController) {
-        controller = this.generateController(controllerName, context);
+        controller = this.generateController(controllerName);
       } else {
         controller = definedController;
       }
@@ -26129,21 +26125,18 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        export default Ember.Route.extend({
         setupController(controller, post) {
           this._super(controller, post);
-          this.generateController('posts', post);
+          this.generateController('posts');
         }
       });
       ```
        @method generateController
       @param {String} name the name of the controller
-      @param {Object} model the model to infer the type of the controller (optional)
       @private
     */
-    generateController: function (name, model) {
+    generateController: function (name) {
       var owner = _emberUtils.getOwner(this);
 
-      model = model || this.modelFor(name);
-
-      return _emberRoutingSystemGenerate_controller.default(owner, name, model);
+      return _emberRoutingSystemGenerate_controller.default(owner, name);
     },
 
     /**
@@ -42682,7 +42675,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+edd73d97";
+  exports.default = "2.11.0-alpha.1-canary+306b88fd";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
