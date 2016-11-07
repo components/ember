@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3
+ * @version   2.10.0-beta.3-beta+4f7b76ef
  */
 
 var enifed, requireModule, require, Ember;
@@ -4388,6 +4388,25 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], functi
   function expandProperties(pattern, callback) {
     _emberMetalDebug.assert('A computed property key must be a string', typeof pattern === 'string');
     _emberMetalDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
+    _emberMetalDebug.assert('Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern, (function (str) {
+      var inBrace = 0;
+      var char = undefined;
+      for (var i = 0; i < str.length; i++) {
+        char = str.charAt(i);
+
+        if (char === '{') {
+          inBrace++;
+        } else if (char === '}') {
+          inBrace--;
+        }
+
+        if (inBrace > 1 || inBrace < 0) {
+          return false;
+        }
+      }
+
+      return true;
+    })(pattern));
 
     var parts = pattern.split(SPLIT_REGEX);
     var properties = [parts];
@@ -8271,6 +8290,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     _emberMetalDebug.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
     _emberMetalDebug.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalDebug.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
+    _emberMetalDebug.assert('Cannot call `Ember.get` with an empty string', keyName !== '');
 
     var value = obj[keyName];
     var desc = value !== null && typeof value === 'object' && value.isDescriptor ? value : undefined;
@@ -9962,10 +9982,10 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
     return 'Please refactor `' + original + '` to a component and invoke via' + (' `' + preferred + '`. ' + sourceInformation);
   }
 });
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax'], function (exports, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformInlineLinkTo, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsDeprecateRenderModel, _emberTemplateCompilerPluginsAssertReservedNamedArguments, _emberTemplateCompilerPluginsTransformActionSyntax, _emberTemplateCompilerPluginsTransformInputTypeSyntax, _emberTemplateCompilerPluginsTransformAttrsIntoArgs, _emberTemplateCompilerPluginsTransformEachInIntoEach, _emberTemplateCompilerPluginsTransformHasBlockSyntax) {
+enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax'], function (exports, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformInlineLinkTo, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformQuotedBindingsIntoJustBindings, _emberTemplateCompilerPluginsDeprecateRenderModel, _emberTemplateCompilerPluginsAssertReservedNamedArguments, _emberTemplateCompilerPluginsTransformActionSyntax, _emberTemplateCompilerPluginsTransformInputTypeSyntax, _emberTemplateCompilerPluginsTransformAttrsIntoArgs, _emberTemplateCompilerPluginsTransformEachInIntoEach, _emberTemplateCompilerPluginsTransformHasBlockSyntax) {
   'use strict';
 
-  exports.default = Object.freeze([_emberTemplateCompilerPluginsTransformOldBindingSyntax.default, _emberTemplateCompilerPluginsTransformItemClass.default, _emberTemplateCompilerPluginsTransformAngleBracketComponents.default, _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default, _emberTemplateCompilerPluginsTransformTopLevelComponents.default, _emberTemplateCompilerPluginsTransformInlineLinkTo.default, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default, _emberTemplateCompilerPluginsDeprecateRenderModel.default, _emberTemplateCompilerPluginsAssertReservedNamedArguments.default, _emberTemplateCompilerPluginsTransformActionSyntax.default, _emberTemplateCompilerPluginsTransformInputTypeSyntax.default, _emberTemplateCompilerPluginsTransformAttrsIntoArgs.default, _emberTemplateCompilerPluginsTransformEachInIntoEach.default, _emberTemplateCompilerPluginsTransformHasBlockSyntax.default]);
+  exports.default = Object.freeze([_emberTemplateCompilerPluginsTransformOldBindingSyntax.default, _emberTemplateCompilerPluginsTransformItemClass.default, _emberTemplateCompilerPluginsTransformAngleBracketComponents.default, _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default, _emberTemplateCompilerPluginsTransformTopLevelComponents.default, _emberTemplateCompilerPluginsTransformInlineLinkTo.default, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default, _emberTemplateCompilerPluginsTransformQuotedBindingsIntoJustBindings.default, _emberTemplateCompilerPluginsDeprecateRenderModel.default, _emberTemplateCompilerPluginsAssertReservedNamedArguments.default, _emberTemplateCompilerPluginsTransformActionSyntax.default, _emberTemplateCompilerPluginsTransformInputTypeSyntax.default, _emberTemplateCompilerPluginsTransformAttrsIntoArgs.default, _emberTemplateCompilerPluginsTransformEachInIntoEach.default, _emberTemplateCompilerPluginsTransformHasBlockSyntax.default]);
 });
 enifed('ember-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
   /**
@@ -10763,6 +10783,71 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     }
 
     return segments;
+  }
+});
+enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = TransformQuotedBindingsIntoJustBindings;
+
+  function TransformQuotedBindingsIntoJustBindings() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  TransformQuotedBindingsIntoJustBindings.prototype.transform = function TransformQuotedBindingsIntoJustBindings_transform(ast) {
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      var styleAttr = getStyleAttr(node);
+
+      if (!validStyleAttr(styleAttr)) {
+        return;
+      }
+
+      styleAttr.value = styleAttr.value.parts[0];
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'ElementNode';
+  }
+
+  function validStyleAttr(attr) {
+    if (!attr) {
+      return false;
+    }
+
+    var value = attr.value;
+
+    if (!value || value.type !== 'ConcatStatement' || value.parts.length !== 1) {
+      return false;
+    }
+
+    var onlyPart = value.parts[0];
+
+    return onlyPart.type === 'MustacheStatement';
+  }
+
+  function getStyleAttr(node) {
+    var attributes = node.attributes;
+
+    for (var i = 0; i < attributes.length; i++) {
+      if (attributes[i].name === 'style') {
+        return attributes[i];
+      }
+    }
   }
 });
 enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports'], function (exports) {
@@ -11825,7 +11910,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.3";
+  exports.default = "2.10.0-beta.3-beta+4f7b76ef";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";

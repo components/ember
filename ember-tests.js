@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3
+ * @version   2.10.0-beta.3-beta+4f7b76ef
  */
 
 var enifed, requireModule, require, Ember;
@@ -15252,6 +15252,59 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('MyVar1: 1 1 MyVar2: 2 2');
     };
 
+    _class.prototype['@test can use `{{this}}` to emit the component\'s toString value [GH#14581]'] = function testCanUseThisToEmitTheComponentSToStringValueGH14581(assert) {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          toString: function () {
+            return 'special sauce goes here!';
+          }
+        }),
+        template: '{{this}}'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('special sauce goes here!');
+    };
+
+    _class.prototype['@test can use `{{this` to access paths on current context [GH#14581]'] = function testCanUseThisToAccessPathsOnCurrentContextGH14581(assert) {
+      var instance = undefined;
+      this.registerComponent('foo-bar', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+
+            instance = this;
+          },
+
+          foo: {
+            bar: {
+              baz: 'huzzah!'
+            }
+          }
+        }),
+        template: '{{this.foo.bar.baz}}'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('huzzah!');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        return _emberMetal.set(instance, 'foo.bar.baz', 'yippie!');
+      });
+
+      this.assertText('yippie!');
+
+      this.runTask(function () {
+        return _emberMetal.set(instance, 'foo.bar.baz', 'huzzah!');
+      });
+
+      this.assertText('huzzah!');
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
@@ -21037,6 +21090,46 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
         });
 
         this.assertNoWarning();
+      };
+
+      _class9.prototype['@test no warnings are triggered when a safe string is quoted'] = function testNoWarningsAreTriggeredWhenASafeStringIsQuoted(assert) {
+        this.render('<div style="{{userValue}}"></div>', {
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('width: 42px')
+        });
+
+        this.assertNoWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when an unsafe string is quoted'] = function testBindingWarningIsTriggeredWhenAnUnsafeStringIsQuoted(assert) {
+        this.render('<div style="{{userValue}}"></div>', {
+          userValue: 'width: 42px'
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when a safe string for a complete property is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForACompletePropertyIsConcatenatedInPlace(assert) {
+        this.render('<div style="color: green; {{userValue}}"></div>', {
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('width: 42px')
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when a safe string for a value is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAValueIsConcatenatedInPlace(assert) {
+        this.render('<div style="color: green; width: {{userValue}}"></div>', {
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('42px')
+        });
+
+        this.assertStyleWarning();
+      };
+
+      _class9.prototype['@test binding warning is triggered when a safe string for a property name is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAPropertyNameIsConcatenatedInPlace(assert) {
+        this.render('<div style="color: green; {{userProperty}}: 42px"></div>', {
+          userProperty: new _emberGlimmerTestsUtilsHelpers.SafeString('width')
+        });
+
+        this.assertStyleWarning();
       };
 
       return _class9;
@@ -28362,12 +28455,39 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
     }
 
     _class.prototype['@test should render given template'] = function testShouldRenderGivenTemplate() {
-      this.owner.register('controller:home', _emberRuntime.Controller.extend());
       this.registerTemplate('home', '<p>BYE</p>');
 
       this.render('<h1>HI</h1>{{render \'home\'}}');
 
       this.assertText('HIBYE');
+    };
+
+    _class.prototype['@test uses `controller:basic` as the basis for a generated controller when none exists for specified name'] = function testUsesControllerBasicAsTheBasisForAGeneratedControllerWhenNoneExistsForSpecifiedName() {
+      this.owner.register('controller:basic', _emberRuntime.Controller.extend({
+        isBasicController: true
+      }));
+      this.registerTemplate('home', '{{isBasicController}}');
+
+      this.render('{{render \'home\'}}');
+
+      this.assertText('true');
+    };
+
+    _class.prototype['@test generates a controller if none exists'] = function testGeneratesAControllerIfNoneExists() {
+      this.registerTemplate('home', '<p>{{this}}</p>');
+
+      this.render('<h1>HI</h1>{{render \'home\'}}');
+
+      this.assertText('HI(generated home controller)');
+    };
+
+    _class.prototype['@test should use controller with the same name as template if present'] = function testShouldUseControllerWithTheSameNameAsTemplateIfPresent() {
+      this.owner.register('controller:home', _emberRuntime.Controller.extend({ name: 'home' }));
+      this.registerTemplate('home', '{{name}}<p>BYE</p>');
+
+      this.render('<h1>HI</h1>{{render \'home\'}}');
+
+      this.assertText('HIhomeBYE');
     };
 
     _class.prototype['@test should render nested helpers'] = function testShouldRenderNestedHelpers() {
@@ -35109,14 +35229,6 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'internal-test-helper
     equal(count, 1);
   });
 
-  QUnit.test('should be able to use an empty string as a property', function (assert) {
-    var obj = { '': 'empty string' };
-
-    var result = _emberMetalProperty_get.get(obj, '');
-
-    assert.equal(result, obj['']);
-  });
-
   _internalTestHelpers.testBoth('should call unknownProperty on watched values if the value is undefined', function (get, set) {
     var obj = {
       count: 0,
@@ -35194,6 +35306,9 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'internal-test-helper
     expectAssertion(function () {
       return _emberMetalProperty_get.get(obj, 42);
     }, /The key provided to get must be a string, you passed 42/);
+    expectAssertion(function () {
+      return _emberMetalProperty_get.get(obj, '');
+    }, /Cannot call `Ember.get` with an empty string/);
   });
 
   // ..........................................................
@@ -38126,6 +38241,16 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
 
     var expected = ['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'];
     deepEqual(expected.sort(), foundProperties.sort());
+  });
+
+  QUnit.test('Nested brace expansions are not allowed', function () {
+    var nestedBraceProperties = ['a.{b.{c,d}}', 'a.{{b}.c}', 'a.{b,c}.{d.{e,f}.g', 'a.{b.{c}', 'a.{b,c}}'];
+
+    nestedBraceProperties.forEach(function (invalidProperties) {
+      expectAssertion(function () {
+        return _emberMetalExpand_properties.default(invalidProperties, addProperty);
+      });
+    }, /Brace expanded properties have to be balanced and cannot be nested/);
   });
 
   QUnit.test('A pattern must be a string', function () {
@@ -51740,6 +51865,84 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['exports', 'ember-metal
     } catch (e) {
       equal(e, error);
     }
+  });
+
+  QUnit.test('should not error if promise is resolved after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function () {}, function () {});
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'resolve', true);
+
+    ok(true, 'resolving the promise after the proxy has been destroyed does not raise an error');
+  });
+
+  QUnit.test('should not error if promise is rejected after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function () {}, function () {});
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'reject', 'some reason');
+
+    ok(true, 'rejecting the promise after the proxy has been destroyed does not raise an error');
+  });
+
+  QUnit.test('promise chain is not broken if promised is resolved after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+    var expectedValue = {};
+    var receivedValue = undefined;
+    var didResolveCount = 0;
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function (value) {
+      receivedValue = value;
+      didResolveCount++;
+    }, function () {});
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'resolve', expectedValue);
+
+    equal(didResolveCount, 1, 'callback called');
+    equal(receivedValue, expectedValue, 'passed value is the value the promise was resolved with');
+  });
+
+  QUnit.test('promise chain is not broken if promised is rejected after proxy has been destroyed', function () {
+    var deferred = _emberRuntimeExtRsvp.default.defer();
+    var expectedReason = 'some reason';
+    var receivedReason = undefined;
+    var didRejectCount = 0;
+
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    proxy.then(function () {}, function (reason) {
+      receivedReason = reason;
+      didRejectCount++;
+    });
+
+    _emberMetal.run(proxy, 'destroy');
+
+    _emberMetal.run(deferred, 'reject', expectedReason);
+
+    equal(didRejectCount, 1, 'callback called');
+    equal(receivedReason, expectedReason, 'passed reason is the reason the promise was rejected for');
   });
 });
 enifed('ember-runtime/tests/mixins/target_action_support_test', ['exports', 'ember-environment', 'ember-runtime/system/object', 'ember-runtime/mixins/target_action_support'], function (exports, _emberEnvironment, _emberRuntimeSystemObject, _emberRuntimeMixinsTarget_action_support) {

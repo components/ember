@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3
+ * @version   2.10.0-beta.3-beta+4f7b76ef
  */
 
 var enifed, requireModule, require, Ember;
@@ -5092,6 +5092,25 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], functi
   function expandProperties(pattern, callback) {
     _emberMetalDebug.assert('A computed property key must be a string', typeof pattern === 'string');
     _emberMetalDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
+    _emberMetalDebug.assert('Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern, (function (str) {
+      var inBrace = 0;
+      var char = undefined;
+      for (var i = 0; i < str.length; i++) {
+        char = str.charAt(i);
+
+        if (char === '{') {
+          inBrace++;
+        } else if (char === '}') {
+          inBrace--;
+        }
+
+        if (inBrace > 1 || inBrace < 0) {
+          return false;
+        }
+      }
+
+      return true;
+    })(pattern));
 
     var parts = pattern.split(SPLIT_REGEX);
     var properties = [parts];
@@ -8975,6 +8994,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
     _emberMetalDebug.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
     _emberMetalDebug.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalDebug.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
+    _emberMetalDebug.assert('Cannot call `Ember.get` with an empty string', keyName !== '');
 
     var value = obj[keyName];
     var desc = value !== null && typeof value === 'object' && value.isDescriptor ? value : undefined;
@@ -16342,16 +16362,20 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-r
     });
 
     return promise.then(function (value) {
-      _emberMetal.setProperties(proxy, {
-        content: value,
-        isFulfilled: true
-      });
+      if (!proxy.isDestroyed && !proxy.isDestroying) {
+        _emberMetal.setProperties(proxy, {
+          content: value,
+          isFulfilled: true
+        });
+      }
       return value;
     }, function (reason) {
-      _emberMetal.setProperties(proxy, {
-        reason: reason,
-        isRejected: true
-      });
+      if (!proxy.isDestroyed && !proxy.isDestroying) {
+        _emberMetal.setProperties(proxy, {
+          reason: reason,
+          isRejected: true
+        });
+      }
       throw reason;
     }, 'Ember: PromiseProxy');
   }
@@ -19382,7 +19406,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.3";
+  exports.default = "2.10.0-beta.3-beta+4f7b76ef";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
