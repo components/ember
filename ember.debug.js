@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+306b88fd
+ * @version   2.11.0-alpha.1-canary+7147c329
  */
 
 var enifed, requireModule, Ember;
@@ -28117,6 +28117,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       _emberMetal.set(target.outlets, renderOptions.outlet, myState);
     } else {
       if (renderOptions.into) {
+        _emberMetal.deprecate('Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated.', false, {
+          id: 'ember-routing.top-level-render-helper',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x/#toc_rendering-into-a-render-helper-that-resolves-to-an-outlet'
+        });
+
         // Megahax time. Post-3.0-breaking-changes, we will just assert
         // right here that the user tried to target a nonexistent
         // thing. But for now we still need to support the `render`
@@ -42675,7 +42681,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+306b88fd";
+  exports.default = "2.11.0-alpha.1-canary+7147c329";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
