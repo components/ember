@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3-beta+4f7b76ef
+ * @version   2.10.0-beta.3-beta+d668480b
  */
 
 var enifed, requireModule, require, Ember;
@@ -9222,8 +9222,8 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal', 'ember-glimmer/ut
   
     ```handlebars
     {{input value=(mut (get person factName)) type="text"}}
-    <button {{action (mut factName) "height"}}>Show height</button>
-    <button {{action (mut factName) "weight"}}>Show weight</button>
+    <button {{action (action (mut factName)) "height"}}>Show height</button>
+    <button {{action (action (mut factName)) "weight"}}>Show weight</button>
     ```
   
     Would allow the user to swap what fact is being displayed, and also edit
@@ -39548,7 +39548,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.3-beta+4f7b76ef";
+  exports.default = "2.10.0-beta.3-beta+d668480b";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -40740,8 +40740,16 @@ enifed('glimmer-node/lib/node-dom-helper', ['exports', 'glimmer-runtime'], funct
             return new _glimmerRuntime.ConcreteBounds(parent, first, last);
         };
 
+        // override to avoid SVG detection/work when in node (this is not needed in SSR)
+
         NodeDOMTreeConstruction.prototype.createElement = function createElement(tag) {
             return this.document.createElement(tag);
+        };
+
+        // override to avoid namespace shenanigans when in node (this is not needed in SSR)
+
+        NodeDOMTreeConstruction.prototype.setAttribute = function setAttribute(element, name, value) {
+            element.setAttribute(name, value);
         };
 
         return NodeDOMTreeConstruction;
@@ -40749,7 +40757,7 @@ enifed('glimmer-node/lib/node-dom-helper', ['exports', 'glimmer-runtime'], funct
 
     exports.default = NodeDOMTreeConstruction;
 });
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItbm9kZS9saWIvbm9kZS1kb20taGVscGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztRQUlBLHVCQUFBOzhCQUFBLHVCQUFBOztBQUVFLGlCQUZGLHVCQUFBLENBRWMsR0FBb0IsRUFBQTtBQUM5Qiw0Q0FBTSxHQUFHLENBQUMsQ0FBQztTQUNaOzs7O0FBSkgsK0JBQUEsV0FPWSxtQkFBbUIsR0FBQSwrQkFBQSxFQUFNOztBQVByQywrQkFBQSxXQVNFLGdCQUFnQixHQUFBLDBCQUFDLE1BQXNCLEVBQUUsSUFBWSxFQUFFLFNBQXNCLEVBQUE7QUFDM0UsZ0JBQUksSUFBSSxHQUFHLFNBQVMsR0FBRyxTQUFTLENBQUMsZUFBZSxHQUFHLE1BQU0sQ0FBQyxTQUFTLENBQUM7QUFFcEUsZ0JBQUksR0FBRyxHQUFHLElBQUksQ0FBQyxRQUFRLENBQUMsb0JBQW9CLENBQUMsSUFBSSxDQUFDLENBQUM7QUFDbkQsa0JBQU0sQ0FBQyxZQUFZLENBQUMsR0FBRyxFQUFFLFNBQVMsQ0FBQyxDQUFDO0FBRXBDLGdCQUFJLEtBQUssR0FBRyxJQUFJLEdBQUcsSUFBSSxDQUFDLFdBQVcsR0FBRyxNQUFNLENBQUMsVUFBVSxDQUFDO0FBQ3hELGdCQUFJLElBQUksR0FBRyxTQUFTLEdBQUcsU0FBUyxDQUFDLGVBQWUsR0FBRyxNQUFNLENBQUMsU0FBUyxDQUFDO0FBRXBFLG1CQUFPLG9CQXJCRixjQUFjLENBcUJPLE1BQU0sRUFBRSxLQUFLLEVBQUUsSUFBSSxDQUFDLENBQUM7U0FDaEQ7O0FBbkJILCtCQUFBLFdBcUJFLGFBQWEsR0FBQSx1QkFBQyxHQUFXLEVBQUE7QUFDdkIsbUJBQU8sSUFBSSxDQUFDLFFBQVEsQ0FBQyxhQUFhLENBQUMsR0FBRyxDQUFDLENBQUM7U0FDekM7O2VBdkJILHVCQUFBO3VCQUZTLG1CQUFtQjs7c0JBRTVCLHVCQUFBIiwiZmlsZSI6Im5vZGUtZG9tLWhlbHBlci5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCAqIGFzIFNpbXBsZURPTSBmcm9tICdzaW1wbGUtZG9tJztcbmltcG9ydCB7IENvbmNyZXRlQm91bmRzIH0gZnJvbSAnZ2xpbW1lci1ydW50aW1lJztcbmltcG9ydCB7IERPTVRyZWVDb25zdHJ1Y3Rpb24sIEJvdW5kcywgU2ltcGxlIH0gZnJvbSAnZ2xpbW1lci1ydW50aW1lJztcblxuZXhwb3J0IGRlZmF1bHQgY2xhc3MgTm9kZURPTVRyZWVDb25zdHJ1Y3Rpb24gZXh0ZW5kcyBET01UcmVlQ29uc3RydWN0aW9uIHtcbiAgcHJvdGVjdGVkIGRvY3VtZW50OiBTaW1wbGVET00uRG9jdW1lbnQ7XG4gIGNvbnN0cnVjdG9yKGRvYzogU2ltcGxlLkRvY3VtZW50KSB7XG4gICAgc3VwZXIoZG9jKTtcbiAgfVxuXG4gIC8vIG92ZXJyaWRlIHRvIHByZXZlbnQgdXNhZ2Ugb2YgYHRoaXMuZG9jdW1lbnRgIHVudGlsIGFmdGVyIHRoZSBjb25zdHJ1Y3RvclxuICBwcm90ZWN0ZWQgc2V0dXBVc2VsZXNzRWxlbWVudCgpIHsgfVxuXG4gIGluc2VydEhUTUxCZWZvcmUocGFyZW50OiBTaW1wbGUuRWxlbWVudCwgaHRtbDogc3RyaW5nLCByZWZlcmVuY2U6IFNpbXBsZS5Ob2RlKTogQm91bmRzIHtcbiAgICBsZXQgcHJldiA9IHJlZmVyZW5jZSA/IHJlZmVyZW5jZS5wcmV2aW91c1NpYmxpbmcgOiBwYXJlbnQubGFzdENoaWxkO1xuXG4gICAgbGV0IHJhdyA9IHRoaXMuZG9jdW1lbnQuY3JlYXRlUmF3SFRNTFNlY3Rpb24oaHRtbCk7XG4gICAgcGFyZW50Lmluc2VydEJlZm9yZShyYXcsIHJlZmVyZW5jZSk7XG5cbiAgICBsZXQgZmlyc3QgPSBwcmV2ID8gcHJldi5uZXh0U2libGluZyA6IHBhcmVudC5maXJzdENoaWxkO1xuICAgIGxldCBsYXN0ID0gcmVmZXJlbmNlID8gcmVmZXJlbmNlLnByZXZpb3VzU2libGluZyA6IHBhcmVudC5sYXN0Q2hpbGQ7XG5cbiAgICByZXR1cm4gbmV3IENvbmNyZXRlQm91bmRzKHBhcmVudCwgZmlyc3QsIGxhc3QpO1xuICB9XG5cbiAgY3JlYXRlRWxlbWVudCh0YWc6IHN0cmluZykge1xuICAgIHJldHVybiB0aGlzLmRvY3VtZW50LmNyZWF0ZUVsZW1lbnQodGFnKTtcbiAgfVxufVxuIl19
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImdsaW1tZXItbm9kZS9saWIvbm9kZS1kb20taGVscGVyLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztRQUlBLHVCQUFBOzhCQUFBLHVCQUFBOztBQUVFLGlCQUZGLHVCQUFBLENBRWMsR0FBb0IsRUFBQTtBQUM5Qiw0Q0FBTSxHQUFHLENBQUMsQ0FBQztTQUNaOzs7O0FBSkgsK0JBQUEsV0FPWSxtQkFBbUIsR0FBQSwrQkFBQSxFQUFNOztBQVByQywrQkFBQSxXQVNFLGdCQUFnQixHQUFBLDBCQUFDLE1BQXNCLEVBQUUsSUFBWSxFQUFFLFNBQXNCLEVBQUE7QUFDM0UsZ0JBQUksSUFBSSxHQUFHLFNBQVMsR0FBRyxTQUFTLENBQUMsZUFBZSxHQUFHLE1BQU0sQ0FBQyxTQUFTLENBQUM7QUFFcEUsZ0JBQUksR0FBRyxHQUFHLElBQUksQ0FBQyxRQUFRLENBQUMsb0JBQW9CLENBQUMsSUFBSSxDQUFDLENBQUM7QUFDbkQsa0JBQU0sQ0FBQyxZQUFZLENBQUMsR0FBRyxFQUFFLFNBQVMsQ0FBQyxDQUFDO0FBRXBDLGdCQUFJLEtBQUssR0FBRyxJQUFJLEdBQUcsSUFBSSxDQUFDLFdBQVcsR0FBRyxNQUFNLENBQUMsVUFBVSxDQUFDO0FBQ3hELGdCQUFJLElBQUksR0FBRyxTQUFTLEdBQUcsU0FBUyxDQUFDLGVBQWUsR0FBRyxNQUFNLENBQUMsU0FBUyxDQUFDO0FBRXBFLG1CQUFPLG9CQXJCRixjQUFjLENBcUJPLE1BQU0sRUFBRSxLQUFLLEVBQUUsSUFBSSxDQUFDLENBQUM7U0FDaEQ7Ozs7QUFuQkgsK0JBQUEsV0FzQkUsYUFBYSxHQUFBLHVCQUFDLEdBQVcsRUFBQTtBQUN2QixtQkFBTyxJQUFJLENBQUMsUUFBUSxDQUFDLGFBQWEsQ0FBQyxHQUFHLENBQUMsQ0FBQztTQUN6Qzs7OztBQXhCSCwrQkFBQSxXQTJCRSxZQUFZLEdBQUEsc0JBQUMsT0FBZ0IsRUFBRSxJQUFZLEVBQUUsS0FBYSxFQUFBO0FBQ3hELG1CQUFPLENBQUMsWUFBWSxDQUFDLElBQUksRUFBRSxLQUFLLENBQUMsQ0FBQztTQUNuQzs7ZUE3QkgsdUJBQUE7dUJBRlMsbUJBQW1COztzQkFFNUIsdUJBQUEiLCJmaWxlIjoibm9kZS1kb20taGVscGVyLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0ICogYXMgU2ltcGxlRE9NIGZyb20gJ3NpbXBsZS1kb20nO1xuaW1wb3J0IHsgQ29uY3JldGVCb3VuZHMgfSBmcm9tICdnbGltbWVyLXJ1bnRpbWUnO1xuaW1wb3J0IHsgRE9NVHJlZUNvbnN0cnVjdGlvbiwgQm91bmRzLCBTaW1wbGUgfSBmcm9tICdnbGltbWVyLXJ1bnRpbWUnO1xuXG5leHBvcnQgZGVmYXVsdCBjbGFzcyBOb2RlRE9NVHJlZUNvbnN0cnVjdGlvbiBleHRlbmRzIERPTVRyZWVDb25zdHJ1Y3Rpb24ge1xuICBwcm90ZWN0ZWQgZG9jdW1lbnQ6IFNpbXBsZURPTS5Eb2N1bWVudDtcbiAgY29uc3RydWN0b3IoZG9jOiBTaW1wbGUuRG9jdW1lbnQpIHtcbiAgICBzdXBlcihkb2MpO1xuICB9XG5cbiAgLy8gb3ZlcnJpZGUgdG8gcHJldmVudCB1c2FnZSBvZiBgdGhpcy5kb2N1bWVudGAgdW50aWwgYWZ0ZXIgdGhlIGNvbnN0cnVjdG9yXG4gIHByb3RlY3RlZCBzZXR1cFVzZWxlc3NFbGVtZW50KCkgeyB9XG5cbiAgaW5zZXJ0SFRNTEJlZm9yZShwYXJlbnQ6IFNpbXBsZS5FbGVtZW50LCBodG1sOiBzdHJpbmcsIHJlZmVyZW5jZTogU2ltcGxlLk5vZGUpOiBCb3VuZHMge1xuICAgIGxldCBwcmV2ID0gcmVmZXJlbmNlID8gcmVmZXJlbmNlLnByZXZpb3VzU2libGluZyA6IHBhcmVudC5sYXN0Q2hpbGQ7XG5cbiAgICBsZXQgcmF3ID0gdGhpcy5kb2N1bWVudC5jcmVhdGVSYXdIVE1MU2VjdGlvbihodG1sKTtcbiAgICBwYXJlbnQuaW5zZXJ0QmVmb3JlKHJhdywgcmVmZXJlbmNlKTtcblxuICAgIGxldCBmaXJzdCA9IHByZXYgPyBwcmV2Lm5leHRTaWJsaW5nIDogcGFyZW50LmZpcnN0Q2hpbGQ7XG4gICAgbGV0IGxhc3QgPSByZWZlcmVuY2UgPyByZWZlcmVuY2UucHJldmlvdXNTaWJsaW5nIDogcGFyZW50Lmxhc3RDaGlsZDtcblxuICAgIHJldHVybiBuZXcgQ29uY3JldGVCb3VuZHMocGFyZW50LCBmaXJzdCwgbGFzdCk7XG4gIH1cblxuICAvLyBvdmVycmlkZSB0byBhdm9pZCBTVkcgZGV0ZWN0aW9uL3dvcmsgd2hlbiBpbiBub2RlICh0aGlzIGlzIG5vdCBuZWVkZWQgaW4gU1NSKVxuICBjcmVhdGVFbGVtZW50KHRhZzogc3RyaW5nKSB7XG4gICAgcmV0dXJuIHRoaXMuZG9jdW1lbnQuY3JlYXRlRWxlbWVudCh0YWcpO1xuICB9XG5cbiAgLy8gb3ZlcnJpZGUgdG8gYXZvaWQgbmFtZXNwYWNlIHNoZW5hbmlnYW5zIHdoZW4gaW4gbm9kZSAodGhpcyBpcyBub3QgbmVlZGVkIGluIFNTUilcbiAgc2V0QXR0cmlidXRlKGVsZW1lbnQ6IEVsZW1lbnQsIG5hbWU6IHN0cmluZywgdmFsdWU6IHN0cmluZykge1xuICAgIGVsZW1lbnQuc2V0QXR0cmlidXRlKG5hbWUsIHZhbHVlKTtcbiAgfVxufVxuIl19
 enifed('glimmer-reference/index', ['exports', 'glimmer-reference/lib/reference', 'glimmer-reference/lib/const', 'glimmer-reference/lib/validators', 'glimmer-reference/lib/utils', 'glimmer-reference/lib/iterable'], function (exports, _glimmerReferenceLibReference, _glimmerReferenceLibConst, _glimmerReferenceLibValidators, _glimmerReferenceLibUtils, _glimmerReferenceLibIterable) {
   'use strict';
 
