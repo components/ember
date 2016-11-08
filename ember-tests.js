@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+edd39023
+ * @version   2.11.0-alpha.1-canary+e659bd6a
  */
 
 var enifed, requireModule, Ember;
@@ -18399,7 +18399,7 @@ enifed('ember-glimmer/tests/integration/components/local-lookup-test', ['exports
 
       expectAssertion(function () {
         _this12.render('{{x-outer}}');
-      }, /A helper named "x-inner" could not be found/);
+      }, /A component or helper named "x-inner" could not be found/);
     };
 
     _class.prototype['@test overrides global lookup'] = function testOverridesGlobalLookup() {

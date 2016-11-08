@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+edd39023
+ * @version   2.11.0-alpha.1-canary+e659bd6a
  */
 
 var enifed, requireModule, Ember;
@@ -8612,7 +8612,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
           return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentSyntax(args, definition, templates, symbolTable);
         }
 
-        _emberMetal.assert('A helper named "' + key + '" could not be found', !isBlock || this.hasHelper(path, symbolTable));
+        _emberMetal.assert('A component or helper named "' + key + '" could not be found', !isBlock || this.hasHelper(path, symbolTable));
       }
 
       if (!isSimple && appendType === 'unknown') {
@@ -42681,7 +42681,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+edd39023";
+  exports.default = "2.11.0-alpha.1-canary+e659bd6a";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
