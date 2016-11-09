@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+8c8062a1
+ * @version   2.11.0-alpha.1-canary+bc00f57c
  */
 
 var enifed, requireModule, Ember;
@@ -8598,7 +8598,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
 
       _emberMetal.assert('You attempted to overwrite the built-in helper "' + key + '" which is not allowed. Please rename the helper.', !(this.builtInHelpers[key] && this.owner.hasRegistration('helper:' + key)));
 
-      if (isSimple && (isInline || isBlock)) {
+      if (isSimple && (isInline || isBlock) && appendType !== 'get') {
         // 2. built-in syntax
 
         var RefinedSyntax = _emberGlimmerSyntax.findSyntaxBuilder(key);
@@ -8611,7 +8611,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
 
         if (internalKey) {
           definition = this.getComponentDefinition([internalKey], symbolTable);
-        } else if (typeof key === 'string' && key.indexOf('-') >= 0) {
+        } else if (key.indexOf('-') >= 0) {
           definition = this.getComponentDefinition(path, symbolTable);
         }
 
@@ -8624,7 +8624,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
         _emberMetal.assert('A component or helper named "' + key + '" could not be found', !isBlock || this.hasHelper(path, symbolTable));
       }
 
-      if (!isSimple && appendType === 'unknown') {
+      if (isInline && !isSimple && appendType !== 'helper') {
         return statement.original.deopt();
       }
 
@@ -42690,7 +42690,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+8c8062a1";
+  exports.default = "2.11.0-alpha.1-canary+bc00f57c";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
