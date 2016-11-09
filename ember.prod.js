@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+df734290
+ * @version   2.11.0-alpha.1-canary+8c8062a1
  */
 
 var enifed, requireModule, Ember;
@@ -2924,22 +2924,31 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
 
       this.setupRouter();
 
+      var bootOptions = this.__container__.lookup('-environment:main');
+
       var router = _emberMetal.get(this, 'router');
 
-      var handleResolve = function () {
-        // Resolve only after rendering is complete
-        return new _emberRuntime.RSVP.Promise(function (resolve) {
-          // TODO: why is this necessary? Shouldn't 'actions' queue be enough?
-          // Also, aren't proimses supposed to be async anyway?
-          _emberMetal.run.next(null, resolve, _this);
-        });
+      var handleTransitionResolve = function () {
+        if (!bootOptions.options.shouldRender) {
+          // No rendering is needed, and routing has completed, simply return.
+          return _this;
+        } else {
+          return new _emberRuntime.RSVP.Promise(function (resolve) {
+            // Resolve once rendering is completed. `router.handleURL` returns the transition (as a thennable)
+            // which resolves once the transition is completed, but the transition completion only queues up
+            // a scheduled revalidation (into the `render` queue) in the Renderer.
+            //
+            // This uses `run.schedule('afterRender', ....)` to resolve after that rendering has completed.
+            _emberMetal.run.schedule('afterRender', null, resolve, _this);
+          });
+        }
       };
 
-      var handleReject = function (error) {
+      var handleTransitionReject = function (error) {
         if (error.error) {
           throw error.error;
         } else if (error.name === 'TransitionAborted' && router.router.activeTransition) {
-          return router.router.activeTransition.then(handleResolve, handleReject);
+          return router.router.activeTransition.then(handleTransitionResolve, handleTransitionReject);
         } else if (error.name === 'TransitionAborted') {
           throw new Error(error.message);
         } else {
@@ -2953,7 +2962,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
       location.setURL(url);
 
       // getURL returns the set url with the rootURL stripped off
-      return router.handleURL(location.getURL()).then(handleResolve, handleReject);
+      return router.handleURL(location.getURL()).then(handleTransitionResolve, handleTransitionReject);
     }
   });
 
@@ -39678,7 +39687,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+df734290";
+  exports.default = "2.11.0-alpha.1-canary+8c8062a1";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
