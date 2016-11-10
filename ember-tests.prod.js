@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+cd137d73
+ * @version   2.11.0-alpha.1-canary+192017b7
  */
 
 var enifed, requireModule, Ember;
@@ -70878,6 +70878,87 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
 
     _class.prototype['@test param-less links in an app booted with query params in the URL don\'t reset the query params: index'] = function testParamLessLinksInAnAppBootedWithQueryParamsInTheURLDonTResetTheQueryParamsIndex(assert) {
       return this.testParamlessLinks(assert, 'index');
+    };
+
+    return _class;
+  })(_internalTestHelpers.QueryParamTestCase));
+});
+enifed('ember/tests/routing/query_params_test/shared_state_test', ['exports', 'ember-runtime', 'ember', 'ember-metal', 'ember-views', 'internal-test-helpers'], function (exports, _emberRuntime, _ember, _emberMetal, _emberViews, _internalTestHelpers) {
+  'use strict';
+
+  _internalTestHelpers.moduleFor('Query Params - shared service state', (function (_QueryParamTestCase) {
+    babelHelpers.inherits(_class, _QueryParamTestCase);
+
+    function _class() {
+      _QueryParamTestCase.apply(this, arguments);
+    }
+
+    _class.prototype.boot = function boot() {
+      this.setupApplication();
+      return this.visitApplication();
+    };
+
+    _class.prototype.setupApplication = function setupApplication() {
+      this.router.map(function () {
+        this.route('home', { path: '/' });
+        this.route('dashboard');
+      });
+
+      this.application.register('service:filters', _emberRuntime.Service.extend({
+        shared: true
+      }));
+
+      this.registerController('home', _emberRuntime.Controller.extend({
+        filters: _ember.default.inject.service()
+      }));
+
+      this.registerController('dashboard', _emberRuntime.Controller.extend({
+        filters: _ember.default.inject.service(),
+        queryParams: [{ 'filters.shared': 'shared' }]
+      }));
+
+      this.registerTemplate('application', '{{link-to \'Home\' \'home\' }} <div> {{outlet}} </div>');
+      this.registerTemplate('home', '{{link-to \'Dashboard\' \'dashboard\' }}{{input type="checkbox" id=\'filters-checkbox\' checked=(mut filters.shared) }}');
+      this.registerTemplate('dashboard', '{{link-to \'Home\' \'home\' }}');
+    };
+
+    _class.prototype.visitApplication = function visitApplication() {
+      return this.visit('/');
+    };
+
+    _class.prototype['@test can modify shared state before transition'] = function testCanModifySharedStateBeforeTransition(assert) {
+      var _this = this;
+
+      assert.expect(1);
+
+      return this.boot().then(function () {
+        _this.$input = _emberViews.jQuery('#filters-checkbox');
+
+        // click the checkbox once to set filters.shared to false
+        _emberMetal.run(_this.$input, 'click');
+
+        return _this.visit('/dashboard').then(function () {
+          assert.ok(true, 'expecting navigating to dashboard to succeed');
+        });
+      });
+    };
+
+    _class.prototype['@test can modify shared state back to the default value before transition'] = function testCanModifySharedStateBackToTheDefaultValueBeforeTransition(assert) {
+      var _this2 = this;
+
+      assert.expect(1);
+
+      return this.boot().then(function () {
+        _this2.$input = _emberViews.jQuery('#filters-checkbox');
+
+        // click the checkbox twice to set filters.shared to false and back to true
+        _emberMetal.run(_this2.$input, 'click');
+        _emberMetal.run(_this2.$input, 'click');
+
+        return _this2.visit('/dashboard').then(function () {
+          assert.ok(true, 'expecting navigating to dashboard to succeed');
+        });
+      });
     };
 
     return _class;
