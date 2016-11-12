@@ -6,11 +6,10 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+f62e055f
+ * @version   2.11.0-alpha.1-canary+7819409b
  */
 
 var enifed, requireModule, Ember;
-var mainContext = this;
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -111,8 +110,6 @@ var mainContext = this;
     requireModule = Ember.__loader.require;
   }
 })();
-
-var babelHelpers;
 
 function classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -3236,21 +3233,9 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
   */
   'use strict';
 
-  exports._resetLegacyAddonWarnings = _resetLegacyAddonWarnings;
-
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
 
   var librariesRegistered = false;
-
-  var warnedAboutLegacyViewAddon = false;
-  var warnedAboutLegacyControllerAddon = false;
-
-  // For testing
-
-  function _resetLegacyAddonWarnings() {
-    warnedAboutLegacyViewAddon = false;
-    warnedAboutLegacyControllerAddon = false;
-  }
 
   /**
     An instance of `Ember.Application` is the starting point for every Ember
@@ -22322,7 +22307,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
               label = 'the same value';
             }
 
-            return 'You modified ' + parts.join('.') + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
+            return 'You modified ' + label + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
           })(), false);
 
           shouldReflush = true;
@@ -25884,8 +25869,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @public
     */
     model: function (params, transition) {
-      var match = undefined,
-          name = undefined,
+      var name = undefined,
           sawParams = undefined,
           value = undefined;
       var queryParams = _emberMetal.get(this, '_qp.map');
@@ -25895,7 +25879,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           continue;
         }
 
-        if (match = prop.match(/^(.*)_id$/)) {
+        var match = prop.match(/^(.*)_id$/);
+        if (match) {
           name = match[1];
           value = params[prop];
         }
@@ -26526,7 +26511,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     var template = owner.lookup('template:' + templateName);
 
     var parent = undefined;
-    if (into && (parent = parentRoute(route)) && into === parentRoute(route).routeName) {
+    if (into && (parent = parentRoute(route)) && into === parent.routeName) {
       into = undefined;
     }
 
@@ -31060,8 +31045,6 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], functi
         args[_key - 1] = arguments[_key];
       }
 
-      var target = undefined;
-
       if (this.actions && this.actions[actionName]) {
         var shouldBubble = this.actions[actionName].apply(this, args) === true;
         if (!shouldBubble) {
@@ -31069,11 +31052,10 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], functi
         }
       }
 
-      if (target = _emberMetal.get(this, 'target')) {
-        var _target;
-
+      var target = _emberMetal.get(this, 'target');
+      if (target) {
         _emberMetal.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
-        (_target = target).send.apply(_target, arguments);
+        target.send.apply(target, arguments);
       }
     },
 
@@ -31494,7 +31476,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 /**
   This returns the objects at the specified indexes, using `objectAt`.
    ```javascript
-  let arr = ['a', 'b', 'c', 'd'];
+  let arr = ['a', 'b', 'c', 'd'];
    arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
   arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
   ```
@@ -32434,7 +32416,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       for (var idx = 0; idx < len && !found; idx++) {
         next = this.nextObject(idx, last, context);
 
-        if (found = callback.call(target, next, idx, this)) {
+        found = callback.call(target, next, idx, this);
+        if (found) {
           ret = next;
         }
 
@@ -39878,7 +39861,6 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
         args[_key2 - 1] = arguments[_key2];
       }
 
-      var target = undefined;
       var action = this.actions && this.actions[actionName];
 
       if (action) {
@@ -39888,13 +39870,10 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
         }
       }
 
-      target = _emberMetal.get(this, 'target');
-
+      var target = _emberMetal.get(this, 'target');
       if (target) {
-        var _target;
-
         _emberMetal.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
-        (_target = target).send.apply(_target, arguments);
+        target.send.apply(target, arguments);
       } else {
         _emberMetal.assert(_emberUtils.inspect(this) + ' had no action handler for: ' + actionName, action);
       }
@@ -42675,7 +42654,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+f62e055f";
+  exports.default = "2.11.0-alpha.1-canary+7819409b";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

@@ -6,11 +6,10 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+f62e055f
+ * @version   2.11.0-alpha.1-canary+7819409b
  */
 
 var enifed, requireModule, Ember;
-var mainContext = this;
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -111,8 +110,6 @@ var mainContext = this;
     requireModule = Ember.__loader.require;
   }
 })();
-
-var babelHelpers;
 
 function inherits(subClass, superClass) {
   subClass.prototype = Object.create(superClass && superClass.prototype, {
@@ -10148,7 +10145,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
               label = 'the same value';
             }
 
-            return 'You modified ' + parts.join('.') + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
+            return 'You modified ' + label + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
           })(), false);
 
           shouldReflush = true;
@@ -13203,8 +13200,6 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], functi
         args[_key - 1] = arguments[_key];
       }
 
-      var target = undefined;
-
       if (this.actions && this.actions[actionName]) {
         var shouldBubble = this.actions[actionName].apply(this, args) === true;
         if (!shouldBubble) {
@@ -13212,11 +13207,10 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], functi
         }
       }
 
-      if (target = _emberMetal.get(this, 'target')) {
-        var _target;
-
+      var target = _emberMetal.get(this, 'target');
+      if (target) {
         _emberMetal.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
-        (_target = target).send.apply(_target, arguments);
+        target.send.apply(target, arguments);
       }
     },
 
@@ -13637,7 +13631,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 /**
   This returns the objects at the specified indexes, using `objectAt`.
    ```javascript
-  let arr = ['a', 'b', 'c', 'd'];
+  let arr = ['a', 'b', 'c', 'd'];
    arr.objectsAt([0, 1, 2]);  // ['a', 'b', 'c']
   arr.objectsAt([2, 3, 4]);  // ['c', 'd', undefined]
   ```
@@ -14577,7 +14571,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       for (var idx = 0; idx < len && !found; idx++) {
         next = this.nextObject(idx, last, context);
 
-        if (found = callback.call(target, next, idx, this)) {
+        found = callback.call(target, next, idx, this);
+        if (found) {
           ret = next;
         }
 
@@ -19406,7 +19401,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+f62e055f";
+  exports.default = "2.11.0-alpha.1-canary+7819409b";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';

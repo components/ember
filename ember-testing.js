@@ -6,11 +6,10 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+f62e055f
+ * @version   2.11.0-alpha.1-canary+7819409b
  */
 
 var enifed, requireModule, Ember;
-var mainContext = this;
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -111,8 +110,6 @@ var mainContext = this;
     requireModule = Ember.__loader.require;
   }
 })();
-
-var babelHelpers;
 
 function classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {

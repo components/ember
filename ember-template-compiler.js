@@ -6,11 +6,10 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+f62e055f
+ * @version   2.11.0-alpha.1-canary+7819409b
  */
 
 var enifed, requireModule, Ember;
-var mainContext = this;
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -111,8 +110,6 @@ var mainContext = this;
     requireModule = Ember.__loader.require;
   }
 })();
-
-var babelHelpers;
 
 function classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -9444,7 +9441,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
               label = 'the same value';
             }
 
-            return 'You modified ' + parts.join('.') + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
+            return 'You modified ' + label + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
           })(), false);
 
           shouldReflush = true;
@@ -10945,7 +10942,6 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
     }
 
     var lastComponentNode = undefined;
-    var lastIndex = undefined;
     var nodeCount = 0;
 
     for (var i = 0; i < body.length; i++) {
@@ -10963,7 +10959,6 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
       if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
         lastComponentNode = curr;
-        lastIndex = i;
       }
     }
 
@@ -11978,7 +11973,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+f62e055f";
+  exports.default = "2.11.0-alpha.1-canary+7819409b";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
