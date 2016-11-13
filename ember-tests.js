@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+ec6ad8fa
+ * @version   2.11.0-alpha.1-canary+02d36cb1
  */
 
 var enifed, requireModule, Ember;
@@ -9051,6 +9051,7 @@ babelHelpers.classCallCheck(this, _class5);
     }
 
     _class5.prototype.append = function append(component) {
+      expectDeprecation(/Using the `renderToElement` is deprecated in favor of `appendTo`. Called in/);
       var wrapper = undefined;
 
       this.runTask(function () {
@@ -9078,6 +9079,7 @@ babelHelpers.classCallCheck(this, _class6);
     }
 
     _class6.prototype.append = function append(component) {
+      expectDeprecation(/Using the `renderToElement` is deprecated in favor of `appendTo`. Called in/);
       var wrapper = undefined;
 
       this.runTask(function () {
