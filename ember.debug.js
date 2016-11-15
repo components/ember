@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+02d36cb1
+ * @version   2.11.0-alpha.1-canary+56ac1201
  */
 
 var enifed, requireModule, Ember;
@@ -22848,13 +22848,31 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
     queryParams: null,
 
     /**
-      @property _qpDelegate
+     This property is updated to various different callback functions depending on
+     the current "state" of the backing route. It is used by
+     `Ember.Controller.prototype._qpChanged`.
+      The methods backing each state can be found in the `Ember.Route.prototype._qp` computed
+     property return value (the `.states` property). The current values are listed here for
+     the sanity of future travelers:
+      * `inactive` - This state is used when this controller instance is not part of the active
+       route heirarchy. Set in `Ember.Route.prototype._reset` (a `router.js` microlib hook) and
+       `Ember.Route.prototype.actions.finalizeQueryParamChange`.
+     * `active` - This state is used when this controller instance is part of the active
+       route heirarchy. Set in `Ember.Route.prototype.actions.finalizeQueryParamChange`.
+     * `allowOverrides` - This state is used in `Ember.Route.prototype.setup` (`route.js` microlib hook).
+       @method _qpDelegate
       @private
     */
     _qpDelegate: null, // set by route
 
     /**
-      @method _qpChanged
+     During `Ember.Route#setup` observers are created to invoke this method
+     when any of the query params declared in `Ember.Controller#queryParams` property
+     are changed.
+       When invoked this method uses the currently active query param update delegate
+     (see `Ember.Controller.prototype._qpDelegate` for details) and invokes it with
+     the QP key/value being changed.
+       @method _qpChanged
       @private
     */
     _qpChanged: function (controller, _prop) {
@@ -42756,7 +42774,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+02d36cb1";
+  exports.default = "2.11.0-alpha.1-canary+56ac1201";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
