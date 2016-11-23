@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+97d3f27b
+ * @version   2.11.0-alpha.1-canary+a41e7fc7
  */
 
 var enifed, requireModule, Ember;
@@ -59206,11 +59206,12 @@ enifed('ember-testing/tests/adapters/qunit_test', ['exports', 'ember-metal', 'em
 enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application'], function (exports, _emberMetal, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberApplication) {
   'use strict';
 
-  var App, originalAdapter;
+  var App, originalAdapter, originalQUnit;
 
   QUnit.module('ember-testing Adapters', {
     setup: function () {
       originalAdapter = _emberTestingTest.default.adapter;
+      originalQUnit = window.QUnit;
     },
     teardown: function () {
       _emberMetal.run(App, App.destroy);
@@ -59218,6 +59219,7 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-te
       App = null;
 
       _emberTestingTest.default.adapter = originalAdapter;
+      window.QUnit = originalQUnit;
     }
   });
 
@@ -59240,7 +59242,7 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-te
     _emberTestingTest.default.adapter.asyncStart();
   });
 
-  QUnit.test('QUnitAdapter is used by default', function () {
+  QUnit.test('QUnitAdapter is used by default (if QUnit is available)', function () {
     expect(1);
 
     _emberTestingTest.default.adapter = null;
@@ -59251,6 +59253,22 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-te
     });
 
     ok(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersQunit.default);
+  });
+
+  QUnit.test('Adapter is used by default (if QUnit is not available)', function () {
+    expect(2);
+
+    delete window.QUnit;
+
+    _emberTestingTest.default.adapter = null;
+
+    _emberMetal.run(function () {
+      App = _emberApplication.Application.create();
+      App.setupForTesting();
+    });
+
+    ok(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersAdapter.default);
+    ok(!(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersQunit.default));
   });
 });
 enifed('ember-testing/tests/ext/rsvp_test', ['exports', 'ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-metal'], function (exports, _emberTestingExtRsvp, _emberTestingTestAdapter, _emberMetal) {
