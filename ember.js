@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-alpha.1-canary+0a6bc938
+ * @version   2.11.0-alpha.1-canary+41c0504d
  */
 
 var enifed, requireModule, Ember;
@@ -41487,7 +41487,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/
   /**
     `Ember.CoreView` is an abstract class that exists to give view-like behavior
     to both Ember's main view class `Ember.Component` and other classes that don't need
-    the fully functionaltiy of `Ember.Component`.
+    the full functionality of `Ember.Component`.
   
     Unless you have specific needs for `CoreView`, you will use `Ember.Component`
     in your applications.
@@ -42770,7 +42770,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-alpha.1-canary+0a6bc938";
+  exports.default = "2.11.0-alpha.1-canary+41c0504d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
