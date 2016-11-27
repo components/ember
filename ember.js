@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3-beta+05cfca56
+ * @version   2.10.0-beta.3-beta+968385f3
  */
 
 var enifed, requireModule, require, Ember;
@@ -25527,6 +25527,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var queryParams = _emberMetal.get(this, '_qp');
 
       var states = queryParams.states;
+
+      controller._qpDelegate = states.allowOverrides;
+
       if (transition) {
         (function () {
           // Update the model dep values used to calculate cache keys.
@@ -25549,8 +25552,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           });
         })();
       }
-
-      controller._qpDelegate = states.allowOverrides;
 
       if (transition) {
         var qpValues = getQueryParamsFor(this, transition.state);
@@ -42541,7 +42542,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.3-beta+05cfca56";
+  exports.default = "2.10.0-beta.3-beta+968385f3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
