@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3-beta+d668480b
+ * @version   2.10.0-beta.3-beta+d61eea39
  */
 
 var enifed, requireModule, require, Ember;
@@ -30923,6 +30923,47 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       this.assertText('ABCDE');
 
       this.assertStableRerender();
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/refinements-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal) {
+  'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with var as |foo|}}\n        {{foo}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |render|}}\n        {{render}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |outlet|}}\n        {{outlet}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |mount|}}\n        {{mount}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |component|}}\n        {{component}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |input|}}\n        {{input}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |-with-dynamic-vars|}}\n        {{-with-dynamic-vars}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |-in-element|}}\n        {{-in-element}}\n      {{/with}}'], ['\n      {{#with var as |foo|}}\n        {{foo}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |render|}}\n        {{render}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |outlet|}}\n        {{outlet}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |mount|}}\n        {{mount}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |component|}}\n        {{component}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |input|}}\n        {{input}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |-with-dynamic-vars|}}\n        {{-with-dynamic-vars}}\n      {{/with}}\n\n      ---\n\n      {{#with var as |-in-element|}}\n        {{-in-element}}\n      {{/with}}']);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('syntax refinements', (function (_RenderingTest) {
+babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+babelHelpers.classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test block params should not be refined'] = function testBlockParamsShouldNotBeRefined() {
+      var _this = this;
+
+      this.registerHelper('foo', function () {
+        return 'bar helper';
+      });
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), { var: 'var' });
+
+      this.assertText('var---var---var---var---var---var---var---var');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this.context, 'var', 'RARRR!!!');
+      });
+
+      this.assertText('RARRR!!!---RARRR!!!---RARRR!!!---RARRR!!!---RARRR!!!---RARRR!!!---RARRR!!!---RARRR!!!');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this.context, 'var', 'var');
+      });
+
+      this.assertText('var---var---var---var---var---var---var---var');
     };
 
     return _class;
