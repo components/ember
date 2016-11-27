@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3-beta+968385f3
+ * @version   2.10.0-beta.3-beta+4cdfcddc
  */
 
 var enifed, requireModule, require, Ember;
@@ -47964,7 +47964,7 @@ enifed('ember-runtime/tests/core/isEqual_test', ['exports', 'ember-runtime/is-eq
     equal(_emberRuntimeIsEqual.default(obj, obj), false, 'should return false because isEqual returns false');
   });
 });
-enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy) {
+enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/native_array', 'ember-runtime/system/array_proxy', 'ember-environment'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemNative_array, _emberRuntimeSystemArray_proxy, _emberEnvironment) {
   'use strict';
 
   QUnit.module('Ember Type Checking');
@@ -47991,6 +47991,15 @@ enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-runtime/util
     equal(_emberRuntimeUtils.isArray(fn), false, 'function() {}');
     equal(_emberRuntimeUtils.isArray(arrayProxy), true, '[]');
   });
+
+  if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
+    QUnit.test('Ember.isArray(fileList)', function () {
+      var fileListElement = document.createElement('input');
+      fileListElement.type = 'file';
+      var fileList = fileListElement.files;
+      equal(_emberRuntimeUtils.isArray(fileList), false, 'fileList');
+    });
+  }
 });
 enifed('ember-runtime/tests/core/is_empty_test', ['exports', 'ember-metal', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array'], function (exports, _emberMetal, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array) {
   'use strict';
@@ -48003,7 +48012,7 @@ enifed('ember-runtime/tests/core/is_empty_test', ['exports', 'ember-metal', 'emb
     equal(true, _emberMetal.isEmpty(arrayProxy), 'for an ArrayProxy that has empty content');
   });
 });
-enifed('ember-runtime/tests/core/type_of_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/object'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/core/type_of_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/object', 'ember-environment'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemObject, _emberEnvironment) {
   'use strict';
 
   QUnit.module('Ember Type Checking');
@@ -48041,6 +48050,15 @@ enifed('ember-runtime/tests/core/type_of_test', ['exports', 'ember-runtime/utils
     equal(_emberRuntimeUtils.typeOf(_emberRuntimeSystemObject.default.extend()), 'class', 'item of type class');
     equal(_emberRuntimeUtils.typeOf(new Error()), 'error', 'item of type error');
   });
+
+  if (_emberEnvironment.environment.window && typeof _emberEnvironment.environment.window.FileList === 'function') {
+    QUnit.test('Ember.typeOf(fileList)', function () {
+      var fileListElement = document.createElement('input');
+      fileListElement.type = 'file';
+      var fileList = fileListElement.files;
+      equal(_emberRuntimeUtils.typeOf(fileList), 'filelist', 'item of type filelist');
+    });
+  }
 });
 enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-environment', 'ember-metal', 'internal-test-helpers', 'ember-runtime/system/object', 'ember-runtime/mixins/evented'], function (exports, _emberEnvironment, _emberMetal, _internalTestHelpers, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented) {
   'use strict';

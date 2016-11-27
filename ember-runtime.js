@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3-beta+968385f3
+ * @version   2.10.0-beta.3-beta+4cdfcddc
  */
 
 var enifed, requireModule, require, Ember;
@@ -19267,7 +19267,8 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     '[object Array]': 'array',
     '[object Date]': 'date',
     '[object RegExp]': 'regexp',
-    '[object Object]': 'object'
+    '[object Object]': 'object',
+    '[object FileList]': 'filelist'
   };
 
   var toString = Object.prototype.toString;
@@ -19336,6 +19337,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
         | 'array'       | An instance of Array                                 |
         | 'regexp'      | An instance of RegExp                                |
         | 'date'        | An instance of Date                                  |
+        | 'filelist'    | An instance of FileList                              |
         | 'class'       | An Ember class (created using Ember.Object.extend()) |
         | 'instance'    | An Ember object instance                             |
         | 'error'       | An instance of the Error object                      |
@@ -19357,6 +19359,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     Ember.typeOf([1, 2, 90]);             // 'array'
     Ember.typeOf(/abc/);                  // 'regexp'
     Ember.typeOf(new Date());             // 'date'
+    Ember.typeOf(event.target.files);     // 'filelist'
     Ember.typeOf(Ember.Object.extend());  // 'class'
     Ember.typeOf(Ember.Object.create());  // 'instance'
     Ember.typeOf(new Error('teamocil'));  // 'error'
@@ -19406,7 +19409,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.3-beta+968385f3";
+  exports.default = "2.10.0-beta.3-beta+4cdfcddc";
 });
 /*!
  * @overview RSVP - a tiny implementation of Promises/A+.
