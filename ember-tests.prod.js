@@ -6,10 +6,10 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3-beta+10550a53
+ * @version   2.10.0-beta.3-beta+f7fdddb8
  */
 
-var enifed, requireModule, require, Ember;
+var enifed, requireModule, Ember;
 var mainContext = this;
 
 (function() {
@@ -40,14 +40,14 @@ var mainContext = this;
       registry[name] = value;
     };
 
-    require = requireModule = function(name) {
+    requireModule = function(name) {
       return internalRequire(name, null);
     };
 
     // setup `require` module
-    require['default'] = require;
+    requireModule['default'] = requireModule;
 
-    require.has = function registryHas(moduleName) {
+    requireModule.has = function registryHas(moduleName) {
       return !!registry[moduleName] || !!registry[moduleName + '/index'];
     };
 
@@ -88,7 +88,7 @@ var mainContext = this;
         if (deps[i] === 'exports') {
           reified[i] = exports;
         } else if (deps[i] === 'require') {
-          reified[i] = require;
+          reified[i] = requireModule;
         } else {
           reified[i] = internalRequire(deps[i], name);
         }
@@ -103,12 +103,12 @@ var mainContext = this;
 
     Ember.__loader = {
       define: enifed,
-      require: require,
+      require: requireModule,
       registry: registry
     };
   } else {
     enifed = Ember.__loader.define;
-    require = requireModule = Ember.__loader.require;
+    requireModule = Ember.__loader.require;
   }
 })();
 
@@ -62991,18 +62991,40 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
   });
 
+  QUnit.test('the {{link-to}} helper throws a useful error if you invoke it wrong', function () {
+    expect(1);
+
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'post'}}Post{{/link-to}}"));
+
+    Router.map(function () {
+      this.route('post', { path: 'post/:post_id' });
+    });
+
+    QUnit.throws(function () {
+      bootApplication();
+    }, /(You attempted to define a `\{\{link-to "post"\}\}` but did not pass the parameters required for generating its dynamic segments.|You must provide param `post_id` to `generate`)/);
+  });
+
   QUnit.test('the {{link-to}} helper does not throw an error if its route has exited', function () {
     expect(0);
 
-    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' id='post-link'}}Post{{/link-to}}{{/if}}"));
+    _emberGlimmer.setTemplate('application', _emberTemplateCompiler.compile("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' currentPost id='current-post-link'}}Current Post{{/link-to}}{{/if}}"));
 
     App.ApplicationController = _emberRuntime.Controller.extend({
+      defaultPost: { id: 1 },
       postController: _emberRuntime.inject.controller('post'),
       currentPost: _emberMetal.alias('postController.model')
     });
 
-    App.PostController = _emberRuntime.Controller.extend({
-      model: { id: 1 }
+    App.PostController = _emberRuntime.Controller.extend();
+
+    App.PostRoute = _emberRouting.Route.extend({
+      model: function () {
+        return { id: 2 };
+      },
+      serialize: function (model) {
+        return { post_id: model.id };
+      }
     });
 
     Router.map(function () {
@@ -63015,6 +63037,12 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
 
     _emberMetal.run(function () {
       return _emberViews.jQuery('#default-post-link', '#qunit-fixture').click();
+    });
+    _emberMetal.run(function () {
+      return _emberViews.jQuery('#home-link', '#qunit-fixture').click();
+    });
+    _emberMetal.run(function () {
+      return _emberViews.jQuery('#current-post-link', '#qunit-fixture').click();
     });
     _emberMetal.run(function () {
       return _emberViews.jQuery('#home-link', '#qunit-fixture').click();
@@ -65808,6 +65836,10 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-utils', 'ember-conso
     App.PostRoute = _emberRouting.Route.extend({
       model: function (params) {
         return { id: params.postId };
+      },
+
+      serialize: function (model) {
+        return { postId: model.id };
       },
 
       actions: {

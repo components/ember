@@ -6,10 +6,10 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.0-beta.3-beta+10550a53
+ * @version   2.10.0-beta.3-beta+f7fdddb8
  */
 
-var enifed, requireModule, require, Ember;
+var enifed, requireModule, Ember;
 var mainContext = this;
 
 (function() {
@@ -40,14 +40,14 @@ var mainContext = this;
       registry[name] = value;
     };
 
-    require = requireModule = function(name) {
+    requireModule = function(name) {
       return internalRequire(name, null);
     };
 
     // setup `require` module
-    require['default'] = require;
+    requireModule['default'] = requireModule;
 
-    require.has = function registryHas(moduleName) {
+    requireModule.has = function registryHas(moduleName) {
       return !!registry[moduleName] || !!registry[moduleName + '/index'];
     };
 
@@ -88,7 +88,7 @@ var mainContext = this;
         if (deps[i] === 'exports') {
           reified[i] = exports;
         } else if (deps[i] === 'require') {
-          reified[i] = require;
+          reified[i] = requireModule;
         } else {
           reified[i] = internalRequire(deps[i], name);
         }
@@ -103,12 +103,12 @@ var mainContext = this;
 
     Ember.__loader = {
       define: enifed,
-      require: require,
+      require: requireModule,
       registry: registry
     };
   } else {
     enifed = Ember.__loader.define;
-    require = requireModule = Ember.__loader.require;
+    requireModule = Ember.__loader.require;
   }
 })();
 
@@ -7297,6 +7297,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
 
       var routing = _emberMetal.get(this, '_routing');
       var queryParams = _emberMetal.get(this, 'queryParams.values');
+
       return routing.generateURL(qualifiedRouteName, models, queryParams);
     }),
 
@@ -7400,6 +7401,18 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
 
   exports.default = LinkComponent;
 });
+
+/*
+ * Unfortunately, to get decent error messages, we need to do this.
+ * In some future state we should be able to use a "feature flag"
+ * which allows us to strip this without needing to call it twice.
+ *
+ * if (isDebugBuild()) {
+ *   // Do the useful debug thing, probably including try/catch.
+ * } else {
+ *   // Do the performant thing.
+ * }
+ */
 enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/component', 'ember-views', 'ember-glimmer/templates/empty'], function (exports, _emberGlimmerComponent, _emberViews, _emberGlimmerTemplatesEmpty) {
   /**
   @module ember
@@ -9651,6 +9664,25 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-metal', 'e
     ```
   
     The `mut` helper changes the `totalClicks` value to what was provided as the action argument.
+  
+    The `mut` helper, when used with `action`, will return a function that
+    sets the value passed to `mut` to its first argument. This works like any other
+    closure action and interacts with the other features `action` provides.
+    As an example, we can create a button that increments a value passing the value
+    directly to the `action`:
+  
+    ```handlebars
+    {{! inc helper is not provided by Ember }}
+    <button onclick={{action (mut count) (inc count)}}>
+      Increment count
+    </button>
+    ```
+  
+    You can also use the `value` option:
+  
+    ```handlebars
+    <input value={{name}} oninput={{action (mut name) value="target.value"}}>
+    ```
   
     @method mut
     @param {Object} [attr] the "two-way" attribute that can be modified.
@@ -39651,7 +39683,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.10.0-beta.3-beta+10550a53";
+  exports.default = "2.10.0-beta.3-beta+f7fdddb8";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -51868,6 +51900,19 @@ function isArray(test) {
   return Object.prototype.toString.call(test) === "[object Array]";
 }
 
+function getParam(params, key) {
+  if (typeof params !== "object" || params === null) {
+    throw new Error("You must pass an object as the second argument to `generate`.");
+  }
+  if (!params.hasOwnProperty(key)) {
+    throw new Error("You must provide param `" + key + "` to `generate`.");
+  }
+  if (("" + params[key]).length === 0) {
+    throw new Error("You must provide a param `" + key + "`.");
+  }
+
+  return params[key];
+}
 
 // A Segment represents a segment in the original route description.
 // Each Segment type provides an `eachChar` and `regex` method.
@@ -51919,10 +51964,12 @@ DynamicSegment.prototype = {
   },
 
   generate: function(params) {
+    var value = getParam(params, this.name);
+
     if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS) {
-      return encodePathSegment(params[this.name]);
+      return encodePathSegment(value);
     } else {
-      return params[this.name];
+      return value;
     }
   }
 };
@@ -51938,7 +51985,7 @@ StarSegment.prototype = {
   },
 
   generate: function(params) {
-    return params[this.name];
+    return getParam(params, this.name);
   }
 };
 
@@ -52226,6 +52273,13 @@ RouteRecognizer.prototype = {
     currentState.regex = new RegExp(regex + "$");
     currentState.types = types;
 
+    if (typeof options === "object" && options !== null && options.hasOwnProperty("as")) {
+      name = options.as;
+    }
+    if (this.names.hasOwnProperty(name)) {
+      throw new Error("You may not add a duplicate route named `" + name + "`.");
+    }
+
     if (name = options && options.as) {
       this.names[name] = {
         segments: allSegments,
@@ -52400,7 +52454,7 @@ RouteRecognizer.prototype = {
 
 RouteRecognizer.prototype.map = map;
 
-RouteRecognizer.VERSION = '0.2.7';
+RouteRecognizer.VERSION = '0.2.8';
 
 // Set to false to opt-out of encoding and decoding path segments.
 // See https://github.com/tildeio/route-recognizer/pull/55
