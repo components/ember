@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+77938d49
+ * @version   2.12.0-alpha.1-canary+9cd0d390
  */
 
 var enifed, requireModule, Ember;
@@ -35176,7 +35176,7 @@ enifed('ember-glimmer/tests/utils/shared-conditional-tests', ['exports', 'ember-
 
   _emberGlimmerTestsUtilsAbstractTestCase.applyMixins.apply(undefined, [IfUnlessWithSyntaxTest].concat(IfUnlessWithTestCases));
 });
-enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberMetal, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString', (function (_TestCase) {
@@ -35211,33 +35211,31 @@ enifed('ember-glimmer/tests/utils/string-test', ['exports', 'ember-glimmer/tests
     return _class;
   })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
 
-  if (true) {
-    _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
-      babelHelpers.inherits(_class2, _TestCase2);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('SafeString isHTMLSafe', (function (_TestCase2) {
+    babelHelpers.inherits(_class2, _TestCase2);
 
-      function _class2() {
-        babelHelpers.classCallCheck(this, _class2);
+    function _class2() {
+      babelHelpers.classCallCheck(this, _class2);
 
-        _TestCase2.apply(this, arguments);
-      }
+      _TestCase2.apply(this, arguments);
+    }
 
-      _class2.prototype['@test isHTMLSafe should detect SafeString'] = function testIsHTMLSafeShouldDetectSafeString() {
-        var safeString = _emberGlimmerTestsUtilsHelpers.htmlSafe('<em>Emphasize</em> the important things.');
+    _class2.prototype['@test isHTMLSafe should detect SafeString'] = function testIsHTMLSafeShouldDetectSafeString() {
+      var safeString = _emberGlimmerTestsUtilsHelpers.htmlSafe('<em>Emphasize</em> the important things.');
 
-        this.assert.ok(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(safeString));
-      };
+      this.assert.ok(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(safeString));
+    };
 
-      _class2.prototype['@test isHTMLSafe should not detect SafeString on primatives'] = function testIsHTMLSafeShouldNotDetectSafeStringOnPrimatives() {
-        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe('Hello World'));
-        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe({}));
-        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe([]));
-        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(10));
-        this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(null));
-      };
+    _class2.prototype['@test isHTMLSafe should not detect SafeString on primatives'] = function testIsHTMLSafeShouldNotDetectSafeStringOnPrimatives() {
+      this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe('Hello World'));
+      this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe({}));
+      this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe([]));
+      this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(10));
+      this.assert.notOk(_emberGlimmerTestsUtilsHelpers.isHTMLSafe(null));
+    };
 
-      return _class2;
-    })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
-  }
+    return _class2;
+  })(_emberGlimmerTestsUtilsAbstractTestCase.TestCase));
 });
 enifed('ember-glimmer/tests/utils/test-case', ['exports', 'internal-test-helpers'], function (exports, _internalTestHelpers) {
   'use strict';
@@ -46731,63 +46729,61 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     });
   });
 
-  if (true) {
-    QUnit.module('computed.uniqBy', {
-      setup: function () {
-        obj = _emberRuntimeSystemObject.default.extend({
-          list: null,
-          uniqueById: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'id')
-        }).create({
-          list: _emberRuntimeSystemNative_array.A([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }])
-        });
-      },
-      teardown: function () {
-        _emberMetal.run(obj, 'destroy');
-      }
-    });
-
-    QUnit.test('uniqBy is readOnly', function () {
-      QUnit.throws(function () {
-        obj.set('uniqueById', 1);
-      }, /Cannot set read-only property "uniqueById" on object:/);
-    });
-    QUnit.test('does not include duplicates', function () {
-      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
-    });
-
-    QUnit.test('it does not share state among instances', function () {
-      var MyObject = _emberRuntimeSystemObject.default.extend({
-        list: [],
-        uniqueByName: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
-      });
-      var a = MyObject.create({ list: [{ name: 'bob' }, { name: 'mitch' }, { name: 'mitch' }] });
-      var b = MyObject.create({ list: [{ name: 'warren' }, { name: 'mitch' }] });
-
-      deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
-      // Making sure that 'mitch' appears
-      deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
-    });
-
-    QUnit.test('it handles changes to the dependent array', function () {
-      obj.get('list').pushObject({ id: 3, value: 'three' });
-
-      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
-
-      obj.get('list').pushObject({ id: 3, value: 'three' });
-
-      deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
-    });
-
-    QUnit.test('it returns an empty array when computed on a non-array', function () {
-      var MyObject = _emberRuntimeSystemObject.default.extend({
+  QUnit.module('computed.uniqBy', {
+    setup: function () {
+      obj = _emberRuntimeSystemObject.default.extend({
         list: null,
-        uniq: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
+        uniqueById: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'id')
+      }).create({
+        list: _emberRuntimeSystemNative_array.A([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }])
       });
-      var a = MyObject.create({ list: 'not an array' });
+    },
+    teardown: function () {
+      _emberMetal.run(obj, 'destroy');
+    }
+  });
 
-      deepEqual(a.get('uniq'), []);
+  QUnit.test('uniqBy is readOnly', function () {
+    QUnit.throws(function () {
+      obj.set('uniqueById', 1);
+    }, /Cannot set read-only property "uniqueById" on object:/);
+  });
+  QUnit.test('does not include duplicates', function () {
+    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+  });
+
+  QUnit.test('it does not share state among instances', function () {
+    var MyObject = _emberRuntimeSystemObject.default.extend({
+      list: [],
+      uniqueByName: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
     });
-  }
+    var a = MyObject.create({ list: [{ name: 'bob' }, { name: 'mitch' }, { name: 'mitch' }] });
+    var b = MyObject.create({ list: [{ name: 'warren' }, { name: 'mitch' }] });
+
+    deepEqual(a.get('uniqueByName'), [{ name: 'bob' }, { name: 'mitch' }]);
+    // Making sure that 'mitch' appears
+    deepEqual(b.get('uniqueByName'), [{ name: 'warren' }, { name: 'mitch' }]);
+  });
+
+  QUnit.test('it handles changes to the dependent array', function () {
+    obj.get('list').pushObject({ id: 3, value: 'three' });
+
+    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list includes three');
+
+    obj.get('list').pushObject({ id: 3, value: 'three' });
+
+    deepEqual(obj.get('uniqueById'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 3, value: 'three' }], 'The list does not include a duplicate three');
+  });
+
+  QUnit.test('it returns an empty array when computed on a non-array', function () {
+    var MyObject = _emberRuntimeSystemObject.default.extend({
+      list: null,
+      uniq: _emberRuntimeComputedReduce_computed_macros.uniqBy('list', 'name')
+    });
+    var a = MyObject.create({ list: 'not an array' });
+
+    deepEqual(a.get('uniq'), []);
+  });
 
   QUnit.module('computed.intersect', {
     setup: function () {
@@ -51225,16 +51221,11 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
     var X = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default, {
       contains: function () {
         return true;
+      },
+      includes: function () {
+        return true;
       }
     });
-
-    if (true) {
-      X.reopen({
-        includes: function () {
-          return true;
-        }
-      });
-    }
 
     var x = X.create();
     var y = x.without(K);
@@ -51307,16 +51298,14 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
     equal(allWhite, true);
   });
 
-  if (true) {
-    QUnit.test('should throw an error passing a second argument to includes', function () {
-      var x = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default).create();
+  QUnit.test('should throw an error passing a second argument to includes', function () {
+    var x = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default).create();
 
-      equal(x.includes('any'), false);
-      expectAssertion(function () {
-        x.includes('any', 1);
-      }, /Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered./);
-    });
-  }
+    equal(x.includes('any'), false);
+    expectAssertion(function () {
+      x.includes('any', 1);
+    }, /Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered./);
+  });
 
   // ..........................................................
   // CONTENT DID CHANGE
@@ -52275,7 +52264,7 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['exports', 'emb
     ok(true === obj.triggerAction({ actionContext: null }), 'a valid target and action were specified');
   });
 });
-enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/tests/suites/array/indexOf', 'ember-runtime/tests/suites/array/lastIndexOf', 'ember-runtime/tests/suites/array/objectAt', 'ember-runtime/tests/suites/array/includes', 'ember-runtime/mixins/array', 'ember-metal'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeTestsSuitesArrayIndexOf, _emberRuntimeTestsSuitesArrayLastIndexOf, _emberRuntimeTestsSuitesArrayObjectAt, _emberRuntimeTestsSuitesArrayIncludes, _emberRuntimeMixinsArray, _emberMetal) {
+enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suites/enumerable', 'ember-runtime/tests/suites/array/indexOf', 'ember-runtime/tests/suites/array/lastIndexOf', 'ember-runtime/tests/suites/array/objectAt', 'ember-runtime/tests/suites/array/includes', 'ember-runtime/mixins/array'], function (exports, _emberRuntimeTestsSuitesEnumerable, _emberRuntimeTestsSuitesArrayIndexOf, _emberRuntimeTestsSuitesArrayLastIndexOf, _emberRuntimeTestsSuitesArrayObjectAt, _emberRuntimeTestsSuitesArrayIncludes, _emberRuntimeMixinsArray) {
   'use strict';
 
   var ObserverClass = _emberRuntimeTestsSuitesEnumerable.ObserverClass.extend({
@@ -52310,9 +52299,7 @@ enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suit
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayLastIndexOf.default);
   ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayObjectAt.default);
 
-  if (true) {
-    ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayIncludes.default);
-  }
+  ArrayTests.importModuleTests(_emberRuntimeTestsSuitesArrayIncludes.default);
 
   exports.ArrayTests = ArrayTests;
   exports.ObserverClass = ObserverClass;
@@ -52832,13 +52819,9 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableToArray.default);
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniq.default);
 
-  if (true) {
-    EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
-  }
+  EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableUniqBy.default);
 
-  if (true) {
-    EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableIncludes.default);
-  }
+  EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableIncludes.default);
 
   EnumerableTests.importModuleTests(_emberRuntimeTestsSuitesEnumerableWithout.default);
 
@@ -52935,7 +52918,7 @@ enifed('ember-runtime/tests/suites/enumerable/compact', ['exports', 'ember-runti
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetal) {
+enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -52946,9 +52929,7 @@ enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runt
     var data = this.newFixture(3);
     var obj = this.newObject(data);
 
-    if (true) {
-      expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
-    }
+    expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
     equal(obj.contains(data[1]), true, 'should return true if contained');
   });
 
@@ -52956,9 +52937,7 @@ enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runt
     var data = this.newFixture(1);
     var obj = this.newObject(this.newFixture(3));
 
-    if (true) {
-      expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
-    }
+    expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
     equal(obj.contains(data[0]), false, 'should return false if not contained');
   });
 
@@ -53826,23 +53805,21 @@ enifed('ember-runtime/tests/suites/enumerable/uniq', ['exports', 'ember-runtime/
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/uniqBy', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetal) {
+enifed('ember-runtime/tests/suites/enumerable/uniqBy', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
   suite.module('uniqBy');
 
-  if (true) {
-    suite.test('should return new instance with duplicates removed', function () {
-      var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
-      deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
-    });
-  }
+  suite.test('should return new instance with duplicates removed', function () {
+    var numbers = this.newObject([{ id: 1, value: 'one' }, { id: 2, value: 'two' }, { id: 1, value: 'one' }]);
+    deepEqual(numbers.uniqBy('id'), [{ id: 1, value: 'one' }, { id: 2, value: 'two' }]);
+  });
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetal) {
+enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -53864,21 +53841,19 @@ enifed('ember-runtime/tests/suites/enumerable/without', ['exports', 'ember-runti
     deepEqual(this.toArray(obj), before, 'should not have changed original');
   });
 
-  if (true) {
-    suite.test('should remove NaN value', function () {
-      var before = undefined,
-          after = undefined,
-          obj = undefined,
-          ret = undefined;
+  suite.test('should remove NaN value', function () {
+    var before = undefined,
+        after = undefined,
+        obj = undefined,
+        ret = undefined;
 
-      before = [].concat(this.newFixture(2), [NaN]);
-      after = [before[0], before[1]];
-      obj = this.newObject(before);
+    before = [].concat(this.newFixture(2), [NaN]);
+    after = [before[0], before[1]];
+    obj = this.newObject(before);
 
-      ret = obj.without(NaN);
-      deepEqual(this.toArray(ret), after, 'should have removed item');
-    });
-  }
+    ret = obj.without(NaN);
+    deepEqual(this.toArray(ret), after, 'should have removed item');
+  });
 
   suite.test('should return same instance if object not found', function () {
     var item = undefined,
@@ -61096,7 +61071,7 @@ enifed('ember-testing/tests/simple_setup', ['exports', 'ember-metal', 'ember-vie
     }
   });
 });
-enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal', 'ember-testing/test/waiters'], function (exports, _emberMetal, _emberTestingTestWaiters) {
+enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-testing/test/waiters'], function (exports, _emberTestingTestWaiters) {
   'use strict';
 
   var Waiters = (function () {
@@ -61252,13 +61227,9 @@ enifed('ember-testing/tests/test/waiters-test', ['exports', 'ember-metal', 'embe
     this.waiters.register();
 
     var waiters = undefined;
-    if (true) {
-      expectDeprecation(function () {
-        waiters = _emberTestingTestWaiters.generateDeprecatedWaitersArray();
-      }, /Usage of `Ember.Test.waiters` is deprecated/);
-    } else {
+    expectDeprecation(function () {
       waiters = _emberTestingTestWaiters.generateDeprecatedWaitersArray();
-    }
+    }, /Usage of `Ember.Test.waiters` is deprecated/);
 
     assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
   });
@@ -64775,11 +64746,9 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
     });
   });
 
-  if (true) {
-    QUnit.test('Ember.String.isHTMLSafe exports correctly', function (assert) {
-      _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
-    });
-  }
+  QUnit.test('Ember.String.isHTMLSafe exports correctly', function (assert) {
+    _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
+  });
 
   if (_emberMetal.isFeatureEnabled('ember-metal-weakmap')) {
     QUnit.test('Ember.WeakMap exports correctly', function (assert) {

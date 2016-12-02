@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+77938d49
+ * @version   2.12.0-alpha.1-canary+9cd0d390
  */
 
 var enifed, requireModule, Ember;
@@ -13461,9 +13461,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }).readOnly(), _Mixin$create.lastObject = _emberMetal.computed(function () {
     return objectAt(this, _emberMetal.get(this, 'length') - 1);
   }).readOnly(), _Mixin$create.contains = function (obj) {
-    if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
-      _emberMetal.deprecate('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
-    }
+    _emberMetal.deprecate('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
 
     return this.indexOf(obj) >= 0;
   }, _Mixin$create.slice = function (beginIndex, endIndex) {
@@ -13537,6 +13535,27 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     return arrayContentWillChange(this, startIdx, removeAmt, addAmt);
   }, _Mixin$create.arrayContentDidChange = function (startIdx, removeAmt, addAmt) {
     return arrayContentDidChange(this, startIdx, removeAmt, addAmt);
+  }, _Mixin$create.includes = function (obj, startAt) {
+    var len = _emberMetal.get(this, 'length');
+
+    if (startAt === undefined) {
+      startAt = 0;
+    }
+
+    if (startAt < 0) {
+      startAt += len;
+    }
+
+    for (var idx = startAt; idx < len; idx++) {
+      var currentObj = objectAt(this, idx);
+
+      // SameValueZero comparison (NaN !== NaN)
+      if (obj === currentObj || obj !== obj && currentObj !== currentObj) {
+        return true;
+      }
+    }
+
+    return false;
   }, _Mixin$create['@each'] = _emberMetal.computed(function () {
     // TODO use Symbol or add to meta
     if (!this.__each) {
@@ -13545,55 +13564,6 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     return this.__each;
   }).volatile().readOnly(), _Mixin$create));
-
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
-    ArrayMixin.reopen({
-      /**
-        Returns `true` if the passed object can be found in the array.
-        This method is a Polyfill for ES 2016 Array.includes.
-        If no `startAt` argument is given, the starting location to
-        search is 0. If it's negative, searches from the index of
-        `this.length + startAt` by asc.
-         ```javascript
-        [1, 2, 3].includes(2);     // true
-        [1, 2, 3].includes(4);     // false
-        [1, 2, 3].includes(3, 2);  // true
-        [1, 2, 3].includes(3, 3);  // false
-        [1, 2, 3].includes(3, -1); // true
-        [1, 2, 3].includes(1, -1); // false
-        [1, 2, 3].includes(1, -4); // true
-        [1, 2, NaN].includes(NaN); // true
-        ```
-         @method includes
-        @param {Object} obj The object to search for.
-        @param {Number} startAt optional starting location to search, default 0
-        @return {Boolean} `true` if object is found in the array.
-        @public
-      */
-      includes: function (obj, startAt) {
-        var len = _emberMetal.get(this, 'length');
-
-        if (startAt === undefined) {
-          startAt = 0;
-        }
-
-        if (startAt < 0) {
-          startAt += len;
-        }
-
-        for (var idx = startAt; idx < len; idx++) {
-          var currentObj = objectAt(this, idx);
-
-          // SameValueZero comparison (NaN !== NaN)
-          if (obj === currentObj || obj !== obj && currentObj !== currentObj) {
-            return true;
-          }
-        }
-
-        return false;
-      }
-    });
-  }
 
   exports.default = ArrayMixin;
 });
@@ -13787,6 +13757,29 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   @param {Number} addAmt The number of items that were added. If you
     pass `null` assumes 0.
   @return {Ember.Array} receiver
+  @public
+*/
+
+/**
+  Returns `true` if the passed object can be found in the array.
+  This method is a Polyfill for ES 2016 Array.includes.
+  If no `startAt` argument is given, the starting location to
+  search is 0. If it's negative, searches from the index of
+  `this.length + startAt` by asc.
+   ```javascript
+  [1, 2, 3].includes(2);     // true
+  [1, 2, 3].includes(4);     // false
+  [1, 2, 3].includes(3, 2);  // true
+  [1, 2, 3].includes(3, 3);  // false
+  [1, 2, 3].includes(3, -1); // true
+  [1, 2, 3].includes(1, -1); // false
+  [1, 2, 3].includes(1, -4); // true
+  [1, 2, NaN].includes(NaN); // true
+  ```
+   @method includes
+  @param {Object} obj The object to search for.
+  @param {Number} startAt optional starting location to search, default 0
+  @return {Boolean} `true` if object is found in the array.
   @public
 */
 
@@ -14306,9 +14299,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @public
     */
     contains: function (obj) {
-      if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
-        _emberMetal.deprecate('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
-      }
+      _emberMetal.deprecate('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
 
       var found = this.find(function (item) {
         return item === obj;
@@ -14829,14 +14820,15 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @public
     */
     without: function (value) {
-      if (!this.contains(value)) {
+      if (!this.includes(value)) {
         return this; // nothing to do
       }
 
       var ret = emberA();
 
       this.forEach(function (k) {
-        if (k !== value) {
+        // SameValueZero comparison (NaN !== NaN)
+        if (!(k === value || k !== k && value !== value)) {
           ret[ret.length] = k;
         }
       });
@@ -15092,99 +15084,74 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
         }
         return 0;
       });
+    },
+
+    /**
+      Returns a new enumerable that contains only items containing a unique property value.
+      The default implementation returns an array regardless of the receiver type.
+       ```javascript
+      let arr = [{ value: 'a' }, { value: 'a' }, { value: 'b' }, { value: 'b' }];
+      arr.uniqBy('value');  // [{ value: 'a' }, { value: 'b' }]
+      ```
+       @method uniqBy
+      @return {Ember.Enumerable}
+      @public
+    */
+
+    uniqBy: function (key) {
+      var ret = emberA();
+      var seen = new _emberUtils.EmptyObject();
+
+      this.forEach(function (item) {
+        var guid = _emberUtils.guidFor(_emberMetal.get(item, key));
+        if (!(guid in seen)) {
+          seen[guid] = true;
+          ret.push(item);
+        }
+      });
+
+      return ret;
+    },
+
+    /**
+      Returns `true` if the passed object can be found in the enumerable.
+       ```javascript
+      [1, 2, 3].includes(2);                     // true
+      [1, 2, 3].includes(4);                     // false
+      [1, 2, undefined].includes(undefined);     // true
+      [1, 2, null].includes(null);               // true
+      [1, 2, NaN].includes(NaN);                 // true
+      ```
+       @method includes
+      @param {Object} obj The object to search for.
+      @return {Boolean} `true` if object is found in the enumerable.
+      @public
+    */
+    includes: function (obj) {
+      _emberMetal.assert('Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered.', arguments.length === 1);
+
+      var len = _emberMetal.get(this, 'length');
+      var idx = undefined,
+          next = undefined;
+      var last = null;
+      var found = false;
+
+      var context = popCtx();
+
+      for (idx = 0; idx < len && !found; idx++) {
+        next = this.nextObject(idx, last, context);
+
+        found = obj === next || obj !== obj && next !== next;
+
+        last = next;
+      }
+
+      next = last = null;
+      context = pushCtx(context);
+
+      return found;
     }
   });
-
-  if (_emberMetal.isFeatureEnabled('ember-runtime-computed-uniq-by')) {
-    Enumerable.reopen({
-      /**
-        Returns a new enumerable that contains only items containing a unique property value.
-        The default implementation returns an array regardless of the receiver type.
-         ```javascript
-        let arr = [{ value: 'a' }, { value: 'a' }, { value: 'b' }, { value: 'b' }];
-        arr.uniqBy('value');  // [{ value: 'a' }, { value: 'b' }]
-        ```
-         @method uniqBy
-        @return {Ember.Enumerable}
-        @public
-      */
-
-      uniqBy: function (key) {
-        var ret = emberA();
-        var seen = new _emberUtils.EmptyObject();
-
-        this.forEach(function (item) {
-          var guid = _emberUtils.guidFor(_emberMetal.get(item, key));
-          if (!(guid in seen)) {
-            seen[guid] = true;
-            ret.push(item);
-          }
-        });
-
-        return ret;
-      }
-    });
-  }
-
-  if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
-    Enumerable.reopen({
-      /**
-        Returns `true` if the passed object can be found in the enumerable.
-         ```javascript
-        [1, 2, 3].includes(2);                     // true
-        [1, 2, 3].includes(4);                     // false
-        [1, 2, undefined].includes(undefined);     // true
-        [1, 2, null].includes(null);               // true
-        [1, 2, NaN].includes(NaN);                 // true
-        ```
-         @method includes
-        @param {Object} obj The object to search for.
-        @return {Boolean} `true` if object is found in the enumerable.
-        @public
-      */
-      includes: function (obj) {
-        _emberMetal.assert('Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered.', arguments.length === 1);
-
-        var len = _emberMetal.get(this, 'length');
-        var idx = undefined,
-            next = undefined;
-        var last = null;
-        var found = false;
-
-        var context = popCtx();
-
-        for (idx = 0; idx < len && !found; idx++) {
-          next = this.nextObject(idx, last, context);
-
-          found = obj === next || obj !== obj && next !== next;
-
-          last = next;
-        }
-
-        next = last = null;
-        context = pushCtx(context);
-
-        return found;
-      },
-
-      without: function (value) {
-        if (!this.includes(value)) {
-          return this; // nothing to do
-        }
-
-        var ret = emberA();
-
-        this.forEach(function (k) {
-          // SameValueZero comparison (NaN !== NaN)
-          if (!(k === value || k !== k && value !== value)) {
-            ret[ret.length] = k;
-          }
-        });
-
-        return ret;
-      }
-    });
-  }
 
   exports.default = Enumerable;
 });
@@ -15778,13 +15745,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       @public
     */
     addObject: function (obj) {
-      var included = undefined;
-
-      if (_emberMetal.isFeatureEnabled('ember-runtime-enumerable-includes')) {
-        included = this.includes(obj);
-      } else {
-        included = this.contains(obj);
-      }
+      var included = this.includes(obj);
 
       if (!included) {
         this.pushObject(obj);
@@ -19396,12 +19357,12 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-runtime-computed-uniq-by": true, "ember-improved-instrumentation": null, "ember-runtime-enumerable-includes": true, "ember-string-ishtmlsafe": true, "ember-testing-check-waiters": true, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+77938d49";
+  exports.default = "2.12.0-alpha.1-canary+9cd0d390";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
