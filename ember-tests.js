@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+7283111c
+ * @version   2.12.0-alpha.1-canary+01fb8ea4
  */
 
 var enifed, requireModule, Ember;
@@ -10677,7 +10677,7 @@ babelHelpers.classCallCheck(this, _class2);
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/closure-components-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-runtime/system/native_array'], function (exports, _emberUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal, _emberRuntimeSystemNative_array) {
+enifed('ember-glimmer/tests/integration/components/contextual-components-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-runtime/system/native_array'], function (exports, _emberUtils, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberMetal, _emberRuntimeSystemNative_array) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}'], ['\n      {{component (component "-looked-up") "Hodari" greeting="Hodi"}}']),
@@ -10698,7 +10698,7 @@ enifed('ember-glimmer/tests/integration/components/closure-components-test', ['e
       _templateObject16 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    '], ['\n      {{#with (hash ctxCmp=(component compName isOpen=isOpen)) as |thing|}}\n        {{#thing.ctxCmp}}This is a contextual component{{/thing.ctxCmp}}\n      {{/with}}\n    ']),
       _templateObject17 = babelHelpers.taggedTemplateLiteralLoose(['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>'], ['\n          <button {{action (action (mut val) 10)}} class="my-button">\n            Change to 10\n          </button>']);
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: closure components', (function (_RenderingTest) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: contextual components', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
 
     function _class() {
@@ -11213,7 +11213,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Inner 28');
     };
 
-    _class.prototype['@test conflicting positional and hash parameters raise and assertion if in the same closure'] = function testConflictingPositionalAndHashParametersRaiseAndAssertionIfInTheSameClosure() {
+    _class.prototype['@test conflicting positional and hash parameters raise and assertion if in the same component context'] = function testConflictingPositionalAndHashParametersRaiseAndAssertionIfInTheSameComponentContext() {
       var _this15 = this;
 
       this.registerComponent('-looked-up', {
@@ -11267,7 +11267,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Hodi Hodari');
     };
 
-    _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if in different closure'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfInDifferentClosure() {
+    _class.prototype['@test conflicting positional and hash parameters does not raise an assertion if in different component context'] = function testConflictingPositionalAndHashParametersDoesNotRaiseAnAssertionIfInDifferentComponentContext() {
       var _this17 = this;
 
       this.registerComponent('-looked-up', {
@@ -11444,7 +11444,7 @@ babelHelpers.classCallCheck(this, _class);
 
     _class.prototype['@test renders with dot path and rest parameter does not leak'] = function testRendersWithDotPathAndRestParameterDoesNotLeak(assert) {
       // In the original implementation, positional parameters were not handled
-      // correctly causing the first positional parameter to be the closure
+      // correctly causing the first positional parameter to be the contextual
       // component itself.
       var value = false;
 
@@ -11523,7 +11523,7 @@ babelHelpers.classCallCheck(this, _class);
       assert.equal(this.$('#nested-prop').text(), '1');
     };
 
-    _class.prototype['@test adding parameters to a closure component\'s instance does not add it to other instances'] = function testAddingParametersToAClosureComponentSInstanceDoesNotAddItToOtherInstances() {
+    _class.prototype['@test adding parameters to a contextual component\'s instance does not add it to other instances'] = function testAddingParametersToAContextualComponentSInstanceDoesNotAddItToOtherInstances() {
       var _this26 = this;
 
       // If parameters and attributes are not handled correctly, setting a value
@@ -11547,7 +11547,7 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('Foo');
     };
 
-    _class.prototype['@test parameters in a closure are mutable when closure is a param'] = function testParametersInAClosureAreMutableWhenClosureIsAParam(assert) {
+    _class.prototype['@test parameters in a contextual component are mutable when value is a param'] = function testParametersInAContextualComponentAreMutableWhenValueIsAParam(assert) {
       var _this27 = this;
 
       // This checks that a `(mut)` is added to parameters and attributes to
@@ -11972,22 +11972,22 @@ babelHelpers.classCallCheck(this, _class);
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  var ClosureComponentMutableParamsTest = (function (_RenderingTest2) {
-babelHelpers.inherits(ClosureComponentMutableParamsTest, _RenderingTest2);
+  var ContextualComponentMutableParamsTest = (function (_RenderingTest2) {
+babelHelpers.inherits(ContextualComponentMutableParamsTest, _RenderingTest2);
 
-    function ClosureComponentMutableParamsTest() {
-babelHelpers.classCallCheck(this, ClosureComponentMutableParamsTest);
+    function ContextualComponentMutableParamsTest() {
+babelHelpers.classCallCheck(this, ContextualComponentMutableParamsTest);
 
       _RenderingTest2.apply(this, arguments);
     }
 
-    ClosureComponentMutableParamsTest.prototype.render = function render(templateStr) {
+    ContextualComponentMutableParamsTest.prototype.render = function render(templateStr) {
       var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
       _RenderingTest2.prototype.render.call(this, templateStr + '<span class="value">{{model.val2}}</span>', _emberUtils.assign(context, { model: { val2: 8 } }));
     };
 
-    return ClosureComponentMutableParamsTest;
+    return ContextualComponentMutableParamsTest;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest);
 
   var MutableParamTestGenerator = (function () {
@@ -12003,7 +12003,7 @@ babelHelpers.classCallCheck(this, MutableParamTestGenerator);
       var title = _ref2.title;
       var setup = _ref2.setup;
 
-      return _ref = {}, _ref['@test parameters in a closure are mutable when closure is a ' + title] = function (assert) {
+      return _ref = {}, _ref['@test parameters in a contextual component are mutable when value is a ' + title] = function (assert) {
         var _this35 = this;
 
         this.registerComponent('change-button', {
@@ -12040,7 +12040,7 @@ babelHelpers.classCallCheck(this, MutableParamTestGenerator);
     return MutableParamTestGenerator;
   })();
 
-  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(ClosureComponentMutableParamsTest, new MutableParamTestGenerator([{
+  _emberGlimmerTestsUtilsAbstractTestCase.applyMixins(ContextualComponentMutableParamsTest, new MutableParamTestGenerator([{
     title: 'param',
     setup: function () {
       this.render('{{component (component "change-button" model.val2)}}');
@@ -12077,7 +12077,7 @@ babelHelpers.classCallCheck(this, MutableParamTestGenerator);
     }
   }]));
 
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: closure components -- mutable params', ClosureComponentMutableParamsTest);
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Components test: contextual components -- mutable params', ContextualComponentMutableParamsTest);
 });
 enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers) {
   /* globals EmberDev */
