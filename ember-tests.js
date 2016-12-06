@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+ef5755cf
+ * @version   2.12.0-alpha.1-canary+dc322de3
  */
 
 var enifed, requireModule, Ember;
@@ -21611,15 +21611,17 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        <div id="counter">clicked: {{clicked}}; foo: {{foo}}</div>\n\n        {{click-me id="string-action" onClick=(action "on-click")}}\n        {{click-me id="function-action" onClick=(action onClick)}}\n        {{click-me id="mut-action" onClick=(action (mut clicked))}}\n      '], ['\n        <div id="counter">clicked: {{clicked}}; foo: {{foo}}</div>\n\n        {{click-me id="string-action" onClick=(action "on-click")}}\n        {{click-me id="function-action" onClick=(action onClick)}}\n        {{click-me id="mut-action" onClick=(action (mut clicked))}}\n      ']);
 
   if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
-      babelHelpers.inherits(_class, _RenderingTest);
+babelHelpers.inherits(_class, _RenderingTest);
 
       function _class() {
-        babelHelpers.classCallCheck(this, _class);
+babelHelpers.classCallCheck(this, _class);
 
         _RenderingTest.apply(this, arguments);
       }
@@ -21782,10 +21784,10 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
   }
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}}', (function (_RenderingTest2) {
-    babelHelpers.inherits(_class2, _RenderingTest2);
+babelHelpers.inherits(_class2, _RenderingTest2);
 
     function _class2() {
-      babelHelpers.classCallCheck(this, _class2);
+babelHelpers.classCallCheck(this, _class2);
 
       _RenderingTest2.apply(this, arguments);
     }
@@ -21835,7 +21837,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         template: '{{inner-component submit=(action somethingThatIsUndefined)}}'
       });
 
-      this.assert.throws(function () {
+      expectAssertion(function () {
         _this4.render('{{outer-component}}');
       }, /Action passed is null or undefined in \(action[^)]*\) from .*\./);
     };
@@ -21853,7 +21855,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         template: '{{inner-component submit=(action nonFunctionThing)}}'
       });
 
-      this.assert.throws(function () {
+      expectAssertion(function () {
         _this5.render('{{outer-component}}');
       }, /An action could not be made for `.*` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action '.*'\)`\) or a function available in .*\./);
     };
@@ -21869,7 +21871,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         template: '{{inner-component}}'
       });
 
-      this.assert.throws(function () {
+      expectAssertion(function () {
         _this6.render('{{outer-component}}');
       }, /Action passed is null or undefined in \(action[^)]*\) from .*\./);
     };
@@ -22327,7 +22329,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         template: '{{inner-component submit=(action \'doesNotExist\')}}'
       });
 
-      this.assert.throws(function () {
+      expectAssertion(function () {
         _this7.render('{{outer-component}}');
       }, /An action named 'doesNotExist' was not found in /);
     };
@@ -22349,7 +22351,7 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
         template: '{{inner-component submit=(action \'doesNotExist\')}}'
       });
 
-      this.assert.throws(function () {
+      expectAssertion(function () {
         _this8.render('{{outer-component}}');
       }, /An action named 'doesNotExist' was not found in /);
     };
@@ -22741,61 +22743,118 @@ enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports'
       this.assertText('Click me');
     };
 
-    _class2.prototype['@test ensure closure action transform does not cause incidental rerendering [GH#14305]'] = function testEnsureClosureActionTransformDoesNotCauseIncidentalRerenderingGH14305(assert) {
-      var _this11 = this;
+    _class2.prototype['@test closure actions does not cause component hooks to fire unnecessarily [GH#14305] [GH#14654]'] = function testClosureActionsDoesNotCauseComponentHooksToFireUnnecessarilyGH14305GH14654(assert) {
+      var _this12 = this;
 
-      var counter = 0;
-      this.registerComponent('inner-component', {
-        template: 'Max',
+      var clicked = 0;
+      var didReceiveAttrsFired = 0;
 
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-          didReceiveAttrs: function () {
-            counter++;
+      var ClickMeComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: 'button',
+
+        click: function () {
+          this.get('onClick').call(undefined, ++clicked);
+        },
+
+        didReceiveAttrs: function () {
+          didReceiveAttrsFired++;
+        }
+      });
+
+      this.registerComponent('click-me', {
+        ComponentClass: ClickMeComponent
+      });
+
+      var outer = undefined;
+
+      var OuterComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        clicked: 0,
+
+        actions: {
+          'on-click': function () {
+            this.incrementProperty('clicked');
           }
-        })
+        },
+
+        init: function () {
+          var _this11 = this;
+
+          this._super();
+          outer = this;
+          this.set('onClick', function () {
+            return _this11.incrementProperty('clicked');
+          });
+        }
       });
 
       this.registerComponent('outer-component', {
-        template: '{{foo}} {{inner-component submit=(action "bar")}}',
-
-        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
-          actions: {
-            bar: function () {}
-          }
-        })
+        ComponentClass: OuterComponent,
+        template: _emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject)
       });
 
-      this.render('{{outer-component foo=foo derp=derp}}', {
-        foo: 'hi',
-        derp: 'nope!'
-      });
+      this.render('{{outer-component foo=foo}}', { foo: 1 });
 
-      this.assertText('hi Max');
-      assert.equal(counter, 1);
+      this.assertText('clicked: 0; foo: 1');
 
-      this.assertStableRerender();
-      assert.equal(counter, 1);
+      assert.equal(didReceiveAttrsFired, 3);
 
       this.runTask(function () {
-        return _emberMetal.set(_this11.context, 'foo', 'bye');
+        return _this12.rerender();
       });
 
-      this.assertText('bye Max');
-      assert.equal(counter, 1);
+      this.assertText('clicked: 0; foo: 1');
+
+      assert.equal(didReceiveAttrsFired, 3);
 
       this.runTask(function () {
-        return _emberMetal.set(_this11.context, 'foo', 'hi');
+        return _emberMetal.set(_this12.context, 'foo', 2);
       });
 
-      this.assertText('hi Max');
-      assert.equal(counter, 1);
+      this.assertText('clicked: 0; foo: 2');
+
+      assert.equal(didReceiveAttrsFired, 3);
 
       this.runTask(function () {
-        return _emberMetal.set(_this11.context, 'derp', 'yup!');
+        return _this12.$('#string-action').click();
       });
 
-      this.assertText('hi Max');
-      assert.equal(counter, 1);
+      this.assertText('clicked: 1; foo: 2');
+
+      assert.equal(didReceiveAttrsFired, 3);
+
+      this.runTask(function () {
+        return _this12.$('#function-action').click();
+      });
+
+      this.assertText('clicked: 2; foo: 2');
+
+      assert.equal(didReceiveAttrsFired, 3);
+
+      this.runTask(function () {
+        return _emberMetal.set(outer, 'onClick', function () {
+          outer.incrementProperty('clicked');
+        });
+      });
+
+      this.assertText('clicked: 2; foo: 2');
+
+      assert.equal(didReceiveAttrsFired, 3);
+
+      this.runTask(function () {
+        return _this12.$('#function-action').click();
+      });
+
+      this.assertText('clicked: 3; foo: 2');
+
+      assert.equal(didReceiveAttrsFired, 3);
+
+      this.runTask(function () {
+        return _this12.$('#mut-action').click();
+      });
+
+      this.assertText('clicked: 4; foo: 2');
+
+      assert.equal(didReceiveAttrsFired, 3);
     };
 
     return _class2;

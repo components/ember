@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+ef5755cf
+ * @version   2.12.0-alpha.1-canary+dc322de3
  */
 
 var enifed, requireModule, Ember;
@@ -9079,14 +9079,13 @@ enifed('ember-glimmer/helpers/-normalize-class', ['exports', 'ember-glimmer/util
     return new _emberGlimmerUtilsReferences.InternalHelperReference(normalizeClass, args);
   };
 });
-enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-metal'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberMetal) {
+enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/utils/references', 'glimmer-runtime', 'glimmer-reference'], function (exports, _emberUtils, _emberMetal, _emberGlimmerUtilsReferences, _glimmerRuntime, _glimmerReference) {
   /**
   @module ember
   @submodule ember-glimmer
   */
   'use strict';
 
-  exports.createClosureAction = createClosureAction;
   var INVOKE = _emberUtils.symbol('INVOKE');
   exports.INVOKE = INVOKE;
   var ACTION = _emberUtils.symbol('ACTION');
@@ -9339,140 +9338,128 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-glimmer
     @public
   */
 
-  var ClosureActionReference = (function (_CachedReference) {
-    babelHelpers.inherits(ClosureActionReference, _CachedReference);
+  exports.default = function (vm, args) {
+    var named = args.named;
+    var positional = args.positional;
 
-    ClosureActionReference.create = function create(args) {
-      // TODO: Const reference optimization.
-      return new ClosureActionReference(args);
-    };
+    // The first two argument slots are reserved.
+    // pos[0] is the context (or `this`)
+    // pos[1] is the action name or function
+    // Anything else is an action argument.
+    var context = positional.at(0);
+    var action = positional.at(1);
 
-    function ClosureActionReference(args) {
-      babelHelpers.classCallCheck(this, ClosureActionReference);
+    // TODO: Is there a better way of doing this?
+    var debugKey = action._propertyKey;
 
-      _CachedReference.call(this);
+    var restArgs = undefined;
 
-      this.args = args;
-      this.tag = args.tag;
+    if (positional.length === 2) {
+      restArgs = _glimmerRuntime.EvaluatedPositionalArgs.empty();
+    } else {
+      restArgs = _glimmerRuntime.EvaluatedPositionalArgs.create(positional.values.slice(2));
     }
 
-    ClosureActionReference.prototype.compute = function compute() {
-      var _args = this.args;
-      var named = _args.named;
-      var positional = _args.positional;
+    var target = named.has('target') ? named.get('target') : context;
+    var processArgs = makeArgsProcessor(named.has('value') && named.get('value'), restArgs);
 
-      var positionalValues = positional.value();
+    var fn = undefined;
 
-      var target = positionalValues[0];
-      var rawActionRef = positional.at(1);
-      var rawAction = positionalValues[1];
+    if (typeof action[INVOKE] === 'function') {
+      fn = makeClosureAction(action, action, action[INVOKE], processArgs, debugKey);
+    } else if (_glimmerReference.isConst(target) && _glimmerReference.isConst(action)) {
+      fn = makeClosureAction(context.value(), target.value(), action.value(), processArgs, debugKey);
+    } else {
+      fn = makeDynamicClosureAction(context.value(), target, action, processArgs, debugKey);
+    }
 
-      // The first two argument slots are reserved.
-      // pos[0] is the context (or `this`)
-      // pos[1] is the action name or function
-      // Anything else is an action argument.
-      var actionArgs = positionalValues.slice(2);
+    fn[ACTION] = true;
 
-      // on-change={{action setName}}
-      // element-space actions look to "controller" then target. Here we only
-      // look to "target".
-      var actionType = typeof rawAction;
-      var action = rawAction;
-
-      if (rawActionRef[INVOKE]) {
-        target = rawActionRef;
-        action = rawActionRef[INVOKE];
-      } else if (_emberMetal.isNone(rawAction)) {
-        throw new _emberMetal.Error('Action passed is null or undefined in (action) from ' + target + '.');
-      } else if (actionType === 'string') {
-        // on-change={{action 'setName'}}
-        var actionName = rawAction;
-
-        action = null;
-
-        if (named.has('target')) {
-          // on-change={{action 'setName' target=alternativeComponent}}
-          target = named.get('target').value();
-        }
-
-        if (target['actions']) {
-          action = target.actions[actionName];
-        }
-
-        if (!action) {
-          throw new _emberMetal.Error('An action named \'' + actionName + '\' was not found in ' + target);
-        }
-      } else if (action && typeof action[INVOKE] === 'function') {
-        target = action;
-        action = action[INVOKE];
-      } else if (actionType !== 'function') {
-        // TODO: Is there a better way of doing this?
-        var rawActionLabel = rawActionRef._propertyKey || rawAction;
-        throw new _emberMetal.Error('An action could not be made for `' + rawActionLabel + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + rawActionLabel + '\')`) or a function available in ' + target + '.');
-      }
-
-      var valuePath = named.get('value').value();
-
-      return createClosureAction(target, action, valuePath, actionArgs);
-    };
-
-    return ClosureActionReference;
-  })(_emberGlimmerUtilsReferences.CachedReference);
-
-  exports.ClosureActionReference = ClosureActionReference;
-
-  exports.default = function (vm, args) {
-    return ClosureActionReference.create(args);
+    return new _emberGlimmerUtilsReferences.UnboundReference(fn);
   };
 
-  function createClosureAction(target, action, valuePath, actionArgs) {
-    var closureAction = undefined;
-    var actionArgLength = actionArgs.length;
+  function NOOP(args) {
+    return args;
+  }
 
-    if (actionArgLength > 0) {
-      closureAction = function () {
-        for (var _len = arguments.length, passedArguments = Array(_len), _key = 0; _key < _len; _key++) {
-          passedArguments[_key] = arguments[_key];
-        }
+  function makeArgsProcessor(valuePathRef, actionArgsRef) {
+    var mergeArgs = null;
 
-        var args = new Array(actionArgLength + passedArguments.length);
-
-        for (var i = 0; i < actionArgLength; i++) {
-          args[i] = actionArgs[i];
-        }
-
-        for (var i = 0; i < passedArguments.length; i++) {
-          args[i + actionArgLength] = passedArguments[i];
-        }
-
-        if (valuePath && args.length > 0) {
-          args[0] = _emberMetal.get(args[0], valuePath);
-        }
-
-        var payload = { target: target, args: args, label: 'glimmer-closure-action' };
-        return _emberMetal.flaggedInstrument('interaction.ember-action', payload, function () {
-          return _emberMetal.run.join.apply(_emberMetal.run, [target, action].concat(args));
-        });
-      };
-    } else {
-      closureAction = function () {
-        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-          args[_key2] = arguments[_key2];
-        }
-
-        if (valuePath && args.length > 0) {
-          args[0] = _emberMetal.get(args[0], valuePath);
-        }
-
-        var payload = { target: target, args: args, label: 'glimmer-closure-action' };
-        return _emberMetal.flaggedInstrument('interaction.ember-action', payload, function () {
-          return _emberMetal.run.join.apply(_emberMetal.run, [target, action].concat(args));
-        });
+    if (actionArgsRef.length > 0) {
+      mergeArgs = function (args) {
+        return actionArgsRef.value().concat(args);
       };
     }
 
-    closureAction[ACTION] = true;
-    return closureAction;
+    var readValue = null;
+
+    if (valuePathRef) {
+      readValue = function (args) {
+        var valuePath = valuePathRef.value();
+
+        if (valuePath && args.length > 0) {
+          args[0] = _emberMetal.get(args[0], valuePath);
+        }
+
+        return args;
+      };
+    }
+
+    if (mergeArgs && readValue) {
+      return function (args) {
+        return readValue(mergeArgs(args));
+      };
+    } else {
+      return mergeArgs || readValue || NOOP;
+    }
+  }
+
+  function makeDynamicClosureAction(context, targetRef, actionRef, processArgs, debugKey) {
+    // We don't allow undefined/null values, so this creates a throw-away action to trigger the assertions
+    _emberMetal.runInDebug(function () {
+      makeClosureAction(context, targetRef.value(), actionRef.value(), processArgs, debugKey);
+    });
+
+    return function () {
+      return makeClosureAction(context, targetRef.value(), actionRef.value(), processArgs, debugKey).apply(undefined, arguments);
+    };
+  }
+
+  function makeClosureAction(context, target, action, processArgs, debugKey) {
+    var self = undefined,
+        fn = undefined;
+
+    _emberMetal.assert('Action passed is null or undefined in (action) from ' + target + '.', !_emberMetal.isNone(action));
+
+    if (typeof action[INVOKE] === 'function') {
+      self = action;
+      fn = action[INVOKE];
+    } else {
+      var typeofAction = typeof action;
+
+      if (typeofAction === 'string') {
+        self = target;
+        fn = target.actions && target.actions[action];
+
+        _emberMetal.assert('An action named \'' + action + '\' was not found in ' + target, fn);
+      } else if (typeofAction === 'function') {
+        self = context;
+        fn = action;
+      } else {
+        _emberMetal.assert('An action could not be made for `' + (debugKey || action) + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + (debugKey || 'myAction') + '\')`) or a function available in ' + target + '.', false);
+      }
+    }
+
+    return function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      var payload = { target: self, args: args, label: 'glimmer-closure-action' };
+      return _emberMetal.flaggedInstrument('interaction.ember-action', payload, function () {
+        return _emberMetal.run.join.apply(_emberMetal.run, [self, fn].concat(processArgs(args)));
+      });
+    };
   }
 });
 enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/curly-component', 'glimmer-runtime', 'ember-metal'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberGlimmerSyntaxCurlyComponent, _glimmerRuntime, _emberMetal) {
@@ -42728,7 +42715,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+ef5755cf";
+  exports.default = "2.12.0-alpha.1-canary+dc322de3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
