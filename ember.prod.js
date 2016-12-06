@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+01fb8ea4
+ * @version   2.12.0-alpha.1-canary+ef5755cf
  */
 
 var enifed, requireModule, Ember;
@@ -14020,6 +14020,8 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
   exports.default = alias;
   exports.AliasedProperty = AliasedProperty;
 
+  var CONSUMED = {};
+
   function alias(altKey) {
     return new AliasedProperty(altKey);
   }
@@ -14039,28 +14041,30 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
     }
   };
 
-  AliasedProperty.prototype._addDependentKeyIfMissing = function (obj, keyName) {
+  AliasedProperty.prototype.teardown = function (obj, keyName) {
     var meta = _emberMetalMeta.meta(obj);
-    if (!meta.peekDeps(this.altKey, keyName)) {
-      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
-    }
-  };
-
-  AliasedProperty.prototype._removeDependentKeyIfAdded = function (obj, keyName) {
-    var meta = _emberMetalMeta.meta(obj);
-    if (meta.peekDeps(this.altKey, keyName)) {
+    if (meta.peekWatching(keyName)) {
       _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
     }
   };
 
-  AliasedProperty.prototype.willWatch = AliasedProperty.prototype._addDependentKeyIfMissing;
-  AliasedProperty.prototype.didUnwatch = AliasedProperty.prototype._removeDependentKeyIfAdded;
-  AliasedProperty.prototype.teardown = AliasedProperty.prototype._removeDependentKeyIfAdded;
+  AliasedProperty.prototype.willWatch = function (obj, keyName) {
+    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
+  };
+
+  AliasedProperty.prototype.didUnwatch = function (obj, keyName) {
+    _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
+  };
 
   AliasedProperty.prototype.get = function AliasedProperty_get(obj, keyName) {
-    this._addDependentKeyIfMissing(obj, keyName);
-
-    return _emberMetalProperty_get.get(obj, this.altKey);
+    var ret = _emberMetalProperty_get.get(obj, this.altKey);
+    var meta = _emberMetalMeta.meta(obj);
+    var cache = meta.writableCache();
+    if (cache[keyName] !== CONSUMED) {
+      cache[keyName] = CONSUMED;
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+    return ret;
   };
 
   AliasedProperty.prototype.set = function AliasedProperty_set(obj, keyName, value) {
@@ -39720,7 +39724,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+01fb8ea4";
+  exports.default = "2.12.0-alpha.1-canary+ef5755cf";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
