@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+84ee4823
+ * @version   2.12.0-alpha.1-canary+dcdf1cbd
  */
 
 var enifed, requireModule, Ember;
@@ -11946,8 +11946,8 @@ enifed('ember-utils/symbol', ['exports', 'ember-utils/guid', 'ember-utils/intern
     // TODO: Investigate using platform symbols, but we do not
     // want to require non-enumerability for this API, which
     // would introduce a large cost.
-
-    return _emberUtilsIntern.default(debugName + ' [id=' + _emberUtilsGuid.GUID_KEY + Math.floor(Math.random() * new Date()) + ']');
+    var id = _emberUtilsGuid.GUID_KEY + Math.floor(Math.random() * new Date());
+    return _emberUtilsIntern.default('__' + debugName + '__ [id=' + id + ']');
   }
 });
 enifed('ember-utils/to-string', ['exports'], function (exports) {
@@ -11977,7 +11977,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+84ee4823";
+  exports.default = "2.12.0-alpha.1-canary+dcdf1cbd";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
