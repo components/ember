@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+c662b6d1
+ * @version   2.12.0-alpha.1-canary+3c8a666d
  */
 
 var enifed, requireModule, Ember;
@@ -25043,18 +25043,19 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        ```app/router.js
       // ...
        Router.map(function() {
-          this.route('post', { path: '/post/:post_id' }, function() {
-            this.route('comments', { resetNamespace: true });
-          });
+        this.route('post', { path: '/posts/:post_id' }, function() {
+          this.route('comments');
+        });
       });
        export default Router;
       ```
        ```app/routes/comments.js
       import Ember from 'ember';
        export default Ember.Route.extend({
-          afterModel() {
-            this.set('post', this.modelFor('post'));
-          }
+        model() {
+          let post = this.modelFor('post');
+          return post.get('comments');
+        }
       });
       ```
        @method modelFor
@@ -39705,7 +39706,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+c662b6d1";
+  exports.default = "2.12.0-alpha.1-canary+3c8a666d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
