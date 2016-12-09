@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+becb9c72
+ * @version   2.12.0-alpha.1-canary+1002c094
  */
 
 var enifed, requireModule, Ember;
@@ -10017,8 +10017,8 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-metal', 'ember-glimmer/ut
   
     ```handlebars
     {{get person factName}}
-    <button {{action (mut factName) "height"}}>Show height</button>
-    <button {{action (mut factName) "weight"}}>Show weight</button>
+    <button {{action (action (mut factName)) "height"}}>Show height</button>
+    <button {{action (action (mut factName)) "weight"}}>Show weight</button>
     ```
   
     The `{{get}}` helper can also respect mutable values itself. For example:
@@ -42720,7 +42720,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+becb9c72";
+  exports.default = "2.12.0-alpha.1-canary+1002c094";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
