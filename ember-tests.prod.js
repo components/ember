@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+ae0f5f53
+ * @version   2.12.0-alpha.1-canary+4d93b1a8
  */
 
 var enifed, requireModule, Ember;
@@ -16550,7 +16550,7 @@ enifed('ember-glimmer/tests/integration/components/instrumentation-test', ['expo
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-views', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberViews, _emberGlimmerTestsUtilsTestHelpers) {
+enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-views', 'ember-glimmer/tests/utils/test-helpers', 'ember-utils', 'internal-test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberViews, _emberGlimmerTestsUtilsTestHelpers, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>'], ['\n      <div>\n        Twitter: {{', '}}|\n        ', '\n      </div>']),
@@ -17718,6 +17718,40 @@ babelHelpers.inherits(_class5, _RenderingTest2);
         nextSibling: false,
         previousSibling: true
       }]);
+    };
+
+    _class5.prototype['@test lifecycle hooks have proper access to this.$()'] = function testLifecycleHooksHaveProperAccessToThis$(assert) {
+      assert.expect(6);
+      var component = undefined;
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        tagName: 'div',
+        init: function () {
+          assert.notOk(this.$(), 'no access to element via this.$() on init() enter');
+          this._super.apply(this, arguments);
+          assert.notOk(this.$(), 'no access to element via this.$() after init() finished');
+        },
+        willInsertElement: function () {
+          component = this;
+          assert.ok(this.$(), 'willInsertElement has access to element via this.$()');
+        },
+        didInsertElement: function () {
+          assert.ok(this.$(), 'didInsertElement has access to element via this.$()');
+        },
+        willDestroyElement: function () {
+          assert.ok(this.$(), 'willDestroyElement has access to element via this.$()');
+        },
+        didDestroyElement: function () {
+          assert.notOk(this.$(), 'didDestroyElement does not have access to element via this.$()');
+        }
+      });
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+      var owner = this.owner;
+
+      var comp = owner.lookup('component:foo-bar');
+      _internalTestHelpers.runAppend(comp);
+      this.runTask(function () {
+        return _emberUtils.tryInvoke(component, 'destroy');
+      });
     };
 
     return _class5;

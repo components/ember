@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+ae0f5f53
+ * @version   2.12.0-alpha.1-canary+4d93b1a8
  */
 
 var enifed, requireModule, Ember;
@@ -40449,7 +40449,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     }
   }), _Mixin$create.$ = function (sel) {
     _emberMetal.assert('You cannot access this.$() on a component with `tagName: \'\'` specified.', this.tagName !== '');
-    return this._currentState.$(this, sel);
+    if (this.element) {
+      return sel ? _emberViewsSystemJquery.default(sel, this.element) : _emberViewsSystemJquery.default(this.element);
+    }
   }, _Mixin$create.appendTo = function (selector) {
     var env = this._environment || _emberEnvironment.environment;
     var target = undefined;
@@ -41582,10 +41584,6 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal'], function 
       throw new _emberMetal.Error('You can\'t use appendChild outside of the rendering process');
     },
 
-    $: function () {
-      return undefined;
-    },
-
     // Handle events from `Ember.EventDispatcher`
     handleEvent: function () {
       return true; // continue event propagation
@@ -41617,16 +41615,12 @@ enifed('ember-views/views/states/destroying', ['exports', 'ember-utils', 'ember-
 
   exports.default = destroying;
 });
-enifed('ember-views/views/states/has_element', ['exports', 'ember-utils', 'ember-views/views/states/default', 'ember-metal', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberViewsViewsStatesDefault, _emberMetal, _emberViewsSystemJquery) {
+enifed('ember-views/views/states/has_element', ['exports', 'ember-utils', 'ember-views/views/states/default', 'ember-metal'], function (exports, _emberUtils, _emberViewsViewsStatesDefault, _emberMetal) {
   'use strict';
 
   var hasElement = Object.create(_emberViewsViewsStatesDefault.default);
 
   _emberUtils.assign(hasElement, {
-    $: function (view, sel) {
-      var elem = view.element;
-      return sel ? _emberViewsSystemJquery.default(sel, elem) : _emberViewsSystemJquery.default(elem);
-    },
 
     rerender: function (view) {
       view.renderer.rerender(view);
@@ -42720,7 +42714,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+ae0f5f53";
+  exports.default = "2.12.0-alpha.1-canary+4d93b1a8";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
