@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-beta.3
+ * @version   2.11.0-beta.4
  */
 
 var enifed, requireModule, Ember;
@@ -1454,6 +1454,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal', 'ember-console', 'emb
       emberjs.com website.
     @for Ember
     @public
+    @since 1.0.0
   */
 
   function deprecate(message, test, options) {
@@ -1552,6 +1553,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
     @param {Boolean} test Must be truthy for the assertion to pass. If
       falsy, an exception will be thrown.
     @public
+    @since 1.0.0
   */
   _emberMetal.setDebugFunction('assert', function assert(desc, test) {
     if (!test) {
@@ -1874,6 +1876,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-metal', 'ember-de
       The `id` should be namespaced by dots, e.g. "ember-debug.feature-flag-with-features-stripped"
     @for Ember
     @public
+    @since 1.0.0
   */
 
   function warn(message, test, options) {
@@ -10192,19 +10195,24 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
     this.syntax = null;
   }
 
-  function isAttrs(node) {
-    if (node.parts[0] === 'attrs') {
+  function isAttrs(node, symbols) {
+    var name = node.parts[0];
+
+    if (symbols.indexOf(name) !== -1) {
+      return false;
+    }
+
+    if (name === 'attrs') {
       return true;
     }
 
-    var _this = node.parts[0];
-    var attrs = node.parts[1];
-
-    if (_this === null && attrs === 'attrs') {
+    if (name === null && node.parts[1] === 'attrs') {
       node.parts.shift();
       node.original = node.original.slice(5);
       return true;
     }
+
+    return false;
   }
 
   /**
@@ -10217,9 +10225,21 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
     var traverse = _syntax.traverse;
     var b = _syntax.builders;
 
+    var stack = [[]];
+
     traverse(ast, {
+      Program: {
+        enter: function (node) {
+          var parent = stack[stack.length - 1];
+          stack.push(parent.concat(node.blockParams));
+        },
+        exit: function (node) {
+          stack.pop();
+        }
+      },
+
       PathExpression: function (node) {
-        if (isAttrs(node)) {
+        if (isAttrs(node, stack[stack.length - 1])) {
           var path = b.path(node.original.substr(6));
           path.original = '@' + path.original;
           path.data = true;
@@ -11977,7 +11997,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-beta.3";
+  exports.default = "2.11.0-beta.4";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
