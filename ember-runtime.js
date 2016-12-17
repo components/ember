@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+f1a4a717
+ * @version   2.12.0-alpha.1-canary+d7445085
  */
 
 var enifed, requireModule, Ember;
@@ -6952,24 +6952,11 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     };
   }
 
-  var HAS_NATIVE_WEAKMAP = (function () {
-    // detect if `WeakMap` is even present
-    var hasWeakMap = typeof WeakMap === 'function';
-    if (!hasWeakMap) {
-      return false;
-    }
-
-    var instance = new WeakMap();
-    // use `Object`'s `.toString` directly to prevent us from detecting
-    // polyfills as native weakmaps
-    return Object.prototype.toString.call(instance) === '[object WeakMap]';
-  })();
-
   var setMeta = undefined,
       peekMeta = undefined;
 
   // choose the one appropriate for given platform
-  if (HAS_NATIVE_WEAKMAP) {
+  if (_emberUtils.HAS_NATIVE_WEAKMAP) {
     (function () {
       var getPrototypeOf = Object.getPrototypeOf;
       var metaStore = new WeakMap();
@@ -19366,7 +19353,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+f1a4a717";
+  exports.default = "2.12.0-alpha.1-canary+d7445085";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
