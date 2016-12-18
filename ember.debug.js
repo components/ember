@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+d7445085
+ * @version   2.12.0-alpha.1-canary+ef8f46e1
  */
 
 var enifed, requireModule, Ember;
@@ -1198,13 +1198,20 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 });
 enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'ember-metal'], function (exports, _emberUtils, _emberEnvironment, _emberMetal) {
+  /* globals Proxy */
   'use strict';
+
+  var _Container$prototype;
 
   exports.default = Container;
   exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
 
   var CONTAINER_OVERRIDE = _emberUtils.symbol('CONTAINER_OVERRIDE');
+  var FACTORY_FOR = _emberUtils.symbol('FACTORY_FOR');
+  exports.FACTORY_FOR = FACTORY_FOR;
+  var LOOKUP_FACTORY = _emberUtils.symbol('LOOKUP_FACTORY');
 
+  exports.LOOKUP_FACTORY = LOOKUP_FACTORY;
   /**
    A container used to instantiate and cache objects.
   
@@ -1230,7 +1237,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     this.isDestroyed = false;
   }
 
-  Container.prototype = {
+  Container.prototype = (_Container$prototype = {
     /**
      @private
      @property owner
@@ -1315,55 +1322,148 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
      */
     lookupFactory: function (fullName, options) {
       _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
-      return factoryFor(this, this.registry.normalize(fullName), options);
-    },
 
+      _emberMetal.deprecate('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', !_emberMetal.isFeatureEnabled('ember-factory-for'), { id: 'container-lookupFactory', until: '2.13.0', url: 'TODO' });
+
+      return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
+    }
+
+  }, _Container$prototype[LOOKUP_FACTORY] = function (fullName, options) {
+    _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+    return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
+  }, _Container$prototype[FACTORY_FOR] = function (fullName) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        return this.factoryFor(fullName, options);
+      } else {
+        /* This throws in case of a poorly designed build */
+        throw new Error('If ember-no-double-extend is enabled, ember-factory-for must also be enabled');
+      }
+    }
+    var factory = this.lookupFactory(fullName, options);
+    if (factory === undefined) {
+      return;
+    }
+    var manager = new DeprecatedFactoryManager(this, factory, fullName);
+
+    _emberMetal.runInDebug(function () {
+      manager = wrapManagerInDeprecationProxy(manager);
+    });
+
+    return manager;
+  }, _Container$prototype.destroy = function () {
+    eachDestroyable(this, function (item) {
+      if (item.destroy) {
+        item.destroy();
+      }
+    });
+
+    this.isDestroyed = true;
+  }, _Container$prototype.reset = function (fullName) {
+    if (arguments.length > 0) {
+      resetMember(this, this.registry.normalize(fullName));
+    } else {
+      resetCache(this);
+    }
+  }, _Container$prototype.ownerInjection = function () {
+    var _ref;
+
+    return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
+  }, _Container$prototype);
+
+  /*
+   * Wrap a factory manager in a proxy which will not permit properties to be
+   * set on the manager.
+   */
+  function wrapManagerInDeprecationProxy(manager) {
+    if (_emberUtils.HAS_NATIVE_PROXY) {
+      var _ret = (function () {
+        var validator = {
+          get: function (obj, prop) {
+            if (prop !== 'class' && prop !== 'create') {
+              throw new Error('You attempted to access "' + prop + '" on a factory manager created by container#factoryFor. "' + prop + '" is not a member of a factory manager."');
+            }
+
+            return obj[prop];
+          },
+          set: function (obj, prop, value) {
+            throw new Error('You attempted to set "' + prop + '" on a factory manager created by container#factoryFor. A factory manager is a read-only construct.');
+          }
+        };
+
+        // Note:
+        // We have to proxy access to the manager here so that private property
+        // access doesn't cause the above errors to occur.
+        var m = manager;
+        var proxiedManager = {
+          class: m.class,
+          create: function (props) {
+            return m.create(props);
+          }
+        };
+
+        return {
+          v: new Proxy(proxiedManager, validator)
+        };
+      })();
+
+      if (typeof _ret === 'object') return _ret.v;
+    }
+
+    return manager;
+  }
+
+  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
     /**
-     A depth first traversal, destroying the container, its descendant containers and all
-     their managed objects.
-      @private
-     @method destroy
+     Given a fullName, return the corresponding factory. The consumer of the factory
+     is responsible for the destruction of any factory instances, as there is no
+     way for the container to ensure instances are destroyed when it itself is
+     destroyed.
+      @public
+     @method factoryFor
+     @param {String} fullName
+     @param {Object} [options]
+     @param {String} [options.source] The fullname of the request source (used for local lookup)
+     @return {any}
      */
-    destroy: function () {
-      eachDestroyable(this, function (item) {
-        if (item.destroy) {
-          item.destroy();
+    Container.prototype.factoryFor = function _factoryFor(fullName) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var normalizedName = this.registry.normalize(fullName);
+      _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(normalizedName));
+
+      if (options.source) {
+        normalizedName = this.registry.expandLocalLookup(fullName, options);
+        // if expandLocalLookup returns falsey, we do not support local lookup
+        if (!normalizedName) {
+          return;
         }
+      }
+
+      var factory = this.registry.resolve(normalizedName);
+
+      if (factory === undefined) {
+        return;
+      }
+
+      var manager = new FactoryManager(this, factory, fullName, normalizedName);
+
+      _emberMetal.runInDebug(function () {
+        manager = wrapManagerInDeprecationProxy(manager);
       });
 
-      this.isDestroyed = true;
-    },
-
-    /**
-     Clear either the entire cache or just the cache for a particular key.
-      @private
-     @method reset
-     @param {String} fullName optional key to reset; if missing, resets everything
-     */
-    reset: function (fullName) {
-      if (arguments.length > 0) {
-        resetMember(this, this.registry.normalize(fullName));
-      } else {
-        resetCache(this);
-      }
-    },
-
-    /**
-     Returns an object that can be used to provide an owner to a
-     manually created instance.
-      @private
-     @method ownerInjection
-     @returns { Object }
-    */
-    ownerInjection: function () {
-      var _ref;
-
-      return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
-    }
-  };
+      return manager;
+    };
+  }
 
   function isSingleton(container, fullName) {
     return container.registry.getOption(fullName, 'singleton') !== false;
+  }
+
+  function shouldInstantiate(container, fullName) {
+    return container.registry.getOption(fullName, 'instantiate') !== false;
   }
 
   function lookup(container, fullName) {
@@ -1382,17 +1482,76 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       return container.cache[fullName];
     }
 
-    var value = instantiate(container, fullName);
+    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      return instantiateFactory(container, fullName, options);
+    } else {
+      var factory = deprecatedFactoryFor(container, fullName);
+      var value = instantiate(factory, {}, container, fullName);
 
-    if (value === undefined) {
+      if (value === undefined) {
+        return;
+      }
+
+      if (isSingleton(container, fullName) && options.singleton !== false) {
+        container.cache[fullName] = value;
+      }
+
+      return value;
+    }
+  }
+
+  function isSingletonClass(container, fullName, _ref2) {
+    var instantiate = _ref2.instantiate;
+    var singleton = _ref2.singleton;
+
+    return singleton !== false && isSingleton(container, fullName) && !instantiate && !shouldInstantiate(container, fullName);
+  }
+
+  function isSingletonInstance(container, fullName, _ref3) {
+    var instantiate = _ref3.instantiate;
+    var singleton = _ref3.singleton;
+
+    return singleton !== false && isSingleton(container, fullName) && instantiate !== false && shouldInstantiate(container, fullName);
+  }
+
+  function isFactoryClass(container, fullname, _ref4) {
+    var instantiate = _ref4.instantiate;
+    var singleton = _ref4.singleton;
+
+    return (singleton === false || !isSingleton(container, fullname)) && instantiate === false && !shouldInstantiate(container, fullname);
+  }
+
+  function isFactoryInstance(container, fullName, _ref5) {
+    var instantiate = _ref5.instantiate;
+    var singleton = _ref5.singleton;
+
+    return (singleton !== false || isSingleton(container, fullName)) && instantiate !== false && shouldInstantiate(container, fullName);
+  }
+
+  function instantiateFactory(container, fullName, options) {
+    var factoryManager = container[FACTORY_FOR](fullName);
+
+    if (factoryManager === undefined) {
       return;
     }
 
-    if (isSingleton(container, fullName) && options.singleton !== false) {
-      container.cache[fullName] = value;
+    // SomeClass { singleton: true, instantiate: true } | { singleton: true } | { instantiate: true } | {}
+    // By default majority of objects fall into this case
+    if (isSingletonInstance(container, fullName, options)) {
+      return container.cache[fullName] = factoryManager.create();
     }
 
-    return value;
+    // SomeClass { singleton: false, instantiate: true }
+    if (isFactoryInstance(container, fullName, options)) {
+      return factoryManager.create();
+    }
+
+    // SomeClass { singleton: true, instantiate: false } | { instantiate: false } | { singleton: false, instantiation: false }
+    if (isSingletonClass(container, fullName, options) || isFactoryClass(container, fullName, options)) {
+      return factoryManager.class;
+    }
+
+    throw new Error('Could not create factory');
   }
 
   function markInjectionsAsDynamic(injections) {
@@ -1431,14 +1590,13 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     return hash;
   }
 
-  function factoryFor(container, fullName) {
+  function deprecatedFactoryFor(container, fullName) {
     var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     var registry = container.registry;
 
     if (options.source) {
       fullName = registry.expandLocalLookup(fullName, options);
-
       // if expandLocalLookup returns falsey, we do not support local lookup
       if (!fullName) {
         return;
@@ -1502,21 +1660,11 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     return injections;
   }
 
-  function factoryInjectionsFor(container, fullName) {
-    var registry = container.registry;
-    var splitName = fullName.split(':');
-    var type = splitName[0];
-
-    var factoryInjections = buildInjections(container, registry.getFactoryTypeInjections(type), registry.getFactoryInjections(fullName));
-    factoryInjections._debugContainerKey = fullName;
-
-    return factoryInjections;
-  }
-
-  function instantiate(container, fullName) {
-    var factory = factoryFor(container, fullName);
+  function instantiate(factory, props, container, fullName) {
     var lazyInjections = undefined,
         validationCache = undefined;
+
+    props = props || {};
 
     if (container.registry.getOption(fullName, 'instantiate') === false) {
       return factory;
@@ -1545,7 +1693,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
 
       if (typeof factory.extend === 'function') {
         // assume the factory was extendable and is already injected
-        obj = factory.create();
+        obj = factory.create(props);
       } else {
         // assume the factory was extendable
         // to create time injections
@@ -1557,7 +1705,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
         // This "fake" container will be replaced after instantiation with a
         // property that raises deprecations every time it is accessed.
         injections.container = container._fakeContainerToInject;
-        obj = factory.create(injections);
+        obj = factory.create(_emberUtils.assign({}, injections, props));
 
         // TODO - remove when Ember reaches v3.0.0
         if (!Object.isFrozen(obj) && 'container' in obj) {
@@ -1567,6 +1715,17 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
 
       return obj;
     }
+  }
+
+  function factoryInjectionsFor(container, fullName) {
+    var registry = container.registry;
+    var splitName = fullName.split(':');
+    var type = splitName[0];
+
+    var factoryInjections = buildInjections(container, registry.getFactoryTypeInjections(type), registry.getFactoryInjections(fullName));
+    factoryInjections._debugContainerKey = fullName;
+
+    return factoryInjections;
   }
 
   // TODO - remove when Ember reaches v3.0.0
@@ -1651,7 +1810,102 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       return container[containerProperty].apply(container, arguments);
     };
   }
+
+  var DeprecatedFactoryManager = (function () {
+    function DeprecatedFactoryManager(container, factory, fullName) {
+      babelHelpers.classCallCheck(this, DeprecatedFactoryManager);
+
+      this.container = container;
+      this.class = factory;
+      this.fullName = fullName;
+    }
+
+    DeprecatedFactoryManager.prototype.create = function create() {
+      var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      return instantiate(this.class, props, this.container, this.fullName);
+    };
+
+    return DeprecatedFactoryManager;
+  })();
+
+  var FactoryManager = (function () {
+    function FactoryManager(container, factory, fullName, normalizedName) {
+      babelHelpers.classCallCheck(this, FactoryManager);
+
+      this.container = container;
+      this.class = factory;
+      this.fullName = fullName;
+      this.normalizedName = normalizedName;
+    }
+
+    FactoryManager.prototype.create = function create() {
+      var _this = this;
+
+      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var injections = injectionsFor(this.container, this.normalizedName);
+      var props = _emberUtils.assign({}, injections, options);
+
+      props[_emberUtils.NAME_KEY] = this.container.registry.makeToString(this.class, this.fullName);
+
+      _emberMetal.runInDebug(function () {
+        var lazyInjections = undefined;
+        var validationCache = _this.container.validationCache;
+        // Ensure that all lazy injections are valid at instantiation time
+        if (!validationCache[_this.fullName] && _this.class && typeof _this.class._lazyInjections === 'function') {
+          lazyInjections = _this.class._lazyInjections();
+          lazyInjections = _this.container.registry.normalizeInjectionsHash(lazyInjections);
+
+          _this.container.registry.validateInjections(lazyInjections);
+        }
+
+        validationCache[_this.fullName] = true;
+      });
+
+      if (!this.class.create) {
+        throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
+      }
+
+      if (this.class.prototype) {
+        injectDeprecatedContainer(this.class.prototype, this.container);
+      }
+
+      return this.class.create(props);
+    };
+
+    return FactoryManager;
+  })();
 });
+
+/*
+ * This internal version of factoryFor swaps between the public API for
+ * factoryFor (class is the registered class) and a transition implementation
+ * (class is the double-extended class). It is *not* the public API version
+ * of factoryFor, which always returns the registered class.
+ */
+
+/**
+ A depth first traversal, destroying the container, its descendant containers and all
+ their managed objects.
+  @private
+ @method destroy
+ */
+
+/**
+ Clear either the entire cache or just the cache for a particular key.
+  @private
+ @method reset
+ @param {String} fullName optional key to reset; if missing, resets everything
+ */
+
+/**
+ Returns an object that can be used to provide an owner to a
+ manually created instance.
+  @private
+ @method ownerInjection
+ @returns { Object }
+*/
 enifed('container/index', ['exports', 'container/registry', 'container/container'], function (exports, _containerRegistry, _containerContainer) {
   /*
   Public API for the container is still in flux.
@@ -1666,6 +1920,8 @@ enifed('container/index', ['exports', 'container/registry', 'container/container
   exports.privatize = _containerRegistry.privatize;
   exports.Container = _containerContainer.default;
   exports.buildFakeContainerWithDeprecations = _containerContainer.buildFakeContainerWithDeprecations;
+  exports.FACTORY_FOR = _containerContainer.FACTORY_FOR;
+  exports.LOOKUP_FACTORY = _containerContainer.LOOKUP_FACTORY;
 });
 enifed('container/registry', ['exports', 'ember-utils', 'ember-metal', 'container/container'], function (exports, _emberUtils, _emberMetal, _containerContainer) {
   'use strict';
@@ -2735,13 +2991,15 @@ enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'e
     }
   });
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _emberApplicationSystemEngineInstance) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance', 'container'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _emberApplicationSystemEngineInstance, _container) {
   /**
   @module ember
   @submodule ember-application
   */
 
   'use strict';
+
+  var _EngineInstance$extend;
 
   var BootOptions = undefined;
 
@@ -2770,7 +3028,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     @extends Ember.EngineInstance
   */
 
-  var ApplicationInstance = _emberApplicationSystemEngineInstance.default.extend({
+  var ApplicationInstance = _emberApplicationSystemEngineInstance.default.extend((_EngineInstance$extend = {
     /**
       The `Application` for which this is an instance.
        @property {Ember.Application} application
@@ -3000,7 +3258,20 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
       // getURL returns the set url with the rootURL stripped off
       return router.handleURL(location.getURL()).then(handleTransitionResolve, handleTransitionReject);
     }
-  });
+
+  }, _EngineInstance$extend[_container.FACTORY_FOR] = function (fullName, options) {
+    return this.__container__[_container.FACTORY_FOR](fullName, options);
+  }, _EngineInstance$extend[_container.LOOKUP_FACTORY] = function (fullName, options) {
+    return this.__container__[_container.LOOKUP_FACTORY](fullName, options);
+  }, _EngineInstance$extend));
+
+  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    ApplicationInstance.reopen({
+      factoryFor: function (fullName, options) {
+        return this.__container__.factoryFor(fullName, options);
+      }
+    });
+  }
 
   ApplicationInstance.reopenClass({
     /**
@@ -4179,6 +4450,8 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'e
 
   'use strict';
 
+  var _EmberObject$extend;
+
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['-bucket-cache:main'], ['-bucket-cache:main']);
 
   /**
@@ -4192,7 +4465,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'e
     @uses ContainerProxyMixin
   */
 
-  var EngineInstance = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin, {
+  var EngineInstance = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin, (_EmberObject$extend = {
     /**
       The base `Engine` for which this is an instance.
        @property {Ember.Engine} engine
@@ -4359,7 +4632,12 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'e
       this.inject('view', '_environment', '-environment:main');
       this.inject('route', '_environment', '-environment:main');
     }
-  });
+
+  }, _EmberObject$extend[_container.FACTORY_FOR] = function (fullName, options) {
+    return this.__container__[_container.FACTORY_FOR](fullName, options);
+  }, _EmberObject$extend[_container.LOOKUP_FACTORY] = function (fullName, options) {
+    return this.__container__[_container.LOOKUP_FACTORY](fullName, options);
+  }, _EmberObject$extend));
 
   EngineInstance.reopenClass({
     /**
@@ -6314,7 +6592,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
   });
 });
 // Ember as namespace
-enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-application'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberApplication) {
+enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'container', 'ember-application'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _container, _emberApplication) {
   'use strict';
 
   /**
@@ -6463,7 +6741,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
 
     _nameToClass: function (type) {
       if (typeof type === 'string') {
-        type = _emberUtils.getOwner(this)._lookupFactory('model:' + type);
+        var owner = _emberUtils.getOwner(this);
+        type = owner[_container.FACTORY_FOR]('model:' + type).class;
       }
       return type;
     },
@@ -8423,7 +8702,7 @@ enifed('ember-glimmer/dom', ['exports', 'glimmer-runtime', 'glimmer-node'], func
   exports.DOMTreeConstruction = _glimmerRuntime.DOMTreeConstruction;
   exports.NodeDOMTreeConstruction = _glimmerNode.NodeDOMTreeConstruction;
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'ember-views', 'glimmer-runtime', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/utils/bindings', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/debugger', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'ember-glimmer/modifiers/action'], function (exports, _emberUtils, _emberMetal, _emberViews, _glimmerRuntime, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntax, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersIfUnless, _emberGlimmerUtilsBindings, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersDebugger, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _emberGlimmerProtocolForUrl, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'ember-views', 'glimmer-runtime', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/utils/bindings', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/debugger', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'container', 'ember-glimmer/modifiers/action'], function (exports, _emberUtils, _emberMetal, _emberViews, _glimmerRuntime, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntax, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersIfUnless, _emberGlimmerUtilsBindings, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersDebugger, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _emberGlimmerProtocolForUrl, _container, _emberGlimmerModifiersAction) {
   'use strict';
 
   var builtInComponents = {
@@ -8459,11 +8738,11 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
 
         var _lookupComponent = _emberViews.lookupComponent(owner, name, { source: source });
 
-        var ComponentClass = _lookupComponent.component;
+        var componentFactory = _lookupComponent.component;
         var layout = _lookupComponent.layout;
 
-        if (ComponentClass || layout) {
-          return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentDefinition(name, ComponentClass, layout);
+        if (componentFactory || layout) {
+          return new _emberGlimmerSyntaxCurlyComponent.CurlyComponentDefinition(name, componentFactory, layout);
         }
       }, function (_ref3) {
         var name = _ref3.name;
@@ -8724,19 +9003,55 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       var owner = blockMeta.owner;
       var options = blockMeta.moduleName && { source: 'template:' + blockMeta.moduleName } || {};
 
-      helper = owner.lookup('helper:' + name, options) || owner.lookup('helper:' + name);
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        var _ret = (function () {
+          var helperFactory = owner[_container.FACTORY_FOR]('helper:' + name, options) || owner[_container.FACTORY_FOR]('helper:' + name);
 
-      // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
-      if (helper.isHelperInstance) {
-        return function (vm, args) {
-          return _emberGlimmerUtilsReferences.SimpleHelperReference.create(helper.compute, args);
-        };
-      } else if (helper.isHelperFactory) {
-        return function (vm, args) {
-          return _emberGlimmerUtilsReferences.ClassBasedHelperReference.create(helper, vm, args);
-        };
+          // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
+          if (helperFactory.class.isHelperInstance) {
+            return {
+              v: function (vm, args) {
+                return _emberGlimmerUtilsReferences.SimpleHelperReference.create(helperFactory.class.compute, args);
+              }
+            };
+          } else if (helperFactory.class.isHelperFactory) {
+            if (!_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+              helperFactory = helperFactory.create();
+            }
+            return {
+              v: function (vm, args) {
+                return _emberGlimmerUtilsReferences.ClassBasedHelperReference.create(helperFactory, vm, args);
+              }
+            };
+          } else {
+            throw new Error(nameParts + ' is not a helper');
+          }
+        })();
+
+        if (typeof _ret === 'object') return _ret.v;
       } else {
-        throw new Error(nameParts + ' is not a helper');
+        var _ret2 = (function () {
+          var helperFactory = owner.lookup('helper:' + name, options) || owner.lookup('helper:' + name);
+
+          // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
+          if (helperFactory.isHelperInstance) {
+            return {
+              v: function (vm, args) {
+                return _emberGlimmerUtilsReferences.SimpleHelperReference.create(helperFactory.compute, args);
+              }
+            };
+          } else if (helperFactory.isHelperFactory) {
+            return {
+              v: function (vm, args) {
+                return _emberGlimmerUtilsReferences.ClassBasedHelperReference.create(helperFactory, vm, args);
+              }
+            };
+          } else {
+            throw new Error(nameParts + ' is not a helper');
+          }
+        })();
+
+        if (typeof _ret2 === 'object') return _ret2.v;
       }
     };
 
@@ -9669,7 +9984,8 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glim
   function curryArgs(definition, newArgs) {
     var args = definition.args;
     var ComponentClass = definition.ComponentClass;
-    var positionalParams = ComponentClass.positionalParams;
+
+    var positionalParams = ComponentClass.class.positionalParams;
 
     // The args being passed in are from the (component ...) invocation,
     // so the first positional argument is actually the name or component
@@ -11803,6 +12119,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'ember-environment', 'contain
     registry.register('service:-dom-changes', {
       create: function (_ref) {
         var document = _ref.document;
+
         return new _emberGlimmerDom.DOMChanges(document);
       }
     });
@@ -12067,7 +12384,9 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
     }
 
     CurlyComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
-      validatePositionalParameters(args.named, args.positional.values, definition.ComponentClass.positionalParams);
+      if (definition.ComponentClass) {
+        validatePositionalParameters(args.named, args.positional.values, definition.ComponentClass.class.positionalParams);
+      }
 
       return _emberGlimmerUtilsProcessArgs.gatherArgs(args, definition);
     };
@@ -12075,7 +12394,8 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
     CurlyComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, callerSelfRef, hasBlock) {
       var parentView = dynamicScope.view;
 
-      var klass = definition.ComponentClass;
+      var factory = definition.ComponentClass;
+
       var processedArgs = _emberGlimmerUtilsProcessArgs.ComponentArgs.create(args);
 
       var _processedArgs$value = processedArgs.value();
@@ -12089,7 +12409,7 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
 
       props._targetObject = callerSelfRef.value();
 
-      var component = klass.create(props);
+      var component = factory.create(props);
 
       var finalizer = _emberMetal._instrumentStart('render.component', initialRenderInstrumentDetails, component);
 
@@ -12288,7 +12608,7 @@ babelHelpers.classCallCheck(this, TopComponentManager);
     }
 
     TopComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, currentScope, hasBlock) {
-      var component = definition.ComponentClass;
+      var component = definition.ComponentClass.create();
 
       var finalizer = _emberMetal._instrumentStart('render.component', initialRenderInstrumentDetails, component);
 
@@ -12349,7 +12669,12 @@ babelHelpers.inherits(RootComponentDefinition, _ComponentDefinition2);
     function RootComponentDefinition(instance) {
 babelHelpers.classCallCheck(this, RootComponentDefinition);
 
-      _ComponentDefinition2.call(this, '-root', ROOT_MANAGER, instance);
+      _ComponentDefinition2.call(this, '-root', ROOT_MANAGER, {
+        class: instance.constructor,
+        create: function () {
+          return instance;
+        }
+      });
       this.template = undefined;
       this.args = undefined;
     }
@@ -12647,7 +12972,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/s
   };
   exports.InputSyntax = InputSyntax;
 });
-enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet) {
+enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12741,7 +13066,8 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
     MountManager.prototype.getSelf = function getSelf(_ref3) {
       var engine = _ref3.engine;
 
-      var factory = engine._lookupFactory('controller:application') || _emberRouting.generateControllerFactory(engine, 'application');
+      var applicationFactory = engine[_container.FACTORY_FOR]('controller:application');
+      var factory = applicationFactory || _emberRouting.generateControllerFactory(engine, 'application');
       return new _emberGlimmerUtilsReferences.RootReference(factory.create());
     };
 
@@ -13116,7 +13442,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
 
   OutletLayoutCompiler.id = 'outlet';
 });
-enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet) {
+enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -13340,8 +13666,9 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
       var env = definition.env;
 
       var modelRef = args.positional.at(0);
+      var controllerFactory = env.owner[_container.FACTORY_FOR]('controller:' + name);
 
-      var factory = env.owner._lookupFactory('controller:' + name) || _emberRouting.generateControllerFactory(env.owner, name);
+      var factory = controllerFactory || _emberRouting.generateControllerFactory(env.owner, name);
       var controller = factory.create({ model: modelRef.value() });
 
       if (dynamicScope.rootOutletState) {
@@ -14024,7 +14351,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'glimmer-r
   function gatherArgs(args, definition) {
     var namedMap = gatherNamedMap(args, definition);
     var positionalValues = gatherPositionalValues(args, definition);
-    return mergeArgs(namedMap, positionalValues, args.blocks, definition.ComponentClass);
+    return mergeArgs(namedMap, positionalValues, args.blocks, definition.ComponentClass.class);
   }
 
   function gatherNamedMap(args, definition) {
@@ -24475,7 +24802,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
       createRoute(childDSL, 'loading');
       createRoute(childDSL, 'error', { path: dummyErrorRoute });
 
-      engineRouteMap.call(childDSL);
+      engineRouteMap.class.call(childDSL);
 
       callback = childDSL.generate();
 
@@ -24508,7 +24835,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
     this.push(path, fullName, callback);
   };
 });
-enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
   'use strict';
 
   exports.generateControllerFactory = generateControllerFactory;
@@ -24527,9 +24854,10 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal'], f
     @private
   */
 
-  function generateControllerFactory(owner, controllerName) {
-    var Factory = owner._lookupFactory('controller:basic').extend({
-      isGenerated: true,
+  function generateControllerFactory(owner, controllerName, context) {
+    var Factory = owner[_container.FACTORY_FOR]('controller:basic').class;
+
+    Factory = Factory.extend({
       toString: function () {
         return '(generated ' + controllerName + ' controller)';
       }
@@ -24573,7 +24901,7 @@ enifed('ember-routing/system/query_params', ['exports', 'ember-runtime'], functi
     values: null
   });
 });
-enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-routing/system/generate_controller', 'ember-routing/utils'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberRoutingSystemGenerate_controller, _emberRoutingUtils) {
+enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-routing/system/generate_controller', 'ember-routing/utils', 'container'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberRoutingSystemGenerate_controller, _emberRoutingUtils, _container) {
   'use strict';
 
   exports.defaultSerialize = defaultSerialize;
@@ -24718,7 +25046,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           combinedQueryParameterConfiguration = undefined;
 
       var controllerName = this.controllerName || this.routeName;
-      var definedControllerClass = _emberUtils.getOwner(this)._lookupFactory('controller:' + controllerName);
+      var owner = _emberUtils.getOwner(this);
+      var definedControllerClass = owner[_container.LOOKUP_FACTORY]('controller:' + controllerName);
       var queryParameterConfiguraton = _emberMetal.get(this, 'queryParams');
       var hasRouterDefinedQueryParams = !!Object.keys(queryParameterConfiguraton).length;
 
@@ -26036,13 +26365,15 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
       return {
         find: function (name, value) {
-          var modelClass = owner._lookupFactory('model:' + name);
+          var modelClass = owner[_container.FACTORY_FOR]('model:' + name);
 
           _emberMetal.assert('You used the dynamic segment ' + name + '_id in your route ' + routeName + ', but ' + namespace + '.' + _emberRuntime.String.classify(name) + ' did not exist and you did not override your route\'s `model` hook.', !!modelClass);
 
           if (!modelClass) {
             return;
           }
+
+          modelClass = modelClass.class;
 
           _emberMetal.assert(_emberRuntime.String.classify(name) + ' has no method `find`.', typeof modelClass.find === 'function');
 
@@ -26745,7 +27076,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
   exports.default = Route;
 });
-enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _router4) {
+enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _container, _router4) {
   'use strict';
 
   exports.triggerEvent = triggerEvent;
@@ -26825,7 +27156,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       var router = this;
 
       options.resolveRouteMap = function (name) {
-        return owner._lookupFactory('route-map:' + name);
+        return owner[_container.FACTORY_FOR]('route-map:' + name);
       };
 
       options.addRouteForEngine = function (name, engineInfo) {
@@ -27012,7 +27343,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       if (!this._toplevelView) {
         var owner = _emberUtils.getOwner(this);
-        var OutletView = owner._lookupFactory('view:-outlet');
+        var OutletView = owner[_container.FACTORY_FOR]('view:-outlet');
         this._toplevelView = OutletView.create();
         this._toplevelView.setOutletState(liveRoutes);
         var instance = owner.lookup('-application-instance:main');
@@ -27289,8 +27620,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         seen[name] = true;
 
         if (!handler) {
-          var DefaultRoute = routeOwner._lookupFactory('route:basic');
-
+          var DefaultRoute = routeOwner[_container.FACTORY_FOR]('route:basic').class;
           routeOwner.register(fullRouteName, DefaultRoute.extend());
           handler = routeOwner.lookup(fullRouteName);
 
@@ -31782,12 +32112,14 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal'], function (
     compare: null
   });
 });
-enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
   /**
   @module ember
   @submodule ember-runtime
   */
   'use strict';
+
+  var _containerProxyMixin;
 
   /**
     ContainerProxyMixin is used to provide public access to specific
@@ -31796,7 +32128,7 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], funct
     @class ContainerProxyMixin
     @private
   */
-  exports.default = _emberMetal.Mixin.create({
+  var containerProxyMixin = (_containerProxyMixin = {
     /**
      The container stores state.
       @private
@@ -31867,34 +32199,51 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], funct
      */
     _lookupFactory: function (fullName, options) {
       return this.__container__.lookupFactory(fullName, options);
-    },
-
-    /**
-     Given a name and a source path, resolve the fullName
-      @private
-     @method _resolveLocalLookupName
-     @param {String} fullName
-     @param {String} source
-     @return {String}
-     */
-    _resolveLocalLookupName: function (name, source) {
-      return this.__container__.registry.expandLocalLookup('component:' + name, {
-        source: source
-      });
-    },
-
-    /**
-     @private
-     */
-    willDestroy: function () {
-      this._super.apply(this, arguments);
-
-      if (this.__container__) {
-        _emberMetal.run(this.__container__, 'destroy');
-      }
     }
-  });
+
+  }, _containerProxyMixin[_container.FACTORY_FOR] = function () {
+    var _container__;
+
+    return (_container__ = this.__container__)[_container.FACTORY_FOR].apply(_container__, arguments);
+  }, _containerProxyMixin[_container.LOOKUP_FACTORY] = function () {
+    var _container__2;
+
+    return (_container__2 = this.__container__)[_container.LOOKUP_FACTORY].apply(_container__2, arguments);
+  }, _containerProxyMixin._resolveLocalLookupName = function (name, source) {
+    return this.__container__.registry.expandLocalLookup('component:' + name, {
+      source: source
+    });
+  }, _containerProxyMixin.willDestroy = function () {
+    this._super.apply(this, arguments);
+
+    if (this.__container__) {
+      _emberMetal.run(this.__container__, 'destroy');
+    }
+  }, _containerProxyMixin);
+
+  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    containerProxyMixin.factoryFor = function ContainerProxyMixin_factoryFor(fullName) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      return this.__container__.factoryFor(fullName, options);
+    };
+  }
+
+  exports.default = _emberMetal.Mixin.create(containerProxyMixin);
 });
+
+/**
+ Given a name and a source path, resolve the fullName
+  @private
+ @method _resolveLocalLookupName
+ @param {String} fullName
+ @param {String} source
+ @return {String}
+ */
+
+/**
+ @private
+ */
 enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/controller_content_model_alias_deprecation'], function (exports, _emberMetal, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsController_content_model_alias_deprecation) {
   'use strict';
 
@@ -35516,7 +35865,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   }, _Mixin$create.toString = function () {
     var hasToStringExtension = typeof this.toStringExtension === 'function';
     var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-    var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
+    var ret = '<' + (this[_emberUtils.NAME_KEY] || this.constructor.toString()) + ':' + _emberUtils.guidFor(this) + extension + '>';
 
     return ret;
   }, _Mixin$create));
@@ -39271,7 +39620,7 @@ enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports,
     }
   }
 });
-enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/empty-object', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsEmptyObject, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils) {
+enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/empty-object', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils', 'ember-utils/proxy-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsEmptyObject, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils, _emberUtilsProxyUtils) {
   /*
    This package will be eagerly parsed and should have no dependencies on external
    packages.
@@ -39310,6 +39659,7 @@ enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner
   exports.NAME_KEY = _emberUtilsName.default;
   exports.toString = _emberUtilsToString.default;
   exports.HAS_NATIVE_WEAKMAP = _emberUtilsWeakMapUtils.HAS_NATIVE_WEAKMAP;
+  exports.HAS_NATIVE_PROXY = _emberUtilsProxyUtils.HAS_NATIVE_PROXY;
 });
 enifed('ember-utils/inspect', ['exports'], function (exports) {
   'use strict';
@@ -39620,6 +39970,12 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
     object[OWNER] = owner;
   }
 });
+enifed('ember-utils/proxy-utils', ['exports'], function (exports) {
+  'use strict';
+
+  var HAS_NATIVE_PROXY = typeof Proxy === 'function';
+  exports.HAS_NATIVE_PROXY = HAS_NATIVE_PROXY;
+});
 enifed('ember-utils/super', ['exports'], function (exports) {
   'use strict';
 
@@ -39755,15 +40111,14 @@ enifed('ember-views/compat/fallback-view-registry', ['exports', 'ember-utils'], 
 
   exports.default = _emberUtils.dictionary(null);
 });
-enifed('ember-views/component_lookup', ['exports', 'ember-metal', 'ember-runtime'], function (exports, _emberMetal, _emberRuntime) {
+enifed('ember-views/component_lookup', ['exports', 'ember-metal', 'ember-runtime', 'container'], function (exports, _emberMetal, _emberRuntime, _container) {
   'use strict';
 
   exports.default = _emberRuntime.Object.extend({
     componentFor: function (name, owner, options) {
       _emberMetal.assert('You cannot use \'' + name + '\' as a component name. Component names must contain a hyphen.', ~name.indexOf('-'));
-
       var fullName = 'component:' + name;
-      return owner._lookupFactory(fullName, options);
+      return owner[_container.FACTORY_FOR](fullName, options);
     },
 
     layoutFor: function (name, owner, options) {
@@ -41426,7 +41781,7 @@ enifed('ember-views/utils/lookup-component', ['exports', 'container'], function 
     var result = { layout: layout, component: component };
 
     if (layout && !component) {
-      result.component = owner._lookupFactory(_container.privatize(_templateObject));
+      result.component = owner[_container.FACTORY_FOR](_container.privatize(_templateObject));
     }
 
     return result;
@@ -42194,7 +42549,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": null, "ember-no-double-extend": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -42725,7 +43080,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+d7445085";
+  exports.default = "2.12.0-alpha.1-canary+ef8f46e1";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -42763,19 +43118,39 @@ enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], functio
     return TestClass;
   }
 });
-enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberRuntime) {
+enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-metal', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberMetal, _emberRuntime) {
   'use strict';
 
   exports.default = buildOwner;
 
   function buildOwner() {
+    var _EmberObject$extend;
+
     var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
     var ownerOptions = options.ownerOptions || {};
     var resolver = options.resolver;
     var bootOptions = options.bootOptions || {};
 
-    var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin);
+    var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin, (_EmberObject$extend = {}, _EmberObject$extend[_container.FACTORY_FOR] = function () {
+      var _container__;
+
+      return (_container__ = this.__container__)[_container.FACTORY_FOR].apply(_container__, arguments);
+    }, _EmberObject$extend[_container.LOOKUP_FACTORY] = function () {
+      var _container__2;
+
+      return (_container__2 = this.__container__)[_container.LOOKUP_FACTORY].apply(_container__2, arguments);
+    }, _EmberObject$extend));
+
+    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      Owner.reopen({
+        factoryFor: function () {
+          var _container__3;
+
+          return (_container__3 = this.__container__).factoryFor.apply(_container__3, arguments);
+        }
+      });
+    }
 
     var namespace = _emberRuntime.Object.create({
       Resolver: { create: function () {

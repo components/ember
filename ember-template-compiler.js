@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+d7445085
+ * @version   2.12.0-alpha.1-canary+ef8f46e1
  */
 
 var enifed, requireModule, Ember;
@@ -11521,7 +11521,7 @@ enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports,
     }
   }
 });
-enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/empty-object', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsEmptyObject, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils) {
+enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/empty-object', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils', 'ember-utils/proxy-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsEmptyObject, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils, _emberUtilsProxyUtils) {
   /*
    This package will be eagerly parsed and should have no dependencies on external
    packages.
@@ -11560,6 +11560,7 @@ enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner
   exports.NAME_KEY = _emberUtilsName.default;
   exports.toString = _emberUtilsToString.default;
   exports.HAS_NATIVE_WEAKMAP = _emberUtilsWeakMapUtils.HAS_NATIVE_WEAKMAP;
+  exports.HAS_NATIVE_PROXY = _emberUtilsProxyUtils.HAS_NATIVE_PROXY;
 });
 enifed('ember-utils/inspect', ['exports'], function (exports) {
   'use strict';
@@ -11870,6 +11871,12 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
     object[OWNER] = owner;
   }
 });
+enifed('ember-utils/proxy-utils', ['exports'], function (exports) {
+  'use strict';
+
+  var HAS_NATIVE_PROXY = typeof Proxy === 'function';
+  exports.HAS_NATIVE_PROXY = HAS_NATIVE_PROXY;
+});
 enifed('ember-utils/super', ['exports'], function (exports) {
   'use strict';
 
@@ -11997,12 +12004,12 @@ enifed('ember-utils/weak-map-utils', ['exports'], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": null, "ember-no-double-extend": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+d7445085";
+  exports.default = "2.12.0-alpha.1-canary+ef8f46e1";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+d7445085
+ * @version   2.12.0-alpha.1-canary+ef8f46e1
  */
 
 var enifed, requireModule, Ember;
@@ -1187,13 +1187,20 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 });
 enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'ember-metal'], function (exports, _emberUtils, _emberEnvironment, _emberMetal) {
+  /* globals Proxy */
   'use strict';
+
+  var _Container$prototype;
 
   exports.default = Container;
   exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
 
   var CONTAINER_OVERRIDE = _emberUtils.symbol('CONTAINER_OVERRIDE');
+  var FACTORY_FOR = _emberUtils.symbol('FACTORY_FOR');
+  exports.FACTORY_FOR = FACTORY_FOR;
+  var LOOKUP_FACTORY = _emberUtils.symbol('LOOKUP_FACTORY');
 
+  exports.LOOKUP_FACTORY = LOOKUP_FACTORY;
   /**
    A container used to instantiate and cache objects.
   
@@ -1219,7 +1226,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     this.isDestroyed = false;
   }
 
-  Container.prototype = {
+  Container.prototype = (_Container$prototype = {
     /**
      @private
      @property owner
@@ -1304,55 +1311,148 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
      */
     lookupFactory: function (fullName, options) {
       _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
-      return factoryFor(this, this.registry.normalize(fullName), options);
-    },
 
+      _emberMetal.deprecate('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', !_emberMetal.isFeatureEnabled('ember-factory-for'), { id: 'container-lookupFactory', until: '2.13.0', url: 'TODO' });
+
+      return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
+    }
+
+  }, _Container$prototype[LOOKUP_FACTORY] = function (fullName, options) {
+    _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+    return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
+  }, _Container$prototype[FACTORY_FOR] = function (fullName) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        return this.factoryFor(fullName, options);
+      } else {
+        /* This throws in case of a poorly designed build */
+        throw new Error('If ember-no-double-extend is enabled, ember-factory-for must also be enabled');
+      }
+    }
+    var factory = this.lookupFactory(fullName, options);
+    if (factory === undefined) {
+      return;
+    }
+    var manager = new DeprecatedFactoryManager(this, factory, fullName);
+
+    _emberMetal.runInDebug(function () {
+      manager = wrapManagerInDeprecationProxy(manager);
+    });
+
+    return manager;
+  }, _Container$prototype.destroy = function () {
+    eachDestroyable(this, function (item) {
+      if (item.destroy) {
+        item.destroy();
+      }
+    });
+
+    this.isDestroyed = true;
+  }, _Container$prototype.reset = function (fullName) {
+    if (arguments.length > 0) {
+      resetMember(this, this.registry.normalize(fullName));
+    } else {
+      resetCache(this);
+    }
+  }, _Container$prototype.ownerInjection = function () {
+    var _ref;
+
+    return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
+  }, _Container$prototype);
+
+  /*
+   * Wrap a factory manager in a proxy which will not permit properties to be
+   * set on the manager.
+   */
+  function wrapManagerInDeprecationProxy(manager) {
+    if (_emberUtils.HAS_NATIVE_PROXY) {
+      var _ret = (function () {
+        var validator = {
+          get: function (obj, prop) {
+            if (prop !== 'class' && prop !== 'create') {
+              throw new Error('You attempted to access "' + prop + '" on a factory manager created by container#factoryFor. "' + prop + '" is not a member of a factory manager."');
+            }
+
+            return obj[prop];
+          },
+          set: function (obj, prop, value) {
+            throw new Error('You attempted to set "' + prop + '" on a factory manager created by container#factoryFor. A factory manager is a read-only construct.');
+          }
+        };
+
+        // Note:
+        // We have to proxy access to the manager here so that private property
+        // access doesn't cause the above errors to occur.
+        var m = manager;
+        var proxiedManager = {
+          class: m.class,
+          create: function (props) {
+            return m.create(props);
+          }
+        };
+
+        return {
+          v: new Proxy(proxiedManager, validator)
+        };
+      })();
+
+      if (typeof _ret === 'object') return _ret.v;
+    }
+
+    return manager;
+  }
+
+  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
     /**
-     A depth first traversal, destroying the container, its descendant containers and all
-     their managed objects.
-      @private
-     @method destroy
+     Given a fullName, return the corresponding factory. The consumer of the factory
+     is responsible for the destruction of any factory instances, as there is no
+     way for the container to ensure instances are destroyed when it itself is
+     destroyed.
+      @public
+     @method factoryFor
+     @param {String} fullName
+     @param {Object} [options]
+     @param {String} [options.source] The fullname of the request source (used for local lookup)
+     @return {any}
      */
-    destroy: function () {
-      eachDestroyable(this, function (item) {
-        if (item.destroy) {
-          item.destroy();
+    Container.prototype.factoryFor = function _factoryFor(fullName) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var normalizedName = this.registry.normalize(fullName);
+      _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(normalizedName));
+
+      if (options.source) {
+        normalizedName = this.registry.expandLocalLookup(fullName, options);
+        // if expandLocalLookup returns falsey, we do not support local lookup
+        if (!normalizedName) {
+          return;
         }
+      }
+
+      var factory = this.registry.resolve(normalizedName);
+
+      if (factory === undefined) {
+        return;
+      }
+
+      var manager = new FactoryManager(this, factory, fullName, normalizedName);
+
+      _emberMetal.runInDebug(function () {
+        manager = wrapManagerInDeprecationProxy(manager);
       });
 
-      this.isDestroyed = true;
-    },
-
-    /**
-     Clear either the entire cache or just the cache for a particular key.
-      @private
-     @method reset
-     @param {String} fullName optional key to reset; if missing, resets everything
-     */
-    reset: function (fullName) {
-      if (arguments.length > 0) {
-        resetMember(this, this.registry.normalize(fullName));
-      } else {
-        resetCache(this);
-      }
-    },
-
-    /**
-     Returns an object that can be used to provide an owner to a
-     manually created instance.
-      @private
-     @method ownerInjection
-     @returns { Object }
-    */
-    ownerInjection: function () {
-      var _ref;
-
-      return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
-    }
-  };
+      return manager;
+    };
+  }
 
   function isSingleton(container, fullName) {
     return container.registry.getOption(fullName, 'singleton') !== false;
+  }
+
+  function shouldInstantiate(container, fullName) {
+    return container.registry.getOption(fullName, 'instantiate') !== false;
   }
 
   function lookup(container, fullName) {
@@ -1371,17 +1471,76 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       return container.cache[fullName];
     }
 
-    var value = instantiate(container, fullName);
+    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      return instantiateFactory(container, fullName, options);
+    } else {
+      var factory = deprecatedFactoryFor(container, fullName);
+      var value = instantiate(factory, {}, container, fullName);
 
-    if (value === undefined) {
+      if (value === undefined) {
+        return;
+      }
+
+      if (isSingleton(container, fullName) && options.singleton !== false) {
+        container.cache[fullName] = value;
+      }
+
+      return value;
+    }
+  }
+
+  function isSingletonClass(container, fullName, _ref2) {
+    var instantiate = _ref2.instantiate;
+    var singleton = _ref2.singleton;
+
+    return singleton !== false && isSingleton(container, fullName) && !instantiate && !shouldInstantiate(container, fullName);
+  }
+
+  function isSingletonInstance(container, fullName, _ref3) {
+    var instantiate = _ref3.instantiate;
+    var singleton = _ref3.singleton;
+
+    return singleton !== false && isSingleton(container, fullName) && instantiate !== false && shouldInstantiate(container, fullName);
+  }
+
+  function isFactoryClass(container, fullname, _ref4) {
+    var instantiate = _ref4.instantiate;
+    var singleton = _ref4.singleton;
+
+    return (singleton === false || !isSingleton(container, fullname)) && instantiate === false && !shouldInstantiate(container, fullname);
+  }
+
+  function isFactoryInstance(container, fullName, _ref5) {
+    var instantiate = _ref5.instantiate;
+    var singleton = _ref5.singleton;
+
+    return (singleton !== false || isSingleton(container, fullName)) && instantiate !== false && shouldInstantiate(container, fullName);
+  }
+
+  function instantiateFactory(container, fullName, options) {
+    var factoryManager = container[FACTORY_FOR](fullName);
+
+    if (factoryManager === undefined) {
       return;
     }
 
-    if (isSingleton(container, fullName) && options.singleton !== false) {
-      container.cache[fullName] = value;
+    // SomeClass { singleton: true, instantiate: true } | { singleton: true } | { instantiate: true } | {}
+    // By default majority of objects fall into this case
+    if (isSingletonInstance(container, fullName, options)) {
+      return container.cache[fullName] = factoryManager.create();
     }
 
-    return value;
+    // SomeClass { singleton: false, instantiate: true }
+    if (isFactoryInstance(container, fullName, options)) {
+      return factoryManager.create();
+    }
+
+    // SomeClass { singleton: true, instantiate: false } | { instantiate: false } | { singleton: false, instantiation: false }
+    if (isSingletonClass(container, fullName, options) || isFactoryClass(container, fullName, options)) {
+      return factoryManager.class;
+    }
+
+    throw new Error('Could not create factory');
   }
 
   function markInjectionsAsDynamic(injections) {
@@ -1420,14 +1579,13 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     return hash;
   }
 
-  function factoryFor(container, fullName) {
+  function deprecatedFactoryFor(container, fullName) {
     var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     var registry = container.registry;
 
     if (options.source) {
       fullName = registry.expandLocalLookup(fullName, options);
-
       // if expandLocalLookup returns falsey, we do not support local lookup
       if (!fullName) {
         return;
@@ -1491,21 +1649,11 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     return injections;
   }
 
-  function factoryInjectionsFor(container, fullName) {
-    var registry = container.registry;
-    var splitName = fullName.split(':');
-    var type = splitName[0];
-
-    var factoryInjections = buildInjections(container, registry.getFactoryTypeInjections(type), registry.getFactoryInjections(fullName));
-    factoryInjections._debugContainerKey = fullName;
-
-    return factoryInjections;
-  }
-
-  function instantiate(container, fullName) {
-    var factory = factoryFor(container, fullName);
+  function instantiate(factory, props, container, fullName) {
     var lazyInjections = undefined,
         validationCache = undefined;
+
+    props = props || {};
 
     if (container.registry.getOption(fullName, 'instantiate') === false) {
       return factory;
@@ -1534,7 +1682,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
 
       if (typeof factory.extend === 'function') {
         // assume the factory was extendable and is already injected
-        obj = factory.create();
+        obj = factory.create(props);
       } else {
         // assume the factory was extendable
         // to create time injections
@@ -1546,7 +1694,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
         // This "fake" container will be replaced after instantiation with a
         // property that raises deprecations every time it is accessed.
         injections.container = container._fakeContainerToInject;
-        obj = factory.create(injections);
+        obj = factory.create(_emberUtils.assign({}, injections, props));
 
         // TODO - remove when Ember reaches v3.0.0
         if (!Object.isFrozen(obj) && 'container' in obj) {
@@ -1556,6 +1704,17 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
 
       return obj;
     }
+  }
+
+  function factoryInjectionsFor(container, fullName) {
+    var registry = container.registry;
+    var splitName = fullName.split(':');
+    var type = splitName[0];
+
+    var factoryInjections = buildInjections(container, registry.getFactoryTypeInjections(type), registry.getFactoryInjections(fullName));
+    factoryInjections._debugContainerKey = fullName;
+
+    return factoryInjections;
   }
 
   // TODO - remove when Ember reaches v3.0.0
@@ -1640,7 +1799,98 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       return container[containerProperty].apply(container, arguments);
     };
   }
+
+  var DeprecatedFactoryManager = (function () {
+    function DeprecatedFactoryManager(container, factory, fullName) {
+      this.container = container;
+      this.class = factory;
+      this.fullName = fullName;
+    }
+
+    DeprecatedFactoryManager.prototype.create = function create() {
+      var props = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      return instantiate(this.class, props, this.container, this.fullName);
+    };
+
+    return DeprecatedFactoryManager;
+  })();
+
+  var FactoryManager = (function () {
+    function FactoryManager(container, factory, fullName, normalizedName) {
+      this.container = container;
+      this.class = factory;
+      this.fullName = fullName;
+      this.normalizedName = normalizedName;
+    }
+
+    FactoryManager.prototype.create = function create() {
+      var _this = this;
+
+      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var injections = injectionsFor(this.container, this.normalizedName);
+      var props = _emberUtils.assign({}, injections, options);
+
+      props[_emberUtils.NAME_KEY] = this.container.registry.makeToString(this.class, this.fullName);
+
+      _emberMetal.runInDebug(function () {
+        var lazyInjections = undefined;
+        var validationCache = _this.container.validationCache;
+        // Ensure that all lazy injections are valid at instantiation time
+        if (!validationCache[_this.fullName] && _this.class && typeof _this.class._lazyInjections === 'function') {
+          lazyInjections = _this.class._lazyInjections();
+          lazyInjections = _this.container.registry.normalizeInjectionsHash(lazyInjections);
+
+          _this.container.registry.validateInjections(lazyInjections);
+        }
+
+        validationCache[_this.fullName] = true;
+      });
+
+      if (!this.class.create) {
+        throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
+      }
+
+      if (this.class.prototype) {
+        injectDeprecatedContainer(this.class.prototype, this.container);
+      }
+
+      return this.class.create(props);
+    };
+
+    return FactoryManager;
+  })();
 });
+
+/*
+ * This internal version of factoryFor swaps between the public API for
+ * factoryFor (class is the registered class) and a transition implementation
+ * (class is the double-extended class). It is *not* the public API version
+ * of factoryFor, which always returns the registered class.
+ */
+
+/**
+ A depth first traversal, destroying the container, its descendant containers and all
+ their managed objects.
+  @private
+ @method destroy
+ */
+
+/**
+ Clear either the entire cache or just the cache for a particular key.
+  @private
+ @method reset
+ @param {String} fullName optional key to reset; if missing, resets everything
+ */
+
+/**
+ Returns an object that can be used to provide an owner to a
+ manually created instance.
+  @private
+ @method ownerInjection
+ @returns { Object }
+*/
 enifed('container/index', ['exports', 'container/registry', 'container/container'], function (exports, _containerRegistry, _containerContainer) {
   /*
   Public API for the container is still in flux.
@@ -1655,6 +1905,8 @@ enifed('container/index', ['exports', 'container/registry', 'container/container
   exports.privatize = _containerRegistry.privatize;
   exports.Container = _containerContainer.default;
   exports.buildFakeContainerWithDeprecations = _containerContainer.buildFakeContainerWithDeprecations;
+  exports.FACTORY_FOR = _containerContainer.FACTORY_FOR;
+  exports.LOOKUP_FACTORY = _containerContainer.LOOKUP_FACTORY;
 });
 enifed('container/registry', ['exports', 'ember-utils', 'ember-metal', 'container/container'], function (exports, _emberUtils, _emberMetal, _containerContainer) {
   'use strict';
@@ -13833,12 +14085,14 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal'], function (
     compare: null
   });
 });
-enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
   /**
   @module ember
   @submodule ember-runtime
   */
   'use strict';
+
+  var _containerProxyMixin;
 
   /**
     ContainerProxyMixin is used to provide public access to specific
@@ -13847,7 +14101,7 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], funct
     @class ContainerProxyMixin
     @private
   */
-  exports.default = _emberMetal.Mixin.create({
+  var containerProxyMixin = (_containerProxyMixin = {
     /**
      The container stores state.
       @private
@@ -13918,34 +14172,51 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], funct
      */
     _lookupFactory: function (fullName, options) {
       return this.__container__.lookupFactory(fullName, options);
-    },
-
-    /**
-     Given a name and a source path, resolve the fullName
-      @private
-     @method _resolveLocalLookupName
-     @param {String} fullName
-     @param {String} source
-     @return {String}
-     */
-    _resolveLocalLookupName: function (name, source) {
-      return this.__container__.registry.expandLocalLookup('component:' + name, {
-        source: source
-      });
-    },
-
-    /**
-     @private
-     */
-    willDestroy: function () {
-      this._super.apply(this, arguments);
-
-      if (this.__container__) {
-        _emberMetal.run(this.__container__, 'destroy');
-      }
     }
-  });
+
+  }, _containerProxyMixin[_container.FACTORY_FOR] = function () {
+    var _container__;
+
+    return (_container__ = this.__container__)[_container.FACTORY_FOR].apply(_container__, arguments);
+  }, _containerProxyMixin[_container.LOOKUP_FACTORY] = function () {
+    var _container__2;
+
+    return (_container__2 = this.__container__)[_container.LOOKUP_FACTORY].apply(_container__2, arguments);
+  }, _containerProxyMixin._resolveLocalLookupName = function (name, source) {
+    return this.__container__.registry.expandLocalLookup('component:' + name, {
+      source: source
+    });
+  }, _containerProxyMixin.willDestroy = function () {
+    this._super.apply(this, arguments);
+
+    if (this.__container__) {
+      _emberMetal.run(this.__container__, 'destroy');
+    }
+  }, _containerProxyMixin);
+
+  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    containerProxyMixin.factoryFor = function ContainerProxyMixin_factoryFor(fullName) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      return this.__container__.factoryFor(fullName, options);
+    };
+  }
+
+  exports.default = _emberMetal.Mixin.create(containerProxyMixin);
 });
+
+/**
+ Given a name and a source path, resolve the fullName
+  @private
+ @method _resolveLocalLookupName
+ @param {String} fullName
+ @param {String} source
+ @return {String}
+ */
+
+/**
+ @private
+ */
 enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/controller_content_model_alias_deprecation'], function (exports, _emberMetal, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsController_content_model_alias_deprecation) {
   'use strict';
 
@@ -17567,7 +17838,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   }, _Mixin$create.toString = function () {
     var hasToStringExtension = typeof this.toStringExtension === 'function';
     var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-    var ret = '<' + this.constructor.toString() + ':' + _emberUtils.guidFor(this) + extension + '>';
+    var ret = '<' + (this[_emberUtils.NAME_KEY] || this.constructor.toString()) + ':' + _emberUtils.guidFor(this) + extension + '>';
 
     return ret;
   }, _Mixin$create));
@@ -19348,12 +19619,12 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": null, "ember-no-double-extend": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+d7445085";
+  exports.default = "2.12.0-alpha.1-canary+ef8f46e1";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';

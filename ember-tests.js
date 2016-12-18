@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+d7445085
+ * @version   2.12.0-alpha.1-canary+ef8f46e1
  */
 
 var enifed, requireModule, Ember;
@@ -183,7 +183,7 @@ babelHelpers = {
   defaults: defaults
 };
 
-enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _containerIndex, _internalTestHelpers) {
+enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers', 'container'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _containerIndex, _internalTestHelpers, _container) {
   'use strict';
 
   var originalModelInjections = undefined;
@@ -196,6 +196,19 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
+
+  function lookupFactory(name, container, options) {
+    var factory = undefined;
+    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+      ignoreDeprecation(function () {
+        factory = container.lookupFactory(name, options);
+      });
+    } else {
+      factory = container.lookupFactory(name, options);
+    }
+
+    return factory;
+  }
 
   QUnit.test('A registered factory returns the same instance each time', function () {
     var registry = new _containerIndex.Registry();
@@ -218,7 +231,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
     registry.register('controller:post', PostController);
 
-    var PostControllerFactory = container.lookupFactory('controller:post');
+    var PostControllerFactory = lookupFactory('controller:post', container);
 
     ok(PostControllerFactory, 'factory is returned');
     ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
@@ -231,7 +244,10 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
     registry.register('controller:post', PostController);
 
-    deepEqual(container.lookupFactory('controller:post'), container.lookupFactory('controller:post'), 'The return of lookupFactory is always the same');
+    var Post1 = lookupFactory('controller:post', container);
+    var Post2 = lookupFactory('controller:post', container);
+
+    deepEqual(Post1, Post2, 'The return of lookupFactory is always the same');
   });
 
   QUnit.test('A factory returned from lookupFactory has a debugkey', function () {
@@ -240,7 +256,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     var PostController = _internalTestHelpers.factory();
 
     registry.register('controller:post', PostController);
-    var PostFactory = container.lookupFactory('controller:post');
+    var PostFactory = lookupFactory('controller:post', container);
     equal(PostFactory._debugContainerKey, 'controller:post', 'factory instance receives _debugContainerKey');
   });
 
@@ -269,7 +285,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     var instance = undefined;
 
     registry.register('controller:post', PostController);
-    instance = container.lookupFactory('controller:post').create();
+    instance = lookupFactory('controller:post', container).create();
 
     equal(instance._debugContainerKey, 'controller:post', 'factory instance receives _debugContainerKey');
 
@@ -372,7 +388,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     registry.factoryInjection('controller:post', 'store', 'store:main');
     registry.factoryTypeInjection('controller', 'router', 'router:main');
 
-    var PostControllerFactory = container.lookupFactory('controller:post');
+    var PostControllerFactory = lookupFactory('controller:post', container);
     var store = container.lookup('store:main');
     var router = container.lookup('router:main');
 
@@ -534,7 +550,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     };
 
     registry.register('controller:post', PostController);
-    var fact = container.lookupFactory('controller:normalized');
+    var fact = lookupFactory('controller:normalized', container);
 
     equal(fact.toString() === PostController.extend().toString(), true, 'Normalizes the name when looking factory up');
   });
@@ -614,10 +630,10 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     };
 
     deepEqual(resolveWasCalled, []);
-    container.lookupFactory('controller:post');
+    lookupFactory('controller:post', container);
     deepEqual(resolveWasCalled, ['controller:post']);
 
-    container.lookupFactory('controller:post');
+    lookupFactory('controller:post', container);
     deepEqual(resolveWasCalled, ['controller:post']);
   });
 
@@ -632,10 +648,10 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     };
 
     deepEqual(resolveWasCalled, []);
-    container.lookupFactory('model:post');
+    lookupFactory('model:post', container);
     deepEqual(resolveWasCalled, ['model:post']);
 
-    container.lookupFactory('model:post');
+    lookupFactory('model:post', container);
     deepEqual(resolveWasCalled, ['model:post']);
   });
 
@@ -651,10 +667,10 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     };
 
     deepEqual(resolveWasCalled, []);
-    container.lookupFactory('foo:post');
+    lookupFactory('foo:post', container);
     deepEqual(resolveWasCalled, ['foo:post']);
 
-    container.lookupFactory('foo:post');
+    lookupFactory('foo:post', container);
     deepEqual(resolveWasCalled, ['foo:post']);
   });
 
@@ -674,8 +690,8 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
     registry.register('apple:main', Apple);
 
-    container.lookupFactory('apple:main');
-    container.lookupFactory('apple:main');
+    lookupFactory('apple:main', container);
+    lookupFactory('apple:main', container);
   });
 
   QUnit.test('A factory\'s lazy injections are validated when first instantiated', function () {
@@ -747,8 +763,14 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
   });
 
+  // This is testing that container was passed as an option
   QUnit.test('A deprecated `container` property is appended to every object instantiated from a non-extendable factory, and a fake container is available during instantiation.', function () {
-    expect(8);
+    if (!_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      expect(8);
+    } else {
+      expect(1);
+      ok(true, '[SKIPPED] This will be removed when `factoryFor` lands.');
+    }
 
     var owner = {};
     var registry = new _containerIndex.Registry();
@@ -785,56 +807,21 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     };
 
     registry.register('controller:post', PostController);
-    var postController = container.lookup('controller:post');
 
-    expectDeprecation(function () {
-      _emberMetal.get(postController, 'container');
-    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
+    if (!_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      (function () {
+        var postController = container.lookup('controller:post');
 
-    expectDeprecation(function () {
-      var c = postController.container;
-      strictEqual(c, container, 'Injected container is now regular (not fake) container, but access is still deprecated.');
-    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
-  });
+        expectDeprecation(function () {
+          _emberMetal.get(postController, 'container');
+        }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
 
-  QUnit.test('A deprecated `container` property is only set on a non-extendable factory instance if `container` is present and writable.', function () {
-    expect(2);
-
-    var owner = {};
-    var registry = new _containerIndex.Registry();
-    var container = registry.container({ owner: owner });
-
-    // Define a non-extendable factory that is frozen after `create`
-    var PostController = function () {};
-    PostController.create = function () {
-      var instance = new PostController();
-
-      Object.seal(instance);
-
-      return instance;
-    };
-
-    registry.register('controller:post', PostController);
-    var postController = container.lookup('controller:post');
-
-    equal(postController.container, undefined, 'container was not added');
-
-    var OtherController = function () {
-      this.container = 'foo';
-    };
-
-    OtherController.create = function () {
-      var instance = new OtherController();
-
-      Object.freeze(instance);
-
-      return instance;
-    };
-
-    registry.register('controller:other', OtherController);
-    var otherController = container.lookup('controller:other');
-
-    equal(otherController.container, 'foo', 'container was not added');
+        expectDeprecation(function () {
+          var c = postController.container;
+          strictEqual(c, container, 'Injected container is now regular (not fake) container, but access is still deprecated.');
+        }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
+      })();
+    }
   });
 
   QUnit.test('An extendable factory can provide `container` upon create, with a deprecation', function (assert) {
@@ -843,7 +830,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
     registry.register('controller:post', _internalTestHelpers.factory());
 
-    var PostController = container.lookupFactory('controller:post');
+    var PostController = lookupFactory('controller:post', container);
 
     var postController = undefined;
 
@@ -874,7 +861,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       return 'controller:post';
     };
 
-    var PostControllerFactory = container.lookupFactory('foo:bar', { source: 'baz:qux' });
+    var PostControllerFactory = lookupFactory('foo:bar', container, { source: 'baz:qux' });
 
     assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
   });
@@ -885,7 +872,6 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     var PostController = _internalTestHelpers.factory();
 
     registry.register('controller:post', PostController);
-
     registry.expandLocalLookup = function (fullName, options) {
       assert.ok(true, 'expandLocalLookup was called');
       assert.equal(fullName, 'foo:bar');
@@ -898,6 +884,103 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
     assert.ok(PostControllerLookupResult instanceof PostController);
   });
+
+  QUnit.test('#[FACTORY_FOR] class is the injected factory', function (assert) {
+    var registry = new _containerIndex.Registry();
+    var container = registry.container();
+
+    var Component = _internalTestHelpers.factory();
+    registry.register('component:foo-bar', Component);
+
+    var factoryCreator = container[_container.FACTORY_FOR]('component:foo-bar');
+    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+      assert.deepEqual(factoryCreator.class, Component, 'No double extend');
+    } else {
+      assert.deepEqual(factoryCreator.class, container.lookupFactory('component:foo-bar'), 'Double extended class');
+    }
+  });
+
+  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    QUnit.test('#factoryFor must supply a fullname', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+      assert.throws(function () {
+        container.factoryFor('chad-bar');
+      }, /Invalid Fullname, expected: 'type:name' got: chad-bar/);
+    });
+
+    QUnit.test('#factoryFor returns a factory creator', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var Component = _internalTestHelpers.factory();
+      registry.register('component:foo-bar', Component);
+
+      var factoryCreator = container.factoryFor('component:foo-bar');
+      assert.ok(factoryCreator.create);
+      assert.ok(factoryCreator.class);
+    });
+
+    QUnit.test('#factoryFor class returns the factory function', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var Component = _internalTestHelpers.factory();
+      registry.register('component:foo-bar', Component);
+
+      var factoryCreator = container.factoryFor('component:foo-bar');
+      assert.deepEqual(factoryCreator.class, Component, 'No double extend');
+    });
+
+    QUnit.test('#factoryFor instance have a common parent', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var Component = _internalTestHelpers.factory();
+      registry.register('component:foo-bar', Component);
+
+      var factoryCreator1 = container.factoryFor('component:foo-bar');
+      var factoryCreator2 = container.factoryFor('component:foo-bar');
+      var instance1 = factoryCreator1.create({ foo: 'foo' });
+      var instance2 = factoryCreator2.create({ bar: 'bar' });
+
+      assert.deepEqual(instance1.constructor, instance2.constructor);
+    });
+
+    QUnit.test('#factoryFor created instances come with instance injections', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var Component = _internalTestHelpers.factory();
+      var Ajax = _internalTestHelpers.factory();
+      registry.register('component:foo-bar', Component);
+      registry.register('util:ajax', Ajax);
+      registry.injection('component:foo-bar', 'ajax', 'util:ajax');
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var component = componentFactory.create();
+
+      assert.ok(component.ajax);
+      assert.ok(component.ajax instanceof Ajax);
+    });
+
+    QUnit.test('#factoryFor options passed to create clobber injections', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var Component = _internalTestHelpers.factory();
+      var Ajax = _internalTestHelpers.factory();
+      registry.register('component:foo-bar', Component);
+      registry.register('util:ajax', Ajax);
+      registry.injection('component:foo-bar', 'ajax', 'util:ajax');
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+
+      var instrance = componentFactory.create({ ajax: 'fetch' });
+
+      assert.equal(instrance.ajax, 'fetch');
+    });
+  }
 });
 enifed('container/tests/owner_test', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -2387,9 +2470,17 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     _emberGlimmer.setTemplate('fooBar', fooBarTemplate);
     _emberGlimmer.setTemplate('fooBar/baz', fooBarBazTemplate);
 
-    equal(locator.lookupFactory('template:foo'), fooTemplate, 'resolves template:foo');
-    equal(locator.lookupFactory('template:fooBar'), fooBarTemplate, 'resolves template:foo_bar');
-    equal(locator.lookupFactory('template:fooBar.baz'), fooBarBazTemplate, 'resolves template:foo_bar.baz');
+    ignoreDeprecation(function () {
+      equal(locator.lookupFactory('template:foo'), fooTemplate, 'resolves template:foo');
+      equal(locator.lookupFactory('template:fooBar'), fooBarTemplate, 'resolves template:foo_bar');
+      equal(locator.lookupFactory('template:fooBar.baz'), fooBarBazTemplate, 'resolves template:foo_bar.baz');
+    });
+
+    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      equal(locator.factoryFor('template:foo').class, fooTemplate, 'resolves template:foo');
+      equal(locator.factoryFor('template:fooBar').class, fooBarTemplate, 'resolves template:foo_bar');
+      equal(locator.factoryFor('template:fooBar.baz').class, fooBarBazTemplate, 'resolves template:foo_bar.baz');
+    }
   });
 
   QUnit.test('the default resolver looks up basic name as no prefix', function () {
@@ -2409,28 +2500,61 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   QUnit.test('the default resolver resolves models on the namespace', function () {
     application.Post = _emberRuntime.Object.extend({});
 
-    detectEqual(application.Post, locator.lookupFactory('model:post'), 'looks up Post model on application');
+    ignoreDeprecation(function () {
+      detectEqual(application.Post, locator.lookupFactory('model:post'), 'looks up Post model on application');
+    });
+    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      detectEqual(application.Post, locator.factoryFor('model:post').class, 'looks up Post model on application');
+    }
   });
 
   QUnit.test('the default resolver resolves *:main on the namespace', function () {
     application.FooBar = _emberRuntime.Object.extend({});
 
-    detectEqual(application.FooBar, locator.lookupFactory('foo-bar:main'), 'looks up FooBar type without name on application');
+    ignoreDeprecation(function () {
+      detectEqual(application.FooBar, locator.lookupFactory('foo-bar:main'), 'looks up FooBar type without name on application');
+    });
+    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      detectEqual(application.FooBar, locator.factoryFor('foo-bar:main').class, 'looks up FooBar type without name on application');
+    }
   });
 
-  QUnit.test('the default resolver resolves container-registered helpers', function () {
+  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    QUnit.test('the default resolver resolves container-registered helpers', function () {
+      var shorthandHelper = _emberGlimmer.helper(function () {});
+      var helper = _emberGlimmer.Helper.extend();
+
+      application.register('helper:shorthand', shorthandHelper);
+      application.register('helper:complete', helper);
+
+      var lookedUpShorthandHelper = locator.factoryFor('helper:shorthand').class;
+
+      ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+
+      var lookedUpHelper = locator.factoryFor('helper:complete').class;
+
+      ok(lookedUpHelper.isHelperFactory, 'complete helper is factory');
+      ok(helper.detect(lookedUpHelper), 'looked up complete helper');
+    });
+  }
+
+  QUnit.test('the default resolver resolves container-registered helpers via lookupFor', function () {
     var shorthandHelper = _emberGlimmer.helper(function () {});
     var helper = _emberGlimmer.Helper.extend();
 
     application.register('helper:shorthand', shorthandHelper);
     application.register('helper:complete', helper);
 
-    var lookedUpShorthandHelper = locator.lookupFactory('helper:shorthand');
-    ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+    ignoreDeprecation(function () {
+      var lookedUpShorthandHelper = locator.lookupFactory('helper:shorthand');
 
-    var lookedUpHelper = locator.lookupFactory('helper:complete');
-    ok(lookedUpHelper.isHelperFactory, 'complete helper is factory');
-    ok(helper.detect(lookedUpHelper), 'looked up complete helper');
+      ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+
+      var lookedUpHelper = locator.lookupFactory('helper:complete');
+
+      ok(lookedUpHelper.isHelperFactory, 'complete helper is factory');
+      ok(helper.detect(lookedUpHelper), 'looked up complete helper');
+    });
   });
 
   QUnit.test('the default resolver resolves helpers on the namespace', function () {
@@ -2705,7 +2829,12 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
   });
 
   QUnit.test('factories', function () {
-    var PostFactory = App.__container__.lookupFactory('model:post');
+    var PostFactory = undefined;
+    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      PostFactory = App.__container__.factoryFor('model:post').class;
+    } else {
+      PostFactory = App.__container__.lookupFactory('model:post');
+    }
     equal(PostFactory.toString(), 'App.Post', 'expecting the model to be post');
   });
 
@@ -8540,7 +8669,13 @@ babelHelpers.classCallCheck(this, AbstractAppendTest);
         template: '[child: {{bar}}]{{yield}}'
       });
 
-      var XParent = this.owner._lookupFactory('component:x-parent');
+      var XParent = undefined;
+
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        XParent = this.owner.factoryFor('component:x-parent');
+      } else {
+        XParent = this.owner._lookupFactory('component:x-parent');
+      }
 
       this.component = XParent.create({ foo: 'zomg' });
 
@@ -8617,7 +8752,13 @@ babelHelpers.classCallCheck(this, AbstractAppendTest);
         template: '[child: {{bar}}]{{yield}}'
       });
 
-      var XParent = this.owner._lookupFactory('component:x-parent');
+      var XParent = undefined;
+
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        XParent = this.owner.factoryFor('component:x-parent');
+      } else {
+        XParent = this.owner._lookupFactory('component:x-parent');
+      }
 
       this.component = XParent.create({ foo: 'zomg' });
 
@@ -8698,8 +8839,16 @@ babelHelpers.classCallCheck(this, AbstractAppendTest);
         template: 'x-second {{bar}}!'
       });
 
-      var First = this.owner._lookupFactory('component:x-first');
-      var Second = this.owner._lookupFactory('component:x-second');
+      var First = undefined,
+          Second = undefined;
+
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        First = this.owner.factoryFor('component:x-first');
+        Second = this.owner.factoryFor('component:x-second');
+      } else {
+        First = this.owner._lookupFactory('component:x-first');
+        Second = this.owner._lookupFactory('component:x-second');
+      }
 
       var first = First.create({ foo: 'foo' });
       var second = Second.create({ bar: 'bar' });
@@ -8791,7 +8940,13 @@ babelHelpers.classCallCheck(this, AbstractAppendTest);
 
           didInsertElement: function () {
             element1 = this.element;
-            var SecondComponent = owner._lookupFactory('component:second-component');
+
+            var SecondComponent = undefined;
+            if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+              SecondComponent = owner.factoryFor('component:second-component');
+            } else {
+              SecondComponent = owner._lookupFactory('component:second-component');
+            }
 
             append(SecondComponent.create());
           }
@@ -8808,7 +8963,13 @@ babelHelpers.classCallCheck(this, AbstractAppendTest);
         })
       });
 
-      var FirstComponent = this.owner._lookupFactory('component:first-component');
+      var FirstComponent = undefined;
+
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        FirstComponent = this.owner.factoryFor('component:first-component');
+      } else {
+        FirstComponent = this.owner._lookupFactory('component:first-component');
+      }
 
       this.runTask(function () {
         return append(FirstComponent.create());
@@ -8844,7 +9005,13 @@ babelHelpers.classCallCheck(this, AbstractAppendTest);
 
           didInsertElement: function () {
             element1 = this.element;
-            var OtherRoot = owner._lookupFactory('component:other-root');
+            var OtherRoot = undefined;
+
+            if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+              OtherRoot = owner.factoryFor('component:other-root');
+            } else {
+              OtherRoot = owner._lookupFactory('component:other-root');
+            }
 
             this._instance = OtherRoot.create({
               didInsertElement: function () {
@@ -8872,7 +9039,13 @@ babelHelpers.classCallCheck(this, AbstractAppendTest);
 
           didInsertElement: function () {
             element3 = this.element;
-            var OtherRoot = owner._lookupFactory('component:other-root');
+            var OtherRoot = undefined;
+
+            if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+              OtherRoot = owner.factoryFor('component:other-root');
+            } else {
+              OtherRoot = owner._lookupFactory('component:other-root');
+            }
 
             this._instance = OtherRoot.create({
               didInsertElement: function () {
@@ -8982,7 +9155,13 @@ babelHelpers.classCallCheck(this, _class2);
         template: 'FOO BAR!'
       });
 
-      var FooBar = this.owner._lookupFactory('component:foo-bar');
+      var FooBar = undefined;
+
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        FooBar = this.owner.factoryFor('component:foo-bar');
+      } else {
+        FooBar = this.owner._lookupFactory('component:foo-bar');
+      }
 
       this.component = FooBar.create();
 
@@ -30801,7 +30980,13 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
 
       _RenderingTest.apply(this, arguments);
 
-      var CoreOutlet = this.owner._lookupFactory('view:-outlet');
+      var CoreOutlet = undefined;
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        CoreOutlet = this.owner.factoryFor('view:-outlet');
+      } else {
+        CoreOutlet = this.owner._lookupFactory('view:-outlet');
+      }
+
       this.component = CoreOutlet.create();
     }
 
@@ -44845,19 +45030,34 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     }
   });
 
-  QUnit.test('generateController should create Ember.Controller', function () {
+  QUnit.test('generateController should return Ember.Controller', function () {
     var controller = _emberRoutingSystemGenerate_controller.default(appInstance, 'home');
 
-    ok(controller instanceof _emberRuntime.Controller, 'should create controller');
+    ok(controller instanceof _emberRuntime.Controller, 'should return controller');
   });
 
-  QUnit.test('generateController should create App.Controller if provided', function () {
+  QUnit.test('generateController should return App.Controller if provided', function () {
     var controller = undefined;
     namespace.Controller = _emberRuntime.Controller.extend();
 
     controller = _emberRoutingSystemGenerate_controller.default(appInstance, 'home');
 
-    ok(controller instanceof namespace.Controller, 'should create controller');
+    ok(controller instanceof namespace.Controller, 'should return controller');
+  });
+
+  QUnit.test('generateController should return controller:basic if provided', function () {
+    var controller = undefined;
+
+    var BasicController = _emberRuntime.Controller.extend();
+    appInstance.register('controller:basic', BasicController);
+
+    controller = _emberRoutingSystemGenerate_controller.default(appInstance, 'home');
+
+    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+      ok(controller instanceof BasicController, 'should return base class of controller');
+    } else {
+      ok(controller instanceof appInstance._lookupFactory('controller:basic'), 'should return double-extended controller');
+    }
   });
 });
 // A
@@ -45190,7 +45390,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     ok(!router.router.recognizer.names['news.blog_error'], 'nested reset error route was not added');
   });
 });
-enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route'], function (exports, _emberUtils, _internalTestHelpers, _emberRuntime, _emberRoutingSystemRoute) {
+enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route', 'container'], function (exports, _emberUtils, _internalTestHelpers, _emberRuntime, _emberRoutingSystemRoute, _container) {
   'use strict';
 
   var route = undefined,
@@ -45212,6 +45412,8 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'inte
   });
 
   QUnit.test('default store utilizes the container to acquire the model factory', function () {
+    var _ownerOptions;
+
     expect(4);
 
     var Post = _emberRuntime.Object.extend();
@@ -45223,19 +45425,24 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'inte
       }
     });
 
-    _emberUtils.setOwner(route, _internalTestHelpers.buildOwner({
-      ownerOptions: {
+    var ownerOptions = {
+      ownerOptions: (_ownerOptions = {
         hasRegistration: function () {
           return true;
-        },
-
-        _lookupFactory: function (fullName) {
-          equal(fullName, 'model:post', 'correct factory was looked up');
-
-          return Post;
         }
-      }
-    }));
+      }, _ownerOptions[_container.FACTORY_FOR] = function (fullName) {
+        equal(fullName, 'model:post', 'correct factory was looked up');
+
+        return {
+          class: Post,
+          create: function () {
+            return Post.create();
+          }
+        };
+      }, _ownerOptions)
+    };
+
+    _emberUtils.setOwner(route, _internalTestHelpers.buildOwner(ownerOptions));
 
     route.set('_qp', null);
 
@@ -48087,7 +48294,13 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
 
         owner.register('foo:main', AnObject);
 
-        owner._lookupFactory('foo:main');
+        if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+          expectDeprecation(function () {
+            owner._lookupFactory('foo:main');
+          }, /Using "_lookupFactory" is deprecated. Please use container.factoryFor instead./);
+        } else {
+          owner._lookupFactory('foo:main');
+        }
       }, /Defining an injected controller property on a non-controller is not allowed./);
     });
   }
@@ -48807,8 +49020,6 @@ enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal', 'ember-runt
     // this check is done via an assertion which is stripped from
     // production builds
     QUnit.test('injection type validation is run when first looked up', function () {
-      expect(1);
-
       _emberRuntimeInject.createInjectionHelper('foo', function () {
         ok(true, 'should call validation method');
       });
@@ -48821,7 +49032,16 @@ enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal', 'ember-runt
       });
 
       owner.register('foo:main', AnObject);
-      owner._lookupFactory('foo:main');
+
+      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        expect(2);
+        expectDeprecation(function () {
+          owner._lookupFactory('foo:main');
+        }, /Using "_lookupFactory" is deprecated. Please use container.factoryFor instead./);
+      } else {
+        expect(1);
+        owner._lookupFactory('foo:main');
+      }
     });
 
     QUnit.test('attempting to inject a nonexistent container key should error', function () {
@@ -62437,6 +62657,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-runtim
         location: 'none'
       });
 
+      // We shouldn't be testing this
       appInstance = App.__deprecatedInstance__;
 
       if (callback) {
