@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+12c28c8e
+ * @version   2.12.0-alpha.1-canary+d1c35ff3
  */
 
 var enifed, requireModule, Ember;
@@ -29262,16 +29262,16 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal'], fun
   
     ```javascript
     let Hamster = Ember.Object.extend({
-      napTime: Ember.computed.equal('state', 'sleepy')
+      satisfied: Ember.computed.equal('percentCarrotsEaten', 100)
     });
   
     let hamster = Hamster.create();
   
-    hamster.get('napTime'); // false
-    hamster.set('state', 'sleepy');
-    hamster.get('napTime'); // true
-    hamster.set('state', 'hungry');
-    hamster.get('napTime'); // false
+    hamster.get('satisfied'); // false
+    hamster.set('percentCarrotsEaten', 100);
+    hamster.get('satisfied'); // true
+    hamster.set('percentCarrotsEaten', 50);
+    hamster.get('satisfied'); // false
     ```
   
     @method equal
@@ -43080,7 +43080,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+12c28c8e";
+  exports.default = "2.12.0-alpha.1-canary+d1c35ff3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
