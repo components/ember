@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+62a54fd0
+ * @version   2.12.0-alpha.1-canary+3e8a3474
  */
 
 var enifed, requireModule, Ember;
@@ -45267,7 +45267,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     router._initRouterJs();
 
     assert.deepEqual(router.router.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
-      return s.string;
+      return s.value;
     }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
   });
 
@@ -45291,7 +45291,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     router._initRouterJs();
 
     assert.deepEqual(router.router.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
-      return s.string;
+      return s.value;
     }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
   });
 
