@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+d1c35ff3
+ * @version   2.12.0-alpha.1-canary+62a54fd0
  */
 
 var enifed, requireModule, Ember;
@@ -2922,15 +2922,13 @@ enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'e
     }
   });
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance', 'container'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _emberApplicationSystemEngineInstance, _container) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _emberApplicationSystemEngineInstance) {
   /**
   @module ember
   @submodule ember-application
   */
 
   'use strict';
-
-  var _EngineInstance$extend;
 
   var BootOptions = undefined;
 
@@ -2959,7 +2957,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     @extends Ember.EngineInstance
   */
 
-  var ApplicationInstance = _emberApplicationSystemEngineInstance.default.extend((_EngineInstance$extend = {
+  var ApplicationInstance = _emberApplicationSystemEngineInstance.default.extend({
     /**
       The `Application` for which this is an instance.
        @property {Ember.Application} application
@@ -3189,20 +3187,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
       // getURL returns the set url with the rootURL stripped off
       return router.handleURL(location.getURL()).then(handleTransitionResolve, handleTransitionReject);
     }
-
-  }, _EngineInstance$extend[_container.FACTORY_FOR] = function (fullName, options) {
-    return this.__container__[_container.FACTORY_FOR](fullName, options);
-  }, _EngineInstance$extend[_container.LOOKUP_FACTORY] = function (fullName, options) {
-    return this.__container__[_container.LOOKUP_FACTORY](fullName, options);
-  }, _EngineInstance$extend));
-
-  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
-    ApplicationInstance.reopen({
-      factoryFor: function (fullName, options) {
-        return this.__container__.factoryFor(fullName, options);
-      }
-    });
-  }
+  });
 
   ApplicationInstance.reopenClass({
     /**
@@ -40030,7 +40015,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+d1c35ff3";
+  exports.default = "2.12.0-alpha.1-canary+62a54fd0";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
