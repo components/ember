@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+3e8a3474
+ * @version   2.12.0-alpha.1-canary+746fb91c
  */
 
 var enifed, requireModule, Ember;
@@ -69569,6 +69569,36 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       });
     };
 
+    _class.prototype['@test multiple QP value changes only cause a single model refresh'] = function testMultipleQPValueChangesOnlyCauseASingleModelRefresh(assert) {
+      var _this11 = this;
+
+      assert.expect(2);
+
+      this.setSingleQPController('index', 'alex', 'lol');
+      this.setSingleQPController('index', 'steely', 'lel');
+
+      var refreshCount = 0;
+      this.registerRoute('index', _emberRouting.Route.extend({
+        queryParams: {
+          alex: {
+            refreshModel: true
+          },
+          steely: {
+            refreshModel: true
+          }
+        },
+        refresh: function () {
+          refreshCount++;
+        }
+      }));
+
+      return this.visitAndAssert('/').then(function () {
+        var indexController = _this11.getController('index');
+        _emberMetal.run(indexController, 'setProperties', { alex: 'fran', steely: 'david' });
+        assert.equal(refreshCount, 1, 'index refresh hook only run once');
+      });
+    };
+
     _class.prototype['@test refreshModel does not cause a second transition during app boot '] = function testRefreshModelDoesNotCauseASecondTransitionDuringAppBoot(assert) {
       assert.expect(1);
 
@@ -69590,7 +69620,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
     };
 
     _class.prototype['@test queryParams are updated when a controller property is set and the route is refreshed. Issue #13263  '] = function testQueryParamsAreUpdatedWhenAControllerPropertyIsSetAndTheRouteIsRefreshedIssue13263(assert) {
-      var _this11 = this;
+      var _this12 = this;
 
       this.registerTemplate('application', '<button id="test-button" {{action \'increment\'}}>Increment</button><span id="test-value">{{foo}}</span>{{outlet}}');
 
@@ -69616,16 +69646,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
 
         _emberMetal.run(_emberViews.jQuery('#test-button'), 'click');
         assert.equal(_emberViews.jQuery('#test-value').text().trim(), '2');
-        _this11.assertCurrentPath('/?foo=2');
+        _this12.assertCurrentPath('/?foo=2');
 
         _emberMetal.run(_emberViews.jQuery('#test-button'), 'click');
         assert.equal(_emberViews.jQuery('#test-value').text().trim(), '3');
-        _this11.assertCurrentPath('/?foo=3');
+        _this12.assertCurrentPath('/?foo=3');
       });
     };
 
     _class.prototype['@test Use Ember.get to retrieve query params \'refreshModel\' configuration'] = function testUseEmberGetToRetrieveQueryParamsRefreshModelConfiguration(assert) {
-      var _this12 = this;
+      var _this13 = this;
 
       assert.expect(7);
 
@@ -69661,8 +69691,8 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
         assert.equal(appModelCount, 1);
         assert.equal(indexModelCount, 1);
 
-        var indexController = _this12.getController('index');
-        _this12.setAndFlush(indexController, 'omg', 'lex');
+        var indexController = _this13.getController('index');
+        _this13.setAndFlush(indexController, 'omg', 'lex');
 
         assert.equal(appModelCount, 1);
         assert.equal(indexModelCount, 2);
@@ -69670,7 +69700,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
     };
 
     _class.prototype['@test can use refreshModel even with URL changes that remove QPs from address bar'] = function testCanUseRefreshModelEvenWithURLChangesThatRemoveQPsFromAddressBar(assert) {
-      var _this13 = this;
+      var _this14 = this;
 
       assert.expect(4);
 
@@ -69698,15 +69728,15 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visitAndAssert('/?omg=foo').then(function () {
-        _this13.transitionTo('/');
+        _this14.transitionTo('/');
 
-        var indexController = _this13.getController('index');
+        var indexController = _this14.getController('index');
         assert.equal(indexController.get('omg'), 'lol');
       });
     };
 
     _class.prototype['@test can opt into a replace query by specifying replace:true in the Route config hash'] = function testCanOptIntoAReplaceQueryBySpecifyingReplaceTrueInTheRouteConfigHash(assert) {
-      var _this14 = this;
+      var _this15 = this;
 
       assert.expect(2);
 
@@ -69721,14 +69751,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visitAndAssert('/').then(function () {
-        var appController = _this14.getController('application');
-        _this14.expectedReplaceURL = '/?alex=wallace';
-        _this14.setAndFlush(appController, 'alex', 'wallace');
+        var appController = _this15.getController('application');
+        _this15.expectedReplaceURL = '/?alex=wallace';
+        _this15.setAndFlush(appController, 'alex', 'wallace');
       });
     };
 
     _class.prototype['@test Route query params config can be configured using property name instead of URL key'] = function testRouteQueryParamsConfigCanBeConfiguredUsingPropertyNameInsteadOfURLKey(assert) {
-      var _this15 = this;
+      var _this16 = this;
 
       assert.expect(2);
 
@@ -69745,14 +69775,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visitAndAssert('/').then(function () {
-        var appController = _this15.getController('application');
-        _this15.expectedReplaceURL = '/?commit_by=igor_seb';
-        _this15.setAndFlush(appController, 'commitBy', 'igor_seb');
+        var appController = _this16.getController('application');
+        _this16.expectedReplaceURL = '/?commit_by=igor_seb';
+        _this16.setAndFlush(appController, 'commitBy', 'igor_seb');
       });
     };
 
     _class.prototype['@test An explicit replace:false on a changed QP always wins and causes a pushState'] = function testAnExplicitReplaceFalseOnAChangedQPAlwaysWinsAndCausesAPushState(assert) {
-      var _this16 = this;
+      var _this17 = this;
 
       assert.expect(3);
 
@@ -69774,14 +69804,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visit('/').then(function () {
-        var appController = _this16.getController('application');
-        _this16.expectedPushURL = '/?alex=wallace&steely=jan';
+        var appController = _this17.getController('application');
+        _this17.expectedPushURL = '/?alex=wallace&steely=jan';
         _emberMetal.run(appController, 'setProperties', { alex: 'wallace', steely: 'jan' });
 
-        _this16.expectedPushURL = '/?alex=wallace&steely=fran';
+        _this17.expectedPushURL = '/?alex=wallace&steely=fran';
         _emberMetal.run(appController, 'setProperties', { steely: 'fran' });
 
-        _this16.expectedReplaceURL = '/?alex=sriracha&steely=fran';
+        _this17.expectedReplaceURL = '/?alex=sriracha&steely=fran';
         _emberMetal.run(appController, 'setProperties', { alex: 'sriracha' });
       });
     };
@@ -69819,7 +69849,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
     };
 
     _class.prototype['@test Use Ember.get to retrieve query params \'replace\' configuration'] = function testUseEmberGetToRetrieveQueryParamsReplaceConfiguration(assert) {
-      var _this17 = this;
+      var _this18 = this;
 
       assert.expect(2);
 
@@ -69835,14 +69865,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visitAndAssert('/').then(function () {
-        var appController = _this17.getController('application');
-        _this17.expectedReplaceURL = '/?alex=wallace';
-        _this17.setAndFlush(appController, 'alex', 'wallace');
+        var appController = _this18.getController('application');
+        _this18.expectedReplaceURL = '/?alex=wallace';
+        _this18.setAndFlush(appController, 'alex', 'wallace');
       });
     };
 
     _class.prototype['@test can override incoming QP values in setupController'] = function testCanOverrideIncomingQPValuesInSetupController(assert) {
-      var _this18 = this;
+      var _this19 = this;
 
       assert.expect(3);
 
@@ -69865,13 +69895,13 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visitAndAssert('/about').then(function () {
-        _this18.transitionTo('index');
-        _this18.assertCurrentPath('/?omg=OVERRIDE');
+        _this19.transitionTo('index');
+        _this19.assertCurrentPath('/?omg=OVERRIDE');
       });
     };
 
     _class.prototype['@test can override incoming QP array values in setupController'] = function testCanOverrideIncomingQPArrayValuesInSetupController(assert) {
-      var _this19 = this;
+      var _this20 = this;
 
       assert.expect(3);
 
@@ -69894,29 +69924,29 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visitAndAssert('/about').then(function () {
-        _this19.transitionTo('index');
-        _this19.assertCurrentPath('/?omg=' + encodeURIComponent(JSON.stringify(['OVERRIDE'])));
+        _this20.transitionTo('index');
+        _this20.assertCurrentPath('/?omg=' + encodeURIComponent(JSON.stringify(['OVERRIDE'])));
       });
     };
 
     _class.prototype['@test URL transitions that remove QPs still register as QP changes'] = function testURLTransitionsThatRemoveQPsStillRegisterAsQPChanges(assert) {
-      var _this20 = this;
+      var _this21 = this;
 
       assert.expect(2);
 
       this.setSingleQPController('index', 'omg', 'lol');
 
       return this.visit('/?omg=borf').then(function () {
-        var indexController = _this20.getController('index');
+        var indexController = _this21.getController('index');
         assert.equal(indexController.get('omg'), 'borf');
 
-        _this20.transitionTo('/');
+        _this21.transitionTo('/');
         assert.equal(indexController.get('omg'), 'lol');
       });
     };
 
     _class.prototype['@test Subresource naming style is supported'] = function testSubresourceNamingStyleIsSupported(assert) {
-      var _this21 = this;
+      var _this22 = this;
 
       assert.expect(5);
 
@@ -69936,41 +69966,17 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
         assert.equal(_emberViews.jQuery('#two').attr('href'), '/abcdef/zoo?bar=456&foo=123');
 
         _emberMetal.run(_emberViews.jQuery('#one'), 'click');
-        _this21.assertCurrentPath('/abcdef?foo=123');
+        _this22.assertCurrentPath('/abcdef?foo=123');
 
         _emberMetal.run(_emberViews.jQuery('#two'), 'click');
-        _this21.assertCurrentPath('/abcdef/zoo?bar=456&foo=123');
+        _this22.assertCurrentPath('/abcdef/zoo?bar=456&foo=123');
       });
     };
 
     _class.prototype['@test transitionTo supports query params'] = function testTransitionToSupportsQueryParams(assert) {
-      var _this22 = this;
-
-      this.setSingleQPController('index', 'foo', 'lol');
-
-      return this.visitAndAssert('/').then(function () {
-        _this22.transitionTo({ queryParams: { foo: 'borf' } });
-        _this22.assertCurrentPath('/?foo=borf', 'shorthand supported');
-
-        _this22.transitionTo({ queryParams: { 'index:foo': 'blaf' } });
-        _this22.assertCurrentPath('/?foo=blaf', 'longform supported');
-
-        _this22.transitionTo({ queryParams: { 'index:foo': false } });
-        _this22.assertCurrentPath('/?foo=false', 'longform supported (bool)');
-
-        _this22.transitionTo({ queryParams: { foo: false } });
-        _this22.assertCurrentPath('/?foo=false', 'shorhand supported (bool)');
-      });
-    };
-
-    _class.prototype['@test transitionTo supports query params (multiple)'] = function testTransitionToSupportsQueryParamsMultiple(assert) {
       var _this23 = this;
 
-      this.registerController('index', _emberRuntime.Controller.extend({
-        queryParams: ['foo', 'bar'],
-        foo: 'lol',
-        bar: 'wat'
-      }));
+      this.setSingleQPController('index', 'foo', 'lol');
 
       return this.visitAndAssert('/').then(function () {
         _this23.transitionTo({ queryParams: { foo: 'borf' } });
@@ -69987,23 +69993,47 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       });
     };
 
-    _class.prototype['@test setting controller QP to empty string doesn\'t generate null in URL'] = function testSettingControllerQPToEmptyStringDoesnTGenerateNullInURL(assert) {
+    _class.prototype['@test transitionTo supports query params (multiple)'] = function testTransitionToSupportsQueryParamsMultiple(assert) {
       var _this24 = this;
+
+      this.registerController('index', _emberRuntime.Controller.extend({
+        queryParams: ['foo', 'bar'],
+        foo: 'lol',
+        bar: 'wat'
+      }));
+
+      return this.visitAndAssert('/').then(function () {
+        _this24.transitionTo({ queryParams: { foo: 'borf' } });
+        _this24.assertCurrentPath('/?foo=borf', 'shorthand supported');
+
+        _this24.transitionTo({ queryParams: { 'index:foo': 'blaf' } });
+        _this24.assertCurrentPath('/?foo=blaf', 'longform supported');
+
+        _this24.transitionTo({ queryParams: { 'index:foo': false } });
+        _this24.assertCurrentPath('/?foo=false', 'longform supported (bool)');
+
+        _this24.transitionTo({ queryParams: { foo: false } });
+        _this24.assertCurrentPath('/?foo=false', 'shorhand supported (bool)');
+      });
+    };
+
+    _class.prototype['@test setting controller QP to empty string doesn\'t generate null in URL'] = function testSettingControllerQPToEmptyStringDoesnTGenerateNullInURL(assert) {
+      var _this25 = this;
 
       assert.expect(1);
 
       this.setSingleQPController('index', 'foo', '123');
 
       return this.visit('/').then(function () {
-        var controller = _this24.getController('index');
+        var controller = _this25.getController('index');
 
-        _this24.expectedPushURL = '/?foo=';
-        _this24.setAndFlush(controller, 'foo', '');
+        _this25.expectedPushURL = '/?foo=';
+        _this25.setAndFlush(controller, 'foo', '');
       });
     };
 
     _class.prototype['@test setting QP to empty string doesn\'t generate null in URL'] = function testSettingQPToEmptyStringDoesnTGenerateNullInURL(assert) {
-      var _this25 = this;
+      var _this26 = this;
 
       assert.expect(1);
 
@@ -70016,15 +70046,15 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visit('/').then(function () {
-        var controller = _this25.getController('index');
+        var controller = _this26.getController('index');
 
-        _this25.expectedPushURL = '/?foo=';
-        _this25.setAndFlush(controller, 'foo', '');
+        _this26.expectedPushURL = '/?foo=';
+        _this26.setAndFlush(controller, 'foo', '');
       });
     };
 
     _class.prototype['@test A default boolean value deserializes QPs as booleans rather than strings'] = function testADefaultBooleanValueDeserializesQPsAsBooleansRatherThanStrings(assert) {
-      var _this26 = this;
+      var _this27 = this;
 
       assert.expect(3);
 
@@ -70037,16 +70067,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visit('/?foo=true').then(function () {
-        var controller = _this26.getController('index');
+        var controller = _this27.getController('index');
         assert.equal(controller.get('foo'), true);
 
-        _this26.transitionTo('/?foo=false');
+        _this27.transitionTo('/?foo=false');
         assert.equal(controller.get('foo'), false);
       });
     };
 
     _class.prototype['@test Query param without value are empty string'] = function testQueryParamWithoutValueAreEmptyString(assert) {
-      var _this27 = this;
+      var _this28 = this;
 
       assert.expect(1);
 
@@ -70056,13 +70086,13 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visit('/?foo=').then(function () {
-        var controller = _this27.getController('index');
+        var controller = _this28.getController('index');
         assert.equal(controller.get('foo'), '');
       });
     };
 
     _class.prototype['@test Array query params can be set'] = function testArrayQueryParamsCanBeSet(assert) {
-      var _this28 = this;
+      var _this29 = this;
 
       assert.expect(2);
 
@@ -70073,48 +70103,48 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       this.setSingleQPController('home', 'foo', []);
 
       return this.visit('/').then(function () {
-        var controller = _this28.getController('home');
+        var controller = _this29.getController('home');
 
-        _this28.setAndFlush(controller, 'foo', [1, 2]);
-        _this28.assertCurrentPath('/?foo=%5B1%2C2%5D');
+        _this29.setAndFlush(controller, 'foo', [1, 2]);
+        _this29.assertCurrentPath('/?foo=%5B1%2C2%5D');
 
-        _this28.setAndFlush(controller, 'foo', [3, 4]);
-        _this28.assertCurrentPath('/?foo=%5B3%2C4%5D');
+        _this29.setAndFlush(controller, 'foo', [3, 4]);
+        _this29.assertCurrentPath('/?foo=%5B3%2C4%5D');
       });
     };
 
     _class.prototype['@test (de)serialization: arrays'] = function testDeSerializationArrays(assert) {
-      var _this29 = this;
+      var _this30 = this;
 
       assert.expect(4);
 
       this.setSingleQPController('index', 'foo', [1]);
 
       return this.visitAndAssert('/').then(function () {
-        _this29.transitionTo({ queryParams: { foo: [2, 3] } });
-        _this29.assertCurrentPath('/?foo=%5B2%2C3%5D', 'shorthand supported');
-        _this29.transitionTo({ queryParams: { 'index:foo': [4, 5] } });
-        _this29.assertCurrentPath('/?foo=%5B4%2C5%5D', 'longform supported');
-        _this29.transitionTo({ queryParams: { foo: [] } });
-        _this29.assertCurrentPath('/?foo=%5B%5D', 'longform supported');
+        _this30.transitionTo({ queryParams: { foo: [2, 3] } });
+        _this30.assertCurrentPath('/?foo=%5B2%2C3%5D', 'shorthand supported');
+        _this30.transitionTo({ queryParams: { 'index:foo': [4, 5] } });
+        _this30.assertCurrentPath('/?foo=%5B4%2C5%5D', 'longform supported');
+        _this30.transitionTo({ queryParams: { foo: [] } });
+        _this30.assertCurrentPath('/?foo=%5B%5D', 'longform supported');
       });
     };
 
     _class.prototype['@test Url with array query param sets controller property to array'] = function testUrlWithArrayQueryParamSetsControllerPropertyToArray(assert) {
-      var _this30 = this;
+      var _this31 = this;
 
       assert.expect(1);
 
       this.setSingleQPController('index', 'foo', '');
 
       return this.visit('/?foo[]=1&foo[]=2&foo[]=3').then(function () {
-        var controller = _this30.getController('index');
+        var controller = _this31.getController('index');
         assert.deepEqual(controller.get('foo'), ['1', '2', '3']);
       });
     };
 
     _class.prototype['@test Array query params can be pushed/popped'] = function testArrayQueryParamsCanBePushedPopped(assert) {
-      var _this31 = this;
+      var _this32 = this;
 
       assert.expect(17);
 
@@ -70125,44 +70155,44 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       this.setSingleQPController('home', 'foo', _emberRuntime.A());
 
       return this.visitAndAssert('/').then(function () {
-        var controller = _this31.getController('home');
+        var controller = _this32.getController('home');
 
         _emberMetal.run(controller.foo, 'pushObject', 1);
-        _this31.assertCurrentPath('/?foo=%5B1%5D');
+        _this32.assertCurrentPath('/?foo=%5B1%5D');
         assert.deepEqual(controller.foo, [1]);
 
         _emberMetal.run(controller.foo, 'popObject');
-        _this31.assertCurrentPath('/');
+        _this32.assertCurrentPath('/');
         assert.deepEqual(controller.foo, []);
 
         _emberMetal.run(controller.foo, 'pushObject', 1);
-        _this31.assertCurrentPath('/?foo=%5B1%5D');
+        _this32.assertCurrentPath('/?foo=%5B1%5D');
         assert.deepEqual(controller.foo, [1]);
 
         _emberMetal.run(controller.foo, 'popObject');
-        _this31.assertCurrentPath('/');
+        _this32.assertCurrentPath('/');
         assert.deepEqual(controller.foo, []);
 
         _emberMetal.run(controller.foo, 'pushObject', 1);
-        _this31.assertCurrentPath('/?foo=%5B1%5D');
+        _this32.assertCurrentPath('/?foo=%5B1%5D');
         assert.deepEqual(controller.foo, [1]);
 
         _emberMetal.run(controller.foo, 'pushObject', 2);
-        _this31.assertCurrentPath('/?foo=%5B1%2C2%5D');
+        _this32.assertCurrentPath('/?foo=%5B1%2C2%5D');
         assert.deepEqual(controller.foo, [1, 2]);
 
         _emberMetal.run(controller.foo, 'popObject');
-        _this31.assertCurrentPath('/?foo=%5B1%5D');
+        _this32.assertCurrentPath('/?foo=%5B1%5D');
         assert.deepEqual(controller.foo, [1]);
 
         _emberMetal.run(controller.foo, 'unshiftObject', 'lol');
-        _this31.assertCurrentPath('/?foo=%5B%22lol%22%2C1%5D');
+        _this32.assertCurrentPath('/?foo=%5B%22lol%22%2C1%5D');
         assert.deepEqual(controller.foo, ['lol', 1]);
       });
     };
 
     _class.prototype['@test Overwriting with array with same content shouldn\'t refire update'] = function testOverwritingWithArrayWithSameContentShouldnTRefireUpdate(assert) {
-      var _this32 = this;
+      var _this33 = this;
 
       assert.expect(4);
 
@@ -70182,16 +70212,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       return this.visitAndAssert('/').then(function () {
         assert.equal(modelCount, 1);
 
-        var controller = _this32.getController('home');
-        _this32.setAndFlush(controller, 'model', _emberRuntime.A([1]));
+        var controller = _this33.getController('home');
+        _this33.setAndFlush(controller, 'model', _emberRuntime.A([1]));
 
         assert.equal(modelCount, 1);
-        _this32.assertCurrentPath('/');
+        _this33.assertCurrentPath('/');
       });
     };
 
     _class.prototype['@test Defaulting to params hash as the model should not result in that params object being watched'] = function testDefaultingToParamsHashAsTheModelShouldNotResultInThatParamsObjectBeingWatched(assert) {
-      var _this33 = this;
+      var _this34 = this;
 
       assert.expect(1);
 
@@ -70213,7 +70243,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visit('/').then(function () {
-        _this33.transitionTo('other');
+        _this34.transitionTo('other');
       });
     };
 
@@ -70240,7 +70270,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
     };
 
     _class.prototype['@test opting into replace does not affect transitions between routes'] = function testOptingIntoReplaceDoesNotAffectTransitionsBetweenRoutes(assert) {
-      var _this34 = this;
+      var _this35 = this;
 
       assert.expect(5);
 
@@ -70262,27 +70292,27 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visit('/').then(function () {
-        var controller = _this34.getController('bar');
+        var controller = _this35.getController('bar');
 
-        _this34.expectedPushURL = '/foo';
+        _this35.expectedPushURL = '/foo';
         _emberMetal.run(_emberViews.jQuery('#foo-link'), 'click');
 
-        _this34.expectedPushURL = '/bar';
+        _this35.expectedPushURL = '/bar';
         _emberMetal.run(_emberViews.jQuery('#bar-no-qp-link'), 'click');
 
-        _this34.expectedReplaceURL = '/bar?raytiley=woot';
-        _this34.setAndFlush(controller, 'raytiley', 'woot');
+        _this35.expectedReplaceURL = '/bar?raytiley=woot';
+        _this35.setAndFlush(controller, 'raytiley', 'woot');
 
-        _this34.expectedPushURL = '/foo';
+        _this35.expectedPushURL = '/foo';
         _emberMetal.run(_emberViews.jQuery('#foo-link'), 'click');
 
-        _this34.expectedPushURL = '/bar?raytiley=isthebest';
+        _this35.expectedPushURL = '/bar?raytiley=isthebest';
         _emberMetal.run(_emberViews.jQuery('#bar-link'), 'click');
       });
     };
 
     _class.prototype['@test undefined isn\'t serialized or deserialized into a string'] = function testUndefinedIsnTSerializedOrDeserializedIntoAString(assert) {
-      var _this35 = this;
+      var _this36 = this;
 
       assert.expect(4);
 
@@ -70303,10 +70333,10 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visitAndAssert('/').then(function () {
-        assert.equal(_this35.$('#the-link').attr('href'), '/example', 'renders without undefined qp serialized');
+        assert.equal(_this36.$('#the-link').attr('href'), '/example', 'renders without undefined qp serialized');
 
-        return _this35.transitionTo('example', { queryParams: { foo: undefined } }).then(function () {
-          _this35.assertCurrentPath('/example');
+        return _this36.transitionTo('example', { queryParams: { foo: undefined } }).then(function () {
+          _this36.assertCurrentPath('/example');
         });
       });
     };
@@ -70324,7 +70354,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
     };
 
     _class.prototype['@test warn user that Route\'s queryParams configuration must be an Object, not an Array'] = function testWarnUserThatRouteSQueryParamsConfigurationMustBeAnObjectNotAnArray(assert) {
-      var _this36 = this;
+      var _this37 = this;
 
       assert.expect(1);
 
@@ -70333,12 +70363,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       expectAssertion(function () {
-        _this36.visit('/');
+        _this37.visit('/');
       }, 'You passed in `[{"commitBy":{"replace":true}}]` as the value for `queryParams` but `queryParams` cannot be an Array');
     };
 
     _class.prototype['@test handle route names that clash with Object.prototype properties'] = function testHandleRouteNamesThatClashWithObjectPrototypeProperties(assert) {
-      var _this37 = this;
+      var _this38 = this;
 
       assert.expect(1);
 
@@ -70355,8 +70385,8 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-runtime', 'em
       }));
 
       return this.visit('/').then(function () {
-        _this37.transitionTo('constructor', { queryParams: { foo: '999' } });
-        var controller = _this37.getController('constructor');
+        _this38.transitionTo('constructor', { queryParams: { foo: '999' } });
+        var controller = _this38.getController('constructor');
         assert.equal(_emberMetal.get(controller, 'foo'), '999');
       });
     };
