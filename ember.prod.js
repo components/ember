@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+746fb91c
+ * @version   2.12.0-alpha.1-canary+f4d573ef
  */
 
 var enifed, requireModule, Ember;
@@ -6533,9 +6533,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
       }
 
       // If in a tagless component, assert that no event handlers are defined
+      // indicate that the assertion should be triggered
     },
 
-    // indicate that the assertion should be triggered
     rerender: function () {
       this[DIRTY_TAG].dirty();
       this._super();
@@ -40016,7 +40016,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+746fb91c";
+  exports.default = "2.12.0-alpha.1-canary+f4d573ef";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
