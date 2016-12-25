@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+34ea52b5
+ * @version   2.12.0-alpha.1-canary+9b11b215
  */
 
 var enifed, requireModule, Ember;
@@ -40874,6 +40874,18 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
       this.elementId = _emberUtils.guidFor(this);
     }
 
+    // if we find an `eventManager` property, deopt the
+    // `EventDispatcher`'s `canDispatchToEventManager` property
+    // if `null`
+    if (this.eventManager) {
+      var owner = _emberUtils.getOwner(this);
+      var dispatcher = owner && owner.lookup('event_dispatcher:main');
+
+      if (dispatcher && dispatcher.canDispatchToEventManager === null) {
+        dispatcher.canDispatchToEventManager = true;
+      }
+    }
+
     _emberMetal.deprecate('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
@@ -41291,11 +41303,11 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       ```
        @property canDispatchToEventManager
       @type boolean
-      @default 'true'
+      @default false
       @since 1.7.0
       @private
     */
-    canDispatchToEventManager: true,
+    canDispatchToEventManager: null,
 
     init: function () {
       this._super();
@@ -43068,7 +43080,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+34ea52b5";
+  exports.default = "2.12.0-alpha.1-canary+9b11b215";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
