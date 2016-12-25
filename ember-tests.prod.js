@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+f4d573ef
+ * @version   2.12.0-alpha.1-canary+34ea52b5
  */
 
 var enifed, requireModule, Ember;
@@ -16737,6 +16737,7 @@ enifed('ember-glimmer/tests/integration/components/instrumentation-test', ['expo
 
     _class.prototype.assertPayload = function assertPayload(payload, component, initialRender) {
       this.assert.equal(payload.object, component.toString(), 'payload.object');
+      this.assert.ok(payload.containerKey, 'the container key should be present');
       this.assert.equal(payload.containerKey, component._debugContainerKey, 'payload.containerKey');
       this.assert.equal(payload.view, component, 'payload.view');
       this.assert.strictEqual(payload.initialRender, initialRender, 'payload.initialRender');
