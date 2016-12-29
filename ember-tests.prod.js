@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+19023075
+ * @version   2.12.0-alpha.1-canary+2cb8e503
  */
 
 var enifed, requireModule, Ember;
@@ -31604,6 +31604,18 @@ babelHelpers.inherits(_class, _BasicEachInTest);
       this.assertText('[0:1][1:2][2:3][foo:bar]');
     };
 
+    _class.prototype['@test it skips holes in sparse arrays'] = function testItSkipsHolesInSparseArrays(assert) {
+      var arr = [];
+      arr[5] = 'foo';
+      arr[6] = 'bar';
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject14), { arr: arr });
+
+      this.assertText('[5:foo][6:bar]');
+
+      this.assertStableRerender();
+    };
+
 babelHelpers.createClass(_class, [{
       key: 'truthyValue',
       get: function () {
@@ -31737,10 +31749,11 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['exports', 'ember-me
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each list as |item|}}\n        <li>Prev</li>\n        {{foo-bar item=item}}\n        <li>Next</li>\n      {{/each}}\n    '], ['\n      {{#each list as |item|}}\n        <li>Prev</li>\n        {{foo-bar item=item}}\n        <li>Next</li>\n      {{/each}}\n    ']),
       _templateObject2 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      '], ['\n      {{#each content as |value|}}\n        {{value}}-\n        {{#each options as |option|}}\n          {{option.value}}:{{option.label}}\n        {{/each}}\n      {{/each}}\n      ']),
       _templateObject3 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}'], ['\n      {{#each foo.bar.baz as |thing|}}\n        {{thing}}\n      {{/each}}']),
-      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      '], ['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      ']),
-      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      '], ['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      ']),
-      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']),
-      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']);
+      _templateObject4 = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#each list as |value key|}}\n        [{{key}}:{{value}}]\n      {{/each}}'], ['\n      {{#each list as |value key|}}\n        [{{key}}:{{value}}]\n      {{/each}}']),
+      _templateObject5 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      '], ['\n        <h1>{{page.title}}</h1>\n\n        <ul id="posts">\n          {{#each model as |post|}}\n            <li>{{post.title}}</li>\n          {{/each}}\n        </ul>\n      ']),
+      _templateObject6 = babelHelpers.taggedTemplateLiteralLoose(['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      '], ['\n        <h1>Blog Posts</h1>\n\n        <ul id="posts">\n          <li>Rails is omakase</li>\n          <li>Ember is omakase</li>\n        </ul>\n      ']),
+      _templateObject7 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Essays</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']),
+      _templateObject8 = babelHelpers.taggedTemplateLiteralLoose(['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        '], ['\n          <h1>Think Pieces™</h1>\n\n          <ul id="posts">\n            <li>Rails is omakase</li>\n            <li>Ember is omakase</li>\n          </ul>\n        ']);
 
   var ArrayLike = (function () {
     function ArrayLike(content) {
@@ -32884,77 +32897,108 @@ babelHelpers.inherits(_class10, _RenderingTest3);
     return _class10;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  /* globals MutationObserver: false */
-  if (typeof MutationObserver === 'function') {
-    _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} DOM mutation test', (function (_RenderingTest4) {
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each}} with sparse arrays', (function (_RenderingTest4) {
 babelHelpers.inherits(_class11, _RenderingTest4);
 
-      function _class11() {
-        _RenderingTest4.call(this);
+    function _class11() {
+      _RenderingTest4.apply(this, arguments);
+    }
+
+    _class11.prototype['@test it should itterate over holes'] = function testItShouldItterateOverHoles(assert) {
+      var _this26 = this;
+
+      var sparseArray = [];
+      sparseArray[3] = 'foo';
+      sparseArray[4] = 'bar';
+
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), { list: _emberRuntime.A(sparseArray) });
+
+      this.assertText('[0:][1:][2:][3:foo][4:bar]');
+
+      this.assertStableRerender();
+
+      this.runTask(function () {
+        var list = _emberMetal.get(_this26.context, 'list');
+        list.pushObject('baz');
+      });
+
+      this.assertText('[0:][1:][2:][3:foo][4:bar][5:baz]');
+    };
+
+    return _class11;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  /* globals MutationObserver: false */
+  if (typeof MutationObserver === 'function') {
+    _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#each as}} DOM mutation test', (function (_RenderingTest5) {
+babelHelpers.inherits(_class12, _RenderingTest5);
+
+      function _class12() {
+        _RenderingTest5.call(this);
         this.observer = null;
       }
 
-      _class11.prototype.observe = function observe(element) {
+      _class12.prototype.observe = function observe(element) {
         var observer = this.observer = new MutationObserver(function () {});
         observer.observe(element, { childList: true, characterData: true });
       };
 
-      _class11.prototype.teardown = function teardown() {
+      _class12.prototype.teardown = function teardown() {
         if (this.observer) {
           this.observer.disconnect();
         }
 
-        _RenderingTest4.prototype.teardown.call(this);
+        _RenderingTest5.prototype.teardown.call(this);
       };
 
-      _class11.prototype.assertNoMutation = function assertNoMutation() {
+      _class12.prototype.assertNoMutation = function assertNoMutation() {
         this.assert.deepEqual(this.observer.takeRecords(), [], 'Expected no mutations');
       };
 
-      _class11.prototype.expectMutations = function expectMutations() {
+      _class12.prototype.expectMutations = function expectMutations() {
         this.assert.ok(this.observer.takeRecords().length > 0, 'Expected some mutations');
       };
 
-      _class11.prototype['@test {{#each}} should not mutate a subtree when the array has not changed [GH #14332]'] = function testEachShouldNotMutateASubtreeWhenTheArrayHasNotChangedGH14332(assert) {
-        var _this26 = this;
+      _class12.prototype['@test {{#each}} should not mutate a subtree when the array has not changed [GH #14332]'] = function testEachShouldNotMutateASubtreeWhenTheArrayHasNotChangedGH14332(assert) {
+        var _this27 = this;
 
         var page = { title: 'Blog Posts' };
 
         var model = [{ title: 'Rails is omakase' }, { title: 'Ember is omakase' }];
 
-        this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject4), { page: page, model: model });
+        this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5), { page: page, model: model });
 
-        this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject5));
+        this.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
 
         this.observe(this.$('#posts')[0]);
 
         // MutationObserver is async
         return _emberRuntime.RSVP.Promise.resolve(function () {
-          _this26.assertStableRerender();
+          _this27.assertStableRerender();
         }).then(function () {
-          _this26.assertNoMutation();
+          _this27.assertNoMutation();
 
-          _this26.runTask(function () {
-            return _emberMetal.set(_this26.context, 'page', { title: 'Essays' });
+          _this27.runTask(function () {
+            return _emberMetal.set(_this27.context, 'page', { title: 'Essays' });
           });
 
-          _this26.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject6));
+          _this27.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7));
         }).then(function () {
-          _this26.assertNoMutation();
+          _this27.assertNoMutation();
 
-          _this26.runTask(function () {
-            return _emberMetal.set(_this26.context.page, 'title', 'Think Pieces™');
+          _this27.runTask(function () {
+            return _emberMetal.set(_this27.context.page, 'title', 'Think Pieces™');
           });
 
-          _this26.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject7));
+          _this27.assertHTML(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject8));
         }).then(function () {
           // The last set is localized to the `page` object, so we do not expect Glimmer
           // to re-iterate the list
-          _this26.assertNoMutation();
+          _this27.assertNoMutation();
         });
       };
 
-      return _class11;
+      return _class12;
     })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
   }
 });
