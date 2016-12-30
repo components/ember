@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+2cb8e503
+ * @version   2.12.0-alpha.1-canary+29bbe61b
  */
 
 var enifed, requireModule, Ember;
@@ -33756,9 +33756,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       want to reuse an existing array without having to recreate it.
        ```javascript
       let colors = ['red', 'green', 'blue'];
-       color.length();   //  3
-      colors.clear();   //  []
-      colors.length();  //  0
+       colors.length;  // 3
+      colors.clear(); // []
+      colors.length;  // 0
       ```
        @method clear
       @return {Ember.Array} An empty Array.
@@ -43086,7 +43086,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+2cb8e503";
+  exports.default = "2.12.0-alpha.1-canary+29bbe61b";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
