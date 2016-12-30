@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+29bbe61b
+ * @version   2.12.0-alpha.1-canary+59ff63b3
  */
 
 var enifed, requireModule, Ember;
@@ -33645,7 +33645,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal'], functi
      let App = Ember.Application.create();
      let appInstance = App.buildInstance();
       // if all of type `connection` must not be singletons
-     appInstance.optionsForType('connection', { singleton: false });
+     appInstance.registerOptionsForType('connection', { singleton: false });
       appInstance.register('connection:twitter', TwitterConnection);
      appInstance.register('connection:facebook', FacebookConnection);
       let twitter = appInstance.lookup('connection:twitter');
@@ -40029,7 +40029,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+29bbe61b";
+  exports.default = "2.12.0-alpha.1-canary+59ff63b3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
