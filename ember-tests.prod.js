@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+4823cc19
+ * @version   2.12.0-alpha.1-canary+ea632bf5
  */
 
 var enifed, requireModule, Ember;
@@ -38943,6 +38943,16 @@ enifed('ember-metal/tests/main_test', ['exports', 'ember-metal/index'], function
     expectDeprecation(function () {
       new _emberMetalIndex.default.Backburner(['foo']);
     }, 'Usage of Ember.Backburner is deprecated.');
+  });
+
+  QUnit.test('Ember.K is deprecated', function (assert) {
+    expectDeprecation(function () {
+      var obj = {
+        noop: _emberMetalIndex.default.K
+      };
+
+      assert.equal(obj, obj.noop());
+    }, 'Ember.K is deprecated in favor of defining a function inline.');
   });
 });
 enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (exports, _emberMetalMap) {

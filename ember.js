@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+4823cc19
+ * @version   2.12.0-alpha.1-canary+ea632bf5
  */
 
 var enifed, requireModule, Ember;
@@ -42774,15 +42774,21 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
     @return {Object}
     @public
   */
-  _emberMetal.default.K = function K() {
-    _emberMetal.deprecate('Ember.K is deprecated in favor of defining a function inline.', false, {
-      id: 'ember-metal.ember-k',
-      until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_code-ember-k-code'
-    });
-
+  function deprecatedEmberK() {
     return this;
-  };
+  }
+
+  Object.defineProperty(_emberMetal.default, 'K', {
+    get: function () {
+      _emberMetal.deprecate('Ember.K is deprecated in favor of defining a function inline.', false, {
+        id: 'ember-metal.ember-k',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_code-ember-k-code'
+      });
+
+      return deprecatedEmberK;
+    }
+  });
 
   Object.defineProperty(_emberMetal.default, 'testing', {
     get: _emberMetal.isTesting,
@@ -43086,7 +43092,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+4823cc19";
+  exports.default = "2.12.0-alpha.1-canary+ea632bf5";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
