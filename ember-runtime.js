@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+d26c3fbb
+ * @version   2.12.0-alpha.1-canary+b2061a14
  */
 
 var enifed, requireModule, Ember;
@@ -5676,6 +5676,8 @@ enifed('ember-metal/injected_property', ['exports', 'ember-utils', 'ember-metal/
   InjectedPropertyPrototype.teardown = ComputedPropertyPrototype.teardown;
 });
 enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-metal/features'], function (exports, _emberEnvironment, _emberMetalFeatures) {
+  /* global console */
+
   'use strict';
 
   exports.instrument = instrument;
@@ -8397,7 +8399,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   }
 
   exports.Mixin = Mixin;
-  exports.required = required;
   exports.REQUIRED = REQUIRED;
 });
 enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/events'], function (exports, _emberMetalWatching, _emberMetalEvents) {
@@ -10929,21 +10930,22 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
         return spaceship(v.localeCompare(w), 0);
 
       case 'array':
-        var vLen = v.length;
-        var wLen = w.length;
-        var len = Math.min(vLen, wLen);
+        {
+          var vLen = v.length;
+          var wLen = w.length;
+          var len = Math.min(vLen, wLen);
 
-        for (var i = 0; i < len; i++) {
-          var r = compare(v[i], w[i]);
-          if (r !== 0) {
-            return r;
+          for (var i = 0; i < len; i++) {
+            var r = compare(v[i], w[i]);
+            if (r !== 0) {
+              return r;
+            }
           }
+
+          // all elements are equal now
+          // shorter array should be ordered first
+          return spaceship(vLen, wLen);
         }
-
-        // all elements are equal now
-        // shorter array should be ordered first
-        return spaceship(vLen, wLen);
-
       case 'instance':
         if (_emberRuntimeMixinsComparable.default && _emberRuntimeMixinsComparable.default.detect(v)) {
           return v.compare(v, w);
@@ -19624,7 +19626,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+d26c3fbb";
+  exports.default = "2.12.0-alpha.1-canary+b2061a14";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
