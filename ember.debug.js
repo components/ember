@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+7ee96433
+ * @version   2.12.0-alpha.1-canary+d26c3fbb
  */
 
 var enifed, requireModule, Ember;
@@ -3650,8 +3650,6 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
   */
 
   var Application = _emberApplicationSystemEngine.default.extend({
-    _suppressDeferredDeprecation: true,
-
     /**
       The root DOM element of the Application. This can be specified as an
       element or a
@@ -43092,7 +43090,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+7ee96433";
+  exports.default = "2.12.0-alpha.1-canary+d26c3fbb";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
