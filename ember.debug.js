@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+17370446
+ * @version   2.12.0-alpha.1-canary+24f47eb5
  */
 
 var enifed, requireModule, Ember;
@@ -39952,8 +39952,8 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
   
     @method setOwner
     @for Ember
-    @param {Object} object An object with an owner.
-    @return {Object} An owner object.
+    @param {Object} object An object instance.
+    @param {Object} object The new owner object of the object instance.
     @since 2.3.0
     @public
   */
@@ -43096,7 +43096,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+17370446";
+  exports.default = "2.12.0-alpha.1-canary+24f47eb5";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
