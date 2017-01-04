@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+b2061a14
+ * @version   2.12.0-alpha.1-canary+17370446
  */
 
 var enifed, requireModule, Ember;
@@ -9274,6 +9274,7 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/utils/referenc
   };
 });
 enifed('ember-glimmer/helpers/debugger', ['exports', 'ember-metal/debug', 'glimmer-runtime'], function (exports, _emberMetalDebug, _glimmerRuntime) {
+  /* eslint no-debugger:off */
   /*jshint debug:true*/
 
   /**
@@ -16859,6 +16860,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-utils', 'ember-metal/
   InjectedPropertyPrototype.teardown = ComputedPropertyPrototype.teardown;
 });
 enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-metal/features'], function (exports, _emberEnvironment, _emberMetalFeatures) {
+  /* eslint no-console:off */
   /* global console */
 
   'use strict';
@@ -16997,8 +16999,8 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-me
       result = payload;
     } finally {
       finalizer();
-      return result;
     }
+    return result;
   }
 
   function NOOP() {}
@@ -40037,7 +40039,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+b2061a14";
+  exports.default = "2.12.0-alpha.1-canary+17370446";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
