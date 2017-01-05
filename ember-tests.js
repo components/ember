@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+7dbf597a
+ * @version   2.12.0-alpha.1-canary+a8519b2b
  */
 
 var enifed, requireModule, Ember;
@@ -39075,6 +39075,19 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
 
     _emberMetalProperty_get.get(obj, 'qux'); // CP chain re-recreated
     ok(true, 'no crash');
+  });
+
+  QUnit.test('checks cache correctly', function (assert) {
+    var obj = {};
+    var parentChainNode = new _emberMetalChains.ChainNode(null, null, obj);
+    var chainNode = new _emberMetalChains.ChainNode(parentChainNode, 'foo');
+
+    _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed.default(function () {
+      return undefined;
+    }));
+    _emberMetalProperty_get.get(obj, 'foo');
+
+    assert.strictEqual(chainNode.value(), undefined);
   });
 });
 enifed('ember-metal/tests/chains_test.lint-test', ['exports'], function (exports) {
