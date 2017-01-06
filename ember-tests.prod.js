@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+6eef3656
+ * @version   2.12.0-alpha.1-canary+9b3d581e
  */
 
 var enifed, requireModule, Ember;
@@ -214,16 +214,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
   });
 
   function lookupFactory(name, container, options) {
-    var factory = undefined;
-    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
-      ignoreDeprecation(function () {
-        factory = container.lookupFactory(name, options);
-      });
-    } else {
-      factory = container.lookupFactory(name, options);
-    }
-
-    return factory;
+    return container[_container.LOOKUP_FACTORY](name, options);
   }
 
   QUnit.test('A registered factory returns the same instance each time', function () {
@@ -912,7 +903,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
       assert.deepEqual(factoryCreator.class, Component, 'No double extend');
     } else {
-      assert.deepEqual(factoryCreator.class, container.lookupFactory('component:foo-bar'), 'Double extended class');
+      assert.deepEqual(factoryCreator.class, lookupFactory('component:foo-bar', container), 'Double extended class');
     }
   });
 
@@ -47317,7 +47308,11 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
       ok(controller instanceof BasicController, 'should return base class of controller');
     } else {
-      ok(controller instanceof appInstance._lookupFactory('controller:basic'), 'should return double-extended controller');
+      var doubleExtendedFactory = undefined;
+      ignoreDeprecation(function () {
+        doubleExtendedFactory = appInstance._lookupFactory('controller:basic');
+      });
+      ok(controller instanceof doubleExtendedFactory, 'should return double-extended controller');
     }
   });
 });

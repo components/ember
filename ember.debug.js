@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+6eef3656
+ * @version   2.12.0-alpha.1-canary+9b3d581e
  */
 
 var enifed, requireModule, Ember;
@@ -1342,7 +1342,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
         throw new Error('If ember-no-double-extend is enabled, ember-factory-for must also be enabled');
       }
     }
-    var factory = this.lookupFactory(fullName, options);
+    var factory = this[LOOKUP_FACTORY](fullName, options);
     if (factory === undefined) {
       return;
     }
@@ -43088,7 +43088,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+6eef3656";
+  exports.default = "2.12.0-alpha.1-canary+9b3d581e";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
