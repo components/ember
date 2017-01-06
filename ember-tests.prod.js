@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+9b3d581e
+ * @version   2.12.0-alpha.1-canary+44188c67
  */
 
 var enifed, requireModule, Ember;
@@ -8813,7 +8813,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test.lint-test', ['ex
     assert.ok(true, 'ember-glimmer/tests/integration/application/engine-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing'], function (exports, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRouting) {
+enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing', 'ember-metal', 'ember-glimmer'], function (exports, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRouting, _emberMetal, _emberGlimmer) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
@@ -9154,6 +9154,45 @@ babelHelpers.inherits(_class, _ApplicationTest);
           content: 'Hello from A!'
         });
       });
+    };
+
+    _class.prototype['@test it emits a useful backtracking re-render assertion message'] = function testItEmitsAUsefulBacktrackingReRenderAssertionMessage(assert) {
+      var _this13 = this;
+
+      this.router.map(function () {
+        this.route('routeWithError');
+      });
+
+      this.registerRoute('routeWithError', _emberRouting.Route.extend({
+        model: function () {
+          return { name: 'Alex' };
+        }
+      }));
+
+      this.registerTemplate('routeWithError', 'Hi {{model.name}} {{x-foo person=model}}');
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('person.name', 'Ben');
+          }
+        }),
+        template: 'Hi {{person.name}} from component'
+      });
+
+      var expectedBacktrackingMessage = /modified "model\.name" twice on \[object Object\] in a single render\. It was rendered in "template:routeWithError" and modified in "component:x-foo"/;
+
+      if (false) {
+        expectDeprecation(expectedBacktrackingMessage);
+        return this.visit('/routeWithError');
+      } else {
+        return this.visit('/').then(function () {
+          expectAssertion(function () {
+            _this13.visit('/routeWithError');
+          }, expectedBacktrackingMessage);
+        });
+      }
     };
 
     return _class;
@@ -15285,10 +15324,6 @@ babelHelpers.inherits(_class, _RenderingTest);
     _class.prototype['@test when a property is changed during children\'s rendering'] = function testWhenAPropertyIsChangedDuringChildrenSRendering(assert) {
       var _this61 = this;
 
-      if (false) {
-        expectDeprecation(/modified value twice on <\(.+> in a single render/);
-      }
-
       var outer = undefined,
           middle = undefined;
 
@@ -15336,18 +15371,21 @@ babelHelpers.inherits(_class, _RenderingTest);
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
       assert.equal(this.$('#middle-value').text(), '', 'initial render of middle (observers do not run during init)');
 
-      if (!false) {
+      var expectedBacktrackingMessage = /modified "value" twice on <\(.+> in a single render\. It was rendered in "component:x-middle" and modified in "component:x-inner"/;
+
+      if (false) {
+        expectDeprecation(expectedBacktrackingMessage);
+        this.runTask(function () {
+          return outer.set('value', 2);
+        });
+      } else {
         expectAssertion(function () {
           _this61.runTask(function () {
             return outer.set('value', 2);
           });
-        }, /modified value twice on <\(.+> in a single render/);
+        }, expectedBacktrackingMessage);
 
         return;
-      } else {
-        this.runTask(function () {
-          return outer.set('value', 2);
-        });
       }
 
       assert.equal(this.$('#inner-value').text(), '2', 'second render of inner');
@@ -15370,10 +15408,6 @@ babelHelpers.inherits(_class, _RenderingTest);
 
     _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function testWhenASharedDependencyIsChangedDuringChildrenSRendering(assert) {
       var _this62 = this;
-
-      if (false) {
-        expectDeprecation(/modified wrapper.content twice on <Ember.Object.+> in a single render/);
-      }
 
       var outer = undefined;
 
@@ -15399,14 +15433,17 @@ babelHelpers.inherits(_class, _RenderingTest);
         template: '<div id="inner-value">{{wrapper.content}}</div>'
       });
 
-      if (!false) {
+      var expectedBacktrackingMessage = /modified "wrapper\.content" twice on <Ember\.Object.+> in a single render\. It was rendered in "component:x-outer" and modified in "component:x-inner"/;
+
+      if (false) {
+        expectDeprecation(expectedBacktrackingMessage);
+        this.render('{{x-outer}}');
+      } else {
         expectAssertion(function () {
           _this62.render('{{x-outer}}');
-        }, /modified wrapper.content twice on <Ember.Object.+> in a single render/);
+        }, expectedBacktrackingMessage);
 
         return;
-      } else {
-        this.render('{{x-outer}}');
       }
 
       assert.equal(this.$('#inner-value').text(), '1', 'initial render of inner');
@@ -17180,6 +17217,41 @@ babelHelpers.inherits(_class, _RenderingTest);
       });
 
       this.assertText('Foo4');
+    };
+
+    _class.prototype['@test component helper emits useful backtracking re-render assertion message'] = function testComponentHelperEmitsUsefulBacktrackingReRenderAssertionMessage(assert) {
+      var _this25 = this;
+
+      this.registerComponent('outer-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('person', { name: 'Alex' });
+          }
+        }),
+        template: 'Hi {{person.name}}! {{component "error-component" person=person}}'
+      });
+
+      this.registerComponent('error-component', {
+        ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('person.name', { name: 'Ben' });
+          }
+        }),
+        template: '{{person.name}}'
+      });
+
+      var expectedBacktrackingMessage = /modified "person\.name" twice on \[object Object\] in a single render\. It was rendered in "component:outer-component" and modified in "component:error-component"/;
+
+      if (false) {
+        expectDeprecation(expectedBacktrackingMessage);
+        this.render('{{component componentName}}', { componentName: 'outer-component' });
+      } else {
+        expectAssertion(function () {
+          _this25.render('{{component componentName}}', { componentName: 'outer-component' });
+        }, expectedBacktrackingMessage);
+      }
     };
 
     return _class;
@@ -30222,6 +30294,36 @@ enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember
       postController.send('someAction');
     };
 
+    _class.prototype['@test render helper emits useful backtracking re-render assertion message'] = function testRenderHelperEmitsUsefulBacktrackingReRenderAssertionMessage(assert) {
+      var _this21 = this;
+
+      this.owner.register('controller:outer', _emberRuntime.Controller.extend());
+      this.owner.register('controller:inner', _emberRuntime.Controller.extend({
+        propertyWithError: _emberMetal.computed(function () {
+          this.set('model.name', 'this will cause a backtracking error');
+          return 'foo';
+        })
+      }));
+
+      var expectedBacktrackingMessage = /modified "model\.name" twice on \[object Object\] in a single render\. It was rendered in "controller:outer \(with the render helper\)" and modified in "controller:inner \(with the render helper\)"/;
+
+      expectDeprecation(function () {
+        var person = { name: 'Ben' };
+
+        _this21.registerTemplate('outer', 'Hi {{model.name}} | {{render \'inner\' model}}');
+        _this21.registerTemplate('inner', 'Hi {{propertyWithError}}');
+
+        if (false) {
+          expectDeprecation(expectedBacktrackingMessage);
+          _this21.render('{{render \'outer\' person}}', { person: person });
+        } else {
+          expectAssertion(function () {
+            _this21.render('{{render \'outer\' person}}', { person: person });
+          }, expectedBacktrackingMessage);
+        }
+      });
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
@@ -31866,6 +31968,43 @@ enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-utils', 
 
         _this5.assertComponentElement(_this5.firstChild, { content: '<h2>Chat here, dgeb</h2>' });
       });
+    };
+
+    _class2.prototype['@test it emits a useful backtracking re-render assertion message'] = function testItEmitsAUsefulBacktrackingReRenderAssertionMessage(assert) {
+      var _this6 = this;
+
+      this.router.map(function () {
+        this.route('route-with-mount');
+      });
+
+      this.registerTemplate('index', '');
+      this.registerTemplate('route-with-mount', '{{mount "chat"}}');
+
+      this.engineRegistrations['template:application'] = _emberGlimmerTestsUtilsHelpers.compile('hi {{person.name}} [{{component-with-backtracking-set person=person}}]', { moduleName: 'application' });
+      this.engineRegistrations['controller:application'] = _emberRuntime.Controller.extend({
+        person: { name: 'Alex' }
+      });
+
+      this.engineRegistrations['template:components/component-with-backtracking-set'] = _emberGlimmerTestsUtilsHelpers.compile('[component {{person.name}}]', { moduleName: 'components/component-with-backtracking-set' });
+      this.engineRegistrations['component:component-with-backtracking-set'] = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.set('person.name', 'Ben');
+        }
+      });
+
+      var expectedBacktrackingMessage = /modified "person\.name" twice on \[object Object\] in a single render\. It was rendered in "template:route-with-mount" \(in "engine:chat"\) and modified in "component:component-with-backtracking-set" \(in "engine:chat"\)/;
+
+      if (false) {
+        expectDeprecation(expectedBacktrackingMessage);
+        return this.visit('/route-with-mount');
+      } else {
+        return this.visit('/').then(function () {
+          expectAssertion(function () {
+            _this6.visit('/route-with-mount');
+          }, expectedBacktrackingMessage);
+        });
+      }
     };
 
     return _class2;
@@ -35348,6 +35487,18 @@ enifed('ember-glimmer/tests/unit/template-factory-test.lint-test', ['exports'], 
     assert.ok(true, 'ember-glimmer/tests/unit/template-factory-test.js should pass ESLint\n\n');
   });
 });
+enifed('ember-glimmer/tests/unit/utils/debug-stack-test', ['exports', 'ember-glimmer/utils/debug-stack', 'ember-metal'], function (exports, _emberGlimmerUtilsDebugStack, _emberMetal) {
+  'use strict';
+});
+enifed('ember-glimmer/tests/unit/utils/debug-stack-test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/tests/unit/utils/debug-stack-test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/tests/unit/utils/debug-stack-test.js should pass ESLint\n\n');
+  });
+});
 enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'internal-test-helpers'], function (exports, _internalTestHelpers) {
   'use strict';
 
@@ -36589,6 +36740,15 @@ enifed('ember-glimmer/utils/bindings.lint-test', ['exports'], function (exports)
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-glimmer/utils/bindings.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-glimmer/utils/debug-stack.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/utils/debug-stack.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/utils/debug-stack.js should pass ESLint\n\n');
   });
 });
 enifed('ember-glimmer/utils/iterable.lint-test', ['exports'], function (exports) {

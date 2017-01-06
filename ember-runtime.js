@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+9b3d581e
+ * @version   2.12.0-alpha.1-canary+44188c67
  */
 
 var enifed, requireModule, Ember;
@@ -6733,7 +6733,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     return original;
   }
 });
-enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/debug', 'ember-metal/chains'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalDebug, _emberMetalChains) {
+enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/debug', 'ember-metal/chains', 'require'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalDebug, _emberMetalChains, _require) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -6798,13 +6798,19 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
   if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
     members.lastRendered = ownMap;
-    members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
+    if (_require.has('ember-debug')) {
+      //https://github.com/emberjs/ember.js/issues/14732
+      members.lastRenderedReferenceMap = ownMap;
+      members.lastRenderedTemplateMap = ownMap;
+    }
   }
 
   var memberNames = Object.keys(members);
   var META_FIELD = '__ember_meta__';
 
   function Meta(obj, parentMeta) {
+    var _this = this;
+
     _emberMetalDebug.runInDebug(function () {
       return counters.metaInstantiated++;
     });
@@ -6840,7 +6846,10 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
     if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
       this._lastRendered = undefined;
-      this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
+      _emberMetalDebug.runInDebug(function () {
+        _this._lastRenderedReferenceMap = undefined;
+        _this._lastRenderedTemplateMap = undefined;
+      });
     }
 
     this._initializeListeners();
@@ -10343,10 +10352,14 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       var counter = 0;
       var inTransaction = false;
       var shouldReflush = undefined;
+      var debugStack = undefined;
 
       exports.default = runInTransaction = function (context, methodName) {
         shouldReflush = false;
         inTransaction = true;
+        _emberMetalDebug.runInDebug(function () {
+          debugStack = context.env.debugStack;
+        });
         context[methodName]();
         inTransaction = false;
         counter++;
@@ -10362,8 +10375,13 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
         lastRendered[key] = counter;
 
         _emberMetalDebug.runInDebug(function () {
-          var lastRenderedFrom = meta.writableLastRenderedFrom();
-          lastRenderedFrom[key] = reference;
+          var referenceMap = meta.writableLastRenderedReferenceMap();
+          referenceMap[key] = reference;
+
+          var templateMap = meta.writableLastRenderedTemplateMap();
+          if (templateMap[key] === undefined) {
+            templateMap[key] = debugStack.peek();
+          }
         });
       };
 
@@ -10373,10 +10391,13 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
 
         if (lastRendered && lastRendered[key] === counter) {
           raise((function () {
-            var ref = meta.readableLastRenderedFrom();
-            var parts = [];
-            var lastRef = ref[key];
+            var templateMap = meta.readableLastRenderedTemplateMap();
+            var lastRenderedIn = templateMap[key];
+            var currentlyIn = debugStack.peek();
 
+            var referenceMap = meta.readableLastRenderedReferenceMap();
+            var lastRef = referenceMap[key];
+            var parts = [];
             var label = undefined;
 
             if (lastRef) {
@@ -10385,12 +10406,12 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
                 lastRef = lastRef._parentReference;
               }
 
-              label = parts.join();
+              label = parts.join('.');
             } else {
               label = 'the same value';
             }
 
-            return 'You modified ' + label + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
+            return 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and ' + implication;
           })(), false);
 
           shouldReflush = true;
@@ -19627,7 +19648,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+9b3d581e";
+  exports.default = "2.12.0-alpha.1-canary+44188c67";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
