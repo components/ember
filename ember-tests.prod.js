@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+8cb17021
+ * @version   2.12.0-alpha.1-canary+c925588d
  */
 
 var enifed, requireModule, Ember;
@@ -8025,6 +8025,15 @@ enifed('ember-glimmer/syntax.lint-test', ['exports'], function (exports) {
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-glimmer/syntax.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-glimmer/syntax/abstract-manager.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/syntax/abstract-manager.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/syntax/abstract-manager.js should pass ESLint\n\n');
   });
 });
 enifed('ember-glimmer/syntax/curly-component.lint-test', ['exports'], function (exports) {

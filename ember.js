@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+8cb17021
+ * @version   2.12.0-alpha.1-canary+c925588d
  */
 
 var enifed, requireModule, Ember;
@@ -12667,7 +12667,28 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
     return _class2;
   })());
 });
-enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-views', 'ember-glimmer/utils/process-args', 'container'], function (exports, _emberUtils, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberViews, _emberGlimmerUtilsProcessArgs, _container) {
+enifed('ember-glimmer/syntax/abstract-manager', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+  'use strict';
+
+  var AbstractManager = function AbstractManager() {
+    babelHelpers.classCallCheck(this, AbstractManager);
+  };
+
+  _emberMetal.runInDebug(function () {
+    AbstractManager.prototype._pushToDebugStack = function (name, environment) {
+      this.debugStack = environment.debugStack;
+      this.debugStack.push(name);
+    };
+
+    AbstractManager.prototype._pushEngineToDebugStack = function (name, environment) {
+      this.debugStack = environment.debugStack;
+      this.debugStack.pushEngine(name);
+    };
+  });
+
+  exports.default = AbstractManager;
+});
+enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-views', 'ember-glimmer/utils/process-args', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _emberUtils, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberViews, _emberGlimmerUtilsProcessArgs, _container, _emberGlimmerSyntaxAbstractManager) {
   'use strict';
 
   exports.validatePositionalParameters = validatePositionalParameters;
@@ -12837,9 +12858,13 @@ babelHelpers.classCallCheck(this, ComponentStateBucket);
     return component.instrumentDetails({ initialRender: false });
   }
 
-  var CurlyComponentManager = (function () {
+  var CurlyComponentManager = (function (_AbstractManager) {
+babelHelpers.inherits(CurlyComponentManager, _AbstractManager);
+
     function CurlyComponentManager() {
 babelHelpers.classCallCheck(this, CurlyComponentManager);
+
+      _AbstractManager.apply(this, arguments);
     }
 
     CurlyComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
@@ -13077,14 +13102,7 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
     };
 
     return CurlyComponentManager;
-  })();
-
-  _emberMetal.runInDebug(function () {
-    CurlyComponentManager.prototype._pushToDebugStack = function (name, environment) {
-      this.debugStack = environment.debugStack;
-      this.debugStack.push(name);
-    };
-  });
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   var MANAGER = new CurlyComponentManager();
 
@@ -13468,7 +13486,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/s
   };
   exports.InputSyntax = InputSyntax;
 });
-enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container) {
+enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -13530,9 +13548,13 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
 
   exports.MountSyntax = MountSyntax;
 
-  var MountManager = (function () {
+  var MountManager = (function (_AbstractManager) {
+    babelHelpers.inherits(MountManager, _AbstractManager);
+
     function MountManager() {
       babelHelpers.classCallCheck(this, MountManager);
+
+      _AbstractManager.apply(this, arguments);
     }
 
     MountManager.prototype.prepareArgs = function prepareArgs(definition, args) {
@@ -13546,7 +13568,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
       var _this = this;
 
       _emberMetal.runInDebug(function () {
-        return _this._pushToDebugStack('engine:' + name, env);
+        return _this._pushEngineToDebugStack('engine:' + name, env);
       });
 
       dynamicScope.outletState = _glimmerReference.UNDEFINED_REFERENCE;
@@ -13602,14 +13624,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
     MountManager.prototype.didUpdate = function didUpdate(state) {};
 
     return MountManager;
-  })();
-
-  _emberMetal.runInDebug(function () {
-    MountManager.prototype._pushToDebugStack = function (name, environment) {
-      this.debugStack = environment.debugStack;
-      this.debugStack.pushEngine(name);
-    };
-  });
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   var MOUNT_MANAGER = new MountManager();
 
@@ -13626,7 +13641,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
     return MountDefinition;
   })(_glimmerRuntime.ComponentDefinition);
 });
-enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-metal', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberUtils, _glimmerRuntime, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference) {
+enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-metal', 'ember-glimmer/utils/references', 'glimmer-reference', 'ember-glimmer/syntax/abstract-manager'], function (exports, _emberUtils, _glimmerRuntime, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -13815,9 +13830,13 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     return StateBucket;
   })();
 
-  var OutletComponentManager = (function () {
+  var OutletComponentManager = (function (_AbstractManager) {
+    babelHelpers.inherits(OutletComponentManager, _AbstractManager);
+
     function OutletComponentManager() {
       babelHelpers.classCallCheck(this, OutletComponentManager);
+
+      _AbstractManager.apply(this, arguments);
     }
 
     OutletComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
@@ -13875,14 +13894,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     OutletComponentManager.prototype.didUpdate = function didUpdate(state) {};
 
     return OutletComponentManager;
-  })();
-
-  _emberMetal.runInDebug(function () {
-    OutletComponentManager.prototype._pushToDebugStack = function (name, environment) {
-      this.debugStack = environment.debugStack;
-      this.debugStack.push(name);
-    };
-  });
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   var MANAGER = new OutletComponentManager();
 
@@ -13982,7 +13994,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
 
   OutletLayoutCompiler.id = 'outlet';
 });
-enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container) {
+enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -14121,9 +14133,13 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
 
   exports.RenderSyntax = RenderSyntax;
 
-  var AbstractRenderManager = (function () {
+  var AbstractRenderManager = (function (_AbstractManager) {
+    babelHelpers.inherits(AbstractRenderManager, _AbstractManager);
+
     function AbstractRenderManager() {
       babelHelpers.classCallCheck(this, AbstractRenderManager);
+
+      _AbstractManager.apply(this, arguments);
     }
 
     AbstractRenderManager.prototype.prepareArgs = function prepareArgs(definition, args) {
@@ -14163,16 +14179,11 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
     AbstractRenderManager.prototype.didUpdate = function didUpdate() {};
 
     return AbstractRenderManager;
-  })();
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   _emberMetal.runInDebug(function () {
     AbstractRenderManager.prototype.didRenderLayout = function () {
       this.debugStack.pop();
-    };
-
-    AbstractRenderManager.prototype._pushToDebugStack = function (name, environment) {
-      this.debugStack = environment.debugStack;
-      this.debugStack.push(name);
     };
   });
 
@@ -43310,7 +43321,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+8cb17021";
+  exports.default = "2.12.0-alpha.1-canary+c925588d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
