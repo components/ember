@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+ade924fc
+ * @version   2.12.0-alpha.1-canary+f21b297c
  */
 
 var enifed, requireModule, Ember;
@@ -13067,8 +13067,8 @@ babelHelpers.classCallCheck(this, CurlyComponentManager);
         component.setProperties(props);
         component[_emberGlimmerComponent.IS_DISPATCHING_ATTRS] = false;
 
-        component.trigger('didUpdateAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
-        component.trigger('didReceiveAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
+        _emberViews.dispatchLifeCycleHook(component, 'didUpdateAttrs', oldAttrs, newAttrs);
+        _emberViews.dispatchLifeCycleHook(component, 'didReceiveAttrs', oldAttrs, newAttrs);
       }
 
       if (environment.isInteractive) {
@@ -40848,6 +40848,7 @@ enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/s
   exports.ChildViewsSupport = _emberViewsMixinsChild_views_support.default;
   exports.ViewStateSupport = _emberViewsMixinsView_state_support.default;
   exports.ViewMixin = _emberViewsMixinsView_support.default;
+  exports.dispatchLifeCycleHook = _emberViewsMixinsView_support.dispatchLifeCycleHook;
   exports.ActionSupport = _emberViewsMixinsAction_support.default;
   exports.MUTABLE_CELL = _emberViewsCompatAttrs.MUTABLE_CELL;
   exports.lookupPartial = _emberViewsSystemLookup_partial.default;
@@ -41464,6 +41465,62 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     return this;
   }
 
+  var dispatchLifeCycleHook = function (component, hook, oldAttrs, newAttrs) {
+    component.trigger(hook, { attrs: newAttrs, oldAttrs: oldAttrs, newAttrs: newAttrs });
+  };
+
+  exports.dispatchLifeCycleHook = dispatchLifeCycleHook;
+  _emberMetal.runInDebug(function () {
+    var Attrs = (function () {
+      function Attrs(oldAttrs, newAttrs, message) {
+        babelHelpers.classCallCheck(this, Attrs);
+
+        this._oldAttrs = oldAttrs;
+        this._newAttrs = newAttrs;
+        this._message = message;
+      }
+
+      babelHelpers.createClass(Attrs, [{
+        key: 'attrs',
+        get: function () {
+          return this.newAttrs;
+        }
+      }, {
+        key: 'oldAttrs',
+        get: function () {
+          _emberMetal.deprecate(this._message, false, {
+            id: 'ember-views.lifecycle-hook-arguments',
+            until: '2.13.0',
+            url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+          });
+
+          return this._oldAttrs;
+        }
+      }, {
+        key: 'newAttrs',
+        get: function () {
+          _emberMetal.deprecate(this._message, false, {
+            id: 'ember-views.lifecycle-hook-arguments',
+            until: '2.13.0',
+            url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+          });
+
+          return this._newAttrs;
+        }
+      }]);
+      return Attrs;
+    })();
+
+    exports.dispatchLifeCycleHook = dispatchLifeCycleHook = function (component, hook, oldAttrs, newAttrs) {
+      if (typeof component[hook] === 'function' && component[hook].length !== 0) {
+        // Already warned in init
+        component.trigger(hook, { attrs: newAttrs, oldAttrs: oldAttrs, newAttrs: newAttrs });
+      } else {
+        component.trigger(hook, new Attrs(oldAttrs, newAttrs, '[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + component.toString() + '#' + hook + '` to stop taking arguments.'));
+      }
+    };
+  });
+
   /**
    @class ViewMixin
    @namespace Ember
@@ -41472,8 +41529,8 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
   exports.default = _emberMetal.Mixin.create((_Mixin$create = {
     concatenatedProperties: ['attributeBindings']
   }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
-    this.trigger('didInitAttrs', { attrs: this.attrs });
-    this.trigger('didReceiveAttrs', { newAttrs: this.attrs });
+    dispatchLifeCycleHook(this, 'didInitAttrs', undefined, this.attrs);
+    dispatchLifeCycleHook(this, 'didReceiveAttrs', undefined, this.attrs);
   }, _Mixin$create.nearestOfType = function (klass) {
     var view = this.parentView;
     var isOfType = klass instanceof _emberMetal.Mixin ? function (view) {
@@ -41594,6 +41651,24 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
       url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+    });
+
+    _emberMetal.deprecate('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didInitAttrs` to stop taking arguments.', typeof this.didInitAttrs !== 'function' || this.didInitAttrs.length === 0, {
+      id: 'ember-views.lifecycle-hook-arguments',
+      until: '2.13.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+    });
+
+    _emberMetal.deprecate('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didReceiveAttrs` to stop taking arguments.', typeof this.didReceiveAttrs !== 'function' || this.didReceiveAttrs.length === 0, {
+      id: 'ember-views.lifecycle-hook-arguments',
+      until: '2.13.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+    });
+
+    _emberMetal.deprecate('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didUpdateAttrs` to stop taking arguments.', typeof this.didUpdateAttrs !== 'function' || this.didUpdateAttrs.length === 0, {
+      id: 'ember-views.lifecycle-hook-arguments',
+      until: '2.13.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
     });
 
     _emberMetal.assert('Using a custom `.render` function is no longer supported.', !this.render);
@@ -43321,7 +43396,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+ade924fc";
+  exports.default = "2.12.0-alpha.1-canary+f21b297c";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
