@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+f21b297c
+ * @version   2.12.0-alpha.1-canary+baf09edf
  */
 
 var enifed, requireModule, Ember;
@@ -772,7 +772,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
   // This is testing that container was passed as an option
   QUnit.test('A deprecated `container` property is appended to every object instantiated from a non-extendable factory, and a fake container is available during instantiation.', function () {
-    if (!_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (!true) {
       expect(8);
     } else {
       expect(1);
@@ -815,7 +815,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
     registry.register('controller:post', PostController);
 
-    if (!_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (!true) {
       (function () {
         var postController = container.lookup('controller:post');
 
@@ -907,7 +907,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     }
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+  if (true) {
     QUnit.test('#factoryFor must supply a fullname', function (assert) {
       var registry = new _containerIndex.Registry();
       var container = registry.container();
@@ -2618,7 +2618,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
       equal(locator.lookupFactory('template:fooBar.baz'), fooBarBazTemplate, 'resolves template:foo_bar.baz');
     });
 
-    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (true) {
       equal(locator.factoryFor('template:foo').class, fooTemplate, 'resolves template:foo');
       equal(locator.factoryFor('template:fooBar').class, fooBarTemplate, 'resolves template:foo_bar');
       equal(locator.factoryFor('template:fooBar.baz').class, fooBarBazTemplate, 'resolves template:foo_bar.baz');
@@ -2645,7 +2645,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     ignoreDeprecation(function () {
       detectEqual(application.Post, locator.lookupFactory('model:post'), 'looks up Post model on application');
     });
-    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (true) {
       detectEqual(application.Post, locator.factoryFor('model:post').class, 'looks up Post model on application');
     }
   });
@@ -2656,12 +2656,12 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     ignoreDeprecation(function () {
       detectEqual(application.FooBar, locator.lookupFactory('foo-bar:main'), 'looks up FooBar type without name on application');
     });
-    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (true) {
       detectEqual(application.FooBar, locator.factoryFor('foo-bar:main').class, 'looks up FooBar type without name on application');
     }
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+  if (true) {
     QUnit.test('the default resolver resolves container-registered helpers', function () {
       var shorthandHelper = _emberGlimmer.helper(function () {});
       var helper = _emberGlimmer.Helper.extend();
@@ -2990,7 +2990,7 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
 
   QUnit.test('factories', function () {
     var PostFactory = undefined;
-    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (true) {
       PostFactory = App.__container__.factoryFor('model:post').class;
     } else {
       PostFactory = App.__container__.lookupFactory('model:post');
@@ -9444,7 +9444,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
 
       var XParent = undefined;
 
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         XParent = this.owner.factoryFor('component:x-parent');
       } else {
         XParent = this.owner._lookupFactory('component:x-parent');
@@ -9527,7 +9527,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
 
       var XParent = undefined;
 
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         XParent = this.owner.factoryFor('component:x-parent');
       } else {
         XParent = this.owner._lookupFactory('component:x-parent');
@@ -9615,7 +9615,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
       var First = undefined,
           Second = undefined;
 
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         First = this.owner.factoryFor('component:x-first');
         Second = this.owner.factoryFor('component:x-second');
       } else {
@@ -9715,7 +9715,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
             element1 = this.element;
 
             var SecondComponent = undefined;
-            if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+            if (true) {
               SecondComponent = owner.factoryFor('component:second-component');
             } else {
               SecondComponent = owner._lookupFactory('component:second-component');
@@ -9738,7 +9738,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
 
       var FirstComponent = undefined;
 
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         FirstComponent = this.owner.factoryFor('component:first-component');
       } else {
         FirstComponent = this.owner._lookupFactory('component:first-component');
@@ -9780,7 +9780,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
             element1 = this.element;
             var OtherRoot = undefined;
 
-            if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+            if (true) {
               OtherRoot = owner.factoryFor('component:other-root');
             } else {
               OtherRoot = owner._lookupFactory('component:other-root');
@@ -9814,7 +9814,7 @@ babelHelpers.inherits(AbstractAppendTest, _RenderingTest);
             element3 = this.element;
             var OtherRoot = undefined;
 
-            if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+            if (true) {
               OtherRoot = owner.factoryFor('component:other-root');
             } else {
               OtherRoot = owner._lookupFactory('component:other-root');
@@ -9926,7 +9926,7 @@ babelHelpers.inherits(_class2, _AbstractAppendTest2);
 
       var FooBar = undefined;
 
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         FooBar = this.owner.factoryFor('component:foo-bar');
       } else {
         FooBar = this.owner._lookupFactory('component:foo-bar');
@@ -32121,7 +32121,7 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer
       _RenderingTest.apply(this, arguments);
 
       var CoreOutlet = undefined;
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         CoreOutlet = this.owner.factoryFor('view:-outlet');
       } else {
         CoreOutlet = this.owner._lookupFactory('view:-outlet');
@@ -51234,7 +51234,7 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
 
         owner.register('foo:main', AnObject);
 
-        if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+        if (true) {
           expectDeprecation(function () {
             owner._lookupFactory('foo:main');
           }, /Using "_lookupFactory" is deprecated. Please use container.factoryFor instead./);
@@ -52063,7 +52063,7 @@ enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal', 'ember-runt
 
       owner.register('foo:main', AnObject);
 
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         expect(2);
         expectDeprecation(function () {
           owner._lookupFactory('foo:main');

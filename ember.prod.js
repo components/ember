@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+f21b297c
+ * @version   2.12.0-alpha.1-canary+baf09edf
  */
 
 var enifed, requireModule, Ember;
@@ -1319,7 +1319,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         return this.factoryFor(fullName, options);
       } else {
         /* This throws in case of a poorly designed build */
@@ -1395,7 +1395,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     return manager;
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+  if (true) {
     /**
      Given a fullName, return the corresponding factory. The consumer of the factory
      is responsible for the destruction of any factory instances, as there is no
@@ -1457,7 +1457,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       return container.cache[fullName];
     }
 
-    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (true) {
       return instantiateFactory(container, fullName, options);
     } else {
       var factory = deprecatedFactoryFor(container, fullName);
@@ -8728,7 +8728,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       var owner = blockMeta.owner;
       var options = blockMeta.moduleName && { source: 'template:' + blockMeta.moduleName } || {};
 
-      if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+      if (true) {
         var _ret = (function () {
           var helperFactory = owner[_container.FACTORY_FOR]('helper:' + name, options) || owner[_container.FACTORY_FOR]('helper:' + name);
 
@@ -31443,7 +31443,7 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'conta
     }
   }, _containerProxyMixin);
 
-  if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+  if (true) {
     containerProxyMixin.factoryFor = function ContainerProxyMixin_factoryFor(fullName) {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -39548,7 +39548,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": null, "ember-no-double-extend": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -40081,7 +40081,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+f21b297c";
+  exports.default = "2.12.0-alpha.1-canary+baf09edf";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -40143,7 +40143,7 @@ enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-rout
       return (_container__2 = this.__container__)[_container.LOOKUP_FACTORY].apply(_container__2, arguments);
     }, _EmberObject$extend));
 
-    if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    if (true) {
       Owner.reopen({
         factoryFor: function () {
           var _container__3;
