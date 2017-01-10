@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-beta.4-beta+2a0f93ff
+ * @version   2.11.0-beta.4-beta+f32130a2
  */
 
 var enifed, requireModule, Ember;
@@ -22913,7 +22913,7 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'internal-test-helpers', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _internalTestHelpers, _emberMetal) {
+enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'internal-test-helpers', 'ember-metal', 'ember-utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _internalTestHelpers, _emberMetal, _emberUtils) {
   /* globals EmberDev */
   'use strict';
 
@@ -23134,6 +23134,30 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
       this.assertText('2');
 
       assert.strictEqual(destroyCount, 0, 'destroy is not called on recomputation');
+    };
+
+    _class.prototype['@test helper params can be returned'] = function testHelperParamsCanBeReturned() {
+      this.registerHelper('hello-world', function (values) {
+        return values;
+      });
+
+      this.render('{{#each (hello-world model) as |item|}}({{item}}){{/each}}', {
+        model: ['bob']
+      });
+
+      this.assertText('(bob)');
+    };
+
+    _class.prototype['@test helper hash can be returned'] = function testHelperHashCanBeReturned() {
+      this.registerHelper('hello-world', function (_, hash) {
+        return hash.model;
+      });
+
+      this.render('{{get (hello-world model=model) \'name\'}}', {
+        model: { name: 'bob' }
+      });
+
+      this.assertText('bob');
     };
 
     _class.prototype['@test simple helper is called for param changes'] = function testSimpleHelperIsCalledForParamChanges() {
@@ -23627,7 +23651,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
     }
   })();
 
-  if (!EmberDev.runningProdBuild && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
+  if (!EmberDev.runningProdBuild && _emberUtils.HAS_NATIVE_WEAKMAP && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
     (function () {
       var HelperMutatingArgsTests = (function (_RenderingTest2) {
         babelHelpers.inherits(HelperMutatingArgsTests, _RenderingTest2);
