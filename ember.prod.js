@@ -1,12 +1,12 @@
 ;(function() {
 /*!
  * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2016 Tilde Inc. and contributors
+ * @copyright Copyright 2011-2017 Tilde Inc. and contributors
  *            Portions Copyright 2006-2011 Strobe Inc.
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-beta.4-beta+8c117499
+ * @version   2.11.0-beta.4-beta+ac1fcd47
  */
 
 var enifed, requireModule, Ember;
@@ -6203,16 +6203,15 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     The easiest way to create an `Ember.Component` is via
     a template. If you name a template
-    `components/my-foo`, you will be able to use
+    `app/components/my-foo.hbs`, you will be able to use
     `{{my-foo}}` in other templates, which will make
     an instance of the isolated component.
   
-    ```handlebars
-    {{app-profile person=currentUser}}
+    ```app/components/my-foo.hbs
+    {{person-profile person=currentUser}}
     ```
   
-    ```handlebars
-    <!-- app-profile template -->
+    ```app/components/person-profile.hbs
     <h1>{{person.title}}</h1>
     <img src={{person.avatar}}>
     <p class='signature'>{{person.signature}}</p>
@@ -6224,14 +6223,13 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     context of the surrounding context or outer controller:
   
     ```handlebars
-    {{#app-profile person=currentUser}}
+    {{#person-profile person=currentUser}}
       <p>Admin mode</p>
       {{! Executed in the controller's context. }}
-    {{/app-profile}}
+    {{/person-profile}}
     ```
   
-    ```handlebars
-    <!-- app-profile template -->
+    ```app/components/person-profile.hbs
     <h1>{{person.title}}</h1>
     {{! Executed in the component's context. }}
     {{yield}} {{! block contents }}
@@ -6240,16 +6238,17 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     If you want to customize the component, in order to
     handle events or actions, you implement a subclass
     of `Ember.Component` named after the name of the
-    component. Note that `Component` needs to be appended to the name of
-    your subclass like `AppProfileComponent`.
+    component.
   
     For example, you could implement the action
-    `hello` for the `app-profile` component:
+    `hello` for the `person-profile` component:
   
-    ```javascript
-    App.AppProfileComponent = Ember.Component.extend({
+    ```app/components/person-profile.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
       actions: {
-        hello: function(name) {
+        hello(name) {
           console.log("Hello", name);
         }
       }
@@ -6258,18 +6257,422 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     And then use it in the component's template:
   
-    ```handlebars
-    <!-- app-profile template -->
+    ```app/templates/components/person-profile.hbs
     <h1>{{person.title}}</h1>
     {{yield}} <!-- block contents -->
     <button {{action 'hello' person.name}}>
       Say Hello to {{person.name}}
     </button>
     ```
+  
     Components must have a `-` in their name to avoid
     conflicts with built-in controls that wrap HTML
     elements. This is consistent with the same
     requirement in web components.
+  
+  
+    ## HTML Tag
+  
+    The default HTML tag name used for a component's DOM representation is `div`.
+    This can be customized by setting the `tagName` property.
+    The following component class:
+  
+    ```app/components/emphasized-paragraph.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      tagName: 'em'
+    });
+    ```
+    
+    Would result in instances with the following HTML:
+  
+    ```html
+    <em id="ember1" class="ember-view"></em>
+    ```
+  
+  
+    ## HTML `class` Attribute
+  
+    The HTML `class` attribute of a component's tag can be set by providing a
+    `classNames` property that is set to an array of strings:
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      classNames: ['my-class', 'my-other-class']
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view my-class my-other-class"></div>
+    ```
+  
+    `class` attribute values can also be set by providing a `classNameBindings`
+    property set to an array of properties names for the component. The return value
+    of these properties will be added as part of the value for the components's `class`
+    attribute. These properties can be computed properties:
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      classNameBindings: ['propertyA', 'propertyB'],
+      propertyA: 'from-a',
+      propertyB: Ember.computed(function() {
+        if (someLogic) { return 'from-b'; }
+      })
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view from-a from-b"></div>
+    ```
+  
+    If the value of a class name binding returns a boolean the property name
+    itself will be used as the class name if the property is true.
+    The class name will not be added if the value is `false` or `undefined`.
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      classNameBindings: ['hovered'],
+      hovered: true
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view hovered"></div>
+    ```
+  
+    When using boolean class name bindings you can supply a string value other
+    than the property name for use as the `class` HTML attribute by appending the
+    preferred value after a ":" character when defining the binding:
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      classNameBindings: ['awesome:so-very-cool'],
+      awesome: true
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view so-very-cool"></div>
+    ```
+  
+    Boolean value class name bindings whose property names are in a
+    camelCase-style format will be converted to a dasherized format:
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      classNameBindings: ['isUrgent'],
+      isUrgent: true
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view is-urgent"></div>
+    ```
+  
+    Class name bindings can also refer to object values that are found by
+    traversing a path relative to the component itself:
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      classNameBindings: ['messages.empty'],
+      messages: Ember.Object.create({
+        empty: true
+      })
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view empty"></div>
+    ```
+  
+    If you want to add a class name for a property which evaluates to true and
+    and a different class name if it evaluates to false, you can pass a binding
+    like this:
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      classNameBindings: ['isEnabled:enabled:disabled'],
+      isEnabled: true
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view enabled"></div>
+    ```
+  
+    When isEnabled is `false`, the resulting HTML representation looks like
+    this:
+  
+    ```html
+    <div id="ember1" class="ember-view disabled"></div>
+    ```
+  
+    This syntax offers the convenience to add a class if a property is `false`:
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    // Applies no class when isEnabled is true and class 'disabled' when isEnabled is false
+    export default Ember.Component.extend({
+      classNameBindings: ['isEnabled::disabled'],
+      isEnabled: true
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view"></div>
+    ```
+  
+    When the `isEnabled` property on the component is set to `false`, it will result
+    in component instances with an HTML representation of:
+  
+    ```html
+    <div id="ember1" class="ember-view disabled"></div>
+    ```
+  
+    Updates to the value of a class name binding will result in automatic
+    update of the  HTML `class` attribute in the component's rendered HTML
+    representation. If the value becomes `false` or `undefined` the class name
+    will be removed.
+    Both `classNames` and `classNameBindings` are concatenated properties. See
+    [Ember.Object](/api/classes/Ember.Object.html) documentation for more
+    information about concatenated properties.
+  
+  
+    ## HTML Attributes
+  
+    The HTML attribute section of a component's tag can be set by providing an
+    `attributeBindings` property set to an array of property names on the component.
+    The return value of these properties will be used as the value of the component's
+    HTML associated attribute:
+  
+    ```app/components/my-anchor.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      tagName: 'a',
+      attributeBindings: ['href'],
+      href: 'http://google.com'
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <a id="ember1" class="ember-view" href="http://google.com"></a>
+    ```
+  
+    One property can be mapped on to another by placing a ":" between
+    the source property and the destination property:
+  
+    ```app/components/my-anchor.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      tagName: 'a',
+      attributeBindings: ['url:href'],
+      url: 'http://google.com'
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <a id="ember1" class="ember-view" href="http://google.com"></a>
+    ```
+  
+    Namespaced attributes (e.g. `xlink:href`) are supported, but have to be
+    mapped, since `:` is not a valid character for properties in Javascript:
+  
+    ```app/components/my-use.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      tagName: 'use',
+      attributeBindings: ['xlinkHref:xlink:href'],
+      xlinkHref: '#triangle'
+    });
+    ```
+  
+    Will result in component instances with an HTML representation of:
+  
+    ```html
+    <use xlink:href="#triangle"></use>
+    ```
+  
+    If the return value of an `attributeBindings` monitored property is a boolean
+    the attribute will be present or absent depending on the value:
+  
+    ```app/components/my-text-input.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      tagName: 'input',
+      attributeBindings: ['disabled'],
+      disabled: false
+    });
+    ```
+  
+    Will result in a component instance with an HTML representation of:
+  
+    ```html
+    <input id="ember1" class="ember-view" />
+    ```
+  
+    `attributeBindings` can refer to computed properties:
+  
+    ```app/components/my-text-input.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      tagName: 'input',
+      attributeBindings: ['disabled'],
+      disabled: Ember.computed(function() {
+        if (someLogic) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+    });
+    ```
+  
+    To prevent setting an attribute altogether, use `null` or `undefined` as the
+    return value of the `attributeBindings` monitored property:
+  
+    ```app/components/my-text-input.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      tagName: 'form',
+      attributeBindings: ['novalidate'],
+      novalidate: null
+    });
+    ```
+  
+    Updates to the property of an attribute binding will result in automatic
+    update of the  HTML attribute in the component's rendered HTML representation.
+    `attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)
+    documentation for more information about concatenated properties.
+  
+  
+    ## Layouts
+  
+    See [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)
+    for more information.
+  
+  
+    ## Responding to Browser Events
+  
+    Components can respond to user-initiated events in one of three ways: method
+    implementation, through an event manager, and through `{{action}}` helper use
+    in their template or layout.
+  
+  
+    ### Method Implementation
+  
+    Components can respond to user-initiated events by implementing a method that
+    matches the event name. A `jQuery.Event` object will be passed as the
+    argument to this method.
+  
+    ```app/components/my-widget.js
+    import Ember from 'ember';
+  
+    export default Ember.Component.extend({
+      click(event) {
+        // will be called when an instance's
+        // rendered element is clicked
+      }
+    });
+    ```
+  
+  
+    ### `{{action}}` Helper
+  
+    See [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).
+  
+  
+    ### Event Names
+  
+    All of the event handling approaches described above respond to the same set
+    of events. The names of the built-in events are listed below. (The hash of
+    built-in events exists in `Ember.EventDispatcher`.) Additional, custom events
+    can be registered by using `Ember.Application.customEvents`.
+  
+    Touch events:
+  
+    * `touchStart`
+    * `touchMove`
+    * `touchEnd`
+    * `touchCancel`
+  
+    Keyboard events:
+  
+    * `keyDown`
+    * `keyUp`
+    * `keyPress`
+  
+    Mouse events:
+  
+    * `mouseDown`
+    * `mouseUp`
+    * `contextMenu`
+    * `click`
+    * `doubleClick`
+    * `mouseMove`
+    * `focusIn`
+    * `focusOut`
+    * `mouseEnter`
+    * `mouseLeave`
+  
+    Form events:
+  
+    * `submit`
+    * `change`
+    * `focusIn`
+    * `focusOut`
+    * `input`
+  
+    HTML5 drag and drop events:
+  
+    * `dragStart`
+    * `drag`
+    * `dragEnter`
+    * `dragLeave`
+    * `dragOver`
+    * `dragEnd`
+    * `drop`
   
     @class Component
     @namespace Ember
@@ -6278,6 +6681,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     @uses Ember.ClassNamesSupport
     @uses Ember.ActionSupport
     @uses Ember.ViewMixin
+    @uses Ember.ViewStateSupport
     @public
   */
   var Component = _emberViews.CoreView.extend(_emberViews.ChildViewsSupport, _emberViews.ViewStateSupport, _emberViews.ClassNamesSupport, _emberRuntime.TargetActionSupport, _emberViews.ActionSupport, _emberViews.ViewMixin, (_CoreView$extend = {
@@ -6299,9 +6703,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
       }
 
       // If in a tagless component, assert that no event handlers are defined
+      // indicate that the assertion should be triggered
     },
 
-    // indicate that the assertion should be triggered
     rerender: function () {
       this[DIRTY_TAG].dirty();
       this._super();
@@ -6351,8 +6755,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    `name` and `age`:
     ```javascript
    let MyComponent = Ember.Component.extend;
+   
    MyComponent.reopenClass({
-   positionalParams: ['name', 'age']
+     positionalParams: ['name', 'age']
    });
    ```
     It can then be invoked like this:
@@ -6361,14 +6766,15 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    ```
     The parameters can be referred to just like named parameters:
     ```hbs
-   Name: {{attrs.name}}, Age: {{attrs.age}}.
+   Name: {{name}}, Age: {{age}}.
    ```
     Using a string instead of an array allows for an arbitrary number of
    parameters:
     ```javascript
    let MyComponent = Ember.Component.extend;
+   
    MyComponent.reopenClass({
-   positionalParams: 'names'
+     positionalParams: 'names'
    });
    ```
     It can then be invoked like this:
@@ -6377,7 +6783,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    ```
    The parameters can then be referred to by enumerating over the list:
     ```hbs
-   {{#each attrs.names as |name|}}{{name}}{{/each}}
+   {{#each names as |name|}}{{name}}{{/each}}
    ```
     @static
    @public
@@ -6484,6 +6890,67 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    @public
    @since 1.13.0
    */
+
+  /**
+    A component may contain a layout. A layout is a regular template but
+    supersedes the `template` property during rendering. It is the
+    responsibility of the layout template to retrieve the `template`
+    property from the component (or alternatively, call `Handlebars.helpers.yield`,
+    `{{yield}}`) to render it in the correct location.
+    This is useful for a component that has a shared wrapper, but which delegates
+    the rendering of the contents of the wrapper to the `template` property
+    on a subclass.
+    @property layout
+    @type Function
+    @public
+  */
+
+  /**
+    The name of the layout to lookup if no layout is provided.
+    By default `Ember.Component` will lookup a template with this name in
+    `Ember.TEMPLATES` (a shared global object).
+    @property layoutName
+    @type String
+    @default null
+    @private
+  */
+
+  /**
+    Returns a jQuery object for this component's element. If you pass in a selector
+    string, this method will return a jQuery object, using the current element
+    as its buffer.
+    For example, calling `component.$('li')` will return a jQuery object containing
+    all of the `li` elements inside the DOM element of this component.
+    @method $
+    @param {String} [selector] a jQuery-compatible selector string
+    @return {jQuery} the jQuery object for the DOM node
+    @public
+  */
+
+  /**
+    The HTML `id` of the component's element in the DOM. You can provide this
+    value yourself but it must be unique (just as in HTML):
+     ```handlebars
+    {{my-component elementId="a-really-cool-id"}}
+    ```
+    If not manually set a default value will be provided by the framework.
+    Once rendered an element's `elementId` is considered immutable and you
+    should never change it. If you need to compute a dynamic value for the
+    `elementId`, you should do this when the component or element is being
+    instantiated:
+     ```javascript
+    export default Ember.Component.extend({
+      init() {
+        this._super(...arguments);
+         var index = this.get('index');
+        this.set('elementId', `component-id${index}`);
+      }
+    });
+    ```
+     @property elementId
+    @type String
+    @public
+  */
 
   /**
    If `false`, the view will appear hidden in DOM.
@@ -6908,7 +7375,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-m
     @namespace Ember
     @extends Ember.Component
     @see {Ember.Templates.helpers.link-to}
-    @private
+    @public
   **/
   var LinkComponent = _emberGlimmerComponent.default.extend({
     layout: _emberGlimmerTemplatesLinkTo.default,
@@ -7752,7 +8219,7 @@ enifed('ember-glimmer/dom', ['exports', 'glimmer-runtime', 'glimmer-node'], func
   exports.DOMTreeConstruction = _glimmerRuntime.DOMTreeConstruction;
   exports.NodeDOMTreeConstruction = _glimmerNode.NodeDOMTreeConstruction;
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'ember-views', 'glimmer-runtime', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/utils/bindings', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/debugger', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'ember-glimmer/modifiers/action'], function (exports, _emberUtils, _emberMetal, _emberViews, _glimmerRuntime, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntax, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersIfUnless, _emberGlimmerUtilsBindings, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersDebugger, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _emberGlimmerProtocolForUrl, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'ember-views', 'glimmer-runtime', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/utils/bindings', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/debugger', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'ember-glimmer/modifiers/action'], function (exports, _emberUtils, _emberMetal, _emberViews, _glimmerRuntime, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntax, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerUtilsDebugStack, _emberGlimmerHelpersIfUnless, _emberGlimmerUtilsBindings, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersDebugger, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _emberGlimmerProtocolForUrl, _emberGlimmerModifiersAction) {
   'use strict';
 
   var builtInComponents = {
@@ -11095,7 +11562,14 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
     return _class2;
   })());
 });
-enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-views', 'ember-glimmer/utils/process-args', 'container'], function (exports, _emberUtils, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberViews, _emberGlimmerUtilsProcessArgs, _container) {
+enifed('ember-glimmer/syntax/abstract-manager', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+  'use strict';
+
+  var AbstractManager = function AbstractManager() {};
+
+  exports.default = AbstractManager;
+});
+enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-views', 'ember-glimmer/utils/process-args', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _emberUtils, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberViews, _emberGlimmerUtilsProcessArgs, _container, _emberGlimmerSyntaxAbstractManager) {
   'use strict';
 
   exports.validatePositionalParameters = validatePositionalParameters;
@@ -11205,8 +11679,12 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
     return component.instrumentDetails({ initialRender: false });
   }
 
-  var CurlyComponentManager = (function () {
-    function CurlyComponentManager() {}
+  var CurlyComponentManager = (function (_AbstractManager) {
+babelHelpers.inherits(CurlyComponentManager, _AbstractManager);
+
+    function CurlyComponentManager() {
+      _AbstractManager.apply(this, arguments);
+    }
 
     CurlyComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       validatePositionalParameters(args.named, args.positional.values, definition.ComponentClass.positionalParams);
@@ -11215,6 +11693,7 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
     };
 
     CurlyComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, callerSelfRef, hasBlock) {
+
       var parentView = dynamicScope.view;
 
       var klass = definition.ComponentClass;
@@ -11416,7 +11895,7 @@ babelHelpers.inherits(CurlyComponentSyntax, _StatementSyntax);
     };
 
     return CurlyComponentManager;
-  })();
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   var MANAGER = new CurlyComponentManager();
 
@@ -11775,7 +12254,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/s
   };
   exports.InputSyntax = InputSyntax;
 });
-enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet) {
+enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -11830,8 +12309,12 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
 
   exports.MountSyntax = MountSyntax;
 
-  var MountManager = (function () {
-    function MountManager() {}
+  var MountManager = (function (_AbstractManager) {
+    babelHelpers.inherits(MountManager, _AbstractManager);
+
+    function MountManager() {
+      _AbstractManager.apply(this, arguments);
+    }
 
     MountManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       return args;
@@ -11887,7 +12370,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
     MountManager.prototype.didUpdate = function didUpdate(state) {};
 
     return MountManager;
-  })();
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   var MOUNT_MANAGER = new MountManager();
 
@@ -11902,7 +12385,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'glimmer-runtime', 'glimmer-ref
     return MountDefinition;
   })(_glimmerRuntime.ComponentDefinition);
 });
-enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-metal', 'ember-glimmer/utils/references', 'glimmer-reference'], function (exports, _emberUtils, _glimmerRuntime, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference) {
+enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtime', 'ember-metal', 'ember-glimmer/utils/references', 'glimmer-reference', 'ember-glimmer/syntax/abstract-manager'], function (exports, _emberUtils, _glimmerRuntime, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12085,14 +12568,19 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     return StateBucket;
   })();
 
-  var OutletComponentManager = (function () {
-    function OutletComponentManager() {}
+  var OutletComponentManager = (function (_AbstractManager) {
+    babelHelpers.inherits(OutletComponentManager, _AbstractManager);
+
+    function OutletComponentManager() {
+      _AbstractManager.apply(this, arguments);
+    }
 
     OutletComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       return args;
     };
 
     OutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
+
       var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get('outlets').get(definition.outletName);
       var outletState = outletStateReference.value();
       return new StateBucket(outletState);
@@ -12131,7 +12619,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     OutletComponentManager.prototype.didUpdate = function didUpdate(state) {};
 
     return OutletComponentManager;
-  })();
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   var MANAGER = new OutletComponentManager();
 
@@ -12143,6 +12631,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
     }
 
     TopLevelOutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
+
       return new StateBucket(dynamicScope.outletState.value());
     };
 
@@ -12215,7 +12704,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', 'glimmer-runtim
 
   OutletLayoutCompiler.id = 'outlet';
 });
-enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet) {
+enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12343,8 +12832,12 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
 
   exports.RenderSyntax = RenderSyntax;
 
-  var AbstractRenderManager = (function () {
-    function AbstractRenderManager() {}
+  var AbstractRenderManager = (function (_AbstractManager) {
+    babelHelpers.inherits(AbstractRenderManager, _AbstractManager);
+
+    function AbstractRenderManager() {
+      _AbstractManager.apply(this, arguments);
+    }
 
     AbstractRenderManager.prototype.prepareArgs = function prepareArgs(definition, args) {
       return args;
@@ -12383,7 +12876,7 @@ enifed('ember-glimmer/syntax/render', ['exports', 'glimmer-runtime', 'glimmer-re
     AbstractRenderManager.prototype.didUpdate = function didUpdate() {};
 
     return AbstractRenderManager;
-  })();
+  })(_emberGlimmerSyntaxAbstractManager.default);
 
   var SingletonRenderManager = (function (_AbstractRenderManager) {
     babelHelpers.inherits(SingletonRenderManager, _AbstractRenderManager);
@@ -12751,6 +13244,13 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'glimmer-reference', 'glimmer
 
     return ColonClassNameBindingReference;
   })(_glimmerReference.CachedReference);
+});
+enifed('ember-glimmer/utils/debug-stack', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+  'use strict';
+
+  var DebugStack = undefined;
+
+  exports.default = DebugStack;
 });
 enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', 'glimmer-reference'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberGlimmerUtilsReferences, _emberGlimmerHelpersEachIn, _glimmerReference) {
   'use strict';
@@ -14615,7 +15115,7 @@ enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], func
     return DefaultStore;
   })();
 });
-enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/watch_path'], function (exports, _emberUtils, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalWatch_path) {
+enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/computed', 'ember-metal/watch_path'], function (exports, _emberUtils, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalComputed, _emberMetalWatch_path) {
   'use strict';
 
   exports.finishChains = finishChains;
@@ -14800,8 +15300,8 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       // Otherwise attempt to get the cached value of the computed property
     } else {
         var cache = meta.readableCache();
-        if (cache && key in cache) {
-          return cache[key];
+        if (cache) {
+          return _emberMetalComputed.cacheFor.get(cache, key);
         }
       }
   }
@@ -17629,7 +18129,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     return original;
   }
 });
-enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/debug', 'ember-metal/chains'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalDebug, _emberMetalChains) {
+enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/debug', 'ember-metal/chains', 'require'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalDebug, _emberMetalChains, _require) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -17694,7 +18194,11 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
   if (false || false) {
     members.lastRendered = ownMap;
-    members.lastRenderedFrom = ownMap; // FIXME: not used in production, remove me from prod builds
+    if (_require.has('ember-debug')) {
+      //https://github.com/emberjs/ember.js/issues/14732
+      members.lastRenderedReferenceMap = ownMap;
+      members.lastRenderedTemplateMap = ownMap;
+    }
   }
 
   var memberNames = Object.keys(members);
@@ -17733,7 +18237,6 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
     if (false || false) {
       this._lastRendered = undefined;
-      this._lastRenderedFrom = undefined; // FIXME: not used in production, remove me from prod builds
     }
 
     this._initializeListeners();
@@ -21191,10 +21694,12 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       var counter = 0;
       var inTransaction = false;
       var shouldReflush = undefined;
+      var debugStack = undefined;
 
       exports.default = runInTransaction = function (context, methodName) {
         shouldReflush = false;
         inTransaction = true;
+
         context[methodName]();
         inTransaction = false;
         counter++;
@@ -21216,10 +21721,13 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
 
         if (lastRendered && lastRendered[key] === counter) {
           raise((function () {
-            var ref = meta.readableLastRenderedFrom();
-            var parts = [];
-            var lastRef = ref[key];
+            var templateMap = meta.readableLastRenderedTemplateMap();
+            var lastRenderedIn = templateMap[key];
+            var currentlyIn = debugStack.peek();
 
+            var referenceMap = meta.readableLastRenderedReferenceMap();
+            var lastRef = referenceMap[key];
+            var parts = [];
             var label = undefined;
 
             if (lastRef) {
@@ -21228,12 +21736,12 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
                 lastRef = lastRef._parentReference;
               }
 
-              label = parts.join();
+              label = parts.join('.');
             } else {
               label = 'the same value';
             }
 
-            return 'You modified ' + label + ' twice on ' + object + ' in a single render. This was unreliable and slow in Ember 1.x and ' + implication;
+            return 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and ' + implication;
           })(), false);
 
           shouldReflush = true;
@@ -32210,9 +32718,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       want to reuse an existing array without having to recreate it.
        ```javascript
       let colors = ['red', 'green', 'blue'];
-       color.length();   //  3
-      colors.clear();   //  []
-      colors.length();  //  0
+       colors.length;  // 3
+      colors.clear(); // []
+      colors.length;  // 0
       ```
        @method clear
       @return {Ember.Array} An empty Array.
@@ -33389,7 +33897,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal'], functi
      let App = Ember.Application.create();
      let appInstance = App.buildInstance();
       // if all of type `connection` must not be singletons
-     appInstance.optionsForType('connection', { singleton: false });
+     appInstance.registerOptionsForType('connection', { singleton: false });
       appInstance.register('connection:twitter', TwitterConnection);
      appInstance.register('connection:facebook', FacebookConnection);
       let twitter = appInstance.lookup('connection:twitter');
@@ -36702,8 +37210,8 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
   
     @method setOwner
     @for Ember
-    @param {Object} object An object with an owner.
-    @return {Object} An owner object.
+    @param {Object} object An object instance.
+    @param {Object} object The new owner object of the object instance.
     @since 2.3.0
     @public
   */
@@ -38722,481 +39230,6 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 */
 
 /**
-  `Ember.View` is the class in Ember responsible for encapsulating templates of
-  HTML content, combining templates with data to render as sections of a page's
-  DOM, and registering and responding to user-initiated events.
-
-  ## HTML Tag
-
-  The default HTML tag name used for a view's DOM representation is `div`. This
-  can be customized by setting the `tagName` property. The following view
-  class:
-
-  ```javascript
-  ParagraphView = Ember.View.extend({
-    tagName: 'em'
-  });
-  ```
-
-  Would result in instances with the following HTML:
-
-  ```html
-  <em id="ember1" class="ember-view"></em>
-  ```
-
-  ## HTML `class` Attribute
-
-  The HTML `class` attribute of a view's tag can be set by providing a
-  `classNames` property that is set to an array of strings:
-
-  ```javascript
-  MyView = Ember.View.extend({
-    classNames: ['my-class', 'my-other-class']
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view my-class my-other-class"></div>
-  ```
-
-  `class` attribute values can also be set by providing a `classNameBindings`
-  property set to an array of properties names for the view. The return value
-  of these properties will be added as part of the value for the view's `class`
-  attribute. These properties can be computed properties:
-
-  ```javascript
-  MyView = Ember.View.extend({
-    classNameBindings: ['propertyA', 'propertyB'],
-    propertyA: 'from-a',
-    propertyB: Ember.computed(function() {
-      if (someLogic) { return 'from-b'; }
-    })
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view from-a from-b"></div>
-  ```
-
-  If the value of a class name binding returns a boolean the property name
-  itself will be used as the class name if the property is true. The class name
-  will not be added if the value is `false` or `undefined`.
-
-  ```javascript
-  MyView = Ember.View.extend({
-    classNameBindings: ['hovered'],
-    hovered: true
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view hovered"></div>
-  ```
-
-  When using boolean class name bindings you can supply a string value other
-  than the property name for use as the `class` HTML attribute by appending the
-  preferred value after a ":" character when defining the binding:
-
-  ```javascript
-  MyView = Ember.View.extend({
-    classNameBindings: ['awesome:so-very-cool'],
-    awesome: true
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view so-very-cool"></div>
-  ```
-
-  Boolean value class name bindings whose property names are in a
-  camelCase-style format will be converted to a dasherized format:
-
-  ```javascript
-  MyView = Ember.View.extend({
-    classNameBindings: ['isUrgent'],
-    isUrgent: true
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view is-urgent"></div>
-  ```
-
-  Class name bindings can also refer to object values that are found by
-  traversing a path relative to the view itself:
-
-  ```javascript
-  MyView = Ember.View.extend({
-    classNameBindings: ['messages.empty']
-    messages: Ember.Object.create({
-      empty: true
-    })
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view empty"></div>
-  ```
-
-  If you want to add a class name for a property which evaluates to true and
-  and a different class name if it evaluates to false, you can pass a binding
-  like this:
-
-  ```javascript
-  // Applies 'enabled' class when isEnabled is true and 'disabled' when isEnabled is false
-  Ember.View.extend({
-    classNameBindings: ['isEnabled:enabled:disabled']
-    isEnabled: true
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view enabled"></div>
-  ```
-
-  When isEnabled is `false`, the resulting HTML representation looks like
-  this:
-
-  ```html
-  <div id="ember1" class="ember-view disabled"></div>
-  ```
-
-  This syntax offers the convenience to add a class if a property is `false`:
-
-  ```javascript
-  // Applies no class when isEnabled is true and class 'disabled' when isEnabled is false
-  Ember.View.extend({
-    classNameBindings: ['isEnabled::disabled']
-    isEnabled: true
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view"></div>
-  ```
-
-  When the `isEnabled` property on the view is set to `false`, it will result
-  in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view disabled"></div>
-  ```
-
-  Updates to the value of a class name binding will result in automatic
-  update of the  HTML `class` attribute in the view's rendered HTML
-  representation. If the value becomes `false` or `undefined` the class name
-  will be removed.
-
-  Both `classNames` and `classNameBindings` are concatenated properties. See
-  [Ember.Object](/api/classes/Ember.Object.html) documentation for more
-  information about concatenated properties.
-
-  ## HTML Attributes
-
-  The HTML attribute section of a view's tag can be set by providing an
-  `attributeBindings` property set to an array of property names on the view.
-  The return value of these properties will be used as the value of the view's
-  HTML associated attribute:
-
-  ```javascript
-  AnchorView = Ember.View.extend({
-    tagName: 'a',
-    attributeBindings: ['href'],
-    href: 'http://google.com'
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <a id="ember1" class="ember-view" href="http://google.com"></a>
-  ```
-
-  One property can be mapped on to another by placing a ":" between
-  the source property and the destination property:
-
-  ```javascript
-  AnchorView = Ember.View.extend({
-    tagName: 'a',
-    attributeBindings: ['url:href'],
-    url: 'http://google.com'
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <a id="ember1" class="ember-view" href="http://google.com"></a>
-  ```
-
-  Namespaced attributes (e.g. `xlink:href`) are supported, but have to be
-  mapped, since `:` is not a valid character for properties in Javascript:
-
-  ```javascript
-  UseView = Ember.View.extend({
-    tagName: 'use',
-    attributeBindings: ['xlinkHref:xlink:href'],
-    xlinkHref: '#triangle'
-  });
-  ```
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <use xlink:href="#triangle"></use>
-  ```
-
-  If the return value of an `attributeBindings` monitored property is a boolean
-  the attribute will be present or absent depending on the value:
-
-  ```javascript
-  MyTextInput = Ember.View.extend({
-    tagName: 'input',
-    attributeBindings: ['disabled'],
-    disabled: false
-  });
-  ```
-
-  Will result in a view instance with an HTML representation of:
-
-  ```html
-  <input id="ember1" class="ember-view" />
-  ```
-
-  `attributeBindings` can refer to computed properties:
-
-  ```javascript
-  MyTextInput = Ember.View.extend({
-    tagName: 'input',
-    attributeBindings: ['disabled'],
-    disabled: Ember.computed(function() {
-      if (someLogic) {
-        return true;
-      } else {
-        return false;
-      }
-    })
-  });
-  ```
-
-  To prevent setting an attribute altogether, use `null` or `undefined` as the
-  return value of the `attributeBindings` monitored property:
-
-  ```javascript
-  MyTextInput = Ember.View.extend({
-    tagName: 'form',
-    attributeBindings: ['novalidate'],
-    novalidate: null
-  });
-  ```
-
-  Updates to the property of an attribute binding will result in automatic
-  update of the  HTML attribute in the view's rendered HTML representation.
-
-  `attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)
-  documentation for more information about concatenated properties.
-
-  ## Layouts
-
-  Views can have a secondary template that wraps their main template. Like
-  primary templates, layouts can be any function that  accepts an optional
-  context parameter and returns a string of HTML that will be inserted inside
-  view's tag. Views whose HTML element is self closing (e.g. `<input />`)
-  cannot have a layout and this property will be ignored.
-
-  Most typically in Ember a layout will be a compiled template.
-
-  A view's layout can be set directly with the `layout` property or reference
-  an existing template by name with the `layoutName` property.
-
-  A template used as a layout must contain a single use of the
-  `{{yield}}` helper. The HTML contents of a view's rendered `template` will be
-  inserted at this location:
-
-  ```javascript
-  AViewWithLayout = Ember.View.extend({
-    layout: Ember.HTMLBars.compile("<div class='my-decorative-class'>{{yield}}</div>"),
-    template: Ember.HTMLBars.compile("I got wrapped")
-  });
-  ```
-
-  Will result in view instances with an HTML representation of:
-
-  ```html
-  <div id="ember1" class="ember-view">
-    <div class="my-decorative-class">
-      I got wrapped
-    </div>
-  </div>
-  ```
-
-  See [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)
-  for more information.
-
-  ## Responding to Browser Events
-
-  Views can respond to user-initiated events in one of three ways: method
-  implementation, through an event manager, and through `{{action}}` helper use
-  in their template or layout.
-
-  ### Method Implementation
-
-  Views can respond to user-initiated events by implementing a method that
-  matches the event name. A `jQuery.Event` object will be passed as the
-  argument to this method.
-
-  ```javascript
-  AView = Ember.View.extend({
-    click: function(event) {
-      // will be called when an instance's
-      // rendered element is clicked
-    }
-  });
-  ```
-
-  ### Event Managers
-
-  Views can define an object as their `eventManager` property. This object can
-  then implement methods that match the desired event names. Matching events
-  that occur on the view's rendered HTML or the rendered HTML of any of its DOM
-  descendants will trigger this method. A `jQuery.Event` object will be passed
-  as the first argument to the method and an  `Ember.View` object as the
-  second. The `Ember.View` will be the view whose rendered HTML was interacted
-  with. This may be the view with the `eventManager` property or one of its
-  descendant views.
-
-  ```javascript
-  AView = Ember.View.extend({
-    eventManager: Ember.Object.create({
-      doubleClick: function(event, view) {
-        // will be called when an instance's
-        // rendered element or any rendering
-        // of this view's descendant
-        // elements is clicked
-      }
-    })
-  });
-  ```
-
-  An event defined for an event manager takes precedence over events of the
-  same name handled through methods on the view.
-
-  ```javascript
-  AView = Ember.View.extend({
-    mouseEnter: function(event) {
-      // will never trigger.
-    },
-    eventManager: Ember.Object.create({
-      mouseEnter: function(event, view) {
-        // takes precedence over AView#mouseEnter
-      }
-    })
-  });
-  ```
-
-  Similarly a view's event manager will take precedence for events of any views
-  rendered as a descendant. A method name that matches an event name will not
-  be called if the view instance was rendered inside the HTML representation of
-  a view that has an `eventManager` property defined that handles events of the
-  name. Events not handled by the event manager will still trigger method calls
-  on the descendant.
-
-  ```javascript
-  var App = Ember.Application.create();
-  App.OuterView = Ember.View.extend({
-    template: Ember.HTMLBars.compile("outer {{#view 'inner'}}inner{{/view}} outer"),
-    eventManager: Ember.Object.create({
-      mouseEnter: function(event, view) {
-        // view might be instance of either
-        // OuterView or InnerView depending on
-        // where on the page the user interaction occurred
-      }
-    })
-  });
-
-  App.InnerView = Ember.View.extend({
-    click: function(event) {
-      // will be called if rendered inside
-      // an OuterView because OuterView's
-      // eventManager doesn't handle click events
-    },
-    mouseEnter: function(event) {
-      // will never be called if rendered inside
-      // an OuterView.
-    }
-  });
-  ```
-
-  ### `{{action}}` Helper
-
-  See [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).
-
-  ### Event Names
-
-  All of the event handling approaches described above respond to the same set
-  of events. The names of the built-in events are listed below. (The hash of
-  built-in events exists in `Ember.EventDispatcher`.) Additional, custom events
-  can be registered by using `Ember.Application.customEvents`.
-
-  Touch events:
-
-  * `touchStart`
-  * `touchMove`
-  * `touchEnd`
-  * `touchCancel`
-
-  Keyboard events
-
-  * `keyDown`
-  * `keyUp`
-  * `keyPress`
-
-  Mouse events
-
-  * `mouseDown`
-  * `mouseUp`
-  * `contextMenu`
-  * `click`
-  * `doubleClick`
-  * `mouseMove`
-  * `focusIn`
-  * `focusOut`
-  * `mouseEnter`
-  * `mouseLeave`
-
-  Form events:
-
-  * `submit`
-  * `change`
-  * `focusIn`
-  * `focusOut`
-  * `input`
-
-  HTML5 drag and drop events:
-
-  * `dragStart`
-  * `drag`
-  * `dragEnter`
-  * `dragLeave`
-  * `dragOver`
-  * `dragEnd`
-  * `drop`
-
   @class View
   @namespace Ember
   @extends Ember.CoreView
@@ -39740,7 +39773,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-beta.4-beta+8c117499";
+  exports.default = "2.11.0-beta.4-beta+ac1fcd47";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
