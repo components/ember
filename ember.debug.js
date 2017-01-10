@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-beta.4-beta+ac1fcd47
+ * @version   2.11.0-beta.4-beta+3a7fd02a
  */
 
 var enifed, requireModule, Ember;
@@ -6921,7 +6921,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
       tagName: 'em'
     });
     ```
-    
+  
     Would result in instances with the following HTML:
   
     ```html
@@ -7412,8 +7412,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    `name` and `age`:
     ```javascript
    let MyComponent = Ember.Component.extend;
-   
-   MyComponent.reopenClass({
+    MyComponent.reopenClass({
      positionalParams: ['name', 'age']
    });
    ```
@@ -7429,8 +7428,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    parameters:
     ```javascript
    let MyComponent = Ember.Component.extend;
-   
-   MyComponent.reopenClass({
+    MyComponent.reopenClass({
      positionalParams: 'names'
    });
    ```
@@ -42986,7 +42984,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-beta.4-beta+ac1fcd47";
+  exports.default = "2.11.0-beta.4-beta+3a7fd02a";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
