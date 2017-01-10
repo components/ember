@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+8437942f
+ * @version   2.12.0-alpha.1-canary+5df51f89
  */
 
 var enifed, requireModule, Ember;
@@ -6516,7 +6516,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
       tagName: 'em'
     });
     ```
-    
+  
     Would result in instances with the following HTML:
   
     ```html
@@ -6987,8 +6987,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    `name` and `age`:
     ```javascript
    let MyComponent = Ember.Component.extend;
-   
-   MyComponent.reopenClass({
+    MyComponent.reopenClass({
      positionalParams: ['name', 'age']
    });
    ```
@@ -7004,8 +7003,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
    parameters:
     ```javascript
    let MyComponent = Ember.Component.extend;
-   
-   MyComponent.reopenClass({
+    MyComponent.reopenClass({
      positionalParams: 'names'
    });
    ```
@@ -40081,7 +40079,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+8437942f";
+  exports.default = "2.12.0-alpha.1-canary+5df51f89";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -50277,9 +50275,11 @@ enifed('glimmer-runtime/lib/syntax/core', ['exports', 'glimmer-runtime/lib/synta
             var keys = this.keys;
             var values = this.values;
 
-            return new _glimmerRuntimeLibCompiledExpressionsArgs.CompiledNamedArgs(keys, values.map(function (value) {
-                return value.compile(compiler, env, symbolTable);
-            }));
+            var compiledValues = new Array(values.length);
+            for (var i = 0; i < compiledValues.length; i++) {
+                compiledValues[i] = values[i].compile(compiler, env, symbolTable);
+            }
+            return new _glimmerRuntimeLibCompiledExpressionsArgs.CompiledNamedArgs(keys, compiledValues);
         };
 
         return NamedArgs;
@@ -50614,9 +50614,20 @@ enifed('glimmer-runtime/lib/upsert', ['exports', 'glimmer-runtime/lib/bounds'], 
 enifed('glimmer-runtime/lib/utils', ['exports', 'glimmer-util'], function (exports, _glimmerUtil) {
     'use strict';
 
-    var EMPTY_ARRAY = Object.freeze([]);
+    var HAS_NATIVE_WEAKMAP = (function () {
+        // detect if `WeakMap` is even present
+        var hasWeakMap = typeof WeakMap === 'function';
+        if (!hasWeakMap) {
+            return false;
+        }
+        var instance = new WeakMap();
+        // use `Object`'s `.toString` directly to prevent us from detecting
+        // polyfills as native weakmaps
+        return Object.prototype.toString.call(instance) === '[object WeakMap]';
+    })();
+    var EMPTY_ARRAY = HAS_NATIVE_WEAKMAP ? Object.freeze([]) : [];
     exports.EMPTY_ARRAY = EMPTY_ARRAY;
-    var EMPTY_DICT = Object.freeze(_glimmerUtil.dict());
+    var EMPTY_DICT = HAS_NATIVE_WEAKMAP ? Object.freeze(_glimmerUtil.dict()) : _glimmerUtil.dict();
     exports.EMPTY_DICT = EMPTY_DICT;
 
     var ListRange = (function () {
