@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.12.0-alpha.1.5df51f89"
+        "version": "2.12.0-alpha.1.3a6bdc79"
     },
     "files": {
         "packages/container/lib/container.js": {
@@ -12519,7 +12519,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 886,
+            "line": 887,
             "description": "Maps all query param keys to their fully scoped property name of the form\n`controllerName:propName`.",
             "access": "private",
             "tagname": "",
@@ -12553,7 +12553,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 923,
+            "line": 924,
             "description": "Hydrates (adds/restores) any query params that have pre-existing values into\nthe given queryParams hash. This is what allows query params to be \"sticky\"\nand restore their last known values for their scope.",
             "access": "private",
             "tagname": "",
@@ -12582,7 +12582,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1164,
+            "line": 1165,
             "description": "Finds the name of the substate route if it exists for the given route. A\nsubstate route is of the form `route_state`, such as `foo_loading`.",
             "access": "private",
             "tagname": "",
@@ -12609,7 +12609,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1188,
+            "line": 1189,
             "description": "Finds the name of the state route if it exists for the given route. A state\nroute is of the form `route.state`, such as `foo.loading`. Properly Handles\n`application` named routes.",
             "access": "private",
             "tagname": "",
@@ -12636,7 +12636,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1213,
+            "line": 1214,
             "description": "Determines whether or not a route has been defined by checking that the route\nis in the Router's map and the owner has a registration for that route.",
             "access": "private",
             "tagname": "",
@@ -12673,7 +12673,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1323,
+            "line": 1324,
             "description": "The `Router.map` function allows you to define mappings from URLs to routes\nin your application. These mappings are defined within the\nsupplied callback function using `this.route`.\n\nThe first parameter is the name of the route which is used by default as the\npath name as well.\n\nThe second parameter is the optional options hash. Available options are:\n\n  * `path`: allows you to provide your own path as well as mark dynamic\n    segments.\n  * `resetNamespace`: false by default; when nesting routes, ember will\n    combine the route names to form the fully-qualified route name, which is\n    used with `{{link-to}}` or manually transitioning to routes. Setting\n    `resetNamespace: true` will cause the route not to inherit from its\n    parent route's names. This is handy for preventing extremely long route names.\n    Keep in mind that the actual URL path behavior is still retained.\n\nThe third parameter is a function, which can be used to nest routes.\nNested routes, by default, will have the parent route tree's route name and\npath prepended to it's own.\n\n```javascript\nApp.Router.map(function(){\n  this.route('post', { path: '/post/:post_id' }, function() {\n    this.route('edit');\n    this.route('comments', { resetNamespace: true }, function() {\n      this.route('new');\n    });\n  });\n});\n```\n\nFor more detailed documentation and examples please see\n[the guides](http://emberjs.com/guides/routing/defining-your-routes/).",
             "itemtype": "method",
             "name": "map",
@@ -19815,15 +19815,15 @@
         },
         {
             "message": "Missing item type\nFinds the name of the substate route if it exists for the given route. A\nsubstate route is of the form `route_state`, such as `foo_loading`.",
-            "line": " packages/ember-routing/lib/system/router.js:1164"
+            "line": " packages/ember-routing/lib/system/router.js:1165"
         },
         {
             "message": "Missing item type\nFinds the name of the state route if it exists for the given route. A state\nroute is of the form `route.state`, such as `foo.loading`. Properly Handles\n`application` named routes.",
-            "line": " packages/ember-routing/lib/system/router.js:1188"
+            "line": " packages/ember-routing/lib/system/router.js:1189"
         },
         {
             "message": "Missing item type\nDetermines whether or not a route has been defined by checking that the route\nis in the Router's map and the owner has a registration for that route.",
-            "line": " packages/ember-routing/lib/system/router.js:1213"
+            "line": " packages/ember-routing/lib/system/router.js:1214"
         },
         {
             "message": "Missing item type",

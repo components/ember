@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+5df51f89
+ * @version   2.12.0-alpha.1-canary+3a6bdc79
  */
 
 var enifed, requireModule, Ember;
@@ -28580,8 +28580,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         for (var _i = 0; _i < qpMeta.qps.length; _i++) {
           var qp = qpMeta.qps[_i];
           var urlKey = qp.urlKey;
+          var qpOther = qpsByUrlKey[urlKey];
 
-          if (qpsByUrlKey[urlKey]) {
+          if (qpOther && qpOther.controllerName !== qp.controllerName) {
             var otherQP = qpsByUrlKey[urlKey];
             _emberMetal.assert('You\'re not allowed to have more than one controller property map to the same query param key, but both `' + otherQP.scopedPropertyName + '` and `' + qp.scopedPropertyName + '` map to `' + urlKey + '`. You can fix this by mapping one of the controller properties to a different query param key via the `as` config option, e.g. `' + otherQP.prop + ': { as: \'other-' + otherQP.prop + '\' }`', false);
           }
@@ -43394,7 +43395,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+5df51f89";
+  exports.default = "2.12.0-alpha.1-canary+3a6bdc79";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
