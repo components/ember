@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+3a6bdc79
+ * @version   2.12.0-alpha.1-canary+52d9cf21
  */
 
 var enifed, requireModule, Ember;
@@ -19183,7 +19183,9 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   function ROOT() {}
   ROOT.__hasSuper = false;
 
-  var a_slice = [].slice;
+  var a_slice = Array.prototype.slice;
+  var a_concat = Array.prototype.concat;
+  var isArray = Array.isArray;
 
   function isMethod(obj) {
     return 'function' === typeof obj && obj.isMethod !== false && obj !== Boolean && obj !== Object && obj !== Number && obj !== Array && obj !== Date && obj !== String;
@@ -19207,14 +19209,11 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   }
 
   function concatenatedMixinProperties(concatProp, props, values, base) {
-    var concats = undefined;
-
     // reset before adding each new mixin to pickup concats from previous
-    concats = values[concatProp] || base[concatProp];
+    var concats = values[concatProp] || base[concatProp];
     if (props[concatProp]) {
-      concats = concats ? concats.concat(props[concatProp]) : props[concatProp];
+      concats = concats ? a_concat.call(concats, props[concatProp]) : props[concatProp];
     }
-
     return concats;
   }
 
@@ -19281,18 +19280,18 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     var baseValue = values[key] || obj[key];
     var ret = undefined;
 
-    if (baseValue) {
-      if ('function' === typeof baseValue.concat) {
+    if (baseValue === null || baseValue === undefined) {
+      ret = _emberUtils.makeArray(value);
+    } else {
+      if (isArray(baseValue)) {
         if (value === null || value === undefined) {
           ret = baseValue;
         } else {
-          ret = baseValue.concat(value);
+          ret = a_concat.call(baseValue, value);
         }
       } else {
-        ret = _emberUtils.makeArray(baseValue).concat(value);
+        ret = a_concat.call(_emberUtils.makeArray(baseValue), value);
       }
-    } else {
-      ret = _emberUtils.makeArray(value);
     }
 
     return ret;
@@ -37368,6 +37367,11 @@ enifed("ember-utils/lookup-descriptor", ["exports"], function (exports) {
   }
 });
 enifed("ember-utils/make-array", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = makeArray;
+  var isArray = Array.isArray;
+
   /**
    Forces the passed object to be part of an array. If the object is already
    an array, it will return the object. Otherwise, it will add the object to
@@ -37391,15 +37395,12 @@ enifed("ember-utils/make-array", ["exports"], function (exports) {
    @return {Array}
    @private
    */
-  "use strict";
-
-  exports.default = makeArray;
 
   function makeArray(obj) {
     if (obj === null || obj === undefined) {
       return [];
     }
-    return Array.isArray(obj) ? obj : [obj];
+    return isArray(obj) ? obj : [obj];
   }
 });
 enifed('ember-utils/name', ['exports', 'ember-utils/symbol'], function (exports, _emberUtilsSymbol) {
@@ -40080,7 +40081,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+3a6bdc79";
+  exports.default = "2.12.0-alpha.1-canary+52d9cf21";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
