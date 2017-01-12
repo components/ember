@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+c7075aa0
+ * @version   2.12.0-alpha.1-canary+e98c3a38
  */
 
 var enifed, requireModule, Ember;
@@ -33662,14 +33662,8 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
       will be notified. Note that the observers are triggered any time the
       value is set, regardless of whether it has actually changed. Your
       observer should be prepared to handle that.
-       You can also pass an optional context parameter to this method. The
-      context will be passed to your observer method whenever it is triggered.
-      Note that if you add the same target/method pair on a key multiple times
-      with different context parameters, your observer will only be called once
-      with the last context you passed.
        ### Observer Methods
-       Observer methods you pass should generally have the following signature if
-      you do not pass a `context` parameter:
+       Observer methods have the following signature:
        ```javascript
       export default Ember.Component.extend({
         init() {
@@ -33681,24 +33675,11 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
         }
       });
       ```
-       The sender is the object that changed. The key is the property that
-      changes. The value property is currently reserved and unused. The rev
+       The `sender` is the object that changed. The `key` is the property that
+      changes. The `value` property is currently reserved and unused. The `rev`
       is the last property revision of the object when it changed, which you can
       use to detect if the key value has really changed or not.
-       If you pass a `context` parameter, the context will be passed before the
-      revision like so:
-       ```javascript
-      export default Ember.Component.extend({
-        init() {
-          this._super(...arguments);
-          this.addObserver('foo', this, 'fooDidChange');
-        },
-         fooDidChange(sender, key, value, context, rev) {
-          // your code
-        }
-      });
-      ```
-       Usually you will not need the value, context or revision parameters at
+       Usually you will not need the value or revision parameters at
       the end. In this case, it is common to write observer methods that take
       only a sender and key value as parameters or, if you aren't interested in
       any of these values, to write an observer that has no parameters at all.
@@ -40107,7 +40088,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+c7075aa0";
+  exports.default = "2.12.0-alpha.1-canary+e98c3a38";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

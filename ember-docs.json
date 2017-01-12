@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.12.0-alpha.1.c7075aa0"
+        "version": "2.12.0-alpha.1.e98c3a38"
     },
     "files": {
         "packages/container/lib/container.js": {
@@ -16051,7 +16051,7 @@
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
             "line": 333,
-            "description": "Adds an observer on a property.\n\nThis is the core method used to register an observer for a property.\n\nOnce you call this method, any time the key's value is set, your observer\nwill be notified. Note that the observers are triggered any time the\nvalue is set, regardless of whether it has actually changed. Your\nobserver should be prepared to handle that.\n\nYou can also pass an optional context parameter to this method. The\ncontext will be passed to your observer method whenever it is triggered.\nNote that if you add the same target/method pair on a key multiple times\nwith different context parameters, your observer will only be called once\nwith the last context you passed.\n\n### Observer Methods\n\nObserver methods you pass should generally have the following signature if\nyou do not pass a `context` parameter:\n\n```javascript\nexport default Ember.Component.extend({\n  init() {\n    this._super(...arguments);\n    this.addObserver('foo', this, 'fooDidChange');\n  },\n\n  fooDidChange(sender, key, value, rev) {\n    // your code\n  }\n});\n```\n\nThe sender is the object that changed. The key is the property that\nchanges. The value property is currently reserved and unused. The rev\nis the last property revision of the object when it changed, which you can\nuse to detect if the key value has really changed or not.\n\nIf you pass a `context` parameter, the context will be passed before the\nrevision like so:\n\n```javascript\nexport default Ember.Component.extend({\n  init() {\n    this._super(...arguments);\n    this.addObserver('foo', this, 'fooDidChange');\n  },\n\n  fooDidChange(sender, key, value, context, rev) {\n    // your code\n  }\n});\n```\n\nUsually you will not need the value, context or revision parameters at\nthe end. In this case, it is common to write observer methods that take\nonly a sender and key value as parameters or, if you aren't interested in\nany of these values, to write an observer that has no parameters at all.",
+            "description": "Adds an observer on a property.\n\nThis is the core method used to register an observer for a property.\n\nOnce you call this method, any time the key's value is set, your observer\nwill be notified. Note that the observers are triggered any time the\nvalue is set, regardless of whether it has actually changed. Your\nobserver should be prepared to handle that.\n\n### Observer Methods\n\nObserver methods have the following signature:\n\n```javascript\nexport default Ember.Component.extend({\n  init() {\n    this._super(...arguments);\n    this.addObserver('foo', this, 'fooDidChange');\n  },\n\n  fooDidChange(sender, key, value, rev) {\n    // your code\n  }\n});\n```\n\nThe `sender` is the object that changed. The `key` is the property that\nchanges. The `value` property is currently reserved and unused. The `rev`\nis the last property revision of the object when it changed, which you can\nuse to detect if the key value has really changed or not.\n\nUsually you will not need the value or revision parameters at\nthe end. In this case, it is common to write observer methods that take\nonly a sender and key value as parameters or, if you aren't interested in\nany of these values, to write an observer that has no parameters at all.",
             "itemtype": "method",
             "name": "addObserver",
             "params": [
@@ -16080,7 +16080,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 403,
+            "line": 380,
             "description": "Remove an observer you have previously registered on this object. Pass\nthe same key, target, and method you passed to `addObserver()` and your\ntarget will no longer receive notifications.",
             "itemtype": "method",
             "name": "removeObserver",
@@ -16110,7 +16110,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 418,
+            "line": 395,
             "description": "Returns `true` if the object currently has observers registered for a\nparticular key. You can use this method to potentially defer performing\nan expensive action until someone begins observing a particular property\non the object.",
             "itemtype": "method",
             "name": "hasObserverFor",
@@ -16134,7 +16134,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 433,
+            "line": 410,
             "description": "Retrieves the value of a property, or a default value in the case that the\nproperty returns `undefined`.\n\n```javascript\nperson.getWithDefault('lastName', 'Doe');\n```",
             "itemtype": "method",
             "name": "getWithDefault",
@@ -16163,7 +16163,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 451,
+            "line": 428,
             "description": "Set the value of a property to the current value plus some amount.\n\n```javascript\nperson.incrementProperty('age');\nteam.incrementProperty('score', 2);\n```",
             "itemtype": "method",
             "name": "incrementProperty",
@@ -16192,7 +16192,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 471,
+            "line": 448,
             "description": "Set the value of a property to the current value minus some amount.\n\n```javascript\nplayer.decrementProperty('lives');\norc.decrementProperty('health', 5);\n```",
             "itemtype": "method",
             "name": "decrementProperty",
@@ -16221,7 +16221,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 491,
+            "line": 468,
             "description": "Set the value of a boolean property to the opposite of its\ncurrent value.\n\n```javascript\nstarship.toggleProperty('warpDriveEngaged');\n```",
             "itemtype": "method",
             "name": "toggleProperty",
@@ -16245,7 +16245,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 508,
+            "line": 485,
             "description": "Returns the cached value of a computed property, if it exists.\nThis allows you to inspect the value of a computed property\nwithout accidentally invoking it if it is intended to be\ngenerated lazily.",
             "itemtype": "method",
             "name": "cacheFor",
