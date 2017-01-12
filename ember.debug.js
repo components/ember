@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+52d9cf21
+ * @version   2.12.0-alpha.1-canary+686d4ea2
  */
 
 var enifed, requireModule, Ember;
@@ -42123,9 +42123,11 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
         throw new TypeError('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to root element (' + (rootElement.selector || rootElement[0].tagName) + '). Make sure you set rootElement to the body or an element in the body.');
       }
 
+      var viewRegistry = this._getViewRegistry();
+
       for (event in events) {
         if (events.hasOwnProperty(event)) {
-          this.setupHandler(rootElement, event, events[event]);
+          this.setupHandler(rootElement, event, events[event], viewRegistry);
         }
       }
     },
@@ -42141,12 +42143,10 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       @param {Element} rootElement
       @param {String} event the browser-originated event to listen to
       @param {String} eventName the name of the method to call on the view
+      @param {Object} viewRegistry
     */
-    setupHandler: function (rootElement, event, eventName) {
+    setupHandler: function (rootElement, event, eventName, viewRegistry) {
       var self = this;
-
-      var owner = _emberUtils.getOwner(this);
-      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsCompatFallbackViewRegistry.default;
 
       if (eventName === null) {
         return;
@@ -42240,6 +42240,13 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
     _bubbleEvent: function (view, evt, eventName) {
       return view.handleEvent(eventName, evt);
+    },
+
+    _getViewRegistry: function () {
+      var owner = _emberUtils.getOwner(this);
+      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsCompatFallbackViewRegistry.default;
+
+      return viewRegistry;
     },
 
     destroy: function () {
@@ -43396,7 +43403,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+52d9cf21";
+  exports.default = "2.12.0-alpha.1-canary+686d4ea2";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
