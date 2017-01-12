@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+07b4fc13
+ * @version   2.12.0-alpha.1-canary+e56dcbe2
  */
 
 var enifed, requireModule, Ember;
@@ -16453,7 +16453,15 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
        Observer methods you pass should generally have the following signature if
       you do not pass a `context` parameter:
        ```javascript
-      fooDidChange: function(sender, key, value, rev) { };
+      export default Ember.Component.extend({
+        init() {
+          this._super(...arguments);
+          this.addObserver('foo', this, 'fooDidChange');
+        },
+         fooDidChange(sender, key, value, rev) {
+          // your code
+        }
+      });
       ```
        The sender is the object that changed. The key is the property that
       changes. The value property is currently reserved and unused. The rev
@@ -16462,7 +16470,15 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
        If you pass a `context` parameter, the context will be passed before the
       revision like so:
        ```javascript
-      fooDidChange: function(sender, key, value, context, rev) { };
+      export default Ember.Component.extend({
+        init() {
+          this._super(...arguments);
+          this.addObserver('foo', this, 'fooDidChange');
+        },
+         fooDidChange(sender, key, value, context, rev) {
+          // your code
+        }
+      });
       ```
        Usually you will not need the value, context or revision parameters at
       the end. In this case, it is common to write observer methods that take
@@ -19648,7 +19664,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+07b4fc13";
+  exports.default = "2.12.0-alpha.1-canary+e56dcbe2";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
