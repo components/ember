@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.12.0-alpha.1.0ec7635e"
+        "version": "2.12.0-alpha.1.07b4fc13"
     },
     "files": {
         "packages/container/lib/container.js": {
