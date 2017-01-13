@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+78f59995
+ * @version   2.12.0-alpha.1-canary+9b5f9847
  */
 
 var enifed, requireModule, Ember;
@@ -8335,6 +8335,8 @@ babelHelpers.classCallCheck(this, _class);
           this.route('comments');
           this.route('likes');
         });
+        this.route('category', { path: 'category/:id' });
+        this.route('author', { path: 'author/:id' });
       });
       this.registerRoute('application', _emberRouting.Route.extend({
         model: function () {
@@ -8349,11 +8351,20 @@ babelHelpers.classCallCheck(this, _class);
             queryParams: ['lang'],
             lang: ''
           }));
+          this.register('controller:category', _emberRuntime.Controller.extend({
+            queryParams: ['type']
+          }));
+          this.register('controller:authorKtrl', _emberRuntime.Controller.extend({
+            queryParams: ['official']
+          }));
           this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine{{lang}}{{outlet}}'));
           this.register('route:application', _emberRouting.Route.extend({
             model: function () {
               hooks.push('engine - application');
             }
+          }));
+          this.register('route:author', _emberRouting.Route.extend({
+            controllerName: 'authorKtrl'
           }));
 
           if (self._additionalEngineRegistrations) {
@@ -8452,6 +8463,10 @@ babelHelpers.classCallCheck(this, _class);
           this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('Engine {{foo-bar wat=contextType}}'));
         }
       }));
+    };
+
+    _class.prototype.stringsEndWith = function stringsEndWith(str, suffix) {
+      return str.indexOf(suffix, str.length - suffix.length) !== -1;
     };
 
     _class.prototype['@test attrs in an engine'] = function testAttrsInAnEngine() {
@@ -8895,6 +8910,47 @@ babelHelpers.classCallCheck(this, _class);
             return _this18.assertText('ApplicationEngineLikes');
           });
         });
+      });
+    };
+
+    _class.prototype['@test query params don\'t have stickiness by default between model'] = function testQueryParamsDonTHaveStickinessByDefaultBetweenModel(assert) {
+      var _this19 = this;
+
+      assert.expect(1);
+      var tmpl = '{{#link-to "blog.category" 1337}}Category 1337{{/link-to}}';
+      this.setupAppAndRoutableEngine();
+      this.additionalEngineRegistrations(function () {
+        this.register('template:category', _emberGlimmerTestsUtilsHelpers.compile(tmpl));
+      });
+
+      return this.visit('/blog/category/1?type=news').then(function () {
+        var suffix = '/blog/category/1337';
+        var href = _this19.element.querySelector('a').href;
+
+        // check if link ends with the suffix
+        assert.ok(_this19.stringsEndWith(href, suffix));
+      });
+    };
+
+    _class.prototype['@test query params in customized controllerName have stickiness by default between model'] = function testQueryParamsInCustomizedControllerNameHaveStickinessByDefaultBetweenModel(assert) {
+      var _this20 = this;
+
+      assert.expect(2);
+      var tmpl = '{{#link-to "blog.author" 1337 class="author-1337"}}Author 1337{{/link-to}}{{#link-to "blog.author" 1 class="author-1"}}Author 1{{/link-to}}';
+      this.setupAppAndRoutableEngine();
+      this.additionalEngineRegistrations(function () {
+        this.register('template:author', _emberGlimmerTestsUtilsHelpers.compile(tmpl));
+      });
+
+      return this.visit('/blog/author/1?official=true').then(function () {
+        var suffix1 = '/blog/author/1?official=true';
+        var href1 = _this20.element.querySelector('.author-1').href;
+        var suffix1337 = '/blog/author/1337';
+        var href1337 = _this20.element.querySelector('.author-1337').href;
+
+        // check if link ends with the suffix
+        assert.ok(_this20.stringsEndWith(href1, suffix1));
+        assert.ok(_this20.stringsEndWith(href1337, suffix1337));
       });
     };
 
