@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+9b5f9847
+ * @version   2.12.0-alpha.1-canary+10bae799
  */
 
 var enifed, requireModule, Ember;
@@ -3700,7 +3700,6 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
       }
 
       registerLibraries();
-      logLibraryVersions();
 
       // Start off the number of deferrals at 1. This will be decremented by
       // the Application's own `boot` method.
@@ -4323,27 +4322,12 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
     }
   }
 
-  function logLibraryVersions() {
-    if (_emberEnvironment.ENV.LOG_VERSION) {
-      // we only need to see this once per Application#init
-      _emberEnvironment.ENV.LOG_VERSION = false;
-      var libs = _emberMetal.libraries._registry;
-
-      var nameLengths = libs.map(function (item) {
-        return _emberMetal.get(item, 'name.length');
-      });
-
-      var maxNameLength = Math.max.apply(this, nameLengths);
-
-      for (var i = 0; i < libs.length; i++) {
-        var lib = libs[i];
-        var spaces = new Array(maxNameLength - lib.name.length + 1).join(' ');
-      }
-    }
-  }
+  function logLibraryVersions() {}
 
   exports.default = Application;
 });
+
+// we only need to see this once per Application#init
 enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'ember-runtime', 'ember-metal', 'container', 'ember-application/system/engine-parent'], function (exports, _emberUtils, _emberRuntime, _emberMetal, _container, _emberApplicationSystemEngineParent) {
   /**
   @module ember
@@ -40088,7 +40072,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+9b5f9847";
+  exports.default = "2.12.0-alpha.1-canary+10bae799";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
