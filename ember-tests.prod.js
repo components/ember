@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+79d90b9d
+ * @version   2.12.0-alpha.1-canary+78f59995
  */
 
 var enifed, requireModule, Ember;
@@ -48730,7 +48730,7 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 
-  QUnit.test('converts object stlye [{foo: \'an_alias\'}]', function (assert) {
+  QUnit.test('converts object style [{foo: \'an_alias\'}]', function (assert) {
     var paramName = 'foo';
     var params = [{ 'foo': 'an_alias' }];
     var normalized = _emberRoutingUtils.normalizeControllerQueryParams(params);
@@ -48740,7 +48740,7 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 
-  QUnit.test('retains maximally verbose object stlye [{foo: {as: \'foo\'}}]', function (assert) {
+  QUnit.test('retains maximally verbose object style [{foo: {as: \'foo\'}}]', function (assert) {
     var paramName = 'foo';
     var params = [{ 'foo': { as: 'an_alias' } }];
     var normalized = _emberRoutingUtils.normalizeControllerQueryParams(params);
