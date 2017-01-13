@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+e98c3a38
+ * @version   2.12.0-alpha.1-canary+79d90b9d
  */
 
 var enifed, requireModule, Ember;
@@ -13051,6 +13051,22 @@ babelHelpers.classCallCheck(this, _class);
       this.assertText('ab');
     };
 
+    _class.prototype['@test GH#14632 give useful warning when calling contextual components with input as a name'] = function testGH14632GiveUsefulWarningWhenCallingContextualComponentsWithInputAsAName() {
+      var _this35 = this;
+
+      expectAssertion(function () {
+        _this35.render('{{component (component "input" type="text")}}');
+      }, 'You cannot use the input helper as a contextual helper. Please extend Ember.TextField or Ember.Checkbox to use it as a contextual component.');
+    };
+
+    _class.prototype['@test GH#14632 give useful warning when calling contextual components with textarea as a name'] = function testGH14632GiveUsefulWarningWhenCallingContextualComponentsWithTextareaAsAName() {
+      var _this36 = this;
+
+      expectAssertion(function () {
+        _this36.render('{{component (component "textarea" type="text")}}');
+      }, 'You cannot use the textarea helper as a contextual helper. Please extend Ember.TextArea to use it as a contextual component.');
+    };
+
     return _class;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
@@ -13086,7 +13102,7 @@ babelHelpers.classCallCheck(this, MutableParamTestGenerator);
       var setup = _ref2.setup;
 
       return _ref = {}, _ref['@test parameters in a contextual component are mutable when value is a ' + title] = function (assert) {
-        var _this35 = this;
+        var _this37 = this;
 
         this.registerComponent('change-button', {
           ComponentClass: _emberGlimmerTestsUtilsHelpers.Component.extend().reopenClass({
@@ -13100,19 +13116,19 @@ babelHelpers.classCallCheck(this, MutableParamTestGenerator);
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this35.rerender();
+          return _this37.rerender();
         });
 
         assert.equal(this.$('.value').text(), '8');
 
         this.runTask(function () {
-          return _this35.$('.my-button').click();
+          return _this37.$('.my-button').click();
         });
 
         assert.equal(this.$('.value').text(), '10');
 
         this.runTask(function () {
-          return _this35.context.set('model', { val2: 8 });
+          return _this37.context.set('model', { val2: 8 });
         });
 
         assert.equal(this.$('.value').text(), '8');
