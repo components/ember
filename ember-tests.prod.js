@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+10bae799
+ * @version   2.12.0-alpha.1-canary+659ecb0d
  */
 
 var enifed, requireModule, Ember;
@@ -66823,6 +66823,54 @@ enifed('ember-utils/tests/inspect_test.lint-test', ['exports'], function (export
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-utils/tests/inspect_test.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-utils/tests/make_array_test', ['exports', 'ember-utils/make-array'], function (exports, _emberUtilsMakeArray) {
+  'use strict';
+
+  QUnit.module('Ember.makeArray');
+
+  QUnit.test('undefined', function () {
+    deepEqual(_emberUtilsMakeArray.default(), []);
+    deepEqual(_emberUtilsMakeArray.default(undefined), []);
+  });
+
+  QUnit.test('null', function () {
+    deepEqual(_emberUtilsMakeArray.default(null), []);
+  });
+
+  QUnit.test('string', function () {
+    deepEqual(_emberUtilsMakeArray.default('lindsay'), ['lindsay']);
+  });
+
+  QUnit.test('number', function () {
+    deepEqual(_emberUtilsMakeArray.default(0), [0]);
+    deepEqual(_emberUtilsMakeArray.default(1), [1]);
+  });
+
+  QUnit.test('array', function () {
+    deepEqual(_emberUtilsMakeArray.default([1, 2, 42]), [1, 2, 42]);
+  });
+
+  QUnit.test('true', function () {
+    deepEqual(_emberUtilsMakeArray.default(true), [true]);
+  });
+
+  QUnit.test('false', function () {
+    deepEqual(_emberUtilsMakeArray.default(false), [false]);
+  });
+
+  QUnit.test('object', function () {
+    deepEqual(_emberUtilsMakeArray.default({}), [{}]);
+  });
+});
+enifed('ember-utils/tests/make_array_test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-utils/tests/make_array_test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-utils/tests/make_array_test.js should pass ESLint\n\n');
   });
 });
 enifed('ember-utils/tests/to-string-test', ['exports', 'ember-utils/index'], function (exports, _emberUtilsIndex) {
