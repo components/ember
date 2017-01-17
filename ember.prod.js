@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+78e3e0e7
+ * @version   2.12.0-alpha.1-canary+7166d886
  */
 
 var enifed, requireModule, Ember;
@@ -38326,8 +38326,8 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     this.renderer.appendTo(this, target);
 
     return this;
-  }, _Mixin$create.renderToElement = function (tagName) {
-    tagName = tagName || 'body';
+  }, _Mixin$create.renderToElement = function () {
+    var tagName = arguments.length <= 0 || arguments[0] === undefined ? 'body' : arguments[0];
 
     var element = this.renderer.createElement(tagName);
 
@@ -38815,11 +38815,9 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
         throw new TypeError('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to root element (' + (rootElement.selector || rootElement[0].tagName) + '). Make sure you set rootElement to the body or an element in the body.');
       }
 
-      var viewRegistry = this._getViewRegistry();
-
       for (event in events) {
         if (events.hasOwnProperty(event)) {
-          this.setupHandler(rootElement, event, events[event], viewRegistry);
+          this.setupHandler(rootElement, event, events[event]);
         }
       }
     },
@@ -38835,10 +38833,12 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       @param {Element} rootElement
       @param {String} event the browser-originated event to listen to
       @param {String} eventName the name of the method to call on the view
-      @param {Object} viewRegistry
     */
-    setupHandler: function (rootElement, event, eventName, viewRegistry) {
+    setupHandler: function (rootElement, event, eventName) {
       var self = this;
+
+      var owner = _emberUtils.getOwner(this);
+      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsCompatFallbackViewRegistry.default;
 
       if (eventName === null) {
         return;
@@ -38932,13 +38932,6 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
     _bubbleEvent: function (view, evt, eventName) {
       return view.handleEvent(eventName, evt);
-    },
-
-    _getViewRegistry: function () {
-      var owner = _emberUtils.getOwner(this);
-      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsCompatFallbackViewRegistry.default;
-
-      return viewRegistry;
     },
 
     destroy: function () {
@@ -40076,7 +40069,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+78e3e0e7";
+  exports.default = "2.12.0-alpha.1-canary+7166d886";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
