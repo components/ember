@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+02ac5755
+ * @version   2.12.0-alpha.1-canary+d3314cd7
  */
 
 var enifed, requireModule, Ember;
@@ -31118,7 +31118,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
       if (activeObservers) {
         activeObservers.forEach(function (args) {
-          return _emberMetal.removeObserver.apply(null, args);
+          return _emberMetal.removeObserver.apply(undefined, args);
         });
       }
 
@@ -31131,7 +31131,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
         var path = itemsKeyIsAtThis ? '@each.' + prop : itemsKey + '.@each.' + prop;
         var args = [_this5, path, sortPropertyDidChange];
-        _emberMetal.addObserver.apply(null, args);
+        _emberMetal.addObserver.apply(undefined, args);
         return args;
       });
 
@@ -34996,7 +34996,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
         args[_key] = arguments[_key];
       }
 
-      return _emberMetal.getProperties.apply(null, [this].concat(args));
+      return _emberMetal.getProperties.apply(undefined, [this].concat(args));
     },
 
     /**
@@ -35867,10 +35867,14 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
         var ret = undefined;
 
         if (target.send) {
-          ret = target.send.apply(target, args(actionContext, action));
+          var _target;
+
+          ret = (_target = target).send.apply(_target, args(actionContext, action));
         } else {
+          var _target2;
+
           _emberMetal.assert('The action \'' + action + '\' did not exist on ' + target, typeof target[action] === 'function');
-          ret = target[action].apply(target, args(actionContext));
+          ret = (_target2 = target)[action].apply(_target2, args(actionContext));
         }
 
         if (ret !== false) {
@@ -36336,133 +36340,139 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     // possible.
 
     var wasApplied = false;
-    var initProperties;
+    var initProperties = undefined;
 
-    var Class = function () {
-      if (!wasApplied) {
-        Class.proto(); // prepare prototype...
-      }
+    var Class = (function () {
+      function Class() {
+babelHelpers.classCallCheck(this, Class);
 
-      if (arguments.length > 0) {
-        initProperties = [arguments[0]];
-      }
+        if (!wasApplied) {
+          Class.proto(); // prepare prototype...
+        }
 
-      this.__defineNonEnumerable(_emberUtils.GUID_KEY_PROPERTY);
-      var m = _emberMetal.meta(this);
-      var proto = m.proto;
-      m.proto = this;
-      if (initProperties) {
-        // capture locally so we can clear the closed over variable
-        var props = initProperties;
-        initProperties = null;
+        if (arguments.length > 0) {
+          initProperties = [arguments[0]];
+        }
 
-        var concatenatedProperties = this.concatenatedProperties;
-        var mergedProperties = this.mergedProperties;
+        this.__defineNonEnumerable(_emberUtils.GUID_KEY_PROPERTY);
+        var m = _emberMetal.meta(this);
+        var proto = m.proto;
+        m.proto = this;
+        if (initProperties) {
+          // capture locally so we can clear the closed over variable
+          var props = initProperties;
+          initProperties = null;
 
-        for (var i = 0; i < props.length; i++) {
-          var properties = props[i];
+          var concatenatedProperties = this.concatenatedProperties;
+          var mergedProperties = this.mergedProperties;
 
-          _emberMetal.assert('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create separately instead.', !(properties instanceof _emberMetal.Mixin));
+          for (var i = 0; i < props.length; i++) {
+            var properties = props[i];
+            _emberMetal.assert('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create separately instead.', !(properties instanceof _emberMetal.Mixin));
 
-          if (typeof properties !== 'object' && properties !== undefined) {
-            throw new _emberMetal.Error('Ember.Object.create only accepts objects.');
-          }
-
-          if (!properties) {
-            continue;
-          }
-
-          var keyNames = Object.keys(properties);
-
-          for (var j = 0; j < keyNames.length; j++) {
-            var keyName = keyNames[j];
-            var value = properties[keyName];
-
-            if (_emberMetal.detectBinding(keyName)) {
-              m.writeBindings(keyName, value);
+            if (typeof properties !== 'object' && properties !== undefined) {
+              throw new _emberMetal.Error('Ember.Object.create only accepts objects.');
             }
 
-            var possibleDesc = this[keyName];
-            var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+            if (!properties) {
+              continue;
+            }
 
-            _emberMetal.assert('Ember.Object.create no longer supports defining computed ' + 'properties. Define computed properties using extend() or reopen() ' + 'before calling create().', !(value instanceof _emberMetal.ComputedProperty));
-            _emberMetal.assert('Ember.Object.create no longer supports defining methods that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
-            _emberMetal.assert('`actions` must be provided at extend time, not at create time, ' + 'when Ember.ActionHandler is used (i.e. views, controllers & routes).', !(keyName === 'actions' && _emberRuntimeMixinsAction_handler.default.detect(this)));
+            var keyNames = Object.keys(properties);
 
-            if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) >= 0) {
-              var baseValue = this[keyName];
+            for (var j = 0; j < keyNames.length; j++) {
+              var keyName = keyNames[j];
+              var value = properties[keyName];
 
-              if (baseValue) {
-                if ('function' === typeof baseValue.concat) {
-                  value = baseValue.concat(value);
-                } else {
-                  value = _emberUtils.makeArray(baseValue).concat(value);
-                }
-              } else {
-                value = _emberUtils.makeArray(value);
+              if (_emberMetal.detectBinding(keyName)) {
+                m.writeBindings(keyName, value);
               }
-            }
 
-            if (mergedProperties && mergedProperties.length && mergedProperties.indexOf(keyName) >= 0) {
-              var originalValue = this[keyName];
+              var possibleDesc = this[keyName];
+              var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
-              value = _emberUtils.assign({}, originalValue, value);
-            }
+              _emberMetal.assert('Ember.Object.create no longer supports defining computed ' + 'properties. Define computed properties using extend() or reopen() ' + 'before calling create().', !(value instanceof _emberMetal.ComputedProperty));
+              _emberMetal.assert('Ember.Object.create no longer supports defining methods that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
+              _emberMetal.assert('`actions` must be provided at extend time, not at create time, ' + 'when Ember.ActionHandler is used (i.e. views, controllers & routes).', !(keyName === 'actions' && _emberRuntimeMixinsAction_handler.default.detect(this)));
 
-            if (desc) {
-              desc.set(this, keyName, value);
-            } else {
-              if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
-                this.setUnknownProperty(keyName, value);
-              } else {
-                if (true) {
-                  _emberMetal.defineProperty(this, keyName, null, value); // setup mandatory setter
-                } else {
-                    this[keyName] = value;
+              if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) >= 0) {
+                var baseValue = this[keyName];
+
+                if (baseValue) {
+                  if ('function' === typeof baseValue.concat) {
+                    value = baseValue.concat(value);
+                  } else {
+                    value = _emberUtils.makeArray(baseValue).concat(value);
                   }
+                } else {
+                  value = _emberUtils.makeArray(value);
+                }
+              }
+
+              if (mergedProperties && mergedProperties.length && mergedProperties.indexOf(keyName) >= 0) {
+                var originalValue = this[keyName];
+
+                value = _emberUtils.assign({}, originalValue, value);
+              }
+
+              if (desc) {
+                desc.set(this, keyName, value);
+              } else {
+                if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
+                  this.setUnknownProperty(keyName, value);
+                } else {
+                  if (true) {
+                    _emberMetal.defineProperty(this, keyName, null, value); // setup mandatory setter
+                  } else {
+                      this[keyName] = value;
+                    }
+                }
               }
             }
           }
         }
+
+        finishPartial(this, m);
+
+        this.init.apply(this, arguments);
+
+        this[POST_INIT]();
+
+        m.proto = proto;
+        _emberMetal.finishChains(this);
+        _emberMetal.sendEvent(this, 'init');
       }
 
-      finishPartial(this, m);
+      Class.willReopen = function willReopen() {
+        if (wasApplied) {
+          Class.PrototypeMixin = _emberMetal.Mixin.create(Class.PrototypeMixin);
+        }
 
-      this.init.apply(this, arguments);
+        wasApplied = false;
+      };
 
-      this[POST_INIT]();
+      Class._initProperties = function _initProperties(args) {
+        initProperties = args;
+      };
 
-      m.proto = proto;
-      _emberMetal.finishChains(this);
-      _emberMetal.sendEvent(this, 'init');
-    };
+      Class.proto = function proto() {
+        var superclass = Class.superclass;
+        if (superclass) {
+          superclass.proto();
+        }
+
+        if (!wasApplied) {
+          wasApplied = true;
+          Class.PrototypeMixin.applyPartial(Class.prototype);
+        }
+
+        return this.prototype;
+      };
+
+      return Class;
+    })();
 
     Class.toString = _emberMetal.Mixin.prototype.toString;
-    Class.willReopen = function () {
-      if (wasApplied) {
-        Class.PrototypeMixin = _emberMetal.Mixin.create(Class.PrototypeMixin);
-      }
-
-      wasApplied = false;
-    };
-
-    Class._initProperties = function (args) {
-      initProperties = args;
-    };
-
-    Class.proto = function () {
-      var superclass = Class.superclass;
-      if (superclass) {
-        superclass.proto();
-      }
-
-      if (!wasApplied) {
-        wasApplied = true;
-        Class.PrototypeMixin.applyPartial(Class.prototype);
-      }
-
-      return this.prototype;
-    };
 
     return Class;
   }
@@ -36587,7 +36597,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     isMethod: false
   }, _ClassMixinProps[_emberUtils.NAME_KEY] = null, _ClassMixinProps[_emberUtils.GUID_KEY] = null, _ClassMixinProps.extend = function () {
     var Class = makeCtor();
-    var proto;
+    var proto = undefined;
     Class.ClassMixin = _emberMetal.Mixin.create(this.ClassMixin);
     Class.PrototypeMixin = _emberMetal.Mixin.create(this.PrototypeMixin);
 
@@ -36643,27 +36653,27 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     var possibleDesc = proto[key];
     var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
-    _emberMetal.assert('metaForProperty() could not find a computed property ' + 'with key \'' + key + '\'.', !!desc && desc instanceof _emberMetal.ComputedProperty);
+    _emberMetal.assert('metaForProperty() could not find a computed property with key \'' + key + '\'.', !!desc && desc instanceof _emberMetal.ComputedProperty);
     return desc._meta || {};
   }, _ClassMixinProps._computedProperties = _emberMetal.computed(function () {
     hasCachedComputedProperties = true;
     var proto = this.proto();
-    var property;
+    var property = undefined;
     var properties = [];
 
-    for (var name in proto) {
-      property = proto[name];
+    for (var _name in proto) {
+      property = proto[_name];
 
       if (property && property.isDescriptor) {
         properties.push({
-          name: name,
+          name: _name,
           meta: property._meta
         });
       }
     }
     return properties;
   }).readOnly(), _ClassMixinProps.eachComputedProperty = function (callback, binding) {
-    var property;
+    var property = undefined;
     var empty = {};
 
     var properties = _emberMetal.get(this, '_computedProperties');
@@ -36698,7 +36708,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   ClassMixinProps._lazyInjections = function () {
     var injections = {};
     var proto = this.proto();
-    var key, desc;
+    var key = undefined;
+    var desc = undefined;
 
     for (key in proto) {
       desc = proto[key];
@@ -36954,7 +36965,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
    ```javascript
   const Person = Ember.Object.extend({
     say(thing) {
-      var name = this.get('name');
+      let name = this.get('name');
       alert(`${name} says: ${thing}`);
     }
   });
@@ -37109,7 +37120,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
    You can pass a hash of these values to a computed property like this:
    ```javascript
   person: Ember.computed(function() {
-    var personId = this.get('personId');
+    let personId = this.get('personId');
     return Person.create({ id: personId });
   }).meta({ type: Person })
   ```
@@ -37574,6 +37585,8 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   */
   'use strict';
 
+  var _NativeArray;
+
   // Add Ember.Array to Array.prototype. Remove methods with native
   // implementations and supply some more optimized versions of generic methods
   // because they are so common.
@@ -37663,7 +37676,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   });
 
   exports.NativeArray // TODO: only use default export
-   = NativeArray = NativeArray.without.apply(NativeArray, ignore);
+   = NativeArray = (_NativeArray = NativeArray).without.apply(_NativeArray, ignore);
 
   /**
     Creates an `Ember.NativeArray` from an Array like object.
@@ -43410,7 +43423,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+02ac5755";
+  exports.default = "2.12.0-alpha.1-canary+d3314cd7";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
