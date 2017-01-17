@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+65e66961
+ * @version   2.12.0-alpha.1-canary+516e93c7
  */
 
 var enifed, requireModule, Ember;
@@ -8107,6 +8107,33 @@ enifed('ember-glimmer/syntax.lint-test', ['exports'], function (exports) {
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-glimmer/syntax.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-glimmer/syntax/-in-element.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/syntax/-in-element.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/syntax/-in-element.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-glimmer/syntax/-text-area.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/syntax/-text-area.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/syntax/-text-area.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-glimmer/syntax/-with-dynamic-vars.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/syntax/-with-dynamic-vars.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/syntax/-with-dynamic-vars.js should pass ESLint\n\n');
   });
 });
 enifed('ember-glimmer/syntax/abstract-manager.lint-test', ['exports'], function (exports) {
@@ -25005,9 +25032,9 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
 
       this.registerHelper('some-helper', function () {});
 
-      expectAssertion(function () {
+      this.assert.throws(function () {
         _this18.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
+      }, /Compile Error some-helper is not a modifier: Helpers may not be used in the element form/);
     };
 
     _class.prototype['@test class-based helper not usable within element'] = function testClassBasedHelperNotUsableWithinElement() {
@@ -25017,9 +25044,9 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['exports',
         compute: function () {}
       });
 
-      expectAssertion(function () {
+      this.assert.throws(function () {
         _this19.render('<div {{some-helper}}></div>');
-      }, /Helpers may not be used in the element form/);
+      }, /Compile Error some-helper is not a modifier: Helpers may not be used in the element form/);
     };
 
     _class.prototype['@test class-based helper is torn down'] = function testClassBasedHelperIsTornDown() {
@@ -25324,7 +25351,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test.lint-test', [
     assert.ok(true, 'ember-glimmer/tests/integration/helpers/custom-helper-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/helpers/debugger', 'ember-metal', 'ember-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerHelpersDebugger, _emberMetal, _emberRuntime) {
+enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', '@glimmer/runtime', 'ember-metal', 'ember-runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _glimmerRuntime, _emberMetal, _emberRuntime) {
   'use strict';
 
   // This file is generally not I-N-U-R tested, because the {{debugger}} helper currently
@@ -25342,7 +25369,7 @@ enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'emb
 
     _class.prototype.teardown = function teardown() {
       _RenderingTest.prototype.teardown.call(this);
-      _emberGlimmerHelpersDebugger.resetDebuggerCallback();
+      _glimmerRuntime.resetDebuggerCallback();
     };
 
     _class.prototype.expectDebuggerCallback = function expectDebuggerCallback(callback, debuggerCallback) {
@@ -25350,7 +25377,7 @@ enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'emb
 
       var called = 0;
 
-      _emberGlimmerHelpersDebugger.setDebuggerCallback(function (context, get) {
+      _glimmerRuntime.setDebuggerCallback(function (context, get) {
         called++;
         debuggerCallback(context, get);
       });
@@ -25363,7 +25390,7 @@ enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'emb
     _class.prototype.expectNoDebuggerCallback = function expectNoDebuggerCallback(callback) {
       var called = 0;
 
-      _emberGlimmerHelpersDebugger.setDebuggerCallback(function () {
+      _glimmerRuntime.setDebuggerCallback(function () {
         return called++;
       });
 
@@ -25449,7 +25476,7 @@ enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'emb
 
       var count = 0;
 
-      _emberGlimmerHelpersDebugger.setDebuggerCallback(function () {
+      _glimmerRuntime.setDebuggerCallback(function () {
         return count++;
       });
 
@@ -25492,7 +25519,7 @@ enifed('ember-glimmer/tests/integration/helpers/debugger-test', ['exports', 'emb
             this.zomg = 'zomg';
           }
         }),
-        template: '{{debugger not.here}}foo-bar'
+        template: '{{debugger}}foo-bar'
       });
 
       this.expectDebuggerCallback(function () {
@@ -35714,7 +35741,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test.lint-test', ['exports']
     assert.ok(true, 'ember-glimmer/tests/integration/syntax/with-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'glimmer-runtime'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _glimmerRuntime) {
+enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', '@glimmer/runtime'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _glimmerRuntime) {
   'use strict';
 
   var Counter = (function () {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+65e66961
+ * @version   2.12.0-alpha.1-canary+516e93c7
  */
 
 var enifed, requireModule, Ember;
@@ -10316,7 +10316,7 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/tags', ['exports', 'glimmer-reference', 'ember-metal/meta', 'require', 'ember-metal/is_proxy'], function (exports, _glimmerReference, _emberMetalMeta, _require, _emberMetalIs_proxy) {
+enifed('ember-metal/tags', ['exports', '@glimmer/reference', 'ember-metal/meta', 'require', 'ember-metal/is_proxy'], function (exports, _glimmerReference, _emberMetalMeta, _require, _emberMetalIs_proxy) {
   'use strict';
 
   exports.setHasViews = setHasViews;
@@ -13270,7 +13270,7 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', 'glimmer-reference', 'ember-metal', 'ember-runtime/computed/computed_macros'], function (exports, _glimmerReference, _emberMetal, _emberRuntimeComputedComputed_macros) {
+enifed('ember-runtime/mixins/-proxy', ['exports', '@glimmer/reference', 'ember-metal', 'ember-runtime/computed/computed_macros'], function (exports, _glimmerReference, _emberMetal, _emberRuntimeComputedComputed_macros) {
   /**
   @module ember
   @submodule ember-runtime
@@ -19743,7 +19743,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+65e66961";
+  exports.default = "2.12.0-alpha.1-canary+516e93c7";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
