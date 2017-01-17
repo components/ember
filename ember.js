@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+732cd460
+ * @version   2.12.0-alpha.1-canary+78e3e0e7
  */
 
 var enifed, requireModule, Ember;
@@ -23883,8 +23883,8 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
        @method _qpChanged
       @private
     */
-    _qpChanged: function (controller, _prop) {
-      var prop = _prop.substr(0, _prop.length - 3);
+    _qpChanged: function (controller, prop) {
+      prop = prop.substr(0, prop.length - 3);
 
       var delegate = controller._qpDelegate;
       var value = _emberMetal.get(controller, prop);
@@ -24486,18 +24486,18 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember
 
       // If the path already has a trailing slash, remove the one
       // from the hashed route so we don't double up.
-      if (path.slice(-1) === '/') {
+      if (path.charAt(path.length - 1) === '/') {
         routeHash = routeHash.substr(1);
       }
 
       // This is the "expected" final order
-      path = path + routeHash + query;
+      path += routeHash + query;
 
       if (hashParts.length) {
         path += '#' + hashParts.join('#');
       }
     } else {
-      path = path + query + hash;
+      path += query + hash;
     }
 
     return path;
@@ -24518,7 +24518,7 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember
     var routePath = historyPath.substr(rootURL.length);
 
     if (routePath !== '') {
-      if (routePath.charAt(0) !== '/') {
+      if (routePath[0] !== '/') {
         routePath = '/' + routePath;
       }
 
@@ -24575,7 +24575,7 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal', 'ember
       var originalPath = this.getHash().substr(1);
       var outPath = originalPath;
 
-      if (outPath.charAt(0) !== '/') {
+      if (outPath[0] !== '/') {
         outPath = '/';
 
         // Only add the # if the path isn't empty.
@@ -24699,7 +24699,10 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
       this._super.apply(this, arguments);
 
       var base = document.querySelector('base');
-      var baseURL = base ? base.getAttribute('href') : '';
+      var baseURL = '';
+      if (base) {
+        baseURL = base.getAttribute('href');
+      }
 
       _emberMetal.set(this, 'baseURL', baseURL);
       _emberMetal.set(this, 'location', _emberMetal.get(this, 'location') || window.location);
@@ -24752,8 +24755,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
       var url = path.replace(new RegExp('^' + baseURL + '(?=/|$)'), '').replace(new RegExp('^' + rootURL + '(?=/|$)'), '');
 
       var search = location.search || '';
-      url += search;
-      url += this.getHash();
+      url += search + this.getHash();
 
       return url;
     },
@@ -24880,7 +24882,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
         // remove trailing slashes if they exists
         rootURL = rootURL.replace(/\/$/, '');
         baseURL = baseURL.replace(/\/$/, '');
-      } else if (baseURL.match(/^\//) && rootURL.match(/^\//)) {
+      } else if (baseURL[0] === '/' && rootURL[0] === '/') {
         // if baseURL and rootURL both start with a slash
         // ... remove trailing slash from baseURL if it exists
         baseURL = baseURL.replace(/\/$/, '');
@@ -25042,7 +25044,7 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
   function getPath(location) {
     var pathname = location.pathname;
     // Various versions of IE/Opera don't always return a leading slash
-    if (pathname.charAt(0) !== '/') {
+    if (pathname[0] !== '/') {
       pathname = '/' + pathname;
     }
 
@@ -25244,7 +25246,7 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
   function numberOfContextsAcceptedByHandler(handler, handlerInfos) {
     var req = 0;
     for (var i = 0; i < handlerInfos.length; i++) {
-      req = req + handlerInfos[i].names.length;
+      req += handlerInfos[i].names.length;
       if (handlerInfos[i].handler === handler) {
         break;
       }
@@ -25326,25 +25328,25 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
   @submodule ember-routing
   */
 
-  function DSL(name, options) {
-    this.parent = name;
-    this.enableLoadingSubstates = options && options.enableLoadingSubstates;
-    this.matches = [];
-    this.explicitIndex = undefined;
-    this.options = options;
-  }
+  var uuid = 0;
 
-  exports.default = DSL;
+  var DSL = (function () {
+    function DSL(name, options) {
+      babelHelpers.classCallCheck(this, DSL);
 
-  DSL.prototype = {
-    route: function (name, options, callback) {
+      this.parent = name;
+      this.enableLoadingSubstates = options && options.enableLoadingSubstates;
+      this.matches = [];
+      this.explicitIndex = undefined;
+      this.options = options;
+    }
+
+    DSL.prototype.route = function route(name, options, callback) {
+      if (options === undefined) options = {};
+
       var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
       if (arguments.length === 2 && typeof options === 'function') {
         callback = options;
-        options = {};
-      }
-
-      if (arguments.length === 1) {
         options = {};
       }
 
@@ -25374,9 +25376,9 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
       } else {
         createRoute(this, name, options);
       }
-    },
+    };
 
-    push: function (url, name, callback, serialize) {
+    DSL.prototype.push = function push(url, name, callback, serialize) {
       var parts = name.split('.');
 
       if (this.options.engineInfo) {
@@ -25397,24 +25399,22 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
       }
 
       this.matches.push([url, name, callback]);
-    },
+    };
 
-    resource: function (name, options, callback) {
+    DSL.prototype.resource = function resource(name, options, callback) {
+      if (options === undefined) options = {};
+
       if (arguments.length === 2 && typeof options === 'function') {
         callback = options;
-        options = {};
-      }
-
-      if (arguments.length === 1) {
         options = {};
       }
 
       options.resetNamespace = true;
       _emberMetal.deprecate('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.', false, { id: 'ember-routing.router-resource', until: '3.0.0' });
       this.route(name, options, callback);
-    },
+    };
 
-    generate: function () {
+    DSL.prototype.generate = function generate() {
       var dslMatches = this.matches;
 
       if (!this.explicitIndex) {
@@ -25427,8 +25427,86 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
           match(dslMatch[0]).to(dslMatch[1], dslMatch[2]);
         }
       };
-    }
-  };
+    };
+
+    DSL.prototype.mount = function mount(_name) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var engineRouteMap = this.options.resolveRouteMap(_name);
+      var name = _name;
+
+      if (options.as) {
+        name = options.as;
+      }
+
+      var fullName = getFullName(this, name, options.resetNamespace);
+
+      var engineInfo = {
+        name: _name,
+        instanceId: uuid++,
+        mountPoint: fullName,
+        fullName: fullName
+      };
+
+      var path = options.path;
+
+      if (typeof path !== 'string') {
+        path = '/' + name;
+      }
+
+      var callback = undefined;
+      var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
+      if (engineRouteMap) {
+        var shouldResetEngineInfo = false;
+        var oldEngineInfo = this.options.engineInfo;
+        if (oldEngineInfo) {
+          shouldResetEngineInfo = true;
+          this.options.engineInfo = engineInfo;
+        }
+
+        var optionsForChild = _emberUtils.assign({ engineInfo: engineInfo }, this.options);
+        var childDSL = new DSL(fullName, optionsForChild);
+
+        createRoute(childDSL, 'loading');
+        createRoute(childDSL, 'error', { path: dummyErrorRoute });
+
+        engineRouteMap.class.call(childDSL);
+
+        callback = childDSL.generate();
+
+        if (shouldResetEngineInfo) {
+          this.options.engineInfo = oldEngineInfo;
+        }
+      }
+
+      var localFullName = 'application';
+      var routeInfo = _emberUtils.assign({ localFullName: localFullName }, engineInfo);
+
+      if (this.enableLoadingSubstates) {
+        // These values are important to register the loading routes under their
+        // proper names for the Router and within the Engine's registry.
+        var substateName = name + '_loading';
+        var _localFullName = 'application_loading';
+        var _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
+        createRoute(this, substateName, { resetNamespace: options.resetNamespace });
+        this.options.addRouteForEngine(substateName, _routeInfo);
+
+        substateName = name + '_error';
+        _localFullName = 'application_error';
+        _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
+        createRoute(this, substateName, { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
+        this.options.addRouteForEngine(substateName, _routeInfo);
+      }
+
+      this.options.addRouteForEngine(fullName, routeInfo);
+
+      this.push(path, fullName, callback);
+    };
+
+    return DSL;
+  })();
+
+  exports.default = DSL;
 
   function canNest(dsl) {
     return dsl.parent && dsl.parent !== 'application';
@@ -25443,7 +25521,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
   }
 
   function createRoute(dsl, name, options, callback) {
-    options = options || {};
+    if (options === undefined) options = {};
 
     var fullName = getFullName(dsl, name, options.resetNamespace);
 
@@ -25458,81 +25536,6 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
     var dsl = new DSL();
     callback.call(dsl);
     return dsl;
-  };
-
-  var uuid = 0;
-
-  DSL.prototype.mount = function (_name, _options) {
-    var options = _options || {};
-    var engineRouteMap = this.options.resolveRouteMap(_name);
-    var name = _name;
-
-    if (options.as) {
-      name = options.as;
-    }
-
-    var fullName = getFullName(this, name, options.resetNamespace);
-
-    var engineInfo = {
-      name: _name,
-      instanceId: uuid++,
-      mountPoint: fullName,
-      fullName: fullName
-    };
-
-    var path = options.path;
-
-    if (typeof path !== 'string') {
-      path = '/' + name;
-    }
-
-    var callback = undefined;
-    var dummyErrorRoute = '/_unused_dummy_error_path_route_' + name + '/:error';
-    if (engineRouteMap) {
-      var shouldResetEngineInfo = false;
-      var oldEngineInfo = this.options.engineInfo;
-      if (oldEngineInfo) {
-        shouldResetEngineInfo = true;
-        this.options.engineInfo = engineInfo;
-      }
-
-      var optionsForChild = _emberUtils.assign({ engineInfo: engineInfo }, this.options);
-      var childDSL = new DSL(fullName, optionsForChild);
-
-      createRoute(childDSL, 'loading');
-      createRoute(childDSL, 'error', { path: dummyErrorRoute });
-
-      engineRouteMap.class.call(childDSL);
-
-      callback = childDSL.generate();
-
-      if (shouldResetEngineInfo) {
-        this.options.engineInfo = oldEngineInfo;
-      }
-    }
-
-    var localFullName = 'application';
-    var routeInfo = _emberUtils.assign({ localFullName: localFullName }, engineInfo);
-
-    if (this.enableLoadingSubstates) {
-      // These values are important to register the loading routes under their
-      // proper names for the Router and within the Engine's registry.
-      var substateName = name + '_loading';
-      var _localFullName = 'application_loading';
-      var _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
-      createRoute(this, substateName, { resetNamespace: options.resetNamespace });
-      this.options.addRouteForEngine(substateName, _routeInfo);
-
-      substateName = name + '_error';
-      _localFullName = 'application_error';
-      _routeInfo = _emberUtils.assign({ localFullName: _localFullName }, engineInfo);
-      createRoute(this, substateName, { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
-      this.options.addRouteForEngine(substateName, _routeInfo);
-    }
-
-    this.options.addRouteForEngine(fullName, routeInfo);
-
-    this.push(path, fullName, callback);
   };
 });
 enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
@@ -25613,10 +25616,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
   }
 
   function defaultSerialize(model, params) {
-    if (params.length < 1) {
-      return;
-    }
-    if (!model) {
+    if (params.length < 1 || !model) {
       return;
     }
 
@@ -25873,8 +25873,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @private
        @method _stashNames
     */
-    _stashNames: function (_handlerInfo, dynamicParent) {
-      var handlerInfo = _handlerInfo;
+    _stashNames: function (handlerInfo, dynamicParent) {
       if (this._names) {
         return;
       }
@@ -27018,9 +27017,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           return;
         }
 
-        var parentModel = transition.state.handlerInfos[transition.resolveIndex - 1].context;
-
-        return parentModel;
+        return transition.state.handlerInfos[transition.resolveIndex - 1].context;
       }
 
       return this.findModel(name, value);
@@ -27580,12 +27577,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     return handlerInfo && handlerInfo.handler;
   }
 
-  function handlerInfoFor(route, handlerInfos, _offset) {
+  function handlerInfoFor(route, handlerInfos) {
+    var offset = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+
     if (!handlerInfos) {
       return;
     }
 
-    var offset = _offset || 0;
     var current = undefined;
     for (var i = 0; i < handlerInfos.length; i++) {
       current = handlerInfos[i].handler;
@@ -27777,7 +27775,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
   exports.default = Route;
 });
-enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _container, _router4) {
+enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _container, _router5) {
   'use strict';
 
   exports.triggerEvent = triggerEvent;
@@ -27825,7 +27823,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     rootURL: '/',
 
     _initRouterJs: function () {
-      var router = this.router = new _router4.default();
+      var router = this.router = new _router5.default();
       router.triggerEvent = triggerEvent;
 
       router._triggerWillChangeContext = K;
@@ -28490,6 +28488,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     _doTransition: function (_targetRouteName, models, _queryParams) {
+      var _router4;
+
       var targetRouteName = _targetRouteName || _emberRoutingUtils.getActiveTargetName(this.router);
       _emberMetal.assert('The route ' + targetRouteName + ' was not found', targetRouteName && this.router.hasRoute(targetRouteName));
 
@@ -28501,7 +28501,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this._prepareQueryParams(targetRouteName, models, queryParams);
 
       var transitionArgs = _emberRoutingUtils.routeArgs(targetRouteName, models, queryParams);
-      var transition = this.router.transitionTo.apply(this.router, transitionArgs);
+      var transition = (_router4 = this.router).transitionTo.apply(_router4, transitionArgs);
 
       didBeginTransition(transition, this);
 
@@ -29170,7 +29170,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   }
 
   function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
+    return typeof str === 'string' && (str === '' || str[0] === '/');
   }
 
   function forEachQueryParam(router, handlerInfos, queryParams, callback) {
@@ -29417,8 +29417,9 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal'], functio
     Stolen from Controller
   */
 
-  function calculateCacheKey(prefix, _parts, values) {
-    var parts = _parts || [];
+  function calculateCacheKey(prefix, parts, values) {
+    if (parts === undefined) parts = [];
+
     var suffixes = '';
     for (var i = 0; i < parts.length; ++i) {
       var part = parts[i];
@@ -43416,7 +43417,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+732cd460";
+  exports.default = "2.12.0-alpha.1-canary+78e3e0e7";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
