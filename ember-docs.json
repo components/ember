@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.12.0-alpha.1.61ccb270"
+        "version": "2.12.0-alpha.1.cd266f88"
     },
     "files": {
         "packages/container/lib/container.js": {
@@ -2499,7 +2499,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/binding.js",
-            "line": 353,
+            "line": 352,
             "deprecated": true,
             "deprecationMessage": "See http://emberjs.com/deprecations/v2.x#toc_ember-binding",
             "access": "public",
@@ -7873,7 +7873,7 @@
         },
         {
             "file": "packages/ember-metal/lib/binding.js",
-            "line": 486,
+            "line": 485,
             "description": "Global helper method to create a new binding. Just pass the root object\nalong with a `to` and `from` path to create and connect the binding.",
             "itemtype": "method",
             "name": "bind",
@@ -9040,7 +9040,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 540,
+            "line": 568,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -9094,7 +9094,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 519,
+            "line": 506,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -9114,7 +9114,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 534,
+            "line": 551,
             "itemtype": "method",
             "name": "reopen",
             "params": [
@@ -9133,7 +9133,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 571,
+            "line": 588,
             "itemtype": "method",
             "name": "apply",
             "params": [
@@ -9154,7 +9154,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 602,
+            "line": 619,
             "itemtype": "method",
             "name": "detect",
             "params": [
@@ -9176,7 +9176,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 666,
+            "line": 668,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -9188,7 +9188,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 689,
+            "line": 691,
             "description": "Makes a method available via an additional name.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  name: function() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: Ember.aliasMethod('name')\n});\n\nlet goodGuy = App.Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -9207,7 +9207,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 719,
+            "line": 721,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -9235,7 +9235,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 771,
+            "line": 773,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "_immediateObserver",
@@ -9265,7 +9265,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 810,
+            "line": 812,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",
@@ -9518,7 +9518,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 213,
+            "line": 212,
             "itemtype": "method",
             "name": "beginPropertyChanges",
             "chainable": 1,
@@ -9529,7 +9529,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 222,
+            "line": 221,
             "itemtype": "method",
             "name": "endPropertyChanges",
             "access": "private",
@@ -9539,7 +9539,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 234,
+            "line": 233,
             "description": "Make a series of property changes together in an\nexception-safe way.\n\n```javascript\nEmber.changeProperties(function() {\n  obj1.set('foo', mayBlowUpWhenSet);\n  obj2.set('bar', baz);\n});\n```",
             "itemtype": "method",
             "name": "changeProperties",

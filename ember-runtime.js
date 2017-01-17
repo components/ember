@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+61ccb270
+ * @version   2.12.0-alpha.1-canary+cd266f88
  */
 
 var enifed, requireModule, Ember;
@@ -3035,7 +3035,6 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
   'use strict';
 
   exports.default = alias;
-  exports.AliasedProperty = AliasedProperty;
 
   var CONSUMED = {};
 
@@ -3043,65 +3042,72 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
     return new AliasedProperty(altKey);
   }
 
-  function AliasedProperty(altKey) {
-    this.isDescriptor = true;
-    this.altKey = altKey;
-    this._dependentKeys = [altKey];
-  }
+  var AliasedProperty = (function (_Descriptor) {
+    babelHelpers.inherits(AliasedProperty, _Descriptor);
 
-  AliasedProperty.prototype = Object.create(_emberMetalProperties.Descriptor.prototype);
-
-  AliasedProperty.prototype.setup = function (obj, keyName) {
-    _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
-    var meta = _emberMetalMeta.meta(obj);
-    if (meta.peekWatching(keyName)) {
-      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    function AliasedProperty(altKey) {
+      _Descriptor.call(this);
+      this.isDescriptor = true;
+      this.altKey = altKey;
+      this._dependentKeys = [altKey];
     }
-  };
 
-  AliasedProperty.prototype.teardown = function (obj, keyName) {
-    var meta = _emberMetalMeta.meta(obj);
-    if (meta.peekWatching(keyName)) {
-      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
-    }
-  };
+    AliasedProperty.prototype.setup = function setup(obj, keyName) {
+      _emberMetalDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
+      var meta = _emberMetalMeta.meta(obj);
+      if (meta.peekWatching(keyName)) {
+        _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+      }
+    };
 
-  AliasedProperty.prototype.willWatch = function (obj, keyName) {
-    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
-  };
+    AliasedProperty.prototype.teardown = function teardown(obj, keyName) {
+      var meta = _emberMetalMeta.meta(obj);
+      if (meta.peekWatching(keyName)) {
+        _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
+      }
+    };
 
-  AliasedProperty.prototype.didUnwatch = function (obj, keyName) {
-    _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
-  };
+    AliasedProperty.prototype.willWatch = function willWatch(obj, keyName) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
+    };
 
-  AliasedProperty.prototype.get = function AliasedProperty_get(obj, keyName) {
-    var ret = _emberMetalProperty_get.get(obj, this.altKey);
-    var meta = _emberMetalMeta.meta(obj);
-    var cache = meta.writableCache();
-    if (cache[keyName] !== CONSUMED) {
-      cache[keyName] = CONSUMED;
-      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
-    }
-    return ret;
-  };
+    AliasedProperty.prototype.didUnwatch = function didUnwatch(obj, keyName) {
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, _emberMetalMeta.meta(obj));
+    };
 
-  AliasedProperty.prototype.set = function AliasedProperty_set(obj, keyName, value) {
-    return _emberMetalProperty_set.set(obj, this.altKey, value);
-  };
+    AliasedProperty.prototype.get = function get(obj, keyName) {
+      var ret = _emberMetalProperty_get.get(obj, this.altKey);
+      var meta = _emberMetalMeta.meta(obj);
+      var cache = meta.writableCache();
+      if (cache[keyName] !== CONSUMED) {
+        cache[keyName] = CONSUMED;
+        _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+      }
+      return ret;
+    };
 
-  AliasedProperty.prototype.readOnly = function () {
-    this.set = AliasedProperty_readOnlySet;
-    return this;
-  };
+    AliasedProperty.prototype.set = function set(obj, keyName, value) {
+      return _emberMetalProperty_set.set(obj, this.altKey, value);
+    };
+
+    AliasedProperty.prototype.readOnly = function readOnly() {
+      this.set = AliasedProperty_readOnlySet;
+      return this;
+    };
+
+    AliasedProperty.prototype.oneWay = function oneWay() {
+      this.set = AliasedProperty_oneWaySet;
+      return this;
+    };
+
+    return AliasedProperty;
+  })(_emberMetalProperties.Descriptor);
+
+  exports.AliasedProperty = AliasedProperty;
 
   function AliasedProperty_readOnlySet(obj, keyName, value) {
     throw new _emberMetalError.default('Cannot set read-only property \'' + keyName + '\' on object: ' + _emberUtils.inspect(obj));
   }
-
-  AliasedProperty.prototype.oneWay = function () {
-    this.set = AliasedProperty_oneWaySet;
-    return this;
-  };
 
   function AliasedProperty_oneWaySet(obj, keyName, value) {
     _emberMetalProperties.defineProperty(obj, keyName, null);
@@ -3126,41 +3132,42 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
   // BINDING
   //
 
-  function Binding(toPath, fromPath) {
-    // Configuration
-    this._from = fromPath;
-    this._to = toPath;
-    this._oneWay = undefined;
+  var Binding = (function () {
+    function Binding(toPath, fromPath) {
+      // Configuration
+      this._from = fromPath;
+      this._to = toPath;
+      this._oneWay = undefined;
 
-    // State
-    this._direction = undefined;
-    this._readyToSync = undefined;
-    this._fromObj = undefined;
-    this._fromPath = undefined;
-    this._toObj = undefined;
-  }
+      // State
+      this._direction = undefined;
+      this._readyToSync = undefined;
+      this._fromObj = undefined;
+      this._fromPath = undefined;
+      this._toObj = undefined;
+    }
 
-  /**
-    @class Binding
-    @namespace Ember
-    @deprecated See http://emberjs.com/deprecations/v2.x#toc_ember-binding
-    @public
-  */
+    /**
+      @class Binding
+      @namespace Ember
+      @deprecated See http://emberjs.com/deprecations/v2.x#toc_ember-binding
+      @public
+    */
 
-  Binding.prototype = {
     /**
       This copies the Binding so it can be connected to another object.
        @method copy
       @return {Ember.Binding} `this`
       @public
     */
-    copy: function () {
+
+    Binding.prototype.copy = function copy() {
       var copy = new Binding(this._to, this._from);
       if (this._oneWay) {
         copy._oneWay = true;
       }
       return copy;
-    },
+    };
 
     // ..........................................................
     // CONFIG
@@ -3178,10 +3185,11 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
       @return {Ember.Binding} `this`
       @public
     */
-    from: function (path) {
+
+    Binding.prototype.from = function from(path) {
       this._from = path;
       return this;
-    },
+    };
 
     /**
       This will set the `to` property path to the specified value. It will not
@@ -3195,10 +3203,11 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
       @return {Ember.Binding} `this`
       @public
     */
-    to: function (path) {
+
+    Binding.prototype.to = function to(path) {
       this._to = path;
       return this;
-    },
+    };
 
     /**
       Configures the binding as one way. A one-way binding will relay changes
@@ -3209,20 +3218,22 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
       @return {Ember.Binding} `this`
       @public
     */
-    oneWay: function () {
+
+    Binding.prototype.oneWay = function oneWay() {
       this._oneWay = true;
       return this;
-    },
+    };
 
     /**
       @method toString
       @return {String} string representation of binding
       @public
     */
-    toString: function () {
+
+    Binding.prototype.toString = function toString() {
       var oneWay = this._oneWay ? '[oneWay]' : '';
       return 'Ember.Binding<' + _emberUtils.guidFor(this) + '>(' + this._from + ' -> ' + this._to + ')' + oneWay;
-    },
+    };
 
     // ..........................................................
     // CONNECT AND SYNC
@@ -3237,7 +3248,8 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
       @return {Ember.Binding} `this`
       @public
     */
-    connect: function (obj) {
+
+    Binding.prototype.connect = function connect(obj) {
       _emberMetalDebug.assert('Must pass a valid object to Ember.Binding.connect()', !!obj);
 
       var fromObj = undefined,
@@ -3281,7 +3293,7 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
       this._toObj = obj;
 
       return this;
-    },
+    };
 
     /**
       Disconnects the binding instance. Changes will no longer be relayed. You
@@ -3290,7 +3302,8 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
       @return {Ember.Binding} `this`
       @public
     */
-    disconnect: function () {
+
+    Binding.prototype.disconnect = function disconnect() {
       _emberMetalDebug.assert('Must pass a valid object to Ember.Binding.disconnect()', !!this._toObj);
 
       // Remove an observer on the object so we're no longer notified of
@@ -3304,23 +3317,25 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
 
       this._readyToSync = false; // Disable scheduled syncs...
       return this;
-    },
+    };
 
     // ..........................................................
     // PRIVATE
     //
 
     /* Called when the from side changes. */
-    fromDidChange: function (target) {
+
+    Binding.prototype.fromDidChange = function fromDidChange(target) {
       this._scheduleSync('fwd');
-    },
+    };
 
     /* Called when the to side changes. */
-    toDidChange: function (target) {
-      this._scheduleSync('back');
-    },
 
-    _scheduleSync: function (dir) {
+    Binding.prototype.toDidChange = function toDidChange(target) {
+      this._scheduleSync('back');
+    };
+
+    Binding.prototype._scheduleSync = function _scheduleSync(dir) {
       var existingDir = this._direction;
 
       // If we haven't scheduled the binding yet, schedule it.
@@ -3334,9 +3349,11 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
       if (existingDir === 'back' && dir === 'fwd') {
         this._direction = 'fwd';
       }
-    },
+    };
 
-    _sync: function () {
+    Binding.prototype._sync = function _sync() {
+      var _this = this;
+
       var log = _emberEnvironment.ENV.LOG_BINDINGS;
 
       var toObj = this._toObj;
@@ -3357,30 +3374,35 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
 
       // If we're synchronizing from the remote object...
       if (direction === 'fwd') {
-        var fromValue = _emberMetalProperty_get.get(fromObj, fromPath);
-        if (log) {
-          _emberConsole.default.log(' ', this.toString(), '->', fromValue, fromObj);
-        }
-        if (this._oneWay) {
-          _emberMetalProperty_set.trySet(toObj, this._to, fromValue);
-        } else {
-          _emberMetalObserver._suspendObserver(toObj, this._to, this, 'toDidChange', function () {
-            _emberMetalProperty_set.trySet(toObj, this._to, fromValue);
-          });
-        }
-        // If we're synchronizing *to* the remote object.
-      } else if (direction === 'back') {
-          var toValue = _emberMetalProperty_get.get(toObj, this._to);
+        (function () {
+          var fromValue = _emberMetalProperty_get.get(fromObj, fromPath);
           if (log) {
-            _emberConsole.default.log(' ', this.toString(), '<-', toValue, toObj);
+            _emberConsole.default.log(' ', _this.toString(), '->', fromValue, fromObj);
           }
-          _emberMetalObserver._suspendObserver(fromObj, fromPath, this, 'fromDidChange', function () {
-            _emberMetalProperty_set.trySet(fromObj, fromPath, toValue);
-          });
+          if (_this._oneWay) {
+            _emberMetalProperty_set.trySet(toObj, _this._to, fromValue);
+          } else {
+            _emberMetalObserver._suspendObserver(toObj, _this._to, _this, 'toDidChange', function () {
+              _emberMetalProperty_set.trySet(toObj, this._to, fromValue);
+            });
+          }
+          // If we're synchronizing *to* the remote object.
+        })();
+      } else if (direction === 'back') {
+          (function () {
+            var toValue = _emberMetalProperty_get.get(toObj, _this._to);
+            if (log) {
+              _emberConsole.default.log(' ', _this.toString(), '<-', toValue, toObj);
+            }
+            _emberMetalObserver._suspendObserver(fromObj, fromPath, _this, 'fromDidChange', function () {
+              _emberMetalProperty_set.trySet(fromObj, fromPath, toValue);
+            });
+          })();
         }
-    }
+    };
 
-  };
+    return Binding;
+  })();
 
   function fireDeprecations(obj, toPath, fromPath, deprecateGlobal, deprecateOneWay, deprecateAlias) {
     var deprecateGlobalMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
@@ -3688,24 +3710,24 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
     return !(isObject(obj) && obj.isDescriptor && obj._volatile === false);
   }
 
-  function ChainWatchers() {
-    // chain nodes that reference a key in this obj by key
-    // we only create ChainWatchers when we are going to add them
-    // so create this upfront
-    this.chains = new _emberUtils.EmptyObject();
-  }
+  var ChainWatchers = (function () {
+    function ChainWatchers() {
+      // chain nodes that reference a key in this obj by key
+      // we only create ChainWatchers when we are going to add them
+      // so create this upfront
+      this.chains = new _emberUtils.EmptyObject();
+    }
 
-  ChainWatchers.prototype = {
-    add: function (key, node) {
+    ChainWatchers.prototype.add = function add(key, node) {
       var nodes = this.chains[key];
       if (nodes === undefined) {
         this.chains[key] = [node];
       } else {
         nodes.push(node);
       }
-    },
+    };
 
-    remove: function (key, node) {
+    ChainWatchers.prototype.remove = function remove(key, node) {
       var nodes = this.chains[key];
       if (nodes) {
         for (var i = 0; i < nodes.length; i++) {
@@ -3715,9 +3737,9 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
           }
         }
       }
-    },
+    };
 
-    has: function (key, node) {
+    ChainWatchers.prototype.has = function has(key, node) {
       var nodes = this.chains[key];
       if (nodes) {
         for (var i = 0; i < nodes.length; i++) {
@@ -3727,24 +3749,25 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
         }
       }
       return false;
-    },
+    };
 
-    revalidateAll: function () {
+    ChainWatchers.prototype.revalidateAll = function revalidateAll() {
       for (var key in this.chains) {
         this.notify(key, true, undefined);
       }
-    },
+    };
 
-    revalidate: function (key) {
+    ChainWatchers.prototype.revalidate = function revalidate(key) {
       this.notify(key, true, undefined);
-    },
+    };
 
     // key: the string key that is part of a path changed
     // revalidate: boolean; the chains that are watching this value should revalidate
     // callback: function that will be called with the object and path that
     //           will be/are invalidated by this key change, depending on
     //           whether the revalidate flag is passed
-    notify: function (key, revalidate, callback) {
+
+    ChainWatchers.prototype.notify = function notify(key, revalidate, callback) {
       var nodes = this.chains[key];
       if (nodes === undefined || nodes.length === 0) {
         return;
@@ -3770,8 +3793,10 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
         var path = affected[i + 1];
         callback(obj, path);
       }
-    }
-  };
+    };
+
+    return ChainWatchers;
+  })();
 
   function makeChainWatcher() {
     return new ChainWatchers();
@@ -3805,71 +3830,48 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
   // A ChainNode watches a single key on an object. If you provide a starting
   // value for the key then the node won't actually watch it. For a root node
   // pass null for parent and key and object for value.
-  function ChainNode(parent, key, value) {
-    this._parent = parent;
-    this._key = key;
 
-    // _watching is true when calling get(this._parent, this._key) will
-    // return the value of this node.
-    //
-    // It is false for the root of a chain (because we have no parent)
-    // and for global paths (because the parent node is the object with
-    // the observer on it)
-    this._watching = value === undefined;
+  var ChainNode = (function () {
+    function ChainNode(parent, key, value) {
+      this._parent = parent;
+      this._key = key;
 
-    this._chains = undefined;
-    this._object = undefined;
-    this.count = 0;
+      // _watching is true when calling get(this._parent, this._key) will
+      // return the value of this node.
+      //
+      // It is false for the root of a chain (because we have no parent)
+      // and for global paths (because the parent node is the object with
+      // the observer on it)
+      this._watching = value === undefined;
 
-    this._value = value;
-    this._paths = {};
-    if (this._watching) {
-      var obj = parent.value();
+      this._chains = undefined;
+      this._object = undefined;
+      this.count = 0;
 
-      if (!isObject(obj)) {
-        return;
-      }
+      this._value = value;
+      this._paths = {};
+      if (this._watching) {
+        var obj = parent.value();
 
-      this._object = obj;
-
-      addChainWatcher(this._object, this._key, this);
-    }
-  }
-
-  function lazyGet(obj, key) {
-    if (!isObject(obj)) {
-      return;
-    }
-
-    var meta = _emberMetalMeta.peekMeta(obj);
-
-    // check if object meant only to be a prototype
-    if (meta && meta.proto === obj) {
-      return;
-    }
-
-    // Use `get` if the return value is an EachProxy or an uncacheable value.
-    if (isVolatile(obj[key])) {
-      return _emberMetalProperty_get.get(obj, key);
-      // Otherwise attempt to get the cached value of the computed property
-    } else {
-        var cache = meta.readableCache();
-        if (cache) {
-          return _emberMetalComputed.cacheFor.get(cache, key);
+        if (!isObject(obj)) {
+          return;
         }
-      }
-  }
 
-  ChainNode.prototype = {
-    value: function () {
+        this._object = obj;
+
+        addChainWatcher(this._object, this._key, this);
+      }
+    }
+
+    ChainNode.prototype.value = function value() {
       if (this._value === undefined && this._watching) {
         var obj = this._parent.value();
         this._value = lazyGet(obj, this._key);
       }
       return this._value;
-    },
+    };
 
-    destroy: function () {
+    ChainNode.prototype.destroy = function destroy() {
       if (this._watching) {
         var obj = this._object;
         if (obj) {
@@ -3877,10 +3879,11 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
         }
         this._watching = false; // so future calls do nothing
       }
-    },
+    };
 
     // copies a top level object only
-    copy: function (obj) {
+
+    ChainNode.prototype.copy = function copy(obj) {
       var ret = new ChainNode(null, null, obj);
       var paths = this._paths;
       var path = undefined;
@@ -3893,11 +3896,12 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
         ret.add(path);
       }
       return ret;
-    },
+    };
 
     // called on the root node of a chain to setup watchers on the specified
     // path.
-    add: function (path) {
+
+    ChainNode.prototype.add = function add(path) {
       var paths = this._paths;
       paths[path] = (paths[path] || 0) + 1;
 
@@ -3905,11 +3909,12 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       var tail = path.slice(key.length + 1);
 
       this.chain(key, tail);
-    },
+    };
 
     // called on the root node of a chain to teardown watcher on the specified
     // path
-    remove: function (path) {
+
+    ChainNode.prototype.remove = function remove(path) {
       var paths = this._paths;
       if (paths[path] > 0) {
         paths[path]--;
@@ -3919,9 +3924,9 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       var tail = path.slice(key.length + 1);
 
       this.unchain(key, tail);
-    },
+    };
 
-    chain: function (key, path) {
+    ChainNode.prototype.chain = function chain(key, path) {
       var chains = this._chains;
       var node = undefined;
       if (chains === undefined) {
@@ -3942,9 +3947,9 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
         path = path.slice(key.length + 1);
         node.chain(key, path);
       }
-    },
+    };
 
-    unchain: function (key, path) {
+    ChainNode.prototype.unchain = function unchain(key, path) {
       var chains = this._chains;
       var node = chains[key];
 
@@ -3961,9 +3966,9 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
         chains[node._key] = undefined;
         node.destroy();
       }
-    },
+    };
 
-    notify: function (revalidate, affected) {
+    ChainNode.prototype.notify = function notify(revalidate, affected) {
       if (revalidate && this._watching) {
         var parentValue = this._parent.value();
 
@@ -3997,9 +4002,9 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       if (affected && this._parent) {
         this._parent.populateAffected(this._key, 1, affected);
       }
-    },
+    };
 
-    populateAffected: function (path, depth, affected) {
+    ChainNode.prototype.populateAffected = function populateAffected(path, depth, affected) {
       if (this._key) {
         path = this._key + '.' + path;
       }
@@ -4011,8 +4016,34 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
           affected.push(this.value(), path);
         }
       }
+    };
+
+    return ChainNode;
+  })();
+
+  function lazyGet(obj, key) {
+    if (!isObject(obj)) {
+      return;
     }
-  };
+
+    var meta = _emberMetalMeta.peekMeta(obj);
+
+    // check if object meant only to be a prototype
+    if (meta && meta.proto === obj) {
+      return;
+    }
+
+    // Use `get` if the return value is an EachProxy or an uncacheable value.
+    if (isVolatile(obj[key])) {
+      return _emberMetalProperty_get.get(obj, key);
+      // Otherwise attempt to get the cached value of the computed property
+    } else {
+        var cache = meta.readableCache();
+        if (cache) {
+          return _emberMetalComputed.cacheFor.get(cache, key);
+        }
+      }
+  }
 
   function finishChains(obj) {
     // We only create meta if we really have to
@@ -4874,31 +4905,37 @@ enifed("ember-metal/error", ["exports"], function (exports) {
   */
   "use strict";
 
+  var EmberError = (function (_Error) {
+    babelHelpers.inherits(EmberError, _Error);
+
+    function EmberError(message) {
+      _Error.call(this);
+
+      if (!(this instanceof EmberError)) {
+        return new EmberError(message);
+      }
+
+      var error = Error.call(this, message);
+
+      if (Error.captureStackTrace) {
+        Error.captureStackTrace(this, EmberError);
+      } else {
+        this.stack = error.stack;
+      }
+
+      this.description = error.description;
+      this.fileName = error.fileName;
+      this.lineNumber = error.lineNumber;
+      this.message = error.message;
+      this.name = error.name;
+      this.number = error.number;
+      this.code = error.code;
+    }
+
+    return EmberError;
+  })(Error);
+
   exports.default = EmberError;
-
-  function EmberError(message) {
-    if (!(this instanceof EmberError)) {
-      return new EmberError(message);
-    }
-
-    var error = Error.call(this, message);
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, EmberError);
-    } else {
-      this.stack = error.stack;
-    }
-
-    this.description = error.description;
-    this.fileName = error.fileName;
-    this.lineNumber = error.lineNumber;
-    this.message = error.message;
-    this.name = error.name;
-    this.number = error.number;
-    this.code = error.code;
-  }
-
-  EmberError.prototype = Object.create(Error.prototype);
 });
 enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/testing'], function (exports, _emberConsole, _emberMetalTesting) {
   'use strict';
@@ -4913,7 +4950,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
     var stack = error.stack;
     var message = error.message;
 
-    if (stack && stack.indexOf(message) === -1) {
+    if (stack && !stack.includes(message)) {
       stack = message + '\n' + stack;
     }
 
@@ -6136,8 +6173,6 @@ enifed('ember-metal/is_proxy', ['exports', 'ember-metal/meta'], function (export
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
   'use strict';
 
-  exports.Libraries = Libraries;
-
   /**
     Helper class that allows you to register your library with Ember.
   
@@ -6148,10 +6183,20 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
     @private
   */
 
-  function Libraries() {
-    this._registry = [];
-    this._coreLibIndex = 0;
-  }
+  var Libraries = (function () {
+    function Libraries() {
+      this._registry = [];
+      this._coreLibIndex = 0;
+    }
+
+    Libraries.prototype.isRegistered = function isRegistered(name) {
+      return !!this._getLibraryByName(name);
+    };
+
+    return Libraries;
+  })();
+
+  exports.Libraries = Libraries;
 
   Libraries.prototype = {
     constructor: Libraries,
@@ -6738,7 +6783,6 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
 
-  exports.Meta = Meta;
   exports.deleteMeta = deleteMeta;
   exports.meta = meta;
 
@@ -6808,105 +6852,273 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
   var memberNames = Object.keys(members);
   var META_FIELD = '__ember_meta__';
 
-  function Meta(obj, parentMeta) {
-    var _this = this;
+  var Meta = (function () {
+    function Meta(obj, parentMeta) {
+      var _this = this;
 
-    _emberMetalDebug.runInDebug(function () {
-      return counters.metaInstantiated++;
-    });
-
-    this._cache = undefined;
-    this._weak = undefined;
-    this._watching = undefined;
-    this._mixins = undefined;
-    this._bindings = undefined;
-    this._values = undefined;
-    this._deps = undefined;
-    this._chainWatchers = undefined;
-    this._chains = undefined;
-    this._tag = undefined;
-    this._tags = undefined;
-
-    // initial value for all flags right now is false
-    // see FLAGS const for detailed list of flags used
-    this._flags = 0;
-
-    // used only internally
-    this.source = obj;
-
-    // when meta(obj).proto === obj, the object is intended to be only a
-    // prototype and doesn't need to actually be observable itself
-    this.proto = undefined;
-
-    // The next meta in our inheritance chain. We (will) track this
-    // explicitly instead of using prototypical inheritance because we
-    // have detailed knowledge of how each property should really be
-    // inherited, and we can optimize it much better than JS runtimes.
-    this.parent = parentMeta;
-
-    if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
-      this._lastRendered = undefined;
       _emberMetalDebug.runInDebug(function () {
-        _this._lastRenderedReferenceMap = undefined;
-        _this._lastRenderedTemplateMap = undefined;
+        return counters.metaInstantiated++;
       });
+
+      this._cache = undefined;
+      this._weak = undefined;
+      this._watching = undefined;
+      this._mixins = undefined;
+      this._bindings = undefined;
+      this._values = undefined;
+      this._deps = undefined;
+      this._chainWatchers = undefined;
+      this._chains = undefined;
+      this._tag = undefined;
+      this._tags = undefined;
+
+      // initial value for all flags right now is false
+      // see FLAGS const for detailed list of flags used
+      this._flags = 0;
+
+      // used only internally
+      this.source = obj;
+
+      // when meta(obj).proto === obj, the object is intended to be only a
+      // prototype and doesn't need to actually be observable itself
+      this.proto = undefined;
+
+      // The next meta in our inheritance chain. We (will) track this
+      // explicitly instead of using prototypical inheritance because we
+      // have detailed knowledge of how each property should really be
+      // inherited, and we can optimize it much better than JS runtimes.
+      this.parent = parentMeta;
+
+      if (_emberMetalFeatures.default('ember-glimmer-detect-backtracking-rerender') || _emberMetalFeatures.default('ember-glimmer-allow-backtracking-rerender')) {
+        this._lastRendered = undefined;
+        _emberMetalDebug.runInDebug(function () {
+          _this._lastRenderedReferenceMap = undefined;
+          _this._lastRenderedTemplateMap = undefined;
+        });
+      }
+
+      this._initializeListeners();
     }
 
-    this._initializeListeners();
-  }
+    Meta.prototype.isInitialized = function isInitialized(obj) {
+      return this.proto !== obj;
+    };
 
-  Meta.prototype.isInitialized = function (obj) {
-    return this.proto !== obj;
-  };
+    Meta.prototype.destroy = function destroy() {
+      if (this.isMetaDestroyed()) {
+        return;
+      }
 
-  var NODE_STACK = [];
-
-  Meta.prototype.destroy = function () {
-    if (this.isMetaDestroyed()) {
-      return;
-    }
-
-    // remove chainWatchers to remove circular references that would prevent GC
-    var node = undefined,
-        nodes = undefined,
-        key = undefined,
-        nodeObject = undefined;
-    node = this.readableChains();
-    if (node) {
-      NODE_STACK.push(node);
-      // process tree
-      while (NODE_STACK.length > 0) {
-        node = NODE_STACK.pop();
-        // push children
-        nodes = node._chains;
-        if (nodes) {
-          for (key in nodes) {
-            if (nodes[key] !== undefined) {
-              NODE_STACK.push(nodes[key]);
+      // remove chainWatchers to remove circular references that would prevent GC
+      var nodes = undefined,
+          key = undefined,
+          nodeObject = undefined;
+      var node = this.readableChains();
+      if (node) {
+        NODE_STACK.push(node);
+        // process tree
+        while (NODE_STACK.length > 0) {
+          node = NODE_STACK.pop();
+          // push children
+          nodes = node._chains;
+          if (nodes) {
+            for (key in nodes) {
+              if (nodes[key] !== undefined) {
+                NODE_STACK.push(nodes[key]);
+              }
             }
           }
-        }
 
-        // remove chainWatcher in node object
-        if (node._watching) {
-          nodeObject = node._object;
-          if (nodeObject) {
-            var foreignMeta = peekMeta(nodeObject);
-            // avoid cleaning up chain watchers when both current and
-            // foreign objects are being destroyed
-            // if both are being destroyed manual cleanup is not needed
-            // as they will be GC'ed and no non-destroyed references will
-            // be remaining
-            if (foreignMeta && !foreignMeta.isSourceDestroying()) {
-              _emberMetalChains.removeChainWatcher(nodeObject, node._key, node, foreignMeta);
+          // remove chainWatcher in node object
+          if (node._watching) {
+            nodeObject = node._object;
+            if (nodeObject) {
+              var foreignMeta = peekMeta(nodeObject);
+              // avoid cleaning up chain watchers when both current and
+              // foreign objects are being destroyed
+              // if both are being destroyed manual cleanup is not needed
+              // as they will be GC'ed and no non-destroyed references will
+              // be remaining
+              if (foreignMeta && !foreignMeta.isSourceDestroying()) {
+                _emberMetalChains.removeChainWatcher(nodeObject, node._key, node, foreignMeta);
+              }
             }
           }
         }
       }
-    }
 
-    this.setMetaDestroyed();
-  };
+      this.setMetaDestroyed();
+    };
+
+    Meta.prototype.isSourceDestroying = function isSourceDestroying() {
+      return (this._flags & SOURCE_DESTROYING) !== 0;
+    };
+
+    Meta.prototype.setSourceDestroying = function setSourceDestroying() {
+      this._flags |= SOURCE_DESTROYING;
+    };
+
+    Meta.prototype.isSourceDestroyed = function isSourceDestroyed() {
+      return (this._flags & SOURCE_DESTROYED) !== 0;
+    };
+
+    Meta.prototype.setSourceDestroyed = function setSourceDestroyed() {
+      this._flags |= SOURCE_DESTROYED;
+    };
+
+    Meta.prototype.isMetaDestroyed = function isMetaDestroyed() {
+      return (this._flags & META_DESTROYED) !== 0;
+    };
+
+    Meta.prototype.setMetaDestroyed = function setMetaDestroyed() {
+      this._flags |= META_DESTROYED;
+    };
+
+    Meta.prototype.isProxy = function isProxy() {
+      return (this._flags & IS_PROXY) !== 0;
+    };
+
+    Meta.prototype.setProxy = function setProxy() {
+      this._flags |= IS_PROXY;
+    };
+
+    Meta.prototype._getOrCreateOwnMap = function _getOrCreateOwnMap(key) {
+      return this[key] || (this[key] = new _emberUtils.EmptyObject());
+    };
+
+    Meta.prototype._getInherited = function _getInherited(key) {
+      var pointer = this;
+      while (pointer !== undefined) {
+        if (pointer[key]) {
+          return pointer[key];
+        }
+        pointer = pointer.parent;
+      }
+    };
+
+    Meta.prototype._findInherited = function _findInherited(key, subkey) {
+      var pointer = this;
+      while (pointer !== undefined) {
+        var map = pointer[key];
+        if (map) {
+          var value = map[subkey];
+          if (value !== undefined) {
+            return value;
+          }
+        }
+        pointer = pointer.parent;
+      }
+    };
+
+    // Implements a member that provides a lazily created map of maps,
+    // with inheritance at both levels.
+
+    Meta.prototype.writeDeps = function writeDeps(subkey, itemkey, value) {
+      _emberMetalDebug.assert('Cannot call writeDeps after the object is destroyed.', !this.isMetaDestroyed());
+
+      var outerMap = this._getOrCreateOwnMap('_deps');
+      var innerMap = outerMap[subkey];
+      if (!innerMap) {
+        innerMap = outerMap[subkey] = new _emberUtils.EmptyObject();
+      }
+      innerMap[itemkey] = value;
+    };
+
+    Meta.prototype.peekDeps = function peekDeps(subkey, itemkey) {
+      var pointer = this;
+      while (pointer !== undefined) {
+        var map = pointer._deps;
+        if (map) {
+          var value = map[subkey];
+          if (value) {
+            if (value[itemkey] !== undefined) {
+              return value[itemkey];
+            }
+          }
+        }
+        pointer = pointer.parent;
+      }
+    };
+
+    Meta.prototype.hasDeps = function hasDeps(subkey) {
+      var pointer = this;
+      while (pointer !== undefined) {
+        if (pointer._deps && pointer._deps[subkey]) {
+          return true;
+        }
+        pointer = pointer.parent;
+      }
+      return false;
+    };
+
+    Meta.prototype.forEachInDeps = function forEachInDeps(subkey, fn) {
+      return this._forEachIn('_deps', subkey, fn);
+    };
+
+    Meta.prototype._forEachIn = function _forEachIn(key, subkey, fn) {
+      var pointer = this;
+      var seen = new _emberUtils.EmptyObject();
+      var calls = [];
+      while (pointer !== undefined) {
+        var map = pointer[key];
+        if (map) {
+          var innerMap = map[subkey];
+          if (innerMap) {
+            for (var innerKey in innerMap) {
+              if (!seen[innerKey]) {
+                seen[innerKey] = true;
+                calls.push([innerKey, innerMap[innerKey]]);
+              }
+            }
+          }
+        }
+        pointer = pointer.parent;
+      }
+      for (var i = 0; i < calls.length; i++) {
+        var _calls$i = calls[i];
+        var innerKey = _calls$i[0];
+        var value = _calls$i[1];
+
+        fn(innerKey, value);
+      }
+    };
+
+    Meta.prototype.readInheritedValue = function readInheritedValue(key, subkey) {
+      var internalKey = '_' + key;
+
+      var pointer = this;
+
+      while (pointer !== undefined) {
+        var map = pointer[internalKey];
+        if (map) {
+          var value = map[subkey];
+          if (value !== undefined || subkey in map) {
+            return map[subkey];
+          }
+        }
+        pointer = pointer.parent;
+      }
+
+      return UNDEFINED;
+    };
+
+    Meta.prototype.writeValue = function writeValue(obj, key, value) {
+      var descriptor = _emberUtils.lookupDescriptor(obj, key);
+      var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
+
+      if (isMandatorySetter) {
+        this.writeValues(key, value);
+      } else {
+        obj[key] = value;
+      }
+    };
+
+    return Meta;
+  })();
+
+  exports.Meta = Meta;
+
+  var NODE_STACK = [];
 
   for (var _name in _emberMetalMeta_listeners.protoMethods) {
     Meta.prototype[_name] = _emberMetalMeta_listeners.protoMethods[_name];
@@ -6914,38 +7126,6 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
   memberNames.forEach(function (name) {
     return members[name](name, Meta);
   });
-
-  Meta.prototype.isSourceDestroying = function isSourceDestroying() {
-    return (this._flags & SOURCE_DESTROYING) !== 0;
-  };
-
-  Meta.prototype.setSourceDestroying = function setSourceDestroying() {
-    this._flags |= SOURCE_DESTROYING;
-  };
-
-  Meta.prototype.isSourceDestroyed = function isSourceDestroyed() {
-    return (this._flags & SOURCE_DESTROYED) !== 0;
-  };
-
-  Meta.prototype.setSourceDestroyed = function setSourceDestroyed() {
-    this._flags |= SOURCE_DESTROYED;
-  };
-
-  Meta.prototype.isMetaDestroyed = function isMetaDestroyed() {
-    return (this._flags & META_DESTROYED) !== 0;
-  };
-
-  Meta.prototype.setMetaDestroyed = function setMetaDestroyed() {
-    this._flags |= META_DESTROYED;
-  };
-
-  Meta.prototype.isProxy = function isProxy() {
-    return (this._flags & IS_PROXY) !== 0;
-  };
-
-  Meta.prototype.setProxy = function setProxy() {
-    this._flags |= IS_PROXY;
-  };
 
   // Implements a member that is a lazily created, non-inheritable
   // POJO.
@@ -6959,14 +7139,6 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
       return this[key];
     };
   }
-
-  Meta.prototype._getOrCreateOwnMap = function (key) {
-    var ret = this[key];
-    if (!ret) {
-      ret = this[key] = new _emberUtils.EmptyObject();
-    }
-    return ret;
-  };
 
   // Implements a member that is a lazily created POJO with inheritable
   // values.
@@ -7017,105 +7189,9 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     };
   }
 
-  Meta.prototype._getInherited = function (key) {
-    var pointer = this;
-    while (pointer !== undefined) {
-      if (pointer[key]) {
-        return pointer[key];
-      }
-      pointer = pointer.parent;
-    }
-  };
-
-  Meta.prototype._findInherited = function (key, subkey) {
-    var pointer = this;
-    while (pointer !== undefined) {
-      var map = pointer[key];
-      if (map) {
-        var value = map[subkey];
-        if (value !== undefined) {
-          return value;
-        }
-      }
-      pointer = pointer.parent;
-    }
-  };
-
   var UNDEFINED = _emberUtils.symbol('undefined');
 
   exports.UNDEFINED = UNDEFINED;
-  // Implements a member that provides a lazily created map of maps,
-  // with inheritance at both levels.
-  Meta.prototype.writeDeps = function writeDeps(subkey, itemkey, value) {
-    _emberMetalDebug.assert('Cannot call writeDeps after the object is destroyed.', !this.isMetaDestroyed());
-
-    var outerMap = this._getOrCreateOwnMap('_deps');
-    var innerMap = outerMap[subkey];
-    if (!innerMap) {
-      innerMap = outerMap[subkey] = new _emberUtils.EmptyObject();
-    }
-    innerMap[itemkey] = value;
-  };
-
-  Meta.prototype.peekDeps = function peekDeps(subkey, itemkey) {
-    var pointer = this;
-    while (pointer !== undefined) {
-      var map = pointer._deps;
-      if (map) {
-        var value = map[subkey];
-        if (value) {
-          if (value[itemkey] !== undefined) {
-            return value[itemkey];
-          }
-        }
-      }
-      pointer = pointer.parent;
-    }
-  };
-
-  Meta.prototype.hasDeps = function hasDeps(subkey) {
-    var pointer = this;
-    while (pointer !== undefined) {
-      if (pointer._deps && pointer._deps[subkey]) {
-        return true;
-      }
-      pointer = pointer.parent;
-    }
-    return false;
-  };
-
-  Meta.prototype.forEachInDeps = function forEachInDeps(subkey, fn) {
-    return this._forEachIn('_deps', subkey, fn);
-  };
-
-  Meta.prototype._forEachIn = function (key, subkey, fn) {
-    var pointer = this;
-    var seen = new _emberUtils.EmptyObject();
-    var calls = [];
-    while (pointer !== undefined) {
-      var map = pointer[key];
-      if (map) {
-        var innerMap = map[subkey];
-        if (innerMap) {
-          for (var innerKey in innerMap) {
-            if (!seen[innerKey]) {
-              seen[innerKey] = true;
-              calls.push([innerKey, innerMap[innerKey]]);
-            }
-          }
-        }
-      }
-      pointer = pointer.parent;
-    }
-    for (var i = 0; i < calls.length; i++) {
-      var _calls$i = calls[i];
-      var innerKey = _calls$i[0];
-      var value = _calls$i[1];
-
-      fn(innerKey, value);
-    }
-  };
-
   // Implements a member that provides a non-heritable, lazily-created
   // object using the method you provide.
   function ownCustomObject(name, Meta) {
@@ -7522,7 +7598,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   */
   exports.detectBinding = detectBinding;
   exports.mixin = mixin;
-  exports.default = Mixin;
   exports.hasUnprocessedMixins = hasUnprocessedMixins;
   exports.clearUnprocessedMixins = clearUnprocessedMixins;
   exports.required = required;
@@ -7988,40 +8063,85 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     @public
   */
 
-  function Mixin(args, properties) {
-    this.properties = properties;
+  var Mixin = (function () {
+    function Mixin(args, properties) {
+      this.properties = properties;
 
-    var length = args && args.length;
+      var length = args && args.length;
 
-    if (length > 0) {
-      var m = new Array(length);
+      if (length > 0) {
+        var m = new Array(length);
 
-      for (var i = 0; i < length; i++) {
-        var x = args[i];
-        if (x instanceof Mixin) {
-          m[i] = x;
-        } else {
-          m[i] = new Mixin(undefined, x);
+        for (var i = 0; i < length; i++) {
+          var x = args[i];
+          if (x instanceof Mixin) {
+            m[i] = x;
+          } else {
+            m[i] = new Mixin(undefined, x);
+          }
         }
+
+        this.mixins = m;
+      } else {
+        this.mixins = undefined;
+      }
+      this.ownerConstructor = undefined;
+      this._without = undefined;
+      this[_emberUtils.GUID_KEY] = null;
+      this[_emberUtils.NAME_KEY] = null;
+      _emberMetalDebug.debugSeal(this);
+    }
+
+    Mixin.applyPartial = function applyPartial(obj) {
+      var args = a_slice.call(arguments, 1);
+      return applyMixin(obj, args, true);
+    };
+
+    /**
+      @method create
+      @static
+      @param arguments*
+      @public
+    */
+
+    Mixin.create = function create() {
+      // ES6TODO: this relies on a global state?
+      unprocessedFlag = true;
+      var M = this;
+
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
       }
 
-      this.mixins = m;
-    } else {
-      this.mixins = undefined;
-    }
-    this.ownerConstructor = undefined;
-    this._without = undefined;
-    this[_emberUtils.GUID_KEY] = null;
-    this[_emberUtils.NAME_KEY] = null;
-    _emberMetalDebug.debugSeal(this);
-  }
+      return new M(args, undefined);
+    };
+
+    // returns the mixins currently applied to the specified object
+    // TODO: Make Ember.mixin
+
+    Mixin.mixins = function mixins(obj) {
+      var m = _emberMetalMeta.peekMeta(obj);
+      var ret = [];
+      if (!m) {
+        return ret;
+      }
+
+      m.forEachMixins(function (key, currentMixin) {
+        // skip primitive mixins since these are always anonymous
+        if (!currentMixin.properties) {
+          ret.push(currentMixin);
+        }
+      });
+
+      return ret;
+    };
+
+    return Mixin;
+  })();
+
+  exports.default = Mixin;
 
   Mixin._apply = applyMixin;
-
-  Mixin.applyPartial = function (obj) {
-    var args = a_slice.call(arguments, 1);
-    return applyMixin(obj, args, true);
-  };
 
   Mixin.finishPartial = finishPartial;
 
@@ -8034,24 +8154,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   function clearUnprocessedMixins() {
     unprocessedFlag = false;
   }
-
-  /**
-    @method create
-    @static
-    @param arguments*
-    @public
-  */
-  Mixin.create = function () {
-    // ES6TODO: this relies on a global state?
-    unprocessedFlag = true;
-    var M = this;
-
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
-    return new M(args, undefined);
-  };
 
   var MixinPrototype = Mixin.prototype;
 
@@ -8185,25 +8287,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   };
 
   _emberMetalDebug.debugSeal(MixinPrototype);
-
-  // returns the mixins currently applied to the specified object
-  // TODO: Make Ember.mixin
-  Mixin.mixins = function (obj) {
-    var m = _emberMetalMeta.peekMeta(obj);
-    var ret = [];
-    if (!m) {
-      return ret;
-    }
-
-    m.forEachMixins(function (key, currentMixin) {
-      // skip primitive mixins since these are always anonymous
-      if (!currentMixin.properties) {
-        ret.push(currentMixin);
-      }
-    });
-
-    return ret;
-  };
 
   var REQUIRED = new _emberMetalProperties.Descriptor();
   REQUIRED.toString = function () {
@@ -8527,8 +8610,6 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
 enifed('ember-metal/observer_set', ['exports', 'ember-utils', 'ember-metal/events'], function (exports, _emberUtils, _emberMetalEvents) {
   'use strict';
 
-  exports.default = ObserverSet;
-
   /*
     this.observerSet = {
       [senderGuid]: { // variable name: `keySet`
@@ -8548,53 +8629,59 @@ enifed('ember-metal/observer_set', ['exports', 'ember-utils', 'ember-metal/event
     ]
   */
 
-  function ObserverSet() {
-    this.clear();
-  }
-
-  ObserverSet.prototype.add = function (sender, keyName, eventName) {
-    var observerSet = this.observerSet;
-    var observers = this.observers;
-    var senderGuid = _emberUtils.guidFor(sender);
-    var keySet = observerSet[senderGuid];
-    var index = undefined;
-
-    if (!keySet) {
-      observerSet[senderGuid] = keySet = {};
+  var ObserverSet = (function () {
+    function ObserverSet() {
+      this.clear();
     }
-    index = keySet[keyName];
-    if (index === undefined) {
-      index = observers.push({
-        sender: sender,
-        keyName: keyName,
-        eventName: eventName,
-        listeners: []
-      }) - 1;
-      keySet[keyName] = index;
-    }
-    return observers[index].listeners;
-  };
 
-  ObserverSet.prototype.flush = function () {
-    var observers = this.observers;
-    var i = undefined,
-        observer = undefined,
-        sender = undefined;
-    this.clear();
-    for (i = 0; i < observers.length; ++i) {
-      observer = observers[i];
-      sender = observer.sender;
-      if (sender.isDestroying || sender.isDestroyed) {
-        continue;
+    ObserverSet.prototype.add = function add(sender, keyName, eventName) {
+      var observerSet = this.observerSet;
+      var observers = this.observers;
+      var senderGuid = _emberUtils.guidFor(sender);
+      var keySet = observerSet[senderGuid];
+      var index = undefined;
+
+      if (!keySet) {
+        observerSet[senderGuid] = keySet = {};
       }
-      _emberMetalEvents.sendEvent(sender, observer.eventName, [sender, observer.keyName], observer.listeners);
-    }
-  };
+      index = keySet[keyName];
+      if (index === undefined) {
+        index = observers.push({
+          sender: sender,
+          keyName: keyName,
+          eventName: eventName,
+          listeners: []
+        }) - 1;
+        keySet[keyName] = index;
+      }
+      return observers[index].listeners;
+    };
 
-  ObserverSet.prototype.clear = function () {
-    this.observerSet = {};
-    this.observers = [];
-  };
+    ObserverSet.prototype.flush = function flush() {
+      var observers = this.observers;
+      var i = undefined,
+          observer = undefined,
+          sender = undefined;
+      this.clear();
+      for (i = 0; i < observers.length; ++i) {
+        observer = observers[i];
+        sender = observer.sender;
+        if (sender.isDestroying || sender.isDestroyed) {
+          continue;
+        }
+        _emberMetalEvents.sendEvent(sender, observer.eventName, [sender, observer.keyName], observer.listeners);
+      }
+    };
+
+    ObserverSet.prototype.clear = function clear() {
+      this.observerSet = {};
+      this.observers = [];
+    };
+
+    return ObserverSet;
+  })();
+
+  exports.default = ObserverSet;
 });
 enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exports, _emberMetalCache) {
   'use strict';
@@ -19656,7 +19743,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+61ccb270";
+  exports.default = "2.12.0-alpha.1-canary+cd266f88";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
