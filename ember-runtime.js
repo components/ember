@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+516e93c7
+ * @version   2.12.0-alpha.1-canary+ca76dba3
  */
 
 var enifed, requireModule, Ember;
@@ -1552,28 +1552,34 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
   }
 
   function buildInjections() /* container, ...injections */{
+    var _arguments = arguments;
+
     var hash = {};
 
     if (arguments.length > 1) {
-      var container = arguments[0];
-      var injections = [];
-      var injection = undefined;
+      (function () {
+        var container = _arguments[0];
+        var injections = [];
+        var injection = undefined;
 
-      for (var i = 1; i < arguments.length; i++) {
-        if (arguments[i]) {
-          injections = injections.concat(arguments[i]);
+        for (var i = 1; i < _arguments.length; i++) {
+          if (_arguments[i]) {
+            injections = injections.concat(_arguments[i]);
+          }
         }
-      }
 
-      container.registry.validateInjections(injections);
+        _emberMetal.runInDebug(function () {
+          container.registry.validateInjections(injections);
+        });
 
-      for (var i = 0; i < injections.length; i++) {
-        injection = injections[i];
-        hash[injection.property] = lookup(container, injection.fullName);
-        if (!isSingleton(container, injection.fullName)) {
-          markInjectionsAsDynamic(hash);
+        for (var i = 0; i < injections.length; i++) {
+          injection = injections[i];
+          hash[injection.property] = lookup(container, injection.fullName);
+          if (!isSingleton(container, injection.fullName)) {
+            markInjectionsAsDynamic(hash);
+          }
         }
-      }
+      })();
     }
 
     return hash;
@@ -2540,9 +2546,7 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-metal', 'containe
       for (var i = 0; i < injections.length; i++) {
         fullName = injections[i].fullName;
 
-        if (!this.has(fullName)) {
-          throw new Error('Attempting to inject an unknown injection: \'' + fullName + '\'');
-        }
+        _emberMetal.assert('Attempting to inject an unknown injection: \'' + fullName + '\'', this.has(fullName));
       }
     },
 
@@ -19743,7 +19747,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+516e93c7";
+  exports.default = "2.12.0-alpha.1-canary+ca76dba3";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
