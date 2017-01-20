@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+3c8a5695
+ * @version   2.12.0-alpha.1-canary+9d236679
  */
 
 var enifed, requireModule, Ember;
@@ -6865,6 +6865,8 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       @public
     */
     resolve: function (fullName) {
+      var _this = this;
+
       var parsedName = this.parseName(fullName);
       var resolveMethodName = parsedName.resolveMethodName;
       var resolved = undefined;
@@ -6875,9 +6877,11 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
       resolved = resolved || this.resolveOther(parsedName);
 
-      if (parsedName.root && parsedName.root.LOG_RESOLVER) {
-        this._logLookup(resolved, parsedName);
-      }
+      _emberMetal.runInDebug(function () {
+        if (parsedName.root && parsedName.root.LOG_RESOLVER) {
+          _this._logLookup(resolved, parsedName);
+        }
+      });
 
       if (resolved) {
         _emberApplicationUtilsValidateType.default(resolved, parsedName);
@@ -27270,9 +27274,11 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'c
     var fullName = 'controller:' + controllerName;
     var instance = owner.lookup(fullName);
 
-    if (_emberMetal.get(instance, 'namespace.LOG_ACTIVE_GENERATION')) {
-      _emberMetal.info('generated -> ' + fullName, { fullName: fullName });
-    }
+    _emberMetal.runInDebug(function () {
+      if (_emberMetal.get(instance, 'namespace.LOG_ACTIVE_GENERATION')) {
+        _emberMetal.info('generated -> ' + fullName, { fullName: fullName });
+      }
+    });
 
     return instance;
   }
@@ -30025,9 +30031,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           routeOwner.register(fullRouteName, DefaultRoute.extend());
           handler = routeOwner.lookup(fullRouteName);
 
-          if (_emberMetal.get(_this6, 'namespace.LOG_ACTIVE_GENERATION')) {
-            _emberMetal.info('generated -> ' + fullRouteName, { fullName: fullRouteName });
-          }
+          _emberMetal.runInDebug(function () {
+            if (_emberMetal.get(_this6, 'namespace.LOG_ACTIVE_GENERATION')) {
+              _emberMetal.info('generated -> ' + fullRouteName, { fullName: fullRouteName });
+            }
+          });
         }
 
         handler._setRouteName(routeName);
@@ -45129,7 +45137,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+3c8a5695";
+  exports.default = "2.12.0-alpha.1-canary+9d236679";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
