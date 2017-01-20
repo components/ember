@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+ca76dba3
+ * @version   2.12.0-alpha.1-canary+9cbf9f3d
  */
 
 var enifed, requireModule, Ember;
@@ -5960,6 +5960,11 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
     registry.register('location:none', _emberRouting.NoneLocation);
 
     registry.register(_container.privatize(_templateObject), _emberRouting.BucketCache);
+
+    if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+      registry.register('service:router', _emberRouting.RouterService);
+      registry.injection('service:router', 'router', 'router:main');
+    }
   }
 
   function registerLibraries() {
@@ -25663,7 +25668,7 @@ enifed('ember-routing/ext/run_loop', ['exports', 'ember-metal'], function (expor
   // 'actions' queue first.
   _emberMetal.run._addQueue('routerTransitions', 'actions');
 });
-enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route', 'ember-routing/system/query_params', 'ember-routing/services/routing', 'ember-routing/system/cache'], function (exports, _emberRoutingExtRun_loop, _emberRoutingExtController, _emberRoutingLocationApi, _emberRoutingLocationNone_location, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingSystemGenerate_controller, _emberRoutingSystemController_for, _emberRoutingSystemDsl, _emberRoutingSystemRouter, _emberRoutingSystemRoute, _emberRoutingSystemQuery_params, _emberRoutingServicesRouting, _emberRoutingSystemCache) {
+enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-routing/ext/controller', 'ember-routing/location/api', 'ember-routing/location/none_location', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/system/generate_controller', 'ember-routing/system/controller_for', 'ember-routing/system/dsl', 'ember-routing/system/router', 'ember-routing/system/route', 'ember-routing/system/query_params', 'ember-routing/services/routing', 'ember-routing/services/router', 'ember-routing/system/cache'], function (exports, _emberRoutingExtRun_loop, _emberRoutingExtController, _emberRoutingLocationApi, _emberRoutingLocationNone_location, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingSystemGenerate_controller, _emberRoutingSystemController_for, _emberRoutingSystemDsl, _emberRoutingSystemRouter, _emberRoutingSystemRoute, _emberRoutingSystemQuery_params, _emberRoutingServicesRouting, _emberRoutingServicesRouter, _emberRoutingSystemCache) {
   /**
   @module ember
   @submodule ember-routing
@@ -25685,6 +25690,7 @@ enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-r
   exports.Route = _emberRoutingSystemRoute.default;
   exports.QueryParams = _emberRoutingSystemQuery_params.default;
   exports.RoutingService = _emberRoutingServicesRouting.default;
+  exports.RouterService = _emberRoutingServicesRouter.default;
   exports.BucketCache = _emberRoutingSystemCache.default;
 });
 enifed('ember-routing/location/api', ['exports', 'ember-metal', 'ember-environment', 'ember-routing/location/util'], function (exports, _emberMetal, _emberEnvironment, _emberRoutingLocationUtil) {
@@ -26779,6 +26785,52 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
   function replacePath(location, path) {
     location.replace(getOrigin(location) + path);
   }
+});
+enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-metal', 'ember-routing/system/dsl'], function (exports, _emberRuntime, _emberMetal, _emberRoutingSystemDsl) {
+  /**
+  @module ember
+  @submodule ember-routing
+  */
+
+  'use strict';
+
+  /**
+     The Router service is the public API that provides component/view layer
+     access to the router.
+  
+     @public
+     @class RouterService
+     @category ember-routing-router-service
+   */
+  var RouterService = _emberRuntime.Service.extend({
+    currentRouteName: _emberRuntime.readOnly('router.currentRouteName'),
+    currentURL: _emberRuntime.readOnly('router.currentURL'),
+    location: _emberRuntime.readOnly('router.location'),
+    rootURL: _emberRuntime.readOnly('router.rootURL'),
+
+    /**
+       Transition the application into another route. The route may
+       be either a single route or route path:
+        See [Route.transitionTo](http://emberjs.com/api/classes/Ember.Route.html#method_transitionTo) for more info.
+        @method transitionTo
+       @category ember-routing-router-service
+       @param {String} name the name of the route or a URL
+       @param {...Object} models the model(s) or identifier(s) to be used while
+         transitioning to the route.
+       @param {Object} [options] optional hash with a queryParams property
+         containing a mapping of query parameters
+       @return {Transition} the transition object associated with this
+         attempted transition
+       @public
+     */
+    transitionTo: function () {
+      var _router;
+
+      (_router = this.router).transitionTo.apply(_router, arguments);
+    }
+  });
+
+  exports.default = RouterService;
 });
 enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runtime', 'ember-metal', 'ember-routing/utils'], function (exports, _emberUtils, _emberRuntime, _emberMetal, _emberRoutingUtils) {
   /**
@@ -29499,6 +29551,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     init: function () {
       this._super.apply(this, arguments);
 
+      this.currentURL = null;
+      this.currentRouteName = null;
+      this.currentPath = null;
+
       this._qpCache = new _emberUtils.EmptyObject();
       this._resetQueuedQueryParameterChanges();
       this._handledErrors = _emberUtils.dictionary(null);
@@ -29992,6 +30048,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       var doUpdateURL = function () {
         location.setURL(lastURL);
+        _emberMetal.set(emberRouter, 'currentURL', lastURL);
       };
 
       router.updateURL = function (path) {
@@ -30003,6 +30060,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         (function () {
           var doReplaceURL = function () {
             location.replaceURL(lastURL);
+            _emberMetal.set(emberRouter, 'currentURL', lastURL);
           };
 
           router.replaceURL = function (path) {
@@ -30663,9 +30721,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     var path = EmberRouter._routePath(infos);
     var currentRouteName = infos[infos.length - 1].name;
+    var currentURL = router.get('location').getURL();
 
     _emberMetal.set(router, 'currentPath', path);
     _emberMetal.set(router, 'currentRouteName', currentRouteName);
+    _emberMetal.set(router, 'currentURL', currentURL);
 
     var appController = _emberUtils.getOwner(router).lookup('controller:application');
 
@@ -44509,7 +44569,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": null, "ember-routing-router-service": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -45052,7 +45112,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+ca76dba3";
+  exports.default = "2.12.0-alpha.1-canary+9cbf9f3d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
