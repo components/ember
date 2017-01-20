@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+b1668322
+ * @version   2.12.0-alpha.1-canary+3c8a5695
  */
 
 var enifed, requireModule, Ember;
@@ -29506,6 +29506,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     rootURL: '/',
 
     _initRouterJs: function () {
+      var _this = this;
+
       var router = this.router = new _router5.default();
       router.triggerEvent = triggerEvent;
 
@@ -29521,9 +29523,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         }
       });
 
-      if (_emberMetal.get(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
-        router.log = _emberConsole.default.debug;
-      }
+      _emberMetal.runInDebug(function () {
+        if (_emberMetal.get(_this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
+          router.log = _emberConsole.default.debug;
+        }
+      });
 
       router.map(dsl.generate());
     },
@@ -29622,7 +29626,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     setupRouter: function () {
-      var _this = this;
+      var _this2 = this;
 
       this._initRouterJs();
       this._setupLocation();
@@ -29639,7 +29643,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this._setupRouter(router, location);
 
       location.onUpdateURL(function (url) {
-        _this.handleURL(url);
+        _this2.handleURL(url);
       });
 
       return true;
@@ -29668,6 +29672,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @since 1.2.0
     */
     didTransition: function (infos) {
+      var _this3 = this;
+
       updatePaths(this);
 
       this._cancelSlowTransitionTimer();
@@ -29679,9 +29685,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       // less surprising than didTransition being out of sync.
       _emberMetal.run.once(this, this.trigger, 'didTransition');
 
-      if (_emberMetal.get(this, 'namespace').LOG_TRANSITIONS) {
-        _emberConsole.default.log('Transitioned into \'' + EmberRouter._routePath(infos) + '\'');
-      }
+      _emberMetal.runInDebug(function () {
+        if (_emberMetal.get(_this3, 'namespace').LOG_TRANSITIONS) {
+          _emberConsole.default.log('Transitioned into \'' + EmberRouter._routePath(infos) + '\'');
+        }
+      });
     },
 
     _setOutlets: function () {
@@ -29748,11 +29756,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @since 1.11.0
     */
     willTransition: function (oldInfos, newInfos, transition) {
+      var _this4 = this;
+
       _emberMetal.run.once(this, this.trigger, 'willTransition', transition);
 
-      if (_emberMetal.get(this, 'namespace').LOG_TRANSITIONS) {
-        _emberConsole.default.log('Preparing to transition from \'' + EmberRouter._routePath(oldInfos) + '\' to \'' + EmberRouter._routePath(newInfos) + '\'');
-      }
+      _emberMetal.runInDebug(function () {
+        if (_emberMetal.get(_this4, 'namespace').LOG_TRANSITIONS) {
+          _emberConsole.default.log('Preparing to transition from \'' + EmberRouter._routePath(oldInfos) + '\' to \'' + EmberRouter._routePath(newInfos) + '\'');
+        }
+      });
     },
 
     handleURL: function (url) {
@@ -29805,16 +29817,19 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     intermediateTransitionTo: function () {
-      var _router;
+      var _router,
+          _this5 = this;
 
       (_router = this.router).intermediateTransitionTo.apply(_router, arguments);
 
       updatePaths(this);
 
-      var infos = this.router.currentHandlerInfos;
-      if (_emberMetal.get(this, 'namespace').LOG_TRANSITIONS) {
-        _emberConsole.default.log('Intermediate-transitioned into \'' + EmberRouter._routePath(infos) + '\'');
-      }
+      _emberMetal.runInDebug(function () {
+        var infos = _this5.router.currentHandlerInfos;
+        if (_emberMetal.get(_this5, 'namespace').LOG_TRANSITIONS) {
+          _emberConsole.default.log('Intermediate-transitioned into \'' + EmberRouter._routePath(infos) + '\'');
+        }
+      });
     },
 
     replaceWith: function () {
@@ -29978,7 +29993,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     _getHandlerFunction: function () {
-      var _this2 = this;
+      var _this6 = this;
 
       var seen = new _emberUtils.EmptyObject();
       var owner = _emberUtils.getOwner(this);
@@ -29986,10 +30001,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       return function (name) {
         var routeName = name;
         var routeOwner = owner;
-        var engineInfo = _this2._engineInfoByRoute[routeName];
+        var engineInfo = _this6._engineInfoByRoute[routeName];
 
         if (engineInfo) {
-          var engineInstance = _this2._getEngineInstance(engineInfo);
+          var engineInstance = _this6._getEngineInstance(engineInfo);
 
           routeOwner = engineInstance;
           routeName = engineInfo.localFullName;
@@ -30010,7 +30025,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           routeOwner.register(fullRouteName, DefaultRoute.extend());
           handler = routeOwner.lookup(fullRouteName);
 
-          if (_emberMetal.get(_this2, 'namespace.LOG_ACTIVE_GENERATION')) {
+          if (_emberMetal.get(_this6, 'namespace.LOG_ACTIVE_GENERATION')) {
             _emberMetal.info('generated -> ' + fullRouteName, { fullName: fullRouteName });
           }
         }
@@ -30027,10 +30042,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     _getSerializerFunction: function () {
-      var _this3 = this;
+      var _this7 = this;
 
       return function (name) {
-        var engineInfo = _this3._engineInfoByRoute[name];
+        var engineInfo = _this7._engineInfoByRoute[name];
 
         // If this is not an Engine route, we fall back to the handler for serialization
         if (!engineInfo) {
@@ -30090,7 +30105,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @return {Void}
     */
     _serializeQueryParams: function (handlerInfos, queryParams) {
-      var _this4 = this;
+      var _this8 = this;
 
       forEachQueryParam(this, handlerInfos, queryParams, function (key, value, qp) {
         if (qp) {
@@ -30099,7 +30114,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         } else if (value === undefined) {
           return; // We don't serialize undefined values
         } else {
-            queryParams[key] = _this4._serializeQueryParam(value, _emberRuntime.typeOf(value));
+            queryParams[key] = _this8._serializeQueryParam(value, _emberRuntime.typeOf(value));
           }
       });
     },
@@ -45114,7 +45129,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+b1668322";
+  exports.default = "2.12.0-alpha.1-canary+3c8a5695";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

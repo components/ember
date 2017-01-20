@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+b1668322
+ * @version   2.12.0-alpha.1-canary+3c8a5695
  */
 
 var enifed, requireModule, Ember;
@@ -28068,10 +28068,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         }
       });
 
-      if (_emberMetal.get(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
-        router.log = _emberConsole.default.debug;
-      }
-
       router.map(dsl.generate());
     },
 
@@ -28225,10 +28221,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       // Put this in the runloop so url will be accurate. Seems
       // less surprising than didTransition being out of sync.
       _emberMetal.run.once(this, this.trigger, 'didTransition');
-
-      if (_emberMetal.get(this, 'namespace').LOG_TRANSITIONS) {
-        _emberConsole.default.log('Transitioned into \'' + EmberRouter._routePath(infos) + '\'');
-      }
     },
 
     _setOutlets: function () {
@@ -28296,10 +28288,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     */
     willTransition: function (oldInfos, newInfos, transition) {
       _emberMetal.run.once(this, this.trigger, 'willTransition', transition);
-
-      if (_emberMetal.get(this, 'namespace').LOG_TRANSITIONS) {
-        _emberConsole.default.log('Preparing to transition from \'' + EmberRouter._routePath(oldInfos) + '\' to \'' + EmberRouter._routePath(newInfos) + '\'');
-      }
     },
 
     handleURL: function (url) {
@@ -28357,11 +28345,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       (_router = this.router).intermediateTransitionTo.apply(_router, arguments);
 
       updatePaths(this);
-
-      var infos = this.router.currentHandlerInfos;
-      if (_emberMetal.get(this, 'namespace').LOG_TRANSITIONS) {
-        _emberConsole.default.log('Intermediate-transitioned into \'' + EmberRouter._routePath(infos) + '\'');
-      }
     },
 
     replaceWith: function () {
@@ -41766,7 +41749,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+b1668322";
+  exports.default = "2.12.0-alpha.1-canary+3c8a5695";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
