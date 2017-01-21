@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+43c17769
+ * @version   2.12.0-alpha.1-canary+13c26ed9
  */
 
 var enifed, requireModule, Ember;
@@ -47589,48 +47589,96 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     location.initState();
   });
 
-  QUnit.test('base URL is preserved when moving around', function () {
-    expect(1);
+  if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+    QUnit.test('base URL is preserved when moving around', function () {
+      expect(2);
 
-    HistoryTestLocation.reopen({
-      init: function () {
-        this._super.apply(this, arguments);
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
 
-        _emberMetal.set(this, 'location', mockBrowserLocation('/base/foo/bar'));
-        _emberMetal.set(this, 'baseURL', '/base/');
-      }
+          _emberMetal.set(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          _emberMetal.set(this, 'baseURL', '/base/');
+        }
+      });
+
+      createLocation();
+      location.initState();
+      location.setURL('/one/two');
+
+      equal(location._historyState.path, '/base/one/two');
+      ok(location._historyState.uuid);
     });
 
-    createLocation();
-    location.initState();
-    location.setURL('/one/two');
+    QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
+      expect(2);
 
-    equal(location._historyState.path, '/base/one/two');
-  });
+      createLocation();
+      location.initState();
 
-  QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
-    expect(1);
+      FakeHistory.pushState(null);
+      location.setURL('/three/four');
 
-    createLocation();
-    location.initState();
+      equal(location._historyState.path, '/three/four');
+      ok(location._historyState.uuid);
+    });
 
-    FakeHistory.pushState(null);
-    location.setURL('/three/four');
+    QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
+      expect(2);
 
-    equal(location._historyState.path, '/three/four');
-  });
+      createLocation();
+      location.initState();
 
-  QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
-    expect(1);
+      FakeHistory.pushState(null);
+      location.replaceURL('/three/four');
 
-    createLocation();
-    location.initState();
+      equal(location._historyState.path, '/three/four');
+      ok(location._historyState.uuid);
+    });
+  } else {
+    QUnit.test('base URL is preserved when moving around', function () {
+      expect(1);
 
-    FakeHistory.pushState(null);
-    location.replaceURL('/three/four');
+      HistoryTestLocation.reopen({
+        init: function () {
+          this._super.apply(this, arguments);
 
-    equal(location._historyState.path, '/three/four');
-  });
+          _emberMetal.set(this, 'location', mockBrowserLocation('/base/foo/bar'));
+          _emberMetal.set(this, 'baseURL', '/base/');
+        }
+      });
+
+      createLocation();
+      location.initState();
+      location.setURL('/one/two');
+
+      equal(location._historyState.path, '/base/one/two');
+    });
+
+    QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
+      expect(1);
+
+      createLocation();
+      location.initState();
+
+      FakeHistory.pushState(null);
+      location.setURL('/three/four');
+
+      equal(location._historyState.path, '/three/four');
+    });
+
+    QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
+      expect(1);
+
+      createLocation();
+      location.initState();
+
+      FakeHistory.pushState(null);
+      location.replaceURL('/three/four');
+
+      equal(location._historyState.path, '/three/four');
+    });
+  }
 
   QUnit.test('HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL', function () {
     expect(1);

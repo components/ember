@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+43c17769
+ * @version   2.12.0-alpha.1-canary+13c26ed9
  */
 
 var enifed, requireModule, Ember;
@@ -26322,6 +26322,19 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
 
   var popstateFired = false;
 
+  var _uuid = undefined;
+
+  if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+    _uuid = function _uuid() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r, v;
+        r = Math.random() * 16 | 0;
+        v = c === 'x' ? r : r & 3 | 8;
+        return v.toString(16);
+      });
+    };
+  }
+
   /**
     Ember.HistoryLocation implements the location API using the browser's
     history.pushState API.
@@ -26435,6 +26448,9 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
       required and if so fetches this._historyState. The state returned
       from getState may be null if an iframe has changed a window's
       history.
+       The object returned will contain a `path` for the given state as well
+      as a unique state `id`. The state index will allow the app to distinguish
+      between two states with similar paths but should be unique from one another.
        @private
       @method getState
       @return state {Object}
@@ -26455,6 +26471,9 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     */
     pushState: function (path) {
       var state = { path: path };
+      if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+        state.uuid = _uuid();
+      }
 
       _emberMetal.get(this, 'history').pushState(state, null, path);
 
@@ -26472,6 +26491,10 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     */
     replaceState: function (path) {
       var state = { path: path };
+      if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+        state.uuid = _uuid();
+      }
+
       _emberMetal.get(this, 'history').replaceState(state, null, path);
 
       this._historyState = state;
@@ -44594,7 +44617,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": null, "ember-routing-router-service": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": null, "ember-routing-router-service": null, "ember-unique-location-history-state": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -45137,7 +45160,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+43c17769";
+  exports.default = "2.12.0-alpha.1-canary+13c26ed9";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
