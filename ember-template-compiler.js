@@ -6,10 +6,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+9e24191f
+ * @version   2.12.0-alpha.1-canary+70a94bb2
  */
 
 var enifed, requireModule, Ember;
+var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -15988,7 +15989,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+9e24191f";
+  exports.default = "2.12.0-alpha.1-canary+70a94bb2";
 });
 enifed("handlebars", ["exports"], function (exports) {
   /* istanbul ignore next */
