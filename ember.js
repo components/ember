@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+13c26ed9
+ * @version   2.12.0-alpha.1-canary+9e24191f
  */
 
 var enifed, requireModule, Ember;
@@ -26853,7 +26853,28 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-meta
     transitionTo: function () {
       var _router;
 
-      (_router = this.router).transitionTo.apply(_router, arguments);
+      return (_router = this.router).transitionTo.apply(_router, arguments);
+    },
+
+    /**
+       Transition into another route while replacing the current URL, if possible.
+       The route may be either a single route or route path:
+        See [Route.replaceWith](http://emberjs.com/api/classes/Ember.Route.html#method_replaceWith) for more info.
+        @method replaceWith
+       @category ember-routing-router-service
+       @param {String} name the name of the route or a URL
+       @param {...Object} models the model(s) or identifier(s) to be used while
+         transitioning to the route.
+       @param {Object} [options] optional hash with a queryParams property
+         containing a mapping of query parameters
+       @return {Transition} the transition object associated with this
+         attempted transition
+       @public
+     */
+    replaceWith: function () {
+      var _router2;
+
+      return (_router2 = this.router).replaceWith.apply(_router2, arguments);
     }
   });
 
@@ -45160,7 +45181,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+13c26ed9";
+  exports.default = "2.12.0-alpha.1-canary+9e24191f";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -45454,7 +45475,7 @@ enifed('internal-test-helpers/factory', ['exports'], function (exports) {
     }
   }
 });
-enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering'], function (exports, _internalTestHelpersFactory, _internalTestHelpersBuildOwner, _internalTestHelpersConfirmExport, _internalTestHelpersEqualInnerHtml, _internalTestHelpersEqualTokens, _internalTestHelpersModuleFor, _internalTestHelpersStrip, _internalTestHelpersApplyMixins, _internalTestHelpersMatchers, _internalTestHelpersRun, _internalTestHelpersTestGroups, _internalTestHelpersTestCasesAbstract, _internalTestHelpersTestCasesAbstractApplication, _internalTestHelpersTestCasesApplication, _internalTestHelpersTestCasesQueryParam, _internalTestHelpersTestCasesAbstractRendering, _internalTestHelpersTestCasesRendering) {
+enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering', 'internal-test-helpers/test-cases/router'], function (exports, _internalTestHelpersFactory, _internalTestHelpersBuildOwner, _internalTestHelpersConfirmExport, _internalTestHelpersEqualInnerHtml, _internalTestHelpersEqualTokens, _internalTestHelpersModuleFor, _internalTestHelpersStrip, _internalTestHelpersApplyMixins, _internalTestHelpersMatchers, _internalTestHelpersRun, _internalTestHelpersTestGroups, _internalTestHelpersTestCasesAbstract, _internalTestHelpersTestCasesAbstractApplication, _internalTestHelpersTestCasesApplication, _internalTestHelpersTestCasesQueryParam, _internalTestHelpersTestCasesAbstractRendering, _internalTestHelpersTestCasesRendering, _internalTestHelpersTestCasesRouter) {
   'use strict';
 
   exports.factory = _internalTestHelpersFactory.default;
@@ -45479,6 +45500,7 @@ enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory
   exports.QueryParamTestCase = _internalTestHelpersTestCasesQueryParam.default;
   exports.AbstractRenderingTestCase = _internalTestHelpersTestCasesAbstractRendering.default;
   exports.RenderingTestCase = _internalTestHelpersTestCasesRendering.default;
+  exports.RouterTestCase = _internalTestHelpersTestCasesRouter.default;
 });
 enifed('internal-test-helpers/matchers', ['exports'], function (exports) {
   'use strict';
@@ -46274,6 +46296,38 @@ enifed('internal-test-helpers/test-cases/rendering', ['exports', 'ember-views', 
   })(_internalTestHelpersTestCasesAbstractRendering.default);
 
   exports.default = RenderingTestCase;
+});
+enifed('internal-test-helpers/test-cases/router', ['exports', 'internal-test-helpers/test-cases/application'], function (exports, _internalTestHelpersTestCasesApplication) {
+  'use strict';
+
+  var RouterTestCase = (function (_ApplicationTestCase) {
+    babelHelpers.inherits(RouterTestCase, _ApplicationTestCase);
+
+    function RouterTestCase() {
+      babelHelpers.classCallCheck(this, RouterTestCase);
+
+      _ApplicationTestCase.call(this);
+
+      this.router.map(function () {
+        this.route('parent', { path: '/' }, function () {
+          this.route('child');
+          this.route('sister');
+          this.route('brother');
+        });
+        this.route('dynamic', { path: '/dynamic/:post_id' });
+      });
+    }
+
+    babelHelpers.createClass(RouterTestCase, [{
+      key: 'routerService',
+      get: function () {
+        return this.applicationInstance.lookup('service:router');
+      }
+    }]);
+    return RouterTestCase;
+  })(_internalTestHelpersTestCasesApplication.default);
+
+  exports.default = RouterTestCase;
 });
 enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'ember-metal'], function (exports, _emberEnvironment, _emberMetal) {
   'use strict';

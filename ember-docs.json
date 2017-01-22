@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.12.0-alpha.1.13c26ed9"
+        "version": "2.12.0-alpha.1.9e24191f"
     },
     "files": {
         "packages/container/lib/container.js": {
@@ -10952,6 +10952,43 @@
             "description": "Transition the application into another route. The route may\nbe either a single route or route path:\n\nSee [Route.transitionTo](http://emberjs.com/api/classes/Ember.Route.html#method_transitionTo) for more info.",
             "itemtype": "method",
             "name": "transitionTo",
+            "category": [
+                "ember-routing-router-service"
+            ],
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the route or a URL",
+                    "type": "String"
+                },
+                {
+                    "name": "models",
+                    "description": "the model(s) or identifier(s) to be used while\n  transitioning to the route.",
+                    "type": "...Object"
+                },
+                {
+                    "name": "options",
+                    "description": "optional hash with a queryParams property\n  containing a mapping of query parameters",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "the transition object associated with this\n  attempted transition",
+                "type": "Transition"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "RouterService",
+            "module": "ember",
+            "submodule": "ember-routing"
+        },
+        {
+            "file": "packages/ember-routing/lib/services/router.js",
+            "line": 48,
+            "description": "Transition into another route while replacing the current URL, if possible.\nThe route may be either a single route or route path:\n\nSee [Route.replaceWith](http://emberjs.com/api/classes/Ember.Route.html#method_replaceWith) for more info.",
+            "itemtype": "method",
+            "name": "replaceWith",
             "category": [
                 "ember-routing-router-service"
             ],
