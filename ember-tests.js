@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+36f668b3
+ * @version   2.12.0-alpha.1-canary+10df1ed4
  */
 
 var enifed, requireModule, Ember;
@@ -36222,6 +36222,224 @@ enifed('ember-glimmer/tests/unit/utils/debug-stack-test.lint-test', ['exports'],
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-glimmer/tests/unit/utils/debug-stack-test.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-glimmer/tests/unit/utils/iterable-test', ['exports', 'ember', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', '@glimmer/runtime'], function (exports, _ember, _emberGlimmerTestsUtilsTestCase, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerHelpersEachIn, _glimmerRuntime) {
+  'use strict';
+
+  var ITERATOR_KEY_GUID = 'be277757-bbbe-4620-9fcb-213ef433cca2';
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Iterable', (function (_TestCase) {
+    babelHelpers.inherits(_class, _TestCase);
+
+    function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
+      _TestCase.apply(this, arguments);
+    }
+
+    _class.prototype['@test iterates over an array'] = function testIteratesOverAnArray() {
+      var iterator = iteratorForArray(['foo', 'bar']);
+
+      this.assert.deepEqual(iterator.next(), { key: 'foo', memo: 0, value: 'foo' });
+      this.assert.deepEqual(iterator.next(), { key: 'bar', memo: 1, value: 'bar' });
+    };
+
+    _class.prototype['@test iterates over an `Ember.A`'] = function testIteratesOverAnEmberA() {
+      var iterator = iteratorForArray(_ember.default.A(['foo', 'bar']));
+
+      this.assert.deepEqual(iterator.next(), { key: 'foo', memo: 0, value: 'foo' });
+      this.assert.deepEqual(iterator.next(), { key: 'bar', memo: 1, value: 'bar' });
+    };
+
+    _class.prototype['@test returns `null` when out of items'] = function testReturnsNullWhenOutOfItems() {
+      var iterator = iteratorForArray(['foo']);
+
+      this.assert.deepEqual(iterator.next(), { key: 'foo', memo: 0, value: 'foo' });
+      this.assert.deepEqual(iterator.next(), null);
+    };
+
+    _class.prototype['@test iterates over an array with indices as keys'] = function testIteratesOverAnArrayWithIndicesAsKeys() {
+      var iterator = iteratorForArray(['foo', 'bar'], '@index');
+
+      this.assert.deepEqual(iterator.next(), { key: '0', memo: 0, value: 'foo' });
+      this.assert.deepEqual(iterator.next(), { key: '1', memo: 1, value: 'bar' });
+    };
+
+    _class.prototype['@test iterates over an array with identities as keys'] = function testIteratesOverAnArrayWithIdentitiesAsKeys() {
+      var iterator = iteratorForArray(['foo', 'bar'], '@identity');
+
+      this.assert.deepEqual(iterator.next(), { key: 'foo', memo: 0, value: 'foo' });
+      this.assert.deepEqual(iterator.next(), { key: 'bar', memo: 1, value: 'bar' });
+    };
+
+    _class.prototype['@test iterates over an array with arbitrary properties as keys'] = function testIteratesOverAnArrayWithArbitraryPropertiesAsKeys() {
+      var iterator = iteratorForArray([{ k: 'first', v: 'foo' }, { k: 'second', v: 'bar' }], 'k');
+
+      this.assert.deepEqual(iterator.next(), { key: 'first', memo: 0, value: { k: 'first', v: 'foo' } });
+      this.assert.deepEqual(iterator.next(), { key: 'second', memo: 1, value: { k: 'second', v: 'bar' } });
+    };
+
+    _class.prototype['@test errors on `#next` with an undefined ref'] = function testErrorsOnNextWithAnUndefinedRef() {
+      var iterator = iteratorForArray(undefined);
+
+      this.assert.expect(1);
+
+      try {
+        iterator.next();
+      } catch (_ref) {
+        var _message = _ref.message;
+
+        this.assert.equal(_message, 'Cannot call next() on an empty iterator');
+      }
+    };
+
+    _class.prototype['@test errors on `#next` with a null ref'] = function testErrorsOnNextWithANullRef() {
+      var iterator = iteratorForArray(null);
+
+      this.assert.expect(1);
+
+      try {
+        iterator.next();
+      } catch (_ref2) {
+        var _message2 = _ref2.message;
+
+        this.assert.equal(_message2, 'Cannot call next() on an empty iterator');
+      }
+    };
+
+    _class.prototype['@test errors on `#next` with an invalid ref type'] = function testErrorsOnNextWithAnInvalidRefType() {
+      var iterator = iteratorForArray('string');
+
+      this.assert.expect(1);
+
+      try {
+        iterator.next();
+      } catch (_ref3) {
+        var _message3 = _ref3.message;
+
+        this.assert.equal(_message3, 'Cannot call next() on an empty iterator');
+      }
+    };
+
+    _class.prototype['@test errors on `#next` with an empty array'] = function testErrorsOnNextWithAnEmptyArray() {
+      var iterator = iteratorForArray([]);
+
+      this.assert.expect(1);
+
+      try {
+        iterator.next();
+      } catch (_ref4) {
+        var _message4 = _ref4.message;
+
+        this.assert.equal(_message4, 'Cannot call next() on an empty iterator');
+      }
+    };
+
+    _class.prototype['@test iterates over an object\'s own properties'] = function testIteratesOverAnObjectSOwnProperties() {
+      var iterator = iteratorForObject({ first: 'foo', second: 'bar' });
+
+      this.assert.deepEqual(iterator.next(), { key: 'first', memo: 'first', value: 'foo' });
+      this.assert.deepEqual(iterator.next(), { key: 'second', memo: 'second', value: 'bar' });
+    };
+
+    _class.prototype['@test iterates over an object\'s own properties with indices as keys'] = function testIteratesOverAnObjectSOwnPropertiesWithIndicesAsKeys() {
+      var iterator = iteratorForObject({ first: 'foo', second: 'bar' }, '@index');
+
+      this.assert.deepEqual(iterator.next(), { key: 'first', memo: 'first', value: 'foo' });
+      this.assert.deepEqual(iterator.next(), { key: 'second', memo: 'second', value: 'bar' });
+    };
+
+    _class.prototype['@test iterates over an object\'s own properties with identities as keys'] = function testIteratesOverAnObjectSOwnPropertiesWithIdentitiesAsKeys() {
+      var iterator = iteratorForObject({ first: 'foo', second: 'bar' }, '@identity');
+
+      this.assert.deepEqual(iterator.next(), { key: 'foo', memo: 'first', value: 'foo' });
+      this.assert.deepEqual(iterator.next(), { key: 'bar', memo: 'second', value: 'bar' });
+    };
+
+    _class.prototype['@test iterates over an object\'s own properties with arbitrary properties as keys'] = function testIteratesOverAnObjectSOwnPropertiesWithArbitraryPropertiesAsKeys() {
+      var iterator = iteratorForObject({ first: { k: 'uno', v: 'foo' }, second: { k: 'dos', v: 'bar' } }, 'k');
+
+      this.assert.deepEqual(iterator.next(), { key: 'uno', memo: 'first', value: { k: 'uno', v: 'foo' } });
+      this.assert.deepEqual(iterator.next(), { key: 'dos', memo: 'second', value: { k: 'dos', v: 'bar' } });
+    };
+
+    _class.prototype['@test each-in errors on `#next` with an undefined ref'] = function testEachInErrorsOnNextWithAnUndefinedRef() {
+      var iterator = iteratorForObject(undefined);
+
+      this.assert.expect(1);
+
+      try {
+        iterator.next();
+      } catch (_ref5) {
+        var _message5 = _ref5.message;
+
+        this.assert.equal(_message5, 'Cannot call next() on an empty iterator');
+      }
+    };
+
+    _class.prototype['@test each-in errors on `#next` with a null ref'] = function testEachInErrorsOnNextWithANullRef() {
+      var iterator = iteratorForObject(null);
+
+      this.assert.expect(1);
+
+      try {
+        iterator.next();
+      } catch (_ref6) {
+        var _message6 = _ref6.message;
+
+        this.assert.equal(_message6, 'Cannot call next() on an empty iterator');
+      }
+    };
+
+    _class.prototype['@test each-in errors on `#next` with an invalid ref type'] = function testEachInErrorsOnNextWithAnInvalidRefType() {
+      var iterator = iteratorForObject('string');
+
+      this.assert.expect(1);
+
+      try {
+        iterator.next();
+      } catch (_ref7) {
+        var _message7 = _ref7.message;
+
+        this.assert.equal(_message7, 'Cannot call next() on an empty iterator');
+      }
+    };
+
+    _class.prototype['@test ensures keys are unique'] = function testEnsuresKeysAreUnique() {
+      var iterator = iteratorForArray([{ k: 'qux', v: 'foo' }, { k: 'qux', v: 'bar' }, { k: 'qux', v: 'baz' }], 'k');
+
+      this.assert.deepEqual(iterator.next(), { key: 'qux', memo: 0, value: { k: 'qux', v: 'foo' } });
+      this.assert.deepEqual(iterator.next(), { key: 'qux' + ITERATOR_KEY_GUID + '1', memo: 1, value: { k: 'qux', v: 'bar' } });
+      this.assert.deepEqual(iterator.next(), { key: 'qux' + ITERATOR_KEY_GUID + '2', memo: 2, value: { k: 'qux', v: 'baz' } });
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.TestCase));
+
+  function iteratorForArray(arr, keyPath) {
+    var ref = new _emberGlimmerUtilsReferences.UpdatableReference(arr);
+    var iterable = _emberGlimmerUtilsIterable.default(ref, keyPath);
+
+    return iterable.iterate();
+  }
+
+  function iteratorForObject(obj, keyPath) {
+    var vm = null;
+    var positionalArgs = _glimmerRuntime.EvaluatedPositionalArgs.create([new _emberGlimmerUtilsReferences.UpdatableReference(obj)]);
+    var ref = _emberGlimmerHelpersEachIn.default(vm, { positional: positionalArgs });
+    var iterable = _emberGlimmerUtilsIterable.default(ref, keyPath);
+
+    return iterable.iterate();
+  }
+});
+enifed('ember-glimmer/tests/unit/utils/iterable-test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/tests/unit/utils/iterable-test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/tests/unit/utils/iterable-test.js should pass ESLint\n\n');
   });
 });
 enifed('ember-glimmer/tests/utils/abstract-test-case', ['exports', 'internal-test-helpers'], function (exports, _internalTestHelpers) {
