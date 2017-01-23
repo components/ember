@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+10df1ed4
+ * @version   2.12.0-alpha.1-canary+c998c34d
  */
 
 var enifed, requireModule, Ember;
@@ -28731,6 +28731,36 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('type', 'password');
     };
 
+    _class2.prototype['@test a subexpression can be used to determine type'] = function testASubexpressionCanBeUsedToDetermineType() {
+      var _this11 = this;
+
+      this.render('{{input type=(if isTruthy trueType falseType)}}', {
+        isTruthy: true,
+        trueType: 'text',
+        falseType: 'password'
+      });
+
+      this.assertAttr('type', 'text');
+
+      this.runTask(function () {
+        return _this11.rerender();
+      });
+
+      this.assertAttr('type', 'text');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'isTruthy', false);
+      });
+
+      this.assertAttr('type', 'password');
+
+      this.runTask(function () {
+        return _emberMetal.set(_this11.context, 'isTruthy', true);
+      });
+
+      this.assertAttr('type', 'text');
+    };
+
     return _class2;
   })(InputRenderingTest));
 
@@ -28742,7 +28772,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     }
 
     _class3.prototype['@test dynamic attributes'] = function testDynamicAttributes() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.render('{{input\n      type=\'checkbox\'\n      disabled=disabled\n      name=name\n      checked=checked\n      tabindex=tabindex\n    }}', {
         disabled: false,
@@ -28757,7 +28787,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -28766,9 +28796,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        _emberMetal.set(_this11.context, 'disabled', true);
-        _emberMetal.set(_this11.context, 'name', 'updated-name');
-        _emberMetal.set(_this11.context, 'tabindex', 11);
+        _emberMetal.set(_this12.context, 'disabled', true);
+        _emberMetal.set(_this12.context, 'name', 'updated-name');
+        _emberMetal.set(_this12.context, 'tabindex', 11);
       });
 
       this.assertSingleCheckbox();
@@ -28777,9 +28807,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '11');
 
       this.runTask(function () {
-        _emberMetal.set(_this11.context, 'disabled', false);
-        _emberMetal.set(_this11.context, 'name', 'original-name');
-        _emberMetal.set(_this11.context, 'tabindex', 10);
+        _emberMetal.set(_this12.context, 'disabled', false);
+        _emberMetal.set(_this12.context, 'name', 'original-name');
+        _emberMetal.set(_this12.context, 'tabindex', 10);
       });
 
       this.assertSingleCheckbox();
@@ -28789,15 +28819,15 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     };
 
     _class3.prototype['@test `value` property assertion'] = function testValuePropertyAssertion() {
-      var _this12 = this;
+      var _this13 = this;
 
       expectAssertion(function () {
-        _this12.render('{{input type="checkbox" value=value}}', { value: 'value' });
+        _this13.render('{{input type="checkbox" value=value}}', { value: 'value' });
       }, /you must use `checked=/);
     };
 
     _class3.prototype['@test with a bound type'] = function testWithABoundType(assert) {
-      var _this13 = this;
+      var _this14 = this;
 
       this.render('{{input type=inputType checked=isChecked}}', { inputType: 'checkbox', isChecked: true });
 
@@ -28805,26 +28835,26 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this14.rerender();
       });
 
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _emberMetal.set(_this13.context, 'isChecked', false);
+        return _emberMetal.set(_this14.context, 'isChecked', false);
       });
 
       this.assertCheckboxIsNotChecked();
 
       this.runTask(function () {
-        return _emberMetal.set(_this13.context, 'isChecked', true);
+        return _emberMetal.set(_this14.context, 'isChecked', true);
       });
 
       this.assertCheckboxIsChecked();
     };
 
     _class3.prototype['@test with static values'] = function testWithStaticValues(assert) {
-      var _this14 = this;
+      var _this15 = this;
 
       this.render('{{input type="checkbox" disabled=false tabindex=10 name="original-name" checked=false}}');
 
@@ -28835,7 +28865,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('name', 'original-name');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this15.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -28856,7 +28886,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
     }
 
     _class4.prototype['@test null values'] = function testNullValues(assert) {
-      var _this15 = this;
+      var _this16 = this;
 
       var attributes = ['disabled', 'placeholder', 'name', 'maxlength', 'size', 'tabindex'];
 
@@ -28874,20 +28904,20 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
 
       this.assertValue('');
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        _emberMetal.set(_this15.context, 'disabled', true);
-        _emberMetal.set(_this15.context, 'value', 'Updated value');
-        _emberMetal.set(_this15.context, 'placeholder', 'Updated placeholder');
-        _emberMetal.set(_this15.context, 'name', 'updated-name');
-        _emberMetal.set(_this15.context, 'maxlength', 11);
-        _emberMetal.set(_this15.context, 'size', 21);
-        _emberMetal.set(_this15.context, 'tabindex', 31);
+        _emberMetal.set(_this16.context, 'disabled', true);
+        _emberMetal.set(_this16.context, 'value', 'Updated value');
+        _emberMetal.set(_this16.context, 'placeholder', 'Updated placeholder');
+        _emberMetal.set(_this16.context, 'name', 'updated-name');
+        _emberMetal.set(_this16.context, 'maxlength', 11);
+        _emberMetal.set(_this16.context, 'size', 21);
+        _emberMetal.set(_this16.context, 'tabindex', 31);
       });
 
       this.assertDisabled();
@@ -28899,13 +28929,13 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['exports', 'ember-
       this.assertAttr('tabindex', '31');
 
       this.runTask(function () {
-        _emberMetal.set(_this15.context, 'disabled', null);
-        _emberMetal.set(_this15.context, 'value', null);
-        _emberMetal.set(_this15.context, 'placeholder', null);
-        _emberMetal.set(_this15.context, 'name', null);
-        _emberMetal.set(_this15.context, 'maxlength', null);
+        _emberMetal.set(_this16.context, 'disabled', null);
+        _emberMetal.set(_this16.context, 'value', null);
+        _emberMetal.set(_this16.context, 'placeholder', null);
+        _emberMetal.set(_this16.context, 'name', null);
+        _emberMetal.set(_this16.context, 'maxlength', null);
         // set(this.context, 'size', null); //NOTE: this fails with `Error: Failed to set the 'size' property on 'HTMLInputElement': The value provided is 0, which is an invalid size.` (TEST_SUITE=sauce)
-        _emberMetal.set(_this15.context, 'tabindex', null);
+        _emberMetal.set(_this16.context, 'tabindex', null);
       });
 
       this.assertAttr('disabled', undefined);
@@ -64219,6 +64249,38 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test.lint-test'
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-template-compiler/tests/plugins/transform-input-on-test.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test', ['exports', 'ember-template-compiler/index'], function (exports, _emberTemplateCompilerIndex) {
+  'use strict';
+
+  QUnit.module('ember-template-compiler: input type syntax');
+
+  QUnit.test('Can compile an {{input}} helper that has a sub-expression value as its type', function () {
+    expect(0);
+
+    _emberTemplateCompilerIndex.compile('{{input type=(if true \'password\' \'text\')}}');
+  });
+
+  QUnit.test('Can compile an {{input}} helper with a string literal type', function () {
+    expect(0);
+
+    _emberTemplateCompilerIndex.compile('{{input type=\'text\'}}');
+  });
+
+  QUnit.test('Can compile an {{input}} helper with a type stored in a var', function () {
+    expect(0);
+
+    _emberTemplateCompilerIndex.compile('{{input type=_type}}');
+  });
+});
+enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-template-compiler/tests/plugins/transform-input-type-syntax-test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-template-compiler/tests/plugins/transform-input-type-syntax-test.js should pass ESLint\n\n');
   });
 });
 enifed('ember-template-compiler/tests/system/bootstrap-test', ['exports', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-template-compiler/system/bootstrap', 'internal-test-helpers'], function (exports, _emberMetal, _emberViews, _emberGlimmer, _emberTemplateCompilerSystemBootstrap, _internalTestHelpers) {
