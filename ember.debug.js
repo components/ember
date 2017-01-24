@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+e0ce3f71
+ * @version   2.12.0-alpha.1-canary+a002a6d8
  */
 
 var enifed, requireModule, Ember;
@@ -12307,6 +12307,7 @@ enifed("ember-glimmer/helpers/hash", ["exports"], function (exports) {
       @for Ember.Templates.helpers
       @param {Object} options
       @return {Object} Hash
+      @since 2.3.0
       @public
     */
 
@@ -45083,7 +45084,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+e0ce3f71";
+  exports.default = "2.12.0-alpha.1-canary+a002a6d8";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
