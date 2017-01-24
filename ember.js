@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+a002a6d8
+ * @version   2.12.0-alpha.1-canary+177ec98a
  */
 
 var enifed, requireModule, Ember;
@@ -43856,33 +43856,23 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       });
 
       rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
-        var actionId = _emberViewsSystemJquery.default(evt.currentTarget).attr('data-ember-action');
-        var actions = _emberViewsSystemAction_manager.default.registeredActions[actionId];
+        var attributes = evt.currentTarget.attributes;
+        var attributeCount = attributes.length;
+        var actions = [];
 
-        // In Glimmer2 this attribute is set to an empty string and an additional
-        // attribute it set for each action on a given element. In this case, the
-        // attributes need to be read so that a proper set of action handlers can
-        // be coalesced.
-        if (actionId === '') {
-          var attributes = evt.currentTarget.attributes;
-          var attributeCount = attributes.length;
+        for (var i = 0; i < attributeCount; i++) {
+          var attr = attributes.item(i);
+          var attrName = attr.name;
 
-          actions = [];
-
-          for (var i = 0; i < attributeCount; i++) {
-            var attr = attributes.item(i);
-            var attrName = attr.name;
-
-            if (attrName.indexOf('data-ember-action-') === 0) {
-              actions = actions.concat(_emberViewsSystemAction_manager.default.registeredActions[attr.value]);
-            }
+          if (attrName.indexOf('data-ember-action-') === 0) {
+            actions = actions.concat(_emberViewsSystemAction_manager.default.registeredActions[attr.value]);
           }
         }
 
         // We have to check for actions here since in some cases, jQuery will trigger
         // an event on `removeChild` (i.e. focusout) after we've already torn down the
         // action handlers for the view.
-        if (!actions) {
+        if (actions.length === 0) {
           return;
         }
 
@@ -45084,7 +45074,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+a002a6d8";
+  exports.default = "2.12.0-alpha.1-canary+177ec98a";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
