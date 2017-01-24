@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0-beta.8
+ * @version   2.11.0
  */
 
 var enifed, requireModule, Ember;
@@ -10622,7 +10622,7 @@ enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'
       }
     }
     if (pair && pair.value.type !== 'StringLiteral') {
-      node.params.unshift(builders.sexpr('-input-type', [builders.path(pair.value.original, pair.loc)], null, pair.loc));
+      node.params.unshift(builders.sexpr('-input-type', [pair.value], null, pair.loc));
     }
   }
 });
@@ -12023,7 +12023,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.0-beta.8";
+  exports.default = "2.11.0";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";
