@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+c998c34d
+ * @version   2.12.0-alpha.1-canary+e0ce3f71
  */
 
 var enifed, requireModule, Ember;
@@ -11214,104 +11214,6 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/utils/referenc
   exports.default = function (vm, args) {
     return new _emberGlimmerUtilsReferences.InternalHelperReference(concat, args);
   };
-});
-enifed('ember-glimmer/helpers/debugger', ['exports', 'ember-metal/debug', 'glimmer-runtime'], function (exports, _emberMetalDebug, _glimmerRuntime) {
-  /* eslint no-debugger:off */
-  /*jshint debug:true*/
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.default = debuggerHelper;
-  exports.setDebuggerCallback = setDebuggerCallback;
-  exports.resetDebuggerCallback = resetDebuggerCallback;
-
-  /**
-    Execute the `debugger` statement in the current template's context.
-  
-    ```handlebars
-    {{debugger}}
-    ```
-  
-    When using the debugger helper you will have access to a `get` function. This
-    function retrieves values available in the context of the template.
-    For example, if you're wondering why a value `{{foo}}` isn't rendering as
-    expected within a template, you could place a `{{debugger}}` statement and,
-    when the `debugger;` breakpoint is hit, you can attempt to retrieve this value:
-  
-    ```
-    > get('foo')
-    ```
-  
-    `get` is also aware of block variables. So in this situation
-  
-    ```handlebars
-    {{#each items as |item|}}
-      {{debugger}}
-    {{/each}}
-    ```
-  
-    You'll be able to get values from the current item:
-  
-    ```
-    > get('item.name')
-    ```
-  
-    You can also access the context of the view to make sure it is the object that
-    you expect:
-  
-    ```
-    > context
-    ```
-  
-    @method debugger
-    @for Ember.Templates.helpers
-    @public
-  */
-  function defaultCallback(context, get) {
-
-    debugger;
-
-    /* jshint debug: true */
-  }
-
-  var callback = defaultCallback;
-
-  function debuggerHelper(vm, args, symbolTable) {
-    var context = vm.getSelf().value();
-
-    // Note: this is totally an overkill since we are only compiling
-    // expressions, but this is the only kind of SymbolLookup we can
-    // construct. The symbol table itself should really be sufficient
-    // here – we should refactor the Glimmer code to make that possible.
-    var symbolLookup = new _glimmerRuntime.CompileIntoList(vm.env, symbolTable);
-
-    function get(path) {
-      // Problem: technically, we are getting a `PublicVM` here, but to
-      // evaluate an expression it requires the full VM. We happen to know
-      // that they are the same thing, so this would work for now. However
-      // this might break in the future.
-      return _glimmerRuntime.GetSyntax.build(path).compile(symbolLookup).evaluate(vm).value();
-    }
-
-    callback(context, get);
-
-    return _glimmerRuntime.UNDEFINED_REFERENCE;
-  }
-
-  // These are exported for testing
-
-  function setDebuggerCallback(newCallback) {
-    callback = newCallback;
-  }
-
-  function resetDebuggerCallback() {
-    callback = defaultCallback;
-  }
 });
 enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   /**
@@ -41786,7 +41688,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+c998c34d";
+  exports.default = "2.12.0-alpha.1-canary+e0ce3f71";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

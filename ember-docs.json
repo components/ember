@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.12.0-alpha.1.c998c34d"
+        "version": "2.12.0-alpha.1.e0ce3f71"
     },
     "files": {
         "packages/container/lib/container.js": {
@@ -236,17 +236,6 @@
         "packages/ember-glimmer/lib/helpers/concat.js": {
             "name": "packages/ember-glimmer/lib/helpers/concat.js",
             "modules": {},
-            "classes": {},
-            "fors": {
-                "Ember.Templates.helpers": 1
-            },
-            "namespaces": {}
-        },
-        "packages/ember-glimmer/lib/helpers/debugger.js": {
-            "name": "packages/ember-glimmer/lib/helpers/debugger.js",
-            "modules": {
-                "ember-htmlbars": 1
-            },
             "classes": {},
             "fors": {
                 "Ember.Templates.helpers": 1
@@ -1734,7 +1723,6 @@
                 "ember-extension-support": 1,
                 "ember-views": 1,
                 "ember-glimmer": 1,
-                "ember-htmlbars": 1,
                 "ember-metal": 1,
                 "ember-routing": 1,
                 "ember-runtime": 1,
@@ -1962,21 +1950,6 @@
             "itemtype": "main",
             "access": "public",
             "tagname": ""
-        },
-        "ember-htmlbars": {
-            "name": "ember-htmlbars",
-            "submodules": {},
-            "elements": {},
-            "classes": {},
-            "fors": {
-                "Ember.Templates.helpers": 1
-            },
-            "is_submodule": 1,
-            "namespaces": {},
-            "module": "ember",
-            "namespace": "",
-            "file": "packages/ember-glimmer/lib/helpers/debugger.js",
-            "line": 4
         },
         "ember-metal": {
             "name": "ember-metal",
@@ -6957,18 +6930,6 @@
             "class": "Ember.Templates.helpers",
             "module": "ember",
             "submodule": "ember-glimmer"
-        },
-        {
-            "file": "packages/ember-glimmer/lib/helpers/debugger.js",
-            "line": 16,
-            "description": "Execute the `debugger` statement in the current template's context.\n\n```handlebars\n{{debugger}}\n```\n\nWhen using the debugger helper you will have access to a `get` function. This\nfunction retrieves values available in the context of the template.\nFor example, if you're wondering why a value `{{foo}}` isn't rendering as\nexpected within a template, you could place a `{{debugger}}` statement and,\nwhen the `debugger;` breakpoint is hit, you can attempt to retrieve this value:\n\n```\n> get('foo')\n```\n\n`get` is also aware of block variables. So in this situation\n\n```handlebars\n{{#each items as |item|}}\n  {{debugger}}\n{{/each}}\n```\n\nYou'll be able to get values from the current item:\n\n```\n> get('item.name')\n```\n\nYou can also access the context of the view to make sure it is the object that\nyou expect:\n\n```\n> context\n```",
-            "itemtype": "method",
-            "name": "debugger",
-            "access": "public",
-            "tagname": "",
-            "class": "Ember.Templates.helpers",
-            "module": "ember",
-            "submodule": "ember-htmlbars"
         },
         {
             "file": "packages/ember-glimmer/lib/helpers/each-in.js",
