@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.0
+ * @version   2.12.0-beta.1-beta+346073b0
  */
 
 var enifed, requireModule, Ember;
@@ -579,7 +579,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
         window.addEventListener('load', function () {
           if (document.documentElement && document.documentElement.dataset && !document.documentElement.dataset.emberExtension) {
-            var downloadURL;
+            var downloadURL = undefined;
 
             if (isChrome) {
               downloadURL = 'https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi';
@@ -1849,7 +1849,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal', 'ember-views', 'ember
     });
   }
 });
-enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetal) {
+enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter) {
   /**
     @module ember
     @submodule ember-testing
@@ -1885,12 +1885,9 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
     promise: _emberTestingTestPromise.promise,
     resolve: _emberTestingTestPromise.resolve,
     registerWaiter: _emberTestingTestWaiters.registerWaiter,
-    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
+    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter,
+    checkWaiters: _emberTestingTestWaiters.checkWaiters
   };
-
-  if (true) {
-    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
-  }
 
   /**
    Used to allow ember-testing to communicate with a specific testing
@@ -2391,7 +2388,7 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
   }
 
   function generateDeprecatedWaitersArray() {
-    _emberMetal.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !true, { until: '2.8.0', id: 'ember-testing.test-waiters' });
+    _emberMetal.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', false, { until: '2.8.0', id: 'ember-testing.test-waiters' });
 
     var array = new Array(callbacks.length);
     for (var i = 0; i < callbacks.length; i++) {
