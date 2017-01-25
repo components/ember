@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+177ec98a
+ * @version   2.12.0-alpha.1-canary+fc729c94
  */
 
 var enifed, requireModule, Ember;
@@ -13215,13 +13215,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
     registerAction: function (actionState) {
       var actionId = actionState.actionId;
 
-      var actions = _emberViews.ActionManager.registeredActions[actionId];
-
-      if (!actions) {
-        actions = _emberViews.ActionManager.registeredActions[actionId] = [];
-      }
-
-      actions.push(actionState);
+      _emberViews.ActionManager.registeredActions[actionId] = actionState;
 
       return actionId;
     },
@@ -13229,21 +13223,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
     unregisterAction: function (actionState) {
       var actionId = actionState.actionId;
 
-      var actions = _emberViews.ActionManager.registeredActions[actionId];
-
-      if (!actions) {
-        return;
-      }
-
-      var index = actions.indexOf(actionState);
-
-      if (index !== -1) {
-        actions.splice(index, 1);
-      }
-
-      if (actions.length === 0) {
-        delete _emberViews.ActionManager.registeredActions[actionId];
-      }
+      delete _emberViews.ActionManager.registeredActions[actionId];
     }
   };
 
@@ -43857,30 +43837,17 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
       rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
         var attributes = evt.currentTarget.attributes;
-        var attributeCount = attributes.length;
-        var actions = [];
 
-        for (var i = 0; i < attributeCount; i++) {
+        for (var i = 0; i < attributes.length; i++) {
           var attr = attributes.item(i);
           var attrName = attr.name;
 
-          if (attrName.indexOf('data-ember-action-') === 0) {
-            actions = actions.concat(_emberViewsSystemAction_manager.default.registeredActions[attr.value]);
-          }
-        }
+          if (attrName.lastIndexOf('data-ember-action-', 0) !== -1) {
+            var action = _emberViewsSystemAction_manager.default.registeredActions[attr.value];
 
-        // We have to check for actions here since in some cases, jQuery will trigger
-        // an event on `removeChild` (i.e. focusout) after we've already torn down the
-        // action handlers for the view.
-        if (actions.length === 0) {
-          return;
-        }
-
-        for (var index = 0; index < actions.length; index++) {
-          var action = actions[index];
-
-          if (action && action.eventName === eventName) {
-            return action.handler(evt);
+            if (action.eventName === eventName) {
+              action.handler(evt);
+            }
           }
         }
       });
@@ -45074,7 +45041,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+177ec98a";
+  exports.default = "2.12.0-alpha.1-canary+fc729c94";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
