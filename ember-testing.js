@@ -1,16 +1,16 @@
 ;(function() {
 /*!
  * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2016 Tilde Inc. and contributors
+ * @copyright Copyright 2011-2017 Tilde Inc. and contributors
  *            Portions Copyright 2006-2011 Strobe Inc.
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.10.2-with-backtracking
+ * @version   2.12.0-canary-with-backtracking
  */
 
 var enifed, requireModule, Ember;
-var mainContext = this;
+var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -111,8 +111,6 @@ var mainContext = this;
     requireModule = Ember.__loader.require;
   }
 })();
-
-var babelHelpers;
 
 function classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -568,7 +566,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       _emberMetal.FEATURES['features-stripped-test'] = true;
       var featuresWereStripped = true;
 
-      if (false) {
+      if (_emberMetal.isFeatureEnabled('features-stripped-test')) {
         featuresWereStripped = false;
       }
 
@@ -582,7 +580,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal', 'ember-environment', 'emb
       if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
         window.addEventListener('load', function () {
           if (document.documentElement && document.documentElement.dataset && !document.documentElement.dataset.emberExtension) {
-            var downloadURL;
+            var downloadURL = undefined;
 
             if (isChrome) {
               downloadURL = 'https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi';
@@ -1153,7 +1151,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal', 'ember-testing/test/h
   _emberTestingTestHelpers.registerHelper('currentPath', _emberTestingHelpersCurrent_path.default);
   _emberTestingTestHelpers.registerHelper('currentURL', _emberTestingHelpersCurrent_url.default);
 
-  if (false) {
+  if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
     _emberTestingTestHelpers.registerHelper('resumeTest', _emberTestingHelpersPause_test.resumeTest);
   }
 });
@@ -1520,12 +1518,12 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
   */
 
   function pauseTest() {
-    if (false) {
+    if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
       _emberConsole.default.info('Testing paused. Use `resumeTest()` to continue.');
     }
 
     return new _emberRuntime.RSVP.Promise(function (resolve) {
-      if (false) {
+      if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
         resume = resolve;
       }
     }, 'TestAdapter paused promise');
@@ -1761,7 +1759,9 @@ enifed('ember-testing/initializers', ['exports', 'ember-runtime'], function (exp
     }
   });
 });
-enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal', 'ember-views', 'ember-testing/test/adapter', 'ember-testing/test/pending_requests', 'ember-testing/adapters/qunit'], function (exports, _emberMetal, _emberViews, _emberTestingTestAdapter, _emberTestingTestPending_requests, _emberTestingAdaptersQunit) {
+enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal', 'ember-views', 'ember-testing/test/adapter', 'ember-testing/test/pending_requests', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit'], function (exports, _emberMetal, _emberViews, _emberTestingTestAdapter, _emberTestingTestPending_requests, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit) {
+  /* global self */
+
   'use strict';
 
   exports.default = setupForTesting;
@@ -1785,7 +1785,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal', 'ember-view
     var adapter = _emberTestingTestAdapter.getAdapter();
     // if adapter is not manually set default to QUnit
     if (!adapter) {
-      _emberTestingTestAdapter.setAdapter(new _emberTestingAdaptersQunit.default());
+      _emberTestingTestAdapter.setAdapter(typeof self.QUnit === 'undefined' ? new _emberTestingAdaptersAdapter.default() : new _emberTestingAdaptersQunit.default());
     }
 
     _emberViews.jQuery(document).off('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
@@ -1850,7 +1850,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal', 'ember-views', 'ember
     });
   }
 });
-enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter', 'ember-metal'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter, _emberMetal) {
+enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-testing/test/on_inject_helpers', 'ember-testing/test/promise', 'ember-testing/test/waiters', 'ember-testing/test/adapter'], function (exports, _emberTestingTestHelpers, _emberTestingTestOn_inject_helpers, _emberTestingTestPromise, _emberTestingTestWaiters, _emberTestingTestAdapter) {
   /**
     @module ember
     @submodule ember-testing
@@ -1886,12 +1886,9 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
     promise: _emberTestingTestPromise.promise,
     resolve: _emberTestingTestPromise.resolve,
     registerWaiter: _emberTestingTestWaiters.registerWaiter,
-    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter
+    unregisterWaiter: _emberTestingTestWaiters.unregisterWaiter,
+    checkWaiters: _emberTestingTestWaiters.checkWaiters
   };
-
-  if (true) {
-    Test.checkWaiters = _emberTestingTestWaiters.checkWaiters;
-  }
 
   /**
    Used to allow ember-testing to communicate with a specific testing
@@ -2392,7 +2389,7 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
   }
 
   function generateDeprecatedWaitersArray() {
-    _emberMetal.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', !true, { until: '2.8.0', id: 'ember-testing.test-waiters' });
+    _emberMetal.deprecate('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', false, { until: '2.8.0', id: 'ember-testing.test-waiters' });
 
     var array = new Array(callbacks.length);
     for (var i = 0; i < callbacks.length; i++) {
