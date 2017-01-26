@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+fc729c94
+ * @version   2.12.0-alpha.1-canary+1c037bad
  */
 
 var enifed, requireModule, Ember;
@@ -12633,17 +12633,6 @@ enifed('ember-glimmer/protocol-for-url', ['exports', 'ember-environment'], funct
 enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal', '@glimmer/reference', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/outlet'], function (exports, _emberGlimmerUtilsReferences, _emberMetal, _glimmerReference, _emberViews, _emberGlimmerComponent, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxOutlet) {
   'use strict';
 
-  var runInTransaction = undefined;
-
-  if (false || false) {
-    runInTransaction = _emberMetal.runInTransaction;
-  } else {
-    runInTransaction = function (context, methodName) {
-      context[methodName]();
-      return false;
-    };
-  }
-
   var backburner = _emberMetal.run.backburner;
 
   var DynamicScope = (function () {
@@ -12949,7 +12938,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', '
 
           root.options.alwaysRevalidate = shouldReflush;
           // track shouldReflush based on this roots render result
-          shouldReflush = root.shouldReflush = runInTransaction(root, 'render');
+          shouldReflush = root.shouldReflush = _emberMetal.runInTransaction(root, 'render');
 
           // globalShouldReflush should be `true` if *any* of
           // the roots need to reflush
@@ -23448,18 +23437,8 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
       didRender = undefined,
       assertNotRendered = undefined;
 
-  var raise = _emberMetalDebug.assert;
-  if (false) {
-    raise = function (message, test) {};
-  }
-
-  var implication = undefined;
-  if (false) {
-    implication = 'will be removed in Ember 3.0.';
-  } else if (false) {
-    implication = 'is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.';
-  }
-
+  // detect-backtracking-rerender by default is debug build only
+  // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
   if (false || false) {
     (function () {
       var counter = 0;
@@ -23491,45 +23470,16 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
         var lastRendered = meta.readableLastRendered();
 
         if (lastRendered && lastRendered[key] === counter) {
-          raise((function () {
-            var templateMap = meta.readableLastRenderedTemplateMap();
-            var lastRenderedIn = templateMap[key];
-            var currentlyIn = debugStack.peek();
-
-            var referenceMap = meta.readableLastRenderedReferenceMap();
-            var lastRef = referenceMap[key];
-            var parts = [];
-            var label = undefined;
-
-            if (lastRef) {
-              while (lastRef && lastRef._propertyKey) {
-                parts.unshift(lastRef._propertyKey);
-                lastRef = lastRef._parentReference;
-              }
-
-              label = parts.join('.');
-            } else {
-              label = 'the same value';
-            }
-
-            return 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and ' + implication;
-          })(), false);
 
           shouldReflush = true;
         }
       };
     })();
   } else {
-    exports.default = runInTransaction = function () {
-      throw new Error('Cannot call runInTransaction without Glimmer');
-    };
-
-    exports.didRender = didRender = function () {
-      throw new Error('Cannot call didRender without Glimmer');
-    };
-
-    exports.assertNotRendered = assertNotRendered = function () {
-      throw new Error('Cannot call assertNotRendered without Glimmer');
+    // in production do nothing to detect reflushes
+    exports.default = runInTransaction = function (context, methodName) {
+      context[methodName]();
+      return false;
     };
   }
 
@@ -41646,7 +41596,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+fc729c94";
+  exports.default = "2.12.0-alpha.1-canary+1c037bad";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
