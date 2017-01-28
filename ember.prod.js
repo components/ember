@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-alpha.1-canary+e1f8ad2c
+ * @version   2.12.0-alpha.1-canary+af27853d
  */
 
 var enifed, requireModule, Ember;
@@ -12559,11 +12559,8 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
       if (!actionNameRef[_emberGlimmerHelpersAction.INVOKE]) {
         actionState.actionName = actionNameRef.value();
       }
-      actionState.eventName = actionState.getEventName();
 
-      // Not sure if this is needed? If we mutate the actionState is that good enough?
-      ActionHelper.unregisterAction(actionState);
-      ActionHelper.registerAction(actionState);
+      actionState.eventName = actionState.getEventName();
     };
 
     ActionModifierManager.prototype.getDestructor = function getDestructor(modifier) {
@@ -41596,7 +41593,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-alpha.1-canary+e1f8ad2c";
+  exports.default = "2.12.0-alpha.1-canary+af27853d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
