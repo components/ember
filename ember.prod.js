@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+96c0bb79
+ * @version   2.13.0-alpha.1-canary+db34fc4d
  */
 
 var enifed, requireModule, Ember;
@@ -40412,7 +40412,10 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
           if (attrName.lastIndexOf('data-ember-action-', 0) !== -1) {
             var action = _emberViewsSystemAction_manager.default.registeredActions[attr.value];
 
-            if (action.eventName === eventName) {
+            // We have to check for action here since in some cases, jQuery will trigger
+            // an event on `removeChild` (i.e. focusout) after we've already torn down the
+            // action handlers for the view.
+            if (action && action.eventName === eventName) {
               action.handler(evt);
             }
           }
@@ -41589,7 +41592,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+96c0bb79";
+  exports.default = "2.13.0-alpha.1-canary+db34fc4d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
