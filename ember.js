@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+db34fc4d
+ * @version   2.13.0-alpha.1-canary+d5364f96
  */
 
 var enifed, requireModule, Ember;
@@ -2900,7 +2900,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
   }, _Container$prototype[FACTORY_FOR] = function (fullName) {
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+    if (true) {
       if (true) {
         return this.factoryFor(fullName, options);
       } else {
@@ -10955,7 +10955,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
               }
             };
           } else if (helperFactory.class.isHelperFactory) {
-            if (!_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+            if (!true) {
               helperFactory = helperFactory.create();
             }
             return {
@@ -44479,7 +44479,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": null, "ember-routing-router-service": null, "ember-unique-location-history-state": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": true, "ember-routing-router-service": null, "ember-unique-location-history-state": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -45022,7 +45022,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+db34fc4d";
+  exports.default = "2.13.0-alpha.1-canary+d5364f96";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

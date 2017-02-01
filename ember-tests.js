@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+db34fc4d
+ * @version   2.13.0-alpha.1-canary+d5364f96
  */
 
 var enifed, requireModule, Ember;
@@ -912,7 +912,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     registry.register('component:foo-bar', Component);
 
     var factoryCreator = container[_container.FACTORY_FOR]('component:foo-bar');
-    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+    if (true) {
       assert.deepEqual(factoryCreator.class, Component, 'No double extend');
     } else {
       assert.deepEqual(factoryCreator.class, lookupFactory('component:foo-bar', container), 'Double extended class');
@@ -48240,7 +48240,7 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
 
     controller = _emberRoutingSystemGenerate_controller.default(appInstance, 'home');
 
-    if (_emberMetal.isFeatureEnabled('ember-no-double-extend')) {
+    if (true) {
       ok(controller instanceof BasicController, 'should return base class of controller');
     } else {
       var doubleExtendedFactory = undefined;
