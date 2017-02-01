@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+4bf1a29f
+ * @version   2.13.0-alpha.1-canary+3dc134ca
  */
 
 var enifed, requireModule, Ember;
@@ -184,6 +184,248 @@ babelHelpers = {
   defaults: defaults
 };
 
+enifed('@glimmer/di', ['exports', '@glimmer/util'], function (exports, _glimmerUtil) {
+    'use strict';
+
+    var Container = (function () {
+        function Container(registry) {
+            var resolver = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+            this._registry = registry;
+            this._resolver = resolver;
+            this._lookups = _glimmerUtil.dict();
+            this._factoryLookups = _glimmerUtil.dict();
+        }
+
+        Container.prototype.factoryFor = function factoryFor(specifier) {
+            var factory = this._factoryLookups[specifier];
+            if (!factory) {
+                if (this._resolver) {
+                    factory = this._resolver.retrieve(specifier);
+                }
+                if (!factory) {
+                    factory = this._registry.registration(specifier);
+                }
+                if (factory) {
+                    this._factoryLookups[specifier] = factory;
+                }
+            }
+            return factory;
+        };
+
+        Container.prototype.lookup = function lookup(specifier) {
+            var singleton = this._registry.registeredOption(specifier, 'singleton') !== false;
+            if (singleton && this._lookups[specifier]) {
+                return this._lookups[specifier];
+            }
+            var factory = this.factoryFor(specifier);
+            if (!factory) {
+                return;
+            }
+            if (this._registry.registeredOption(specifier, 'instantiate') === false) {
+                return factory;
+            }
+            var injections = this.buildInjections(specifier);
+            var object = factory.create(injections);
+            if (singleton && object) {
+                this._lookups[specifier] = object;
+            }
+            return object;
+        };
+
+        Container.prototype.defaultInjections = function defaultInjections(specifier) {
+            return {};
+        };
+
+        Container.prototype.buildInjections = function buildInjections(specifier) {
+            var hash = this.defaultInjections(specifier);
+            var injections = this._registry.registeredInjections(specifier);
+            var injection = undefined;
+            for (var i = 0; i < injections.length; i++) {
+                injection = injections[i];
+                hash[injection.property] = this.lookup(injection.source);
+            }
+            return hash;
+        };
+
+        return Container;
+    })();
+
+    var Registry = (function () {
+        function Registry() {
+            this._registrations = _glimmerUtil.dict();
+            this._registeredOptions = _glimmerUtil.dict();
+            this._registeredInjections = _glimmerUtil.dict();
+        }
+
+        // TODO - use symbol
+
+        Registry.prototype.register = function register(specifier, factory, options) {
+            this._registrations[specifier] = factory;
+            if (options) {
+                this._registeredOptions[specifier] = options;
+            }
+        };
+
+        Registry.prototype.registration = function registration(specifier) {
+            return this._registrations[specifier];
+        };
+
+        Registry.prototype.unregister = function unregister(specifier) {
+            delete this._registrations[specifier];
+            delete this._registeredOptions[specifier];
+            delete this._registeredInjections[specifier];
+        };
+
+        Registry.prototype.registerOption = function registerOption(specifier, option, value) {
+            var options = this._registeredOptions[specifier];
+            if (!options) {
+                options = {};
+                this._registeredOptions[specifier] = options;
+            }
+            options[option] = value;
+        };
+
+        Registry.prototype.registeredOption = function registeredOption(specifier, option) {
+            var options = this.registeredOptions(specifier);
+            if (options) {
+                return options[option];
+            }
+        };
+
+        Registry.prototype.registeredOptions = function registeredOptions(specifier) {
+            var options = this._registeredOptions[specifier];
+            if (options === undefined) {
+                var _specifier$split = specifier.split(':');
+
+                var type = _specifier$split[0];
+
+                options = this._registeredOptions[type];
+            }
+            return options;
+        };
+
+        Registry.prototype.unregisterOption = function unregisterOption(specifier, option) {
+            var options = this._registeredOptions[specifier];
+            if (options) {
+                delete options[option];
+            }
+        };
+
+        Registry.prototype.registerInjection = function registerInjection(specifier, property, source) {
+            var injections = this._registeredInjections[specifier];
+            if (injections === undefined) {
+                this._registeredInjections[specifier] = injections = [];
+            }
+            injections.push({
+                property: property,
+                source: source
+            });
+        };
+
+        Registry.prototype.registeredInjections = function registeredInjections(specifier) {
+            var _specifier$split2 = specifier.split(':');
+
+            var type = _specifier$split2[0];
+
+            var injections = [];
+            Array.prototype.push.apply(injections, this._registeredInjections[type]);
+            Array.prototype.push.apply(injections, this._registeredInjections[specifier]);
+            return injections;
+        };
+
+        return Registry;
+    })();
+
+    var OWNER = '__owner__';
+    function getOwner(object) {
+        return object[OWNER];
+    }
+    function setOwner(object, owner) {
+        object[OWNER] = owner;
+    }
+
+    function isSpecifierStringAbsolute(specifier) {
+        var _specifier$split3 = specifier.split(':');
+
+        var type = _specifier$split3[0];
+        var path = _specifier$split3[1];
+
+        return !!(type && path && path.indexOf('/') === 0 && path.split('/').length > 3);
+    }
+    function isSpecifierObjectAbsolute(specifier) {
+        return specifier.rootName !== undefined && specifier.collection !== undefined && specifier.name !== undefined && specifier.type !== undefined;
+    }
+    function serializeSpecifier(specifier) {
+        var type = specifier.type;
+        var path = serializeSpecifierPath(specifier);
+        if (path) {
+            return type + ':' + path;
+        } else {
+            return type;
+        }
+    }
+    function serializeSpecifierPath(specifier) {
+        var path = [];
+        if (specifier.rootName) {
+            path.push(specifier.rootName);
+        }
+        if (specifier.collection) {
+            path.push(specifier.collection);
+        }
+        if (specifier.namespace) {
+            path.push(specifier.namespace);
+        }
+        if (specifier.name) {
+            path.push(specifier.name);
+        }
+        if (path.length > 0) {
+            var fullPath = path.join('/');
+            if (isSpecifierObjectAbsolute(specifier)) {
+                fullPath = '/' + fullPath;
+            }
+            return fullPath;
+        }
+    }
+    function deserializeSpecifier(specifier) {
+        var obj = {};
+        if (specifier.indexOf(':') > -1) {
+            var _specifier$split4 = specifier.split(':');
+
+            var type = _specifier$split4[0];
+            var path = _specifier$split4[1];
+
+            obj.type = type;
+            var pathSegments = undefined;
+            if (path.indexOf('/') === 0) {
+                pathSegments = path.substr(1).split('/');
+                obj.rootName = pathSegments.shift();
+                obj.collection = pathSegments.shift();
+            } else {
+                pathSegments = path.split('/');
+            }
+            if (pathSegments.length > 0) {
+                obj.name = pathSegments.pop();
+                if (pathSegments.length > 0) {
+                    obj.namespace = pathSegments.join('/');
+                }
+            }
+        } else {
+            obj.type = specifier;
+        }
+        return obj;
+    }
+
+    exports.Container = Container;
+    exports.Registry = Registry;
+    exports.getOwner = getOwner;
+    exports.setOwner = setOwner;
+    exports.OWNER = OWNER;
+    exports.isSpecifierStringAbsolute = isSpecifierStringAbsolute;
+    exports.isSpecifierObjectAbsolute = isSpecifierObjectAbsolute;
+    exports.serializeSpecifier = serializeSpecifier;
+    exports.deserializeSpecifier = deserializeSpecifier;
+});
 enifed('@glimmer/node', ['exports', '@glimmer/runtime'], function (exports, _glimmerRuntime) {
     'use strict';
 
@@ -45024,7 +45266,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+4bf1a29f";
+  exports.default = "2.13.0-alpha.1-canary+3dc134ca";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
