@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+3dc134ca
+ * @version   2.13.0-alpha.1-canary+f38b4b84
  */
 
 var enifed, requireModule, Ember;
@@ -12306,9 +12306,7 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal', 'ember-glimme
 });
 enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _emberGlimmerHelpersAction, _emberGlimmerTemplatesRoot, _emberGlimmerTemplate, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_field, _emberGlimmerComponentsText_area, _emberGlimmerComponentsLinkTo, _emberGlimmerComponent, _emberGlimmerHelper, _emberGlimmerEnvironment, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString, _emberGlimmerRenderer, _emberGlimmerTemplate_registry, _emberGlimmerSetupRegistry, _emberGlimmerDom) {
   /**
-    [Glimmer](https://github.com/tildeio/glimmer) is a [Handlebars](http://handlebarsjs.com/)
-    compatible templating engine used by Ember.js.
-    Any valid Handlebars syntax is valid in an Ember template.
+    [Glimmer](https://github.com/tildeio/glimmer) is a templating engine used by Ember.js that is compatible with a subset of the [Handlebars](http://handlebarsjs.com/) syntax.
   
     ### Showing a property
   
@@ -12316,15 +12314,13 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
     the DOM) to a user. For example, given a component with the property "name",
     that component's template can use the name in several ways:
   
-    ```javascript
-      // app/components/person.js
+    ```app/components/person.js
       export default Ember.Component.extend({
         name: 'Jill'
       });
     ```
   
-    ```handlebars
-    {{! app/components/person.hbs }}
+    ```app/components/person.hbs
     {{name}}
     <div>{{name}}</div>
     <span data-name={{name}}></span>
@@ -41836,7 +41832,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+3dc134ca";
+  exports.default = "2.13.0-alpha.1-canary+f38b4b84";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

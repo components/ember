@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.13.0-alpha.1.3dc134ca"
+        "version": "2.13.0-alpha.1.f38b4b84"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2128,7 +2128,7 @@
             "namespace": "",
             "file": "packages/ember-glimmer/lib/helper.js",
             "line": 12,
-            "description": "[Glimmer](https://github.com/tildeio/glimmer) is a [Handlebars](http://handlebarsjs.com/)\ncompatible templating engine used by Ember.js.\nAny valid Handlebars syntax is valid in an Ember template.\n\n### Showing a property\n\nTemplates manage the flow of an application's UI, and display state (through\nthe DOM) to a user. For example, given a component with the property \"name\",\nthat component's template can use the name in several ways:\n\n```javascript\n  // app/components/person.js\n  export default Ember.Component.extend({\n    name: 'Jill'\n  });\n```\n\n```handlebars\n{{! app/components/person.hbs }}\n{{name}}\n<div>{{name}}</div>\n<span data-name={{name}}></span>\n```\n\nAny time the \"name\" property on the component changes, the DOM will be\nupdated.\n\nProperties can be chained as well:\n\n```handlebars\n{{aUserModel.name}}\n<div>{{listOfUsers.firstObject.name}}</div>\n```\n\n### Using Ember helpers\n\nWhen content is passed in mustaches `{{}}`, Ember will first try to find a helper\nor component with that name. For example, the `if` helper:\n\n```handlebars\n{{if name \"I have a name\" \"I have no name\"}}\n<span data-has-name={{if name true}}></span>\n```\n\nThe returned value is placed where the `{{}}` is called. The above style is\ncalled \"inline\". A second style of helper usage is called \"block\". For example:\n\n```handlebars\n{{#if name}}\nI have a name\n{{else}}\nI have no name\n{{/if}}\n```\n\nThe block form of helpers allows you to control how the UI is created based\non the values of properties.\nA third form of helper is called \"nested\". For example here the concat\nhelper will add \" Doe\" to a displayed name if the person has no last name:\n\n```handlebars\n<span data-name={{concat firstName (\nif lastName (concat \" \" lastName) \"Doe\"\n)}}></span>\n```\n\nEmber's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)\nnamespace. Documentation on creating custom helpers can be found under\n[Ember.Helper](/api/classes/Ember.Helper.html).\n\n### Invoking a Component\n\nEmber components represent state to the UI of an application. Further\nreading on components can be found under [Ember.Component](/api/classes/Ember.Component.html).",
+            "description": "[Glimmer](https://github.com/tildeio/glimmer) is a templating engine used by Ember.js that is compatible with a subset of the [Handlebars](http://handlebarsjs.com/) syntax.\n\n### Showing a property\n\nTemplates manage the flow of an application's UI, and display state (through\nthe DOM) to a user. For example, given a component with the property \"name\",\nthat component's template can use the name in several ways:\n\n```app/components/person.js\n  export default Ember.Component.extend({\n    name: 'Jill'\n  });\n```\n\n```app/components/person.hbs\n{{name}}\n<div>{{name}}</div>\n<span data-name={{name}}></span>\n```\n\nAny time the \"name\" property on the component changes, the DOM will be\nupdated.\n\nProperties can be chained as well:\n\n```handlebars\n{{aUserModel.name}}\n<div>{{listOfUsers.firstObject.name}}</div>\n```\n\n### Using Ember helpers\n\nWhen content is passed in mustaches `{{}}`, Ember will first try to find a helper\nor component with that name. For example, the `if` helper:\n\n```handlebars\n{{if name \"I have a name\" \"I have no name\"}}\n<span data-has-name={{if name true}}></span>\n```\n\nThe returned value is placed where the `{{}}` is called. The above style is\ncalled \"inline\". A second style of helper usage is called \"block\". For example:\n\n```handlebars\n{{#if name}}\nI have a name\n{{else}}\nI have no name\n{{/if}}\n```\n\nThe block form of helpers allows you to control how the UI is created based\non the values of properties.\nA third form of helper is called \"nested\". For example here the concat\nhelper will add \" Doe\" to a displayed name if the person has no last name:\n\n```handlebars\n<span data-name={{concat firstName (\nif lastName (concat \" \" lastName) \"Doe\"\n)}}></span>\n```\n\nEmber's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)\nnamespace. Documentation on creating custom helpers can be found under\n[Ember.Helper](/api/classes/Ember.Helper.html).\n\n### Invoking a Component\n\nEmber components represent state to the UI of an application. Further\nreading on components can be found under [Ember.Component](/api/classes/Ember.Component.html).",
             "tag": "main",
             "itemtype": "main",
             "access": "public",
@@ -8890,7 +8890,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 83,
+            "line": 79,
             "description": "Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful\nfor semantic clarity as it allows you to retain default scope or to reference a property from another\n`{{with}}` block.\n\nIf the aliased property is \"falsey\", for example: `false`, `undefined` `null`, `\"\"`, `0`, NaN or\nan empty array, the block will not be rendered.\n\n```handlebars\n{{! Will only render if user.posts contains items}}\n{{#with user.posts as |blogPosts|}}\n  <div class=\"notice\">\n    There are {{blogPosts.length}} blog posts written by {{user.name}}.\n  </div>\n  {{#each blogPosts as |post|}}\n    <li>{{post.title}}</li>\n  {{/each}}\n{{/with}}\n```\n\nWithout the `as` operator, it would be impossible to reference `user.name` in the example above.\n\nNOTE: The alias should not reuse a name from the bound property path.\n\nFor example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using\nthe first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.",
             "itemtype": "method",
             "name": "with",
@@ -8913,7 +8913,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 118,
+            "line": 114,
             "description": "Execute the `debugger` statement in the current template's context.\n\n```handlebars\n{{debugger}}\n```\n\nWhen using the debugger helper you will have access to a `get` function. This\nfunction retrieves values available in the context of the template.\nFor example, if you're wondering why a value `{{foo}}` isn't rendering as\nexpected within a template, you could place a `{{debugger}}` statement and,\nwhen the `debugger;` breakpoint is hit, you can attempt to retrieve this value:\n\n```\n> get('foo')\n```\n\n`get` is also aware of keywords. So in this situation\n\n```handlebars\n{{#each items as |item|}}\n  {{debugger}}\n{{/each}}\n```\n\nYou'll be able to get values from the current item:\n\n```\n> get('item.name')\n```\n\nYou can also access the context of the view to make sure it is the object that\nyou expect:\n\n```\n> context\n```",
             "itemtype": "method",
             "name": "debugger",
@@ -8925,7 +8925,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 161,
+            "line": 157,
             "description": "The `partial` helper renders another template without\nchanging the template context:\n\n```handlebars\n{{foo}}\n{{partial \"nav\"}}\n```\n\nThe above example template will render a template named\n\"-nav\", which has the same context as the parent template\nit's rendered into, so if the \"-nav\" template also referenced\n`{{foo}}`, it would print the same thing as the `{{foo}}`\nin the above example.\n\nIf a \"-nav\" template isn't found, the `partial` helper will\nfall back to a template named \"nav\".\n\n### Bound template names\n\nThe parameter supplied to `partial` can also be a path\nto a property containing a template name, e.g.:\n\n```handlebars\n{{partial someTemplateName}}\n```\n\nThe above example will look up the value of `someTemplateName`\non the template context (e.g. a controller) and use that\nvalue as the name of the template to render. If the resolved\nvalue is falsy, nothing will be rendered. If `someTemplateName`\nchanges, the partial will be re-rendered using the new template\nname.",
             "itemtype": "method",
             "name": "partial",
