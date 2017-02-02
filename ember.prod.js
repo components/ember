@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+f38b4b84
+ * @version   2.13.0-alpha.1-canary+fc5be0be
  */
 
 var enifed, requireModule, Ember;
@@ -18691,7 +18691,6 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], functi
   @submodule ember-metal
   */
 
-  var SPLIT_REGEX = /\{|\}/;
   var END_WITH_EACH_REGEX = /\.@each$/;
 
   /**
@@ -18724,33 +18723,48 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], functi
 
   function expandProperties(pattern, callback) {
 
-    var parts = pattern.split(SPLIT_REGEX);
-    var properties = [parts];
+    var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern;
+    var properties = [pattern];
 
-    for (var i = 0; i < parts.length; i++) {
-      var part = parts[i];
-      if (part.indexOf(',') >= 0) {
-        properties = duplicateAndReplace(properties, part.split(','), i);
+    // Iterating backward over the pattern makes dealing with indices easier.
+    var bookmark = undefined;
+    var inside = false;
+    for (var i = pattern.length; i > 0; --i) {
+      var current = pattern[i - 1];
+
+      switch (current) {
+        // Closing curly brace will be the first character of the brace expansion we encounter.
+        // Bookmark its index so long as we're not already inside a brace expansion.
+        case '}':
+          if (!inside) {
+            bookmark = i - 1;
+            inside = true;
+          } else {}
+          break;
+        // Opening curly brace will be the last character of the brace expansion we encounter.
+        // Apply the brace expansion so long as we've already seen a closing curly brace.
+        case '{':
+          if (inside) {
+            var expansion = pattern.slice(i, bookmark).split(',');
+            // Iterating backward allows us to push new properties w/out affecting our "cursor".
+            for (var j = properties.length; j > 0; --j) {
+              // Extract the unexpanded property from the array.
+              var property = properties.splice(j - 1, 1)[0];
+              // Iterate over the expansion, pushing the newly formed properties onto the array.
+              for (var k = 0; k < expansion.length; ++k) {
+                properties.push(property.slice(0, i - 1) + expansion[k] + property.slice(bookmark + 1));
+              }
+            }
+            inside = false;
+          } else {}
+          break;
       }
     }
+    if (inside) {}
 
     for (var i = 0; i < properties.length; i++) {
-      callback(properties[i].join('').replace(END_WITH_EACH_REGEX, '.[]'));
+      callback(properties[i].replace(END_WITH_EACH_REGEX, '.[]'));
     }
-  }
-
-  function duplicateAndReplace(properties, currentParts, index) {
-    var all = [];
-
-    properties.forEach(function (property) {
-      currentParts.forEach(function (part) {
-        var current = property.slice(0);
-        current[index] = part;
-        all.push(current);
-      });
-    });
-
-    return all;
   }
 });
 enifed('ember-metal/features', ['exports', 'ember-utils', 'ember-environment', 'ember/features'], function (exports, _emberUtils, _emberEnvironment, _emberFeatures) {
@@ -41832,7 +41846,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+f38b4b84";
+  exports.default = "2.13.0-alpha.1-canary+fc5be0be";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

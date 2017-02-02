@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+f38b4b84
+ * @version   2.13.0-alpha.1-canary+fc5be0be
  */
 
 var enifed, requireModule, Ember;
@@ -40768,6 +40768,14 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
     }, /Brace expanded properties have to be balanced and cannot be nested/);
   });
 
+  QUnit.test('A property with no braces does not expand', function () {
+    expect(1);
+
+    _emberMetalExpand_properties.default('a,b,c.d.e,f', addProperty);
+
+    deepEqual(foundProperties, ['a,b,c.d.e,f']);
+  });
+
   QUnit.test('A pattern must be a string', function () {
     expect(1);
 
@@ -40780,7 +40788,7 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
     expect(1);
 
     expectAssertion(function () {
-      _emberMetalExpand_properties.default('a, b', addProperty);
+      _emberMetalExpand_properties.default('{a, b}', addProperty);
     }, /Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"/);
   });
 });
