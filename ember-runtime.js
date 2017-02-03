@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+38d59789
+ * @version   2.13.0-alpha.1-canary+d018532c
  */
 
 var enifed, requireModule, Ember;
@@ -18123,7 +18123,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
         }
       });
        let steve = Person.create({
-        name: "Steve"
+        name: 'Steve'
       });
        // alerts 'Name is Steve'.
       ```
@@ -18441,8 +18441,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
       nonMerged: 'superclass value of nonMerged'
     },
     mergedProperty: {
-      page: {replace: false},
-      limit: {replace: true}
+      page: { replace: false },
+      limit: { replace: true }
     }
   });
    const FooBar = Bar.extend({
@@ -18450,7 +18450,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
       completelyNonMerged: 'subclass value of nonMerged'
     },
     mergedProperty: {
-      limit: {replace: false}
+      limit: { replace: false }
     }
   });
    let fooBar = FooBar.create();
@@ -18594,9 +18594,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     }
   });
    let yehuda = Soldier.create({
-    name: "Yehuda Katz"
+    name: 'Yehuda Katz'
   });
-   yehuda.say("Yes");  // alerts "Yehuda Katz says: Yes, sir!"
+   yehuda.say('Yes');  // alerts "Yehuda Katz says: Yes, sir!"
   ```
    The `create()` on line #17 creates an *instance* of the `Soldier` class.
   The `extend()` on line #8 creates a *subclass* of `Person`. Any instance
@@ -18668,13 +18668,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
    o = MyObject.create();
   o.get('name'); // 'an object'
    MyObject.reopen({
-    say(msg){
+    say(msg) {
       console.log(msg);
     }
-  })
+  });
    o2 = MyObject.create();
-  o2.say("hello"); // logs "hello"
-   o.say("goodbye"); // logs "goodbye"
+  o2.say('hello'); // logs "hello"
+   o.say('goodbye'); // logs "goodbye"
   ```
    To add functions and properties to the constructor itself,
   see `reopenClass`
@@ -18698,23 +18698,22 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   These are only available on the class and not on any instance of that class.
    ```javascript
   const Person = Ember.Object.extend({
-    name: "",
+    name: '',
     sayHello() {
-      alert("Hello. My name is " + this.get('name'));
+      alert(`Hello. My name is ${this.get('name')}`);
     }
   });
    Person.reopenClass({
-    species: "Homo sapiens",
-    createPerson(newPersonsName){
-      return Person.create({
-        name:newPersonsName
-      });
+    species: 'Homo sapiens',
+    
+    createPerson(name) {
+      return Person.create({ name });
     }
   });
    let tom = Person.create({
-    name: "Tom Dale"
+    name: 'Tom Dale'
   });
-  let yehuda = Person.createPerson("Yehuda Katz");
+  let yehuda = Person.createPerson('Yehuda Katz');
    tom.sayHello(); // "Hello. My name is Tom Dale"
   yehuda.sayHello(); // "Hello. My name is Yehuda Katz"
   alert(Person.species); // "Homo sapiens"
@@ -19982,7 +19981,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+38d59789";
+  exports.default = "2.13.0-alpha.1-canary+d018532c";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
