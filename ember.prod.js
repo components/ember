@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+76698a45
+ * @version   2.13.0-alpha.1-canary+128333cf
  */
 
 var enifed, requireModule, Ember;
@@ -40073,6 +40073,43 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
    @private
   */
   exports.default = _emberMetal.Mixin.create((_Mixin$create = {
+    /**
+      A list of properties of the view to apply as attributes. If the property
+      is a string value, the value of that string will be applied as the value
+      for an attribute of the property's name.
+       The following example creates a tag like `<div priority="high" />`.
+       ```javascript
+      Ember.Component.extend({
+        attributeBindings: ['priority'],
+        priority: 'high'
+      });
+      ```
+       If the value of the property is a Boolean, the attribute is treated as
+      an HTML Boolean attribute. It will be present if the property is `true`
+      and omitted if the property is `false`.
+       The following example creates markup like `<div visible />`.
+       ```javascript
+      Ember.Component.extend({
+        attributeBindings: ['visible'],
+        visible: true
+      });
+      ```
+       If you would prefer to use a custom value instead of the property name,
+      you can create the same markup as the last example with a binding like
+      this:
+       ```javascript
+      Ember.Component.extend({
+        attributeBindings: ['isVisible:visible'],
+        isVisible: true
+      });
+      ```
+       This list of attributes is inherited from the component's superclasses,
+      as well.
+       @property attributeBindings
+      @type Array
+      @default []
+      @public
+     */
     concatenatedProperties: ['attributeBindings']
   }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
     dispatchLifeCycleHook(this, 'didInitAttrs', undefined, this.attrs);
@@ -41845,7 +41882,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+76698a45";
+  exports.default = "2.13.0-alpha.1-canary+128333cf";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
