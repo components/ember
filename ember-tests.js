@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+dc54d865
+ * @version   2.13.0-alpha.1-canary+a8215836
  */
 
 var enifed, requireModule, Ember;
@@ -48332,9 +48332,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     var router = Router.create();
     router._initRouterJs();
 
-    ok(router.router.recognizer.names['bleep'], 'nested resources do not contain parent name');
-    ok(router.router.recognizer.names['bloop'], 'nested resources do not contain parent name');
-    ok(router.router.recognizer.names['blork'], 'nested resources do not contain parent name');
+    ok(router._routerMicrolib.recognizer.names['bleep'], 'nested resources do not contain parent name');
+    ok(router._routerMicrolib.recognizer.names['bloop'], 'nested resources do not contain parent name');
+    ok(router._routerMicrolib.recognizer.names['blork'], 'nested resources do not contain parent name');
   });
 
   QUnit.test('should retain resource namespace if nested with routes', function () {
@@ -48349,9 +48349,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     var router = Router.create();
     router._initRouterJs();
 
-    ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-    ok(router.router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-    ok(router.router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
+    ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+    ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+    ok(router._routerMicrolib.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
   });
 
   QUnit.test('should add loading and error routes if _isRouterMapResult is true', function () {
@@ -48367,9 +48367,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
 
     router._initRouterJs();
 
-    ok(router.router.recognizer.names['blork'], 'main route was created');
-    ok(router.router.recognizer.names['blork_loading'], 'loading route was added');
-    ok(router.router.recognizer.names['blork_error'], 'error route was added');
+    ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
+    ok(router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was added');
+    ok(router._routerMicrolib.recognizer.names['blork_error'], 'error route was added');
   });
 
   QUnit.test('should not add loading and error routes if _isRouterMapResult is false', function () {
@@ -48380,9 +48380,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     var router = Router.create();
     router._initRouterJs(false);
 
-    ok(router.router.recognizer.names['blork'], 'main route was created');
-    ok(!router.router.recognizer.names['blork_loading'], 'loading route was not added');
-    ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
+    ok(router._routerMicrolib.recognizer.names['blork'], 'main route was created');
+    ok(!router._routerMicrolib.recognizer.names['blork_loading'], 'loading route was not added');
+    ok(!router._routerMicrolib.recognizer.names['blork_error'], 'error route was not added');
   });
 
   QUnit.test('should reset namespace of loading and error routes for routes with resetNamespace', function () {
@@ -48401,17 +48401,17 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
 
     router._initRouterJs();
 
-    ok(router.router.recognizer.names['blork.blorp'], 'nested route was created');
-    ok(router.router.recognizer.names['blork.blorp_loading'], 'nested loading route was added');
-    ok(router.router.recognizer.names['blork.blorp_error'], 'nested error route was added');
+    ok(router._routerMicrolib.recognizer.names['blork.blorp'], 'nested route was created');
+    ok(router._routerMicrolib.recognizer.names['blork.blorp_loading'], 'nested loading route was added');
+    ok(router._routerMicrolib.recognizer.names['blork.blorp_error'], 'nested error route was added');
 
-    ok(router.router.recognizer.names['bleep'], 'reset route was created');
-    ok(router.router.recognizer.names['bleep_loading'], 'reset loading route was added');
-    ok(router.router.recognizer.names['bleep_error'], 'reset error route was added');
+    ok(router._routerMicrolib.recognizer.names['bleep'], 'reset route was created');
+    ok(router._routerMicrolib.recognizer.names['bleep_loading'], 'reset loading route was added');
+    ok(router._routerMicrolib.recognizer.names['bleep_error'], 'reset error route was added');
 
-    ok(!router.router.recognizer.names['blork.bleep'], 'nested reset route was not created');
-    ok(!router.router.recognizer.names['blork.bleep_loading'], 'nested reset loading route was not added');
-    ok(!router.router.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
+    ok(!router._routerMicrolib.recognizer.names['blork.bleep'], 'nested reset route was not created');
+    ok(!router._routerMicrolib.recognizer.names['blork.bleep_loading'], 'nested reset loading route was not added');
+    ok(!router._routerMicrolib.recognizer.names['blork.bleep_error'], 'nested reset error route was not added');
   });
 
   QUnit.test('should throw an error when defining a route serializer outside an engine', function () {
@@ -48450,9 +48450,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
-    assert.ok(router.router.recognizer.names['bleep'], 'parent name was used as base of nested routes');
-    assert.ok(router.router.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
-    assert.ok(router.router.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
+    assert.ok(router._routerMicrolib.recognizer.names['bleep'], 'parent name was used as base of nested routes');
+    assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop'], 'parent name was used as base of nested routes');
+    assert.ok(router._routerMicrolib.recognizer.names['bleep.bloop.chat'], 'parent name was used as base of mounted engine');
   });
 
   QUnit.test('should allow mounting of engines at a custom path', function (assert) {
@@ -48474,7 +48474,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
-    assert.deepEqual(router.router.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
+    assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.chat'].segments.slice(1, 4).map(function (s) {
       return s.value;
     }), ['bleep', 'bloop', 'custom-chat'], 'segments are properly associated with mounted engine');
   });
@@ -48498,7 +48498,7 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
-    assert.deepEqual(router.router.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
+    assert.deepEqual(router._routerMicrolib.recognizer.names['bleep.bloop.blork'].segments.slice(1, 4).map(function (s) {
       return s.value;
     }), ['bleep', 'bloop', 'blork'], 'segments are properly associated with mounted engine with aliased name');
   });
@@ -48520,9 +48520,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
-    ok(router.router.recognizer.names['chat'], 'main route was created');
-    ok(router.router.recognizer.names['chat_loading'], 'loading route was added');
-    ok(router.router.recognizer.names['chat_error'], 'error route was added');
+    ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
+    ok(router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was added');
+    ok(router._routerMicrolib.recognizer.names['chat_error'], 'error route was added');
   });
 
   QUnit.test('should add loading and error routes to a mount alias if _isRouterMapResult is true', function () {
@@ -48542,9 +48542,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
-    ok(router.router.recognizer.names['shoutbox'], 'main route was created');
-    ok(router.router.recognizer.names['shoutbox_loading'], 'loading route was added');
-    ok(router.router.recognizer.names['shoutbox_error'], 'error route was added');
+    ok(router._routerMicrolib.recognizer.names['shoutbox'], 'main route was created');
+    ok(router._routerMicrolib.recognizer.names['shoutbox_loading'], 'loading route was added');
+    ok(router._routerMicrolib.recognizer.names['shoutbox_error'], 'error route was added');
   });
 
   QUnit.test('should not add loading and error routes to a mount if _isRouterMapResult is false', function () {
@@ -48560,9 +48560,9 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs(false);
 
-    ok(router.router.recognizer.names['chat'], 'main route was created');
-    ok(!router.router.recognizer.names['chat_loading'], 'loading route was not added');
-    ok(!router.router.recognizer.names['chat_error'], 'error route was not added');
+    ok(router._routerMicrolib.recognizer.names['chat'], 'main route was created');
+    ok(!router._routerMicrolib.recognizer.names['chat_loading'], 'loading route was not added');
+    ok(!router._routerMicrolib.recognizer.names['chat_error'], 'error route was not added');
   });
 
   QUnit.test('should reset namespace of loading and error routes for mounts with resetNamespace', function () {
@@ -48585,17 +48585,17 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-utils', 'ember-
     _emberUtils.setOwner(router, engineInstance);
     router._initRouterJs();
 
-    ok(router.router.recognizer.names['news.chat'], 'nested route was created');
-    ok(router.router.recognizer.names['news.chat_loading'], 'nested loading route was added');
-    ok(router.router.recognizer.names['news.chat_error'], 'nested error route was added');
+    ok(router._routerMicrolib.recognizer.names['news.chat'], 'nested route was created');
+    ok(router._routerMicrolib.recognizer.names['news.chat_loading'], 'nested loading route was added');
+    ok(router._routerMicrolib.recognizer.names['news.chat_error'], 'nested error route was added');
 
-    ok(router.router.recognizer.names['blog'], 'reset route was created');
-    ok(router.router.recognizer.names['blog_loading'], 'reset loading route was added');
-    ok(router.router.recognizer.names['blog_error'], 'reset error route was added');
+    ok(router._routerMicrolib.recognizer.names['blog'], 'reset route was created');
+    ok(router._routerMicrolib.recognizer.names['blog_loading'], 'reset loading route was added');
+    ok(router._routerMicrolib.recognizer.names['blog_error'], 'reset error route was added');
 
-    ok(!router.router.recognizer.names['news.blog'], 'nested reset route was not created');
-    ok(!router.router.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
-    ok(!router.router.recognizer.names['news.blog_error'], 'nested reset error route was not added');
+    ok(!router._routerMicrolib.recognizer.names['news.blog'], 'nested reset route was not created');
+    ok(!router._routerMicrolib.recognizer.names['news.blog_loading'], 'nested reset loading route was not added');
+    ok(!router._routerMicrolib.recognizer.names['news.blog_error'], 'nested reset error route was not added');
   });
 });
 enifed('ember-routing/tests/system/dsl_test.lint-test', ['exports'], function (exports) {
@@ -48945,7 +48945,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'inte
 
     var router = {
       _deserializeQueryParams: function () {},
-      router: {
+      _routerMicrolib: {
         state: {
           handlerInfos: [{ name: 'posts' }],
           params: {
@@ -48991,7 +48991,7 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-utils', 'inte
     var postsModel = { id: '2' };
 
     var router = {
-      router: {
+      _routerMicrolib: {
         activeTransition: {
           resolvedModels: {
             'foo.bar': applicationModel,
@@ -49178,7 +49178,7 @@ enifed('ember-routing/tests/system/router_test', ['exports', 'ember-utils', 'emb
   QUnit.test('should not create a router.js instance upon init', function () {
     var router = createRouter(null, { disableSetup: true });
 
-    ok(!router.router);
+    ok(!router._routerMicrolib);
   });
 
   QUnit.test('should not reify location until setupRouter is called', function () {
@@ -49379,6 +49379,24 @@ enifed('ember-routing/tests/system/router_test', ['exports', 'ember-utils', 'emb
     }];
 
     _emberRoutingSystemRouter.triggerEvent(handlerInfos, false, ['loading']);
+  });
+
+  QUnit.test('Router#router deprecates when called', function (assert) {
+    assert.expect(2);
+
+    var router = createRouter();
+
+    expectDeprecation(function () {
+      assert.equal(router.router, router._routerMicrolib);
+    }, 'Usage of `router` is deprecated, use `_routerMicrolib` instead.');
+  });
+
+  QUnit.test('Router#_routerMicrolib can be used without deprecation', function (assert) {
+    assert.expect(1);
+
+    var router = createRouter();
+
+    assert.ok(router._routerMicrolib, 'Router._routerMicrolib can be used without deprecation');
   });
 });
 enifed('ember-routing/tests/system/router_test.lint-test', ['exports'], function (exports) {
@@ -74929,7 +74947,7 @@ enifed('ember/tests/routing/basic_test', ['exports', 'ember-utils', 'ember-conso
 
     bootApplication();
 
-    equal(router.router.generate('blog.post', { id: '13' }), '/blog/post/13', 'url is generated properly');
+    equal(router._routerMicrolib.generate('blog.post', { id: '13' }), '/blog/post/13', 'url is generated properly');
   });
 
   QUnit.test('Defining a Route#serialize method in an Engine throws an error', function () {

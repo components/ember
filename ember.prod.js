@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+dc54d865
+ * @version   2.13.0-alpha.1-canary+a8215836
  */
 
 var enifed, requireModule, Ember;
@@ -4972,8 +4972,8 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
       var handleTransitionReject = function (error) {
         if (error.error) {
           throw error.error;
-        } else if (error.name === 'TransitionAborted' && router.router.activeTransition) {
-          return router.router.activeTransition.then(handleTransitionResolve, handleTransitionReject);
+        } else if (error.name === 'TransitionAborted' && router._routerMicrolib.activeTransition) {
+          return router._routerMicrolib.activeTransition.then(handleTransitionResolve, handleTransitionReject);
         } else if (error.name === 'TransitionAborted') {
           throw new Error(error.message);
         } else {
@@ -18863,7 +18863,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/is_proxy', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalIs_proxy, _emberMetalDescriptor) {
+enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/deprecate_property', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/is_proxy', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalDeprecate_property, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalIs_proxy, _emberMetalDescriptor) {
   /**
   @module ember
   @submodule ember-metal
@@ -18889,6 +18889,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.getDebugFunction = _emberMetalDebug.getDebugFunction;
   exports.debugSeal = _emberMetalDebug.debugSeal;
   exports.debugFreeze = _emberMetalDebug.debugFreeze;
+  exports.deprecateProperty = _emberMetalDeprecate_property.deprecateProperty;
   exports.instrument = _emberMetalInstrumentation.instrument;
   exports.flaggedInstrument = _emberMetalInstrumentation.flaggedInstrument;
   exports._instrumentStart = _emberMetalInstrumentation._instrumentStart;
@@ -25587,7 +25588,7 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
 
     generateURL: function (routeName, models, queryParams) {
       var router = _emberMetal.get(this, 'router');
-      if (!router.router) {
+      if (!router._routerMicrolib) {
         return;
       }
 
@@ -25603,7 +25604,7 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
     isActiveForRoute: function (contexts, queryParams, routeName, routerState, isCurrentWhenSpecified) {
       var router = _emberMetal.get(this, 'router');
 
-      var handlers = router.router.recognizer.handlersFor(routeName);
+      var handlers = router._routerMicrolib.recognizer.handlersFor(routeName);
       var leafName = handlers[handlers.length - 1].handler;
       var maximumContexts = numberOfContextsAcceptedByHandler(routeName, handlers);
 
@@ -26332,8 +26333,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         return {};
       }
 
-      var transition = this.router.router.activeTransition;
-      var state = transition ? transition.state : this.router.router.state;
+      var transition = this.router._routerMicrolib.activeTransition;
+      var state = transition ? transition.state : this.router._routerMicrolib.state;
 
       var fullName = route.fullRouteName;
       var params = _emberUtils.assign({}, state.params[fullName]);
@@ -27013,7 +27014,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @public
      */
     refresh: function () {
-      return this.router.router.refresh(this);
+      return this.router._routerMicrolib.refresh(this);
     },
 
     /**
@@ -27098,7 +27099,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         args[_key] = arguments[_key];
       }
 
-      if (this.router && this.router.router || !_emberMetal.isTesting()) {
+      if (this.router && this.router._routerMicrolib || !_emberMetal.isTesting()) {
         var _router;
 
         (_router = this.router).send.apply(_router, args);
@@ -27638,14 +27639,14 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
       // Only change the route name when there is an active transition.
       // Otherwise, use the passed in route name.
-      if (owner.routable && this.router && this.router.router.activeTransition) {
+      if (owner.routable && this.router && this.router._routerMicrolib.activeTransition) {
         name = getEngineRouteName(owner, _name);
       } else {
         name = _name;
       }
 
       var route = _emberUtils.getOwner(this).lookup('route:' + name);
-      var transition = this.router ? this.router.router.activeTransition : null;
+      var transition = this.router ? this.router._routerMicrolib.activeTransition : null;
 
       // If we are mid-transition, we want to try and look up
       // resolved parent contexts on the current transitionEvent.
@@ -27872,12 +27873,12 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       parentView = parentView && parentView.replace(/\//g, '.');
       outletName = outletName || 'main';
       this._disconnectOutlet(outletName, parentView);
-      for (var i = 0; i < this.router.router.currentHandlerInfos.length; i++) {
+      for (var i = 0; i < this.router._routerMicrolib.currentHandlerInfos.length; i++) {
         // This non-local state munging is sadly necessary to maintain
         // backward compatibility with our existing semantics, which allow
         // any route to disconnectOutlet things originally rendered by any
         // other route. This should all get cut in 2.0.
-        this.router.router.currentHandlerInfos[i].handler._disconnectOutlet(outletName, parentView);
+        this.router._routerMicrolib.currentHandlerInfos[i].handler._disconnectOutlet(outletName, parentView);
       }
     },
 
@@ -27932,7 +27933,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
   });
 
   function parentRoute(route) {
-    var handlerInfo = handlerInfoFor(route, route.router.router.state.handlerInfos, -1);
+    var handlerInfo = handlerInfoFor(route, route.router._routerMicrolib.state.handlerInfos, -1);
     return handlerInfo && handlerInfo.handler;
   }
 
@@ -28127,7 +28128,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
   exports.default = Route;
 });
-enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _container, _router5) {
+enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _container, _router) {
   'use strict';
 
   exports.triggerEvent = triggerEvent;
@@ -28175,11 +28176,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     rootURL: '/',
 
     _initRouterJs: function () {
-      var router = this.router = new _router5.default();
-      router.triggerEvent = triggerEvent;
+      var routerMicrolib = this._routerMicrolib = new _router.default();
+      routerMicrolib.triggerEvent = triggerEvent;
 
-      router._triggerWillChangeContext = K;
-      router._triggerWillLeave = K;
+      routerMicrolib._triggerWillChangeContext = K;
+      routerMicrolib._triggerWillLeave = K;
 
       var dslCallbacks = this.constructor.dslCallbacks || [K];
       var dsl = this._buildDSL();
@@ -28190,7 +28191,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         }
       });
 
-      router.map(dsl.generate());
+      routerMicrolib.map(dsl.generate());
     },
 
     _buildDSL: function () {
@@ -28292,7 +28293,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this._initRouterJs();
       this._setupLocation();
 
-      var router = this.router;
       var location = _emberMetal.get(this, 'location');
 
       // Allow the Location class to cancel the router setup while it refreshes
@@ -28301,7 +28301,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         return false;
       }
 
-      this._setupRouter(router, location);
+      this._setupRouter(location);
 
       location.onUpdateURL(function (url) {
         _this.handleURL(url);
@@ -28353,7 +28353,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         return;
       }
 
-      var handlerInfos = this.router.currentHandlerInfos;
+      var handlerInfos = this._routerMicrolib.currentHandlerInfos;
       var route = undefined;
       var defaultParentState = undefined;
       var liveRoutes = null;
@@ -28420,7 +28420,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     _doURLTransition: function (routerJsMethod, url) {
-      var transition = this.router[routerJsMethod](url || '/');
+      var transition = this._routerMicrolib[routerJsMethod](url || '/');
       didBeginTransition(transition, this);
       return transition;
     },
@@ -28462,9 +28462,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     intermediateTransitionTo: function () {
-      var _router;
+      var _routerMicrolib;
 
-      (_router = this.router).intermediateTransitionTo.apply(_router, arguments);
+      (_routerMicrolib = this._routerMicrolib).intermediateTransitionTo.apply(_routerMicrolib, arguments);
 
       updatePaths(this);
     },
@@ -28474,9 +28474,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     generate: function () {
-      var _router2;
+      var _routerMicrolib2;
 
-      var url = (_router2 = this.router).generate.apply(_router2, arguments);
+      var url = (_routerMicrolib2 = this._routerMicrolib).generate.apply(_routerMicrolib2, arguments);
       return this.location.formatURL(url);
     },
 
@@ -28488,8 +28488,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @private
     */
     isActive: function (routeName) {
-      var router = this.router;
-      return router.isActive.apply(router, arguments);
+      var _routerMicrolib3;
+
+      return (_routerMicrolib3 = this._routerMicrolib).isActive.apply(_routerMicrolib3, arguments);
     },
 
     /**
@@ -28509,9 +28510,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     send: function (name, context) {
-      var _router3;
+      var _routerMicrolib4;
 
-      (_router3 = this.router).trigger.apply(_router3, arguments);
+      (_routerMicrolib4 = this._routerMicrolib).trigger.apply(_routerMicrolib4, arguments);
     },
 
     /**
@@ -28521,7 +28522,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @private
     */
     hasRoute: function (route) {
-      return this.router.hasRoute(route);
+      return this._routerMicrolib.hasRoute(route);
     },
 
     /**
@@ -28531,8 +28532,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @method reset
      */
     reset: function () {
-      if (this.router) {
-        this.router.reset();
+      if (this._routerMicrolib) {
+        this._routerMicrolib.reset();
       }
     },
 
@@ -28689,19 +28690,20 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       };
     },
 
-    _setupRouter: function (router, location) {
+    _setupRouter: function (location) {
       var lastURL = undefined;
       var emberRouter = this;
+      var routerMicrolib = this._routerMicrolib;
 
-      router.getHandler = this._getHandlerFunction();
-      router.getSerializer = this._getSerializerFunction();
+      routerMicrolib.getHandler = this._getHandlerFunction();
+      routerMicrolib.getSerializer = this._getSerializerFunction();
 
       var doUpdateURL = function () {
         location.setURL(lastURL);
         _emberMetal.set(emberRouter, 'currentURL', lastURL);
       };
 
-      router.updateURL = function (path) {
+      routerMicrolib.updateURL = function (path) {
         lastURL = path;
         _emberMetal.run.once(doUpdateURL);
       };
@@ -28713,18 +28715,18 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
             _emberMetal.set(emberRouter, 'currentURL', lastURL);
           };
 
-          router.replaceURL = function (path) {
+          routerMicrolib.replaceURL = function (path) {
             lastURL = path;
             _emberMetal.run.once(doReplaceURL);
           };
         })();
       }
 
-      router.didTransition = function (infos) {
+      routerMicrolib.didTransition = function (infos) {
         emberRouter.didTransition(infos);
       };
 
-      router.willTransition = function (oldInfos, newInfos, transition) {
+      routerMicrolib.willTransition = function (oldInfos, newInfos, transition) {
         emberRouter.willTransition(oldInfos, newInfos, transition);
       };
     },
@@ -28825,9 +28827,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     _doTransition: function (_targetRouteName, models, _queryParams) {
-      var _router4;
+      var _routerMicrolib5;
 
-      var targetRouteName = _targetRouteName || _emberRoutingUtils.getActiveTargetName(this.router);
+      var targetRouteName = _targetRouteName || _emberRoutingUtils.getActiveTargetName(this._routerMicrolib);
 
       var queryParams = {};
 
@@ -28837,7 +28839,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this._prepareQueryParams(targetRouteName, models, queryParams);
 
       var transitionArgs = _emberRoutingUtils.routeArgs(targetRouteName, models, queryParams);
-      var transition = (_router4 = this.router).transitionTo.apply(_router4, transitionArgs);
+      var transition = (_routerMicrolib5 = this._routerMicrolib).transitionTo.apply(_routerMicrolib5, transitionArgs);
 
       didBeginTransition(transition, this);
 
@@ -28847,15 +28849,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     _processActiveTransitionQueryParams: function (targetRouteName, models, queryParams, _queryParams) {
       // merge in any queryParams from the active transition which could include
       // queryParams from the url on initial load.
-      if (!this.router.activeTransition) {
+      if (!this._routerMicrolib.activeTransition) {
         return;
       }
 
       var unchangedQPs = {};
       var qpUpdates = this._qpUpdates || {};
-      for (var key in this.router.activeTransition.queryParams) {
+      for (var key in this._routerMicrolib.activeTransition.queryParams) {
         if (!qpUpdates[key]) {
-          unchangedQPs[key] = this.router.activeTransition.queryParams[key];
+          unchangedQPs[key] = this._routerMicrolib.activeTransition.queryParams[key];
         }
       }
 
@@ -29037,7 +29039,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     targetState: null,
 
     _handleSlowTransition: function (transition, originRoute) {
-      if (!this.router.activeTransition) {
+      if (!this._routerMicrolib.activeTransition) {
         // Don't fire an event if we've since moved on from
         // the transition that put us in a loading state.
         return;
@@ -29045,8 +29047,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       this.set('targetState', _emberRoutingSystemRouter_state.default.create({
         emberRouter: this,
-        routerJs: this.router,
-        routerJsState: this.router.activeTransition.state
+        routerJs: this._routerMicrolib,
+        routerJsState: this._routerMicrolib.activeTransition.state
       }));
 
       transition.trigger(true, 'loading', transition, originRoute);
@@ -29341,8 +29343,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   }
 
   function calculatePostTransitionState(emberRouter, leafRouteName, contexts) {
-    var routerjs = emberRouter.router;
-    var state = routerjs.applyIntent(leafRouteName, contexts);
+    var routerMicrolib = emberRouter._routerMicrolib;
+    var state = routerMicrolib.applyIntent(leafRouteName, contexts);
     var handlerInfos = state.handlerInfos;
     var params = state.params;
 
@@ -29360,7 +29362,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   }
 
   function updatePaths(router) {
-    var infos = router.router.currentHandlerInfos;
+    var infos = router._routerMicrolib.currentHandlerInfos;
     if (infos.length === 0) {
       return;
     }
@@ -29484,7 +29486,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   function didBeginTransition(transition, router) {
     var routerState = _emberRoutingSystemRouter_state.default.create({
       emberRouter: router,
-      routerJs: router.router,
+      routerJs: router._routerMicrolib,
       routerJsState: transition.state
     });
 
@@ -29609,6 +29611,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     }
   }
 
+  _emberMetal.deprecateProperty(EmberRouter.prototype, 'router', '_routerMicrolib', {
+    id: 'ember-router.router',
+    until: '2.16',
+    url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-router-router-renamed-to-ember-router-_routerMicrolib'
+  });
+
   exports.default = EmberRouter;
 });
 
@@ -29698,7 +29706,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal'], functio
     // on whether a URL transition or named transition is happening.
     // Hopefully we can remove this in the future.
     var targetRouteName = handlerInfos[handlerInfos.length - 1].name;
-    var recogHandlers = router.router.recognizer.handlersFor(targetRouteName);
+    var recogHandlers = router._routerMicrolib.recognizer.handlersFor(targetRouteName);
     var dynamicParent = null;
 
     for (var i = 0; i < handlerInfos.length; ++i) {
@@ -41882,7 +41890,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+dc54d865";
+  exports.default = "2.13.0-alpha.1-canary+a8215836";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

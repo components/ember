@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+dc54d865
+ * @version   2.13.0-alpha.1-canary+a8215836
  */
 
 var enifed, requireModule, Ember;
@@ -1695,7 +1695,7 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
       // Every 10ms, poll for the async thing to have finished
       var watcher = setInterval(function () {
         // 1. If the router is loading, keep polling
-        var routerIsLoading = router.router && !!router.router.activeTransition;
+        var routerIsLoading = router._routerMicrolib && !!router._routerMicrolib.activeTransition;
         if (routerIsLoading) {
           return;
         }
