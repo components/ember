@@ -6,10 +6,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-beta.1
+ * @version   2.12.0-beta.1-beta+e69a55f8
  */
 
 var enifed, requireModule, Ember;
+var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -7085,7 +7086,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       post: null
     });
   
-    let comment = Comment.create(post: somePost);
+    let comment = Comment.create({ 
+      post: somePost 
+    });
+    
     comment.edit(); // outputs 'starting to edit'
     ```
   
@@ -10728,7 +10732,7 @@ enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'
       }
     }
     if (pair && pair.value.type !== 'StringLiteral') {
-      node.params.unshift(builders.sexpr('-input-type', [builders.path(pair.value.original, pair.loc)], null, pair.loc));
+      node.params.unshift(builders.sexpr('-input-type', [pair.value], null, pair.loc));
     }
   }
 });
@@ -12138,7 +12142,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-beta.1";
+  exports.default = "2.12.0-beta.1-beta+e69a55f8";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";

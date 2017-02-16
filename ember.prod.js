@@ -6,10 +6,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-beta.1
+ * @version   2.12.0-beta.1-beta+e69a55f8
  */
 
 var enifed, requireModule, Ember;
+var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -8233,7 +8234,7 @@ enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/componen
     you only need to setup the action name to the event name property.
   
     ```handlebars
-    {{textarea focus-in="alertMessage"}}
+    {{textarea focus-out="alertMessage"}}
     ```
   
     See more about [Text Support Actions](/api/classes/Ember.TextArea.html)
@@ -9576,9 +9577,11 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glim
 
     function ClosureComponentReference(args, symbolTable, env) {
       _CachedReference.call(this);
-      this.defRef = args.positional.at(0);
+
+      var firstArg = args.positional.at(0);
+      this.defRef = firstArg;
+      this.tag = firstArg.tag;
       this.env = env;
-      this.tag = args.positional.at(0).tag;
       this.symbolTable = symbolTable;
       this.args = args;
       this.lastDefinition = undefined;
@@ -10097,6 +10100,7 @@ enifed("ember-glimmer/helpers/hash", ["exports"], function (exports) {
       @for Ember.Templates.helpers
       @param {Object} options
       @return {Object} Hash
+      @since 2.3.0
       @public
     */
 
@@ -10671,9 +10675,7 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal', 'ember-glimme
 });
 enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/syntax', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _emberGlimmerHelpersAction, _emberGlimmerTemplatesRoot, _emberGlimmerSyntax, _emberGlimmerTemplate, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_field, _emberGlimmerComponentsText_area, _emberGlimmerComponentsLinkTo, _emberGlimmerComponent, _emberGlimmerHelper, _emberGlimmerEnvironment, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString, _emberGlimmerRenderer, _emberGlimmerTemplate_registry, _emberGlimmerSetupRegistry, _emberGlimmerDom) {
   /**
-    [Glimmer](https://github.com/tildeio/glimmer) is a [Handlebars](http://handlebarsjs.com/)
-    compatible templating engine used by Ember.js.
-    Any valid Handlebars syntax is valid in an Ember template.
+    [Glimmer](https://github.com/tildeio/glimmer) is a templating engine used by Ember.js that is compatible with a subset of the [Handlebars](http://handlebarsjs.com/) syntax.
   
     ### Showing a property
   
@@ -10681,15 +10683,13 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
     the DOM) to a user. For example, given a component with the property "name",
     that component's template can use the name in several ways:
   
-    ```javascript
-      // app/components/person.js
+    ```app/components/person.js
       export default Ember.Component.extend({
         name: 'Jill'
       });
     ```
   
-    ```handlebars
-    {{! app/components/person.hbs }}
+    ```app/components/person.hbs
     {{name}}
     <div>{{name}}</div>
     <span data-name={{name}}></span>
@@ -10996,13 +10996,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
     registerAction: function (actionState) {
       var actionId = actionState.actionId;
 
-      var actions = _emberViews.ActionManager.registeredActions[actionId];
-
-      if (!actions) {
-        actions = _emberViews.ActionManager.registeredActions[actionId] = [];
-      }
-
-      actions.push(actionState);
+      _emberViews.ActionManager.registeredActions[actionId] = actionState;
 
       return actionId;
     },
@@ -11010,21 +11004,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
     unregisterAction: function (actionState) {
       var actionId = actionState.actionId;
 
-      var actions = _emberViews.ActionManager.registeredActions[actionId];
-
-      if (!actions) {
-        return;
-      }
-
-      var index = actions.indexOf(actionState);
-
-      if (index !== -1) {
-        actions.splice(index, 1);
-      }
-
-      if (actions.length === 0) {
-        delete _emberViews.ActionManager.registeredActions[actionId];
-      }
+      delete _emberViews.ActionManager.registeredActions[actionId];
     }
   };
 
@@ -11189,11 +11169,8 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
       if (!actionNameRef[_emberGlimmerHelpersAction.INVOKE]) {
         actionState.actionName = actionNameRef.value();
       }
-      actionState.eventName = actionState.getEventName();
 
-      // Not sure if this is needed? If we mutate the actionState is that good enough?
-      ActionHelper.unregisterAction(actionState);
-      ActionHelper.registerAction(actionState);
+      actionState.eventName = actionState.getEventName();
     };
 
     ActionModifierManager.prototype.getDestructor = function getDestructor(modifier) {
@@ -12002,8 +11979,6 @@ babelHelpers.inherits(CurlyComponentManager, _AbstractManager);
         bucket.classRef = args.named.get('class');
       }
 
-      processComponentInitializationAssertions(component, props);
-
       if (environment.isInteractive && component.tagName !== '') {
         component.trigger('willRender');
       }
@@ -12188,8 +12163,6 @@ babelHelpers.inherits(TopComponentManager, _CurlyComponentManager);
           component.trigger('willInsertElement');
         }
       }
-
-      processComponentInitializationAssertions(component, {});
 
       return new ComponentStateBucket(environment, component, args, finalizer);
     };
@@ -19645,7 +19618,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       post: null
     });
   
-    let comment = Comment.create(post: somePost);
+    let comment = Comment.create({ 
+      post: somePost 
+    });
+    
     comment.edit(); // outputs 'starting to edit'
     ```
   
@@ -35071,7 +35047,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
         }
       });
        let steve = Person.create({
-        name: "Steve"
+        name: 'Steve'
       });
        // alerts 'Name is Steve'.
       ```
@@ -35373,8 +35349,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
       nonMerged: 'superclass value of nonMerged'
     },
     mergedProperty: {
-      page: {replace: false},
-      limit: {replace: true}
+      page: { replace: false },
+      limit: { replace: true }
     }
   });
    const FooBar = Bar.extend({
@@ -35382,7 +35358,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
       completelyNonMerged: 'subclass value of nonMerged'
     },
     mergedProperty: {
-      limit: {replace: false}
+      limit: { replace: false }
     }
   });
    let fooBar = FooBar.create();
@@ -35526,9 +35502,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     }
   });
    let yehuda = Soldier.create({
-    name: "Yehuda Katz"
+    name: 'Yehuda Katz'
   });
-   yehuda.say("Yes");  // alerts "Yehuda Katz says: Yes, sir!"
+   yehuda.say('Yes');  // alerts "Yehuda Katz says: Yes, sir!"
   ```
    The `create()` on line #17 creates an *instance* of the `Soldier` class.
   The `extend()` on line #8 creates a *subclass* of `Person`. Any instance
@@ -35600,13 +35576,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
    o = MyObject.create();
   o.get('name'); // 'an object'
    MyObject.reopen({
-    say(msg){
+    say(msg) {
       console.log(msg);
     }
-  })
+  });
    o2 = MyObject.create();
-  o2.say("hello"); // logs "hello"
-   o.say("goodbye"); // logs "goodbye"
+  o2.say('hello'); // logs "hello"
+   o.say('goodbye'); // logs "goodbye"
   ```
    To add functions and properties to the constructor itself,
   see `reopenClass`
@@ -35630,23 +35606,22 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   These are only available on the class and not on any instance of that class.
    ```javascript
   const Person = Ember.Object.extend({
-    name: "",
+    name: '',
     sayHello() {
-      alert("Hello. My name is " + this.get('name'));
+      alert(`Hello. My name is ${this.get('name')}`);
     }
   });
    Person.reopenClass({
-    species: "Homo sapiens",
-    createPerson(newPersonsName){
-      return Person.create({
-        name:newPersonsName
-      });
+    species: 'Homo sapiens',
+    
+    createPerson(name) {
+      return Person.create({ name });
     }
   });
    let tom = Person.create({
-    name: "Tom Dale"
+    name: 'Tom Dale'
   });
-  let yehuda = Person.createPerson("Yehuda Katz");
+  let yehuda = Person.createPerson('Yehuda Katz');
    tom.sayHello(); // "Hello. My name is Tom Dale"
   yehuda.sayHello(); // "Hello. My name is Yehuda Katz"
   alert(Person.species); // "Homo sapiens"
@@ -36381,7 +36356,7 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
     @class ObjectProxy
     @namespace Ember
     @extends Ember.Object
-    @extends Ember._ProxyMixin
+    @uses Ember.ProxyMixin
     @public
   */
 
@@ -38373,6 +38348,43 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
    @private
   */
   exports.default = _emberMetal.Mixin.create((_Mixin$create = {
+    /**
+      A list of properties of the view to apply as attributes. If the property
+      is a string value, the value of that string will be applied as the value
+      for an attribute of the property's name.
+       The following example creates a tag like `<div priority="high" />`.
+       ```javascript
+      Ember.Component.extend({
+        attributeBindings: ['priority'],
+        priority: 'high'
+      });
+      ```
+       If the value of the property is a Boolean, the attribute is treated as
+      an HTML Boolean attribute. It will be present if the property is `true`
+      and omitted if the property is `false`.
+       The following example creates markup like `<div visible />`.
+       ```javascript
+      Ember.Component.extend({
+        attributeBindings: ['visible'],
+        visible: true
+      });
+      ```
+       If you would prefer to use a custom value instead of the property name,
+      you can create the same markup as the last example with a binding like
+      this:
+       ```javascript
+      Ember.Component.extend({
+        attributeBindings: ['isVisible:visible'],
+        isVisible: true
+      });
+      ```
+       This list of attributes is inherited from the component's superclasses,
+      as well.
+       @property attributeBindings
+      @type Array
+      @default []
+      @public
+     */
     concatenatedProperties: ['attributeBindings']
   }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
     dispatchLifeCycleHook(this, 'didInitAttrs', undefined, this.attrs);
@@ -38959,41 +38971,21 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       });
 
       rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
-        var actionId = _emberViewsSystemJquery.default(evt.currentTarget).attr('data-ember-action');
-        var actions = _emberViewsSystemAction_manager.default.registeredActions[actionId];
+        var attributes = evt.currentTarget.attributes;
 
-        // In Glimmer2 this attribute is set to an empty string and an additional
-        // attribute it set for each action on a given element. In this case, the
-        // attributes need to be read so that a proper set of action handlers can
-        // be coalesced.
-        if (actionId === '') {
-          var attributes = evt.currentTarget.attributes;
-          var attributeCount = attributes.length;
+        for (var i = 0; i < attributes.length; i++) {
+          var attr = attributes.item(i);
+          var attrName = attr.name;
 
-          actions = [];
+          if (attrName.lastIndexOf('data-ember-action-', 0) !== -1) {
+            var action = _emberViewsSystemAction_manager.default.registeredActions[attr.value];
 
-          for (var i = 0; i < attributeCount; i++) {
-            var attr = attributes.item(i);
-            var attrName = attr.name;
-
-            if (attrName.indexOf('data-ember-action-') === 0) {
-              actions = actions.concat(_emberViewsSystemAction_manager.default.registeredActions[attr.value]);
+            // We have to check for action here since in some cases, jQuery will trigger
+            // an event on `removeChild` (i.e. focusout) after we've already torn down the
+            // action handlers for the view.
+            if (action && action.eventName === eventName) {
+              action.handler(evt);
             }
-          }
-        }
-
-        // We have to check for actions here since in some cases, jQuery will trigger
-        // an event on `removeChild` (i.e. focusout) after we've already torn down the
-        // action handlers for the view.
-        if (!actions) {
-          return;
-        }
-
-        for (var index = 0; index < actions.length; index++) {
-          var action = actions[index];
-
-          if (action && action.eventName === eventName) {
-            return action.handler(evt);
           }
         }
       });
@@ -39626,10 +39618,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
   @namespace Ember
   @extends Ember.CoreView
   @deprecated See http://emberjs.com/deprecations/v1.x/#toc_ember-view
-  @uses Ember.ViewSupport
-  @uses Ember.ChildViewsSupport
   @uses Ember.ClassNamesSupport
-  @uses Ember.AttributeBindingsSupport
   @private
 */
 enifed("ember/features", ["exports"], function (exports) {
@@ -40168,7 +40157,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-beta.1";
+  exports.default = "2.12.0-beta.1-beta+e69a55f8";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

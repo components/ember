@@ -3,9 +3,188 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.12.0-beta.1"
+        "version": "2.12.0-beta.1.e69a55f8"
     },
     "files": {
+        "node_modules/router_js/lib/router/router.js": {
+            "name": "node_modules/router_js/lib/router/router.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/router_js/lib/router/transition.js": {
+            "name": "node_modules/router_js/lib/router/transition.js",
+            "modules": {},
+            "classes": {
+                "Transition": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/router_js/lib/router/utils.js": {
+            "name": "node_modules/router_js/lib/router/utils.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/promise/all.js": {
+            "name": "node_modules/rsvp/lib/rsvp/promise/all.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/promise/race.js": {
+            "name": "node_modules/rsvp/lib/rsvp/promise/race.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/promise/reject.js": {
+            "name": "node_modules/rsvp/lib/rsvp/promise/reject.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/promise/resolve.js": {
+            "name": "node_modules/rsvp/lib/rsvp/promise/resolve.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/all-settled.js": {
+            "name": "node_modules/rsvp/lib/rsvp/all-settled.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/all.js": {
+            "name": "node_modules/rsvp/lib/rsvp/all.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/defer.js": {
+            "name": "node_modules/rsvp/lib/rsvp/defer.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/events.js": {
+            "name": "node_modules/rsvp/lib/rsvp/events.js",
+            "modules": {},
+            "classes": {
+                "RSVP.EventTarget": 1
+            },
+            "fors": {
+                "RSVP.EventTarget": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/filter.js": {
+            "name": "node_modules/rsvp/lib/rsvp/filter.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/hash-settled.js": {
+            "name": "node_modules/rsvp/lib/rsvp/hash-settled.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/hash.js": {
+            "name": "node_modules/rsvp/lib/rsvp/hash.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/map.js": {
+            "name": "node_modules/rsvp/lib/rsvp/map.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/node.js": {
+            "name": "node_modules/rsvp/lib/rsvp/node.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/promise.js": {
+            "name": "node_modules/rsvp/lib/rsvp/promise.js",
+            "modules": {},
+            "classes": {
+                "RSVP.Promise": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/race.js": {
+            "name": "node_modules/rsvp/lib/rsvp/race.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/reject.js": {
+            "name": "node_modules/rsvp/lib/rsvp/reject.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/resolve.js": {
+            "name": "node_modules/rsvp/lib/rsvp/resolve.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
+        "node_modules/rsvp/lib/rsvp/rethrow.js": {
+            "name": "node_modules/rsvp/lib/rsvp/rethrow.js",
+            "modules": {},
+            "classes": {},
+            "fors": {
+                "RSVP": 1
+            },
+            "namespaces": {}
+        },
         "packages/container/lib/container.js": {
             "name": "packages/container/lib/container.js",
             "modules": {},
@@ -1733,6 +1912,10 @@
             },
             "elements": {},
             "classes": {
+                "Transition": 1,
+                "RSVP": 1,
+                "RSVP.EventTarget": 1,
+                "RSVP.Promise": 1,
                 "Container": 1,
                 "Registry": 1,
                 "Ember.ApplicationInstance": 1,
@@ -1948,7 +2131,7 @@
             "namespace": "",
             "file": "packages/ember-glimmer/lib/helper.js",
             "line": 12,
-            "description": "[Glimmer](https://github.com/tildeio/glimmer) is a [Handlebars](http://handlebarsjs.com/)\ncompatible templating engine used by Ember.js.\nAny valid Handlebars syntax is valid in an Ember template.\n\n### Showing a property\n\nTemplates manage the flow of an application's UI, and display state (through\nthe DOM) to a user. For example, given a component with the property \"name\",\nthat component's template can use the name in several ways:\n\n```javascript\n  // app/components/person.js\n  export default Ember.Component.extend({\n    name: 'Jill'\n  });\n```\n\n```handlebars\n{{! app/components/person.hbs }}\n{{name}}\n<div>{{name}}</div>\n<span data-name={{name}}></span>\n```\n\nAny time the \"name\" property on the component changes, the DOM will be\nupdated.\n\nProperties can be chained as well:\n\n```handlebars\n{{aUserModel.name}}\n<div>{{listOfUsers.firstObject.name}}</div>\n```\n\n### Using Ember helpers\n\nWhen content is passed in mustaches `{{}}`, Ember will first try to find a helper\nor component with that name. For example, the `if` helper:\n\n```handlebars\n{{if name \"I have a name\" \"I have no name\"}}\n<span data-has-name={{if name true}}></span>\n```\n\nThe returned value is placed where the `{{}}` is called. The above style is\ncalled \"inline\". A second style of helper usage is called \"block\". For example:\n\n```handlebars\n{{#if name}}\nI have a name\n{{else}}\nI have no name\n{{/if}}\n```\n\nThe block form of helpers allows you to control how the UI is created based\non the values of properties.\nA third form of helper is called \"nested\". For example here the concat\nhelper will add \" Doe\" to a displayed name if the person has no last name:\n\n```handlebars\n<span data-name={{concat firstName (\nif lastName (concat \" \" lastName) \"Doe\"\n)}}></span>\n```\n\nEmber's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)\nnamespace. Documentation on creating custom helpers can be found under\n[Ember.Helper](/api/classes/Ember.Helper.html).\n\n### Invoking a Component\n\nEmber components represent state to the UI of an application. Further\nreading on components can be found under [Ember.Component](/api/classes/Ember.Component.html).",
+            "description": "[Glimmer](https://github.com/tildeio/glimmer) is a templating engine used by Ember.js that is compatible with a subset of the [Handlebars](http://handlebarsjs.com/) syntax.\n\n### Showing a property\n\nTemplates manage the flow of an application's UI, and display state (through\nthe DOM) to a user. For example, given a component with the property \"name\",\nthat component's template can use the name in several ways:\n\n```app/components/person.js\n  export default Ember.Component.extend({\n    name: 'Jill'\n  });\n```\n\n```app/components/person.hbs\n{{name}}\n<div>{{name}}</div>\n<span data-name={{name}}></span>\n```\n\nAny time the \"name\" property on the component changes, the DOM will be\nupdated.\n\nProperties can be chained as well:\n\n```handlebars\n{{aUserModel.name}}\n<div>{{listOfUsers.firstObject.name}}</div>\n```\n\n### Using Ember helpers\n\nWhen content is passed in mustaches `{{}}`, Ember will first try to find a helper\nor component with that name. For example, the `if` helper:\n\n```handlebars\n{{if name \"I have a name\" \"I have no name\"}}\n<span data-has-name={{if name true}}></span>\n```\n\nThe returned value is placed where the `{{}}` is called. The above style is\ncalled \"inline\". A second style of helper usage is called \"block\". For example:\n\n```handlebars\n{{#if name}}\nI have a name\n{{else}}\nI have no name\n{{/if}}\n```\n\nThe block form of helpers allows you to control how the UI is created based\non the values of properties.\nA third form of helper is called \"nested\". For example here the concat\nhelper will add \" Doe\" to a displayed name if the person has no last name:\n\n```handlebars\n<span data-name={{concat firstName (\nif lastName (concat \" \" lastName) \"Doe\"\n)}}></span>\n```\n\nEmber's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)\nnamespace. Documentation on creating custom helpers can be found under\n[Ember.Helper](/api/classes/Ember.Helper.html).\n\n### Invoking a Component\n\nEmber components represent state to the UI of an application. Further\nreading on components can be found under [Ember.Component](/api/classes/Ember.Component.html).",
             "tag": "main",
             "itemtype": "main",
             "access": "public",
@@ -2102,6 +2285,92 @@
         }
     },
     "classes": {
+        "Transition": {
+            "name": "Transition",
+            "shortname": "Transition",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 5,
+            "description": "A Transition is a thennable (a promise-like object) that represents\nan attempt to transition to another route. It can be aborted, either\nexplicitly via `abort` or by attempting another transition while a\nprevious one is still underway. An aborted transition can also\nbe `retry()`d later.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "router",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "intent",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "state",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "error",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "access": "private",
+            "tagname": ""
+        },
+        "RSVP": {
+            "name": "RSVP",
+            "shortname": "RSVP",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember"
+        },
+        "RSVP.EventTarget": {
+            "name": "RSVP.EventTarget",
+            "shortname": "RSVP.EventTarget",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "file": "node_modules/rsvp/lib/rsvp/events.js",
+            "line": 19
+        },
+        "RSVP.Promise": {
+            "name": "RSVP.Promise",
+            "shortname": "RSVP.Promise",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "file": "node_modules/rsvp/lib/rsvp/promise.js",
+            "line": 30,
+            "description": "Promise objects represent the eventual result of an asynchronous operation. The\nprimary way of interacting with a promise is through its `then` method, which\nregisters callbacks to receive either a promise’s eventual value or the reason\nwhy the promise cannot be fulfilled.\n\nTerminology\n-----------\n\n- `promise` is an object or function with a `then` method whose behavior conforms to this specification.\n- `thenable` is an object or function that defines a `then` method.\n- `value` is any legal JavaScript value (including undefined, a thenable, or a promise).\n- `exception` is a value that is thrown using the throw statement.\n- `reason` is a value that indicates why a promise was rejected.\n- `settled` the final resting state of a promise, fulfilled or rejected.\n\nA promise can be in one of three states: pending, fulfilled, or rejected.\n\nPromises that are fulfilled have a fulfillment value and are in the fulfilled\nstate.  Promises that are rejected have a rejection reason and are in the\nrejected state.  A fulfillment value is never a thenable.\n\nPromises can also be said to *resolve* a value.  If this value is also a\npromise, then the original promise's settled state will match the value's\nsettled state.  So a promise that *resolves* a promise that rejects will\nitself reject, and a promise that *resolves* a promise that fulfills will\nitself fulfill.\n\n\nBasic Usage:\n------------\n\n```js\nlet promise = new Promise(function(resolve, reject) {\n  // on success\n  resolve(value);\n\n  // on failure\n  reject(reason);\n});\n\npromise.then(function(value) {\n  // on fulfillment\n}, function(reason) {\n  // on rejection\n});\n```\n\nAdvanced Usage:\n---------------\n\nPromises shine when abstracting away asynchronous interactions such as\n`XMLHttpRequest`s.\n\n```js\nfunction getJSON(url) {\n  return new Promise(function(resolve, reject){\n    let xhr = new XMLHttpRequest();\n\n    xhr.open('GET', url);\n    xhr.onreadystatechange = handler;\n    xhr.responseType = 'json';\n    xhr.setRequestHeader('Accept', 'application/json');\n    xhr.send();\n\n    function handler() {\n      if (this.readyState === this.DONE) {\n        if (this.status === 200) {\n          resolve(this.response);\n        } else {\n          reject(new Error('getJSON: `' + url + '` failed with status: [' + this.status + ']'));\n        }\n      }\n    };\n  });\n}\n\ngetJSON('/posts.json').then(function(json) {\n  // on fulfillment\n}, function(reason) {\n  // on rejection\n});\n```\n\nUnlike callbacks, promises are great composable primitives.\n\n```js\nPromise.all([\n  getJSON('/posts'),\n  getJSON('/comments')\n]).then(function(values){\n  values[0] // => postsJSON\n  values[1] // => commentsJSON\n\n  return values;\n});\n```",
+            "params": [
+                {
+                    "name": "resolver",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "is_constructor": 1
+        },
         "Container": {
             "name": "Container",
             "shortname": "Container",
@@ -2757,7 +3026,7 @@
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/mixin.js",
             "line": 415,
-            "description": "The `Ember.Mixin` class allows you to create mixins, whose properties can be\nadded to other classes. For instance,\n\n```javascript\nconst EditableMixin = Ember.Mixin.create({\n  edit() {\n    console.log('starting to edit');\n    this.set('isEditing', true);\n  },\n  isEditing: false\n});\n\n// Mix mixins into classes by passing them as the first arguments to\n// `.extend.`\nconst Comment = Ember.Object.extend(EditableMixin, {\n  post: null\n});\n\nlet comment = Comment.create(post: somePost);\ncomment.edit(); // outputs 'starting to edit'\n```\n\nNote that Mixins are created with `Ember.Mixin.create`, not\n`Ember.Mixin.extend`.\n\nNote that mixins extend a constructor's prototype so arrays and object literals\ndefined as properties will be shared amongst objects that implement the mixin.\nIf you want to define a property in a mixin that is not shared, you can define\nit either as a computed property or have it be created on initialization of the object.\n\n```javascript\n// filters array will be shared amongst any object implementing mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.A()\n});\n\n// filters will be a separate array for every object implementing the mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.computed(function() {\n    return Ember.A();\n  })\n});\n\n// filters will be created as a separate array during the object's initialization\nconst Filterable = Ember.Mixin.create({\n  init() {\n    this._super(...arguments);\n    this.set(\"filters\", Ember.A());\n  }\n});\n```",
+            "description": "The `Ember.Mixin` class allows you to create mixins, whose properties can be\nadded to other classes. For instance,\n\n```javascript\nconst EditableMixin = Ember.Mixin.create({\n  edit() {\n    console.log('starting to edit');\n    this.set('isEditing', true);\n  },\n  isEditing: false\n});\n\n// Mix mixins into classes by passing them as the first arguments to\n// `.extend.`\nconst Comment = Ember.Object.extend(EditableMixin, {\n  post: null\n});\n\nlet comment = Comment.create({ \n  post: somePost \n});\n\ncomment.edit(); // outputs 'starting to edit'\n```\n\nNote that Mixins are created with `Ember.Mixin.create`, not\n`Ember.Mixin.extend`.\n\nNote that mixins extend a constructor's prototype so arrays and object literals\ndefined as properties will be shared amongst objects that implement the mixin.\nIf you want to define a property in a mixin that is not shared, you can define\nit either as a computed property or have it be created on initialization of the object.\n\n```javascript\n// filters array will be shared amongst any object implementing mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.A()\n});\n\n// filters will be a separate array for every object implementing the mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.computed(function() {\n    return Ember.A();\n  })\n});\n\n// filters will be created as a separate array during the object's initialization\nconst Filterable = Ember.Mixin.create({\n  init() {\n    this._super(...arguments);\n    this.set(\"filters\", Ember.A());\n  }\n});\n```",
             "access": "public",
             "tagname": ""
         },
@@ -3059,7 +3328,9 @@
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
-            "extension_for": [],
+            "extension_for": [
+                "Ember.ObjectProxy"
+            ],
             "module": "ember",
             "submodule": "ember-runtime",
             "namespace": "Ember",
@@ -3483,7 +3754,10 @@
             "file": "packages/ember-runtime/lib/system/object_proxy.js",
             "line": 4,
             "description": "`Ember.ObjectProxy` forwards all properties not defined by the proxy itself\nto a proxied `content` object.\n\n```javascript\nobject = Ember.Object.create({\n  name: 'Foo'\n});\n\nproxy = Ember.ObjectProxy.create({\n  content: object\n});\n\n// Access and change existing properties\nproxy.get('name')          // 'Foo'\nproxy.set('name', 'Bar');\nobject.get('name')         // 'Bar'\n\n// Create new 'description' property on `object`\nproxy.set('description', 'Foo is a whizboo baz');\nobject.get('description')  // 'Foo is a whizboo baz'\n```\n\nWhile `content` is unset, setting a property to be delegated will throw an\nError.\n\n```javascript\nproxy = Ember.ObjectProxy.create({\n  content: null,\n  flag: null\n});\nproxy.set('flag', true);\nproxy.get('flag');         // true\nproxy.get('foo');          // undefined\nproxy.set('foo', 'data');  // throws Error\n```\n\nDelegated properties can be bound to and will change when content is updated.\n\nComputed properties on the proxy itself can depend on delegated properties.\n\n```javascript\nProxyWithComputedProperty = Ember.ObjectProxy.extend({\n  fullName: Ember.computed('firstName', 'lastName', function() {\n    var firstName = this.get('firstName'),\n        lastName = this.get('lastName');\n    if (firstName && lastName) {\n      return firstName + ' ' + lastName;\n    }\n    return firstName || lastName;\n  })\n});\n\nproxy = ProxyWithComputedProperty.create();\n\nproxy.get('fullName');  // undefined\nproxy.set('content', {\n  firstName: 'Tom', lastName: 'Dale'\n}); // triggers property change for fullName on proxy\n\nproxy.get('fullName');  // 'Tom Dale'\n```",
-            "extends": "Ember._ProxyMixin",
+            "extends": "Ember.Object",
+            "uses": [
+                "Ember.ProxyMixin"
+            ],
             "access": "public",
             "tagname": ""
         },
@@ -3691,10 +3965,7 @@
             "deprecated": true,
             "deprecationMessage": "See http://emberjs.com/deprecations/v1.x/#toc_ember-view",
             "uses": [
-                "Ember.ViewSupport",
-                "Ember.ChildViewsSupport",
-                "Ember.ClassNamesSupport",
-                "Ember.AttributeBindingsSupport"
+                "Ember.ClassNamesSupport"
             ],
             "access": "private",
             "tagname": ""
@@ -3717,6 +3988,996 @@
     },
     "elements": {},
     "classitems": [
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 90,
+            "description": "The main entry point into the router. The API is essentially\nthe same as the `map` method in `route-recognizer`.\n\nThis method extracts the String handler at the last `.to()`\ncall and uses it as the name of the whole route.",
+            "params": [
+                {
+                    "name": "callback",
+                    "description": "",
+                    "type": "Function"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 163,
+            "description": "Clears the current and target route handlers and triggers exit\non each of them starting at the leaf and traversing up through\nits ancestors.",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 183,
+            "description": "var handler = handlerInfo.handler;\nThe entry point for handling a change to the URL (usually\nvia the back and forward button).\n\nReturns an Array of handlers and the parameters associated\nwith those parameters.",
+            "params": [
+                {
+                    "name": "url",
+                    "description": "a URL to process",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "an Array of `[handler, parameter]` tuples",
+                "type": "Array"
+            },
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 204,
+            "description": "Hook point for updating the URL.",
+            "params": [
+                {
+                    "name": "url",
+                    "description": "a URL to update to",
+                    "type": "String"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 213,
+            "description": "Hook point for replacing the current URL, i.e. with replaceState\n\nBy default this behaves the same as `updateURL`",
+            "params": [
+                {
+                    "name": "url",
+                    "description": "a URL to update to",
+                    "type": "String"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 224,
+            "description": "Transition into the specified named route.\n\nIf necessary, trigger the exit callback on any handlers\nthat are no longer represented by the target route.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the route",
+                    "type": "String"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 260,
+            "description": "Identical to `transitionTo` except that the current URL will be replaced\nif possible.\n\nThis method is intended primarily for use with `replaceState`.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the route",
+                    "type": "String"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 272,
+            "description": "Take a named route and context objects and generate a\nURL.",
+            "params": [
+                {
+                    "name": "name",
+                    "description": "the name of the route to generate\n  a URL for",
+                    "type": "String"
+                },
+                {
+                    "name": "objects",
+                    "description": "a list of objects to serialize",
+                    "type": "...Object"
+                }
+            ],
+            "return": {
+                "description": "a URL",
+                "type": "String"
+            },
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 376,
+            "description": "Hook point for logging transition status updates.",
+            "params": [
+                {
+                    "name": "message",
+                    "description": "The message to log.",
+                    "type": "String"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 384,
+            "access": "private",
+            "tagname": "Fires queryParamsDidChange event",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 402,
+            "access": "private",
+            "tagname": "Takes an Array of `HandlerInfo`s, figures out which ones are\nexiting, entering, or changing contexts, and calls the\nproper handler hooks.\n\nFor example, consider the following tree of handlers. Each handler is\nfollowed by the URL segment it handles.\n\n```\n|~index (\"/\")\n| |~posts (\"/posts\")\n| | |-showPost (\"/:id\")\n| | |-newPost (\"/new\")\n| | |-editPost (\"/edit\")\n| |~about (\"/about/:id\")\n```\n\nConsider the following transitions:\n\n1. A URL transition to `/posts/1`.\n   1. Triggers the `*model` callbacks on the\n      `index`, `posts`, and `showPost` handlers\n   2. Triggers the `enter` callback on the same\n   3. Triggers the `setup` callback on the same\n2. A direct transition to `newPost`\n   1. Triggers the `exit` callback on `showPost`\n   2. Triggers the `enter` callback on `newPost`\n   3. Triggers the `setup` callback on `newPost`\n3. A direct transition to `about` with a specified\n   context object\n   1. Triggers the `exit` callback on `newPost`\n      and `posts`\n   2. Triggers the `serialize` callback on `about`\n   3. Triggers the `enter` callback on `about`\n   4. Triggers the `setup` callback on `about`",
+            "params": [
+                {
+                    "name": "transition",
+                    "description": "",
+                    "type": "Router"
+                },
+                {
+                    "name": "newState",
+                    "description": "",
+                    "type": "TransitionState"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 482,
+            "access": "private",
+            "tagname": "Helper method used by setupContexts. Handles errors or redirects\nthat may happen in enter/setup.",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 523,
+            "access": "private",
+            "tagname": "This function is called when transitioning from one URL to\nanother to determine which handlers are no longer active,\nwhich handlers are newly active, and which handlers remain\nactive but have their context changed.\n\nTake a list of old handlers and new handlers and partition\nthem into four buckets:\n\n* unchanged: the handler was active in both the old and\n  new URL, and its context remains the same\n* updated context: the handler was active in both the\n  old and new URL, but its context changed. The handler's\n  `setup` method, if any, will be called with the new\n  context.\n* exited: the handler was active in the old URL, but is\n  no longer active.\n* entered: the handler was not active in the old URL, but\n  is now active.\n\nThe PartitionedHandlers structure has four fields:\n\n* `updatedContext`: a list of `HandlerInfo` objects that\n  represent handlers that remain active but have a changed\n  context\n* `entered`: a list of `HandlerInfo` objects that represent\n  handlers that are newly active\n* `exited`: a list of `HandlerInfo` objects that are no\n  longer active.\n* `unchanged`: a list of `HanderInfo` objects that remain active.",
+            "params": [
+                {
+                    "name": "oldHandlers",
+                    "description": "a list of the handler\n  information for the previous URL (or `[]` if this is the\n  first handled transition)",
+                    "type": "Array[HandlerInfo]"
+                },
+                {
+                    "name": "newHandlers",
+                    "description": "a list of the handler\n  information for the new URL",
+                    "type": "Array[HandlerInfo]"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Partition"
+            },
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 658,
+            "access": "private",
+            "tagname": "Updates the URL (if necessary) and calls `setupContexts`\nto update the router's array of `currentHandlerInfos`.",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/router.js",
+            "line": 709,
+            "access": "private",
+            "tagname": "Begins and returns a Transition based on the provided\narguments. Accepts arguments in the form of both URL\ntransitions and named transitions.",
+            "params": [
+                {
+                    "name": "router",
+                    "description": "",
+                    "type": "Router"
+                },
+                {
+                    "name": "args",
+                    "description": "arguments passed to transitionTo,\n  replaceWith, or handleURL",
+                    "type": "Array[Object]"
+                }
+            ],
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 125,
+            "description": "The Transition's internal promise. Calling `.then` on this property\nis that same as calling `.then` on the Transition object itself, but\nthis property is exposed for when you want to pass around a\nTransition's promise, but not the Transition object itself, since\nTransition object can be externally `abort`ed, while the promise\ncannot.",
+            "itemtype": "property",
+            "name": "promise",
+            "type": "{Object}",
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 139,
+            "description": "Custom state can be stored on a Transition's `data` object.\nThis can be useful for decorating a Transition within an earlier\nhook and shared with a later hook. Properties set on `data` will\nbe copied to new transitions generated by calling `retry` on this\ntransition.",
+            "itemtype": "property",
+            "name": "data",
+            "type": "{Object}",
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 152,
+            "description": "A standard promise hook that resolves if the transition\nsucceeds and rejects if it fails/redirects/aborts.\n\nForwards to the internal `promise` property which you can\nuse in situations where you want to pass around a thennable,\nbut not the Transition itself.",
+            "itemtype": "method",
+            "name": "then",
+            "params": [
+                {
+                    "name": "onFulfilled",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "onRejected",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 172,
+            "description": "Forwards to the internal `promise` property which you can\n    use in situations where you want to pass around a thennable,\n    but not the Transition itself.",
+            "itemtype": "method",
+            "name": "catch",
+            "params": [
+                {
+                    "name": "onRejection",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\n    Useful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 189,
+            "description": "Forwards to the internal `promise` property which you can\n    use in situations where you want to pass around a thennable,\n    but not the Transition itself.",
+            "itemtype": "method",
+            "name": "finally",
+            "params": [
+                {
+                    "name": "callback",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\n    Useful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 206,
+            "description": "Aborts the Transition. Note you can also implicitly abort a transition\nby initiating another transition while a previous one is underway.",
+            "itemtype": "method",
+            "name": "abort",
+            "return": {
+                "description": "this transition",
+                "type": "Transition"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 224,
+            "description": "Retries a previously-aborted transition (making sure to abort the\n    transition if it's still active). Returns a new transition that\n    represents the new attempt to transition.",
+            "itemtype": "method",
+            "name": "retry",
+            "return": {
+                "description": "new transition",
+                "type": "Transition"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 240,
+            "description": "Sets the URL-changing method to be employed at the end of a\n    successful transition. By default, a new Transition will just\n    use `updateURL`, but passing 'replace' to this method will\n    cause the URL to update using 'replaceWith' instead. Omitting\n    a parameter will disable the URL change, allowing for transitions\n    that don't update the URL at completion (this is also used for\n    handleURL, since the URL has already changed before the\n    transition took place).",
+            "itemtype": "method",
+            "name": "method",
+            "params": [
+                {
+                    "name": "method",
+                    "description": "the type of URL-changing method to use\n      at the end of a transition. Accepted values are 'replace',\n      falsy values, or any other non-falsy value (which is\n      interpreted as an updateURL transition).",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "this transition",
+                "type": "Transition"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 265,
+            "description": "Fires an event on the current list of resolved/resolving\n    handlers within this transition. Useful for firing events\n    on route hierarchies that haven't fully been entered yet.\nNote: This method is also aliased as `send`",
+            "itemtype": "method",
+            "name": "trigger",
+            "params": [
+                {
+                    "name": "ignoreFailure",
+                    "description": "a boolean specifying whether unhandled events throw an error",
+                    "type": "Boolean",
+                    "optional": true,
+                    "optdefault": "false"
+                },
+                {
+                    "name": "name",
+                    "description": "the name of the event to fire",
+                    "type": "String"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 289,
+            "description": "Transitions are aborted and their promises rejected\nwhen redirects occur; this method returns a promise\nthat will follow any redirects that occur and fulfill\nwith the value fulfilled by any redirecting transitions\nthat occur.",
+            "itemtype": "method",
+            "name": "followRedirects",
+            "return": {
+                "description": "a promise that fulfills with the same\n  value that the final redirecting transition fulfills with",
+                "type": "Promise"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 315,
+            "access": "private",
+            "tagname": "",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/transition.js",
+            "line": 326,
+            "access": "private",
+            "tagname": "Logs and returns an instance of TransitionAbortedError.",
+            "class": "Transition"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/utils.js",
+            "line": 14,
+            "description": "Determines if an object is Promise by checking if it is \"thenable\".",
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/utils.js",
+            "line": 33,
+            "access": "private",
+            "tagname": "Extracts query params from the end of an array",
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/utils.js",
+            "line": 50,
+            "access": "private",
+            "tagname": "Coerces query param properties and array elements into strings.",
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/router_js/lib/router/utils.js",
+            "line": 66,
+            "access": "private",
+            "tagname": "",
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise/all.js",
+            "line": 3,
+            "description": "`RSVP.Promise.all` accepts an array of promises, and returns a new promise which\nis fulfilled with an array of fulfillment values for the passed promises, or\nrejected with the reason of the first passed promise to be rejected. It casts all\nelements of the passed iterable to promises as it runs this algorithm.\n\nExample:\n\n```javascript\nlet promise1 = RSVP.resolve(1);\nlet promise2 = RSVP.resolve(2);\nlet promise3 = RSVP.resolve(3);\nlet promises = [ promise1, promise2, promise3 ];\n\nRSVP.Promise.all(promises).then(function(array){\n  // The array here would be [ 1, 2, 3 ];\n});\n```\n\nIf any of the `promises` given to `RSVP.all` are rejected, the first promise\nthat is rejected will be given as an argument to the returned promises's\nrejection handler. For example:\n\nExample:\n\n```javascript\nlet promise1 = RSVP.resolve(1);\nlet promise2 = RSVP.reject(new Error(\"2\"));\nlet promise3 = RSVP.reject(new Error(\"3\"));\nlet promises = [ promise1, promise2, promise3 ];\n\nRSVP.Promise.all(promises).then(function(array){\n  // Code here never runs because there are rejected promises!\n}, function(error) {\n  // error.message === \"2\"\n});\n```",
+            "itemtype": "method",
+            "name": "all",
+            "static": 1,
+            "params": [
+                {
+                    "name": "entries",
+                    "description": "array of promises",
+                    "type": "Array"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "promise that is fulfilled when all `promises` have been\nfulfilled, or rejected if any of them become rejected.",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise/race.js",
+            "line": 13,
+            "description": "`RSVP.Promise.race` returns a new promise which is settled in the same way as the\nfirst passed promise to settle.\n\nExample:\n\n```javascript\nlet promise1 = new RSVP.Promise(function(resolve, reject){\n  setTimeout(function(){\n    resolve('promise 1');\n  }, 200);\n});\n\nlet promise2 = new RSVP.Promise(function(resolve, reject){\n  setTimeout(function(){\n    resolve('promise 2');\n  }, 100);\n});\n\nRSVP.Promise.race([promise1, promise2]).then(function(result){\n  // result === 'promise 2' because it was resolved before promise1\n  // was resolved.\n});\n```\n\n`RSVP.Promise.race` is deterministic in that only the state of the first\nsettled promise matters. For example, even if other promises given to the\n`promises` array argument are resolved, but the first settled promise has\nbecome rejected before the other promises became fulfilled, the returned\npromise will become rejected:\n\n```javascript\nlet promise1 = new RSVP.Promise(function(resolve, reject){\n  setTimeout(function(){\n    resolve('promise 1');\n  }, 200);\n});\n\nlet promise2 = new RSVP.Promise(function(resolve, reject){\n  setTimeout(function(){\n    reject(new Error('promise 2'));\n  }, 100);\n});\n\nRSVP.Promise.race([promise1, promise2]).then(function(result){\n  // Code here never runs\n}, function(reason){\n  // reason.message === 'promise 2' because promise 2 became rejected before\n  // promise 1 became fulfilled\n});\n```\n\nAn example real-world use case is implementing timeouts:\n\n```javascript\nRSVP.Promise.race([ajax('foo.json'), timeout(5000)])\n```",
+            "itemtype": "method",
+            "name": "race",
+            "static": 1,
+            "params": [
+                {
+                    "name": "entries",
+                    "description": "array of promises to observe",
+                    "type": "Array"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for describing the promise returned.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "a promise which settles in the same way as the first passed\npromise to settle.",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise/reject.js",
+            "line": 6,
+            "description": "`RSVP.Promise.reject` returns a promise rejected with the passed `reason`.\nIt is shorthand for the following:\n\n```javascript\nlet promise = new RSVP.Promise(function(resolve, reject){\n  reject(new Error('WHOOPS'));\n});\n\npromise.then(function(value){\n  // Code here doesn't run because the promise is rejected!\n}, function(reason){\n  // reason.message === 'WHOOPS'\n});\n```\n\nInstead of writing the above, your code now simply becomes the following:\n\n```javascript\nlet promise = RSVP.Promise.reject(new Error('WHOOPS'));\n\npromise.then(function(value){\n  // Code here doesn't run because the promise is rejected!\n}, function(reason){\n  // reason.message === 'WHOOPS'\n});\n```",
+            "itemtype": "method",
+            "name": "reject",
+            "static": 1,
+            "params": [
+                {
+                    "name": "reason",
+                    "description": "value that the returned promise will be rejected with.",
+                    "type": "*"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for identifying the returned promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "a promise rejected with the given `reason`.",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise/resolve.js",
+            "line": 6,
+            "description": "`RSVP.Promise.resolve` returns a promise that will become resolved with the\npassed `value`. It is shorthand for the following:\n\n```javascript\nlet promise = new RSVP.Promise(function(resolve, reject){\n  resolve(1);\n});\n\npromise.then(function(value){\n  // value === 1\n});\n```\n\nInstead of writing the above, your code now simply becomes the following:\n\n```javascript\nlet promise = RSVP.Promise.resolve(1);\n\npromise.then(function(value){\n  // value === 1\n});\n```",
+            "itemtype": "method",
+            "name": "resolve",
+            "static": 1,
+            "params": [
+                {
+                    "name": "object",
+                    "description": "value that the returned promise will be resolved with",
+                    "type": "*"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for identifying the returned promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "a promise that will become fulfilled with the given\n`value`",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/all-settled.js",
+            "line": 19,
+            "description": "`RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing\na fail-fast method, it waits until all the promises have returned and\nshows you all the results. This is useful if you want to handle multiple\npromises' failure states together as a set.\n\nReturns a promise that is fulfilled when all the given promises have been\nsettled. The return promise is fulfilled with an array of the states of\nthe promises passed into the `promises` array argument.\n\nEach state object will either indicate fulfillment or rejection, and\nprovide the corresponding value or reason. The states will take one of\nthe following formats:\n\n```javascript\n{ state: 'fulfilled', value: value }\n  or\n{ state: 'rejected', reason: reason }\n```\n\nExample:\n\n```javascript\nlet promise1 = RSVP.Promise.resolve(1);\nlet promise2 = RSVP.Promise.reject(new Error('2'));\nlet promise3 = RSVP.Promise.reject(new Error('3'));\nlet promises = [ promise1, promise2, promise3 ];\n\nRSVP.allSettled(promises).then(function(array){\n  // array == [\n  //   { state: 'fulfilled', value: 1 },\n  //   { state: 'rejected', reason: Error },\n  //   { state: 'rejected', reason: Error }\n  // ]\n  // Note that for the second item, reason.message will be '2', and for the\n  // third item, reason.message will be '3'.\n}, function(error) {\n  // Not run. (This block would only be called if allSettled had failed,\n  // for instance if passed an incorrect argument type.)\n});\n```",
+            "itemtype": "method",
+            "name": "allSettled",
+            "static": 1,
+            "params": [
+                {
+                    "name": "entries",
+                    "description": "",
+                    "type": "Array"
+                },
+                {
+                    "name": "label",
+                    "description": "- optional string that describes the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "promise that is fulfilled with an array of the settled\nstates of the constituent promises.",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/all.js",
+            "line": 3,
+            "description": "This is a convenient alias for `RSVP.Promise.all`.",
+            "itemtype": "method",
+            "name": "all",
+            "static": 1,
+            "params": [
+                {
+                    "name": "array",
+                    "description": "Array of promises.",
+                    "type": "Array"
+                },
+                {
+                    "name": "label",
+                    "description": "An optional label. This is useful\nfor tooling.",
+                    "type": "String"
+                }
+            ],
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/defer.js",
+            "line": 3,
+            "description": "`RSVP.defer` returns an object similar to jQuery's `$.Deferred`.\n`RSVP.defer` should be used when porting over code reliant on `$.Deferred`'s\ninterface. New code should use the `RSVP.Promise` constructor instead.\n\nThe object returned from `RSVP.defer` is a plain object with three properties:\n\n* promise - an `RSVP.Promise`.\n* reject - a function that causes the `promise` property on this object to\n  become rejected\n* resolve - a function that causes the `promise` property on this object to\n  become fulfilled.\n\nExample:\n\n ```javascript\n let deferred = RSVP.defer();\n\n deferred.resolve(\"Success!\");\n\n deferred.promise.then(function(value){\n   // value here is \"Success!\"\n });\n ```",
+            "itemtype": "method",
+            "name": "defer",
+            "static": 1,
+            "params": [
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/events.js",
+            "line": 24,
+            "description": "`RSVP.EventTarget.mixin` extends an object with EventTarget methods. For\nExample:\n\n```javascript\nlet object = {};\n\nRSVP.EventTarget.mixin(object);\n\nobject.on('finished', function(event) {\n  // handle event\n});\n\nobject.trigger('finished', { detail: value });\n```\n\n`EventTarget.mixin` also works with prototypes:\n\n```javascript\nlet Person = function() {};\nRSVP.EventTarget.mixin(Person.prototype);\n\nlet yehuda = new Person();\nlet tom = new Person();\n\nyehuda.on('poke', function(event) {\n  console.log('Yehuda says OW');\n});\n\ntom.on('poke', function(event) {\n  console.log('Tom says OW');\n});\n\nyehuda.trigger('poke');\ntom.trigger('poke');\n```",
+            "itemtype": "method",
+            "name": "mixin",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "object to extend with EventTarget methods",
+                    "type": "Object"
+                }
+            ],
+            "class": "RSVP.EventTarget"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/events.js",
+            "line": 74,
+            "description": "Registers a callback to be executed when `eventName` is triggered\n\n```javascript\nobject.on('event', function(eventInfo){\n  // handle the event\n});\n\nobject.trigger('event');\n```",
+            "itemtype": "method",
+            "name": "on",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "name of the event to listen for",
+                    "type": "String"
+                },
+                {
+                    "name": "callback",
+                    "description": "function to be called when the event is triggered.",
+                    "type": "Function"
+                }
+            ],
+            "class": "RSVP.EventTarget"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/events.js",
+            "line": 109,
+            "description": "You can use `off` to stop firing a particular callback for an event:\n\n```javascript\nfunction doStuff() { // do stuff! }\nobject.on('stuff', doStuff);\n\nobject.trigger('stuff'); // doStuff will be called\n\n// Unregister ONLY the doStuff callback\nobject.off('stuff', doStuff);\nobject.trigger('stuff'); // doStuff will NOT be called\n```\n\nIf you don't pass a `callback` argument to `off`, ALL callbacks for the\nevent will not be executed when the event fires. For example:\n\n```javascript\nlet callback1 = function(){};\nlet callback2 = function(){};\n\nobject.on('stuff', callback1);\nobject.on('stuff', callback2);\n\nobject.trigger('stuff'); // callback1 and callback2 will be executed.\n\nobject.off('stuff');\nobject.trigger('stuff'); // callback1 and callback2 will not be executed!\n```",
+            "itemtype": "method",
+            "name": "off",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "event to stop listening to",
+                    "type": "String"
+                },
+                {
+                    "name": "callback",
+                    "description": "optional argument. If given, only the function\ngiven will be removed from the event's callback queue. If no `callback`\nargument is given, all callbacks will be removed from the event's callback\nqueue.",
+                    "type": "Function"
+                }
+            ],
+            "class": "RSVP.EventTarget"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/events.js",
+            "line": 163,
+            "description": "Use `trigger` to fire custom events. For example:\n\n```javascript\nobject.on('foo', function(){\n  console.log('foo event happened!');\n});\nobject.trigger('foo');\n// 'foo event happened!' logged to the console\n```\n\nYou can also pass a value as a second argument to `trigger` that will be\npassed as an argument to all event listeners for the event:\n\n```javascript\nobject.on('foo', function(value){\n  console.log(value.name);\n});\n\nobject.trigger('foo', { name: 'bar' });\n// 'bar' logged to the console\n```",
+            "itemtype": "method",
+            "name": "trigger",
+            "access": "private",
+            "tagname": "",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "name of the event to be triggered",
+                    "type": "String"
+                },
+                {
+                    "name": "options",
+                    "description": "optional value to be passed to any event handlers for\nthe given `eventName`",
+                    "type": "*"
+                }
+            ],
+            "class": "RSVP.EventTarget"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/filter.js",
+            "line": 7,
+            "description": "`RSVP.filter` is similar to JavaScript's native `filter` method, except that it\n waits for all promises to become fulfilled before running the `filterFn` on\n each item in given to `promises`. `RSVP.filter` returns a promise that will\n become fulfilled with the result of running `filterFn` on the values the\n promises become fulfilled with.\n\n For example:\n\n ```javascript\n\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.resolve(2);\n let promise3 = RSVP.resolve(3);\n\n let promises = [promise1, promise2, promise3];\n\n let filterFn = function(item){\n   return item > 1;\n };\n\n RSVP.filter(promises, filterFn).then(function(result){\n   // result is [ 2, 3 ]\n });\n ```\n\n If any of the `promises` given to `RSVP.filter` are rejected, the first promise\n that is rejected will be given as an argument to the returned promise's\n rejection handler. For example:\n\n ```javascript\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.reject(new Error('2'));\n let promise3 = RSVP.reject(new Error('3'));\n let promises = [ promise1, promise2, promise3 ];\n\n let filterFn = function(item){\n   return item > 1;\n };\n\n RSVP.filter(promises, filterFn).then(function(array){\n   // Code here never runs because there are rejected promises!\n }, function(reason) {\n   // reason.message === '2'\n });\n ```\n\n `RSVP.filter` will also wait for any promises returned from `filterFn`.\n For instance, you may want to fetch a list of users then return a subset\n of those users based on some asynchronous operation:\n\n ```javascript\n\n let alice = { name: 'alice' };\n let bob   = { name: 'bob' };\n let users = [ alice, bob ];\n\n let promises = users.map(function(user){\n   return RSVP.resolve(user);\n });\n\n let filterFn = function(user){\n   // Here, Alice has permissions to create a blog post, but Bob does not.\n   return getPrivilegesForUser(user).then(function(privs){\n     return privs.can_create_blog_post === true;\n   });\n };\n RSVP.filter(promises, filterFn).then(function(users){\n   // true, because the server told us only Alice can create a blog post.\n   users.length === 1;\n   // false, because Alice is the only user present in `users`\n   users[0] === bob;\n });\n ```",
+            "itemtype": "method",
+            "name": "filter",
+            "static": 1,
+            "params": [
+                {
+                    "name": "promises",
+                    "description": "",
+                    "type": "Array"
+                },
+                {
+                    "name": "filterFn",
+                    "description": "- function to be called on each resolved value to\n filter the final results.",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string describing the promise. Useful for\n tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/hash-settled.js",
+            "line": 23,
+            "description": "`RSVP.hashSettled` is similar to `RSVP.allSettled`, but takes an object\ninstead of an array for its `promises` argument.\n\nUnlike `RSVP.all` or `RSVP.hash`, which implement a fail-fast method,\nbut like `RSVP.allSettled`, `hashSettled` waits until all the\nconstituent promises have returned and then shows you all the results\nwith their states and values/reasons. This is useful if you want to\nhandle multiple promises' failure states together as a set.\n\nReturns a promise that is fulfilled when all the given promises have been\nsettled, or rejected if the passed parameters are invalid.\n\nThe returned promise is fulfilled with a hash that has the same key names as\nthe `promises` object argument. If any of the values in the object are not\npromises, they will be copied over to the fulfilled object and marked with state\n'fulfilled'.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.Promise.resolve(1),\n  yourPromise: RSVP.Promise.resolve(2),\n  theirPromise: RSVP.Promise.resolve(3),\n  notAPromise: 4\n};\n\nRSVP.hashSettled(promises).then(function(hash){\n  // hash here is an object that looks like:\n  // {\n  //   myPromise: { state: 'fulfilled', value: 1 },\n  //   yourPromise: { state: 'fulfilled', value: 2 },\n  //   theirPromise: { state: 'fulfilled', value: 3 },\n  //   notAPromise: { state: 'fulfilled', value: 4 }\n  // }\n});\n```\n\nIf any of the `promises` given to `RSVP.hash` are rejected, the state will\nbe set to 'rejected' and the reason for rejection provided.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.Promise.resolve(1),\n  rejectedPromise: RSVP.Promise.reject(new Error('rejection')),\n  anotherRejectedPromise: RSVP.Promise.reject(new Error('more rejection')),\n};\n\nRSVP.hashSettled(promises).then(function(hash){\n  // hash here is an object that looks like:\n  // {\n  //   myPromise:              { state: 'fulfilled', value: 1 },\n  //   rejectedPromise:        { state: 'rejected', reason: Error },\n  //   anotherRejectedPromise: { state: 'rejected', reason: Error },\n  // }\n  // Note that for rejectedPromise, reason.message == 'rejection',\n  // and for anotherRejectedPromise, reason.message == 'more rejection'.\n});\n```\n\nAn important note: `RSVP.hashSettled` is intended for plain JavaScript objects that\nare just a set of keys and values. `RSVP.hashSettled` will NOT preserve prototype\nchains.\n\nExample:\n\n```javascript\nfunction MyConstructor(){\n  this.example = RSVP.Promise.resolve('Example');\n}\n\nMyConstructor.prototype = {\n  protoProperty: RSVP.Promise.resolve('Proto Property')\n};\n\nlet myObject = new MyConstructor();\n\nRSVP.hashSettled(myObject).then(function(hash){\n  // protoProperty will not be present, instead you will just have an\n  // object that looks like:\n  // {\n  //   example: { state: 'fulfilled', value: 'Example' }\n  // }\n  //\n  // hash.hasOwnProperty('protoProperty'); // false\n  // 'undefined' === typeof hash.protoProperty\n});\n```",
+            "itemtype": "method",
+            "name": "hashSettled",
+            "params": [
+                {
+                    "name": "object",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string that describes the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "promise that is fulfilled when when all properties of `promises`\nhave been settled.",
+                "type": "Promise"
+            },
+            "static": 1,
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/hash.js",
+            "line": 4,
+            "description": "`RSVP.hash` is similar to `RSVP.all`, but takes an object instead of an array\nfor its `promises` argument.\n\nReturns a promise that is fulfilled when all the given promises have been\nfulfilled, or rejected if any of them become rejected. The returned promise\nis fulfilled with a hash that has the same key names as the `promises` object\nargument. If any of the values in the object are not promises, they will\nsimply be copied over to the fulfilled object.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.resolve(1),\n  yourPromise: RSVP.resolve(2),\n  theirPromise: RSVP.resolve(3),\n  notAPromise: 4\n};\n\nRSVP.hash(promises).then(function(hash){\n  // hash here is an object that looks like:\n  // {\n  //   myPromise: 1,\n  //   yourPromise: 2,\n  //   theirPromise: 3,\n  //   notAPromise: 4\n  // }\n});\n````\n\nIf any of the `promises` given to `RSVP.hash` are rejected, the first promise\nthat is rejected will be given as the reason to the rejection handler.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.resolve(1),\n  rejectedPromise: RSVP.reject(new Error('rejectedPromise')),\n  anotherRejectedPromise: RSVP.reject(new Error('anotherRejectedPromise')),\n};\n\nRSVP.hash(promises).then(function(hash){\n  // Code here never runs because there are rejected promises!\n}, function(reason) {\n  // reason.message === 'rejectedPromise'\n});\n```\n\nAn important note: `RSVP.hash` is intended for plain JavaScript objects that\nare just a set of keys and values. `RSVP.hash` will NOT preserve prototype\nchains.\n\nExample:\n\n```javascript\nfunction MyConstructor(){\n  this.example = RSVP.resolve('Example');\n}\n\nMyConstructor.prototype = {\n  protoProperty: RSVP.resolve('Proto Property')\n};\n\nlet myObject = new MyConstructor();\n\nRSVP.hash(myObject).then(function(hash){\n  // protoProperty will not be present, instead you will just have an\n  // object that looks like:\n  // {\n  //   example: 'Example'\n  // }\n  //\n  // hash.hasOwnProperty('protoProperty'); // false\n  // 'undefined' === typeof hash.protoProperty\n});\n```",
+            "itemtype": "method",
+            "name": "hash",
+            "static": 1,
+            "params": [
+                {
+                    "name": "object",
+                    "description": "",
+                    "type": "Object"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string that describes the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "promise that is fulfilled when all properties of `promises`\nhave been fulfilled, or rejected if any of them become rejected.",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/map.js",
+            "line": 6,
+            "description": "`RSVP.map` is similar to JavaScript's native `map` method, except that it\n waits for all promises to become fulfilled before running the `mapFn` on\n each item in given to `promises`. `RSVP.map` returns a promise that will\n become fulfilled with the result of running `mapFn` on the values the promises\n become fulfilled with.\n\n For example:\n\n ```javascript\n\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.resolve(2);\n let promise3 = RSVP.resolve(3);\n let promises = [ promise1, promise2, promise3 ];\n\n let mapFn = function(item){\n   return item + 1;\n };\n\n RSVP.map(promises, mapFn).then(function(result){\n   // result is [ 2, 3, 4 ]\n });\n ```\n\n If any of the `promises` given to `RSVP.map` are rejected, the first promise\n that is rejected will be given as an argument to the returned promise's\n rejection handler. For example:\n\n ```javascript\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.reject(new Error('2'));\n let promise3 = RSVP.reject(new Error('3'));\n let promises = [ promise1, promise2, promise3 ];\n\n let mapFn = function(item){\n   return item + 1;\n };\n\n RSVP.map(promises, mapFn).then(function(array){\n   // Code here never runs because there are rejected promises!\n }, function(reason) {\n   // reason.message === '2'\n });\n ```\n\n `RSVP.map` will also wait if a promise is returned from `mapFn`. For example,\n say you want to get all comments from a set of blog posts, but you need\n the blog posts first because they contain a url to those comments.\n\n ```javscript\n\n let mapFn = function(blogPost){\n   // getComments does some ajax and returns an RSVP.Promise that is fulfilled\n   // with some comments data\n   return getComments(blogPost.comments_url);\n };\n\n // getBlogPosts does some ajax and returns an RSVP.Promise that is fulfilled\n // with some blog post data\n RSVP.map(getBlogPosts(), mapFn).then(function(comments){\n   // comments is the result of asking the server for the comments\n   // of all blog posts returned from getBlogPosts()\n });\n ```",
+            "itemtype": "method",
+            "name": "map",
+            "static": 1,
+            "params": [
+                {
+                    "name": "promises",
+                    "description": "",
+                    "type": "Array"
+                },
+                {
+                    "name": "mapFn",
+                    "description": "function to be called on each fulfilled promise.",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\n Useful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "promise that is fulfilled with the result of calling\n `mapFn` on each fulfilled promise or value when they become fulfilled.\n  The promise will be rejected if any of the given `promises` become rejected.",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/node.js",
+            "line": 71,
+            "description": "`RSVP.denodeify` takes a 'node-style' function and returns a function that\nwill return an `RSVP.Promise`. You can use `denodeify` in Node.js or the\nbrowser when you'd prefer to use promises over using callbacks. For example,\n`denodeify` transforms the following:\n\n```javascript\nlet fs = require('fs');\n\nfs.readFile('myfile.txt', function(err, data){\n  if (err) return handleError(err);\n  handleData(data);\n});\n```\n\ninto:\n\n```javascript\nlet fs = require('fs');\nlet readFile = RSVP.denodeify(fs.readFile);\n\nreadFile('myfile.txt').then(handleData, handleError);\n```\n\nIf the node function has multiple success parameters, then `denodeify`\njust returns the first one:\n\n```javascript\nlet request = RSVP.denodeify(require('request'));\n\nrequest('http://example.com').then(function(res) {\n  // ...\n});\n```\n\nHowever, if you need all success parameters, setting `denodeify`'s\nsecond parameter to `true` causes it to return all success parameters\nas an array:\n\n```javascript\nlet request = RSVP.denodeify(require('request'), true);\n\nrequest('http://example.com').then(function(result) {\n  // result[0] -> res\n  // result[1] -> body\n});\n```\n\nOr if you pass it an array with names it returns the parameters as a hash:\n\n```javascript\nlet request = RSVP.denodeify(require('request'), ['res', 'body']);\n\nrequest('http://example.com').then(function(result) {\n  // result.res\n  // result.body\n});\n```\n\nSometimes you need to retain the `this`:\n\n```javascript\nlet app = require('express')();\nlet render = RSVP.denodeify(app.render.bind(app));\n```\n\nThe denodified function inherits from the original function. It works in all\nenvironments, except IE 10 and below. Consequently all properties of the original\nfunction are available to you. However, any properties you change on the\ndenodeified function won't be changed on the original function. Example:\n\n```javascript\nlet request = RSVP.denodeify(require('request')),\n    cookieJar = request.jar(); // <- Inheritance is used here\n\nrequest('http://example.com', {jar: cookieJar}).then(function(res) {\n  // cookieJar.cookies holds now the cookies returned by example.com\n});\n```\n\nUsing `denodeify` makes it easier to compose asynchronous operations instead\nof using callbacks. For example, instead of:\n\n```javascript\nlet fs = require('fs');\n\nfs.readFile('myfile.txt', function(err, data){\n  if (err) { ... } // Handle error\n  fs.writeFile('myfile2.txt', data, function(err){\n    if (err) { ... } // Handle error\n    console.log('done')\n  });\n});\n```\n\nyou can chain the operations together using `then` from the returned promise:\n\n```javascript\nlet fs = require('fs');\nlet readFile = RSVP.denodeify(fs.readFile);\nlet writeFile = RSVP.denodeify(fs.writeFile);\n\nreadFile('myfile.txt').then(function(data){\n  return writeFile('myfile2.txt', data);\n}).then(function(){\n  console.log('done')\n}).catch(function(error){\n  // Handle error\n});\n```",
+            "itemtype": "method",
+            "name": "denodeify",
+            "static": 1,
+            "params": [
+                {
+                    "name": "nodeFunc",
+                    "description": "a 'node-style' function that takes a callback as\nits last argument. The callback expects an error to be passed as its first\nargument (if an error occurred, otherwise null), and the value from the\noperation as its second argument ('function(err, value){ }').",
+                    "type": "Function"
+                },
+                {
+                    "name": "options",
+                    "description": "An optional paramter that if set\nto `true` causes the promise to fulfill with the callback's success arguments\nas an array. This is useful if the node function has multiple success\nparamters. If you set this paramter to an array with names, the promise will\nfulfill with a hash with these names as keys and the success parameters as\nvalues.",
+                    "type": "Boolean|Array",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "a function that wraps `nodeFunc` to return an\n`RSVP.Promise`",
+                "type": "Function"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise.js",
+            "line": 169,
+            "description": "The primary way of interacting with a promise is through its `then` method,\nwhich registers callbacks to receive either a promise's eventual value or the\nreason why the promise cannot be fulfilled.\n\n```js\nfindUser().then(function(user){\n  // user is available\n}, function(reason){\n  // user is unavailable, and you are given the reason why\n});\n```\n\nChaining\n--------\n\nThe return value of `then` is itself a promise.  This second, 'downstream'\npromise is resolved with the return value of the first promise's fulfillment\nor rejection handler, or rejected if the handler throws an exception.\n\n```js\nfindUser().then(function (user) {\n  return user.name;\n}, function (reason) {\n  return 'default name';\n}).then(function (userName) {\n  // If `findUser` fulfilled, `userName` will be the user's name, otherwise it\n  // will be `'default name'`\n});\n\nfindUser().then(function (user) {\n  throw new Error('Found user, but still unhappy');\n}, function (reason) {\n  throw new Error('`findUser` rejected and we\\'re unhappy');\n}).then(function (value) {\n  // never reached\n}, function (reason) {\n  // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.\n  // If `findUser` rejected, `reason` will be '`findUser` rejected and we\\'re unhappy'.\n});\n```\nIf the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.\n\n```js\nfindUser().then(function (user) {\n  throw new PedagogicalException('Upstream error');\n}).then(function (value) {\n  // never reached\n}).then(function (value) {\n  // never reached\n}, function (reason) {\n  // The `PedgagocialException` is propagated all the way down to here\n});\n```\n\nAssimilation\n------------\n\nSometimes the value you want to propagate to a downstream promise can only be\nretrieved asynchronously. This can be achieved by returning a promise in the\nfulfillment or rejection handler. The downstream promise will then be pending\nuntil the returned promise is settled. This is called *assimilation*.\n\n```js\nfindUser().then(function (user) {\n  return findCommentsByAuthor(user);\n}).then(function (comments) {\n  // The user's comments are now available\n});\n```\n\nIf the assimliated promise rejects, then the downstream promise will also reject.\n\n```js\nfindUser().then(function (user) {\n  return findCommentsByAuthor(user);\n}).then(function (comments) {\n  // If `findCommentsByAuthor` fulfills, we'll have the value here\n}, function (reason) {\n  // If `findCommentsByAuthor` rejects, we'll have the reason here\n});\n```\n\nSimple Example\n--------------\n\nSynchronous Example\n\n```javascript\nlet result;\n\ntry {\n  result = findResult();\n  // success\n} catch(reason) {\n  // failure\n}\n```\n\nErrback Example\n\n```js\nfindResult(function(result, err){\n  if (err) {\n    // failure\n  } else {\n    // success\n  }\n});\n```\n\nPromise Example;\n\n```javascript\nfindResult().then(function(result){\n  // success\n}, function(reason){\n  // failure\n});\n```\n\nAdvanced Example\n--------------\n\nSynchronous Example\n\n```javascript\nlet author, books;\n\ntry {\n  author = findAuthor();\n  books  = findBooksByAuthor(author);\n  // success\n} catch(reason) {\n  // failure\n}\n```\n\nErrback Example\n\n```js\n\nfunction foundBooks(books) {\n\n}\n\nfunction failure(reason) {\n\n}\n\nfindAuthor(function(author, err){\n  if (err) {\n    failure(err);\n    // failure\n  } else {\n    try {\n      findBoooksByAuthor(author, function(books, err) {\n        if (err) {\n          failure(err);\n        } else {\n          try {\n            foundBooks(books);\n          } catch(reason) {\n            failure(reason);\n          }\n        }\n      });\n    } catch(error) {\n      failure(err);\n    }\n    // success\n  }\n});\n```\n\nPromise Example;\n\n```javascript\nfindAuthor().\n  then(findBooksByAuthor).\n  then(function(books){\n    // found books\n}).catch(function(reason){\n  // something went wrong\n});\n```",
+            "itemtype": "method",
+            "name": "then",
+            "params": [
+                {
+                    "name": "onFulfillment",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "onRejection",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "class": "RSVP.Promise"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise.js",
+            "line": 365,
+            "description": "`catch` is simply sugar for `then(undefined, onRejection)` which makes it the same\nas the catch block of a try/catch statement.\n\n```js\nfunction findAuthor(){\n  throw new Error('couldn\\'t find that author');\n}\n\n// synchronous\ntry {\n  findAuthor();\n} catch(reason) {\n  // something went wrong\n}\n\n// async with promises\nfindAuthor().catch(function(reason){\n  // something went wrong\n});\n```",
+            "itemtype": "method",
+            "name": "catch",
+            "params": [
+                {
+                    "name": "onRejection",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "class": "RSVP.Promise"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise.js",
+            "line": 397,
+            "description": "`finally` will be invoked regardless of the promise's fate just as native\ntry/catch/finally behaves\n\nSynchronous example:\n\n```js\nfindAuthor() {\n  if (Math.random() > 0.5) {\n    throw new Error();\n  }\n  return new Author();\n}\n\ntry {\n  return findAuthor(); // succeed or fail\n} catch(error) {\n  return findOtherAuther();\n} finally {\n  // always runs\n  // doesn't affect the return value\n}\n```\n\nAsynchronous example:\n\n```js\nfindAuthor().catch(function(reason){\n  return findOtherAuther();\n}).finally(function(){\n  // author was either found, or not\n});\n```",
+            "itemtype": "method",
+            "name": "finally",
+            "params": [
+                {
+                    "name": "callback",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "class": "RSVP.Promise"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/race.js",
+            "line": 3,
+            "description": "This is a convenient alias for `RSVP.Promise.race`.",
+            "itemtype": "method",
+            "name": "race",
+            "static": 1,
+            "params": [
+                {
+                    "name": "array",
+                    "description": "Array of promises.",
+                    "type": "Array"
+                },
+                {
+                    "name": "label",
+                    "description": "An optional label. This is useful\nfor tooling.",
+                    "type": "String"
+                }
+            ],
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/reject.js",
+            "line": 3,
+            "description": "This is a convenient alias for `RSVP.Promise.reject`.",
+            "itemtype": "method",
+            "name": "reject",
+            "static": 1,
+            "params": [
+                {
+                    "name": "reason",
+                    "description": "value that the returned promise will be rejected with.",
+                    "type": "*"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for identifying the returned promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "a promise rejected with the given `reason`.",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/resolve.js",
+            "line": 3,
+            "description": "This is a convenient alias for `RSVP.Promise.resolve`.",
+            "itemtype": "method",
+            "name": "resolve",
+            "static": 1,
+            "params": [
+                {
+                    "name": "value",
+                    "description": "value that the returned promise will be resolved with",
+                    "type": "*"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for identifying the returned promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "a promise that will become fulfilled with the given\n`value`",
+                "type": "Promise"
+            },
+            "class": "RSVP"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/rethrow.js",
+            "line": 1,
+            "description": "`RSVP.rethrow` will rethrow an error on the next turn of the JavaScript event\nloop in order to aid debugging.\n\nPromises A+ specifies that any exceptions that occur with a promise must be\ncaught by the promises implementation and bubbled to the last handler. For\nthis reason, it is recommended that you always specify a second rejection\nhandler function to `then`. However, `RSVP.rethrow` will throw the exception\noutside of the promise, so it bubbles up to your console if in the browser,\nor domain/cause uncaught exception in Node. `rethrow` will also throw the\nerror again so the error can be handled by the promise per the spec.\n\n```javascript\nfunction throws(){\n  throw new Error('Whoops!');\n}\n\nlet promise = new RSVP.Promise(function(resolve, reject){\n  throws();\n});\n\npromise.catch(RSVP.rethrow).then(function(){\n  // Code here doesn't run because the promise became rejected due to an\n  // error!\n}, function (err){\n  // handle the error here\n});\n```\n\nThe 'Whoops' error will be thrown on the next turn of the event loop\nand you can watch for it in your console. You can also handle it using a\nrejection handler given to `.then` or `.catch` on the returned promise.",
+            "itemtype": "method",
+            "name": "rethrow",
+            "static": 1,
+            "params": [
+                {
+                    "name": "reason",
+                    "description": "reason the promise became rejected.",
+                    "type": "Error"
+                }
+            ],
+            "throws": {
+                "description": "Error"
+            },
+            "class": "RSVP"
+        },
         {
             "file": "packages/container/lib/container.js",
             "line": 48,
@@ -6803,7 +8064,7 @@
         {
             "file": "packages/ember-glimmer/lib/components/text_area.js",
             "line": 9,
-            "description": "`{{textarea}}` inserts a new instance of `<textarea>` tag into the template.\nThe attributes of `{{textarea}}` match those of the native HTML tags as\nclosely as possible.\n\nThe following HTML attributes can be set:\n\n  * `value`\n  * `name`\n  * `rows`\n  * `cols`\n  * `placeholder`\n  * `disabled`\n  * `maxlength`\n  * `tabindex`\n  * `selectionEnd`\n  * `selectionStart`\n  * `selectionDirection`\n  * `wrap`\n  * `readonly`\n  * `autofocus`\n  * `form`\n  * `spellcheck`\n  * `required`\n\nWhen set to a quoted string, these value will be directly applied to the HTML\nelement. When left unquoted, these values will be bound to a property on the\ntemplate's current rendering context (most typically a controller instance).\n\nUnbound:\n\n```handlebars\n{{textarea value=\"Lots of static text that ISN'T bound\"}}\n```\n\nWould result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of static text that ISN'T bound\n</textarea>\n```\n\nBound:\n\nIn the following example, the `writtenWords` property on `App.ApplicationController`\nwill be updated live as the user types 'Lots of text that IS bound' into\nthe text area of their browser's window.\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  writtenWords: \"Lots of text that IS bound\"\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n```\n\n Would result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n```\n\nIf you wanted a one way binding between the text area and a div tag\nsomewhere else on your screen, you could use `Ember.computed.oneWay`:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  writtenWords: \"Lots of text that IS bound\",\n  outputWrittenWords: Ember.computed.oneWay(\"writtenWords\")\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n<div>\n  {{outputWrittenWords}}\n</div>\n```\n\nWould result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n<-- the following div will be updated in real time as you type -->\n<div>\n  Lots of text that IS bound\n</div>\n```\n\nFinally, this example really shows the power and ease of Ember when two\nproperties are bound to eachother via `Ember.computed.alias`. Type into\neither text area box and they'll both stay in sync. Note that\n`Ember.computed.alias` costs more in terms of performance, so only use it when\nyour really binding in both directions:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  writtenWords: \"Lots of text that IS bound\",\n  twoWayWrittenWords: Ember.computed.alias(\"writtenWords\")\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n{{textarea value=twoWayWrittenWords}}\n```\n\n```html\n<textarea id=\"ember1\" class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n<-- both updated in real time -->\n<textarea id=\"ember2\" class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n```\n\n### Actions\n\nThe helper can send multiple actions based on user events.\nThe action property defines the action which is send when\nthe user presses the return key.\n\n```handlebars\n{{input action=\"submit\"}}\n```\n\nThe helper allows some user events to send actions.\n\n* `enter`\n* `insert-newline`\n* `escape-press`\n* `focus-in`\n* `focus-out`\n* `key-press`\n\nFor example, if you desire an action to be sent when the input is blurred,\nyou only need to setup the action name to the event name property.\n\n```handlebars\n{{textarea focus-in=\"alertMessage\"}}\n```\n\nSee more about [Text Support Actions](/api/classes/Ember.TextArea.html)\n\n### Extension\n\nInternally, `{{textarea}}` creates an instance of `Ember.TextArea`, passing\narguments from the helper to `Ember.TextArea`'s `create` method. You can\nextend the capabilities of text areas in your application by reopening this\nclass. For example, if you are building a Bootstrap project where `data-*`\nattributes are used, you can globally add support for a `data-*` attribute\non all `{{textarea}}`s' in your app by reopening `Ember.TextArea` or\n`Ember.TextSupport` and adding it to the `attributeBindings` concatenated\nproperty:\n\n```javascript\nEmber.TextArea.reopen({\n  attributeBindings: ['data-error']\n});\n```\n\nKeep in mind when writing `Ember.TextArea` subclasses that `Ember.TextArea`\nitself extends `Ember.Component`. Expect isolated component semantics, not\nlegacy 1.x view semantics (like `controller` being present).\n\nSee more about [Ember components](/api/classes/Ember.Component.html)",
+            "description": "`{{textarea}}` inserts a new instance of `<textarea>` tag into the template.\nThe attributes of `{{textarea}}` match those of the native HTML tags as\nclosely as possible.\n\nThe following HTML attributes can be set:\n\n  * `value`\n  * `name`\n  * `rows`\n  * `cols`\n  * `placeholder`\n  * `disabled`\n  * `maxlength`\n  * `tabindex`\n  * `selectionEnd`\n  * `selectionStart`\n  * `selectionDirection`\n  * `wrap`\n  * `readonly`\n  * `autofocus`\n  * `form`\n  * `spellcheck`\n  * `required`\n\nWhen set to a quoted string, these value will be directly applied to the HTML\nelement. When left unquoted, these values will be bound to a property on the\ntemplate's current rendering context (most typically a controller instance).\n\nUnbound:\n\n```handlebars\n{{textarea value=\"Lots of static text that ISN'T bound\"}}\n```\n\nWould result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of static text that ISN'T bound\n</textarea>\n```\n\nBound:\n\nIn the following example, the `writtenWords` property on `App.ApplicationController`\nwill be updated live as the user types 'Lots of text that IS bound' into\nthe text area of their browser's window.\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  writtenWords: \"Lots of text that IS bound\"\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n```\n\n Would result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n```\n\nIf you wanted a one way binding between the text area and a div tag\nsomewhere else on your screen, you could use `Ember.computed.oneWay`:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  writtenWords: \"Lots of text that IS bound\",\n  outputWrittenWords: Ember.computed.oneWay(\"writtenWords\")\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n<div>\n  {{outputWrittenWords}}\n</div>\n```\n\nWould result in the following HTML:\n\n```html\n<textarea class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n<-- the following div will be updated in real time as you type -->\n<div>\n  Lots of text that IS bound\n</div>\n```\n\nFinally, this example really shows the power and ease of Ember when two\nproperties are bound to eachother via `Ember.computed.alias`. Type into\neither text area box and they'll both stay in sync. Note that\n`Ember.computed.alias` costs more in terms of performance, so only use it when\nyour really binding in both directions:\n\n```javascript\nApp.ApplicationController = Ember.Controller.extend({\n  writtenWords: \"Lots of text that IS bound\",\n  twoWayWrittenWords: Ember.computed.alias(\"writtenWords\")\n});\n```\n\n```handlebars\n{{textarea value=writtenWords}}\n{{textarea value=twoWayWrittenWords}}\n```\n\n```html\n<textarea id=\"ember1\" class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n<-- both updated in real time -->\n<textarea id=\"ember2\" class=\"ember-text-area\">\n  Lots of text that IS bound\n</textarea>\n```\n\n### Actions\n\nThe helper can send multiple actions based on user events.\nThe action property defines the action which is send when\nthe user presses the return key.\n\n```handlebars\n{{input action=\"submit\"}}\n```\n\nThe helper allows some user events to send actions.\n\n* `enter`\n* `insert-newline`\n* `escape-press`\n* `focus-in`\n* `focus-out`\n* `key-press`\n\nFor example, if you desire an action to be sent when the input is blurred,\nyou only need to setup the action name to the event name property.\n\n```handlebars\n{{textarea focus-out=\"alertMessage\"}}\n```\n\nSee more about [Text Support Actions](/api/classes/Ember.TextArea.html)\n\n### Extension\n\nInternally, `{{textarea}}` creates an instance of `Ember.TextArea`, passing\narguments from the helper to `Ember.TextArea`'s `create` method. You can\nextend the capabilities of text areas in your application by reopening this\nclass. For example, if you are building a Bootstrap project where `data-*`\nattributes are used, you can globally add support for a `data-*` attribute\non all `{{textarea}}`s' in your app by reopening `Ember.TextArea` or\n`Ember.TextSupport` and adding it to the `attributeBindings` concatenated\nproperty:\n\n```javascript\nEmber.TextArea.reopen({\n  attributeBindings: ['data-error']\n});\n```\n\nKeep in mind when writing `Ember.TextArea` subclasses that `Ember.TextArea`\nitself extends `Ember.Component`. Expect isolated component semantics, not\nlegacy 1.x view semantics (like `controller` being present).\n\nSee more about [Ember components](/api/classes/Ember.Component.html)",
             "itemtype": "method",
             "name": "textarea",
             "params": [
@@ -7016,6 +8277,7 @@
                 "description": "Hash",
                 "type": "Object"
             },
+            "since": "2.3.0",
             "access": "public",
             "tagname": "",
             "class": "Ember.Templates.helpers",
@@ -7660,7 +8922,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 83,
+            "line": 79,
             "description": "Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful\nfor semantic clarity as it allows you to retain default scope or to reference a property from another\n`{{with}}` block.\n\nIf the aliased property is \"falsey\", for example: `false`, `undefined` `null`, `\"\"`, `0`, NaN or\nan empty array, the block will not be rendered.\n\n```handlebars\n{{! Will only render if user.posts contains items}}\n{{#with user.posts as |blogPosts|}}\n  <div class=\"notice\">\n    There are {{blogPosts.length}} blog posts written by {{user.name}}.\n  </div>\n  {{#each blogPosts as |post|}}\n    <li>{{post.title}}</li>\n  {{/each}}\n{{/with}}\n```\n\nWithout the `as` operator, it would be impossible to reference `user.name` in the example above.\n\nNOTE: The alias should not reuse a name from the bound property path.\n\nFor example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using\nthe first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.",
             "itemtype": "method",
             "name": "with",
@@ -7683,7 +8945,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 118,
+            "line": 114,
             "description": "Execute the `debugger` statement in the current template's context.\n\n```handlebars\n{{debugger}}\n```\n\nWhen using the debugger helper you will have access to a `get` function. This\nfunction retrieves values available in the context of the template.\nFor example, if you're wondering why a value `{{foo}}` isn't rendering as\nexpected within a template, you could place a `{{debugger}}` statement and,\nwhen the `debugger;` breakpoint is hit, you can attempt to retrieve this value:\n\n```\n> get('foo')\n```\n\n`get` is also aware of keywords. So in this situation\n\n```handlebars\n{{#each items as |item|}}\n  {{debugger}}\n{{/each}}\n```\n\nYou'll be able to get values from the current item:\n\n```\n> get('item.name')\n```\n\nYou can also access the context of the view to make sure it is the object that\nyou expect:\n\n```\n> context\n```",
             "itemtype": "method",
             "name": "debugger",
@@ -7695,7 +8957,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 161,
+            "line": 157,
             "description": "The `partial` helper renders another template without\nchanging the template context:\n\n```handlebars\n{{foo}}\n{{partial \"nav\"}}\n```\n\nThe above example template will render a template named\n\"-nav\", which has the same context as the parent template\nit's rendered into, so if the \"-nav\" template also referenced\n`{{foo}}`, it would print the same thing as the `{{foo}}`\nin the above example.\n\nIf a \"-nav\" template isn't found, the `partial` helper will\nfall back to a template named \"nav\".\n\n### Bound template names\n\nThe parameter supplied to `partial` can also be a path\nto a property containing a template name, e.g.:\n\n```handlebars\n{{partial someTemplateName}}\n```\n\nThe above example will look up the value of `someTemplateName`\non the template context (e.g. a controller) and use that\nvalue as the name of the template to render. If the resolved\nvalue is falsy, nothing will be rendered. If `someTemplateName`\nchanges, the partial will be re-rendered using the new template\nname.",
             "itemtype": "method",
             "name": "partial",
@@ -9094,7 +10356,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 506,
+            "line": 509,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -9114,7 +10376,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 551,
+            "line": 554,
             "itemtype": "method",
             "name": "reopen",
             "params": [
@@ -9133,7 +10395,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 588,
+            "line": 591,
             "itemtype": "method",
             "name": "apply",
             "params": [
@@ -9154,7 +10416,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 619,
+            "line": 622,
             "itemtype": "method",
             "name": "detect",
             "params": [
@@ -9176,7 +10438,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 668,
+            "line": 671,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -9188,7 +10450,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 691,
+            "line": 694,
             "description": "Makes a method available via an additional name.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  name: function() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: Ember.aliasMethod('name')\n});\n\nlet goodGuy = App.Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -9207,7 +10469,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 721,
+            "line": 724,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -9235,7 +10497,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 773,
+            "line": 776,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "_immediateObserver",
@@ -9265,7 +10527,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 812,
+            "line": 815,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",
@@ -16897,7 +18159,7 @@
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
             "line": 220,
-            "description": "An overridable method called when objects are instantiated. By default,\ndoes nothing unless it is overridden during class definition.\n\nExample:\n\n```javascript\nconst Person = Ember.Object.extend({\n  init() {\n    alert(`Name is ${this.get('name')}`);\n  }\n});\n\nlet steve = Person.create({\n  name: \"Steve\"\n});\n\n// alerts 'Name is Steve'.\n```\n\nNOTE: If you do override `init` for a framework class like `Ember.View`,\nbe sure to call `this._super(...arguments)` in your\n`init` declaration! If you don't, Ember may not have an opportunity to\ndo important setup work, and you'll see strange behavior in your\napplication.",
+            "description": "An overridable method called when objects are instantiated. By default,\ndoes nothing unless it is overridden during class definition.\n\nExample:\n\n```javascript\nconst Person = Ember.Object.extend({\n  init() {\n    alert(`Name is ${this.get('name')}`);\n  }\n});\n\nlet steve = Person.create({\n  name: 'Steve'\n});\n\n// alerts 'Name is Steve'.\n```\n\nNOTE: If you do override `init` for a framework class like `Ember.View`,\nbe sure to call `this._super(...arguments)` in your\n`init` declaration! If you don't, Ember may not have an opportunity to\ndo important setup work, and you'll see strange behavior in your\napplication.",
             "itemtype": "method",
             "name": "init",
             "access": "public",
@@ -16925,7 +18187,7 @@
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
             "line": 331,
-            "description": "Defines the properties that will be merged from the superclass\n(instead of overridden).\n\nBy default, when you extend an Ember class a property defined in\nthe subclass overrides a property with the same name that is defined\nin the superclass. However, there are some cases where it is preferable\nto build up a property's value by merging the superclass property value\nwith the subclass property's value. An example of this in use within Ember\nis the `queryParams` property of routes.\n\nHere is some sample code showing the difference between a merged\nproperty and a normal one:\n\n```javascript\nconst Bar = Ember.Object.extend({\n  // Configure which properties are to be merged\n  mergedProperties: ['mergedProperty'],\n\n  someNonMergedProperty: {\n    nonMerged: 'superclass value of nonMerged'\n  },\n  mergedProperty: {\n    page: {replace: false},\n    limit: {replace: true}\n  }\n});\n\nconst FooBar = Bar.extend({\n  someNonMergedProperty: {\n    completelyNonMerged: 'subclass value of nonMerged'\n  },\n  mergedProperty: {\n    limit: {replace: false}\n  }\n});\n\nlet fooBar = FooBar.create();\n\nfooBar.get('someNonMergedProperty');\n// => { completelyNonMerged: 'subclass value of nonMerged' }\n//\n// Note the entire object, including the nonMerged property of\n// the superclass object, has been replaced\n\nfooBar.get('mergedProperty');\n// => {\n//   page: {replace: false},\n//   limit: {replace: false}\n// }\n//\n// Note the page remains from the superclass, and the\n// `limit` property's value of `false` has been merged from\n// the subclass.\n```\n\nThis behavior is not available during object `create` calls. It is only\navailable at `extend` time.\n\nIn `Ember.Route` the `queryParams` property is merged.\n\nThis feature is available for you to use throughout the Ember object model,\nalthough typical app developers are likely to use it infrequently. Since\nit changes expectations about behavior of properties, you should properly\ndocument its usage in each individual merged property (to not\nmislead your users to think they can override the property in a subclass).",
+            "description": "Defines the properties that will be merged from the superclass\n(instead of overridden).\n\nBy default, when you extend an Ember class a property defined in\nthe subclass overrides a property with the same name that is defined\nin the superclass. However, there are some cases where it is preferable\nto build up a property's value by merging the superclass property value\nwith the subclass property's value. An example of this in use within Ember\nis the `queryParams` property of routes.\n\nHere is some sample code showing the difference between a merged\nproperty and a normal one:\n\n```javascript\nconst Bar = Ember.Object.extend({\n  // Configure which properties are to be merged\n  mergedProperties: ['mergedProperty'],\n\n  someNonMergedProperty: {\n    nonMerged: 'superclass value of nonMerged'\n  },\n  mergedProperty: {\n    page: { replace: false },\n    limit: { replace: true }\n  }\n});\n\nconst FooBar = Bar.extend({\n  someNonMergedProperty: {\n    completelyNonMerged: 'subclass value of nonMerged'\n  },\n  mergedProperty: {\n    limit: { replace: false }\n  }\n});\n\nlet fooBar = FooBar.create();\n\nfooBar.get('someNonMergedProperty');\n// => { completelyNonMerged: 'subclass value of nonMerged' }\n//\n// Note the entire object, including the nonMerged property of\n// the superclass object, has been replaced\n\nfooBar.get('mergedProperty');\n// => {\n//   page: {replace: false},\n//   limit: {replace: false}\n// }\n//\n// Note the page remains from the superclass, and the\n// `limit` property's value of `false` has been merged from\n// the subclass.\n```\n\nThis behavior is not available during object `create` calls. It is only\navailable at `extend` time.\n\nIn `Ember.Route` the `queryParams` property is merged.\n\nThis feature is available for you to use throughout the Ember object model,\nalthough typical app developers are likely to use it infrequently. Since\nit changes expectations about behavior of properties, you should properly\ndocument its usage in each individual merged property (to not\nmislead your users to think they can override the property in a subclass).",
             "itemtype": "property",
             "name": "mergedProperties",
             "type": "Array",
@@ -17028,7 +18290,7 @@
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
             "line": 569,
-            "description": "Creates a new subclass.\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    alert(thing);\n   }\n});\n```\n\nThis defines a new subclass of Ember.Object: `Person`. It contains one method: `say()`.\n\nYou can also create a subclass from any existing class by calling its `extend()` method.\nFor example, you might want to create a subclass of Ember's built-in `Ember.Component` class:\n\n```javascript\nconst PersonComponent = Ember.Component.extend({\n  tagName: 'li',\n  classNameBindings: ['isAdministrator']\n});\n```\n\nWhen defining a subclass, you can override methods but still access the\nimplementation of your parent class by calling the special `_super()` method:\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    let name = this.get('name');\n    alert(`${name} says: ${thing}`);\n  }\n});\n\nconst Soldier = Person.extend({\n  say(thing) {\n    this._super(`${thing}, sir!`);\n  },\n  march(numberOfHours) {\n    alert(`${this.get('name')} marches for ${numberOfHours} hours.`);\n  }\n});\n\nlet yehuda = Soldier.create({\n  name: \"Yehuda Katz\"\n});\n\nyehuda.say(\"Yes\");  // alerts \"Yehuda Katz says: Yes, sir!\"\n```\n\nThe `create()` on line #17 creates an *instance* of the `Soldier` class.\nThe `extend()` on line #8 creates a *subclass* of `Person`. Any instance\nof the `Person` class will *not* have the `march()` method.\n\nYou can also pass `Mixin` classes to add additional properties to the subclass.\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    alert(`${this.get('name')} says: ${thing}`);\n  }\n});\n\nconst SingingMixin = Mixin.create({\n  sing(thing){\n    alert(`${this.get('name')} sings: la la la ${thing}`);\n  }\n});\n\nconst BroadwayStar = Person.extend(SingingMixin, {\n  dance() {\n    alert(`${this.get('name')} dances: tap tap tap tap `);\n  }\n});\n```\n\nThe `BroadwayStar` class contains three methods: `say()`, `sing()`, and `dance()`.",
+            "description": "Creates a new subclass.\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    alert(thing);\n   }\n});\n```\n\nThis defines a new subclass of Ember.Object: `Person`. It contains one method: `say()`.\n\nYou can also create a subclass from any existing class by calling its `extend()` method.\nFor example, you might want to create a subclass of Ember's built-in `Ember.Component` class:\n\n```javascript\nconst PersonComponent = Ember.Component.extend({\n  tagName: 'li',\n  classNameBindings: ['isAdministrator']\n});\n```\n\nWhen defining a subclass, you can override methods but still access the\nimplementation of your parent class by calling the special `_super()` method:\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    let name = this.get('name');\n    alert(`${name} says: ${thing}`);\n  }\n});\n\nconst Soldier = Person.extend({\n  say(thing) {\n    this._super(`${thing}, sir!`);\n  },\n  march(numberOfHours) {\n    alert(`${this.get('name')} marches for ${numberOfHours} hours.`);\n  }\n});\n\nlet yehuda = Soldier.create({\n  name: 'Yehuda Katz'\n});\n\nyehuda.say('Yes');  // alerts \"Yehuda Katz says: Yes, sir!\"\n```\n\nThe `create()` on line #17 creates an *instance* of the `Soldier` class.\nThe `extend()` on line #8 creates a *subclass* of `Person`. Any instance\nof the `Person` class will *not* have the `march()` method.\n\nYou can also pass `Mixin` classes to add additional properties to the subclass.\n\n```javascript\nconst Person = Ember.Object.extend({\n  say(thing) {\n    alert(`${this.get('name')} says: ${thing}`);\n  }\n});\n\nconst SingingMixin = Mixin.create({\n  sing(thing){\n    alert(`${this.get('name')} sings: la la la ${thing}`);\n  }\n});\n\nconst BroadwayStar = Person.extend(SingingMixin, {\n  dance() {\n    alert(`${this.get('name')} dances: tap tap tap tap `);\n  }\n});\n```\n\nThe `BroadwayStar` class contains three methods: `say()`, `sing()`, and `dance()`.",
             "itemtype": "method",
             "name": "extend",
             "static": 1,
@@ -17080,7 +18342,7 @@
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
             "line": 723,
-            "description": "Augments a constructor's prototype with additional\nproperties and functions:\n\n```javascript\nconst MyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\no = MyObject.create();\no.get('name'); // 'an object'\n\nMyObject.reopen({\n  say(msg){\n    console.log(msg);\n  }\n})\n\no2 = MyObject.create();\no2.say(\"hello\"); // logs \"hello\"\n\no.say(\"goodbye\"); // logs \"goodbye\"\n```\n\nTo add functions and properties to the constructor itself,\nsee `reopenClass`",
+            "description": "Augments a constructor's prototype with additional\nproperties and functions:\n\n```javascript\nconst MyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\no = MyObject.create();\no.get('name'); // 'an object'\n\nMyObject.reopen({\n  say(msg) {\n    console.log(msg);\n  }\n});\n\no2 = MyObject.create();\no2.say('hello'); // logs \"hello\"\n\no.say('goodbye'); // logs \"goodbye\"\n```\n\nTo add functions and properties to the constructor itself,\nsee `reopenClass`",
             "itemtype": "method",
             "name": "reopen",
             "access": "public",
@@ -17093,7 +18355,7 @@
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
             "line": 759,
-            "description": "Augments a constructor's own properties and functions:\n\n```javascript\nconst MyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\nMyObject.reopenClass({\n  canBuild: false\n});\n\nMyObject.canBuild; // false\no = MyObject.create();\n```\n\nIn other words, this creates static properties and functions for the class.\nThese are only available on the class and not on any instance of that class.\n\n```javascript\nconst Person = Ember.Object.extend({\n  name: \"\",\n  sayHello() {\n    alert(\"Hello. My name is \" + this.get('name'));\n  }\n});\n\nPerson.reopenClass({\n  species: \"Homo sapiens\",\n  createPerson(newPersonsName){\n    return Person.create({\n      name:newPersonsName\n    });\n  }\n});\n\nlet tom = Person.create({\n  name: \"Tom Dale\"\n});\nlet yehuda = Person.createPerson(\"Yehuda Katz\");\n\ntom.sayHello(); // \"Hello. My name is Tom Dale\"\nyehuda.sayHello(); // \"Hello. My name is Yehuda Katz\"\nalert(Person.species); // \"Homo sapiens\"\n```\n\nNote that `species` and `createPerson` are *not* valid on the `tom` and `yehuda`\nvariables. They are only valid on `Person`.\n\nTo add functions and properties to instances of\na constructor by extending the constructor's prototype\nsee `reopen`",
+            "description": "Augments a constructor's own properties and functions:\n\n```javascript\nconst MyObject = Ember.Object.extend({\n  name: 'an object'\n});\n\nMyObject.reopenClass({\n  canBuild: false\n});\n\nMyObject.canBuild; // false\no = MyObject.create();\n```\n\nIn other words, this creates static properties and functions for the class.\nThese are only available on the class and not on any instance of that class.\n\n```javascript\nconst Person = Ember.Object.extend({\n  name: '',\n  sayHello() {\n    alert(`Hello. My name is ${this.get('name')}`);\n  }\n});\n\nPerson.reopenClass({\n  species: 'Homo sapiens',\n  \n  createPerson(name) {\n    return Person.create({ name });\n  }\n});\n\nlet tom = Person.create({\n  name: 'Tom Dale'\n});\nlet yehuda = Person.createPerson('Yehuda Katz');\n\ntom.sayHello(); // \"Hello. My name is Tom Dale\"\nyehuda.sayHello(); // \"Hello. My name is Yehuda Katz\"\nalert(Person.species); // \"Homo sapiens\"\n```\n\nNote that `species` and `createPerson` are *not* valid on the `tom` and `yehuda`\nvariables. They are only valid on `Person`.\n\nTo add functions and properties to instances of\na constructor by extending the constructor's prototype\nsee `reopen`",
             "itemtype": "method",
             "name": "reopenClass",
             "access": "public",
@@ -17105,7 +18367,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 834,
+            "line": 833,
             "description": "In some cases, you may want to annotate computed properties with additional\nmetadata about how they function or what values they operate on. For\nexample, computed property functions may close over variables that are then\nno longer available for introspection.\n\nYou can pass a hash of these values to a computed property like this:\n\n```javascript\nperson: Ember.computed(function() {\n  let personId = this.get('personId');\n  return Person.create({ id: personId });\n}).meta({ type: Person })\n```\n\nOnce you've done this, you can retrieve the values saved to the computed\nproperty from your class like this:\n\n```javascript\nMyClass.metaForProperty('person');\n```\n\nThis will return the original hash that was passed to `meta()`.",
             "static": 1,
             "itemtype": "method",
@@ -17126,7 +18388,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 894,
+            "line": 893,
             "description": "Iterate over each computed property for the class, passing its name\nand any associated metadata (see `metaForProperty`) to the callback.",
             "static": 1,
             "itemtype": "method",
@@ -17152,7 +18414,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 922,
+            "line": 921,
             "description": "Provides lookup-time type validation for injected properties.",
             "access": "private",
             "tagname": "",
@@ -17165,7 +18427,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 931,
+            "line": 930,
             "description": "Returns a hash of property names and container names that injected\nproperties will lookup on the container lazily.",
             "itemtype": "method",
             "name": "_lazyInjections",
@@ -18984,7 +20246,21 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 73,
+            "line": 63,
+            "description": "A list of properties of the view to apply as attributes. If the property\nis a string value, the value of that string will be applied as the value\nfor an attribute of the property's name.\n\nThe following example creates a tag like `<div priority=\"high\" />`.\n\n```javascript\nEmber.Component.extend({\n  attributeBindings: ['priority'],\n  priority: 'high'\n});\n```\n\nIf the value of the property is a Boolean, the attribute is treated as\nan HTML Boolean attribute. It will be present if the property is `true`\nand omitted if the property is `false`.\n\nThe following example creates markup like `<div visible />`.\n\n```javascript\nEmber.Component.extend({\n  attributeBindings: ['visible'],\n  visible: true\n});\n```\n\nIf you would prefer to use a custom value instead of the property name,\nyou can create the same markup as the last example with a binding like\nthis:\n\n```javascript\nEmber.Component.extend({\n  attributeBindings: ['isVisible:visible'],\n  isVisible: true\n});\n```\n\nThis list of attributes is inherited from the component's superclasses,\nas well.",
+            "itemtype": "property",
+            "name": "attributeBindings",
+            "type": "Array",
+            "default": "[]",
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.ViewMixin",
+            "module": "ember",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-views/lib/mixins/view_support.js",
+            "line": 119,
             "description": "Return the nearest ancestor that is an instance of the provided\nclass or mixin.",
             "itemtype": "method",
             "name": "nearestOfType",
@@ -19008,7 +20284,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 96,
+            "line": 142,
             "description": "Return the nearest ancestor that has a given property.",
             "itemtype": "method",
             "name": "nearestWithProperty",
@@ -19032,7 +20308,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 114,
+            "line": 160,
             "description": "Renders the view again. This will work regardless of whether the\nview is already in the DOM or not. If the view is in the DOM, the\nrendering process will be deferred to give bindings a chance\nto synchronize.\n\nIf children were added during the rendering process using `appendChild`,\n`rerender` will remove them, because they will be added again\nif needed by the next `render`.\n\nIn general, if the display of your view changes, you should modify\nthe DOM element directly instead of manually calling `rerender`, which can\nbe slow.",
             "itemtype": "method",
             "name": "rerender",
@@ -19044,7 +20320,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 139,
+            "line": 185,
             "description": "Returns the current DOM element for the view.",
             "itemtype": "property",
             "name": "element",
@@ -19057,7 +20333,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 154,
+            "line": 200,
             "description": "Returns a jQuery object for this view's element. If you pass in a selector\nstring, this method will return a jQuery object, using the current element\nas its buffer.\n\nFor example, calling `view.$('li')` will return a jQuery object containing\nall of the `li` elements inside the DOM element of this view.",
             "itemtype": "method",
             "name": "$",
@@ -19081,7 +20357,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 174,
+            "line": 220,
             "description": "Appends the view's element to the specified parent element.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the given element until all bindings have\nfinished synchronizing.\n\nThis is not typically a function that you will need to call directly when\nbuilding your application. If you do need to use `appendTo`, be sure that\nthe target element you are providing is associated with an `Ember.Application`\nand does not have an ancestor element that is associated with an Ember view.",
             "itemtype": "method",
             "name": "appendTo",
@@ -19104,7 +20380,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 224,
+            "line": 270,
             "description": "Creates a new DOM element, renders the view into it, then returns the\nelement.\n\nBy default, the element created and rendered into will be a `BODY` element,\nsince this is the default context that views are rendered into when being\ninserted directly into the DOM.\n\n```js\nlet element = view.renderToElement();\nelement.tagName; // => \"BODY\"\n```\n\nYou can override the kind of element rendered into and returned by\nspecifying an optional tag name as the first argument.\n\n```js\nlet element = view.renderToElement('table');\nelement.tagName; // => \"TABLE\"\n```\n\nThis method is useful if you want to render the view into an element that\nis not in the document's body. Instead, a new `body` element, detached from\nthe DOM is returned. FastBoot uses this to serialize the rendered view into\na string for transmission over the network.\n\n```js\napp.visit('/').then(function(instance) {\n  let element;\n  Ember.run(function() {\n    element = renderToElement(instance);\n  });\n\n  res.send(serialize(element));\n});\n```",
             "itemtype": "method",
             "name": "renderToElement",
@@ -19129,7 +20405,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 284,
+            "line": 330,
             "description": "Replaces the content of the specified parent element with this view's\nelement. If the view does not have an HTML representation yet,\nthe element will be generated automatically.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the given element until all bindings have\nfinished synchronizing",
             "itemtype": "method",
             "name": "replaceIn",
@@ -19152,7 +20428,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 309,
+            "line": 355,
             "description": "Appends the view's element to the document body. If the view does\nnot have an HTML representation yet\nthe element will be generated automatically.\n\nIf your application uses the `rootElement` property, you must append\nthe view within that element. Rendering views outside of the `rootElement`\nis not supported.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the document body until all bindings have\nfinished synchronizing.",
             "itemtype": "method",
             "name": "append",
@@ -19168,7 +20444,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 330,
+            "line": 376,
             "description": "The HTML `id` of the view's element in the DOM. You can provide this\nvalue yourself but it must be unique (just as in HTML):\n\n```handlebars\n  {{my-component elementId=\"a-really-cool-id\"}}\n```\n\nIf not manually set a default value will be provided by the framework.\n\nOnce rendered an element's `elementId` is considered immutable and you\nshould never change it. If you need to compute a dynamic value for the\n`elementId`, you should do this when the component or element is being\ninstantiated:\n\n```javascript\n  export default Ember.Component.extend({\n    init() {\n      this._super(...arguments);\n      let index = this.get('index');\n      this.set('elementId', 'component-id' + index);\n    }\n  });\n```",
             "itemtype": "property",
             "name": "elementId",
@@ -19181,7 +20457,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 361,
+            "line": 407,
             "description": "Attempts to discover the element in the parent element. The default\nimplementation looks for an element with an ID of `elementId` (or the\nview's guid if `elementId` is null). You can override this method to\nprovide your own form of lookup. For example, if you want to discover your\nelement using a CSS class name instead of an ID.",
             "itemtype": "method",
             "name": "findElementInParentElement",
@@ -19204,7 +20480,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 378,
+            "line": 424,
             "description": "Called when a view is going to insert an element into the DOM.",
             "itemtype": "event",
             "name": "willInsertElement",
@@ -19216,7 +20492,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 386,
+            "line": 432,
             "description": "Called when the element of the view has been inserted into the DOM.\nOverride this function to do any set up that requires an element\nin the document body.\n\nWhen a view has children, didInsertElement will be called on the\nchild view(s) first and on itself afterwards.",
             "itemtype": "event",
             "name": "didInsertElement",
@@ -19228,7 +20504,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 399,
+            "line": 445,
             "description": "Called when the view is about to rerender, but before anything has\nbeen torn down. This is a good opportunity to tear down any manual\nobservers you have installed based on the DOM state",
             "itemtype": "event",
             "name": "willClearRender",
@@ -19240,7 +20516,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 409,
+            "line": 455,
             "description": "You must call `destroy` on a view to destroy the view (and all of its\nchild views). This will remove the view from any parent node, then make\nsure that the DOM element managed by the view can be released by the\nmemory manager.",
             "itemtype": "method",
             "name": "destroy",
@@ -19252,7 +20528,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 423,
+            "line": 469,
             "description": "Called when the element of the view is going to be destroyed. Override\nthis function to do any teardown that requires an element, like removing\nevent listeners.\n\nPlease note: any property changes made during this event will have no\neffect on object observers.",
             "itemtype": "event",
             "name": "willDestroyElement",
@@ -19264,7 +20540,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 436,
+            "line": 482,
             "description": "Called when the parentView property has changed.",
             "itemtype": "event",
             "name": "parentViewDidChange",
@@ -19276,7 +20552,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 448,
+            "line": 494,
             "description": "Tag name for the view's outer element. The tag name is only used when an\nelement is first created. If you change the `tagName` for an element, you\nmust destroy and recreate the view element.\n\nBy default, the render buffer will use a `<div>` tag for views.",
             "itemtype": "property",
             "name": "tagName",
@@ -19290,7 +20566,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 469,
+            "line": 515,
             "description": "Setup a view, but do not finish waking it up.\n\n* configure `childViews`\n* register the view with the global views hash, which is used for event\n  dispatch",
             "itemtype": "method",
             "name": "init",
@@ -19302,7 +20578,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 552,
+            "line": 598,
             "description": "Handle events from `Ember.EventDispatcher`",
             "itemtype": "method",
             "name": "handleEvent",
@@ -19745,6 +21021,90 @@
         {
             "message": "replacing incorrect tag: returns with return",
             "line": " packages/ember-routing/lib/system/route.js:809"
+        },
+        {
+            "message": "Missing item type\nThe main entry point into the router. The API is essentially\nthe same as the `map` method in `route-recognizer`.\n\nThis method extracts the String handler at the last `.to()`\ncall and uses it as the name of the whole route.",
+            "line": " node_modules/router_js/lib/router/router.js:90"
+        },
+        {
+            "message": "Missing item type\nClears the current and target route handlers and triggers exit\non each of them starting at the leaf and traversing up through\nits ancestors.",
+            "line": " node_modules/router_js/lib/router/router.js:163"
+        },
+        {
+            "message": "Missing item type\nvar handler = handlerInfo.handler;\nThe entry point for handling a change to the URL (usually\nvia the back and forward button).\n\nReturns an Array of handlers and the parameters associated\nwith those parameters.",
+            "line": " node_modules/router_js/lib/router/router.js:183"
+        },
+        {
+            "message": "Missing item type\nHook point for updating the URL.",
+            "line": " node_modules/router_js/lib/router/router.js:204"
+        },
+        {
+            "message": "Missing item type\nHook point for replacing the current URL, i.e. with replaceState\n\nBy default this behaves the same as `updateURL`",
+            "line": " node_modules/router_js/lib/router/router.js:213"
+        },
+        {
+            "message": "Missing item type\nTransition into the specified named route.\n\nIf necessary, trigger the exit callback on any handlers\nthat are no longer represented by the target route.",
+            "line": " node_modules/router_js/lib/router/router.js:224"
+        },
+        {
+            "message": "Missing item type\nIdentical to `transitionTo` except that the current URL will be replaced\nif possible.\n\nThis method is intended primarily for use with `replaceState`.",
+            "line": " node_modules/router_js/lib/router/router.js:260"
+        },
+        {
+            "message": "Missing item type\nTake a named route and context objects and generate a\nURL.",
+            "line": " node_modules/router_js/lib/router/router.js:272"
+        },
+        {
+            "message": "Missing item type\nHook point for logging transition status updates.",
+            "line": " node_modules/router_js/lib/router/router.js:376"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/router.js:384"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/router.js:402"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/router.js:482"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/router.js:523"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/router.js:658"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/router.js:709"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/transition.js:315"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/transition.js:326"
+        },
+        {
+            "message": "Missing item type\nDetermines if an object is Promise by checking if it is \"thenable\".",
+            "line": " node_modules/router_js/lib/router/utils.js:14"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/utils.js:33"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/utils.js:50"
+        },
+        {
+            "message": "Missing item type",
+            "line": " node_modules/router_js/lib/router/utils.js:66"
         },
         {
             "message": "Missing item type\nOverrides the base `EngineInstance._bootSync` method with concerns relevant\nto booting application (instead of engine) instances.\n\nThis method should only contain synchronous boot concerns. Asynchronous\nboot concerns should eventually be moved to the `boot` method, which\nreturns a promise.\n\nUntil all boot code has been made asynchronous, we need to continue to\nexpose this method for use *internally* in places where we need to boot an\ninstance synchronously.",

@@ -6,10 +6,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-beta.1
+ * @version   2.12.0-beta.1-beta+e69a55f8
  */
 
 var enifed, requireModule, Ember;
+var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
   var isNode = typeof window === 'undefined' &&
@@ -1312,7 +1313,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     lookupFactory: function (fullName, options) {
       _emberMetal.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
 
-      _emberMetal.deprecate('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', !_emberMetal.isFeatureEnabled('ember-factory-for'), { id: 'container-lookupFactory', until: '2.13.0', url: 'TODO' });
+      _emberMetal.deprecate('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', !_emberMetal.isFeatureEnabled('ember-factory-for'), { id: 'container-lookupFactory', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_migrating-from-_lookupfactory-to-factoryfor' });
 
       return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
     }
@@ -8024,7 +8025,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       post: null
     });
   
-    let comment = Comment.create(post: somePost);
+    let comment = Comment.create({ 
+      post: somePost 
+    });
+    
     comment.edit(); // outputs 'starting to edit'
     ```
   
@@ -17884,7 +17888,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
         }
       });
        let steve = Person.create({
-        name: "Steve"
+        name: 'Steve'
       });
        // alerts 'Name is Steve'.
       ```
@@ -18202,8 +18206,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
       nonMerged: 'superclass value of nonMerged'
     },
     mergedProperty: {
-      page: {replace: false},
-      limit: {replace: true}
+      page: { replace: false },
+      limit: { replace: true }
     }
   });
    const FooBar = Bar.extend({
@@ -18211,7 +18215,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
       completelyNonMerged: 'subclass value of nonMerged'
     },
     mergedProperty: {
-      limit: {replace: false}
+      limit: { replace: false }
     }
   });
    let fooBar = FooBar.create();
@@ -18355,9 +18359,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     }
   });
    let yehuda = Soldier.create({
-    name: "Yehuda Katz"
+    name: 'Yehuda Katz'
   });
-   yehuda.say("Yes");  // alerts "Yehuda Katz says: Yes, sir!"
+   yehuda.say('Yes');  // alerts "Yehuda Katz says: Yes, sir!"
   ```
    The `create()` on line #17 creates an *instance* of the `Soldier` class.
   The `extend()` on line #8 creates a *subclass* of `Person`. Any instance
@@ -18429,13 +18433,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
    o = MyObject.create();
   o.get('name'); // 'an object'
    MyObject.reopen({
-    say(msg){
+    say(msg) {
       console.log(msg);
     }
-  })
+  });
    o2 = MyObject.create();
-  o2.say("hello"); // logs "hello"
-   o.say("goodbye"); // logs "goodbye"
+  o2.say('hello'); // logs "hello"
+   o.say('goodbye'); // logs "goodbye"
   ```
    To add functions and properties to the constructor itself,
   see `reopenClass`
@@ -18459,23 +18463,22 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   These are only available on the class and not on any instance of that class.
    ```javascript
   const Person = Ember.Object.extend({
-    name: "",
+    name: '',
     sayHello() {
-      alert("Hello. My name is " + this.get('name'));
+      alert(`Hello. My name is ${this.get('name')}`);
     }
   });
    Person.reopenClass({
-    species: "Homo sapiens",
-    createPerson(newPersonsName){
-      return Person.create({
-        name:newPersonsName
-      });
+    species: 'Homo sapiens',
+    
+    createPerson(name) {
+      return Person.create({ name });
     }
   });
    let tom = Person.create({
-    name: "Tom Dale"
+    name: 'Tom Dale'
   });
-  let yehuda = Person.createPerson("Yehuda Katz");
+  let yehuda = Person.createPerson('Yehuda Katz');
    tom.sayHello(); // "Hello. My name is Tom Dale"
   yehuda.sayHello(); // "Hello. My name is Yehuda Katz"
   alert(Person.species); // "Homo sapiens"
@@ -19222,7 +19225,7 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
     @class ObjectProxy
     @namespace Ember
     @extends Ember.Object
-    @extends Ember._ProxyMixin
+    @uses Ember.ProxyMixin
     @public
   */
 
@@ -19743,7 +19746,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-beta.1";
+  exports.default = "2.12.0-beta.1-beta+e69a55f8";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
