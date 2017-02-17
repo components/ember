@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.1
+ * @version   2.11.1-release+6c7e6950
  */
 
 var enifed, requireModule, Ember;
@@ -42993,7 +42993,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.1";
+  exports.default = "2.11.1-release+6c7e6950";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -55182,7 +55182,7 @@ function eachRoute(baseRoute, matcher, callback, binding) {
   }
 }
 
-function map(callback, addRouteCallback) {
+var map = function(callback, addRouteCallback) {
   var matcher = new Matcher();
 
   callback(generateMatch("", matcher, this.delegate));
@@ -55191,7 +55191,7 @@ function map(callback, addRouteCallback) {
     if (addRouteCallback) { addRouteCallback(this, route); }
     else { this.add(route); }
   }, this);
-}
+};
 
 // Normalizes percent-encoded values in `path` to upper-case and decodes percent-encoded
 // values that are not reserved (i.e., unicode characters, emoji, etc). The reserved
@@ -55614,9 +55614,6 @@ RouteRecognizer.prototype = {
     if (typeof options === "object" && options !== null && options.hasOwnProperty("as")) {
       name = options.as;
     }
-    if (this.names.hasOwnProperty(name)) {
-      throw new Error("You may not add a duplicate route named `" + name + "`.");
-    }
 
     if (name = options && options.as) {
       this.names[name] = {
@@ -55792,7 +55789,7 @@ RouteRecognizer.prototype = {
 
 RouteRecognizer.prototype.map = map;
 
-RouteRecognizer.VERSION = '0.2.8';
+RouteRecognizer.VERSION = '0.2.10';
 
 // Set to false to opt-out of encoding and decoding path segments.
 // See https://github.com/tildeio/route-recognizer/pull/55
