@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+6c89abee
+ * @version   2.13.0-alpha.1-canary+c329f95c
  */
 
 var enifed, requireModule, Ember;
@@ -7855,9 +7855,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   exports._immediateObserver = _immediateObserver;
   exports._beforeObserver = _beforeObserver;
 
-  function ROOT() {}
-  ROOT.__hasSuper = false;
-
   var a_slice = Array.prototype.slice;
   var a_concat = Array.prototype.concat;
   var isArray = Array.isArray;
@@ -8014,7 +8011,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     }
 
     if (hasFunction) {
-      newBase._super = ROOT;
+      newBase._super = _emberUtils.ROOT;
     }
 
     return newBase;
@@ -8185,7 +8182,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
         value = undefined,
         desc = undefined;
 
-    obj._super = ROOT;
+    obj._super = _emberUtils.ROOT;
 
     // Go through all mixins and hashes passed in, and:
     //
@@ -8273,10 +8270,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       post: null
     });
   
-    let comment = Comment.create({ 
-      post: somePost 
+    let comment = Comment.create({
+      post: somePost
     });
-    
+  
     comment.edit(); // outputs 'starting to edit'
     ```
   
@@ -19982,7 +19979,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+6c89abee";
+  exports.default = "2.13.0-alpha.1-canary+c329f95c";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
