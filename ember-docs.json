@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.13.0-alpha.1.c329f95c"
+        "version": "2.13.0-alpha.1.0a1a1947"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -19959,7 +19959,7 @@
         {
             "file": "packages/ember-utils/lib/owner.js",
             "line": 10,
-            "description": "Framework objects in an Ember application (components, services, routes, etc.)\nare created via a factory and dependency injection system. Each of these\nobjects is the responsibility of an \"owner\", which handled its\ninstantiation and manages its lifetime.\n\n`getOwner` fetches the owner object responsible for an instance. This can\nbe used to lookup or resolve other class instances, or register new factories\ninto the owner.\n\nFor example, this component dynamically looks up a service based on the\n`audioType` passed as an attribute:\n\n```\n// app/components/play-audio.js\nimport Ember from 'ember';\n\n// Usage:\n//\n//   {{play-audio audioType=model.audioType audioFile=model.file}}\n//\nexport default Ember.Component.extend({\n  audioService: Ember.computed('audioType', function() {\n    let owner = Ember.getOwner(this);\n    return owner.lookup(`service:${this.get('audioType')}`);\n  }),\n  click() {\n    let player = this.get('audioService');\n    player.play(this.get('audioFile'));\n  }\n});\n```",
+            "description": "Framework objects in an Ember application (components, services, routes, etc.)\nare created via a factory and dependency injection system. Each of these\nobjects is the responsibility of an \"owner\", which handled its\ninstantiation and manages its lifetime.\n\n`getOwner` fetches the owner object responsible for an instance. This can\nbe used to lookup or resolve other class instances, or register new factories\ninto the owner.\n\nFor example, this component dynamically looks up a service based on the\n`audioType` passed as an attribute:\n\n```app/components/play-audio.js\nimport Ember from 'ember';\n\n// Usage:\n//\n//   {{play-audio audioType=model.audioType audioFile=model.file}}\n//\nexport default Ember.Component.extend({\n  audioService: Ember.computed('audioType', function() {\n    let owner = Ember.getOwner(this);\n    return owner.lookup(`service:${this.get('audioType')}`);\n  }),\n  click() {\n    let player = this.get('audioService');\n    player.play(this.get('audioFile'));\n  }\n});\n```",
             "itemtype": "method",
             "name": "getOwner",
             "params": [
@@ -19982,7 +19982,7 @@
         },
         {
             "file": "packages/ember-utils/lib/owner.js",
-            "line": 54,
+            "line": 53,
             "description": "`setOwner` forces a new owner on a given object instance. This is primarily\nuseful in some testing cases.",
             "itemtype": "method",
             "name": "setOwner",

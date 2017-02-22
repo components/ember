@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+c329f95c
+ * @version   2.13.0-alpha.1-canary+0a1a1947
  */
 
 var enifed, requireModule, Ember;
@@ -39224,8 +39224,7 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
     For example, this component dynamically looks up a service based on the
     `audioType` passed as an attribute:
   
-    ```
-    // app/components/play-audio.js
+    ```app/components/play-audio.js
     import Ember from 'ember';
   
     // Usage:
@@ -41890,7 +41889,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+c329f95c";
+  exports.default = "2.13.0-alpha.1-canary+0a1a1947";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
