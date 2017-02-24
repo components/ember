@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.13.0-alpha.1.455d5a6b"
+        "version": "2.13.0-alpha.1.79d7dea2"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -14602,7 +14602,7 @@
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
             "line": 251,
-            "description": "Filters the array by the callback.\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n`array` is the dependant array itself.\n\n```javascript\nfunction(item, index, array);\n```\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores', function(chore, index, array) {\n    return !chore.done;\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\n```",
+            "description": "Filters the array by the callback.\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n`array` is the dependant array itself.\n\n```javascript\nfunction(item, index, array);\n```\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores', function(chore, index, array) {\n    return !chore.done;\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\n```\n\nYou can also use `@each.property` in your dependent key, the callback will still use the underlying array:\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores.@each.done', function(chore, index, array) {\n    return !chore.get('done');\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: Ember.A([\n    Ember.Object.create({ name: 'cook', done: true }),\n    Ember.Object.create({ name: 'clean', done: true }),\n    Ember.Object.create({ name: 'write more unit tests', done: false })\n  ])\n});\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\nhamster.get('chores').objectAt(2).set('done', true);\nhamster.get('remainingChores'); // []\n```",
             "itemtype": "method",
             "name": "filter",
             "params": [
@@ -14630,7 +14630,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 294,
+            "line": 316,
             "description": "Filters the array by the property and value\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filterBy('chores', 'done', false)\n});\n\nlet hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]\n```",
             "itemtype": "method",
             "name": "filterBy",
@@ -14664,7 +14664,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 333,
+            "line": 355,
             "description": "A computed property which returns a new array with all the unique\nelements from one or more dependent arrays.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.uniq('fruits')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'banana',\n    'grape',\n    'kale',\n    'banana'\n  ]\n});\n\nhamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']\n```",
             "itemtype": "method",
             "name": "uniq",
@@ -14689,7 +14689,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 382,
+            "line": 404,
             "description": "A computed property which returns a new array with all the unique\nelements from an array, with uniqueness determined by specific key.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.uniqBy('fruits', 'id')\n});\nlet hamster = Hamster.create({\n  fruits: [\n    { id: 1, 'banana' },\n    { id: 2, 'grape' },\n    { id: 3, 'peach' },\n    { id: 1, 'banana' }\n  ]\n});\nhamster.get('uniqueFruits'); // [ { id: 1, 'banana' }, { id: 2, 'grape' }, { id: 3, 'peach' }]\n```",
             "itemtype": "method",
             "name": "uniqBy",
@@ -14718,7 +14718,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 429,
+            "line": 451,
             "description": "Alias for [Ember.computed.uniq](/api/#method_computed_uniq).",
             "itemtype": "method",
             "name": "union",
@@ -14743,7 +14743,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 441,
+            "line": 463,
             "description": "A computed property which returns a new array with all the duplicated\nelements from two or more dependent arrays.\n\nExample\n\n```javascript\nlet obj = Ember.Object.extend({\n  friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')\n}).create({\n  adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],\n  charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']\n});\n\nobj.get('friendsInCommon'); // ['William King', 'Mary Somerville']\n```",
             "itemtype": "method",
             "name": "intersect",
@@ -14768,7 +14768,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 496,
+            "line": 518,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array that are not in the second\ndependent array.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  likes: ['banana', 'grape', 'kale'],\n  wants: Ember.computed.setDiff('likes', 'fruits')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'grape',\n    'kale',\n  ]\n});\n\nhamster.get('wants'); // ['banana']\n```",
             "itemtype": "method",
             "name": "setDiff",
@@ -14797,7 +14797,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 544,
+            "line": 566,
             "description": "A computed property that returns the array of values\nfor the provided dependent properties.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  clothes: Ember.computed.collect('hat', 'shirt')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('clothes'); // [null, null]\nhamster.set('hat', 'Camp Hat');\nhamster.set('shirt', 'Camp Shirt');\nhamster.get('clothes'); // ['Camp Hat', 'Camp Shirt']\n```",
             "itemtype": "method",
             "name": "collect",
@@ -14822,7 +14822,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 587,
+            "line": 609,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array sorted based on a property\nor sort function.\n\nThe callback method you provide should have the following signature:\n\n```javascript\nfunction(itemA, itemB);\n```\n\n- `itemA` the first item to compare.\n- `itemB` the second item to compare.\n\nThis function should return negative number (e.g. `-1`) when `itemA` should come before\n`itemB`. It should return positive number (e.g. `1`) when `itemA` should come after\n`itemB`. If the `itemA` and `itemB` are equal this function should return `0`.\n\nTherefore, if this function is comparing some numeric values, simple `itemA - itemB` or\n`itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.\n\nExample\n\n```javascript\nlet ToDoList = Ember.Object.extend({\n  // using standard ascending sort\n  todosSorting: ['name'],\n  sortedTodos: Ember.computed.sort('todos', 'todosSorting'),\n\n  // using descending sort\n  todosSortingDesc: ['name:desc'],\n  sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),\n\n  // using a custom sort function\n  priorityTodos: Ember.computed.sort('todos', function(a, b){\n    if (a.priority > b.priority) {\n      return 1;\n    } else if (a.priority < b.priority) {\n      return -1;\n    }\n\n    return 0;\n  })\n});\n\nlet todoList = ToDoList.create({todos: [\n  { name: 'Unit Test', priority: 2 },\n  { name: 'Documentation', priority: 3 },\n  { name: 'Release', priority: 1 }\n]});\n\ntodoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]\ntodoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]\ntodoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]\n```",
             "itemtype": "method",
             "name": "sort",

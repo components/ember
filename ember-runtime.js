@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+455d5a6b
+ * @version   2.13.0-alpha.1-canary+79d7dea2
  */
 
 var enifed, requireModule, Ember;
@@ -12289,6 +12289,28 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
     ```
   
+    You can also use `@each.property` in your dependent key, the callback will still use the underlying array:
+  
+    ```javascript
+    let Hamster = Ember.Object.extend({
+      remainingChores: Ember.computed.filter('chores.@each.done', function(chore, index, array) {
+        return !chore.get('done');
+      })
+    });
+  
+    let hamster = Hamster.create({
+      chores: Ember.A([
+        Ember.Object.create({ name: 'cook', done: true }),
+        Ember.Object.create({ name: 'clean', done: true }),
+        Ember.Object.create({ name: 'write more unit tests', done: false })
+      ])
+    });
+    hamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]
+    hamster.get('chores').objectAt(2).set('done', true);
+    hamster.get('remainingChores'); // []
+    ```
+  
+  
     @method filter
     @for Ember.computed
     @param {String} dependentKey
@@ -19979,7 +20001,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+455d5a6b";
+  exports.default = "2.13.0-alpha.1-canary+79d7dea2";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
