@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.13.0-alpha.1.d357d165"
+        "version": "2.13.0-alpha.1.eba9e45a"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -10326,7 +10326,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 507,
+            "line": 506,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -10346,7 +10346,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 552,
+            "line": 551,
             "itemtype": "method",
             "name": "reopen",
             "params": [
@@ -10365,7 +10365,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 589,
+            "line": 588,
             "itemtype": "method",
             "name": "apply",
             "params": [
@@ -10386,7 +10386,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 620,
+            "line": 619,
             "itemtype": "method",
             "name": "detect",
             "params": [
@@ -10408,7 +10408,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 669,
+            "line": 668,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -10420,7 +10420,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 692,
+            "line": 691,
             "description": "Makes a method available via an additional name.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  name: function() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: Ember.aliasMethod('name')\n});\n\nlet goodGuy = App.Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -10439,7 +10439,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 722,
+            "line": 721,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -10467,7 +10467,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 774,
+            "line": 773,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "_immediateObserver",
@@ -10497,7 +10497,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 813,
+            "line": 812,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",
