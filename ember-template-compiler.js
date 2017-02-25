@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+0cda5918
+ * @version   2.13.0-alpha.1-canary+d357d165
  */
 
 var enifed, requireModule, Ember;
@@ -7851,6 +7851,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   exports.getOnerror = getOnerror;
   exports.setOnerror = setOnerror;
   exports.dispatchError = dispatchError;
+  exports.getDispatchOverride = getDispatchOverride;
   exports.setDispatchOverride = setDispatchOverride;
 
   // To maintain stacktrace consistency across browsers
@@ -7890,6 +7891,10 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   }
 
   // allows testing adapter to override dispatch
+
+  function getDispatchOverride() {
+    return dispatchOverride;
+  }
 
   function setDispatchOverride(handler) {
     dispatchOverride = handler;
@@ -12522,7 +12527,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-metal/debug', '
 
   var onErrorTarget = {
     get onerror() {
-      return _emberMetalError_handler.getOnerror();
+      return _emberMetalError_handler.dispatchError;
     },
     set onerror(handler) {
       return _emberMetalError_handler.setOnerror(handler);
@@ -15981,7 +15986,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+0cda5918";
+  exports.default = "2.13.0-alpha.1-canary+d357d165";
 });
 enifed("handlebars", ["exports"], function (exports) {
   /* istanbul ignore next */

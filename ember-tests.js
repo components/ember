@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+0cda5918
+ * @version   2.13.0-alpha.1-canary+d357d165
  */
 
 var enifed, requireModule, Ember;
@@ -45821,7 +45821,7 @@ enifed('ember-metal/tests/run_loop/once_test.lint-test', ['exports'], function (
     assert.ok(true, 'ember-metal/tests/run_loop/once_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error_handler'], function (exports, _emberMetalRun_loop, _emberMetalError_handler) {
+enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error_handler', 'ember-metal/testing'], function (exports, _emberMetalRun_loop, _emberMetalError_handler, _emberMetalTesting) {
   'use strict';
 
   QUnit.module('system/run_loop/onerror_test');
@@ -45848,17 +45848,24 @@ enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_l
   QUnit.test('With Ember.onerror set, errors in Ember.run are caught', function () {
     var thrown = new Error('Boom!');
     var original = _emberMetalError_handler.getOnerror();
+    var originalDispatchOverride = _emberMetalError_handler.getDispatchOverride();
+    var originalIsTesting = _emberMetalTesting.isTesting();
 
     var caught = undefined;
     _emberMetalError_handler.setOnerror(function (error) {
       caught = error;
     });
+    _emberMetalError_handler.setDispatchOverride(null);
+    _emberMetalTesting.setTesting(false);
+
     try {
       _emberMetalRun_loop.default(function () {
         throw thrown;
       });
     } finally {
       _emberMetalError_handler.setOnerror(original);
+      _emberMetalError_handler.setDispatchOverride(originalDispatchOverride);
+      _emberMetalTesting.setTesting(originalIsTesting);
     }
 
     deepEqual(caught, thrown);
@@ -65430,9 +65437,11 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-te
       originalQUnit = window.QUnit;
     },
     teardown: function () {
-      _emberMetal.run(App, App.destroy);
-      App.removeTestHelpers();
-      App = null;
+      if (App) {
+        _emberMetal.run(App, App.destroy);
+        App.removeTestHelpers();
+        App = null;
+      }
 
       _emberTestingTest.default.adapter = originalAdapter;
       window.QUnit = originalQUnit;
@@ -65485,6 +65494,23 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-te
 
     ok(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersAdapter.default);
     ok(!(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersQunit.default));
+  });
+
+  QUnit.test('With Ember.Test.adapter set, errors in Ember.run are caught', function () {
+    var thrown = new Error('Boom!');
+
+    var caught = undefined;
+    _emberTestingTest.default.adapter = _emberTestingAdaptersQunit.default.create({
+      exception: function (error) {
+        caught = error;
+      }
+    });
+
+    _emberMetal.run(function () {
+      throw thrown;
+    });
+
+    deepEqual(caught, thrown);
   });
 });
 enifed('ember-testing/tests/adapters_test.lint-test', ['exports'], function (exports) {
