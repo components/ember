@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+eba9e45a
+ * @version   2.13.0-alpha.1-canary+f0e1f22f
  */
 
 var enifed, requireModule, Ember;
@@ -22463,7 +22463,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     }
   }
 
-  function mergeMixins(mixins, m, descs, values, base, keys) {
+  function mergeMixins(mixins, meta, descs, values, base, keys) {
     var currentMixin = undefined,
         props = undefined,
         key = undefined,
@@ -22479,7 +22479,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       currentMixin = mixins[i];
       _emberMetalDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
 
-      props = mixinProperties(m, currentMixin);
+      props = mixinProperties(meta, currentMixin);
       if (props === CONTINUE) {
         continue;
       }
@@ -22496,7 +22496,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
             continue;
           }
           keys.push(key);
-          addNormalizedProperty(base, key, props[key], m, descs, values, concats, mergings);
+          addNormalizedProperty(base, key, props[key], meta, descs, values, concats, mergings);
         }
 
         // manually copy toString() because some JS engines do not enumerate it
@@ -22504,7 +22504,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
           base.toString = props.toString;
         }
       } else if (currentMixin.mixins) {
-        mergeMixins(currentMixin.mixins, m, descs, values, base, keys);
+        mergeMixins(currentMixin.mixins, meta, descs, values, base, keys);
         if (currentMixin._without) {
           currentMixin._without.forEach(removeKeys);
         }
@@ -22522,9 +22522,9 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   detectBinding('notbound');
   detectBinding('fooBinding');
 
-  function connectBindings(obj, m) {
+  function connectBindings(obj, meta) {
     // TODO Mixin.apply(instance) should disconnect binding if exists
-    m.forEachBindings(function (key, binding) {
+    meta.forEachBindings(function (key, binding) {
       if (binding) {
         var to = key.slice(0, -7); // strip Binding off end
         if (binding instanceof _emberMetalBinding.Binding) {
@@ -22539,15 +22539,15 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       }
     });
     // mark as applied
-    m.clearBindings();
+    meta.clearBindings();
   }
 
-  function finishPartial(obj, m) {
-    connectBindings(obj, m || _emberMetalMeta.meta(obj));
+  function finishPartial(obj, meta) {
+    connectBindings(obj, meta || _emberMetalMeta.meta(obj));
     return obj;
   }
 
-  function followAlias(obj, desc, m, descs, values) {
+  function followAlias(obj, desc, descs, values) {
     var altKey = desc.methodName;
     var value = undefined;
     var possibleDesc = undefined;
@@ -22594,7 +22594,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   function applyMixin(obj, mixins, partial) {
     var descs = {};
     var values = {};
-    var m = _emberMetalMeta.meta(obj);
+    var meta = _emberMetalMeta.meta(obj);
     var keys = [];
     var key = undefined,
         value = undefined,
@@ -22609,7 +22609,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     // * Set up _super wrapping if necessary
     // * Set up computed property descriptors
     // * Copying `toString` in broken browsers
-    mergeMixins(mixins, m, descs, values, obj, keys);
+    mergeMixins(mixins, meta, descs, values, obj, keys);
 
     for (var i = 0; i < keys.length; i++) {
       key = keys[i];
@@ -22625,7 +22625,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       }
 
       while (desc && desc instanceof Alias) {
-        var followed = followAlias(obj, desc, m, descs, values);
+        var followed = followAlias(obj, desc, descs, values);
         desc = followed.desc;
         value = followed.value;
       }
@@ -22637,15 +22637,15 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
       replaceObserversAndListeners(obj, key, value);
 
       if (detectBinding(key)) {
-        m.writeBindings(key, value);
+        meta.writeBindings(key, value);
       }
 
-      _emberMetalProperties.defineProperty(obj, key, desc, value, m);
+      _emberMetalProperties.defineProperty(obj, key, desc, value, meta);
     }
 
     if (!partial) {
       // don't apply to prototype
-      finishPartial(obj, m);
+      finishPartial(obj, meta);
     }
 
     return obj;
@@ -22792,13 +22792,13 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     // TODO: Make Ember.mixin
 
     Mixin.mixins = function mixins(obj) {
-      var m = _emberMetalMeta.peekMeta(obj);
+      var meta = _emberMetalMeta.peekMeta(obj);
       var ret = [];
-      if (!m) {
+      if (!meta) {
         return ret;
       }
 
-      m.forEachMixins(function (key, currentMixin) {
+      meta.forEachMixins(function (key, currentMixin) {
         // skip primitive mixins since these are always anonymous
         if (!currentMixin.properties) {
           ret.push(currentMixin);
@@ -22912,11 +22912,11 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     if (obj instanceof Mixin) {
       return _detect(obj, this, {});
     }
-    var m = _emberMetalMeta.peekMeta(obj);
-    if (!m) {
+    var meta = _emberMetalMeta.peekMeta(obj);
+    if (!meta) {
       return false;
     }
-    return !!m.peekMixins(_emberUtils.guidFor(this));
+    return !!meta.peekMixins(_emberUtils.guidFor(this));
   };
 
   MixinPrototype.without = function () {
@@ -45364,7 +45364,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+eba9e45a";
+  exports.default = "2.13.0-alpha.1-canary+f0e1f22f";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
