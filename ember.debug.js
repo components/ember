@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+512353e2
+ * @version   2.13.0-alpha.1-canary+5c2edabd
  */
 
 var enifed, requireModule, Ember;
@@ -32724,7 +32724,33 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   }
 
   /**
-    Alias for [Ember.computed.uniq](/api/#method_computed_uniq).
+    A computed property which returns a new array with all the unique
+    elements from one or more dependent arrays.
+  
+    Example
+  
+    ```javascript
+    let Hamster = Ember.Object.extend({
+      uniqueFruits: Ember.computed.union('fruits', 'vegetables')
+    });
+  
+    let hamster = Hamster.create({
+      fruits: [
+        'banana',
+        'grape',
+        'kale',
+        'banana',
+        'tomato'
+      ],
+      vegetables: [
+        'tomato',
+        'carrot',
+        'lettuce'
+      ]
+    });
+  
+    hamster.get('uniqueFruits'); // ['banana', 'grape', 'kale', 'tomato', 'carrot', 'lettuce']
+    ```
   
     @method union
     @for Ember.computed
@@ -32737,8 +32763,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
   exports.union = union;
   /**
-    A computed property which returns a new array with all the duplicated
-    elements from two or more dependent arrays.
+    A computed property which returns a new array with all the elements
+    two or more dependent arrays have in common.
   
     Example
   
@@ -45328,7 +45354,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+512353e2";
+  exports.default = "2.13.0-alpha.1-canary+5c2edabd";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
