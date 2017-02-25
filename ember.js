@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+5c2edabd
+ * @version   2.13.0-alpha.1-canary+1c4bbba6
  */
 
 var enifed, requireModule, Ember;
@@ -11328,7 +11328,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       StyleAttributeManager.prototype.setAttribute = function setAttribute(dom, element, value) {
         var _AttributeManager$prototype$setAttribute;
 
-        _emberMetal.warn(_emberViews.STYLE_WARNING, (function () {
+        _emberMetal.warn(_emberViews.constructStyleDeprecationMessage(value), (function () {
           if (value === null || value === undefined || _glimmerRuntime.isSafeString(value)) {
             return true;
           }
@@ -11340,7 +11340,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       StyleAttributeManager.prototype.updateAttribute = function updateAttribute(dom, element, value) {
         var _AttributeManager$prototype$updateAttribute;
 
-        _emberMetal.warn(_emberViews.STYLE_WARNING, (function () {
+        _emberMetal.warn(_emberViews.constructStyleDeprecationMessage(value), (function () {
           if (value === null || value === undefined || _glimmerRuntime.isSafeString(value)) {
             return true;
           }
@@ -42781,7 +42781,7 @@ enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/s
   exports.getViewId = _emberViewsSystemUtils.getViewId;
   exports.getViewElement = _emberViewsSystemUtils.getViewElement;
   exports.setViewElement = _emberViewsSystemUtils.setViewElement;
-  exports.STYLE_WARNING = _emberViewsSystemUtils.STYLE_WARNING;
+  exports.constructStyleDeprecationMessage = _emberViewsSystemUtils.constructStyleDeprecationMessage;
   exports.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
   exports.ComponentLookup = _emberViewsComponent_lookup.default;
   exports.TextSupport = _emberViewsMixinsText_support.default;
@@ -44305,6 +44305,7 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
   'use strict';
 
   exports.isSimpleClick = isSimpleClick;
+  exports.constructStyleDeprecationMessage = constructStyleDeprecationMessage;
   exports.getRootViews = getRootViews;
   exports.getViewId = getViewId;
   exports.getViewElement = getViewElement;
@@ -44332,9 +44333,10 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
     return !modifier && !secondaryClick;
   }
 
-  var STYLE_WARNING = '' + 'Binding style attributes may introduce cross-site scripting vulnerabilities; ' + 'please ensure that values being bound are properly escaped. For more information, ' + 'including how to disable this warning, see ' + 'http://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes.';
+  function constructStyleDeprecationMessage(affectedStyle) {
+    return '' + 'Binding style attributes may introduce cross-site scripting vulnerabilities; ' + 'please ensure that values being bound are properly escaped. For more information, ' + 'including how to disable this warning, see ' + 'http://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes. ' + 'Style affected: "' + affectedStyle + '"';
+  }
 
-  exports.STYLE_WARNING = STYLE_WARNING;
   /**
     @private
     @method getRootViews
@@ -45354,7 +45356,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+5c2edabd";
+  exports.default = "2.13.0-alpha.1-canary+1c4bbba6";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

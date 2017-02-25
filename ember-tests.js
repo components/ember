@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+5c2edabd
+ * @version   2.13.0-alpha.1-canary+1c4bbba6
  */
 
 var enifed, requireModule, Ember;
@@ -22616,8 +22616,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       _emberMetal.setDebugFunction('warn', originalWarn);
     };
 
-    StyleTest.prototype.assertStyleWarning = function assertStyleWarning() {
-      this.assert.deepEqual(warnings, [_emberViews.STYLE_WARNING]);
+    StyleTest.prototype.assertStyleWarning = function assertStyleWarning(style) {
+      this.assert.deepEqual(warnings, [_emberViews.constructStyleDeprecationMessage(style)]);
     };
 
     StyleTest.prototype.assertNoWarning = function assertNoWarning() {
@@ -22716,11 +22716,12 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       }
 
       _class9.prototype['@test specifying <div style={{userValue}}></div> generates a warning'] = function testSpecifyingDivStyleUserValueDivGeneratesAWarning(assert) {
+        var userValue = 'width: 42px';
         this.render('<div style={{userValue}}></div>', {
-          userValue: 'width: 42px'
+          userValue: userValue
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning(userValue);
       };
 
       _class9.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
@@ -22729,12 +22730,12 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
         });
 
         this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
+        var userValue = 'width: 42px';
         this.render('{{foo-bar style=userValue}}', {
-          userValue: 'width: 42px'
+          userValue: userValue
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning(userValue);
       };
 
       _class9.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
@@ -22784,35 +22785,39 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       };
 
       _class9.prototype['@test binding warning is triggered when an unsafe string is quoted'] = function testBindingWarningIsTriggeredWhenAnUnsafeStringIsQuoted(assert) {
+        var userValue = 'width: 42px';
         this.render('<div style="{{userValue}}"></div>', {
-          userValue: 'width: 42px'
+          userValue: userValue
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning(userValue);
       };
 
       _class9.prototype['@test binding warning is triggered when a safe string for a complete property is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForACompletePropertyIsConcatenatedInPlace(assert) {
+        var userValue = 'width: 42px';
         this.render('<div style="color: green; {{userValue}}"></div>', {
           userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('width: 42px')
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning('color: green; ' + userValue);
       };
 
       _class9.prototype['@test binding warning is triggered when a safe string for a value is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAValueIsConcatenatedInPlace(assert) {
+        var userValue = '42px';
         this.render('<div style="color: green; width: {{userValue}}"></div>', {
-          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('42px')
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString(userValue)
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning('color: green; width: ' + userValue);
       };
 
       _class9.prototype['@test binding warning is triggered when a safe string for a property name is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAPropertyNameIsConcatenatedInPlace(assert) {
+        var userValue = 'width';
         this.render('<div style="color: green; {{userProperty}}: 42px"></div>', {
-          userProperty: new _emberGlimmerTestsUtilsHelpers.SafeString('width')
+          userProperty: new _emberGlimmerTestsUtilsHelpers.SafeString(userValue)
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning('color: green; ' + userValue + ': 42px');
       };
 
       return _class9;
