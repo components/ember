@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+f0e1f22f
+ * @version   2.13.0-alpha.1-canary+f74c844f
  */
 
 var enifed, requireModule, Ember;
@@ -8318,16 +8318,16 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
   */
 
   var Mixin = (function () {
-    function Mixin(args, properties) {
+    function Mixin(mixins, properties) {
       this.properties = properties;
 
-      var length = args && args.length;
+      var length = mixins && mixins.length;
 
       if (length > 0) {
         var m = new Array(length);
 
         for (var i = 0; i < length; i++) {
-          var x = args[i];
+          var x = mixins[i];
           if (x instanceof Mixin) {
             m[i] = x;
           } else {
@@ -20035,7 +20035,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+f0e1f22f";
+  exports.default = "2.13.0-alpha.1-canary+f74c844f";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
