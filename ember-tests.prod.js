@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+915062c2
+ * @version   2.13.0-alpha.1-canary+0a74a015
  */
 
 var enifed, requireModule, Ember;
@@ -7840,6 +7840,14 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     release();
     _emberMetal.set(post, 'title', 'New Title');
     equal(updatesCalled, 1, 'Release function removes observers');
+  });
+
+  QUnit.test('_nameToClass does not error when not found', function (assert) {
+    adapter = App.__container__.lookup('data-adapter:main');
+
+    var klass = adapter._nameToClass('App.Foo');
+
+    assert.equal(klass, undefined, 'returns undefined');
   });
 });
 enifed('ember-extension-support/tests/data_adapter_test.lint-test', ['exports'], function (exports) {
