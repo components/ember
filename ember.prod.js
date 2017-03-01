@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+0a74a015
+ * @version   2.13.0-alpha.1-canary+676fa7e7
  */
 
 var enifed, requireModule, Ember;
@@ -18118,9 +18118,7 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
   }
 });
 enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], function (exports, _emberMetalWatching) {
-  'no use strict';
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+  'use strict';
 
   exports.addDependentKeys = addDependentKeys;
   exports.removeDependentKeys = removeDependentKeys;
@@ -18356,14 +18354,12 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   }
 });
 enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/meta', 'ember-metal/meta_listeners'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalMeta, _emberMetalMeta_listeners) {
-  'no use strict';
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-
   /**
   @module ember
   @submodule ember-metal
   */
+  'use strict';
+
   exports.accumulateListeners = accumulateListeners;
   exports.addListener = addListener;
   exports.removeListener = removeListener;
@@ -20117,9 +20113,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
   }
 });
 enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/debug', 'ember-metal/chains', 'require'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalDebug, _emberMetalChains, _require) {
-  'no use strict';
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
+  'use strict';
 
   exports.deleteMeta = deleteMeta;
   exports.meta = meta;
@@ -20895,14 +20889,12 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
   }
 });
 enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'ember-metal/debug', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events'], function (exports, _emberUtils, _emberMetalError, _emberMetalDebug, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents) {
-  'no use strict';
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-
   /**
   @module ember
   @submodule ember-metal
   */
+  'use strict';
+
   exports.detectBinding = detectBinding;
   exports.mixin = mixin;
   exports.hasUnprocessedMixins = hasUnprocessedMixins;
@@ -36645,10 +36637,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
   });
 });
 enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsAction_handler, _emberRuntimeInject) {
-  'no use strict';
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-
   /**
     @module ember
     @submodule ember-runtime
@@ -36656,6 +36644,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
   // using ember-metal/lib/main here to ensure that ember-debug is setup
   // if present
+  'use strict';
 
   var _Mixin$create, _ClassMixinProps;
 
@@ -41955,7 +41944,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+0a74a015";
+  exports.default = "2.13.0-alpha.1-canary+676fa7e7";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
