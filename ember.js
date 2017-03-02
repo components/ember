@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+3e30b505
+ * @version   2.13.0-alpha.1-canary+4d0a17b3
  */
 
 var enifed, requireModule, Ember;
@@ -15198,6 +15198,14 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
 
   exports.mountMacro = mountMacro;
 
+  function dynamicEngineFor(vm, symbolTable) {
+    var env = vm.env;
+    var args = vm.getArgs();
+    var nameRef = args.positional.at(0);
+
+    return new DynamicEngineReference({ nameRef: nameRef, env: env, symbolTable: symbolTable });
+  }
+
   /**
     The `{{mount}}` helper lets you embed a routeless engine in a template.
     Mounting an engine will cause an instance to be booted and its `application`
@@ -15222,15 +15230,54 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
   function mountMacro(path, params, hash, builder) {
     _emberMetal.assert('You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1 && hash === null);
 
-    var name = params[0];
+    _emberMetal.assert('The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}.', typeof params[0] === 'string');
 
-    _emberMetal.assert('The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}.', typeof name === 'string');
-
-    _emberMetal.assert('You used `{{mount \'' + name + '\'}}`, but the engine \'' + name + '\' can not be found.', builder.env.owner.hasRegistration('engine:' + name));
-
-    builder.component.static(new MountDefinition(name, builder.env), [params, hash, null, null], builder.symbolTable);
+    var definitionArgs = [params.slice(0, 1), null, null, null];
+    var args = [null, null, null, null];
+    builder.component.dynamic(definitionArgs, dynamicEngineFor, args, builder.symbolTable);
     return true;
   }
+
+  var DynamicEngineReference = (function () {
+    function DynamicEngineReference(_ref) {
+      var nameRef = _ref.nameRef;
+      var env = _ref.env;
+      var symbolTable = _ref.symbolTable;
+      var args = _ref.args;
+      babelHelpers.classCallCheck(this, DynamicEngineReference);
+
+      this.tag = nameRef.tag;
+      this.nameRef = nameRef;
+      this.env = env;
+      this.symbolTable = symbolTable;
+      this._lastName = undefined;
+      this._lastDef = undefined;
+    }
+
+    DynamicEngineReference.prototype.value = function value() {
+      var env = /*symbolTable*/this.env;
+      var nameRef = this.nameRef;
+
+      var nameOrDef = nameRef.value();
+
+      if (this._lastName === nameOrDef) {
+        return this._lastDef;
+      }
+
+      _emberMetal.assert('You used `{{mount \'' + nameOrDef + '\'}}`, but the engine \'' + nameOrDef + '\' can not be found.', env.owner.hasRegistration('engine:' + nameOrDef));
+
+      if (!env.owner.hasRegistration('engine:' + nameOrDef)) {
+        return null;
+      }
+
+      this._lastName = nameOrDef;
+      this._lastDef = new MountDefinition(nameOrDef);
+
+      return this._lastDef;
+    };
+
+    return DynamicEngineReference;
+  })();
 
   var MountManager = (function (_AbstractManager) {
     babelHelpers.inherits(MountManager, _AbstractManager);
@@ -15245,35 +15292,30 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
       return args;
     };
 
-    MountManager.prototype.create = function create(environment, _ref, args, dynamicScope) {
-      var name = _ref.name;
-      var env = _ref.env;
+    MountManager.prototype.create = function create(environment, _ref2, args, dynamicScope) {
+      var name = _ref2.name;
 
       var _this = this;
 
       _emberMetal.runInDebug(function () {
-        return _this._pushEngineToDebugStack('engine:' + name, env);
+        return _this._pushEngineToDebugStack('engine:' + name, environment);
       });
 
       dynamicScope.outletState = _glimmerReference.UNDEFINED_REFERENCE;
 
-      var engine = env.owner.buildChildEngineInstance(name);
+      var engine = environment.owner.buildChildEngineInstance(name);
 
       engine.boot();
 
-      return { engine: engine };
+      return engine;
     };
 
-    MountManager.prototype.layoutFor = function layoutFor(definition, _ref2, env) {
-      var engine = _ref2.engine;
-
+    MountManager.prototype.layoutFor = function layoutFor(definition, engine, env) {
       var template = engine.lookup('template:application');
       return env.getCompiledBlock(_emberGlimmerSyntaxOutlet.OutletLayoutCompiler, template);
     };
 
-    MountManager.prototype.getSelf = function getSelf(_ref3) {
-      var engine = _ref3.engine;
-
+    MountManager.prototype.getSelf = function getSelf(engine) {
       var applicationFactory = engine[_container.FACTORY_FOR]('controller:application');
       var factory = applicationFactory || _emberRouting.generateControllerFactory(engine, 'application');
       return new _emberGlimmerUtilsReferences.RootReference(factory.create());
@@ -15283,9 +15325,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
       return null;
     };
 
-    MountManager.prototype.getDestructor = function getDestructor(_ref4) {
-      var engine = _ref4.engine;
-
+    MountManager.prototype.getDestructor = function getDestructor(engine) {
       return engine;
     };
 
@@ -15315,11 +15355,10 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
   var MountDefinition = (function (_ComponentDefinition) {
     babelHelpers.inherits(MountDefinition, _ComponentDefinition);
 
-    function MountDefinition(name, env) {
+    function MountDefinition(name) {
       babelHelpers.classCallCheck(this, MountDefinition);
 
       _ComponentDefinition.call(this, name, MOUNT_MANAGER, null);
-      this.env = env;
     }
 
     return MountDefinition;
@@ -45361,7 +45400,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+3e30b505";
+  exports.default = "2.13.0-alpha.1-canary+4d0a17b3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

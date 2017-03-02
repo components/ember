@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.13.0-alpha.1.3e30b505"
+        "version": "2.13.0-alpha.1.4d0a17b3"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -8427,7 +8427,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/syntax/mount.js",
-            "line": 16,
+            "line": 24,
             "description": "The `{{mount}}` helper lets you embed a routeless engine in a template.\nMounting an engine will cause an instance to be booted and its `application`\ntemplate to be rendered.\n\nFor example, the following template mounts the `ember-chat` engine:\n\n```handlebars\n{{! application.hbs }}\n{{mount \"ember-chat\"}}\n```\n\nCurrently, the engine name is the only argument that can be passed to\n`{{mount}}`.",
             "itemtype": "method",
             "name": "mount",
