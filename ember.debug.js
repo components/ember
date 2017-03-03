@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+b0555ba5
+ * @version   2.13.0-alpha.1-canary+1fcef6c4
  */
 
 var enifed, requireModule, Ember;
@@ -26497,7 +26497,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
 
   var _uuid = undefined;
 
-  if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+  if (true) {
     _uuid = function _uuid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r, v;
@@ -26644,7 +26644,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     */
     pushState: function (path) {
       var state = { path: path };
-      if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+      if (true) {
         state.uuid = _uuid();
       }
 
@@ -26664,7 +26664,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     */
     replaceState: function (path) {
       var state = { path: path };
-      if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+      if (true) {
         state.uuid = _uuid();
       }
 
@@ -40744,7 +40744,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal', 'ember-testing/test/h
   _emberTestingTestHelpers.registerHelper('currentPath', _emberTestingHelpersCurrent_path.default);
   _emberTestingTestHelpers.registerHelper('currentURL', _emberTestingHelpersCurrent_url.default);
 
-  if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+  if (true) {
     _emberTestingTestHelpers.registerHelper('resumeTest', _emberTestingHelpersPause_test.resumeTest);
   }
 });
@@ -41111,12 +41111,12 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
   */
 
   function pauseTest() {
-    if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+    if (true) {
       _emberConsole.default.info('Testing paused. Use `resumeTest()` to continue.');
     }
 
     return new _emberRuntime.RSVP.Promise(function (resolve) {
-      if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+      if (true) {
         resume = resolve;
       }
     }, 'TestAdapter paused promise');
@@ -44887,7 +44887,7 @@ enifed("ember-views/views/view", ["exports"], function (exports) {
 enifed("ember/features", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": null, "ember-factory-for": true, "ember-no-double-extend": true, "ember-routing-router-service": null, "ember-unique-location-history-state": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": true, "ember-factory-for": true, "ember-no-double-extend": true, "ember-routing-router-service": null, "ember-unique-location-history-state": true, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -45430,7 +45430,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+b0555ba5";
+  exports.default = "2.13.0-alpha.1-canary+1fcef6c4";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

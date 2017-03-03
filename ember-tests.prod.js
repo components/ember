@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+b0555ba5
+ * @version   2.13.0-alpha.1-canary+1fcef6c4
  */
 
 var enifed, requireModule, Ember;
@@ -47242,7 +47242,7 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     location.initState();
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-unique-location-history-state')) {
+  if (true) {
     QUnit.test('base URL is preserved when moving around', function () {
       expect(2);
 
@@ -66072,7 +66072,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing', 'ember-r
     App.testHelpers.pauseTest();
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+  if (true) {
     QUnit.test('resumeTest resumes paused tests', function () {
       expect(1);
 

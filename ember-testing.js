@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+b0555ba5
+ * @version   2.13.0-alpha.1-canary+1fcef6c4
  */
 
 var enifed, requireModule, Ember;
@@ -1151,7 +1151,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal', 'ember-testing/test/h
   _emberTestingTestHelpers.registerHelper('currentPath', _emberTestingHelpersCurrent_path.default);
   _emberTestingTestHelpers.registerHelper('currentURL', _emberTestingHelpersCurrent_url.default);
 
-  if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+  if (true) {
     _emberTestingTestHelpers.registerHelper('resumeTest', _emberTestingHelpersPause_test.resumeTest);
   }
 });
@@ -1518,12 +1518,12 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
   */
 
   function pauseTest() {
-    if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+    if (true) {
       _emberConsole.default.info('Testing paused. Use `resumeTest()` to continue.');
     }
 
     return new _emberRuntime.RSVP.Promise(function (resolve) {
-      if (_emberMetal.isFeatureEnabled('ember-testing-resume-test')) {
+      if (true) {
         resume = resolve;
       }
     }, 'TestAdapter paused promise');
