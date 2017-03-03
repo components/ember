@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+4d0a17b3
+ * @version   2.13.0-alpha.1-canary+b0555ba5
  */
 
 var enifed, requireModule, Ember;
@@ -64158,6 +64158,15 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args.lint-test', ['
     assert.ok(true, 'ember-template-compiler/plugins/transform-attrs-into-args.js should pass ESLint\n\n');
   });
 });
+enifed('ember-template-compiler/plugins/transform-dot-component-invocation.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-template-compiler/plugins/transform-dot-component-invocation.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-template-compiler/plugins/transform-dot-component-invocation.js should pass ESLint\n\n');
+  });
+});
 enifed('ember-template-compiler/plugins/transform-each-in-into-each.lint-test', ['exports'], function (exports) {
   'use strict';
 
@@ -64379,6 +64388,30 @@ enifed('ember-template-compiler/tests/plugins/deprecate-render-test.lint-test', 
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-template-compiler/tests/plugins/deprecate-render-test.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation-test', ['exports', 'ember-template-compiler/index'], function (exports, _emberTemplateCompilerIndex) {
+  'use strict';
+
+  QUnit.module('ember-template-compiler: transforms dot component invocation');
+
+  QUnit.test('Does not throw a compiler error for path components', function (assert) {
+    assert.expect(1);
+
+    ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}'].forEach(function (layout, i) {
+      _emberTemplateCompilerIndex.compile(layout, { moduleName: 'example-' + i });
+    });
+
+    assert.ok(true);
+  });
+});
+enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation-test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-template-compiler/tests/plugins/transform-dot-component-invocation-test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-template-compiler/tests/plugins/transform-dot-component-invocation-test.js should pass ESLint\n\n');
   });
 });
 enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['exports', 'ember-template-compiler/index'], function (exports, _emberTemplateCompilerIndex) {
