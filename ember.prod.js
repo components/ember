@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+1fcef6c4
+ * @version   2.13.0-alpha.1-canary+e994e806
  */
 
 var enifed, requireModule, Ember;
@@ -26166,15 +26166,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     },
 
     /**
-      Populates the QP meta information in the BucketCache.
-       @private
-      @method _populateQPMeta
-    */
-    _populateQPMeta: function () {
-      this._bucketCache.stash('route-meta', this.fullRouteName, this.get('_qp'));
-    },
-
-    /**
       @private
        @property _qp
     */
@@ -28735,7 +28726,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         }
 
         handler._setRouteName(routeName);
-        handler._populateQPMeta();
 
         if (engineInfo && !_emberRoutingSystemRoute.hasDefaultSerialize(handler)) {
           throw new Error('Defining a custom serialize method on an Engine route is not supported.');
@@ -42016,7 +42006,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+1fcef6c4";
+  exports.default = "2.13.0-alpha.1-canary+e994e806";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+1fcef6c4
+ * @version   2.13.0-alpha.1-canary+e994e806
  */
 
 var enifed, requireModule, Ember;
@@ -77626,7 +77626,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test.lint
     assert.ok(true, 'ember/tests/routing/query_params_test/overlapping_query_params_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test', ['exports', 'ember-runtime', 'ember-routing', 'internal-test-helpers'], function (exports, _emberRuntime, _emberRouting, _internalTestHelpers) {
+enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing', 'internal-test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberRouting, _internalTestHelpers) {
   'use strict';
 
   // These tests mimic what happens with lazily loaded Engines.
@@ -77829,22 +77829,36 @@ enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test
         return {
           location: 'test',
 
+          init: function () {
+            this._super.apply(this, arguments);
+            this._seenHandlers = Object.create(null);
+            this._handlerPromises = Object.create(null);
+          },
+
           _getQPMeta: function (handlerInfo) {
-            return this._bucketCache.lookup('route-meta', handlerInfo.name);
+            var handler = this._seenHandlers[handlerInfo.name];
+            if (handler) {
+              return _emberMetal.get(handler, '_qp');
+            }
           },
 
           _getHandlerFunction: function () {
             var getHandler = this._super.apply(this, arguments);
-            var cache = {};
+            var handlerPromises = this._handlerPromises;
+            var seenHandlers = this._seenHandlers;
 
             return function (routeName) {
               fetchedHandlers.push(routeName);
 
               // Cache the returns so we don't have more than one Promise for a
               // given handler.
-              return cache[routeName] || (cache[routeName] = new _emberRuntime.RSVP.Promise(function (resolve) {
+              return handlerPromises[routeName] || (handlerPromises[routeName] = new _emberRuntime.RSVP.Promise(function (resolve) {
                 setTimeout(function () {
-                  return resolve(getHandler(routeName));
+                  var handler = getHandler(routeName);
+
+                  seenHandlers[routeName] = handler;
+
+                  resolve(handler);
                 }, 10);
               }));
             };
