@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+e994e806
+ * @version   2.13.0-alpha.1-canary+eb94b5f6
  */
 
 var enifed, requireModule, Ember;
@@ -16838,9 +16838,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
       only a sender and key value as parameters or, if you aren't interested in
       any of these values, to write an observer that has no parameters at all.
        @method addObserver
-      @param {String} key The key to observer
+      @param {String} key The key to observe
       @param {Object} target The target object to invoke
-      @param {String|Function} method The method to invoke.
+      @param {String|Function} method The method to invoke
       @public
     */
     addObserver: function (key, target, method) {
@@ -16852,9 +16852,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
       the same key, target, and method you passed to `addObserver()` and your
       target will no longer receive notifications.
        @method removeObserver
-      @param {String} key The key to observer
+      @param {String} key The key to observe
       @param {Object} target The target object to invoke
-      @param {String|Function} method The method to invoke.
+      @param {String|Function} method The method to invoke
       @public
     */
     removeObserver: function (key, target, method) {
@@ -20024,7 +20024,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+e994e806";
+  exports.default = "2.13.0-alpha.1-canary+eb94b5f6";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
