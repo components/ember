@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.2-release+974379e4
+ * @version   2.11.2-release+1cbf4bb8
  */
 
 var enifed, requireModule, Ember;
@@ -164,7 +164,7 @@ function defaults(obj, defaults) {
   return obj;
 }
 
-babelHelpers = {
+var babelHelpers = {
   inherits: inherits,
   taggedTemplateLiteralLoose: taggedTemplateLiteralLoose,
   slice: Array.prototype.slice,
