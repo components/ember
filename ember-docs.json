@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.12.0-beta.2.2bcb190f"
+        "version": "2.12.0-beta.2.4a19f10d"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -7392,7 +7392,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 173,
+            "line": 174,
             "description": "Fetch the records of a given type and observe them for changes.",
             "access": "public",
             "tagname": "",
@@ -7431,7 +7431,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 240,
+            "line": 241,
             "description": "Clear all observers before destruction",
             "access": "private",
             "tagname": "",
@@ -7444,7 +7444,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 250,
+            "line": 251,
             "description": "Detect whether a class is a model.\n\nTest that against the model class\nof your persistence library.",
             "access": "private",
             "tagname": "",
@@ -7467,7 +7467,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 265,
+            "line": 266,
             "description": "Get the columns for a given model type.",
             "access": "private",
             "tagname": "",
@@ -7491,7 +7491,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 279,
+            "line": 280,
             "description": "Adds observers to a model type class.",
             "access": "private",
             "tagname": "",
@@ -7520,7 +7520,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 312,
+            "line": 313,
             "description": "Wraps a given model type and observes changes to it.",
             "access": "private",
             "tagname": "",
@@ -7549,7 +7549,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 344,
+            "line": 345,
             "description": "Fetches all models defined in the application.",
             "access": "private",
             "tagname": "",
@@ -7566,7 +7566,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 373,
+            "line": 374,
             "description": "Loops over all namespaces and all objects\nattached to them.",
             "access": "private",
             "tagname": "",
@@ -7583,7 +7583,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 402,
+            "line": 403,
             "description": "Fetches all loaded records for a given type.",
             "access": "private",
             "tagname": "",
@@ -7600,7 +7600,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 415,
+            "line": 416,
             "description": "Wraps a record and observers changes to it.",
             "access": "private",
             "tagname": "",
@@ -7624,7 +7624,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 436,
+            "line": 437,
             "description": "Gets the values for each column.",
             "access": "private",
             "tagname": "",
@@ -7641,7 +7641,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 448,
+            "line": 449,
             "description": "Returns keywords to match when searching records.",
             "access": "private",
             "tagname": "",
@@ -7658,7 +7658,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 459,
+            "line": 460,
             "description": "Returns the values of filters defined by `getFilters`.",
             "access": "private",
             "tagname": "",
@@ -7682,7 +7682,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 471,
+            "line": 472,
             "description": "Each record can have a color that represents its state.",
             "access": "private",
             "tagname": "",
@@ -7706,7 +7706,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 484,
+            "line": 485,
             "description": "Observes all relevant properties and re-sends the wrapped record\nwhen a change occurs.",
             "access": "private",
             "tagname": "",
@@ -8187,7 +8187,7 @@
         {
             "file": "packages/ember-glimmer/lib/helpers/component.js",
             "line": 20,
-            "description": "The `{{component}}` helper lets you add instances of `Ember.Component` to a\ntemplate. See [Ember.Component](/api/classes/Ember.Component.html) for\nadditional information on how a `Component` functions.\n`{{component}}`'s primary use is for cases where you want to dynamically\nchange which type of component is rendered as the state of your application\nchanges. This helper has three modes: inline, block, and nested.\n\n### Inline Form\n\nGiven the following template:\n\n```app/application.hbs\n{{component infographicComponentName}}\n```\n\nAnd the following application code:\n\n```app/controllers/application.js\nexport default Ember.Controller.extend({\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nThe `live-updating-chart` component will be appended when `isMarketOpen` is\n`true`, and the `market-close-summary` component will be appended when\n`isMarketOpen` is `false`. If the value changes while the app is running,\nthe component will be automatically swapped out accordingly.\nNote: You should not use this helper when you are consistently rendering the same\ncomponent. In that case, use standard component syntax, for example:\n\n```app/templates/application.hbs\n{{live-updating-chart}}\n```\n\n### Block Form\n\nUsing the block form of this helper is similar to using the block form\nof a component. Given the following application template:\n\n```app/templates/application.hbs\n{{#component infographicComponentName}}\n  Last update: {{lastUpdateTimestamp}}\n{{/component}}\n```\n\nThe following controller code:\n\n```app/controllers/application.js\nexport default Ember.Controller.extend({\n  lastUpdateTimestamp: computed(function() {\n    return new Date();\n  }),\n\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nAnd the following component template:\n\n```app/templates/components/live-updating-chart.hbs\n{{! chart }}\n{{yield}}\n```\n\nThe `Last Update: {{lastUpdateTimestamp}}` will be rendered in place of the `{{yield}}`.\n\n### Nested Usage\n\nThe `component` helper can be used to package a component path with initial attrs.\nThe included attrs can then be merged during the final invocation.\nFor example, given a `person-form` component with the following template:\n\n```app/templates/components/person-form.hbs\n{{yield (hash\n  nameInput=(component \"my-input-component\" value=model.name placeholder=\"First Name\")\n)}}\n```\n\nWhen yielding the component via the `hash` helper, the component is invocked directly.\nSee the following snippet:\n\n```\n{{#person-form as |form|}}\n  {{form.nameInput placeholder=\"Username\"}}\n{{/person-form}}\n```\n\nWhich outputs an input whose value is already bound to `model.name` and `placeholder`\nis \"Username\".\n\nWhen yielding the component without the hash helper use the `component` helper.\nFor example, below is a `full-name` component template:\n\n```handlebars\n{{yield (component \"my-input-component\" value=model.name placeholder=\"Name\")}}\n```\n\n```\n{{#full-name as |field|}}\n  {{component field placeholder=\"Full name\"}}\n{{/full-name}}\n```",
+            "description": "The `{{component}}` helper lets you add instances of `Ember.Component` to a\ntemplate. See [Ember.Component](/api/classes/Ember.Component.html) for\nadditional information on how a `Component` functions.\n`{{component}}`'s primary use is for cases where you want to dynamically\nchange which type of component is rendered as the state of your application\nchanges. This helper has three modes: inline, block, and nested.\n\n### Inline Form\n\nGiven the following template:\n\n```app/application.hbs\n{{component infographicComponentName}}\n```\n\nAnd the following application code:\n\n```app/controllers/application.js\nexport default Ember.Controller.extend({\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nThe `live-updating-chart` component will be appended when `isMarketOpen` is\n`true`, and the `market-close-summary` component will be appended when\n`isMarketOpen` is `false`. If the value changes while the app is running,\nthe component will be automatically swapped out accordingly.\nNote: You should not use this helper when you are consistently rendering the same\ncomponent. In that case, use standard component syntax, for example:\n\n```app/templates/application.hbs\n{{live-updating-chart}}\n```\n\n### Block Form\n\nUsing the block form of this helper is similar to using the block form\nof a component. Given the following application template:\n\n```app/templates/application.hbs\n{{#component infographicComponentName}}\n  Last update: {{lastUpdateTimestamp}}\n{{/component}}\n```\n\nThe following controller code:\n\n```app/controllers/application.js\nexport default Ember.Controller.extend({\n  lastUpdateTimestamp: computed(function() {\n    return new Date();\n  }),\n\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nAnd the following component template:\n\n```app/templates/components/live-updating-chart.hbs\n{{! chart }}\n{{yield}}\n```\n\nThe `Last Update: {{lastUpdateTimestamp}}` will be rendered in place of the `{{yield}}`.\n\n### Nested Usage\n\nThe `component` helper can be used to package a component path with initial attrs.\nThe included attrs can then be merged during the final invocation.\nFor example, given a `person-form` component with the following template:\n\n```app/templates/components/person-form.hbs\n{{yield (hash\n  nameInput=(component \"my-input-component\" value=model.name placeholder=\"First Name\")\n)}}\n```\n\nWhen yielding the component via the `hash` helper, the component is invoked directly.\nSee the following snippet:\n\n```\n{{#person-form as |form|}}\n  {{form.nameInput placeholder=\"Username\"}}\n{{/person-form}}\n```\n\nWhich outputs an input whose value is already bound to `model.name` and `placeholder`\nis \"Username\".\n\nWhen yielding the component without the hash helper use the `component` helper.\nFor example, below is a `full-name` component template:\n\n```handlebars\n{{yield (component \"my-input-component\" value=model.name placeholder=\"Name\")}}\n```\n\n```\n{{#full-name as |field|}}\n  {{component field placeholder=\"Full name\"}}\n{{/full-name}}\n```",
             "itemtype": "method",
             "name": "component",
             "since": "1.11.0",
@@ -17319,7 +17319,7 @@
             "params": [
                 {
                     "name": "key",
-                    "description": "The key to observer",
+                    "description": "The key to observe",
                     "type": "String"
                 },
                 {
@@ -17329,7 +17329,7 @@
                 },
                 {
                     "name": "method",
-                    "description": "The method to invoke.",
+                    "description": "The method to invoke",
                     "type": "String|Function"
                 }
             ],
@@ -17349,7 +17349,7 @@
             "params": [
                 {
                     "name": "key",
-                    "description": "The key to observer",
+                    "description": "The key to observe",
                     "type": "String"
                 },
                 {
@@ -17359,7 +17359,7 @@
                 },
                 {
                     "name": "method",
-                    "description": "The method to invoke.",
+                    "description": "The method to invoke",
                     "type": "String|Function"
                 }
             ],
@@ -19915,7 +19915,7 @@
         {
             "file": "packages/ember-utils/lib/owner.js",
             "line": 10,
-            "description": "Framework objects in an Ember application (components, services, routes, etc.)\nare created via a factory and dependency injection system. Each of these\nobjects is the responsibility of an \"owner\", which handled its\ninstantiation and manages its lifetime.\n\n`getOwner` fetches the owner object responsible for an instance. This can\nbe used to lookup or resolve other class instances, or register new factories\ninto the owner.\n\nFor example, this component dynamically looks up a service based on the\n`audioType` passed as an attribute:\n\n```\n// app/components/play-audio.js\nimport Ember from 'ember';\n\n// Usage:\n//\n//   {{play-audio audioType=model.audioType audioFile=model.file}}\n//\nexport default Ember.Component.extend({\n  audioService: Ember.computed('audioType', function() {\n    let owner = Ember.getOwner(this);\n    return owner.lookup(`service:${this.get('audioType')}`);\n  }),\n  click() {\n    let player = this.get('audioService');\n    player.play(this.get('audioFile'));\n  }\n});\n```",
+            "description": "Framework objects in an Ember application (components, services, routes, etc.)\nare created via a factory and dependency injection system. Each of these\nobjects is the responsibility of an \"owner\", which handled its\ninstantiation and manages its lifetime.\n\n`getOwner` fetches the owner object responsible for an instance. This can\nbe used to lookup or resolve other class instances, or register new factories\ninto the owner.\n\nFor example, this component dynamically looks up a service based on the\n`audioType` passed as an attribute:\n\n```app/components/play-audio.js\nimport Ember from 'ember';\n\n// Usage:\n//\n//   {{play-audio audioType=model.audioType audioFile=model.file}}\n//\nexport default Ember.Component.extend({\n  audioService: Ember.computed('audioType', function() {\n    let owner = Ember.getOwner(this);\n    return owner.lookup(`service:${this.get('audioType')}`);\n  }),\n  click() {\n    let player = this.get('audioService');\n    player.play(this.get('audioFile'));\n  }\n});\n```",
             "itemtype": "method",
             "name": "getOwner",
             "params": [
@@ -19938,7 +19938,7 @@
         },
         {
             "file": "packages/ember-utils/lib/owner.js",
-            "line": 54,
+            "line": 53,
             "description": "`setOwner` forces a new owner on a given object instance. This is primarily\nuseful in some testing cases.",
             "itemtype": "method",
             "name": "setOwner",
@@ -20680,7 +20680,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 181,
+            "line": 183,
             "description": "Registers an event listener on the rootElement. If the given event is\ntriggered, the provided event handler will be triggered on the target view.\n\nIf the target view does not implement the event handler, or if the handler\nreturns `false`, the parent view will be called. The event will continue to\nbubble to each successive parent view until it reaches the top.",
             "access": "private",
             "tagname": "",
@@ -20701,6 +20701,11 @@
                     "name": "eventName",
                     "description": "the name of the method to call on the view",
                     "type": "String"
+                },
+                {
+                    "name": "viewRegistry",
+                    "description": "",
+                    "type": "Object"
                 }
             ],
             "class": "Ember.EventDispatcher",
@@ -20710,7 +20715,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 22,
+            "line": 25,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -20728,7 +20733,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 43,
+            "line": 46,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -20746,7 +20751,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 58,
+            "line": 61,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -20764,7 +20769,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 77,
+            "line": 80,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -20782,7 +20787,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 114,
+            "line": 117,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -20800,7 +20805,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 123,
+            "line": 126,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -20818,7 +20823,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 138,
+            "line": 141,
             "description": "`getViewClientRects` provides information about the position of the border\nbox edges of a view relative to the viewport.\n\nIt is only intended to be used by development tools like the Ember Inspector\nand may not work on older browsers.",
             "access": "private",
             "tagname": "",
@@ -20837,7 +20842,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 154,
+            "line": 157,
             "description": "`getViewBoundingClientRect` provides information about the position of the\nbounding border box edges of a view relative to the viewport.\n\nIt is only intended to be used by development tools like the Ember Inpsector\nand may not work on older browsers.",
             "access": "private",
             "tagname": "",
@@ -20856,7 +20861,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/utils.js",
-            "line": 170,
+            "line": 173,
             "description": "Determines if the element matches the specified selector.",
             "access": "private",
             "tagname": "",

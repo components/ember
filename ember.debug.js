@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-beta.2-beta+2bcb190f
+ * @version   2.12.0-beta.2-beta+4a19f10d
  */
 
 var enifed, requireModule, Ember;
@@ -6732,7 +6732,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
     _nameToClass: function (type) {
       if (typeof type === 'string') {
         var owner = _emberUtils.getOwner(this);
-        type = owner[_container.FACTORY_FOR]('model:' + type).class;
+        var Factory = owner[_container.FACTORY_FOR]('model:' + type);
+        type = Factory && Factory.class;
       }
       return type;
     },
@@ -9609,7 +9610,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       StyleAttributeManager.prototype.setAttribute = function setAttribute(dom, element, value) {
         var _AttributeManager$prototype$setAttribute;
 
-        _emberMetal.warn(_emberViews.STYLE_WARNING, (function () {
+        _emberMetal.warn(_emberViews.constructStyleDeprecationMessage(value), (function () {
           if (value === null || value === undefined || _glimmerRuntime.isSafeString(value)) {
             return true;
           }
@@ -9621,7 +9622,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       StyleAttributeManager.prototype.updateAttribute = function updateAttribute(dom, element, value) {
         var _AttributeManager$prototype$updateAttribute;
 
-        _emberMetal.warn(_emberViews.STYLE_WARNING, (function () {
+        _emberMetal.warn(_emberViews.constructStyleDeprecationMessage(value), (function () {
           if (value === null || value === undefined || _glimmerRuntime.isSafeString(value)) {
             return true;
           }
@@ -10350,7 +10351,7 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glim
     )}}
     ```
   
-    When yielding the component via the `hash` helper, the component is invocked directly.
+    When yielding the component via the `hash` helper, the component is invoked directly.
     See the following snippet:
   
     ```
@@ -17934,6 +17935,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   exports.getOnerror = getOnerror;
   exports.setOnerror = setOnerror;
   exports.dispatchError = dispatchError;
+  exports.getDispatchOverride = getDispatchOverride;
   exports.setDispatchOverride = setDispatchOverride;
 
   // To maintain stacktrace consistency across browsers
@@ -17973,6 +17975,10 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   }
 
   // allows testing adapter to override dispatch
+
+  function getDispatchOverride() {
+    return dispatchOverride;
+  }
 
   function setDispatchOverride(handler) {
     dispatchOverride = handler;
@@ -22606,7 +22612,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-metal/debug', '
 
   var onErrorTarget = {
     get onerror() {
-      return _emberMetalError_handler.getOnerror();
+      return _emberMetalError_handler.dispatchError;
     },
     set onerror(handler) {
       return _emberMetalError_handler.setOnerror(handler);
@@ -35263,9 +35269,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
       only a sender and key value as parameters or, if you aren't interested in
       any of these values, to write an observer that has no parameters at all.
        @method addObserver
-      @param {String} key The key to observer
+      @param {String} key The key to observe
       @param {Object} target The target object to invoke
-      @param {String|Function} method The method to invoke.
+      @param {String|Function} method The method to invoke
       @public
     */
     addObserver: function (key, target, method) {
@@ -35277,9 +35283,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
       the same key, target, and method you passed to `addObserver()` and your
       target will no longer receive notifications.
        @method removeObserver
-      @param {String} key The key to observer
+      @param {String} key The key to observe
       @param {Object} target The target object to invoke
-      @param {String|Function} method The method to invoke.
+      @param {String|Function} method The method to invoke
       @public
     */
     removeObserver: function (key, target, method) {
@@ -40727,8 +40733,7 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
     For example, this component dynamically looks up a service based on the
     `audioType` passed as an attribute:
   
-    ```
-    // app/components/play-audio.js
+    ```app/components/play-audio.js
     import Ember from 'ember';
   
     // Usage:
@@ -40952,7 +40957,7 @@ enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/s
   exports.getViewId = _emberViewsSystemUtils.getViewId;
   exports.getViewElement = _emberViewsSystemUtils.getViewElement;
   exports.setViewElement = _emberViewsSystemUtils.setViewElement;
-  exports.STYLE_WARNING = _emberViewsSystemUtils.STYLE_WARNING;
+  exports.constructStyleDeprecationMessage = _emberViewsSystemUtils.constructStyleDeprecationMessage;
   exports.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
   exports.ComponentLookup = _emberViewsComponent_lookup.default;
   exports.TextSupport = _emberViewsMixinsText_support.default;
@@ -42275,9 +42280,11 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
         throw new TypeError('Unable to add \'' + ROOT_ELEMENT_CLASS + '\' class to root element (' + (rootElement.selector || rootElement[0].tagName) + '). Make sure you set rootElement to the body or an element in the body.');
       }
 
+      var viewRegistry = this._getViewRegistry();
+
       for (event in events) {
         if (events.hasOwnProperty(event)) {
-          this.setupHandler(rootElement, event, events[event]);
+          this.setupHandler(rootElement, event, events[event], viewRegistry);
         }
       }
     },
@@ -42293,12 +42300,10 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       @param {Element} rootElement
       @param {String} event the browser-originated event to listen to
       @param {String} eventName the name of the method to call on the view
+      @param {Object} viewRegistry
     */
-    setupHandler: function (rootElement, event, eventName) {
+    setupHandler: function (rootElement, event, eventName, viewRegistry) {
       var self = this;
-
-      var owner = _emberUtils.getOwner(this);
-      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsCompatFallbackViewRegistry.default;
 
       if (eventName === null) {
         return;
@@ -42338,6 +42343,13 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
           }
         }
       });
+    },
+
+    _getViewRegistry: function () {
+      var owner = _emberUtils.getOwner(this);
+      var viewRegistry = owner && owner.lookup('-view-registry:main') || _emberViewsCompatFallbackViewRegistry.default;
+
+      return viewRegistry;
     },
 
     _findNearestEventManager: function (view, eventName) {
@@ -42476,6 +42488,7 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
   'use strict';
 
   exports.isSimpleClick = isSimpleClick;
+  exports.constructStyleDeprecationMessage = constructStyleDeprecationMessage;
   exports.getRootViews = getRootViews;
   exports.getViewId = getViewId;
   exports.getViewElement = getViewElement;
@@ -42503,9 +42516,10 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
     return !modifier && !secondaryClick;
   }
 
-  var STYLE_WARNING = '' + 'Binding style attributes may introduce cross-site scripting vulnerabilities; ' + 'please ensure that values being bound are properly escaped. For more information, ' + 'including how to disable this warning, see ' + 'http://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes.';
+  function constructStyleDeprecationMessage(affectedStyle) {
+    return '' + 'Binding style attributes may introduce cross-site scripting vulnerabilities; ' + 'please ensure that values being bound are properly escaped. For more information, ' + 'including how to disable this warning, see ' + 'http://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes. ' + 'Style affected: "' + affectedStyle + '"';
+  }
 
-  exports.STYLE_WARNING = STYLE_WARNING;
   /**
     @private
     @method getRootViews
@@ -43525,7 +43539,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-beta.2-beta+2bcb190f";
+  exports.default = "2.12.0-beta.2-beta+4a19f10d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

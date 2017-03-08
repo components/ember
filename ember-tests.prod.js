@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-beta.2-beta+2bcb190f
+ * @version   2.12.0-beta.2-beta+4a19f10d
  */
 
 var enifed, requireModule, Ember;
@@ -7720,6 +7720,14 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     release();
     _emberMetal.set(post, 'title', 'New Title');
     equal(updatesCalled, 1, 'Release function removes observers');
+  });
+
+  QUnit.test('_nameToClass does not error when not found', function (assert) {
+    adapter = App.__container__.lookup('data-adapter:main');
+
+    var klass = adapter._nameToClass('App.Foo');
+
+    assert.equal(klass, undefined, 'returns undefined');
   });
 });
 enifed('ember-extension-support/tests/data_adapter_test.lint-test', ['exports'], function (exports) {
@@ -22285,8 +22293,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       _emberMetal.setDebugFunction('warn', originalWarn);
     };
 
-    StyleTest.prototype.assertStyleWarning = function assertStyleWarning() {
-      this.assert.deepEqual(warnings, [_emberViews.STYLE_WARNING]);
+    StyleTest.prototype.assertStyleWarning = function assertStyleWarning(style) {
+      this.assert.deepEqual(warnings, [_emberViews.constructStyleDeprecationMessage(style)]);
     };
 
     StyleTest.prototype.assertNoWarning = function assertNoWarning() {
@@ -22381,11 +22389,12 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       }
 
       _class9.prototype['@test specifying <div style={{userValue}}></div> generates a warning'] = function testSpecifyingDivStyleUserValueDivGeneratesAWarning(assert) {
+        var userValue = 'width: 42px';
         this.render('<div style={{userValue}}></div>', {
-          userValue: 'width: 42px'
+          userValue: userValue
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning(userValue);
       };
 
       _class9.prototype['@test specifying `attributeBindings: ["style"]` generates a warning'] = function testSpecifyingAttributeBindingsStyleGeneratesAWarning(assert) {
@@ -22394,12 +22403,12 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
         });
 
         this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
-
+        var userValue = 'width: 42px';
         this.render('{{foo-bar style=userValue}}', {
-          userValue: 'width: 42px'
+          userValue: userValue
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning(userValue);
       };
 
       _class9.prototype['@test specifying `<div style={{{userValue}}}></div>` works properly without a warning'] = function testSpecifyingDivStyleUserValueDivWorksProperlyWithoutAWarning(assert) {
@@ -22449,35 +22458,39 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       };
 
       _class9.prototype['@test binding warning is triggered when an unsafe string is quoted'] = function testBindingWarningIsTriggeredWhenAnUnsafeStringIsQuoted(assert) {
+        var userValue = 'width: 42px';
         this.render('<div style="{{userValue}}"></div>', {
-          userValue: 'width: 42px'
+          userValue: userValue
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning(userValue);
       };
 
       _class9.prototype['@test binding warning is triggered when a safe string for a complete property is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForACompletePropertyIsConcatenatedInPlace(assert) {
+        var userValue = 'width: 42px';
         this.render('<div style="color: green; {{userValue}}"></div>', {
           userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('width: 42px')
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning('color: green; ' + userValue);
       };
 
       _class9.prototype['@test binding warning is triggered when a safe string for a value is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAValueIsConcatenatedInPlace(assert) {
+        var userValue = '42px';
         this.render('<div style="color: green; width: {{userValue}}"></div>', {
-          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString('42px')
+          userValue: new _emberGlimmerTestsUtilsHelpers.SafeString(userValue)
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning('color: green; width: ' + userValue);
       };
 
       _class9.prototype['@test binding warning is triggered when a safe string for a property name is concatenated in place'] = function testBindingWarningIsTriggeredWhenASafeStringForAPropertyNameIsConcatenatedInPlace(assert) {
+        var userValue = 'width';
         this.render('<div style="color: green; {{userProperty}}: 42px"></div>', {
-          userProperty: new _emberGlimmerTestsUtilsHelpers.SafeString('width')
+          userProperty: new _emberGlimmerTestsUtilsHelpers.SafeString(userValue)
         });
 
-        this.assertStyleWarning();
+        this.assertStyleWarning('color: green; ' + userValue + ': 42px');
       };
 
       return _class9;
@@ -45285,7 +45298,7 @@ enifed('ember-metal/tests/run_loop/once_test.lint-test', ['exports'], function (
     assert.ok(true, 'ember-metal/tests/run_loop/once_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error_handler'], function (exports, _emberMetalRun_loop, _emberMetalError_handler) {
+enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error_handler', 'ember-metal/testing'], function (exports, _emberMetalRun_loop, _emberMetalError_handler, _emberMetalTesting) {
   'use strict';
 
   QUnit.module('system/run_loop/onerror_test');
@@ -45312,17 +45325,24 @@ enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_l
   QUnit.test('With Ember.onerror set, errors in Ember.run are caught', function () {
     var thrown = new Error('Boom!');
     var original = _emberMetalError_handler.getOnerror();
+    var originalDispatchOverride = _emberMetalError_handler.getDispatchOverride();
+    var originalIsTesting = _emberMetalTesting.isTesting();
 
     var caught = undefined;
     _emberMetalError_handler.setOnerror(function (error) {
       caught = error;
     });
+    _emberMetalError_handler.setDispatchOverride(null);
+    _emberMetalTesting.setTesting(false);
+
     try {
       _emberMetalRun_loop.default(function () {
         throw thrown;
       });
     } finally {
       _emberMetalError_handler.setOnerror(original);
+      _emberMetalError_handler.setDispatchOverride(originalDispatchOverride);
+      _emberMetalTesting.setTesting(originalIsTesting);
     }
 
     deepEqual(caught, thrown);
@@ -64805,9 +64825,11 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-te
       originalQUnit = window.QUnit;
     },
     teardown: function () {
-      _emberMetal.run(App, App.destroy);
-      App.removeTestHelpers();
-      App = null;
+      if (App) {
+        _emberMetal.run(App, App.destroy);
+        App.removeTestHelpers();
+        App = null;
+      }
 
       _emberTestingTest.default.adapter = originalAdapter;
       window.QUnit = originalQUnit;
@@ -64860,6 +64882,23 @@ enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal', 'ember-te
 
     ok(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersAdapter.default);
     ok(!(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersQunit.default));
+  });
+
+  QUnit.test('With Ember.Test.adapter set, errors in Ember.run are caught', function () {
+    var thrown = new Error('Boom!');
+
+    var caught = undefined;
+    _emberTestingTest.default.adapter = _emberTestingAdaptersQunit.default.create({
+      exception: function (error) {
+        caught = error;
+      }
+    });
+
+    _emberMetal.run(function () {
+      throw thrown;
+    });
+
+    deepEqual(caught, thrown);
   });
 });
 enifed('ember-testing/tests/adapters_test.lint-test', ['exports'], function (exports) {
