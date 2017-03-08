@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+9d6b72f8
+ * @version   2.13.0-alpha.1-canary+dacfaa57
  */
 
 var enifed, requireModule, Ember;
@@ -11047,7 +11047,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       this.isInteractive = owner.lookup('-environment:main').isInteractive;
 
       // can be removed once https://github.com/tildeio/glimmer/pull/305 lands
-      this.destroyedComponents = undefined;
+      this.destroyedComponents = [];
 
       _emberGlimmerProtocolForUrl.default(this);
 
@@ -11317,16 +11317,16 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       this.inTransaction = true;
 
       _GlimmerEnvironment.prototype.begin.call(this);
-
-      this.destroyedComponents = [];
     };
 
     Environment.prototype.commit = function commit() {
+      var destroyedComponents = this.destroyedComponents;
+      this.destroyedComponents = [];
       // components queued for destruction must be destroyed before firing
       // `didCreate` to prevent errors when removing and adding a component
       // with the same name (would throw an error when added to view registry)
-      for (var i = 0; i < this.destroyedComponents.length; i++) {
-        this.destroyedComponents[i].destroy();
+      for (var i = 0; i < destroyedComponents.length; i++) {
+        destroyedComponents[i].destroy();
       }
 
       _GlimmerEnvironment.prototype.commit.call(this);
@@ -45420,7 +45420,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+9d6b72f8";
+  exports.default = "2.13.0-alpha.1-canary+dacfaa57";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
