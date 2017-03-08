@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.2-release+1cbf4bb8
+ * @version   2.11.2-release+1326271b
  */
 
 var enifed, requireModule, Ember;
@@ -3954,6 +3954,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   exports.getOnerror = getOnerror;
   exports.setOnerror = setOnerror;
   exports.dispatchError = dispatchError;
+  exports.getDispatchOverride = getDispatchOverride;
   exports.setDispatchOverride = setDispatchOverride;
 
   // To maintain stacktrace consistency across browsers
@@ -3993,6 +3994,10 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   }
 
   // allows testing adapter to override dispatch
+
+  function getDispatchOverride() {
+    return dispatchOverride;
+  }
 
   function setDispatchOverride(handler) {
     dispatchOverride = handler;
@@ -8564,7 +8569,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-metal/debug', '
 
   var onErrorTarget = {
     get onerror() {
-      return _emberMetalError_handler.getOnerror();
+      return _emberMetalError_handler.dispatchError;
     },
     set onerror(handler) {
       return _emberMetalError_handler.setOnerror(handler);
@@ -11844,8 +11849,7 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
     For example, this component dynamically looks up a service based on the
     `audioType` passed as an attribute:
   
-    ```
-    // app/components/play-audio.js
+    ```app/components/play-audio.js
     import Ember from 'ember';
   
     // Usage:
@@ -12024,7 +12028,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.2-release+1cbf4bb8";
+  exports.default = "2.11.2-release+1326271b";
 });
 enifed("glimmer-compiler/index", ["exports", "glimmer-compiler/lib/compiler", "glimmer-compiler/lib/template-visitor"], function (exports, _glimmerCompilerLibCompiler, _glimmerCompilerLibTemplateVisitor) {
   "use strict";

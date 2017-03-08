@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.2-release+1cbf4bb8
+ * @version   2.11.2-release+1326271b
  */
 
 var enifed, requireModule, Ember;
@@ -4655,6 +4655,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   exports.getOnerror = getOnerror;
   exports.setOnerror = setOnerror;
   exports.dispatchError = dispatchError;
+  exports.getDispatchOverride = getDispatchOverride;
   exports.setDispatchOverride = setDispatchOverride;
 
   // To maintain stacktrace consistency across browsers
@@ -4694,6 +4695,10 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   }
 
   // allows testing adapter to override dispatch
+
+  function getDispatchOverride() {
+    return dispatchOverride;
+  }
 
   function setDispatchOverride(handler) {
     dispatchOverride = handler;
@@ -9265,7 +9270,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-metal/debug', '
 
   var onErrorTarget = {
     get onerror() {
-      return _emberMetalError_handler.getOnerror();
+      return _emberMetalError_handler.dispatchError;
     },
     set onerror(handler) {
       return _emberMetalError_handler.setOnerror(handler);
@@ -16235,9 +16240,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
       only a sender and key value as parameters or, if you aren't interested in
       any of these values, to write an observer that has no parameters at all.
        @method addObserver
-      @param {String} key The key to observer
+      @param {String} key The key to observe
       @param {Object} target The target object to invoke
-      @param {String|Function} method The method to invoke.
+      @param {String|Function} method The method to invoke
       @public
     */
     addObserver: function (key, target, method) {
@@ -16249,9 +16254,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
       the same key, target, and method you passed to `addObserver()` and your
       target will no longer receive notifications.
        @method removeObserver
-      @param {String} key The key to observer
+      @param {String} key The key to observe
       @param {Object} target The target object to invoke
-      @param {String|Function} method The method to invoke.
+      @param {String|Function} method The method to invoke
       @public
     */
     removeObserver: function (key, target, method) {
@@ -19414,7 +19419,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.2-release+1cbf4bb8";
+  exports.default = "2.11.2-release+1326271b";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
