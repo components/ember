@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.13.0-alpha.1.dacfaa57"
+        "version": "2.13.0-alpha.1.431be5ca"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -12180,7 +12180,7 @@
             ],
             "params": [
                 {
-                    "name": "name",
+                    "name": "routeNameOrUrl",
                     "description": "the name of the route or a URL",
                     "type": "String"
                 },
@@ -12217,7 +12217,7 @@
             ],
             "params": [
                 {
-                    "name": "name",
+                    "name": "routeNameOrUrl",
                     "description": "the name of the route or a URL",
                     "type": "String"
                 },
@@ -12236,6 +12236,40 @@
             "return": {
                 "description": "the transition object associated with this\n  attempted transition",
                 "type": "Transition"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "RouterService",
+            "module": "ember",
+            "submodule": "ember-routing"
+        },
+        {
+            "file": "packages/ember-routing/lib/services/router.js",
+            "line": 69,
+            "description": "Generate a URL based on the supplied route name.",
+            "itemtype": "method",
+            "name": "urlFor",
+            "params": [
+                {
+                    "name": "routeName",
+                    "description": "the name of the route",
+                    "type": "String"
+                },
+                {
+                    "name": "models",
+                    "description": "the model(s) or identifier(s) to be used while\n  transitioning to the route.",
+                    "type": "...Object"
+                },
+                {
+                    "name": "options",
+                    "description": "optional hash with a queryParams property\n  containing a mapping of query parameters",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "the string representing the generated URL",
+                "type": "String"
             },
             "access": "public",
             "tagname": "",

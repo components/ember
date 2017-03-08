@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+dacfaa57
+ * @version   2.13.0-alpha.1-canary+431be5ca
  */
 
 var enifed, requireModule, Ember;
@@ -25565,7 +25565,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-meta
         See [Route.transitionTo](http://emberjs.com/api/classes/Ember.Route.html#method_transitionTo) for more info.
         @method transitionTo
        @category ember-routing-router-service
-       @param {String} name the name of the route or a URL
+       @param {String} routeNameOrUrl the name of the route or a URL
        @param {...Object} models the model(s) or identifier(s) to be used while
          transitioning to the route.
        @param {Object} [options] optional hash with a queryParams property
@@ -25574,7 +25574,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-meta
          attempted transition
        @public
      */
-    transitionTo: function () {
+    transitionTo: function () /* routeNameOrUrl, ...models, options */{
       var _router;
 
       return (_router = this.router).transitionTo.apply(_router, arguments);
@@ -25586,7 +25586,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-meta
         See [Route.replaceWith](http://emberjs.com/api/classes/Ember.Route.html#method_replaceWith) for more info.
         @method replaceWith
        @category ember-routing-router-service
-       @param {String} name the name of the route or a URL
+       @param {String} routeNameOrUrl the name of the route or a URL
        @param {...Object} models the model(s) or identifier(s) to be used while
          transitioning to the route.
        @param {Object} [options] optional hash with a queryParams property
@@ -25595,10 +25595,27 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-meta
          attempted transition
        @public
      */
-    replaceWith: function () {
+    replaceWith: function () /* routeNameOrUrl, ...models, options */{
       var _router2;
 
       return (_router2 = this.router).replaceWith.apply(_router2, arguments);
+    },
+
+    /**
+       Generate a URL based on the supplied route name.
+        @method urlFor
+       @param {String} routeName the name of the route
+       @param {...Object} models the model(s) or identifier(s) to be used while
+         transitioning to the route.
+       @param {Object} [options] optional hash with a queryParams property
+         containing a mapping of query parameters
+       @return {String} the string representing the generated URL
+       @public
+     */
+    urlFor: function () /* routeName, ...models, options */{
+      var _router3;
+
+      return (_router3 = this.router).generate.apply(_router3, arguments);
     }
   });
 
@@ -42006,7 +42023,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+dacfaa57";
+  exports.default = "2.13.0-alpha.1-canary+431be5ca";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -43125,7 +43142,7 @@ enifed('internal-test-helpers/test-cases/router', ['exports', 'internal-test-hel
           this.route('sister');
           this.route('brother');
         });
-        this.route('dynamic', { path: '/dynamic/:post_id' });
+        this.route('dynamic', { path: '/dynamic/:dynamic_id' });
       });
     }
 

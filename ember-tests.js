@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+dacfaa57
+ * @version   2.13.0-alpha.1-canary+431be5ca
  */
 
 var enifed, requireModule, Ember;
@@ -78484,21 +78484,37 @@ enifed('ember/tests/routing/router_service_test/replaceWith_test', ['exports', '
         });
       };
 
-      _class.prototype['@test RouterService#replaceWith transitioning back to previously visited route replaces location'] = function testRouterServiceReplaceWithTransitioningBackToPreviouslyVisitedRouteReplacesLocation(assert) {
+      _class.prototype['@test RouterService#replaceWith with basic route using URLs replaces location'] = function testRouterServiceReplaceWithWithBasicRouteUsingURLsReplacesLocation(assert) {
         var _this3 = this;
 
         assert.expect(1);
 
         return this.visit('/').then(function () {
-          return _this3.routerService.transitionTo('parent.child');
+          return _this3.routerService.transitionTo('/child');
         }).then(function () {
-          return _this3.routerService.transitionTo('parent.sister');
+          return _this3.routerService.transitionTo('/sister');
         }).then(function () {
-          return _this3.routerService.transitionTo('parent.brother');
+          return _this3.routerService.replaceWith('/brother');
         }).then(function () {
-          return _this3.routerService.replaceWith('parent.sister');
+          assert.deepEqual(_this3.state, ['/', '/child', '/brother']);
+        });
+      };
+
+      _class.prototype['@test RouterService#replaceWith transitioning back to previously visited route replaces location'] = function testRouterServiceReplaceWithTransitioningBackToPreviouslyVisitedRouteReplacesLocation(assert) {
+        var _this4 = this;
+
+        assert.expect(1);
+
+        return this.visit('/').then(function () {
+          return _this4.routerService.transitionTo('parent.child');
         }).then(function () {
-          assert.deepEqual(_this3.state, ['/', '/child', '/sister', '/sister']);
+          return _this4.routerService.transitionTo('parent.sister');
+        }).then(function () {
+          return _this4.routerService.transitionTo('parent.brother');
+        }).then(function () {
+          return _this4.routerService.replaceWith('parent.sister');
+        }).then(function () {
+          assert.deepEqual(_this4.state, ['/', '/child', '/sister', '/sister']);
         });
       };
 
@@ -78635,8 +78651,42 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['exports', 
         });
       };
 
-      _class.prototype['@test RouterService#transitionTo with dynamic segment'] = function testRouterServiceTransitionToWithDynamicSegment(assert) {
+      _class.prototype['@test RouterService#transitionTo with basic route using URL'] = function testRouterServiceTransitionToWithBasicRouteUsingURL(assert) {
         var _this5 = this;
+
+        assert.expect(1);
+
+        var componentInstance = undefined;
+
+        this.registerTemplate('parent.index', '{{foo-bar}}');
+
+        this.registerComponent('foo-bar', {
+          ComponentClass: _emberGlimmer.Component.extend({
+            routerService: _emberRuntime.inject.service('router'),
+            init: function () {
+              this._super();
+              componentInstance = this;
+            },
+            actions: {
+              transitionToSister: function () {
+                _emberMetal.get(this, 'routerService').transitionTo('/sister');
+              }
+            }
+          }),
+          template: 'foo-bar'
+        });
+
+        return this.visit('/').then(function () {
+          _emberMetal.run(function () {
+            componentInstance.send('transitionToSister');
+          });
+
+          assert.equal(_this5.routerService.get('currentRouteName'), 'parent.sister');
+        });
+      };
+
+      _class.prototype['@test RouterService#transitionTo with dynamic segment'] = function testRouterServiceTransitionToWithDynamicSegment(assert) {
+        var _this6 = this;
 
         assert.expect(3);
 
@@ -78667,14 +78717,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['exports', 
             componentInstance.send('transitionToDynamic');
           });
 
-          assert.equal(_this5.routerService.get('currentRouteName'), 'dynamic');
-          assert.equal(_this5.routerService.get('currentURL'), '/dynamic/1');
-          _this5.assertText('much dynamicism');
+          assert.equal(_this6.routerService.get('currentRouteName'), 'dynamic');
+          assert.equal(_this6.routerService.get('currentURL'), '/dynamic/1');
+          _this6.assertText('much dynamicism');
         });
       };
 
       _class.prototype['@test RouterService#transitionTo with dynamic segment and model hook'] = function testRouterServiceTransitionToWithDynamicSegmentAndModelHook(assert) {
-        var _this6 = this;
+        var _this7 = this;
 
         assert.expect(3);
 
@@ -78711,9 +78761,9 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['exports', 
             componentInstance.send('transitionToDynamic');
           });
 
-          assert.equal(_this6.routerService.get('currentRouteName'), 'dynamic');
-          assert.equal(_this6.routerService.get('currentURL'), '/dynamic/1');
-          _this6.assertText('much dynamicism');
+          assert.equal(_this7.routerService.get('currentRouteName'), 'dynamic');
+          assert.equal(_this7.routerService.get('currentURL'), '/dynamic/1');
+          _this7.assertText('much dynamicism');
         });
       };
 
@@ -78736,6 +78786,274 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test.lint-test', ['
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember/tests/routing/router_service_test/transitionTo_test.js should pass ESLint\n\n');
+  });
+});
+enifed('ember/tests/routing/router_service_test/urlFor_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+  'use strict';
+
+  function setupController(app, name) {
+    var controllerName = _emberRuntime.String.capitalize(name) + 'Controller';
+
+    Object.defineProperty(app, controllerName, {
+      get: function () {
+        throw new Error('Generating a URL should not require instantiation of a ' + controllerName + '.');
+      }
+    });
+  }
+
+  function buildQueryParams(queryParams) {
+    return {
+      queryParams: queryParams
+    };
+  }
+
+  if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+    _internalTestHelpers.moduleFor('Router Service - urlFor', (function (_RouterTestCase) {
+      babelHelpers.inherits(_class, _RouterTestCase);
+
+      function _class() {
+        babelHelpers.classCallCheck(this, _class);
+
+        _RouterTestCase.apply(this, arguments);
+      }
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route'] = function testRouterServiceUrlForReturnsURLForSimpleRoute(assert) {
+        var _this = this;
+
+        assert.expect(1);
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this.routerService.urlFor('parent.child');
+
+          assert.equal('/child', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with dynamic segments'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithDynamicSegments(assert) {
+        var _this2 = this;
+
+        assert.expect(1);
+
+        setupController(this.application, 'dynamic');
+
+        var dynamicModel = { id: 1, contents: 'much dynamicism' };
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this2.routerService.urlFor('dynamic', dynamicModel);
+
+          assert.equal('/dynamic/1', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with basic query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithBasicQueryParams(assert) {
+        var _this3 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ foo: 'bar' });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this3.routerService.urlFor('parent.child', queryParams);
+
+          assert.equal('/child?foo=bar', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with array as query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithArrayAsQueryParams(assert) {
+        var _this4 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ selectedItems: ['a', 'b', 'c'] });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this4.routerService.urlFor('parent.child', queryParams);
+
+          assert.equal('/child?selectedItems[]=a&selectedItems[]=b&selectedItems[]=c', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with null query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithNullQueryParams(assert) {
+        var _this5 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ foo: null });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this5.routerService.urlFor('parent.child', queryParams);
+
+          assert.equal('/child', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with undefined query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithUndefinedQueryParams(assert) {
+        var _this6 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ foo: undefined });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this6.routerService.urlFor('parent.child', queryParams);
+
+          assert.equal('/child', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with dynamic segments and basic query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithDynamicSegmentsAndBasicQueryParams(assert) {
+        var _this7 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ foo: 'bar' });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this7.routerService.urlFor('dynamic', { id: 1 }, queryParams);
+
+          assert.equal('/dynamic/1?foo=bar', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with dynamic segments and array as query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithDynamicSegmentsAndArrayAsQueryParams(assert) {
+        var _this8 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ selectedItems: ['a', 'b', 'c'] });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this8.routerService.urlFor('dynamic', { id: 1 }, queryParams);
+
+          assert.equal('/dynamic/1?selectedItems[]=a&selectedItems[]=b&selectedItems[]=c', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with dynamic segments and null query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithDynamicSegmentsAndNullQueryParams(assert) {
+        var _this9 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ foo: null });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this9.routerService.urlFor('dynamic', { id: 1 }, queryParams);
+
+          assert.equal('/dynamic/1', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor returns URL for simple route with dynamic segments and undefined query params'] = function testRouterServiceUrlForReturnsURLForSimpleRouteWithDynamicSegmentsAndUndefinedQueryParams(assert) {
+        var _this10 = this;
+
+        assert.expect(1);
+
+        var queryParams = buildQueryParams({ foo: undefined });
+
+        return this.visit('/').then(function () {
+          var expectedURL = _this10.routerService.urlFor('dynamic', { id: 1 }, queryParams);
+
+          assert.equal('/dynamic/1', expectedURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor correctly transitions to route via generated path'] = function testRouterServiceUrlForCorrectlyTransitionsToRouteViaGeneratedPath(assert) {
+        var _this11 = this;
+
+        assert.expect(1);
+
+        var expectedURL = undefined;
+
+        return this.visit('/').then(function () {
+          expectedURL = _this11.routerService.urlFor('parent.child');
+
+          return _this11.routerService.transitionTo(expectedURL);
+        }).then(function () {
+          assert.equal(expectedURL, _this11.routerService.get('currentURL'));
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor correctly transitions to route via generated path with dynamic segments'] = function testRouterServiceUrlForCorrectlyTransitionsToRouteViaGeneratedPathWithDynamicSegments(assert) {
+        var _this12 = this;
+
+        assert.expect(1);
+
+        var expectedURL = undefined;
+        var dynamicModel = { id: 1 };
+
+        this.registerRoute('dynamic', _emberRouting.Route.extend({
+          model: function () {
+            return dynamicModel;
+          }
+        }));
+
+        return this.visit('/').then(function () {
+          expectedURL = _this12.routerService.urlFor('dynamic', dynamicModel);
+
+          return _this12.routerService.transitionTo(expectedURL);
+        }).then(function () {
+          assert.equal(expectedURL, _this12.routerService.get('currentURL'));
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor correctly transitions to route via generated path with query params'] = function testRouterServiceUrlForCorrectlyTransitionsToRouteViaGeneratedPathWithQueryParams(assert) {
+        var _this13 = this;
+
+        assert.expect(1);
+
+        var expectedURL = undefined;
+        var actualURL = undefined;
+        var queryParams = buildQueryParams({ foo: 'bar' });
+
+        return this.visit('/').then(function () {
+          expectedURL = _this13.routerService.urlFor('parent.child', queryParams);
+
+          return _this13.routerService.transitionTo(expectedURL);
+        }).then(function () {
+          actualURL = _this13.routerService.get('currentURL') + '?foo=bar';
+
+          assert.equal(expectedURL, actualURL);
+        });
+      };
+
+      _class.prototype['@test RouterService#urlFor correctly transitions to route via generated path with dynamic segments and query params'] = function testRouterServiceUrlForCorrectlyTransitionsToRouteViaGeneratedPathWithDynamicSegmentsAndQueryParams(assert) {
+        var _this14 = this;
+
+        assert.expect(1);
+
+        var expectedURL = undefined;
+        var actualURL = undefined;
+        var queryParams = buildQueryParams({ foo: 'bar' });
+        var dynamicModel = { id: 1 };
+
+        this.registerRoute('dynamic', _emberRouting.Route.extend({
+          model: function () {
+            return dynamicModel;
+          }
+        }));
+
+        return this.visit('/').then(function () {
+          expectedURL = _this14.routerService.urlFor('dynamic', dynamicModel, queryParams);
+
+          return _this14.routerService.transitionTo(expectedURL);
+        }).then(function () {
+          actualURL = _this14.routerService.get('currentURL') + '?foo=bar';
+
+          assert.equal(expectedURL, actualURL);
+        });
+      };
+
+      return _class;
+    })(_internalTestHelpers.RouterTestCase));
+  }
+});
+enifed('ember/tests/routing/router_service_test/urlFor_test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember/tests/routing/router_service_test/urlFor_test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember/tests/routing/router_service_test/urlFor_test.js should pass ESLint\n\n');
   });
 });
 enifed('ember/tests/routing/substates_test', ['exports', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-template-compiler', 'ember-application', 'ember-views', 'ember-glimmer'], function (exports, _emberRuntime, _emberRouting, _emberMetal, _emberTemplateCompiler, _emberApplication, _emberViews, _emberGlimmer) {
