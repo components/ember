@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.2-release+1326271b
+ * @version   2.11.2-release+ae62561d
  */
 
 var enifed, requireModule, Ember;
@@ -8242,7 +8242,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       this.isInteractive = owner.lookup('-environment:main').isInteractive;
 
       // can be removed once https://github.com/tildeio/glimmer/pull/305 lands
-      this.destroyedComponents = undefined;
+      this.destroyedComponents = [];
 
       _emberGlimmerProtocolForUrl.default(this);
 
@@ -8563,16 +8563,16 @@ enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'e
       this.inTransaction = true;
 
       _GlimmerEnvironment.prototype.begin.call(this);
-
-      this.destroyedComponents = [];
     };
 
     Environment.prototype.commit = function commit() {
+      var destroyedComponents = this.destroyedComponents;
+      this.destroyedComponents = [];
       // components queued for destruction must be destroyed before firing
       // `didCreate` to prevent errors when removing and adding a component
       // with the same name (would throw an error when added to view registry)
-      for (var i = 0; i < this.destroyedComponents.length; i++) {
-        this.destroyedComponents[i].destroy();
+      for (var i = 0; i < destroyedComponents.length; i++) {
+        destroyedComponents[i].destroy();
       }
 
       _GlimmerEnvironment.prototype.commit.call(this);
@@ -39780,7 +39780,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.2-release+1326271b";
+  exports.default = "2.11.2-release+ae62561d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -55188,6 +55188,7 @@ enifed('rsvp', ['exports'], function (exports) {
     } else {
       if (then$$ === GET_THEN_ERROR) {
         reject(promise, GET_THEN_ERROR.error);
+        GET_THEN_ERROR.error = null;
       } else if (then$$ === undefined) {
         fulfill(promise, maybeThenable);
       } else if (isFunction(then$$)) {
@@ -55315,10 +55316,10 @@ enifed('rsvp', ['exports'], function (exports) {
       if (value === TRY_CATCH_ERROR) {
         failed = true;
         error = value.error;
-        value = null;
+        value.error = null; // release
       } else {
-        succeeded = true;
-      }
+          succeeded = true;
+        }
 
       if (promise === value) {
         reject(promise, withOwnPromise());
@@ -56102,7 +56103,7 @@ enifed('rsvp', ['exports'], function (exports) {
       try {
         return findAuthor(); // succeed or fail
       } catch(error) {
-        return findOtherAuther();
+        return findOtherAuthor();
       } finally {
         // always runs
         // doesn't affect the return value
@@ -56113,7 +56114,7 @@ enifed('rsvp', ['exports'], function (exports) {
     
       ```js
       findAuthor().catch(function(reason){
-        return findOtherAuther();
+        return findOtherAuthor();
       }).finally(function(){
         // author was either found, or not
       });

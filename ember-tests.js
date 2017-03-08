@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.2-release+1326271b
+ * @version   2.11.2-release+ae62561d
  */
 
 var enifed, requireModule, Ember;
@@ -15470,6 +15470,41 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       this.assertText('huzzah!');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/components/destroy-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsTestCase) {
+  'use strict';
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Component destroy', (function (_RenderingTest) {
+    babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+      babelHelpers.classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it correctly releases the destroyed components'] = function testItCorrectlyReleasesTheDestroyedComponents(assert) {
+      var _this = this;
+
+      var FooBarComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({});
+
+      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent, template: 'hello' });
+
+      this.render('{{#if switch}}{{#foo-bar}}{{foo-bar}}{{/foo-bar}}{{/if}}', { switch: true });
+
+      this.assertComponentElement(this.firstChild, { content: 'hello' });
+
+      this.runTask(function () {
+        return _emberMetal.set(_this.context, 'switch', false);
+      });
+
+      this.assertText('');
+
+      assert.equal(this.env.destroyedComponents.length, 0, 'enviroment.destroyedComponents should be empty');
     };
 
     return _class;

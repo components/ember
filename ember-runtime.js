@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.2-release+1326271b
+ * @version   2.11.2-release+ae62561d
  */
 
 var enifed, requireModule, Ember;
@@ -19419,7 +19419,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.2-release+1326271b";
+  exports.default = "2.11.2-release+ae62561d";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
@@ -19843,6 +19843,7 @@ enifed('rsvp', ['exports'], function (exports) {
     } else {
       if (then$$ === GET_THEN_ERROR) {
         reject(promise, GET_THEN_ERROR.error);
+        GET_THEN_ERROR.error = null;
       } else if (then$$ === undefined) {
         fulfill(promise, maybeThenable);
       } else if (isFunction(then$$)) {
@@ -19970,10 +19971,10 @@ enifed('rsvp', ['exports'], function (exports) {
       if (value === TRY_CATCH_ERROR) {
         failed = true;
         error = value.error;
-        value = null;
+        value.error = null; // release
       } else {
-        succeeded = true;
-      }
+          succeeded = true;
+        }
 
       if (promise === value) {
         reject(promise, withOwnPromise());
@@ -20757,7 +20758,7 @@ enifed('rsvp', ['exports'], function (exports) {
       try {
         return findAuthor(); // succeed or fail
       } catch(error) {
-        return findOtherAuther();
+        return findOtherAuthor();
       } finally {
         // always runs
         // doesn't affect the return value
@@ -20768,7 +20769,7 @@ enifed('rsvp', ['exports'], function (exports) {
     
       ```js
       findAuthor().catch(function(reason){
-        return findOtherAuther();
+        return findOtherAuthor();
       }).finally(function(){
         // author was either found, or not
       });
