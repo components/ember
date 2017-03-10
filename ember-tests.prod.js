@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+431be5ca
+ * @version   2.13.0-alpha.1-canary+7fcc087e
  */
 
 var enifed, requireModule, Ember;
@@ -16749,7 +16749,7 @@ enifed('ember-glimmer/tests/integration/components/destroy-test', ['exports', 'e
 
       this.assertText('');
 
-      assert.equal(this.env.destroyedComponents.length, 0, 'enviroment.destroyedComponents should be empty');
+      assert.equal(this.env.destroyedComponents.length, 0, 'environment.destroyedComponents should be empty');
     };
 
     return _class;
