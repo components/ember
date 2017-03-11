@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+1f757169
+ * @version   2.13.0-alpha.1-canary+c2ba634d
  */
 
 var enifed, requireModule, Ember;
@@ -7648,7 +7648,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
   /**
     The `ContainerDebugAdapter` helps the container and resolver interface
     with tools that debug Ember such as the
-    [Ember Extension](https://github.com/tildeio/ember-extension)
+    [Ember Inspector](https://github.com/emberjs/ember-inspector)
     for Chrome and Firefox.
   
     This class can be extended by a custom resolver implementer
@@ -42023,7 +42023,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+1f757169";
+  exports.default = "2.13.0-alpha.1-canary+c2ba634d";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
