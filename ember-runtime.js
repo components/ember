@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+c2ba634d
+ * @version   2.13.0-alpha.1-canary+5ff9fd53
  */
 
 var enifed, requireModule, Ember;
@@ -7237,8 +7237,9 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     Meta.prototype._getInherited = function _getInherited(key) {
       var pointer = this;
       while (pointer !== undefined) {
-        if (pointer[key]) {
-          return pointer[key];
+        var map = pointer[key];
+        if (map) {
+          return map;
         }
         pointer = pointer.parent;
       }
@@ -7279,8 +7280,9 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
         if (map) {
           var value = map[subkey];
           if (value) {
-            if (value[itemkey] !== undefined) {
-              return value[itemkey];
+            var itemvalue = value[itemkey];
+            if (itemvalue !== undefined) {
+              return itemvalue;
             }
           }
         }
@@ -7341,7 +7343,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
         if (map) {
           var value = map[subkey];
           if (value !== undefined || subkey in map) {
-            return map[subkey];
+            return value;
           }
         }
         pointer = pointer.parent;
@@ -7519,7 +7521,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
         if (map) {
           var value = map[subkey];
           if (value !== undefined || subkey in map) {
-            return map[subkey];
+            return value;
           }
         }
         pointer = pointer.parent;
@@ -20024,7 +20026,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+c2ba634d";
+  exports.default = "2.13.0-alpha.1-canary+5ff9fd53";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
