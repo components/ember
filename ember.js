@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+5ff9fd53
+ * @version   2.13.0-alpha.1-canary+e2142319
  */
 
 var enifed, requireModule, Ember;
@@ -29043,7 +29043,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       when implementing your `setupController` function, make sure to call
       `_super`:
        ```app/routes/photos.js
-      import Ember from 'ebmer';
+      import Ember from 'ember';
        export default Ember.Route.extend({
         model() {
           return this.store.findAll('photo');
@@ -45439,7 +45439,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+5ff9fd53";
+  exports.default = "2.13.0-alpha.1-canary+e2142319";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
