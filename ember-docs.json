@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.13.0-alpha.1.e2142319"
+        "version": "2.13.0-alpha.1.40141fab"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -3398,10 +3398,27 @@
             "submodule": "ember-runtime",
             "namespace": "",
             "file": "packages/ember-runtime/lib/mixins/container_proxy.js",
-            "line": 15,
-            "description": "ContainerProxyMixin is used to provide public access to specific\ncontainer functionality.",
-            "access": "private",
-            "tagname": ""
+            "line": 151,
+            "description": "Given a fullName return a factory manager.\n\nThis method returns a manager which can be used for introspection of the\nfactory's class or for the creation of factory instances with initial\nproperties. The manager is an object with the following properties:\n\n* `class` - The registered or resolved class.\n* `create` - A function that will create an instance of the class with\n  any dependencies injected.\n\nFor example:\n\n```javascript\nlet owner = Ember.getOwner(otherInstance);\n// the owner is commonly the `applicationInstance`, and can be accessed via\n// an instance initializer.\n\nlet factory = owner.factoryFor('service:bespoke');\n\nfactory.class;\n// The registered or resolved class. For example when used with an Ember-CLI\n// app, this would be the default export from `app/services/bespoke.js`.\n\nlet instance = factory.create({\n  someProperty: 'an initial property value'\n});\n// Create an instance with any injections and the passed options as\n// initial properties.\n```",
+            "access": "public",
+            "tagname": "",
+            "itemtype": "method",
+            "params": [
+                {
+                    "name": "fullName",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "FactoryManager"
+            }
         },
         "Ember.Copyable": {
             "name": "Ember.Copyable",

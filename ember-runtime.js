@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+e2142319
+ * @version   2.13.0-alpha.1-canary+40141fab
  */
 
 var enifed, requireModule, Ember;
@@ -14593,6 +14593,36 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'conta
   }, _containerProxyMixin);
 
   if (_emberMetal.isFeatureEnabled('ember-factory-for')) {
+    /**
+     Given a fullName return a factory manager.
+      This method returns a manager which can be used for introspection of the
+     factory's class or for the creation of factory instances with initial
+     properties. The manager is an object with the following properties:
+      * `class` - The registered or resolved class.
+     * `create` - A function that will create an instance of the class with
+       any dependencies injected.
+      For example:
+      ```javascript
+     let owner = Ember.getOwner(otherInstance);
+     // the owner is commonly the `applicationInstance`, and can be accessed via
+     // an instance initializer.
+      let factory = owner.factoryFor('service:bespoke');
+      factory.class;
+     // The registered or resolved class. For example when used with an Ember-CLI
+     // app, this would be the default export from `app/services/bespoke.js`.
+      let instance = factory.create({
+       someProperty: 'an initial property value'
+     });
+     // Create an instance with any injections and the passed options as
+     // initial properties.
+     ```
+      @public
+     @class ContainerProxyMixin
+     @method factoryFor
+     @param {String} fullName
+     @param {Object} options
+     @return {FactoryManager}
+     */
     containerProxyMixin.factoryFor = function ContainerProxyMixin_factoryFor(fullName) {
       var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -20026,7 +20056,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+e2142319";
+  exports.default = "2.13.0-alpha.1-canary+40141fab";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
