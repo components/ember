@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+1a8791f6
+ * @version   2.13.0-alpha.1-canary+05ea1a52
  */
 
 var enifed, requireModule, Ember;
@@ -21799,10 +21799,10 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
-          seen = seen || Object.create(null);
           var innerMap = map[subkey];
           if (innerMap) {
             for (var innerKey in innerMap) {
+              seen = seen || Object.create(null);
               if (!seen[innerKey]) {
                 seen[innerKey] = true;
                 calls = calls || [];
@@ -21900,11 +21900,12 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
     Meta.prototype['forEach' + capitalized] = function (fn) {
       var pointer = this;
-      var seen = Object.create(null);
+      var seen = undefined;
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
           for (var _key in map) {
+            seen = seen || Object.create(null);
             if (!seen[_key]) {
               seen[_key] = true;
               fn(_key, map[_key]);
@@ -45447,7 +45448,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+1a8791f6";
+  exports.default = "2.13.0-alpha.1-canary+05ea1a52";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
