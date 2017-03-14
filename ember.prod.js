@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+05ea1a52
+ * @version   2.13.0-alpha.1-canary+f787b0d3
  */
 
 var enifed, requireModule, Ember;
@@ -3072,6 +3072,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     this.owner = options && options.owner ? options.owner : null;
     this.cache = _emberUtils.dictionary(options && options.cache ? options.cache : null);
     this.factoryCache = _emberUtils.dictionary(options && options.factoryCache ? options.factoryCache : null);
+    this.factoryManagerCache = _emberUtils.dictionary(options && options.factoryManagerCache ? options.factoryManagerCache : null);
     this.validationCache = _emberUtils.dictionary(options && options.validationCache ? options.validationCache : null);
     this._fakeContainerToInject = buildFakeContainerWithDeprecations(this);
     this[CONTAINER_OVERRIDE] = undefined;
@@ -3273,6 +3274,12 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
         }
       }
 
+      var cached = this.factoryManagerCache[normalizedName];
+
+      if (cached) {
+        return cached;
+      }
+
       var factory = this.registry.resolve(normalizedName);
 
       if (factory === undefined) {
@@ -3281,6 +3288,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
 
       var manager = new FactoryManager(this, factory, fullName, normalizedName);
 
+      this.factoryManagerCache[normalizedName] = manager;
       return manager;
     };
   }
@@ -3644,6 +3652,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       this.class = factory;
       this.fullName = fullName;
       this.normalizedName = normalizedName;
+      this.madeToString = undefined;
     }
 
     FactoryManager.prototype.create = function create() {
@@ -3652,7 +3661,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       var injections = injectionsFor(this.container, this.normalizedName);
       var props = _emberUtils.assign({}, injections, options);
 
-      props[_emberUtils.NAME_KEY] = this.container.registry.makeToString(this.class, this.fullName);
+      props[_emberUtils.NAME_KEY] = this.madeToString || (this.madeToString = this.container.registry.makeToString(this.class, this.fullName));
 
       if (!this.class.create) {
         throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
@@ -42034,7 +42043,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+05ea1a52";
+  exports.default = "2.13.0-alpha.1-canary+f787b0d3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

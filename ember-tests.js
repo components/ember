@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+05ea1a52
+ * @version   2.13.0-alpha.1-canary+f787b0d3
  */
 
 var enifed, requireModule, Ember;
@@ -911,11 +911,11 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     var Component = _internalTestHelpers.factory();
     registry.register('component:foo-bar', Component);
 
-    var factoryCreator = container[_container.FACTORY_FOR]('component:foo-bar');
+    var factoryManager = container[_container.FACTORY_FOR]('component:foo-bar');
     if (true) {
-      assert.deepEqual(factoryCreator.class, Component, 'No double extend');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
     } else {
-      assert.deepEqual(factoryCreator.class, lookupFactory('component:foo-bar', container), 'Double extended class');
+      assert.deepEqual(factoryManager.class, lookupFactory('component:foo-bar', container), 'Double extended class');
     }
   });
 
@@ -928,16 +928,32 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       }, /Invalid Fullname, expected: 'type:name' got: chad-bar/);
     });
 
-    QUnit.test('#factoryFor returns a factory creator', function (assert) {
+    QUnit.test('#factoryFor returns a factory manager', function (assert) {
       var registry = new _containerIndex.Registry();
       var container = registry.container();
 
       var Component = _internalTestHelpers.factory();
       registry.register('component:foo-bar', Component);
 
-      var factoryCreator = container.factoryFor('component:foo-bar');
-      assert.ok(factoryCreator.create);
-      assert.ok(factoryCreator.class);
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.ok(factoryManager.create);
+      assert.ok(factoryManager.class);
+    });
+
+    QUnit.test('#factoryFor returns a cached factory manager for the same type', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var Component = _internalTestHelpers.factory();
+      registry.register('component:foo-bar', Component);
+      registry.register('component:baz-bar', Component);
+
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var factoryManager3 = container.factoryFor('component:baz-bar');
+
+      assert.equal(factoryManager1, factoryManager2, 'cache hit');
+      assert.notEqual(factoryManager1, factoryManager3, 'cache miss');
     });
 
     QUnit.test('#factoryFor class returns the factory function', function (assert) {
@@ -947,8 +963,8 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       var Component = _internalTestHelpers.factory();
       registry.register('component:foo-bar', Component);
 
-      var factoryCreator = container.factoryFor('component:foo-bar');
-      assert.deepEqual(factoryCreator.class, Component, 'No double extend');
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
     });
 
     QUnit.test('#factoryFor instance have a common parent', function (assert) {
@@ -958,10 +974,10 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       var Component = _internalTestHelpers.factory();
       registry.register('component:foo-bar', Component);
 
-      var factoryCreator1 = container.factoryFor('component:foo-bar');
-      var factoryCreator2 = container.factoryFor('component:foo-bar');
-      var instance1 = factoryCreator1.create({ foo: 'foo' });
-      var instance2 = factoryCreator2.create({ bar: 'bar' });
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var instance1 = factoryManager1.create({ foo: 'foo' });
+      var instance2 = factoryManager2.create({ bar: 'bar' });
 
       assert.deepEqual(instance1.constructor, instance2.constructor);
     });
