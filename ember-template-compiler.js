@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+40141fab
+ * @version   2.13.0-alpha.1-canary+dfbd82b6
  */
 
 var enifed, requireModule, Ember;
@@ -10071,16 +10071,18 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
     Meta.prototype._forEachIn = function _forEachIn(key, subkey, fn) {
       var pointer = this;
-      var seen = new _emberUtils.EmptyObject();
-      var calls = [];
+      var seen = undefined;
+      var calls = undefined;
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
+          seen = seen || new _emberUtils.EmptyObject();
           var innerMap = map[subkey];
           if (innerMap) {
             for (var innerKey in innerMap) {
               if (!seen[innerKey]) {
                 seen[innerKey] = true;
+                calls = calls || [];
                 calls.push([innerKey, innerMap[innerKey]]);
               }
             }
@@ -10088,12 +10090,14 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
         }
         pointer = pointer.parent;
       }
-      for (var i = 0; i < calls.length; i++) {
-        var _calls$i = calls[i];
-        var innerKey = _calls$i[0];
-        var value = _calls$i[1];
+      if (calls) {
+        for (var i = 0; i < calls.length; i++) {
+          var _calls$i = calls[i];
+          var innerKey = _calls$i[0];
+          var value = _calls$i[1];
 
-        fn(innerKey, value);
+          fn(innerKey, value);
+        }
       }
     };
 
@@ -16191,7 +16195,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+40141fab";
+  exports.default = "2.13.0-alpha.1-canary+dfbd82b6";
 });
 enifed("handlebars", ["exports"], function (exports) {
   /* istanbul ignore next */
