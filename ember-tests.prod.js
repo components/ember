@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-beta.3
+ * @version   2.12.0-beta.3-beta+2a1b6001
  */
 
 var enifed, requireModule, Ember;
@@ -900,11 +900,11 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     var Component = _internalTestHelpers.factory();
     registry.register('component:foo-bar', Component);
 
-    var factoryCreator = container[_container.FACTORY_FOR]('component:foo-bar');
+    var factoryManager = container[_container.FACTORY_FOR]('component:foo-bar');
     if (false) {
-      assert.deepEqual(factoryCreator.class, Component, 'No double extend');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
     } else {
-      assert.deepEqual(factoryCreator.class, lookupFactory('component:foo-bar', container), 'Double extended class');
+      assert.deepEqual(factoryManager.class, lookupFactory('component:foo-bar', container), 'Double extended class');
     }
   });
 
@@ -917,16 +917,32 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       }, /Invalid Fullname, expected: 'type:name' got: chad-bar/);
     });
 
-    QUnit.test('#factoryFor returns a factory creator', function (assert) {
+    QUnit.test('#factoryFor returns a factory manager', function (assert) {
       var registry = new _containerIndex.Registry();
       var container = registry.container();
 
       var Component = _internalTestHelpers.factory();
       registry.register('component:foo-bar', Component);
 
-      var factoryCreator = container.factoryFor('component:foo-bar');
-      assert.ok(factoryCreator.create);
-      assert.ok(factoryCreator.class);
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.ok(factoryManager.create);
+      assert.ok(factoryManager.class);
+    });
+
+    QUnit.test('#factoryFor returns a cached factory manager for the same type', function (assert) {
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var Component = _internalTestHelpers.factory();
+      registry.register('component:foo-bar', Component);
+      registry.register('component:baz-bar', Component);
+
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var factoryManager3 = container.factoryFor('component:baz-bar');
+
+      assert.equal(factoryManager1, factoryManager2, 'cache hit');
+      assert.notEqual(factoryManager1, factoryManager3, 'cache miss');
     });
 
     QUnit.test('#factoryFor class returns the factory function', function (assert) {
@@ -936,8 +952,8 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       var Component = _internalTestHelpers.factory();
       registry.register('component:foo-bar', Component);
 
-      var factoryCreator = container.factoryFor('component:foo-bar');
-      assert.deepEqual(factoryCreator.class, Component, 'No double extend');
+      var factoryManager = container.factoryFor('component:foo-bar');
+      assert.deepEqual(factoryManager.class, Component, 'No double extend');
     });
 
     QUnit.test('#factoryFor instance have a common parent', function (assert) {
@@ -947,10 +963,10 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       var Component = _internalTestHelpers.factory();
       registry.register('component:foo-bar', Component);
 
-      var factoryCreator1 = container.factoryFor('component:foo-bar');
-      var factoryCreator2 = container.factoryFor('component:foo-bar');
-      var instance1 = factoryCreator1.create({ foo: 'foo' });
-      var instance2 = factoryCreator2.create({ bar: 'bar' });
+      var factoryManager1 = container.factoryFor('component:foo-bar');
+      var factoryManager2 = container.factoryFor('component:foo-bar');
+      var instance1 = factoryManager1.create({ foo: 'foo' });
+      var instance2 = factoryManager2.create({ bar: 'bar' });
 
       assert.deepEqual(instance1.constructor, instance2.constructor);
     });
@@ -16597,7 +16613,7 @@ enifed('ember-glimmer/tests/integration/components/destroy-test', ['exports', 'e
 
       this.assertText('');
 
-      assert.equal(this.env.destroyedComponents.length, 0, 'enviroment.destroyedComponents should be empty');
+      assert.equal(this.env.destroyedComponents.length, 0, 'environment.destroyedComponents should be empty');
     };
 
     return _class;
@@ -35437,7 +35453,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test.lint-test', ['exports']
     assert.ok(true, 'ember-glimmer/tests/integration/syntax/with-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'glimmer-runtime'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _glimmerRuntime) {
+enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'glimmer-runtime', 'ember-utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _glimmerRuntime, _emberUtils) {
   'use strict';
 
   var Counter = (function () {
@@ -35456,7 +35472,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 
 
     Counter.prototype.reset = function reset() {
       this.total = 0;
-      this.counts = new _emberUtils.EmptyObject();
+      this.counts = Object.create(null);
     };
 
     return Counter;
@@ -66563,15 +66579,6 @@ enifed('ember-utils/dictionary.lint-test', ['exports'], function (exports) {
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-utils/dictionary.js should pass ESLint\n\n');
-  });
-});
-enifed('ember-utils/empty-object.lint-test', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('ESLint | ember-utils/empty-object.js');
-  QUnit.test('should pass ESLint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'ember-utils/empty-object.js should pass ESLint\n\n');
   });
 });
 enifed('ember-utils/guid.lint-test', ['exports'], function (exports) {
