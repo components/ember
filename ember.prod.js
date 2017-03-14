@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.11.3
+ * @version   2.11.3-release+7b0baa77
  */
 
 var enifed, requireModule, Ember;
@@ -5587,7 +5587,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
   /**
     The `ContainerDebugAdapter` helps the container and resolver interface
     with tools that debug Ember such as the
-    [Ember Extension](https://github.com/tildeio/ember-extension)
+    [Ember Inspector](https://github.com/emberjs/ember-inspector)
     for Chrome and Firefox.
   
     This class can be extended by a custom resolver implementer
@@ -25417,7 +25417,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       when implementing your `setupController` function, make sure to call
       `_super`:
        ```app/routes/photos.js
-      import Ember from 'ebmer';
+      import Ember from 'ember';
        export default Ember.Route.extend({
         model() {
           return this.store.findAll('photo');
@@ -26158,7 +26158,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
 
     /*
-      Resets all pending query paramter changes.
+      Resets all pending query parameter changes.
       Called after transitioning to a new route
       based on query parameter changes.
     */
@@ -39780,7 +39780,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.11.3";
+  exports.default = "2.11.3-release+7b0baa77";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
