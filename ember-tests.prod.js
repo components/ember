@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+f787b0d3
+ * @version   2.13.0-alpha.1-canary+299c1ab3
  */
 
 var enifed, requireModule, Ember;
@@ -200,7 +200,7 @@ enifed('container/registry.lint-test', ['exports'], function (exports) {
     assert.ok(true, 'container/registry.js should pass ESLint\n\n');
   });
 });
-enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers', 'container'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _containerIndex, _internalTestHelpers, _container) {
+enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers', 'ember-debug', 'container'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _containerIndex, _internalTestHelpers, _emberDebug, _container) {
   'use strict';
 
   var originalModelInjections = undefined;
@@ -2078,7 +2078,7 @@ enifed('ember-application/tests/system/application_instance_test.lint-test', ['e
     assert.ok(true, 'ember-application/tests/system/application_instance_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember', 'ember-environment', 'ember-metal', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check'], function (exports, _ember, _emberEnvironment, _emberMetal, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _emberApplicationTestsTestHelpersRegistryCheck) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check'], function (exports, _ember, _emberEnvironment, _emberMetal, _emberDebug, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _emberApplicationTestsTestHelpersRegistryCheck) {
   /*globals EmberDev */
   'use strict';
 
@@ -2096,8 +2096,8 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember', '
   QUnit.module('Ember.Application', {
     setup: function () {
       originalLookup = _emberEnvironment.context.lookup;
-      originalDebug = _emberMetal.getDebugFunction('debug');
-      originalWarn = _emberMetal.getDebugFunction('warn');
+      originalDebug = _emberDebug.getDebugFunction('debug');
+      originalWarn = _emberDebug.getDebugFunction('warn');
 
       _emberViews.jQuery('#qunit-fixture').html('<div id=\'one\'><div id=\'one-child\'>HI</div></div><div id=\'two\'>HI</div>');
       application = _emberMetal.run(function () {
@@ -2107,8 +2107,8 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember', '
 
     teardown: function () {
       _emberViews.jQuery('#qunit-fixture').empty();
-      _emberMetal.setDebugFunction('debug', originalDebug);
-      _emberMetal.setDebugFunction('warn', originalWarn);
+      _emberDebug.setDebugFunction('debug', originalDebug);
+      _emberDebug.setDebugFunction('warn', originalWarn);
 
       _emberEnvironment.context.lookup = originalLookup;
 
@@ -2388,7 +2388,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember', '
 
     _emberEnvironment.ENV.LOG_VERSION = true;
 
-    _emberMetal.setDebugFunction('debug', function (message) {
+    _emberDebug.setDebugFunction('debug', function (message) {
       return messages.push(message);
     });
 
@@ -2412,7 +2412,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember', '
 
     _emberEnvironment.ENV.LOG_VERSION = false;
 
-    _emberMetal.setDebugFunction('debug', function () {
+    _emberDebug.setDebugFunction('debug', function () {
       return logged = true;
     });
 
@@ -2578,7 +2578,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
     assert.ok(true, 'ember-application/tests/system/dependency_injection/custom_resolver_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal', 'ember-runtime', 'ember-routing', 'ember-application/system/application', 'ember-glimmer', 'ember-template-compiler'], function (exports, _emberEnvironment, _emberMetal, _emberRuntime, _emberRouting, _emberApplicationSystemApplication, _emberGlimmer, _emberTemplateCompiler) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-routing', 'ember-application/system/application', 'ember-glimmer', 'ember-template-compiler'], function (exports, _emberEnvironment, _emberMetal, _emberDebug, _emberRuntime, _emberRouting, _emberApplicationSystemApplication, _emberGlimmer, _emberTemplateCompiler) {
   /* globals EmberDev */
   'use strict';
 
@@ -2595,7 +2595,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
       registry = application.__registry__;
       locator = application.__container__;
-      originalInfo = _emberMetal.getDebugFunction('info');
+      originalInfo = _emberDebug.getDebugFunction('info');
     },
 
     teardown: function () {
@@ -2607,7 +2607,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
         _emberMetal.run(UserInterfaceNamespace, 'destroy');
       }
 
-      _emberMetal.setDebugFunction('info', originalInfo);
+      _emberDebug.setDebugFunction('info', originalInfo);
     }
   });
 
@@ -2785,7 +2785,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
       return 'App';
     };
 
-    _emberMetal.setDebugFunction('info', function (symbol, name, padding, lookupDescription) {
+    _emberDebug.setDebugFunction('info', function (symbol, name, padding, lookupDescription) {
       equal(symbol, '[✓]', 'proper symbol is printed when a module is found');
       equal(name, 'doo:scooby', 'proper lookup value is logged');
       equal(lookupDescription, 'App.ScoobyDoo');
@@ -2807,7 +2807,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
       return 'App';
     };
 
-    _emberMetal.setDebugFunction('info', function (symbol, name, padding, lookupDescription) {
+    _emberDebug.setDebugFunction('info', function (symbol, name, padding, lookupDescription) {
       equal(symbol, '[ ]', 'proper symbol is printed when a module is not found');
       equal(name, 'doo:scooby', 'proper lookup value is logged');
       equal(lookupDescription, 'App.ScoobyDoo');
@@ -2826,7 +2826,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
     application.ScoobyDoo = _emberRuntime.Object.extend();
 
-    _emberMetal.setDebugFunction('info', function (symbol, name) {
+    _emberDebug.setDebugFunction('info', function (symbol, name) {
       return infoCount = infoCount + 1;
     });
 
@@ -2974,7 +2974,7 @@ enifed('ember-application/tests/system/dependency_injection/normalization_test.l
     assert.ok(true, 'ember-application/tests/system/dependency_injection/normalization_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-application/tests/system/dependency_injection/to_string_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'ember-application/system/application', 'ember-runtime', 'ember-application/system/resolver'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _emberApplicationSystemApplication, _emberRuntime, _emberApplicationSystemResolver) {
+enifed('ember-application/tests/system/dependency_injection/to_string_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'ember-application/system/application', 'ember-runtime', 'ember-application/system/resolver', 'ember-debug'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _emberApplicationSystemApplication, _emberRuntime, _emberApplicationSystemResolver, _emberDebug) {
   'use strict';
 
   var originalLookup = undefined,
@@ -6278,6 +6278,24 @@ enifed('ember-debug/deprecate.lint-test', ['exports'], function (exports) {
     assert.ok(true, 'ember-debug/deprecate.js should pass ESLint\n\n');
   });
 });
+enifed('ember-debug/error.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-debug/error.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-debug/error.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-debug/features.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-debug/features.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-debug/features.js should pass ESLint\n\n');
+  });
+});
 enifed('ember-debug/handlers.lint-test', ['exports'], function (exports) {
   'use strict';
 
@@ -6294,6 +6312,46 @@ enifed('ember-debug/index.lint-test', ['exports'], function (exports) {
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-debug/index.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-debug/run-in-debug.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-debug/run-in-debug.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-debug/run-in-debug.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-debug/testing.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-debug/testing.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-debug/testing.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-debug/tests/error_test', ['exports', 'ember-debug/error'], function (exports, _emberDebugError) {
+  'use strict';
+
+  QUnit.module('Ember Error Throwing');
+
+  QUnit.test('new Ember.Error displays provided message', function () {
+    throws(function () {
+      throw new _emberDebugError.default('A Message');
+    }, function (e) {
+      return e.message === 'A Message';
+    }, 'the assigned message was displayed');
+  });
+});
+enifed('ember-debug/tests/error_test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-debug/tests/error_test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-debug/tests/error_test.js should pass ESLint\n\n');
   });
 });
 enifed('ember-debug/tests/handlers-test', ['exports', 'ember-debug/handlers'], function (exports, _emberDebugHandlers) {
@@ -6449,7 +6507,7 @@ enifed('ember-debug/tests/handlers-test.lint-test', ['exports'], function (expor
     assert.ok(true, 'ember-debug/tests/handlers-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-runtime', 'ember-debug/handlers', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-metal'], function (exports, _emberEnvironment, _emberRuntime, _emberDebugHandlers, _emberDebugDeprecate, _emberDebugWarn, _emberMetal) {
+enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-runtime', 'ember-debug/handlers', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/index'], function (exports, _emberEnvironment, _emberRuntime, _emberDebugHandlers, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIndex) {
   'use strict';
 
   var originalEnvValue = undefined;
@@ -6476,6 +6534,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
     try {
+      _emberDebugIndex.deprecate('Should not throw', false, { id: 'test', until: 'forever' });
       assert.ok(true, 'Ember.deprecate did not throw');
     } catch (e) {
       assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
@@ -6488,6 +6547,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberEnvironment.ENV.RAISE_ON_DEPRECATION = false;
 
     try {
+      _emberDebugIndex.deprecate('Should not throw', false, { id: 'test', until: 'forever' });
       assert.ok(true, 'Ember.deprecate did not throw');
     } catch (e) {
       assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
@@ -6495,7 +6555,9 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
 
     _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
 
-    assert.throws(function () {}, /Should throw/);
+    assert.throws(function () {
+      _emberDebugIndex.deprecate('Should throw', false, { id: 'test', until: 'forever' });
+    }, /Should throw/);
   });
 
   QUnit.test('When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id', function (assert) {
@@ -6509,22 +6571,41 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     });
 
     try {
+      _emberDebugIndex.deprecate('should be silenced with matching id', false, { id: 'my-deprecation', until: 'forever' });
       assert.ok(true, 'Did not throw when level is set by id');
     } catch (e) {
       assert.ok(false, 'Expected deprecate not to throw but it did: ' + e.message);
     }
 
-    assert.throws(function () {}, /Should throw with no matching id/);
+    assert.throws(function () {
+      _emberDebugIndex.deprecate('Should throw with no matching id', false, { id: 'test', until: 'forever' });
+    }, /Should throw with no matching id/);
 
-    assert.throws(function () {}, /Should throw with non-matching id/);
+    assert.throws(function () {
+      _emberDebugIndex.deprecate('Should throw with non-matching id', false, { id: 'other-id', until: 'forever' });
+    }, /Should throw with non-matching id/);
   });
 
   QUnit.test('Ember.deprecate throws deprecation if second argument is falsy', function () {
     expect(3);
+
+    throws(function () {
+      return _emberDebugIndex.deprecate('Deprecation is thrown', false, { id: 'test', until: 'forever' });
+    });
+    throws(function () {
+      return _emberDebugIndex.deprecate('Deprecation is thrown', '', { id: 'test', until: 'forever' });
+    });
+    throws(function () {
+      return _emberDebugIndex.deprecate('Deprecation is thrown', 0, { id: 'test', until: 'forever' });
+    });
   });
 
   QUnit.test('Ember.deprecate does not invoke a function as the second argument', function () {
     expect(1);
+
+    _emberDebugIndex.deprecate('Deprecation is thrown', function () {
+      ok(false, 'this function should not be invoked');
+    }, { id: 'test', until: 'forever' });
 
     ok(true, 'deprecations were not thrown');
   });
@@ -6532,15 +6613,33 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
   QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function () {
     expect(1);
 
+    _emberDebugIndex.deprecate('Deprecation is thrown', true, { id: 'test', until: 'forever' });
+    _emberDebugIndex.deprecate('Deprecation is thrown', '1', { id: 'test', until: 'forever' });
+    _emberDebugIndex.deprecate('Deprecation is thrown', 1, { id: 'test', until: 'forever' });
+
     ok(true, 'deprecations were not thrown');
   });
 
   QUnit.test('Ember.assert throws if second argument is falsy', function () {
     expect(3);
+
+    throws(function () {
+      return _emberDebugIndex.assert('Assertion is thrown', false);
+    });
+    throws(function () {
+      return _emberDebugIndex.assert('Assertion is thrown', '');
+    });
+    throws(function () {
+      return _emberDebugIndex.assert('Assertion is thrown', 0);
+    });
   });
 
   QUnit.test('Ember.assert does not throw if second argument is a function', function (assert) {
     assert.expect(1);
+
+    _emberDebugIndex.assert('Assertion is thrown', function () {
+      return true;
+    });
 
     ok(true, 'assertions were not thrown');
   });
@@ -6548,12 +6647,19 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
   QUnit.test('Ember.assert does not throw if second argument is truthy', function () {
     expect(1);
 
+    _emberDebugIndex.assert('Assertion is thrown', true);
+    _emberDebugIndex.assert('Assertion is thrown', '1');
+    _emberDebugIndex.assert('Assertion is thrown', 1);
+
     ok(true, 'assertions were not thrown');
   });
 
   QUnit.test('Ember.assert does not throw if second argument is an object', function () {
     expect(1);
     var Igor = _emberRuntime.Object.extend();
+
+    _emberDebugIndex.assert('is truthy', Igor);
+    _emberDebugIndex.assert('is truthy', Igor.create());
 
     ok(true, 'assertions were not thrown');
   });
@@ -6573,12 +6679,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     });
 
     try {
+      _emberDebugIndex.deprecate('Deprecation for testing purposes', false, { id: id, until: until });
       ok(true, 'Deprecation did not throw');
     } catch (e) {
       ok(false, 'Deprecation was thrown despite being added to blacklist');
     }
 
     try {
+      _emberDebugIndex.deprecate('Deprecation for testing purposes', false, { id: id, until: until });
       ok(true, 'Deprecation did not throw');
     } catch (e) {
       ok(false, 'Deprecation was thrown despite being added to blacklist');
@@ -6586,9 +6694,13 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
 
     shouldThrow = true;
 
-    throws(function () {});
+    throws(function () {
+      _emberDebugIndex.deprecate('Deprecation is thrown', false, { id: id, until: until });
+    });
 
-    throws(function () {});
+    throws(function () {
+      _emberDebugIndex.deprecate('Deprecation is thrown', false, { id: id, until: until });
+    });
   });
 
   QUnit.test('Ember.deprecate without options triggers a deprecation', function (assert) {
@@ -6601,6 +6713,9 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
         assert.ok(true, 'original deprecation is still triggered');
       }
     });
+
+    _emberDebugIndex.deprecate('foo');
+    _emberDebugIndex.deprecate('foo', false, {});
   });
 
   QUnit.test('Ember.deprecate without options.id triggers a deprecation', function (assert) {
@@ -6613,6 +6728,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
         assert.ok(true, 'original deprecation is still triggered');
       }
     });
+
+    _emberDebugIndex.deprecate('foo', false, { until: 'forever' });
   });
 
   QUnit.test('Ember.deprecate without options.until triggers a deprecation', function (assert) {
@@ -6625,6 +6742,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
         assert.ok(true, 'original deprecation is still triggered');
       }
     });
+
+    _emberDebugIndex.deprecate('foo', false, { id: 'test' });
   });
 
   QUnit.test('warn without options triggers a deprecation', function (assert) {
@@ -6637,6 +6756,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberDebugWarn.registerHandler(function (message) {
       assert.equal(message, 'foo', 'original warning is triggered');
     });
+
+    _emberDebugIndex.warn('foo');
   });
 
   QUnit.test('warn without options.id triggers a deprecation', function (assert) {
@@ -6649,6 +6770,8 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     _emberDebugWarn.registerHandler(function (message) {
       assert.equal(message, 'foo', 'original warning is triggered');
     });
+
+    _emberDebugIndex.warn('foo', false, {});
   });
 });
 enifed('ember-debug/tests/main_test.lint-test', ['exports'], function (exports) {
@@ -6660,7 +6783,7 @@ enifed('ember-debug/tests/main_test.lint-test', ['exports'], function (exports) 
     assert.ok(true, 'ember-debug/tests/main_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-environment', 'ember-metal', 'ember-debug/index'], function (exports, _emberEnvironment, _emberMetal, _emberDebugIndex) {
+enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-environment', 'ember-debug', 'ember-debug/index'], function (exports, _emberEnvironment, _emberDebug, _emberDebugIndex) {
   'use strict';
 
   var oldWarn = undefined,
@@ -6673,13 +6796,13 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
   function confirmWarns(expectedMsg) {
     var featuresWereStripped = true;
 
-    _emberMetal.setDebugFunction('warn', function (msg, test) {
+    _emberDebug.setDebugFunction('warn', function (msg, test) {
       if (!test) {
         equal(msg, expectedMsg);
       }
     });
 
-    _emberMetal.setDebugFunction('runInDebug', function (func) {
+    _emberDebug.setDebugFunction('runInDebug', function (func) {
       func();
     });
 
@@ -6693,8 +6816,8 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
 
   QUnit.module('ember-debug - _warnIfUsingStrippedFeatureFlags', {
     setup: function () {
-      oldWarn = _emberMetal.getDebugFunction('warn');
-      oldRunInDebug = _emberMetal.getDebugFunction('runInDebug');
+      oldWarn = _emberDebug.getDebugFunction('warn');
+      oldRunInDebug = _emberDebug.getDebugFunction('runInDebug');
       origEnvFeatures = _emberEnvironment.ENV.FEATURES;
       origEnableOptional = _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES;
 
@@ -6706,8 +6829,8 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     },
 
     teardown: function () {
-      _emberMetal.setDebugFunction('warn', oldWarn);
-      _emberMetal.setDebugFunction('runInDebug', oldRunInDebug);
+      _emberDebug.setDebugFunction('warn', oldWarn);
+      _emberDebug.setDebugFunction('runInDebug', oldRunInDebug);
       _emberEnvironment.ENV.FEATURES = origEnvFeatures;
       _emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
     }
@@ -9041,7 +9164,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test.lint-test', ['ex
     assert.ok(true, 'ember-glimmer/tests/integration/application/engine-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing', 'ember-metal', 'ember-glimmer'], function (exports, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRouting, _emberMetal, _emberGlimmer) {
+enifed('ember-glimmer/tests/integration/application/rendering-test', ['exports', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-routing', 'ember-debug', 'ember-glimmer'], function (exports, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberRouting, _emberDebug, _emberGlimmer) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
@@ -9512,7 +9635,7 @@ enifed('ember-glimmer/tests/integration/binding_integration_test.lint-test', ['e
     assert.ok(true, 'ember-glimmer/tests/integration/binding_integration_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'ember-metal', 'ember-views', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case'], function (exports, _emberMetal, _emberViews, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase) {
+enifed('ember-glimmer/tests/integration/components/append-test', ['exports', 'ember-metal', 'ember-views', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-debug'], function (exports, _emberMetal, _emberViews, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberDebug) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if showFooBar}}\n        {{foo-bar}}\n      {{else}}\n        {{baz-qux}}\n      {{/if}}\n    '], ['\n      {{#if showFooBar}}\n        {{foo-bar}}\n      {{else}}\n        {{baz-qux}}\n      {{/if}}\n    ']);
@@ -13285,7 +13408,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test.li
     assert.ok(true, 'ember-glimmer/tests/integration/components/contextual-components-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers) {
+enifed('ember-glimmer/tests/integration/components/curly-components-test', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/test-helpers'], function (exports, _emberMetal, _emberDebug, _emberRuntime, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsTestHelpers) {
   /* globals EmberDev */
   'use strict';
 
@@ -16780,7 +16903,7 @@ enifed('ember-glimmer/tests/integration/components/destroy-test.lint-test', ['ex
     assert.ok(true, 'ember-glimmer/tests/integration/components/destroy-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/components/dynamic-components-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/helpers', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-debug'], function (exports, _emberMetal, _emberGlimmerTestsUtilsHelpers, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberDebug) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}'], ['\n      {{#if cond1}}\n        {{#component "foo-bar" id=1}}\n          {{#if cond2}}\n            {{#component "foo-bar" id=2}}{{/component}}\n            {{#if cond3}}\n              {{#component "foo-bar" id=3}}\n                {{#if cond4}}\n                  {{#component "foo-bar" id=4}}\n                    {{#if cond5}}\n                      {{#component "foo-bar" id=5}}{{/component}}\n                      {{#component "foo-bar" id=6}}{{/component}}\n                      {{#component "foo-bar" id=7}}{{/component}}\n                    {{/if}}\n                    {{#component "foo-bar" id=8}}{{/component}}\n                  {{/component}}\n                {{/if}}\n              {{/component}}\n            {{/if}}\n          {{/if}}\n        {{/component}}\n      {{/if}}']),
@@ -21066,7 +21189,7 @@ enifed('ember-glimmer/tests/integration/components/will-destroy-element-hook-tes
     assert.ok(true, 'ember-glimmer/tests/integration/components/will-destroy-element-hook-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-helpers', 'ember-views', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsTestHelpers, _emberViews, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-glimmer/tests/utils/test-helpers', 'ember-views', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberMetal, _emberDebug, _emberRuntime, _emberGlimmerTestsUtilsTestHelpers, _emberViews, _emberGlimmerTestsUtilsHelpers) {
   /* globals EmberDev */
   'use strict';
 
@@ -22488,8 +22611,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     function StyleTest() {
       _RenderingTest4.apply(this, arguments);
       warnings = [];
-      originalWarn = _emberMetal.getDebugFunction('warn');
-      _emberMetal.setDebugFunction('warn', function (message, test) {
+      originalWarn = _emberDebug.getDebugFunction('warn');
+      _emberDebug.setDebugFunction('warn', function (message, test) {
         if (!test) {
           warnings.push(message);
         }
@@ -22500,7 +22623,7 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       var _RenderingTest4$prototype$teardown;
 
       (_RenderingTest4$prototype$teardown = _RenderingTest4.prototype.teardown).call.apply(_RenderingTest4$prototype$teardown, [this].concat(babelHelpers.slice.call(arguments)));
-      _emberMetal.setDebugFunction('warn', originalWarn);
+      _emberDebug.setDebugFunction('warn', originalWarn);
     };
 
     StyleTest.prototype.assertStyleWarning = function assertStyleWarning(style) {
@@ -22716,7 +22839,7 @@ enifed('ember-glimmer/tests/integration/content-test.lint-test', ['exports'], fu
     assert.ok(true, 'ember-glimmer/tests/integration/content-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetal) {
+enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember-debug'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetal, _emberDebug) {
   'use strict';
 
   var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
@@ -22918,7 +23041,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['exports', 'emb
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (_emberDebug.isFeatureEnabled('ember-improved-instrumentation')) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('EventDispatcher - Instrumentation', (function (_RenderingTest3) {
       babelHelpers.inherits(_class3, _RenderingTest3);
 
@@ -23101,12 +23224,12 @@ enifed('ember-glimmer/tests/integration/helpers/-class-test.lint-test', ['export
     assert.ok(true, 'ember-glimmer/tests/integration/helpers/-class-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetal, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers) {
+enifed('ember-glimmer/tests/integration/helpers/closure-action-test', ['exports', 'ember-metal', 'ember-debug', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers'], function (exports, _emberMetal, _emberDebug, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        <div id="counter">clicked: {{clicked}}; foo: {{foo}}</div>\n\n        {{click-me id="string-action" onClick=(action "on-click")}}\n        {{click-me id="function-action" onClick=(action onClick)}}\n        {{click-me id="mut-action" onClick=(action (mut clicked))}}\n      '], ['\n        <div id="counter">clicked: {{clicked}}; foo: {{foo}}</div>\n\n        {{click-me id="string-action" onClick=(action "on-click")}}\n        {{click-me id="function-action" onClick=(action onClick)}}\n        {{click-me id="mut-action" onClick=(action (mut clicked))}}\n      ']);
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (_emberDebug.isFeatureEnabled('ember-improved-instrumentation')) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: closure {{action}} improved instrumentation', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
 
@@ -25335,7 +25458,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test.lint-test', [
     assert.ok(true, 'ember-glimmer/tests/integration/helpers/custom-helper-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember-runtime', 'ember-views'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetal, _emberRuntime, _emberViews) {
+enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-views'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsHelpers, _emberMetal, _emberDebug, _emberRuntime, _emberViews) {
   'use strict';
 
   var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      '], ['\n        {{#inner-component}}\n          <button {{action "wat"}}>Wat me!</button>\n        {{/inner-component}}\n      ']),
@@ -25366,7 +25489,7 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['exports'
     });
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (_emberDebug.isFeatureEnabled('ember-improved-instrumentation')) {
     _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: element action instrumentation', (function (_RenderingTest) {
 babelHelpers.inherits(_class, _RenderingTest);
 
@@ -29902,7 +30025,7 @@ enifed('ember-glimmer/tests/integration/helpers/readonly-test.lint-test', ['expo
     assert.ok(true, 'ember-glimmer/tests/integration/helpers/readonly-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/render-test', ['exports', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/test-case', 'ember-debug'], function (exports, _emberMetal, _emberRuntime, _emberGlimmerTestsUtilsTestCase, _emberDebug) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{render}}', (function (_RenderingTest) {
@@ -32002,7 +32125,7 @@ enifed('ember-glimmer/tests/integration/input-test.lint-test', ['exports'], func
     assert.ok(true, 'ember-glimmer/tests/integration/input-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-application'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberMetal, _emberApplication) {
+enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-application', 'ember-debug'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberMetal, _emberApplication, _emberDebug) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('{{mount}} assertions', (function (_RenderingTest) {
@@ -32151,7 +32274,7 @@ enifed('ember-glimmer/tests/integration/mount-test.lint-test', ['exports'], func
     assert.ok(true, 'ember-glimmer/tests/integration/mount-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-metal'], function (exports, _emberGlimmerTestsUtilsTestCase, _internalTestHelpers, _emberMetal) {
+enifed('ember-glimmer/tests/integration/outlet-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-metal', 'ember-debug'], function (exports, _emberGlimmerTestsUtilsTestCase, _internalTestHelpers, _emberMetal, _emberDebug) {
   'use strict';
 
   _emberGlimmerTestsUtilsTestCase.moduleFor('outlet view', (function (_RenderingTest) {
@@ -35619,7 +35742,7 @@ enifed('ember-glimmer/tests/unit/template-factory-test.lint-test', ['exports'], 
     assert.ok(true, 'ember-glimmer/tests/unit/template-factory-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/unit/utils/debug-stack-test', ['exports', 'ember-glimmer/utils/debug-stack', 'ember-metal'], function (exports, _emberGlimmerUtilsDebugStack, _emberMetal) {
+enifed('ember-glimmer/tests/unit/utils/debug-stack-test', ['exports', 'ember-glimmer/utils/debug-stack', 'ember-debug'], function (exports, _emberGlimmerUtilsDebugStack, _emberDebug) {
   'use strict';
 });
 enifed('ember-glimmer/tests/unit/utils/debug-stack-test.lint-test', ['exports'], function (exports) {
@@ -37207,15 +37330,6 @@ enifed('ember-metal/core.lint-test', ['exports'], function (exports) {
     assert.ok(true, 'ember-metal/core.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/debug.lint-test', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('ESLint | ember-metal/debug.js');
-  QUnit.test('should pass ESLint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'ember-metal/debug.js should pass ESLint\n\n');
-  });
-});
 enifed('ember-metal/dependent_keys.lint-test', ['exports'], function (exports) {
   'use strict';
 
@@ -37243,15 +37357,6 @@ enifed('ember-metal/descriptor.lint-test', ['exports'], function (exports) {
     assert.ok(true, 'ember-metal/descriptor.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/error.lint-test', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('ESLint | ember-metal/error.js');
-  QUnit.test('should pass ESLint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'ember-metal/error.js should pass ESLint\n\n');
-  });
-});
 enifed('ember-metal/error_handler.lint-test', ['exports'], function (exports) {
   'use strict';
 
@@ -37277,15 +37382,6 @@ enifed('ember-metal/expand_properties.lint-test', ['exports'], function (exports
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-metal/expand_properties.js should pass ESLint\n\n');
-  });
-});
-enifed('ember-metal/features.lint-test', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('ESLint | ember-metal/features.js');
-  QUnit.test('should pass ESLint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'ember-metal/features.js should pass ESLint\n\n');
   });
 });
 enifed('ember-metal/get_properties.lint-test', ['exports'], function (exports) {
@@ -37520,15 +37616,6 @@ enifed('ember-metal/tags.lint-test', ['exports'], function (exports) {
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-metal/tags.js should pass ESLint\n\n');
-  });
-});
-enifed('ember-metal/testing.lint-test', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('ESLint | ember-metal/testing.js');
-  QUnit.test('should pass ESLint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'ember-metal/testing.js should pass ESLint\n\n');
   });
 });
 enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
@@ -37899,7 +37986,7 @@ enifed('ember-metal/tests/accessors/is_global_path_test.lint-test', ['exports'],
     assert.ok(true, 'ember-metal/tests/accessors/is_global_path_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/meta'], function (exports, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalMeta) {
+enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/meta'], function (exports, _emberDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalMeta) {
   'use strict';
 
   QUnit.module('mandatory-setters');
@@ -40451,28 +40538,6 @@ enifed('ember-metal/tests/descriptor_test.lint-test', ['exports'], function (exp
     assert.ok(true, 'ember-metal/tests/descriptor_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], function (exports, _emberMetalError) {
-  'use strict';
-
-  QUnit.module('Ember Error Throwing');
-
-  QUnit.test('new Ember.Error displays provided message', function () {
-    throws(function () {
-      throw new _emberMetalError.default('A Message');
-    }, function (e) {
-      return e.message === 'A Message';
-    }, 'the assigned message was displayed');
-  });
-});
-enifed('ember-metal/tests/error_test.lint-test', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('ESLint | ember-metal/tests/error_test.js');
-  QUnit.test('should pass ESLint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'ember-metal/tests/error_test.js should pass ESLint\n\n');
-  });
-});
 enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberMetalEvents) {
   'use strict';
 
@@ -41317,13 +41382,13 @@ enifed('ember-metal/tests/is_present_test.lint-test', ['exports'], function (exp
     assert.ok(true, 'ember-metal/tests/is_present_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalLibraries) {
+enifed('ember-metal/tests/libraries_test', ['exports', 'ember-debug', 'ember-metal/libraries'], function (exports, _emberDebug, _emberMetalLibraries) {
   /* globals EmberDev */
   'use strict';
 
   var libs = undefined,
       registry = undefined;
-  var originalWarn = _emberMetalDebug.getDebugFunction('warn');
+  var originalWarn = _emberDebug.getDebugFunction('warn');
 
   QUnit.module('Libraries registry', {
     setup: function () {
@@ -41335,7 +41400,7 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'emb
       libs = null;
       registry = null;
 
-      _emberMetalDebug.setDebugFunction('warn', originalWarn);
+      _emberDebug.setDebugFunction('warn', originalWarn);
     }
   });
 
@@ -41360,7 +41425,7 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'emb
     equal(registry.length, 1);
   });
 
-  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
+  if (_emberDebug.isFeatureEnabled('ember-libraries-isregistered')) {
     QUnit.test('isRegistered returns correct value', function () {
       expect(3);
 
@@ -41384,7 +41449,7 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'emb
 
     libs.register('magic', 1.23);
 
-    _emberMetalDebug.setDebugFunction('warn', function (msg, test) {
+    _emberDebug.setDebugFunction('warn', function (msg, test) {
       if (!test) {
         equal(msg, 'Library "magic" is already registered with Ember.');
       }
@@ -44808,7 +44873,7 @@ enifed('ember-metal/tests/performance_test.lint-test', ['exports'], function (ex
     assert.ok(true, 'ember-metal/tests/performance_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/properties_test', ['exports', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/deprecate_property'], function (exports, _emberMetalComputed, _emberMetalProperties, _emberMetalDeprecate_property) {
+enifed('ember-metal/tests/properties_test', ['exports', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal'], function (exports, _emberMetalComputed, _emberMetalProperties, _emberMetal) {
   'use strict';
 
   QUnit.module('Ember.defineProperty');
@@ -44877,7 +44942,7 @@ enifed('ember-metal/tests/properties_test', ['exports', 'ember-metal/computed', 
     expect(3);
     var obj = { foo: 'bar' };
 
-    _emberMetalDeprecate_property.deprecateProperty(obj, 'baz', 'foo');
+    _emberMetal.deprecateProperty(obj, 'baz', 'foo');
 
     expectDeprecation();
     equal(obj.baz, obj.foo, 'baz and foo are equal');
@@ -44890,7 +44955,7 @@ enifed('ember-metal/tests/properties_test', ['exports', 'ember-metal/computed', 
     expect(2);
     var obj = { foo: 'bar', blammo: 'whammy' };
 
-    _emberMetalDeprecate_property.deprecateProperty(obj, 'baz', 'foo');
+    _emberMetal.deprecateProperty(obj, 'baz', 'foo');
 
     for (var prop in obj) {
       if (obj.hasOwnProperty(prop)) {
@@ -44903,7 +44968,7 @@ enifed('ember-metal/tests/properties_test', ['exports', 'ember-metal/computed', 
     expect(3);
     var obj = { foo: 'bar' };
 
-    _emberMetalDeprecate_property.deprecateProperty(obj, 'baz', 'foo');
+    _emberMetal.deprecateProperty(obj, 'baz', 'foo');
 
     expectDeprecation();
     obj.baz = 'bloop';
@@ -45446,7 +45511,7 @@ enifed('ember-metal/tests/run_loop/once_test.lint-test', ['exports'], function (
     assert.ok(true, 'ember-metal/tests/run_loop/once_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error_handler', 'ember-metal/testing'], function (exports, _emberMetalRun_loop, _emberMetalError_handler, _emberMetalTesting) {
+enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error_handler', 'ember-debug'], function (exports, _emberMetalRun_loop, _emberMetalError_handler, _emberDebug) {
   'use strict';
 
   QUnit.module('system/run_loop/onerror_test');
@@ -45474,14 +45539,14 @@ enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_l
     var thrown = new Error('Boom!');
     var original = _emberMetalError_handler.getOnerror();
     var originalDispatchOverride = _emberMetalError_handler.getDispatchOverride();
-    var originalIsTesting = _emberMetalTesting.isTesting();
+    var originalIsTesting = _emberDebug.isTesting();
 
     var caught = undefined;
     _emberMetalError_handler.setOnerror(function (error) {
       caught = error;
     });
     _emberMetalError_handler.setDispatchOverride(null);
-    _emberMetalTesting.setTesting(false);
+    _emberDebug.setTesting(false);
 
     try {
       _emberMetalRun_loop.default(function () {
@@ -45490,7 +45555,7 @@ enifed('ember-metal/tests/run_loop/onerror_test', ['exports', 'ember-metal/run_l
     } finally {
       _emberMetalError_handler.setOnerror(original);
       _emberMetalError_handler.setDispatchOverride(originalDispatchOverride);
-      _emberMetalTesting.setTesting(originalIsTesting);
+      _emberDebug.setTesting(originalIsTesting);
     }
 
     deepEqual(caught, thrown);
@@ -45741,7 +45806,7 @@ enifed('ember-metal/tests/run_loop/sync_test.lint-test', ['exports'], function (
     assert.ok(true, 'ember-metal/tests/run_loop/sync_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-metal/tests/run_loop/unwind_test', ['exports', 'ember-metal/run_loop', 'ember-metal/error'], function (exports, _emberMetalRun_loop, _emberMetalError) {
+enifed('ember-metal/tests/run_loop/unwind_test', ['exports', 'ember-metal/run_loop', 'ember-debug'], function (exports, _emberMetalRun_loop, _emberDebug) {
   'use strict';
 
   QUnit.module('system/run_loop/unwind_test');
@@ -45752,7 +45817,7 @@ enifed('ember-metal/tests/run_loop/unwind_test', ['exports', 'ember-metal/run_lo
     throws(function () {
       _emberMetalRun_loop.default(function () {
         _emberMetalRun_loop.default.schedule('actions', function () {
-          throw new _emberMetalError.default('boom!');
+          throw new _emberDebug.Error('boom!');
         });
       });
     }, Error, 'boom!');
@@ -45772,9 +45837,9 @@ enifed('ember-metal/tests/run_loop/unwind_test', ['exports', 'ember-metal/run_lo
 
     throws(function () {
       _emberMetalRun_loop.default(function () {
-        throw new _emberMetalError.default('boom!');
+        throw new _emberDebug.Error('boom!');
       });
-    }, _emberMetalError.default, 'boom!');
+    }, _emberDebug.Error, 'boom!');
 
     equal(_emberMetalRun_loop.default.currentRunLoop, initialRunLoop, 'Previous run loop should be cleaned up despite exception');
 
@@ -47182,7 +47247,7 @@ enifed('ember-routing/tests/location/hash_location_test.lint-test', ['exports'],
     assert.ok(true, 'ember-routing/tests/location/hash_location_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-metal', 'ember-routing/location/history_location'], function (exports, _emberMetal, _emberRoutingLocationHistory_location) {
+enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-metal', 'ember-routing/location/history_location', 'ember-debug'], function (exports, _emberMetal, _emberRoutingLocationHistory_location, _emberDebug) {
   'use strict';
 
   var FakeHistory = undefined,
@@ -47788,7 +47853,7 @@ enifed('ember-routing/tests/system/cache_test.lint-test', ['exports'], function 
     assert.ok(true, 'ember-routing/tests/system/cache_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers'], function (exports, _emberMetal, _emberRuntime, _emberRoutingSystemController_for, _emberRoutingSystemGenerate_controller, _internalTestHelpers) {
+enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers', 'ember-debug'], function (exports, _emberMetal, _emberRuntime, _emberRoutingSystemController_for, _emberRoutingSystemGenerate_controller, _internalTestHelpers, _emberDebug) {
   'use strict';
 
   function buildInstance(namespace) {
@@ -51421,7 +51486,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test.lint-test', ['e
     assert.ok(true, 'ember-runtime/tests/computed/reduce_computed_macros_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/inject', 'internal-test-helpers'], function (exports, _emberRuntimeControllersController, _emberRuntimeSystemService, _emberMetal, _emberRuntimeSystemObject, _emberRuntimeInject, _internalTestHelpers) {
+enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/inject', 'internal-test-helpers', 'ember-debug'], function (exports, _emberRuntimeControllersController, _emberRuntimeSystemService, _emberMetal, _emberRuntimeSystemObject, _emberRuntimeInject, _internalTestHelpers, _emberDebug) {
   /* global EmberDev */
 
   'use strict';
@@ -52108,7 +52173,7 @@ enifed('ember-runtime/tests/ext/mixin_test.lint-test', ['exports'], function (ex
     assert.ok(true, 'ember-runtime/tests/ext/mixin_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-runtime/ext/rsvp'], function (exports, _emberMetal, _emberRuntimeExtRsvp) {
+enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-runtime/ext/rsvp', 'ember-debug'], function (exports, _emberMetal, _emberRuntimeExtRsvp, _emberDebug) {
   'use strict';
 
   var ORIGINAL_ONERROR = _emberMetal.getOnerror();
@@ -52144,8 +52209,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-ru
   });
 
   QUnit.test('Can reject with non-Error object', function (assert) {
-    var wasEmberTesting = _emberMetal.isTesting();
-    _emberMetal.setTesting(false);
+    var wasEmberTesting = _emberDebug.isTesting();
+    _emberDebug.setTesting(false);
     expect(1);
 
     try {
@@ -52153,15 +52218,15 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-ru
     } catch (e) {
       ok(false, 'should not throw');
     } finally {
-      _emberMetal.setTesting(wasEmberTesting);
+      _emberDebug.setTesting(wasEmberTesting);
     }
 
     ok(true);
   });
 
   QUnit.test('Can reject with no arguments', function (assert) {
-    var wasEmberTesting = _emberMetal.isTesting();
-    _emberMetal.setTesting(false);
+    var wasEmberTesting = _emberDebug.isTesting();
+    _emberDebug.setTesting(false);
     expect(1);
 
     try {
@@ -52169,7 +52234,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-ru
     } catch (e) {
       ok(false, 'should not throw');
     } finally {
-      _emberMetal.setTesting(wasEmberTesting);
+      _emberDebug.setTesting(wasEmberTesting);
     }
 
     ok(true);
@@ -52178,12 +52243,12 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-ru
   QUnit.test('rejections like jqXHR which have errorThrown property work', function () {
     expect(2);
 
-    var wasEmberTesting = _emberMetal.isTesting();
+    var wasEmberTesting = _emberDebug.isTesting();
     var wasOnError = _emberMetal.getOnerror();
 
     try {
       (function () {
-        _emberMetal.setTesting(false);
+        _emberDebug.setTesting(false);
         _emberMetal.setOnerror(function (error) {
           equal(error, actualError, 'expected the real error on the jqXHR');
           equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
@@ -52198,19 +52263,19 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-ru
       })();
     } finally {
       _emberMetal.setOnerror(wasOnError);
-      _emberMetal.setTesting(wasEmberTesting);
+      _emberDebug.setTesting(wasEmberTesting);
     }
   });
 
   QUnit.test('rejections where the errorThrown is a string should wrap the sting in an error object', function () {
     expect(2);
 
-    var wasEmberTesting = _emberMetal.isTesting();
+    var wasEmberTesting = _emberDebug.isTesting();
     var wasOnError = _emberMetal.getOnerror();
 
     try {
       (function () {
-        _emberMetal.setTesting(false);
+        _emberDebug.setTesting(false);
         _emberMetal.setOnerror(function (error) {
           equal(error.message, actualError, 'expected the real error on the jqXHR');
           equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
@@ -52225,18 +52290,18 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-ru
       })();
     } finally {
       _emberMetal.setOnerror(wasOnError);
-      _emberMetal.setTesting(wasEmberTesting);
+      _emberDebug.setTesting(wasEmberTesting);
     }
   });
 
   QUnit.test('rejections can be serialized to JSON', function (assert) {
     expect(2);
 
-    var wasEmberTesting = _emberMetal.isTesting();
+    var wasEmberTesting = _emberDebug.isTesting();
     var wasOnError = _emberMetal.getOnerror();
 
     try {
-      _emberMetal.setTesting(false);
+      _emberDebug.setTesting(false);
       _emberMetal.setOnerror(function (error) {
         assert.equal(error.message, 'a fail');
         assert.ok(JSON.stringify(error), 'Error can be serialized');
@@ -52249,7 +52314,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal', 'ember-ru
       _emberMetal.run(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
     } finally {
       _emberMetal.setOnerror(wasOnError);
-      _emberMetal.setTesting(wasEmberTesting);
+      _emberDebug.setTesting(wasEmberTesting);
     }
   });
 
@@ -52379,7 +52444,7 @@ enifed('ember-runtime/tests/ext/rsvp_test.lint-test', ['exports'], function (exp
     assert.ok(true, 'ember-runtime/tests/ext/rsvp_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal', 'ember-runtime/inject', 'ember-runtime/system/object', 'internal-test-helpers'], function (exports, _emberMetal, _emberRuntimeInject, _emberRuntimeSystemObject, _internalTestHelpers) {
+enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal', 'ember-runtime/inject', 'ember-runtime/system/object', 'internal-test-helpers', 'ember-debug'], function (exports, _emberMetal, _emberRuntimeInject, _emberRuntimeSystemObject, _internalTestHelpers, _emberDebug) {
   /* global EmberDev */
 
   'use strict';
@@ -61460,7 +61525,7 @@ enifed('ember-runtime/tests/system/object/computed_test.lint-test', ['exports'],
     assert.ok(true, 'ember-runtime/tests/system/object/computed_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal', 'ember-runtime/system/object'], function (exports, _emberMetal, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime/system/object'], function (exports, _emberMetal, _emberDebug, _emberRuntimeSystemObject) {
   'use strict';
 
   QUnit.module('EmberObject.create', {});
@@ -61614,7 +61679,7 @@ enifed('ember-runtime/tests/system/object/create_test.lint-test', ['exports'], f
     assert.ok(true, 'ember-runtime/tests/system/object/create_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal', 'internal-test-helpers', 'ember-runtime/system/object'], function (exports, _emberMetal, _internalTestHelpers, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal', 'internal-test-helpers', 'ember-runtime/system/object', 'ember-debug'], function (exports, _emberMetal, _internalTestHelpers, _emberRuntimeSystemObject, _emberDebug) {
   'use strict';
 
   QUnit.module('ember-runtime/system/object/destroy_test');
@@ -65166,18 +65231,18 @@ enifed('ember-testing/tests/adapters_test.lint-test', ['exports'], function (exp
     assert.ok(true, 'ember-testing/tests/adapters_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-testing/tests/ext/rsvp_test', ['exports', 'ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-metal'], function (exports, _emberTestingExtRsvp, _emberTestingTestAdapter, _emberMetal) {
+enifed('ember-testing/tests/ext/rsvp_test', ['exports', 'ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-metal', 'ember-debug'], function (exports, _emberTestingExtRsvp, _emberTestingTestAdapter, _emberMetal, _emberDebug) {
   'use strict';
 
   var originalTestAdapter = _emberTestingTestAdapter.getAdapter();
-  var originalTestingFlag = _emberMetal.isTesting();
+  var originalTestingFlag = _emberDebug.isTesting();
 
   var asyncStarted = 0;
   var asyncEnded = 0;
 
   QUnit.module('ember-testing RSVP', {
     setup: function () {
-      _emberMetal.setTesting(true);
+      _emberDebug.setTesting(true);
       _emberTestingTestAdapter.setAdapter({
         asyncStart: function () {
           asyncStarted++;
@@ -65193,7 +65258,7 @@ enifed('ember-testing/tests/ext/rsvp_test', ['exports', 'ember-testing/ext/rsvp'
       asyncStarted = 0;
       asyncEnded = 0;
       _emberTestingTestAdapter.setAdapter(originalTestAdapter);
-      _emberMetal.setTesting(originalTestingFlag);
+      _emberDebug.setTesting(originalTestingFlag);
     }
   });
 
@@ -65202,7 +65267,7 @@ enifed('ember-testing/tests/ext/rsvp_test', ['exports', 'ember-testing/ext/rsvp'
 
     ok(!_emberMetal.run.currentRunLoop, 'expect no run-loop');
 
-    _emberMetal.setTesting(true);
+    _emberDebug.setTesting(true);
 
     equal(asyncStarted, 0);
     equal(asyncEnded, 0);
@@ -65352,7 +65417,7 @@ enifed('ember-testing/tests/helper_registration_test.lint-test', ['exports'], fu
     assert.ok(true, 'ember-testing/tests/helper_registration_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing', 'ember-runtime', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-application', 'ember-template-compiler', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (exports, _emberRouting, _emberRuntime, _emberMetal, _emberViews, _emberGlimmer, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberApplication, _emberTemplateCompiler, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters) {
+enifed('ember-testing/tests/helpers_test', ['exports', 'ember-routing', 'ember-runtime', 'ember-metal', 'ember-debug', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-application', 'ember-template-compiler', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (exports, _emberRouting, _emberRuntime, _emberMetal, _emberDebug, _emberViews, _emberGlimmer, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberApplication, _emberTemplateCompiler, _emberTestingTestPending_requests, _emberTestingTestAdapter, _emberTestingTestWaiters) {
   'use strict';
 
   var App;
@@ -68385,7 +68450,7 @@ enifed('ember/tests/helpers/helper_registration_test.lint-test', ['exports'], fu
     assert.ok(true, 'ember/tests/helpers/helper_registration_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-application', 'ember-views', 'ember-template-compiler', 'ember-glimmer'], function (exports, _emberConsole, _emberRuntime, _emberMetal, _emberRouting, _emberApplication, _emberViews, _emberTemplateCompiler, _emberGlimmer) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-application', 'ember-views', 'ember-template-compiler', 'ember-glimmer', 'ember-debug'], function (exports, _emberConsole, _emberRuntime, _emberMetal, _emberRouting, _emberApplication, _emberViews, _emberTemplateCompiler, _emberGlimmer, _emberDebug) {
   'use strict';
 
   var Router = undefined,
@@ -68496,7 +68561,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-console', 'ember-r
     equal(_emberViews.jQuery('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-improved-instrumentation')) {
+  if (_emberDebug.isFeatureEnabled('ember-improved-instrumentation')) {
     QUnit.test('The {{link-to}} helper fires an interaction event', function (assert) {
       assert.expect(2);
       Router.map(function (match) {
@@ -70808,7 +70873,7 @@ enifed('ember/tests/integration/multiple-app-test.lint-test', ['exports'], funct
     assert.ok(true, 'ember/tests/integration/multiple-app-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-helpers', 'ember-metal'], function (exports, _emberIndex, _internalTestHelpers, _emberMetal) {
+enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-helpers', 'ember-debug'], function (exports, _emberIndex, _internalTestHelpers, _emberDebug) {
   'use strict';
 
   QUnit.module('ember reexports');
@@ -70826,10 +70891,10 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
   ['Registry', 'container', 'Registry'], ['Container', 'container', 'Container'],
 
   // ember-metal
-  ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['deprecate', 'ember-metal'], ['deprecateFunc', 'ember-metal'], ['assert', 'ember-metal'], ['warn', 'ember-metal'], ['debug', 'ember-metal'], ['runInDebug', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-metal', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
+  ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['deprecateFunc', 'ember-debug'], ['assert', 'ember-debug'], ['warn', 'ember-debug'], ['debug', 'ember-debug'], ['runInDebug', 'ember-debug'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember-metal'], ['FEATURES.isEnabled', 'ember-metal', 'isFeatureEnabled'], ['Error', 'ember-metal'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['accumulateListeners', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember-debug'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['accumulateListeners', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
@@ -70866,7 +70931,7 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
     _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
   });
 
-  if (_emberMetal.isFeatureEnabled('ember-metal-weakmap')) {
+  if (_emberDebug.isFeatureEnabled('ember-metal-weakmap')) {
     QUnit.test('Ember.WeakMap exports correctly', function (assert) {
       _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'WeakMap', 'ember-metal', 'WeakMap');
     });
@@ -77687,10 +77752,10 @@ enifed('ember/tests/routing/router_map_test.lint-test', ['exports'], function (e
     assert.ok(true, 'ember/tests/routing/router_map_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/routing/router_service_test/basic_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+enifed('ember/tests/routing/router_service_test/basic_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers', 'ember-debug'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers, _emberDebug) {
   'use strict';
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+  if (_emberDebug.isFeatureEnabled('ember-routing-router-service')) {
     _internalTestHelpers.moduleFor('Router Service - main', (function (_RouterTestCase) {
       babelHelpers.inherits(_class, _RouterTestCase);
 
@@ -77800,10 +77865,10 @@ enifed('ember/tests/routing/router_service_test/basic_test.lint-test', ['exports
     assert.ok(true, 'ember/tests/routing/router_service_test/basic_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/routing/router_service_test/currenturl_lifecycle_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+enifed('ember/tests/routing/router_service_test/currenturl_lifecycle_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers', 'ember-debug'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers, _emberDebug) {
   'use strict';
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+  if (_emberDebug.isFeatureEnabled('ember-routing-router-service')) {
     (function () {
       var results = [];
       var ROUTE_NAMES = ['index', 'child', 'sister', 'brother'];
@@ -77950,10 +78015,10 @@ enifed('ember/tests/routing/router_service_test/currenturl_lifecycle_test.lint-t
     assert.ok(true, 'ember/tests/routing/router_service_test/currenturl_lifecycle_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/routing/router_service_test/replaceWith_test', ['exports', 'ember-routing', 'internal-test-helpers', 'router', 'ember-metal'], function (exports, _emberRouting, _internalTestHelpers, _router, _emberMetal) {
+enifed('ember/tests/routing/router_service_test/replaceWith_test', ['exports', 'ember-routing', 'internal-test-helpers', 'router', 'ember-debug'], function (exports, _emberRouting, _internalTestHelpers, _router, _emberDebug) {
   'use strict';
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+  if (_emberDebug.isFeatureEnabled('ember-routing-router-service')) {
     _internalTestHelpers.moduleFor('Router Service - replaceWith', (function (_RouterTestCase) {
       babelHelpers.inherits(_class, _RouterTestCase);
 
@@ -78063,10 +78128,10 @@ enifed('ember/tests/routing/router_service_test/replaceWith_test.lint-test', ['e
     assert.ok(true, 'ember/tests/routing/router_service_test/replaceWith_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/routing/router_service_test/transitionTo_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers', 'router'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers, _router) {
+enifed('ember/tests/routing/router_service_test/transitionTo_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers', 'router', 'ember-debug'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers, _router, _emberDebug) {
   'use strict';
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+  if (_emberDebug.isFeatureEnabled('ember-routing-router-service')) {
     _internalTestHelpers.moduleFor('Router Service - transitionTo', (function (_RouterTestCase) {
       babelHelpers.inherits(_class, _RouterTestCase);
 
@@ -78310,7 +78375,7 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test.lint-test', ['
     assert.ok(true, 'ember/tests/routing/router_service_test/transitionTo_test.js should pass ESLint\n\n');
   });
 });
-enifed('ember/tests/routing/router_service_test/urlFor_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers) {
+enifed('ember/tests/routing/router_service_test/urlFor_test', ['exports', 'ember-runtime', 'ember-glimmer', 'ember-routing', 'ember-metal', 'internal-test-helpers', 'ember-debug'], function (exports, _emberRuntime, _emberGlimmer, _emberRouting, _emberMetal, _internalTestHelpers, _emberDebug) {
   'use strict';
 
   function setupController(app, name) {
@@ -78329,7 +78394,7 @@ enifed('ember/tests/routing/router_service_test/urlFor_test', ['exports', 'ember
     };
   }
 
-  if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+  if (_emberDebug.isFeatureEnabled('ember-routing-router-service')) {
     _internalTestHelpers.moduleFor('Router Service - urlFor', (function (_RouterTestCase) {
       babelHelpers.inherits(_class, _RouterTestCase);
 

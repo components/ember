@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+f787b0d3
+ * @version   2.13.0-alpha.1-canary+299c1ab3
  */
 
 var enifed, requireModule, Ember;
@@ -3038,8 +3038,7 @@ exports['default'] = Backburner;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 });
-enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'ember-metal'], function (exports, _emberUtils, _emberEnvironment, _emberMetal) {
-  /* globals Proxy */
+enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-environment'], function (exports, _emberDebug, _emberUtils, _emberEnvironment) {
   'use strict';
 
   var _Container$prototype;
@@ -3679,6 +3678,8 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
   })();
 });
 
+/* globals Proxy */
+
 /*
  * This internal version of factoryFor swaps between the public API for
  * factoryFor (class is the registered class) and a transition implementation
@@ -3728,7 +3729,7 @@ enifed('container/index', ['exports', 'container/registry', 'container/container
   exports.FACTORY_FOR = _containerContainer.FACTORY_FOR;
   exports.LOOKUP_FACTORY = _containerContainer.LOOKUP_FACTORY;
 });
-enifed('container/registry', ['exports', 'ember-utils', 'ember-metal', 'container/container'], function (exports, _emberUtils, _emberMetal, _containerContainer) {
+enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'container/container'], function (exports, _emberUtils, _emberDebug, _containerContainer) {
   'use strict';
 
   exports.default = Registry;
@@ -4781,7 +4782,7 @@ enifed('ember-application/initializers/dom-templates', ['exports', 'require', 'e
     }
   });
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _emberApplicationSystemEngineInstance) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _emberApplicationSystemEngineInstance) {
   /**
   @module ember
   @submodule ember-application
@@ -5267,7 +5268,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application/system/application-instance', 'container', 'ember-application/system/engine', 'ember-glimmer'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplicationSystemApplicationInstance, _container, _emberApplicationSystemEngine, _emberGlimmer) {
+enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember-environment', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application/system/application-instance', 'container', 'ember-application/system/engine', 'ember-glimmer'], function (exports, _emberUtils, _emberEnvironment, _emberDebug, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplicationSystemApplicationInstance, _container, _emberApplicationSystemEngine, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -5870,7 +5871,7 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
     didBecomeReady: function () {
       try {
         // TODO: Is this still needed for _globalsMode = false?
-        if (!_emberMetal.isTesting()) {
+        if (!_emberDebug.isTesting()) {
           // Eagerly name all classes that are already loaded
           _emberRuntime.Namespace.processAll();
           _emberRuntime.setNamespaceSearchDisabled(true);
@@ -6170,7 +6171,7 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
 
     registry.register(_container.privatize(_templateObject), _emberRouting.BucketCache);
 
-    if (_emberMetal.isFeatureEnabled('ember-routing-router-service')) {
+    if (_emberDebug.isFeatureEnabled('ember-routing-router-service')) {
       registry.register('service:router', _emberRouting.RouterService);
       registry.injection('service:router', 'router', 'router:main');
     }
@@ -6192,7 +6193,7 @@ enifed('ember-application/system/application', ['exports', 'ember-utils', 'ember
 });
 
 // we only need to see this once per Application#init
-enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'ember-runtime', 'ember-metal', 'container', 'ember-application/system/engine-parent'], function (exports, _emberUtils, _emberRuntime, _emberMetal, _container, _emberApplicationSystemEngineParent) {
+enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'ember-runtime', 'ember-debug', 'ember-metal', 'container', 'ember-application/system/engine-parent'], function (exports, _emberUtils, _emberRuntime, _emberDebug, _emberMetal, _container, _emberApplicationSystemEngineParent) {
   /**
   @module ember
   @submodule ember-application
@@ -6342,7 +6343,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'e
       var Engine = this.lookup('engine:' + name);
 
       if (!Engine) {
-        throw new _emberMetal.Error('You attempted to mount the engine \'' + name + '\', but it is not registered with its parent.');
+        throw new _emberDebug.Error('You attempted to mount the engine \'' + name + '\', but it is not registered with its parent.');
       }
 
       var engineInstance = Engine.buildInstance(options);
@@ -6450,7 +6451,7 @@ enifed('ember-application/system/engine-parent', ['exports', 'ember-utils'], fun
     engine[ENGINE_PARENT] = parent;
   }
 });
-enifed('ember-application/system/engine', ['exports', 'ember-utils', 'ember-runtime', 'container', 'dag-map', 'ember-metal', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-routing', 'ember-extension-support', 'ember-views', 'ember-glimmer'], function (exports, _emberUtils, _emberRuntime, _container, _dagMap, _emberMetal, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberRouting, _emberExtensionSupport, _emberViews, _emberGlimmer) {
+enifed('ember-application/system/engine', ['exports', 'ember-utils', 'ember-runtime', 'container', 'dag-map', 'ember-debug', 'ember-metal', 'ember-application/system/resolver', 'ember-application/system/engine-instance', 'ember-routing', 'ember-extension-support', 'ember-views', 'ember-glimmer'], function (exports, _emberUtils, _emberRuntime, _container, _dagMap, _emberDebug, _emberMetal, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance, _emberRouting, _emberExtensionSupport, _emberViews, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -6885,7 +6886,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-utils', 'ember-runt
 
   exports.default = Engine;
 });
-enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-application/utils/validate-type', 'ember-glimmer'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberApplicationUtilsValidateType, _emberGlimmer) {
+enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-application/utils/validate-type', 'ember-glimmer'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberRuntime, _emberApplicationUtilsValidateType, _emberGlimmer) {
   /**
   @module ember
   @submodule ember-application
@@ -7307,7 +7308,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
     }
   });
 });
-enifed('ember-application/utils/validate-type', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-application/utils/validate-type', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   /**
   @module ember
   @submodule ember-application
@@ -7476,6 +7477,757 @@ enifed('ember-console/index', ['exports', 'ember-environment'], function (export
     */
     assert: consoleMethod('assert') || assertPolyfill
   };
+});
+enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _emberDebugError, _emberConsole, _emberEnvironment, _emberDebugHandlers) {
+  /*global __fail__*/
+
+  'use strict';
+
+  exports.registerHandler = registerHandler;
+  exports.default = deprecate;
+
+  /**
+    Allows for runtime registration of handler functions that override the default deprecation behavior.
+    Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
+    The following example demonstrates its usage by registering a handler that throws an error if the
+    message contains the word "should", otherwise defers to the default handler.
+  
+    ```javascript
+    Ember.Debug.registerDeprecationHandler((message, options, next) => {
+      if (message.indexOf('should') !== -1) {
+        throw new Error(`Deprecation message with should: ${message}`);
+      } else {
+        // defer to whatever handler was registered before this one
+        next(message, options);
+      }
+    });
+    ```
+  
+    The handler function takes the following arguments:
+  
+    <ul>
+      <li> <code>message</code> - The message received from the deprecation call.</li>
+      <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
+        <ul>
+          <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
+          <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>
+        </ul>
+      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
+    </ul>
+  
+    @public
+    @static
+    @method registerDeprecationHandler
+    @param handler {Function} A function to handle deprecation calls.
+    @since 2.1.0
+  */
+
+  function registerHandler(handler) {
+    _emberDebugHandlers.registerHandler('deprecate', handler);
+  }
+
+  function formatMessage(_message, options) {
+    var message = _message;
+
+    if (options && options.id) {
+      message = message + (' [deprecation id: ' + options.id + ']');
+    }
+
+    if (options && options.url) {
+      message += ' See ' + options.url + ' for more details.';
+    }
+
+    return message;
+  }
+
+  registerHandler(function logDeprecationToConsole(message, options) {
+    var updatedMessage = formatMessage(message, options);
+
+    _emberConsole.default.warn('DEPRECATION: ' + updatedMessage);
+  });
+
+  var captureErrorForStack = undefined;
+
+  if (new Error().stack) {
+    captureErrorForStack = function () {
+      return new Error();
+    };
+  } else {
+    captureErrorForStack = function () {
+      try {
+        __fail__.fail();
+      } catch (e) {
+        return e;
+      }
+    };
+  }
+
+  registerHandler(function logDeprecationStackTrace(message, options, next) {
+    if (_emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION) {
+      var stackStr = '';
+      var error = captureErrorForStack();
+      var stack = undefined;
+
+      if (error.stack) {
+        if (error['arguments']) {
+          // Chrome
+          stack = error.stack.replace(/^\s+at\s+/gm, '').replace(/^([^\(]+?)([\n$])/gm, '{anonymous}($1)$2').replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}($1)').split('\n');
+          stack.shift();
+        } else {
+          // Firefox
+          stack = error.stack.replace(/(?:\n@:0)?\s+$/m, '').replace(/^\(/gm, '{anonymous}(').split('\n');
+        }
+
+        stackStr = '\n    ' + stack.slice(2).join('\n    ');
+      }
+
+      var updatedMessage = formatMessage(message, options);
+
+      _emberConsole.default.warn('DEPRECATION: ' + updatedMessage + stackStr);
+    } else {
+      next.apply(undefined, arguments);
+    }
+  });
+
+  registerHandler(function raiseOnDeprecation(message, options, next) {
+    if (_emberEnvironment.ENV.RAISE_ON_DEPRECATION) {
+      var updatedMessage = formatMessage(message);
+
+      throw new _emberDebugError.default(updatedMessage);
+    } else {
+      next.apply(undefined, arguments);
+    }
+  });
+
+  var missingOptionsDeprecation = 'When calling `Ember.deprecate` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include `id` and `until` properties.';
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
+  var missingOptionsIdDeprecation = 'When calling `Ember.deprecate` you must provide `id` in options.';
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
+  var missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
+
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
+  /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
+    Display a deprecation warning with the provided message and a stack trace
+    (Chrome and Firefox only).
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
+  
+    @method deprecate
+    @param {String} message A description of the deprecation.
+    @param {Boolean} test A boolean. If falsy, the deprecation will be displayed.
+    @param {Object} options
+    @param {String} options.id A unique id for this deprecation. The id can be
+      used by Ember debugging tools to change the behavior (raise, log or silence)
+      for that specific deprecation. The id should be namespaced by dots, e.g.
+      "view.helper.select".
+    @param {string} options.until The version of Ember when this deprecation
+      warning will be removed.
+    @param {String} [options.url] An optional url to the transition guide on the
+      emberjs.com website.
+    @for Ember
+    @public
+    @since 1.0.0
+  */
+
+  function deprecate(message, test, options) {
+    if (!options || !options.id && !options.until) {
+      deprecate(missingOptionsDeprecation, false, {
+        id: 'ember-debug.deprecate-options-missing',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+      });
+    }
+
+    if (options && !options.id) {
+      deprecate(missingOptionsIdDeprecation, false, {
+        id: 'ember-debug.deprecate-id-missing',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+      });
+    }
+
+    if (options && !options.until) {
+      deprecate(missingOptionsUntilDeprecation, options && options.until, {
+        id: 'ember-debug.deprecate-until-missing',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+      });
+    }
+
+    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(babelHelpers.slice.call(arguments)));
+  }
+});
+enifed("ember-debug/error", ["exports"], function (exports) {
+
+  /**
+    A subclass of the JavaScript Error object for use in Ember.
+  
+    @class Error
+    @namespace Ember
+    @extends Error
+    @constructor
+    @public
+  */
+  "use strict";
+
+  var EmberError = (function (_Error) {
+    babelHelpers.inherits(EmberError, _Error);
+
+    function EmberError(message) {
+      _Error.call(this);
+
+      if (!(this instanceof EmberError)) {
+        return new EmberError(message);
+      }
+
+      var error = Error.call(this, message);
+
+      if (Error.captureStackTrace) {
+        Error.captureStackTrace(this, EmberError);
+      } else {
+        this.stack = error.stack;
+      }
+
+      this.description = error.description;
+      this.fileName = error.fileName;
+      this.lineNumber = error.lineNumber;
+      this.message = error.message;
+      this.name = error.name;
+      this.number = error.number;
+      this.code = error.code;
+    }
+
+    return EmberError;
+  })(Error);
+
+  exports.default = EmberError;
+});
+enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', 'ember/features'], function (exports, _emberUtils, _emberEnvironment, _emberFeatures) {
+  'use strict';
+
+  exports.default = isEnabled;
+
+  /**
+    The hash of enabled Canary features. Add to this, any canary features
+    before creating your application.
+  
+    Alternatively (and recommended), you can also define `EmberENV.FEATURES`
+    if you need to enable features flagged at runtime.
+  
+    @class FEATURES
+    @namespace Ember
+    @static
+    @since 1.1.0
+    @public
+  */
+  var FEATURES = _emberUtils.assign(_emberFeatures.default, _emberEnvironment.ENV.FEATURES);
+
+  exports.FEATURES = FEATURES;
+  /**
+    Determine whether the specified `feature` is enabled. Used by Ember's
+    build tools to exclude experimental features from beta/stable builds.
+  
+    You can define the following configuration options:
+  
+    * `EmberENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
+      enabled/disabled.
+  
+    @method isEnabled
+    @param {String} feature The feature to check
+    @return {Boolean}
+    @for Ember.FEATURES
+    @since 1.1.0
+    @public
+  */
+
+  function isEnabled(feature) {
+    var featureValue = FEATURES[feature];
+
+    if (featureValue === true || featureValue === false || featureValue === undefined) {
+      return featureValue;
+    } else if (_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  exports.DEFAULT_FEATURES = _emberFeatures.default;
+});
+enifed("ember-debug/handlers", ["exports"], function (exports) {
+  "use strict";
+
+  exports.registerHandler = registerHandler;
+  exports.invoke = invoke;
+  var HANDLERS = {};
+
+  exports.HANDLERS = HANDLERS;
+
+  function registerHandler(type, callback) {
+    var nextHandler = HANDLERS[type] || function () {};
+
+    HANDLERS[type] = function (message, options) {
+      callback(message, options, nextHandler);
+    };
+  }
+
+  function invoke(type, message, test, options) {
+    if (test) {
+      return;
+    }
+
+    var handlerForType = HANDLERS[type];
+
+    if (!handlerForType) {
+      return;
+    }
+
+    if (handlerForType) {
+      handlerForType(message, options);
+    }
+  }
+});
+enifed('ember-debug/index', ['exports', 'ember/features', 'ember-environment', 'ember-console', 'ember-debug/testing', 'ember-debug/error', 'ember-debug/features', 'ember-debug/deprecate', 'ember-debug/warn'], function (exports, _emberFeatures, _emberEnvironment, _emberConsole, _emberDebugTesting, _emberDebugError, _emberDebugFeatures, _emberDebugDeprecate, _emberDebugWarn) {
+  'use strict';
+
+  exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
+  exports.getDebugFunction = getDebugFunction;
+  exports.setDebugFunction = setDebugFunction;
+  exports.assert = assert;
+  exports.info = info;
+  exports.warn = warn;
+  exports.debug = debug;
+  exports.deprecate = deprecate;
+  exports.deprecateFunc = deprecateFunc;
+  exports.runInDebug = runInDebug;
+  exports.debugSeal = debugSeal;
+  exports.debugFreeze = debugFreeze;
+  exports.registerWarnHandler = _emberDebugWarn.registerHandler;
+  exports.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
+  exports.isFeatureEnabled = _emberDebugFeatures.default;
+  exports.FEATURES = _emberDebugFeatures.FEATURES;
+  exports.Error = _emberDebugError.default;
+  exports.isTesting = _emberDebugTesting.isTesting;
+  exports.setTesting = _emberDebugTesting.setTesting;
+  var debugFunctions = {
+    assert: function () {},
+    info: function () {},
+    warn: function () {},
+    debug: function () {},
+    deprecate: function () {},
+    deprecateFunc: function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return args[args.length - 1];
+    },
+    runInDebug: function () {},
+    debugSeal: function () {},
+    debugFreeze: function () {}
+  };
+
+  exports.debugFunctions = debugFunctions;
+  /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
+  @class Ember
+  @public
+  */
+
+  /**
+    Define an assertion that will throw an exception if the condition is not met.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
+  
+    ```javascript
+    // Test for truthiness
+    Ember.assert('Must pass a valid object', obj);
+  
+    // Fail unconditionally
+    Ember.assert('This code path should never be run');
+    ```
+  
+    @method assert
+    @param {String} desc A description of the assertion. This will become
+      the text of the Error thrown if the assertion fails.
+    @param {Boolean} test Must be truthy for the assertion to pass. If
+      falsy, an exception will be thrown.
+    @public
+    @since 1.0.0
+  */
+  setDebugFunction('assert', function assert(desc, test) {
+    if (!test) {
+      throw new _emberDebugError.default('Assertion Failed: ' + desc);
+    }
+  });
+
+  /**
+    Display a debug notice.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
+  
+    ```javascript
+    Ember.debug('I\'m a debug notice!');
+    ```
+  
+    @method debug
+    @param {String} message A debug message to display.
+    @public
+  */
+  setDebugFunction('debug', function debug(message) {
+    _emberConsole.default.debug('DEBUG: ' + message);
+  });
+
+  /**
+    Display an info notice.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
+  
+    @method info
+    @private
+  */
+  setDebugFunction('info', function info() {
+    _emberConsole.default.info.apply(undefined, arguments);
+  });
+
+  /**
+    Alias an old, deprecated method with its new counterpart.
+  
+    Display a deprecation warning with the provided message and a stack trace
+    (Chrome and Firefox only) when the assigned method is called.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+  
+    ```javascript
+    Ember.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);
+    ```
+  
+    @method deprecateFunc
+    @param {String} message A description of the deprecation.
+    @param {Object} [options] The options object for Ember.deprecate.
+    @param {Function} func The new function called to replace its deprecated counterpart.
+    @return {Function} A new function that wraps the original function with a deprecation warning
+    @private
+  */
+  setDebugFunction('deprecateFunc', function deprecateFunc() {
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    if (args.length === 3) {
+      var _ret = (function () {
+        var message = args[0];
+        var options = args[1];
+        var func = args[2];
+
+        return {
+          v: function () {
+            deprecate(message, false, options);
+            return func.apply(this, arguments);
+          }
+        };
+      })();
+
+      if (typeof _ret === 'object') return _ret.v;
+    } else {
+      var _ret2 = (function () {
+        var message = args[0];
+        var func = args[1];
+
+        return {
+          v: function () {
+            deprecate(message);
+            return func.apply(this, arguments);
+          }
+        };
+      })();
+
+      if (typeof _ret2 === 'object') return _ret2.v;
+    }
+  });
+
+  /**
+    Run a function meant for debugging.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
+  
+    ```javascript
+    Ember.runInDebug(() => {
+      Ember.Component.reopen({
+        didInsertElement() {
+          console.log("I'm happy");
+        }
+      });
+    });
+    ```
+  
+    @method runInDebug
+    @param {Function} func The function to be executed.
+    @since 1.5.0
+    @public
+  */
+  setDebugFunction('runInDebug', function runInDebug(func) {
+    func();
+  });
+
+  setDebugFunction('debugSeal', function debugSeal(obj) {
+    Object.seal(obj);
+  });
+
+  setDebugFunction('debugFreeze', function debugFreeze(obj) {
+    Object.freeze(obj);
+  });
+
+  setDebugFunction('deprecate', _emberDebugDeprecate.default);
+
+  setDebugFunction('warn', _emberDebugWarn.default);
+
+  /**
+    Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or
+    any specific FEATURES flag is truthy.
+  
+    This method is called automatically in debug canary builds.
+  
+    @private
+    @method _warnIfUsingStrippedFeatureFlags
+    @return {void}
+  */
+
+  function _warnIfUsingStrippedFeatureFlags(FEATURES, knownFeatures, featuresWereStripped) {
+    if (featuresWereStripped) {
+      warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+
+      var keys = Object.keys(FEATURES || {});
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (key === 'isEnabled' || !(key in knownFeatures)) {
+          continue;
+        }
+
+        warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
+      }
+    }
+  }
+
+  if (!_emberDebugTesting.isTesting()) {
+    (function () {
+      // Complain if they're using FEATURE flags in builds other than canary
+      _emberDebugFeatures.FEATURES['features-stripped-test'] = true;
+      var featuresWereStripped = true;
+
+      if (_emberDebugFeatures.default('features-stripped-test')) {
+        featuresWereStripped = false;
+      }
+
+      delete _emberDebugFeatures.FEATURES['features-stripped-test'];
+      _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _emberFeatures.default, featuresWereStripped);
+
+      // Inform the developer about the Ember Inspector if not installed.
+      var isFirefox = _emberEnvironment.environment.isFirefox;
+      var isChrome = _emberEnvironment.environment.isChrome;
+
+      if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
+        window.addEventListener('load', function () {
+          if (document.documentElement && document.documentElement.dataset && !document.documentElement.dataset.emberExtension) {
+            var downloadURL = undefined;
+
+            if (isChrome) {
+              downloadURL = 'https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi';
+            } else if (isFirefox) {
+              downloadURL = 'https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/';
+            }
+
+            debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
+          }
+        }, false);
+      }
+    })();
+  }
+
+  /*
+    We are transitioning away from `ember.js` to `ember.debug.js` to make
+    it much clearer that it is only for local development purposes.
+  
+    This flag value is changed by the tooling (by a simple string replacement)
+    so that if `ember.js` (which must be output for backwards compat reasons) is
+    used a nice helpful warning message will be printed out.
+  */
+  var runningNonEmberDebugJS = false;
+  exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
+  if (runningNonEmberDebugJS) {
+    warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
+  }
+
+  function getDebugFunction(name) {
+    return debugFunctions[name];
+  }
+
+  function setDebugFunction(name, fn) {
+    debugFunctions[name] = fn;
+  }
+
+  function assert() {
+    return debugFunctions.assert.apply(undefined, arguments);
+  }
+
+  function info() {
+    return debugFunctions.info.apply(undefined, arguments);
+  }
+
+  function warn() {
+    return debugFunctions.warn.apply(undefined, arguments);
+  }
+
+  function debug() {
+    return debugFunctions.debug.apply(undefined, arguments);
+  }
+
+  function deprecate() {
+    return debugFunctions.deprecate.apply(undefined, arguments);
+  }
+
+  function deprecateFunc() {
+    return debugFunctions.deprecateFunc.apply(undefined, arguments);
+  }
+
+  function runInDebug() {
+    return debugFunctions.runInDebug.apply(undefined, arguments);
+  }
+
+  function debugSeal() {
+    return debugFunctions.debugSeal.apply(undefined, arguments);
+  }
+
+  function debugFreeze() {
+    return debugFunctions.debugFreeze.apply(undefined, arguments);
+  }
+});
+enifed("ember-debug/run-in-debug", ["exports"], function (exports) {
+  "use strict";
+});
+enifed("ember-debug/testing", ["exports"], function (exports) {
+  "use strict";
+
+  exports.isTesting = isTesting;
+  exports.setTesting = setTesting;
+  var testing = false;
+
+  function isTesting() {
+    return testing;
+  }
+
+  function setTesting(value) {
+    testing = !!value;
+  }
+});
+enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate', 'ember-debug/handlers'], function (exports, _emberConsole, _emberDebugDeprecate, _emberDebugHandlers) {
+  'use strict';
+
+  exports.registerHandler = registerHandler;
+  exports.default = warn;
+
+  /**
+    Allows for runtime registration of handler functions that override the default warning behavior.
+    Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
+    The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
+    default warning behavior.
+  
+    ```javascript
+    // next is not called, so no warnings get the default behavior
+    Ember.Debug.registerWarnHandler(() => {});
+    ```
+  
+    The handler function takes the following arguments:
+  
+    <ul>
+      <li> <code>message</code> - The message received from the warn call. </li>
+      <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
+        <ul>
+          <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
+        </ul>
+      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
+    </ul>
+  
+    @public
+    @static
+    @method registerWarnHandler
+    @param handler {Function} A function to handle warnings.
+    @since 2.1.0
+  */
+
+  function registerHandler(handler) {
+    _emberDebugHandlers.registerHandler('warn', handler);
+  }
+
+  registerHandler(function logWarning(message, options) {
+    _emberConsole.default.warn('WARNING: ' + message);
+    if ('trace' in _emberConsole.default) {
+      _emberConsole.default.trace();
+    }
+  });
+
+  var missingOptionsDeprecation = 'When calling `Ember.warn` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include an `id` property.';
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
+  var missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
+
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
+  /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
+    Display a warning with the provided message.
+  
+    * In a production build, this method is defined as an empty function (NOP).
+    Uses of this method in Ember itself are stripped from the ember.prod.js build.
+  
+    @method warn
+    @param {String} message A warning to display.
+    @param {Boolean} test An optional boolean. If falsy, the warning
+      will be displayed.
+    @param {Object} options An object that can be used to pass a unique
+      `id` for this warning.  The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log, or silence) for that specific warning.
+      The `id` should be namespaced by dots, e.g. "ember-debug.feature-flag-with-features-stripped"
+    @for Ember
+    @public
+    @since 1.0.0
+  */
+
+  function warn(message, test, options) {
+    if (!options) {
+      _emberDebugDeprecate.default(missingOptionsDeprecation, false, {
+        id: 'ember-debug.warn-options-missing',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+      });
+    }
+
+    if (options && !options.id) {
+      _emberDebugDeprecate.default(missingOptionsIdDeprecation, false, {
+        id: 'ember-debug.warn-id-missing',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+      });
+    }
+
+    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(babelHelpers.slice.call(arguments)));
+  }
 });
 enifed('ember-environment/global', ['exports'], function (exports) {
   /* globals global, window, self, mainContext */
@@ -8247,7 +8999,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-extension-support/dat
   exports.DataAdapter = _emberExtensionSupportData_adapter.default;
   exports.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
-enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'ember-runtime', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference', '@glimmer/runtime'], function (exports, _emberUtils, _emberViews, _emberRuntime, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference, _glimmerRuntime) {
+enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'ember-runtime', 'ember-debug', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference', '@glimmer/runtime'], function (exports, _emberUtils, _emberViews, _emberRuntime, _emberDebug, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference, _glimmerRuntime) {
   'use strict';
 
   var _CoreView$extend;
@@ -9126,7 +9878,7 @@ enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal', 'ember-gl
     }
   });
 });
-enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-glimmer/templates/link-to', 'ember-glimmer/component'], function (exports, _emberConsole, _emberMetal, _emberRuntime, _emberViews, _emberGlimmerTemplatesLinkTo, _emberGlimmerComponent) {
+enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-glimmer/templates/link-to', 'ember-glimmer/component'], function (exports, _emberConsole, _emberDebug, _emberMetal, _emberRuntime, _emberViews, _emberGlimmerTemplatesLinkTo, _emberGlimmerComponent) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -10296,7 +11048,7 @@ enifed('ember-glimmer/dom', ['exports', '@glimmer/runtime', '@glimmer/node'], fu
   exports.DOMTreeConstruction = _glimmerRuntime.DOMTreeConstruction;
   exports.NodeDOMTreeConstruction = _glimmerNode.NodeDOMTreeConstruction;
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'ember-views', '@glimmer/runtime', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'container', 'ember-glimmer/modifiers/action'], function (exports, _emberUtils, _emberMetal, _emberViews, _glimmerRuntime, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntax, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerUtilsDebugStack, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _emberGlimmerProtocolForUrl, _container, _emberGlimmerModifiersAction) {
+enifed('ember-glimmer/environment', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views', '@glimmer/runtime', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'container', 'ember-glimmer/modifiers/action'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberViews, _glimmerRuntime, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntax, _emberGlimmerUtilsIterable, _emberGlimmerUtilsReferences, _emberGlimmerUtilsDebugStack, _emberGlimmerHelpersIfUnless, _emberGlimmerHelpersAction, _emberGlimmerHelpersComponent, _emberGlimmerHelpersConcat, _emberGlimmerHelpersGet, _emberGlimmerHelpersHash, _emberGlimmerHelpersLoc, _emberGlimmerHelpersLog, _emberGlimmerHelpersMut, _emberGlimmerHelpersReadonly, _emberGlimmerHelpersUnbound, _emberGlimmerHelpersClass, _emberGlimmerHelpersInputType, _emberGlimmerHelpersQueryParam, _emberGlimmerHelpersEachIn, _emberGlimmerHelpersNormalizeClass, _emberGlimmerHelpersHtmlSafe, _emberGlimmerProtocolForUrl, _container, _emberGlimmerModifiersAction) {
   'use strict';
 
   var Environment = (function (_GlimmerEnvironment) {
@@ -10820,7 +11572,7 @@ enifed('ember-glimmer/helpers/-normalize-class', ['exports', 'ember-glimmer/util
     return new _emberGlimmerUtilsReferences.InternalHelperReference(normalizeClass, args);
   };
 });
-enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/runtime', '@glimmer/reference'], function (exports, _emberUtils, _emberMetal, _emberGlimmerUtilsReferences, _glimmerRuntime, _glimmerReference) {
+enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/runtime', '@glimmer/reference', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _emberGlimmerUtilsReferences, _glimmerRuntime, _glimmerReference, _emberDebug) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -11200,7 +11952,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     };
   }
 });
-enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/curly-component', '@glimmer/runtime', 'ember-metal'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberGlimmerSyntaxCurlyComponent, _glimmerRuntime, _emberMetal) {
+enifed('ember-glimmer/helpers/component', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/curly-component', '@glimmer/runtime', 'ember-debug'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberGlimmerSyntaxCurlyComponent, _glimmerRuntime, _emberDebug) {
   /**
     @module ember
     @submodule ember-glimmer
@@ -11782,7 +12534,7 @@ enifed("ember-glimmer/helpers/hash", ["exports"], function (exports) {
       return args.named;
    };
 });
-enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference'], function (exports, _emberMetal, _emberGlimmerUtilsReferences, _glimmerReference) {
+enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-debug', 'ember-glimmer/utils/references', '@glimmer/reference'], function (exports, _emberDebug, _emberGlimmerUtilsReferences, _glimmerReference) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12037,7 +12789,7 @@ enifed('ember-glimmer/helpers/log', ['exports', 'ember-glimmer/utils/references'
 @module ember
 @submodule ember-glimmer
 */
-enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberMetal, _emberGlimmerUtilsReferences, _emberGlimmerHelpersAction) {
+enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-debug', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberDebug, _emberGlimmerUtilsReferences, _emberGlimmerHelpersAction) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12156,7 +12908,7 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-metal', 'e
     return wrappedRef;
   };
 });
-enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-metal', 'ember-routing'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberMetal, _emberRouting) {
+enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-debug', 'ember-routing'], function (exports, _emberUtils, _emberGlimmerUtilsReferences, _emberDebug, _emberRouting) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12304,7 +13056,7 @@ enifed('ember-glimmer/helpers/readonly', ['exports', 'ember-glimmer/utils/refere
     return wrapped;
   };
 });
-enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-metal', 'ember-glimmer/utils/references'], function (exports, _emberMetal, _emberGlimmerUtilsReferences) {
+enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-debug', 'ember-glimmer/utils/references'], function (exports, _emberDebug, _emberGlimmerUtilsReferences) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12574,7 +13326,7 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
   exports.NodeDOMTreeConstruction = _emberGlimmerDom.NodeDOMTreeConstruction;
   exports.DOMTreeConstruction = _emberGlimmerDom.DOMTreeConstruction;
 });
-enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal', 'ember-glimmer/helper'], function (exports, _emberMetal, _emberGlimmerHelper) {
+enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-debug', 'ember-glimmer/helper'], function (exports, _emberDebug, _emberGlimmerHelper) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -12631,7 +13383,7 @@ enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-metal', 'ember-glim
     return _emberGlimmerHelper.helper(fn);
   }
 });
-enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberMetal, _emberViews, _emberGlimmerHelpersAction) {
+enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberViews, _emberGlimmerHelpersAction) {
   'use strict';
 
   var MODIFIERS = ['alt', 'shift', 'meta', 'ctrl'];
@@ -12908,7 +13660,7 @@ enifed('ember-glimmer/protocol-for-url', ['exports', 'ember-environment'], funct
     return protocol === null ? ':' : protocol;
   }
 });
-enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal', '@glimmer/reference', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/outlet'], function (exports, _emberGlimmerUtilsReferences, _emberMetal, _glimmerReference, _emberViews, _emberGlimmerComponent, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxOutlet) {
+enifed('ember-glimmer/renderer', ['exports', 'ember-glimmer/utils/references', 'ember-metal', '@glimmer/reference', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax/outlet', 'ember-debug'], function (exports, _emberGlimmerUtilsReferences, _emberMetal, _glimmerReference, _emberViews, _emberGlimmerComponent, _emberGlimmerSyntaxCurlyComponent, _emberGlimmerSyntaxOutlet, _emberDebug) {
   'use strict';
 
   var backburner = _emberMetal.run.backburner;
@@ -13418,7 +14170,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'ember-environment', 'contain
     registry.register(_container.privatize(_templateObject3), _emberGlimmerComponent.default);
   }
 });
-enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/-with-dynamic-vars', 'ember-glimmer/syntax/-in-element', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/-text-area', 'ember-metal'], function (exports, _emberGlimmerSyntaxRender, _emberGlimmerSyntaxOutlet, _emberGlimmerSyntaxMount, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerUtilsBindings, _emberGlimmerSyntaxWithDynamicVars, _emberGlimmerSyntaxInElement, _emberGlimmerSyntaxInput, _emberGlimmerSyntaxTextArea, _emberMetal) {
+enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/-with-dynamic-vars', 'ember-glimmer/syntax/-in-element', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/-text-area', 'ember-debug'], function (exports, _emberGlimmerSyntaxRender, _emberGlimmerSyntaxOutlet, _emberGlimmerSyntaxMount, _emberGlimmerSyntaxDynamicComponent, _emberGlimmerUtilsBindings, _emberGlimmerSyntaxWithDynamicVars, _emberGlimmerSyntaxInElement, _emberGlimmerSyntaxInput, _emberGlimmerSyntaxTextArea, _emberDebug) {
   'use strict';
 
   exports.registerMacros = registerMacros;
@@ -13570,14 +14322,14 @@ enifed('ember-glimmer/syntax/-with-dynamic-vars', ['exports', '@glimmer/runtime'
     });
   }
 });
-enifed('ember-glimmer/syntax/abstract-manager', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-glimmer/syntax/abstract-manager', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
 
   var AbstractManager = function AbstractManager() {};
 
   exports.default = AbstractManager;
 });
-enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-utils', '@glimmer/runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-views', 'ember-glimmer/utils/process-args', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _emberUtils, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberViews, _emberGlimmerUtilsProcessArgs, _container, _emberGlimmerSyntaxAbstractManager) {
+enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-utils', '@glimmer/runtime', 'ember-glimmer/utils/bindings', 'ember-glimmer/component', 'ember-metal', 'ember-debug', 'ember-views', 'ember-glimmer/utils/process-args', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _emberUtils, _glimmerRuntime, _emberGlimmerUtilsBindings, _emberGlimmerComponent, _emberMetal, _emberDebug, _emberViews, _emberGlimmerUtilsProcessArgs, _container, _emberGlimmerSyntaxAbstractManager) {
   'use strict';
 
   exports.validatePositionalParameters = validatePositionalParameters;
@@ -13983,7 +14735,7 @@ babelHelpers.inherits(RootComponentDefinition, _ComponentDefinition2);
 
   CurlyComponentLayoutCompiler.id = 'curly';
 });
-enifed('ember-glimmer/syntax/dynamic-component', ['exports', '@glimmer/runtime', '@glimmer/reference', 'ember-metal'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal) {
+enifed('ember-glimmer/syntax/dynamic-component', ['exports', '@glimmer/runtime', '@glimmer/reference', 'ember-debug'], function (exports, _glimmerRuntime, _glimmerReference, _emberDebug) {
   'use strict';
 
   exports.closureComponentMacro = closureComponentMacro;
@@ -14071,7 +14823,7 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', '@glimmer/runtime',
     return DynamicComponentReference;
   })();
 });
-enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/dynamic-component'], function (exports, _emberMetal, _emberGlimmerUtilsBindings, _emberGlimmerSyntaxDynamicComponent) {
+enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/dynamic-component'], function (exports, _emberDebug, _emberGlimmerUtilsBindings, _emberGlimmerSyntaxDynamicComponent) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -14257,7 +15009,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-metal', 'ember-glimmer/u
     return _emberGlimmerSyntaxDynamicComponent.dynamicComponentMacro(params, hash, null, null, builder);
   }
 });
-enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container, _emberGlimmerSyntaxAbstractManager) {
+enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/reference', 'ember-debug', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberDebug, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -14410,7 +15162,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
     return MountDefinition;
   })(_glimmerRuntime.ComponentDefinition);
 });
-enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', '@glimmer/runtime', 'ember-metal', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/abstract-manager', '@glimmer/reference'], function (exports, _emberUtils, _glimmerRuntime, _emberMetal, _emberGlimmerUtilsReferences, _emberGlimmerSyntaxAbstractManager, _glimmerReference) {
+enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/abstract-manager', '@glimmer/reference'], function (exports, _emberUtils, _glimmerRuntime, _emberDebug, _emberMetal, _emberGlimmerUtilsReferences, _emberGlimmerSyntaxAbstractManager, _glimmerReference) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -14714,7 +15466,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-utils', '@glimmer/runti
 
   OutletLayoutCompiler.id = 'outlet';
 });
-enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/runtime', '@glimmer/reference', 'ember-metal', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberMetal, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container, _emberGlimmerSyntaxAbstractManager) {
+enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/runtime', '@glimmer/reference', 'ember-debug', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/syntax/outlet', 'container', 'ember-glimmer/syntax/abstract-manager'], function (exports, _glimmerRuntime, _glimmerReference, _emberDebug, _emberGlimmerUtilsReferences, _emberRouting, _emberGlimmerSyntaxOutlet, _container, _emberGlimmerSyntaxAbstractManager) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -15032,7 +15784,7 @@ enifed("ember-glimmer/templates/root", ["exports", "ember-glimmer/template"], fu
 
   exports.default = _emberGlimmerTemplate.default({ "id": "Cjk2vS10", "block": "{\"statements\":[[1,[33,[\"component\"],[[28,[null]]],null],false]],\"locals\":[],\"named\":[],\"yields\":[],\"hasPartials\":false}", "meta": { "moduleName": "ember-glimmer/templates/root.hbs" } });
 });
-enifed('ember-glimmer/utils/bindings', ['exports', '@glimmer/reference', '@glimmer/wire-format', 'ember-metal', 'ember-runtime', 'ember-glimmer/component', 'ember-glimmer/utils/string'], function (exports, _glimmerReference, _glimmerWireFormat, _emberMetal, _emberRuntime, _emberGlimmerComponent, _emberGlimmerUtilsString) {
+enifed('ember-glimmer/utils/bindings', ['exports', '@glimmer/reference', '@glimmer/wire-format', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-glimmer/component', 'ember-glimmer/utils/string'], function (exports, _glimmerReference, _glimmerWireFormat, _emberDebug, _emberMetal, _emberRuntime, _emberGlimmerComponent, _emberGlimmerUtilsString) {
   'use strict';
 
   exports.wrapComponentClassAttribute = wrapComponentClassAttribute;
@@ -15249,7 +16001,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', '@glimmer/reference', '@glimm
     return ColonClassNameBindingReference;
   })(_glimmerReference.CachedReference);
 });
-enifed('ember-glimmer/utils/debug-stack', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-glimmer/utils/debug-stack', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
 
   var DebugStack = undefined;
@@ -15717,7 +16469,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', '@glimmer/
     return MutableCell;
   })();
 });
-enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal', '@glimmer/reference', '@glimmer/runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper'], function (exports, _emberUtils, _emberMetal, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal', '@glimmer/reference', '@glimmer/runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _glimmerReference, _glimmerRuntime, _emberGlimmerUtilsToBool, _emberGlimmerHelper, _emberDebug) {
   'use strict';
 
   var UPDATE = _emberUtils.symbol('UPDATE');
@@ -16179,7 +16931,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
 
   exports.UnboundReference = UnboundReference;
 });
-enifed('ember-glimmer/utils/string', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   /**
   @module ember
   @submodule ember-glimmer
@@ -16499,7 +17251,7 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', '@glimmer/refere
 
   exports.default = OutletView;
 });
-enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/meta', 'ember-metal/dependent_keys'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalError, _emberMetalProperties, _emberMetalComputed, _emberMetalMeta, _emberMetalDependent_keys) {
+enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/meta', 'ember-metal/dependent_keys'], function (exports, _emberUtils, _emberDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalComputed, _emberMetalMeta, _emberMetalDependent_keys) {
   'use strict';
 
   exports.default = alias;
@@ -16573,7 +17325,7 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
   exports.AliasedProperty = AliasedProperty;
 
   function AliasedProperty_readOnlySet(obj, keyName, value) {
-    throw new _emberMetalError.default('Cannot set read-only property \'' + keyName + '\' on object: ' + _emberUtils.inspect(obj));
+    throw new _emberDebug.Error('Cannot set read-only property \'' + keyName + '\' on object: ' + _emberUtils.inspect(obj));
   }
 
   function AliasedProperty_oneWaySet(obj, keyName, value) {
@@ -16585,7 +17337,7 @@ enifed('ember-metal/alias', ['exports', 'ember-utils', 'ember-metal/debug', 'emb
   AliasedProperty.prototype._meta = undefined;
   AliasedProperty.prototype.meta = _emberMetalComputed.ComputedProperty.prototype.meta;
 });
-enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember-environment', 'ember-metal/run_loop', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/events', 'ember-metal/observer', 'ember-metal/path_cache'], function (exports, _emberUtils, _emberConsole, _emberEnvironment, _emberMetalRun_loop, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEvents, _emberMetalObserver, _emberMetalPath_cache) {
+enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember-environment', 'ember-metal/run_loop', 'ember-debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/events', 'ember-metal/observer', 'ember-metal/path_cache'], function (exports, _emberUtils, _emberConsole, _emberEnvironment, _emberMetalRun_loop, _emberDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEvents, _emberMetalObserver, _emberMetalPath_cache) {
   'use strict';
 
   exports.bind = bind;
@@ -17517,7 +18269,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
   exports.removeChainWatcher = removeChainWatcher;
   exports.ChainNode = ChainNode;
 });
-enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalProperty_set, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
+enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-debug', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberUtils, _emberDebug, _emberMetalProperty_set, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
   'use strict';
 
   exports.default = computed;
@@ -17856,7 +18608,7 @@ enifed('ember-metal/computed', ['exports', 'ember-utils', 'ember-metal/debug', '
   };
 
   ComputedPropertyPrototype._throwReadOnlyError = function computedPropertyThrowReadOnlyError(obj, keyName) {
-    throw new _emberMetalError.default('Cannot set read-only property "' + keyName + '" on object: ' + _emberUtils.inspect(obj));
+    throw new _emberDebug.Error('Cannot set read-only property "' + keyName + '" on object: ' + _emberUtils.inspect(obj));
   };
 
   ComputedPropertyPrototype.clobberSet = function computedPropertyClobberSet(obj, keyName, value) {
@@ -18124,84 +18876,6 @@ enifed('ember-metal/core', ['exports', 'ember-environment'], function (exports, 
 
   exports.default = Ember;
 });
-enifed("ember-metal/debug", ["exports"], function (exports) {
-  "use strict";
-
-  exports.getDebugFunction = getDebugFunction;
-  exports.setDebugFunction = setDebugFunction;
-  exports.assert = assert;
-  exports.info = info;
-  exports.warn = warn;
-  exports.debug = debug;
-  exports.deprecate = deprecate;
-  exports.deprecateFunc = deprecateFunc;
-  exports.runInDebug = runInDebug;
-  exports.debugSeal = debugSeal;
-  exports.debugFreeze = debugFreeze;
-  var debugFunctions = {
-    assert: function () {},
-    info: function () {},
-    warn: function () {},
-    debug: function () {},
-    deprecate: function () {},
-    deprecateFunc: function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      return args[args.length - 1];
-    },
-    runInDebug: function () {},
-    debugSeal: function () {},
-    debugFreeze: function () {}
-  };
-
-  exports.debugFunctions = debugFunctions;
-
-  function getDebugFunction(name) {
-    return debugFunctions[name];
-  }
-
-  function setDebugFunction(name, fn) {
-    debugFunctions[name] = fn;
-  }
-
-  function assert() {
-    return debugFunctions.assert.apply(undefined, arguments);
-  }
-
-  function info() {
-    return debugFunctions.info.apply(undefined, arguments);
-  }
-
-  function warn() {
-    return debugFunctions.warn.apply(undefined, arguments);
-  }
-
-  function debug() {
-    return debugFunctions.debug.apply(undefined, arguments);
-  }
-
-  function deprecate() {
-    return debugFunctions.deprecate.apply(undefined, arguments);
-  }
-
-  function deprecateFunc() {
-    return debugFunctions.deprecateFunc.apply(undefined, arguments);
-  }
-
-  function runInDebug() {
-    return debugFunctions.runInDebug.apply(undefined, arguments);
-  }
-
-  function debugSeal() {
-    return debugFunctions.debugSeal.apply(undefined, arguments);
-  }
-
-  function debugFreeze() {
-    return debugFunctions.debugFreeze.apply(undefined, arguments);
-  }
-});
 enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], function (exports, _emberMetalWatching) {
   'use strict';
 
@@ -18253,7 +18927,7 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], functi
     }
   }
 });
-enifed('ember-metal/deprecate_property', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set) {
+enifed('ember-metal/deprecate_property', ['exports', 'ember-debug', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberDebug, _emberMetalProperty_get, _emberMetalProperty_set) {
   /**
   @module ember
   @submodule ember-metal
@@ -18327,52 +19001,7 @@ enifed('ember-metal/descriptor', ['exports', 'ember-metal/properties'], function
     return Descriptor;
   })(_emberMetalProperties.Descriptor);
 });
-enifed("ember-metal/error", ["exports"], function (exports) {
-
-  /**
-    A subclass of the JavaScript Error object for use in Ember.
-  
-    @class Error
-    @namespace Ember
-    @extends Error
-    @constructor
-    @public
-  */
-  "use strict";
-
-  var EmberError = (function (_Error) {
-    babelHelpers.inherits(EmberError, _Error);
-
-    function EmberError(message) {
-      _Error.call(this);
-
-      if (!(this instanceof EmberError)) {
-        return new EmberError(message);
-      }
-
-      var error = Error.call(this, message);
-
-      if (Error.captureStackTrace) {
-        Error.captureStackTrace(this, EmberError);
-      } else {
-        this.stack = error.stack;
-      }
-
-      this.description = error.description;
-      this.fileName = error.fileName;
-      this.lineNumber = error.lineNumber;
-      this.message = error.message;
-      this.name = error.name;
-      this.number = error.number;
-      this.code = error.code;
-    }
-
-    return EmberError;
-  })(Error);
-
-  exports.default = EmberError;
-});
-enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/testing'], function (exports, _emberConsole, _emberMetalTesting) {
+enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-debug'], function (exports, _emberConsole, _emberDebug) {
   'use strict';
 
   exports.getOnerror = getOnerror;
@@ -18428,7 +19057,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
   }
 
   function defaultDispatch(error) {
-    if (_emberMetalTesting.isTesting()) {
+    if (_emberDebug.isTesting()) {
       throw error;
     }
     if (onerror) {
@@ -18438,7 +19067,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
     }
   }
 });
-enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/meta', 'ember-metal/meta_listeners'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalMeta, _emberMetalMeta_listeners) {
+enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/meta', 'ember-debug', 'ember-metal/meta_listeners'], function (exports, _emberUtils, _emberMetalMeta, _emberDebug, _emberMetalMeta_listeners) {
   /**
   @module ember
   @submodule ember-metal
@@ -18768,7 +19397,7 @@ enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/debug', 'em
     return func;
   }
 });
-enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], function (exports, _emberMetalDebug) {
+enifed('ember-metal/expand_properties', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
 
   exports.default = expandProperties;
@@ -18854,58 +19483,6 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], functi
     }
   }
 });
-enifed('ember-metal/features', ['exports', 'ember-utils', 'ember-environment', 'ember/features'], function (exports, _emberUtils, _emberEnvironment, _emberFeatures) {
-  'use strict';
-
-  exports.default = isEnabled;
-
-  /**
-    The hash of enabled Canary features. Add to this, any canary features
-    before creating your application.
-  
-    Alternatively (and recommended), you can also define `EmberENV.FEATURES`
-    if you need to enable features flagged at runtime.
-  
-    @class FEATURES
-    @namespace Ember
-    @static
-    @since 1.1.0
-    @public
-  */
-  var FEATURES = _emberUtils.assign(_emberFeatures.default, _emberEnvironment.ENV.FEATURES);
-
-  exports.FEATURES = FEATURES;
-  /**
-    Determine whether the specified `feature` is enabled. Used by Ember's
-    build tools to exclude experimental features from beta/stable builds.
-  
-    You can define the following configuration options:
-  
-    * `EmberENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
-      enabled/disabled.
-  
-    @method isEnabled
-    @param {String} feature The feature to check
-    @return {Boolean}
-    @for Ember.FEATURES
-    @since 1.1.0
-    @public
-  */
-
-  function isEnabled(feature) {
-    var featureValue = FEATURES[feature];
-
-    if (featureValue === true || featureValue === false || featureValue === undefined) {
-      return featureValue;
-    } else if (_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  exports.DEFAULT_FEATURES = _emberFeatures.default;
-});
 enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
   'use strict';
 
@@ -18950,7 +19527,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/deprecate_property', 'ember-metal/instrumentation', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/is_proxy', 'ember-metal/descriptor'], function (exports, _require, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDebug, _emberMetalDeprecate_property, _emberMetalInstrumentation, _emberMetalTesting, _emberMetalError_handler, _emberMetalMeta, _emberMetalError, _emberMetalCache, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalIs_proxy, _emberMetalDescriptor) {
+enifed('ember-metal/index', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/merge', 'ember-metal/deprecate_property', 'ember-metal/instrumentation', 'ember-metal/error_handler', 'ember-metal/meta', 'ember-metal/cache', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/weak_map', 'ember-metal/events', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/run_loop', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/libraries', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/path_cache', 'ember-metal/injected_property', 'ember-metal/tags', 'ember-metal/replace', 'ember-metal/transaction', 'ember-metal/is_proxy', 'ember-metal/descriptor'], function (exports, _emberMetalCore, _emberMetalComputed, _emberMetalAlias, _emberMetalMerge, _emberMetalDeprecate_property, _emberMetalInstrumentation, _emberMetalError_handler, _emberMetalMeta, _emberMetalCache, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWeak_map, _emberMetalEvents, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalRun_loop, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalLibraries, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalPath_cache, _emberMetalInjected_property, _emberMetalTags, _emberMetalReplace, _emberMetalTransaction, _emberMetalIs_proxy, _emberMetalDescriptor) {
   /**
   @module ember
   @submodule ember-metal
@@ -18965,17 +19542,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.ComputedProperty = _emberMetalComputed.ComputedProperty;
   exports.alias = _emberMetalAlias.default;
   exports.merge = _emberMetalMerge.default;
-  exports.assert = _emberMetalDebug.assert;
-  exports.info = _emberMetalDebug.info;
-  exports.warn = _emberMetalDebug.warn;
-  exports.debug = _emberMetalDebug.debug;
-  exports.deprecate = _emberMetalDebug.deprecate;
-  exports.deprecateFunc = _emberMetalDebug.deprecateFunc;
-  exports.runInDebug = _emberMetalDebug.runInDebug;
-  exports.setDebugFunction = _emberMetalDebug.setDebugFunction;
-  exports.getDebugFunction = _emberMetalDebug.getDebugFunction;
-  exports.debugSeal = _emberMetalDebug.debugSeal;
-  exports.debugFreeze = _emberMetalDebug.debugFreeze;
   exports.deprecateProperty = _emberMetalDeprecate_property.deprecateProperty;
   exports.instrument = _emberMetalInstrumentation.instrument;
   exports.flaggedInstrument = _emberMetalInstrumentation.flaggedInstrument;
@@ -18983,8 +19549,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.instrumentationReset = _emberMetalInstrumentation.reset;
   exports.instrumentationSubscribe = _emberMetalInstrumentation.subscribe;
   exports.instrumentationUnsubscribe = _emberMetalInstrumentation.unsubscribe;
-  exports.isTesting = _emberMetalTesting.isTesting;
-  exports.setTesting = _emberMetalTesting.setTesting;
   exports.getOnerror = _emberMetalError_handler.getOnerror;
   exports.setOnerror = _emberMetalError_handler.setOnerror;
   exports.dispatchError = _emberMetalError_handler.dispatchError;
@@ -18992,11 +19556,7 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.META_DESC = _emberMetalMeta.META_DESC;
   exports.meta = _emberMetalMeta.meta;
   exports.peekMeta = _emberMetalMeta.peekMeta;
-  exports.Error = _emberMetalError.default;
   exports.Cache = _emberMetalCache.default;
-  exports.isFeatureEnabled = _emberMetalFeatures.default;
-  exports.FEATURES = _emberMetalFeatures.FEATURES;
-  exports.DEFAULT_FEATURES = _emberMetalFeatures.DEFAULT_FEATURES;
   exports._getPath = _emberMetalProperty_get._getPath;
   exports.get = _emberMetalProperty_get.get;
   exports.getWithDefault = _emberMetalProperty_get.getWithDefault;
@@ -19079,17 +19639,8 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   exports.assertNotRendered = _emberMetalTransaction.assertNotRendered;
   exports.isProxy = _emberMetalIs_proxy.isProxy;
   exports.descriptor = _emberMetalDescriptor.default;
-
-  // TODO: this needs to be deleted once we refactor the build tooling
-  // do this for side-effects of updating Ember.assert, warn, etc when
-  // ember-debug is present
-  // This needs to be called before any deprecateFunc
-
-  if (_require.has('ember-debug')) {
-    _require.default('ember-debug');
-  }
 });
-enifed('ember-metal/injected_property', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/properties'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalComputed, _emberMetalAlias, _emberMetalProperties) {
+enifed('ember-metal/injected_property', ['exports', 'ember-utils', 'ember-debug', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/properties'], function (exports, _emberUtils, _emberDebug, _emberMetalComputed, _emberMetalAlias, _emberMetalProperties) {
   'use strict';
 
   exports.default = InjectedProperty;
@@ -19133,7 +19684,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-utils', 'ember-metal/
   InjectedPropertyPrototype.readOnly = ComputedPropertyPrototype.readOnly;
   InjectedPropertyPrototype.teardown = ComputedPropertyPrototype.teardown;
 });
-enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-metal/features'], function (exports, _emberEnvironment, _emberMetalFeatures) {
+enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-debug'], function (exports, _emberEnvironment, _emberDebug) {
   /* eslint no-console:off */
   /* global console */
 
@@ -19255,7 +19806,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-environment', 'ember-me
   }
 
   var flaggedInstrument = undefined;
-  if (_emberMetalFeatures.default('ember-improved-instrumentation')) {
+  if (_emberDebug.isFeatureEnabled('ember-improved-instrumentation')) {
     exports.flaggedInstrument = flaggedInstrument = instrument;
   } else {
     exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
@@ -19591,7 +20142,7 @@ enifed('ember-metal/is_proxy', ['exports', 'ember-metal/meta'], function (export
     return false;
   }
 });
-enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
+enifed('ember-metal/libraries', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
 
   /**
@@ -19659,7 +20210,7 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
     }
   };
 
-  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
+  if (_emberDebug.isFeatureEnabled('ember-libraries-isregistered')) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -20197,7 +20748,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     return original;
   }
 });
-enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/debug', 'ember-metal/chains', 'require'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalDebug, _emberMetalChains, _require) {
+enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/meta_listeners', 'ember-debug', 'ember-metal/chains', 'require'], function (exports, _emberUtils, _emberMetalMeta_listeners, _emberDebug, _emberMetalChains, _require) {
   'use strict';
 
   exports.deleteMeta = deleteMeta;
@@ -20980,7 +21531,7 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
     destination.push(target, method, source[index + 3]);
   }
 });
-enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'ember-metal/debug', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events'], function (exports, _emberUtils, _emberMetalError, _emberMetalDebug, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents) {
+enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-debug', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events'], function (exports, _emberUtils, _emberDebug, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents) {
   /**
   @module ember
   @submodule ember-metal
@@ -21766,7 +22317,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     }
 
     if (typeof func !== 'function') {
-      throw new _emberMetalError.default('Ember.observer called without a function');
+      throw new _emberDebug.EmberError('Ember.observer called without a function');
     }
 
     func.__ember_observes__ = paths;
@@ -21853,7 +22404,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-utils', 'ember-metal/error', 'emb
     }
 
     if (typeof func !== 'function') {
-      throw new _emberMetalError.default('_beforeObserver called without a function');
+      throw new _emberDebug.EmberError('_beforeObserver called without a function');
     }
 
     func.__ember_observesBefore__ = paths;
@@ -22137,7 +22688,7 @@ enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exp
     return tailPathCache.get(path);
   }
 });
-enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/meta', 'ember-metal/property_events'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalMeta, _emberMetalProperty_events) {
+enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 'ember-metal/property_events'], function (exports, _emberDebug, _emberMetalMeta, _emberMetalProperty_events) {
   /**
   @module ember-metal
   */
@@ -22361,7 +22912,7 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
     Object.defineProperty(obj, keyName, desc);
   }
 });
-enifed('ember-metal/property_events', ['exports', 'ember-utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-metal/features', 'ember-metal/transaction'], function (exports, _emberUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberMetalFeatures, _emberMetalTransaction) {
+enifed('ember-metal/property_events', ['exports', 'ember-utils', 'ember-metal/meta', 'ember-metal/events', 'ember-metal/tags', 'ember-metal/observer_set', 'ember-debug', 'ember-metal/transaction'], function (exports, _emberUtils, _emberMetalMeta, _emberMetalEvents, _emberMetalTags, _emberMetalObserver_set, _emberDebug, _emberMetalTransaction) {
   'use strict';
 
   var PROPERTY_DID_CHANGE = _emberUtils.symbol('PROPERTY_DID_CHANGE');
@@ -22654,7 +23205,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-utils', 'ember-metal/me
   exports.endPropertyChanges = endPropertyChanges;
   exports.changeProperties = changeProperties;
 });
-enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal/path_cache'], function (exports, _emberMetalDebug, _emberMetalPath_cache) {
+enifed('ember-metal/property_get', ['exports', 'ember-debug', 'ember-metal/path_cache'], function (exports, _emberDebug, _emberMetalPath_cache) {
   /**
   @module ember-metal
   */
@@ -22786,7 +23337,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/debug', 'ember-metal
 
   exports.default = get;
 });
-enifed('ember-metal/property_set', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/meta'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalError, _emberMetalPath_cache, _emberMetalMeta) {
+enifed('ember-metal/property_set', ['exports', 'ember-utils', 'ember-debug', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/path_cache', 'ember-metal/meta'], function (exports, _emberUtils, _emberDebug, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalPath_cache, _emberMetalMeta) {
   'use strict';
 
   exports.set = set;
@@ -22886,14 +23437,14 @@ enifed('ember-metal/property_set', ['exports', 'ember-utils', 'ember-metal/debug
     }
 
     if (!keyName || keyName.length === 0) {
-      throw new _emberMetalError.default('Property set failed: You passed an empty path');
+      throw new _emberDebug.Error('Property set failed: You passed an empty path');
     }
 
     if (!root) {
       if (tolerant) {
         return;
       } else {
-        throw new _emberMetalError.default('Property set failed: object in path "' + path + '" could not be found or was destroyed.');
+        throw new _emberDebug.Error('Property set failed: object in path "' + path + '" could not be found or was destroyed.');
       }
     }
 
@@ -22952,7 +23503,7 @@ enifed("ember-metal/replace", ["exports"], function (exports) {
     return ret;
   }
 });
-enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-metal/debug', 'ember-metal/testing', 'ember-metal/error_handler', 'ember-metal/property_events', 'backburner'], function (exports, _emberUtils, _emberMetalDebug, _emberMetalTesting, _emberMetalError_handler, _emberMetalProperty_events, _backburner) {
+enifed('ember-metal/run_loop', ['exports', 'ember-utils', 'ember-debug', 'ember-metal/error_handler', 'ember-metal/property_events', 'backburner'], function (exports, _emberUtils, _emberDebug, _emberMetalError_handler, _emberMetalProperty_events, _backburner) {
   'use strict';
 
   exports.default = run;
@@ -23756,22 +24307,7 @@ enifed('ember-metal/tags', ['exports', '@glimmer/reference', 'ember-metal/meta',
     }
   }
 });
-enifed("ember-metal/testing", ["exports"], function (exports) {
-  "use strict";
-
-  exports.isTesting = isTesting;
-  exports.setTesting = setTesting;
-  var testing = false;
-
-  function isTesting() {
-    return testing;
-  }
-
-  function setTesting(value) {
-    testing = !!value;
-  }
-});
-enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalMeta, _emberMetalDebug, _emberMetalFeatures) {
+enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-debug'], function (exports, _emberMetalMeta, _emberDebug) {
   'use strict';
 
   var runInTransaction = undefined,
@@ -23828,7 +24364,7 @@ enifed('ember-metal/transaction', ['exports', 'ember-metal/meta', 'ember-metal/d
   exports.didRender = didRender;
   exports.assertNotRendered = assertNotRendered;
 });
-enifed('ember-metal/watch_key', ['exports', 'ember-utils', 'ember-metal/features', 'ember-metal/meta', 'ember-metal/properties'], function (exports, _emberUtils, _emberMetalFeatures, _emberMetalMeta, _emberMetalProperties) {
+enifed('ember-metal/watch_key', ['exports', 'ember-utils', 'ember-debug', 'ember-metal/meta', 'ember-metal/properties'], function (exports, _emberUtils, _emberDebug, _emberMetalMeta, _emberMetalProperties) {
   'use strict';
 
   exports.watchKey = watchKey;
@@ -24452,7 +24988,7 @@ enifed('ember-routing/index', ['exports', 'ember-routing/ext/run_loop', 'ember-r
   exports.RouterService = _emberRoutingServicesRouter.default;
   exports.BucketCache = _emberRoutingSystemCache.default;
 });
-enifed('ember-routing/location/api', ['exports', 'ember-metal', 'ember-environment', 'ember-routing/location/util'], function (exports, _emberMetal, _emberEnvironment, _emberRoutingLocationUtil) {
+enifed('ember-routing/location/api', ['exports', 'ember-debug', 'ember-environment', 'ember-routing/location/util'], function (exports, _emberDebug, _emberEnvironment, _emberRoutingLocationUtil) {
   'use strict';
 
   /**
@@ -24638,7 +25174,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal', 'ember-environme
     }
   };
 });
-enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-routing/location/util'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberRoutingLocationUtil) {
+enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-environment', 'ember-routing/location/util'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberRuntime, _emberEnvironment, _emberRoutingLocationUtil) {
   'use strict';
 
   exports.getHistoryPath = getHistoryPath;
@@ -25058,7 +25594,7 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal', 'ember
     }
   });
 });
-enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/location/api'], function (exports, _emberMetal, _emberRuntime, _emberRoutingLocationApi) {
+enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-routing/location/api'], function (exports, _emberMetal, _emberDebug, _emberRuntime, _emberRoutingLocationApi) {
   'use strict';
 
   /**
@@ -25322,7 +25858,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     }
   });
 });
-enifed('ember-routing/location/none_location', ['exports', 'ember-metal', 'ember-runtime'], function (exports, _emberMetal, _emberRuntime) {
+enifed('ember-routing/location/none_location', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime'], function (exports, _emberMetal, _emberDebug, _emberRuntime) {
   'use strict';
 
   /**
@@ -25810,7 +26346,7 @@ enifed("ember-routing/system/controller_for", ["exports"], function (exports) {
     return container.lookup("controller:" + controllerName, lookupOptions);
   }
 });
-enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], function (exports, _emberUtils, _emberMetal) {
+enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-debug'], function (exports, _emberUtils, _emberDebug) {
   'use strict';
 
   /**
@@ -26018,7 +26554,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-metal'], fu
     return dsl;
   };
 });
-enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
+enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'container', 'ember-debug'], function (exports, _emberMetal, _container, _emberDebug) {
   'use strict';
 
   exports.generateControllerFactory = generateControllerFactory;
@@ -26080,7 +26616,7 @@ enifed('ember-routing/system/query_params', ['exports', 'ember-runtime'], functi
     values: null
   });
 });
-enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-routing/system/generate_controller', 'ember-routing/utils', 'container'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberRoutingSystemGenerate_controller, _emberRoutingUtils, _container) {
+enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-routing/system/generate_controller', 'ember-routing/utils', 'container'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberRuntime, _emberRoutingSystemGenerate_controller, _emberRoutingUtils, _container) {
   'use strict';
 
   exports.defaultSerialize = defaultSerialize;
@@ -27197,7 +27733,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         args[_key] = arguments[_key];
       }
 
-      if (this.router && this.router._routerMicrolib || !_emberMetal.isTesting()) {
+      if (this.router && this.router._routerMicrolib || !_emberDebug.isTesting()) {
         var _router;
 
         (_router = this.router).send.apply(_router, args);
@@ -27965,7 +28501,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         parentView = options.parentView;
 
         if (options && Object.keys(options).indexOf('outlet') !== -1 && typeof options.outlet === 'undefined') {
-          throw new _emberMetal.Error('You passed undefined as the outlet name.');
+          throw new _emberDebug.Error('You passed undefined as the outlet name.');
         }
       }
       parentView = parentView && parentView.replace(/\//g, '.');
@@ -28079,12 +28615,12 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var controllerName = controller;
       controller = owner.lookup('controller:' + controllerName);
       if (!controller) {
-        throw new _emberMetal.Error('You passed `controller: \'' + controllerName + '\'` into the `render` method, but no such controller could be found.');
+        throw new _emberDebug.Error('You passed `controller: \'' + controllerName + '\'` into the `render` method, but no such controller could be found.');
       }
     }
 
     if (options && Object.keys(options).indexOf('outlet') !== -1 && typeof options.outlet === 'undefined') {
-      throw new _emberMetal.Error('You passed undefined as the outlet name.');
+      throw new _emberDebug.Error('You passed undefined as the outlet name.');
     }
 
     if (options && options.model) {
@@ -28226,7 +28762,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
   exports.default = Route;
 });
-enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _container, _router) {
+enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-routing/system/route', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container', 'router'], function (exports, _emberUtils, _emberConsole, _emberMetal, _emberDebug, _emberRuntime, _emberRoutingSystemRoute, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _container, _router) {
   'use strict';
 
   exports.triggerEvent = triggerEvent;
@@ -29404,7 +29940,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       if (ignoreFailure) {
         return;
       }
-      throw new _emberMetal.Error('Can\'t trigger action \'' + name + '\' because your app hasn\'t finished transitioning into its first route. To trigger an action on destination routes during a transition, you can call `.send()` on the `Transition` object passed to the `model/beforeModel/afterModel` hooks.');
+      throw new _emberDebug.EmberError('Can\'t trigger action \'' + name + '\' because your app hasn\'t finished transitioning into its first route. To trigger an action on destination routes during a transition, you can call `.send()` on the `Transition` object passed to the `model/beforeModel/afterModel` hooks.');
     }
 
     var eventWasHandled = false;
@@ -29435,7 +29971,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     }
 
     if (!eventWasHandled && !ignoreFailure) {
-      throw new _emberMetal.Error('Nothing handled the action \'' + name + '\'. If you did handle the action, this error can be caused by returning true from an action handler in a controller, causing the action to bubble.');
+      throw new _emberDebug.EmberError('Nothing handled the action \'' + name + '\'. If you did handle the action, this error can be caused by returning true from an action handler in a controller, causing the action to bubble.');
     }
   }
 
@@ -29766,7 +30302,7 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-utils', 'ember-me
     return true;
   }
 });
-enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal'], function (exports, _emberUtils, _emberMetal) {
+enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _emberDebug) {
   'use strict';
 
   exports.routeArgs = routeArgs;
@@ -29964,7 +30500,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal'], functio
     // only alter the routeName if it's actually referencing a route.
     if (owner.routable && typeof routeName === 'string') {
       if (resemblesURL(routeName)) {
-        throw new _emberMetal.Error('Programmatic transitions by URL cannot be used within an Engine. Please use the route name instead.');
+        throw new _emberDebug.Error('Programmatic transitions by URL cannot be used within an Engine. Please use the route name instead.');
       } else {
         routeName = prefix + '.' + routeName;
         args[0] = routeName;
@@ -30121,7 +30657,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
     }
   }
 });
-enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   'use strict';
 
   exports.empty = empty;
@@ -30808,7 +31344,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal'], fun
     });
   }
 });
-enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberUtils, _emberMetal, _emberRuntimeCompare, _emberRuntimeUtils, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntimeCompare, _emberRuntimeUtils, _emberRuntimeSystemNative_array) {
   /**
   @module ember
   @submodule ember-runtime
@@ -31421,7 +31957,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
   function setDiff(setAProperty, setBProperty) {
     if (arguments.length !== 2) {
-      throw new _emberMetal.Error('setDiff requires exactly two dependent arrays.');
+      throw new _emberDebug.Error('setDiff requires exactly two dependent arrays.');
     }
 
     return _emberMetal.computed(setAProperty + '.[]', setBProperty + '.[]', function () {
@@ -31655,7 +32191,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     }));
   }
 });
-enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject', 'ember-runtime/mixins/action_handler'], function (exports, _emberMetal, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject, _emberRuntimeMixinsAction_handler) {
+enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject', 'ember-runtime/mixins/action_handler'], function (exports, _emberDebug, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject, _emberRuntimeMixinsAction_handler) {
   'use strict';
 
   /**
@@ -31711,7 +32247,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal', 'ember
 
   exports.default = Controller;
 });
-enifed('ember-runtime/copy', ['exports', 'ember-metal', 'ember-runtime/system/object', 'ember-runtime/mixins/copyable'], function (exports, _emberMetal, _emberRuntimeSystemObject, _emberRuntimeMixinsCopyable) {
+enifed('ember-runtime/copy', ['exports', 'ember-debug', 'ember-runtime/system/object', 'ember-runtime/mixins/copyable'], function (exports, _emberDebug, _emberRuntimeSystemObject, _emberRuntimeMixinsCopyable) {
   'use strict';
 
   exports.default = copy;
@@ -31806,7 +32342,7 @@ enifed('ember-runtime/copy', ['exports', 'ember-metal', 'ember-runtime/system/ob
     return _copy(obj, deep, deep ? [] : null, deep ? [] : null);
   }
 });
-enifed('ember-runtime/ext/function', ['exports', 'ember-environment', 'ember-metal'], function (exports, _emberEnvironment, _emberMetal) {
+enifed('ember-runtime/ext/function', ['exports', 'ember-environment', 'ember-metal', 'ember-debug'], function (exports, _emberEnvironment, _emberMetal, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -31927,7 +32463,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-environment', 'ember-met
       @deprecated
       @private
     */
-    FunctionPrototype.observesImmediately = _emberMetal.deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', { id: 'ember-runtime.ext-function', until: '3.0.0' }, FunctionPrototype._observesImmediately);
+    FunctionPrototype.observesImmediately = _emberDebug.deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', { id: 'ember-runtime.ext-function', until: '3.0.0' }, FunctionPrototype._observesImmediately);
 
     /**
       The `on` extension of Javascript's Function prototype is available
@@ -31955,7 +32491,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-environment', 'ember-met
     };
   }
 });
-enifed('ember-runtime/ext/rsvp', ['exports', 'rsvp', 'ember-metal'], function (exports, _rsvp, _emberMetal) {
+enifed('ember-runtime/ext/rsvp', ['exports', 'rsvp', 'ember-metal', 'ember-debug'], function (exports, _rsvp, _emberMetal, _emberDebug) {
   'use strict';
 
   exports.onerrorDefault = onerrorDefault;
@@ -32215,7 +32751,7 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/ext/string', 'ember-run
 });
 // just for side effect of extending String.prototype
 // just for side effect of extending Function.prototype
-enifed('ember-runtime/inject', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/inject', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   'use strict';
 
   exports.default = inject;
@@ -32347,7 +32883,7 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', '@glimmer/reference', 'ember-metal', 'ember-runtime/computed/computed_macros'], function (exports, _glimmerReference, _emberMetal, _emberRuntimeComputedComputed_macros) {
+enifed('ember-runtime/mixins/-proxy', ['exports', '@glimmer/reference', 'ember-metal', 'ember-debug', 'ember-runtime/computed/computed_macros'], function (exports, _glimmerReference, _emberMetal, _emberDebug, _emberRuntimeComputedComputed_macros) {
   /**
   @module ember
   @submodule ember-runtime
@@ -32470,7 +33006,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', '@glimmer/reference', 'ember-m
     }
   });
 });
-enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -32662,7 +33198,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal'], functi
     });
   }
 });
-enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/enumerable', 'ember-runtime/system/each_proxy'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsEnumerable, _emberRuntimeSystemEach_proxy) {
+enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime/mixins/enumerable', 'ember-runtime/system/each_proxy'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberRuntimeMixinsEnumerable, _emberRuntimeSystemEach_proxy) {
   /**
   @module ember
   @submodule ember-runtime
@@ -33261,7 +33797,7 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal'], function (
     compare: null
   });
 });
-enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'container', 'ember-debug'], function (exports, _emberMetal, _container, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -33469,7 +34005,7 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal', 'ember-runt
 
   });
 });
-enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   'use strict';
 
   /*
@@ -33510,7 +34046,7 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
     }
   });
 });
-enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-runtime/mixins/freezable'], function (exports, _emberMetal, _emberRuntimeMixinsFreezable) {
+enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime/mixins/freezable'], function (exports, _emberMetal, _emberDebug, _emberRuntimeMixinsFreezable) {
   /**
   @module ember
   @submodule ember-runtime
@@ -33563,12 +34099,12 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-runtim
       if (_emberRuntimeMixinsFreezable.Freezable && _emberRuntimeMixinsFreezable.Freezable.detect(this)) {
         return _emberMetal.get(this, 'isFrozen') ? this : this.copy().freeze();
       } else {
-        throw new _emberMetal.Error(this + ' does not support freezing');
+        throw new _emberDebug.Error(this + ' does not support freezing');
       }
     }
   });
 });
-enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/compare', 'require'], function (exports, _emberUtils, _emberMetal, _emberRuntimeCompare, _require) {
+enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime/compare', 'require'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberRuntimeCompare, _require) {
   /**
   @module ember
   @submodule ember-runtime
@@ -34762,7 +35298,7 @@ enifed('ember-runtime/mixins/evented', ['exports', 'ember-metal'], function (exp
     }
   });
 });
-enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -34865,7 +35401,7 @@ enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal'], function (e
   var FROZEN_ERROR = 'Frozen object cannot be modified.';
   exports.FROZEN_ERROR = FROZEN_ERROR;
 });
-enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/enumerable'], function (exports, _emberMetal, _emberRuntimeMixinsArray, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsEnumerable) {
+enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/enumerable', 'ember-debug'], function (exports, _emberMetal, _emberRuntimeMixinsArray, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsEnumerable, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -34884,7 +35420,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
   function removeAt(array, start, len) {
     if ('number' === typeof start) {
       if (start < 0 || start >= _emberMetal.get(array, 'length')) {
-        throw new _emberMetal.Error(OUT_OF_RANGE_EXCEPTION);
+        throw new _emberDebug.Error(OUT_OF_RANGE_EXCEPTION);
       }
 
       // fast case
@@ -34976,7 +35512,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
     */
     insertAt: function (idx, object) {
       if (idx > _emberMetal.get(this, 'length')) {
-        throw new _emberMetal.Error(OUT_OF_RANGE_EXCEPTION);
+        throw new _emberDebug.Error(OUT_OF_RANGE_EXCEPTION);
       }
 
       this.replace(idx, 0, [object]);
@@ -35331,7 +35867,7 @@ enifed('ember-runtime/mixins/mutable_enumerable', ['exports', 'ember-runtime/mix
     }
   });
 });
-enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -35771,7 +36307,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal'], function (
     }
   });
 });
-enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-runtime/computed/computed_macros'], function (exports, _emberMetal, _emberRuntimeComputedComputed_macros) {
+enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime/computed/computed_macros'], function (exports, _emberMetal, _emberDebug, _emberRuntimeComputedComputed_macros) {
   'use strict';
 
   /**
@@ -35919,7 +36455,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-r
     */
     promise: _emberMetal.computed({
       get: function () {
-        throw new _emberMetal.Error('PromiseProxy\'s promise must be set');
+        throw new _emberDebug.Error('PromiseProxy\'s promise must be set');
       },
       set: function (key, promise) {
         return tap(this, promise);
@@ -35967,7 +36503,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-r
     };
   }
 });
-enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -36216,7 +36752,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal'], functi
     };
   }
 });
-enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environment', 'ember-metal'], function (exports, _emberEnvironment, _emberMetal) {
+enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environment', 'ember-metal', 'ember-debug'], function (exports, _emberEnvironment, _emberMetal, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -36410,7 +36946,7 @@ enifed('ember-runtime/system/application', ['exports', 'ember-runtime/system/nam
 
   exports.default = _emberRuntimeSystemNamespace.default.extend();
 });
-enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/array'], function (exports, _emberMetal, _emberRuntimeUtils, _emberRuntimeSystemObject, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsArray) {
+enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/array', 'ember-debug'], function (exports, _emberMetal, _emberRuntimeUtils, _emberRuntimeSystemObject, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsArray, _emberDebug) {
   'use strict';
 
   /**
@@ -36651,13 +37187,13 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       if (_emberMetal.get(this, 'arrangedContent') === _emberMetal.get(this, 'content')) {
         this._replace.apply(this, arguments);
       } else {
-        throw new _emberMetal.Error('Using replace on an arranged ArrayProxy is not allowed.');
+        throw new _emberDebug.Error('Using replace on an arranged ArrayProxy is not allowed.');
       }
     },
 
     _insertAt: function (idx, object) {
       if (idx > _emberMetal.get(this, 'content.length')) {
-        throw new _emberMetal.Error(OUT_OF_RANGE_EXCEPTION);
+        throw new _emberDebug.Error(OUT_OF_RANGE_EXCEPTION);
       }
 
       this._replace(idx, 0, [object]);
@@ -36668,7 +37204,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       if (_emberMetal.get(this, 'arrangedContent') === _emberMetal.get(this, 'content')) {
         return this._insertAt(idx, object);
       } else {
-        throw new _emberMetal.Error('Using insertAt on an arranged ArrayProxy is not allowed.');
+        throw new _emberDebug.Error('Using insertAt on an arranged ArrayProxy is not allowed.');
       }
     },
 
@@ -36679,7 +37215,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
         var indices = [];
 
         if (start < 0 || start >= _emberMetal.get(this, 'length')) {
-          throw new _emberMetal.Error(OUT_OF_RANGE_EXCEPTION);
+          throw new _emberDebug.Error(OUT_OF_RANGE_EXCEPTION);
         }
 
         if (len === undefined) {
@@ -36765,7 +37301,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     }
   });
 });
-enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsAction_handler, _emberRuntimeInject) {
+enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsAction_handler, _emberRuntimeInject, _emberDebug) {
   /**
     @module ember
     @submodule ember-runtime
@@ -36820,7 +37356,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
             var properties = props[i];
 
             if (typeof properties !== 'object' && properties !== undefined) {
-              throw new _emberMetal.Error('Ember.Object.create only accepts objects.');
+              throw new _emberDebug.Error('Ember.Object.create only accepts objects.');
             }
 
             if (!properties) {
@@ -37518,8 +38054,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   });
    Person.reopenClass({
     species: 'Homo sapiens',
-    
-    createPerson(name) {
+     createPerson(name) {
       return Person.create({ name });
     }
   });
@@ -37579,7 +38114,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
    @private
   @method _onLookup
 */
-enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberMetal, _emberRuntimeMixinsArray) {
+enifed('ember-runtime/system/each_proxy', ['exports', 'ember-debug', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberDebug, _emberMetal, _emberRuntimeMixinsArray) {
   'use strict';
 
   exports.default = EachProxy;
@@ -38163,7 +38698,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   exports.default = NativeArray;
 });
 // Ember.A circular
-enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/system/core_object', 'ember-runtime/mixins/observable'], function (exports, _emberUtils, _emberMetal, _emberRuntimeSystemCore_object, _emberRuntimeMixinsObservable) {
+enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/system/core_object', 'ember-runtime/mixins/observable', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _emberRuntimeSystemCore_object, _emberRuntimeMixinsObservable, _emberDebug) {
   /**
   @module ember
   @submodule ember-runtime
@@ -38315,7 +38850,7 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
 
   exports.default = Service;
 });
-enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-utils', 'ember-runtime/utils', 'ember-runtime/string_registry'], function (exports, _emberMetal, _emberUtils, _emberRuntimeUtils, _emberRuntimeString_registry) {
+enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 'ember-utils', 'ember-runtime/utils', 'ember-runtime/string_registry'], function (exports, _emberMetal, _emberDebug, _emberUtils, _emberRuntimeUtils, _emberRuntimeString_registry) {
   /**
   @module ember
   @submodule ember-runtime
@@ -39560,7 +40095,7 @@ enifed('ember-views/compat/fallback-view-registry', ['exports', 'ember-utils'], 
 
   exports.default = _emberUtils.dictionary(null);
 });
-enifed('ember-views/component_lookup', ['exports', 'ember-metal', 'ember-runtime', 'container'], function (exports, _emberMetal, _emberRuntime, _container) {
+enifed('ember-views/component_lookup', ['exports', 'ember-debug', 'ember-runtime', 'container'], function (exports, _emberDebug, _emberRuntime, _container) {
   'use strict';
 
   exports.default = _emberRuntime.Object.extend({
@@ -39613,7 +40148,7 @@ enifed('ember-views/index', ['exports', 'ember-views/system/ext', 'ember-views/s
   exports.fallbackViewRegistry = _emberViewsCompatFallbackViewRegistry.default;
 });
 // for the side effect of extending Ember.run.queues
-enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-metal', 'ember-views/compat/attrs'], function (exports, _emberUtils, _emberMetal, _emberViewsCompatAttrs) {
+enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views/compat/attrs'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberViewsCompatAttrs) {
   /**
    @module ember
    @submodule ember-views
@@ -39793,7 +40328,7 @@ enifed('ember-views/mixins/child_views_support', ['exports', 'ember-utils', 'emb
     }
   });
 });
-enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
   /**
   @module ember
   @submodule ember-views
@@ -40204,7 +40739,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal'], func
     }
   });
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-environment', 'ember-views/system/utils', 'ember-runtime/system/core_object', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberEnvironment, _emberViewsSystemUtils, _emberRuntimeSystemCore_object, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-environment', 'ember-views/system/utils', 'ember-runtime/system/core_object', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberEnvironment, _emberViewsSystemUtils, _emberRuntimeSystemCore_object, _emberViewsSystemJquery) {
   'use strict';
 
   var _Mixin$create;
@@ -40652,7 +41187,7 @@ enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   */
   ActionManager.registeredActions = {};
 });
-enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-environment', 'ember-views/compat/fallback-view-registry'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberEnvironment, _emberViewsCompatFallbackViewRegistry) {
+enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-environment', 'ember-views/compat/fallback-view-registry'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberEnvironment, _emberViewsCompatFallbackViewRegistry) {
   /**
   @module ember
   @submodule ember-views
@@ -40958,7 +41493,7 @@ enifed('ember-views/system/jquery', ['exports', 'ember-environment'], function (
 
   exports.default = jQuery;
 });
-enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-views/system/lookup_partial', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
 
   exports.default = lookupPartial;
@@ -40985,7 +41520,7 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal'], function
 
   function hasPartial(name, owner) {
     if (!owner) {
-      throw new _emberMetal.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
+      throw new _emberDebug.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
     }
 
     return owner.hasRegistration('template:' + parseUnderscoredName(name)) || owner.hasRegistration('template:' + name);
@@ -40997,7 +41532,7 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal'], function
     }
 
     if (!owner) {
-      throw new _emberMetal.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
+      throw new _emberDebug.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
     }
 
     return owner.lookup('template:' + underscored) || owner.lookup('template:' + name);
@@ -41382,7 +41917,7 @@ enifed('ember-views/views/states', ['exports', 'ember-utils', 'ember-views/views
   };
   exports.states = states;
 });
-enifed('ember-views/views/states/default', ['exports', 'ember-metal'], function (exports, _emberMetal) {
+enifed('ember-views/views/states/default', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
 
   /**
@@ -41392,7 +41927,7 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal'], function 
   exports.default = {
     // appendChild is only legal while rendering the buffer.
     appendChild: function () {
-      throw new _emberMetal.Error('You can\'t use appendChild outside of the rendering process');
+      throw new _emberDebug.EmberError('You can\'t use appendChild outside of the rendering process');
     },
 
     // Handle events from `Ember.EventDispatcher`
@@ -41405,7 +41940,7 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal'], function 
     destroy: function () {}
   };
 });
-enifed('ember-views/views/states/destroying', ['exports', 'ember-utils', 'ember-metal', 'ember-views/views/states/default'], function (exports, _emberUtils, _emberMetal, _emberViewsViewsStatesDefault) {
+enifed('ember-views/views/states/destroying', ['exports', 'ember-utils', 'ember-debug', 'ember-views/views/states/default'], function (exports, _emberUtils, _emberDebug, _emberViewsViewsStatesDefault) {
   'use strict';
 
   /**
@@ -41417,10 +41952,10 @@ enifed('ember-views/views/states/destroying', ['exports', 'ember-utils', 'ember-
 
   _emberUtils.assign(destroying, {
     appendChild: function () {
-      throw new _emberMetal.Error('You can\'t call appendChild on a view being destroyed');
+      throw new _emberDebug.Error('You can\'t call appendChild on a view being destroyed');
     },
     rerender: function () {
-      throw new _emberMetal.Error('You can\'t call rerender on a view being destroyed');
+      throw new _emberDebug.Error('You can\'t call rerender on a view being destroyed');
     }
   });
 
@@ -41457,7 +41992,7 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-utils', 'ember
 
   exports.default = hasElement;
 });
-enifed('ember-views/views/states/in_dom', ['exports', 'ember-utils', 'ember-metal', 'ember-views/views/states/has_element'], function (exports, _emberUtils, _emberMetal, _emberViewsViewsStatesHas_element) {
+enifed('ember-views/views/states/in_dom', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views/views/states/has_element'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberViewsViewsStatesHas_element) {
   'use strict';
 
   /**
@@ -41512,7 +42047,7 @@ enifed("ember/features", ["exports"], function (exports) {
 
   exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": true, "ember-factory-for": true, "ember-no-double-extend": true, "ember-routing-router-service": null, "ember-unique-location-history-state": true, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
 });
-enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
+enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils', 'container', 'ember-metal', 'ember-debug', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require, _emberEnvironment, _emberUtils, _container, _emberMetal, _emberDebug, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _emberVersion, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
 
   // ember-utils exports
@@ -41543,12 +42078,22 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.ComputedProperty = _emberMetal.ComputedProperty;
   _emberMetal.default.cacheFor = _emberMetal.cacheFor;
 
-  _emberMetal.default.assert = _emberMetal.assert;
-  _emberMetal.default.warn = _emberMetal.warn;
-  _emberMetal.default.debug = _emberMetal.debug;
-  _emberMetal.default.deprecate = _emberMetal.deprecate;
-  _emberMetal.default.deprecateFunc = _emberMetal.deprecateFunc;
-  _emberMetal.default.runInDebug = _emberMetal.runInDebug;
+  _emberMetal.default.assert = _emberDebug.assert;
+  _emberMetal.default.warn = _emberDebug.warn;
+  _emberMetal.default.debug = _emberDebug.debug;
+  _emberMetal.default.deprecate = function () {};
+  _emberMetal.default.deprecateFunc = function () {};
+
+  _emberMetal.default.deprecateFunc = _emberDebug.deprecateFunc;
+  _emberMetal.default.runInDebug = _emberDebug.runInDebug;
+  /**
+    @public
+    @class Ember.Debug
+  */
+  _emberMetal.default.Debug = {
+    registerDeprecationHandler: _emberDebug.registerDeprecationHandler,
+    registerWarnHandler: _emberDebug.registerWarnHandler
+  };
   _emberMetal.default.merge = _emberMetal.merge;
 
   _emberMetal.default.instrument = _emberMetal.instrument;
@@ -41560,7 +42105,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
     reset: _emberMetal.instrumentationReset
   };
 
-  _emberMetal.default.Error = _emberMetal.Error;
+  _emberMetal.default.Error = _emberDebug.Error;
   _emberMetal.default.META_DESC = _emberMetal.META_DESC;
   _emberMetal.default.meta = _emberMetal.meta;
   _emberMetal.default.get = _emberMetal.get;
@@ -41568,8 +42113,8 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default._getPath = _emberMetal._getPath;
   _emberMetal.default.set = _emberMetal.set;
   _emberMetal.default.trySet = _emberMetal.trySet;
-  _emberMetal.default.FEATURES = _emberMetal.FEATURES;
-  _emberMetal.default.FEATURES.isEnabled = _emberMetal.isFeatureEnabled;
+  _emberMetal.default.FEATURES = _emberDebug.FEATURES;
+  _emberMetal.default.FEATURES.isEnabled = _emberDebug.isFeatureEnabled;
   _emberMetal.default._Cache = _emberMetal.Cache;
   _emberMetal.default.on = _emberMetal.on;
   _emberMetal.default.addListener = _emberMetal.addListener;
@@ -41632,7 +42177,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   _emberMetal.default.Binding = _emberMetal.Binding;
   _emberMetal.default.isGlobalPath = _emberMetal.isGlobalPath;
 
-  if (_emberMetal.isFeatureEnabled('ember-metal-weakmap')) {
+  if (_emberDebug.isFeatureEnabled('ember-metal-weakmap')) {
     _emberMetal.default.WeakMap = _emberMetal.WeakMap;
   }
 
@@ -41747,17 +42292,10 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
   });
 
   Object.defineProperty(_emberMetal.default, 'testing', {
-    get: _emberMetal.isTesting,
-    set: _emberMetal.setTesting,
+    get: _emberDebug.isTesting,
+    set: _emberDebug.setTesting,
     enumerable: false
   });
-
-  if (!_require.has('ember-debug')) {
-    _emberMetal.default.Debug = {
-      registerDeprecationHandler: function () {},
-      registerWarnHandler: function () {}
-    };
-  }
 
   /**
    @class Backburner
@@ -41949,8 +42487,8 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 
   _emberMetal.libraries.registerCoreLibrary('Ember', _emberVersion.default);
 
-  _emberMetal.default.create = _emberMetal.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
-  _emberMetal.default.keys = _emberMetal.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
+  _emberMetal.default.create = _emberDebug.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
+  _emberMetal.default.keys = _emberDebug.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
 
   // require the main entry points for each of these packages
   // this is so that the global exports occur properly
@@ -42043,7 +42581,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+f787b0d3";
+  exports.default = "2.13.0-alpha.1-canary+299c1ab3";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
@@ -42081,7 +42619,7 @@ enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], functio
     return TestClass;
   }
 });
-enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-metal', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberMetal, _emberRuntime) {
+enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-routing', 'ember-application', 'ember-debug', 'ember-runtime'], function (exports, _container, _emberRouting, _emberApplication, _emberDebug, _emberRuntime) {
   'use strict';
 
   exports.default = buildOwner;
