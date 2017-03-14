@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+dfbd82b6
+ * @version   2.13.0-alpha.1-canary+5a36a7d3
  */
 
 var enifed, requireModule, Ember;
@@ -1946,7 +1946,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
         obj = factory.create(_emberUtils.assign({}, injections, props));
 
         // TODO - remove when Ember reaches v3.0.0
-        if (!Object.isFrozen(obj) && 'container' in obj) {
+        if (!Object.isFrozen(obj)) {
           injectDeprecatedContainer(obj, container);
         }
       }
@@ -1968,6 +1968,9 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
 
   // TODO - remove when Ember reaches v3.0.0
   function injectDeprecatedContainer(object, container) {
+    if ('container' in object) {
+      return;
+    }
     Object.defineProperty(object, 'container', {
       configurable: true,
       enumerable: false,
@@ -2101,8 +2104,9 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
         throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
       }
 
-      if (this.class.prototype) {
-        injectDeprecatedContainer(this.class.prototype, this.container);
+      var prototype = this.class.prototype;
+      if (prototype) {
+        injectDeprecatedContainer(prototype, this.container);
       }
 
       return this.class.create(props);
@@ -20060,7 +20064,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+dfbd82b6";
+  exports.default = "2.13.0-alpha.1-canary+5a36a7d3";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
