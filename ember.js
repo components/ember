@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+5a36a7d3
+ * @version   2.13.0-alpha.1-canary+1a8791f6
  */
 
 var enifed, requireModule, Ember;
@@ -3825,7 +3825,7 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-metal', 'containe
     this._factoryTypeInjections = _emberUtils.dictionary(null);
     this._factoryInjections = _emberUtils.dictionary(null);
 
-    this._localLookupCache = new _emberUtils.EmptyObject();
+    this._localLookupCache = Object.create(null);
     this._normalizeCache = _emberUtils.dictionary(null);
     this._resolveCache = _emberUtils.dictionary(null);
     this._failCache = _emberUtils.dictionary(null);
@@ -3978,7 +3978,7 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-metal', 'containe
 
       var normalizedName = this.normalize(fullName);
 
-      this._localLookupCache = new _emberUtils.EmptyObject();
+      this._localLookupCache = Object.create(null);
 
       delete this.registrations[normalizedName];
       delete this._resolveCache[normalizedName];
@@ -4518,7 +4518,7 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-metal', 'containe
     var normalizedNameCache = cache[normalizedName];
 
     if (!normalizedNameCache) {
-      normalizedNameCache = cache[normalizedName] = new _emberUtils.EmptyObject();
+      normalizedNameCache = cache[normalizedName] = Object.create(null);
     }
 
     var cached = normalizedNameCache[normalizedSource];
@@ -6711,8 +6711,8 @@ enifed('ember-application/system/engine', ['exports', 'ember-utils', 'ember-runt
   });
 
   Engine.reopenClass({
-    initializers: new _emberUtils.EmptyObject(),
-    instanceInitializers: new _emberUtils.EmptyObject(),
+    initializers: Object.create(null),
+    instanceInitializers: Object.create(null),
 
     /**
       The goal of initializers should be to register dependencies and injections.
@@ -10891,7 +10891,7 @@ enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/componen
     cols: null
   });
 });
-enifed('ember-glimmer/components/text_field', ['exports', 'ember-utils', 'ember-metal', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/templates/empty', 'ember-views'], function (exports, _emberUtils, _emberMetal, _emberEnvironment, _emberGlimmerComponent, _emberGlimmerTemplatesEmpty, _emberViews) {
+enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/templates/empty', 'ember-views'], function (exports, _emberMetal, _emberEnvironment, _emberGlimmerComponent, _emberGlimmerTemplatesEmpty, _emberViews) {
   /**
   @module ember
   @submodule ember-views
@@ -10899,7 +10899,7 @@ enifed('ember-glimmer/components/text_field', ['exports', 'ember-utils', 'ember-
   'use strict';
 
   var inputTypeTestElement = undefined;
-  var inputTypes = new _emberUtils.EmptyObject();
+  var inputTypes = Object.create(null);
   function canSetTypeOfInput(type) {
     if (type in inputTypes) {
       return inputTypes[type];
@@ -16488,7 +16488,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
       this.length = array.length;
       this.keyFor = keyFor;
       this.position = 0;
-      this.seen = new _emberUtils.EmptyObject();
+      this.seen = Object.create(null);
     }
 
     ArrayIterator.prototype.isEmpty = function isEmpty() {
@@ -16526,7 +16526,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
       this.length = _emberMetal.get(array, 'length');
       this.keyFor = keyFor;
       this.position = 0;
-      this.seen = new _emberUtils.EmptyObject();
+      this.seen = Object.create(null);
     }
 
     EmberArrayIterator.prototype.isEmpty = function isEmpty() {
@@ -16564,7 +16564,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
       this.values = values;
       this.keyFor = keyFor;
       this.position = 0;
-      this.seen = new _emberUtils.EmptyObject();
+      this.seen = Object.create(null);
     }
 
     ObjectKeysIterator.prototype.isEmpty = function isEmpty() {
@@ -16821,8 +16821,8 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', '@glimmer/
 
       var keys = namedArgs.keys;
       var attrs = namedArgs.value();
-      var props = new _emberUtils.EmptyObject();
-      var args = new _emberUtils.EmptyObject();
+      var props = Object.create(null);
+      var args = Object.create(null);
 
       props[_emberGlimmerComponent.ARGS] = args;
 
@@ -16953,7 +16953,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       babelHelpers.classCallCheck(this, RootReference);
 
       _ConstReference.call(this, value);
-      this.children = new _emberUtils.EmptyObject();
+      this.children = Object.create(null);
     }
 
     RootReference.prototype.get = function get(propertyKey) {
@@ -17625,7 +17625,7 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-utils', '@glimmer/refere
         return null;
       }
 
-      var state = new _emberUtils.EmptyObject();
+      var state = Object.create(null);
       state[matched.render.outlet] = matched;
       matched.wasUsed = true;
       return { outlets: state };
@@ -18328,7 +18328,7 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
 
   exports.Binding = Binding;
 });
-enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], function (exports, _emberUtils, _emberMetalMeta) {
+enifed('ember-metal/cache', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
   'use strict';
 
   var Cache = (function () {
@@ -18395,7 +18395,7 @@ enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], func
     function DefaultStore() {
       babelHelpers.classCallCheck(this, DefaultStore);
 
-      this.data = new _emberUtils.EmptyObject();
+      this.data = Object.create(null);
     }
 
     DefaultStore.prototype.get = function get(key) {
@@ -18407,13 +18407,13 @@ enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], func
     };
 
     DefaultStore.prototype.clear = function clear() {
-      this.data = new _emberUtils.EmptyObject();
+      this.data = Object.create(null);
     };
 
     return DefaultStore;
   })();
 });
-enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/computed', 'ember-metal/watch_path'], function (exports, _emberUtils, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalComputed, _emberMetalWatch_path) {
+enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/computed', 'ember-metal/watch_path'], function (exports, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalComputed, _emberMetalWatch_path) {
   'use strict';
 
   exports.finishChains = finishChains;
@@ -18439,7 +18439,7 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       // chain nodes that reference a key in this obj by key
       // we only create ChainWatchers when we are going to add them
       // so create this upfront
-      this.chains = new _emberUtils.EmptyObject();
+      this.chains = Object.create(null);
     }
 
     ChainWatchers.prototype.add = function add(key, node) {
@@ -18656,7 +18656,7 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       var chains = this._chains;
       var node = undefined;
       if (chains === undefined) {
-        chains = this._chains = new _emberUtils.EmptyObject();
+        chains = this._chains = Object.create(null);
       } else {
         node = chains[key];
       }
@@ -21017,10 +21017,10 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
   }
 
   function copyNull(obj) {
-    var output = new _emberUtils.EmptyObject();
+    var output = Object.create(null);
 
     for (var prop in obj) {
-      // hasOwnPropery is not needed because obj is new EmptyObject();
+      // hasOwnPropery is not needed because obj is Object.create(null);
       output[prop] = obj[prop];
     }
 
@@ -21076,7 +21076,7 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
       @private
     */
     clear: function () {
-      this.presenceSet = new _emberUtils.EmptyObject();
+      this.presenceSet = Object.create(null);
       this.list = [];
       this.size = 0;
     },
@@ -21232,7 +21232,7 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
     if (this instanceof Map) {
       this._keys = OrderedSet.create();
       this._keys._silenceRemoveDeprecation = true;
-      this._values = new _emberUtils.EmptyObject();
+      this._values = Object.create(null);
       this.size = 0;
     } else {
       missingNew('Map');
@@ -21388,7 +21388,7 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
     */
     clear: function () {
       this._keys.clear();
-      this._values = new _emberUtils.EmptyObject();
+      this._values = Object.create(null);
       this.size = 0;
     },
 
@@ -21718,7 +21718,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     };
 
     Meta.prototype._getOrCreateOwnMap = function _getOrCreateOwnMap(key) {
-      return this[key] || (this[key] = new _emberUtils.EmptyObject());
+      return this[key] || (this[key] = Object.create(null));
     };
 
     Meta.prototype._getInherited = function _getInherited(key) {
@@ -21755,7 +21755,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
       var outerMap = this._getOrCreateOwnMap('_deps');
       var innerMap = outerMap[subkey];
       if (!innerMap) {
-        innerMap = outerMap[subkey] = new _emberUtils.EmptyObject();
+        innerMap = outerMap[subkey] = Object.create(null);
       }
       innerMap[itemkey] = value;
     };
@@ -21799,7 +21799,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
-          seen = seen || new _emberUtils.EmptyObject();
+          seen = seen || Object.create(null);
           var innerMap = map[subkey];
           if (innerMap) {
             for (var innerKey in innerMap) {
@@ -21900,7 +21900,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
     Meta.prototype['forEach' + capitalized] = function (fn) {
       var pointer = this;
-      var seen = new _emberUtils.EmptyObject();
+      var seen = Object.create(null);
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
@@ -27184,7 +27184,7 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
     return req;
   }
 });
-enifed('ember-routing/system/cache', ['exports', 'ember-utils', 'ember-runtime'], function (exports, _emberUtils, _emberRuntime) {
+enifed('ember-routing/system/cache', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
   'use strict';
 
   /**
@@ -27196,7 +27196,7 @@ enifed('ember-routing/system/cache', ['exports', 'ember-utils', 'ember-runtime']
   */
   exports.default = _emberRuntime.Object.extend({
     init: function () {
-      this.cache = new _emberUtils.EmptyObject();
+      this.cache = Object.create(null);
     },
 
     has: function (bucketKey) {
@@ -27207,7 +27207,7 @@ enifed('ember-routing/system/cache', ['exports', 'ember-utils', 'ember-runtime']
       var bucket = this.cache[bucketKey];
 
       if (!bucket) {
-        bucket = this.cache[bucketKey] = new _emberUtils.EmptyObject();
+        bucket = this.cache[bucketKey] = Object.create(null);
       }
 
       bucket[key] = value;
@@ -29802,11 +29802,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this.currentRouteName = null;
       this.currentPath = null;
 
-      this._qpCache = new _emberUtils.EmptyObject();
+      this._qpCache = Object.create(null);
       this._resetQueuedQueryParameterChanges();
       this._handledErrors = _emberUtils.dictionary(null);
-      this._engineInstances = new _emberUtils.EmptyObject();
-      this._engineInfoByRoute = new _emberUtils.EmptyObject();
+      this._engineInstances = Object.create(null);
+      this._engineInfoByRoute = Object.create(null);
     },
 
     /*
@@ -30236,7 +30236,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     _getHandlerFunction: function () {
       var _this6 = this;
 
-      var seen = new _emberUtils.EmptyObject();
+      var seen = Object.create(null);
       var owner = _emberUtils.getOwner(this);
 
       return function (name) {
@@ -30693,7 +30693,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       var engineInstances = this._engineInstances;
 
       if (!engineInstances[name]) {
-        engineInstances[name] = new _emberUtils.EmptyObject();
+        engineInstances[name] = Object.create(null);
       }
 
       var engineInstance = engineInstances[name][instanceId];
@@ -31157,7 +31157,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     var target = undefined;
     var myState = {
       render: renderOptions,
-      outlets: new _emberUtils.EmptyObject(),
+      outlets: Object.create(null),
       wasUsed: false
     };
     if (renderOptions.into) {
@@ -31198,7 +31198,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         render: {
           name: '__ember_orphans__'
         },
-        outlets: new _emberUtils.EmptyObject()
+        outlets: Object.create(null)
       };
     }
     liveRoutes.outlets.__ember_orphans__.outlets[into] = myState;
@@ -32795,7 +32795,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   function uniqBy(dependentKey, propertyKey) {
     return _emberMetal.computed(dependentKey + '.[]', function () {
       var uniq = _emberRuntimeSystemNative_array.A();
-      var seen = new _emberUtils.EmptyObject();
+      var seen = Object.create(null);
       var list = _emberMetal.get(this, dependentKey);
       if (_emberRuntimeUtils.isArray(list)) {
         list.forEach(function (item) {
@@ -36127,7 +36127,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
 
     uniqBy: function (key) {
       var ret = emberA();
-      var seen = new _emberUtils.EmptyObject();
+      var seen = Object.create(null);
 
       this.forEach(function (item) {
         var guid = _emberUtils.guidFor(_emberMetal.get(item, key));
@@ -39174,7 +39174,7 @@ babelHelpers.classCallCheck(this, Class);
   @param {Object} binding
   @private
 */
-enifed('ember-runtime/system/each_proxy', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberUtils, _emberMetal, _emberRuntimeMixinsArray) {
+enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberMetal, _emberRuntimeMixinsArray) {
   'use strict';
 
   exports.default = EachProxy;
@@ -39243,7 +39243,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-utils', 'ember-meta
     beginObservingContentKey: function (keyName) {
       var keys = this._keys;
       if (!keys) {
-        keys = this._keys = new _emberUtils.EmptyObject();
+        keys = this._keys = Object.create(null);
       }
 
       if (!keys[keyName]) {
@@ -42114,51 +42114,22 @@ enifed("ember-utils/assign", ["exports"], function (exports) {
     return original;
   }
 });
-enifed('ember-utils/dictionary', ['exports', 'ember-utils/empty-object'], function (exports, _emberUtilsEmptyObject) {
-  'use strict';
-
-  exports.default = makeDictionary;
-
+enifed('ember-utils/dictionary', ['exports'], function (exports) {
   // the delete is meant to hint at runtimes that this object should remain in
   // dictionary mode. This is clearly a runtime specific hack, but currently it
   // appears worthwhile in some usecases. Please note, these deletes do increase
   // the cost of creation dramatically over a plain Object.create. And as this
   // only makes sense for long-lived dictionaries that aren't instantiated often.
+  'use strict';
+
+  exports.default = makeDictionary;
 
   function makeDictionary(parent) {
-    var dict = undefined;
-    if (parent === null) {
-      dict = new _emberUtilsEmptyObject.default();
-    } else {
-      dict = Object.create(parent);
-    }
+    var dict = Object.create(parent);
     dict['_dict'] = null;
     delete dict['_dict'];
     return dict;
   }
-});
-enifed("ember-utils/empty-object", ["exports"], function (exports) {
-  // This exists because `Object.create(null)` is absurdly slow compared
-  // to `new EmptyObject()`. In either case, you want a null prototype
-  // when you're treating the object instances as arbitrary dictionaries
-  // and don't want your keys colliding with build-in methods on the
-  // default object prototype.
-
-  "use strict";
-
-  var proto = Object.create(null, {
-    // without this, we will always still end up with (new
-    // EmptyObject()).constructor === Object
-    constructor: {
-      value: undefined,
-      enumerable: false,
-      writable: true
-    }
-  });
-
-  function EmptyObject() {}
-  EmptyObject.prototype = proto;
-  exports.default = EmptyObject;
 });
 enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports, _emberUtilsIntern) {
   'use strict';
@@ -42364,7 +42335,7 @@ enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports,
     }
   }
 });
-enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/empty-object', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils', 'ember-utils/proxy-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsEmptyObject, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils, _emberUtilsProxyUtils) {
+enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils', 'ember-utils/proxy-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils, _emberUtilsProxyUtils) {
   /*
    This package will be eagerly parsed and should have no dependencies on external
    packages.
@@ -42382,7 +42353,6 @@ enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner
   exports.setOwner = _emberUtilsOwner.setOwner;
   exports.OWNER = _emberUtilsOwner.OWNER;
   exports.assign = _emberUtilsAssign.default;
-  exports.EmptyObject = _emberUtilsEmptyObject.default;
   exports.dictionary = _emberUtilsDictionary.default;
   exports.uuid = _emberUtilsGuid.uuid;
   exports.GUID_KEY = _emberUtilsGuid.GUID_KEY;
@@ -45477,7 +45447,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+5a36a7d3";
+  exports.default = "2.13.0-alpha.1-canary+1a8791f6";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

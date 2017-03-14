@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+5a36a7d3
+ * @version   2.13.0-alpha.1-canary+1a8791f6
  */
 
 var enifed, requireModule, Ember;
@@ -6605,7 +6605,7 @@ enifed('ember-metal/binding', ['exports', 'ember-utils', 'ember-console', 'ember
 
   exports.Binding = Binding;
 });
-enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], function (exports, _emberUtils, _emberMetalMeta) {
+enifed('ember-metal/cache', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
   'use strict';
 
   var Cache = (function () {
@@ -6672,7 +6672,7 @@ enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], func
     function DefaultStore() {
       babelHelpers.classCallCheck(this, DefaultStore);
 
-      this.data = new _emberUtils.EmptyObject();
+      this.data = Object.create(null);
     }
 
     DefaultStore.prototype.get = function get(key) {
@@ -6684,13 +6684,13 @@ enifed('ember-metal/cache', ['exports', 'ember-utils', 'ember-metal/meta'], func
     };
 
     DefaultStore.prototype.clear = function clear() {
-      this.data = new _emberUtils.EmptyObject();
+      this.data = Object.create(null);
     };
 
     return DefaultStore;
   })();
 });
-enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/computed', 'ember-metal/watch_path'], function (exports, _emberUtils, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalComputed, _emberMetalWatch_path) {
+enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-metal/meta', 'ember-metal/watch_key', 'ember-metal/computed', 'ember-metal/watch_path'], function (exports, _emberMetalProperty_get, _emberMetalMeta, _emberMetalWatch_key, _emberMetalComputed, _emberMetalWatch_path) {
   'use strict';
 
   exports.finishChains = finishChains;
@@ -6716,7 +6716,7 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       // chain nodes that reference a key in this obj by key
       // we only create ChainWatchers when we are going to add them
       // so create this upfront
-      this.chains = new _emberUtils.EmptyObject();
+      this.chains = Object.create(null);
     }
 
     ChainWatchers.prototype.add = function add(key, node) {
@@ -6933,7 +6933,7 @@ enifed('ember-metal/chains', ['exports', 'ember-utils', 'ember-metal/property_ge
       var chains = this._chains;
       var node = undefined;
       if (chains === undefined) {
-        chains = this._chains = new _emberUtils.EmptyObject();
+        chains = this._chains = Object.create(null);
       } else {
         node = chains[key];
       }
@@ -9294,10 +9294,10 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
   }
 
   function copyNull(obj) {
-    var output = new _emberUtils.EmptyObject();
+    var output = Object.create(null);
 
     for (var prop in obj) {
-      // hasOwnPropery is not needed because obj is new EmptyObject();
+      // hasOwnPropery is not needed because obj is Object.create(null);
       output[prop] = obj[prop];
     }
 
@@ -9353,7 +9353,7 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
       @private
     */
     clear: function () {
-      this.presenceSet = new _emberUtils.EmptyObject();
+      this.presenceSet = Object.create(null);
       this.list = [];
       this.size = 0;
     },
@@ -9509,7 +9509,7 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
     if (this instanceof Map) {
       this._keys = OrderedSet.create();
       this._keys._silenceRemoveDeprecation = true;
-      this._values = new _emberUtils.EmptyObject();
+      this._values = Object.create(null);
       this.size = 0;
     } else {
       missingNew('Map');
@@ -9665,7 +9665,7 @@ enifed('ember-metal/map', ['exports', 'ember-utils'], function (exports, _emberU
     */
     clear: function () {
       this._keys.clear();
-      this._values = new _emberUtils.EmptyObject();
+      this._values = Object.create(null);
       this.size = 0;
     },
 
@@ -9995,7 +9995,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
     };
 
     Meta.prototype._getOrCreateOwnMap = function _getOrCreateOwnMap(key) {
-      return this[key] || (this[key] = new _emberUtils.EmptyObject());
+      return this[key] || (this[key] = Object.create(null));
     };
 
     Meta.prototype._getInherited = function _getInherited(key) {
@@ -10032,7 +10032,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
       var outerMap = this._getOrCreateOwnMap('_deps');
       var innerMap = outerMap[subkey];
       if (!innerMap) {
-        innerMap = outerMap[subkey] = new _emberUtils.EmptyObject();
+        innerMap = outerMap[subkey] = Object.create(null);
       }
       innerMap[itemkey] = value;
     };
@@ -10076,7 +10076,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
-          seen = seen || new _emberUtils.EmptyObject();
+          seen = seen || Object.create(null);
           var innerMap = map[subkey];
           if (innerMap) {
             for (var innerKey in innerMap) {
@@ -10177,7 +10177,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/features', 'e
 
     Meta.prototype['forEach' + capitalized] = function (fn) {
       var pointer = this;
-      var seen = new _emberUtils.EmptyObject();
+      var seen = Object.create(null);
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
@@ -15453,51 +15453,22 @@ enifed("ember-utils/assign", ["exports"], function (exports) {
     return original;
   }
 });
-enifed('ember-utils/dictionary', ['exports', 'ember-utils/empty-object'], function (exports, _emberUtilsEmptyObject) {
-  'use strict';
-
-  exports.default = makeDictionary;
-
+enifed('ember-utils/dictionary', ['exports'], function (exports) {
   // the delete is meant to hint at runtimes that this object should remain in
   // dictionary mode. This is clearly a runtime specific hack, but currently it
   // appears worthwhile in some usecases. Please note, these deletes do increase
   // the cost of creation dramatically over a plain Object.create. And as this
   // only makes sense for long-lived dictionaries that aren't instantiated often.
+  'use strict';
+
+  exports.default = makeDictionary;
 
   function makeDictionary(parent) {
-    var dict = undefined;
-    if (parent === null) {
-      dict = new _emberUtilsEmptyObject.default();
-    } else {
-      dict = Object.create(parent);
-    }
+    var dict = Object.create(parent);
     dict['_dict'] = null;
     delete dict['_dict'];
     return dict;
   }
-});
-enifed("ember-utils/empty-object", ["exports"], function (exports) {
-  // This exists because `Object.create(null)` is absurdly slow compared
-  // to `new EmptyObject()`. In either case, you want a null prototype
-  // when you're treating the object instances as arbitrary dictionaries
-  // and don't want your keys colliding with build-in methods on the
-  // default object prototype.
-
-  "use strict";
-
-  var proto = Object.create(null, {
-    // without this, we will always still end up with (new
-    // EmptyObject()).constructor === Object
-    constructor: {
-      value: undefined,
-      enumerable: false,
-      writable: true
-    }
-  });
-
-  function EmptyObject() {}
-  EmptyObject.prototype = proto;
-  exports.default = EmptyObject;
 });
 enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports, _emberUtilsIntern) {
   'use strict';
@@ -15703,7 +15674,7 @@ enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports,
     }
   }
 });
-enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/empty-object', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils', 'ember-utils/proxy-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsEmptyObject, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils, _emberUtilsProxyUtils) {
+enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils', 'ember-utils/proxy-utils'], function (exports, _emberUtilsSymbol, _emberUtilsOwner, _emberUtilsAssign, _emberUtilsDictionary, _emberUtilsGuid, _emberUtilsIntern, _emberUtilsSuper, _emberUtilsInspect, _emberUtilsLookupDescriptor, _emberUtilsInvoke, _emberUtilsMakeArray, _emberUtilsApplyStr, _emberUtilsName, _emberUtilsToString, _emberUtilsWeakMapUtils, _emberUtilsProxyUtils) {
   /*
    This package will be eagerly parsed and should have no dependencies on external
    packages.
@@ -15721,7 +15692,6 @@ enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner
   exports.setOwner = _emberUtilsOwner.setOwner;
   exports.OWNER = _emberUtilsOwner.OWNER;
   exports.assign = _emberUtilsAssign.default;
-  exports.EmptyObject = _emberUtilsEmptyObject.default;
   exports.dictionary = _emberUtilsDictionary.default;
   exports.uuid = _emberUtilsGuid.uuid;
   exports.GUID_KEY = _emberUtilsGuid.GUID_KEY;
@@ -16195,7 +16165,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+5a36a7d3";
+  exports.default = "2.13.0-alpha.1-canary+1a8791f6";
 });
 enifed("handlebars", ["exports"], function (exports) {
   /* istanbul ignore next */

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+5a36a7d3
+ * @version   2.13.0-alpha.1-canary+1a8791f6
  */
 
 var enifed, requireModule, Ember;
@@ -35303,7 +35303,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test.lint-test', ['exports']
     assert.ok(true, 'ember-glimmer/tests/integration/syntax/with-test.js should pass ESLint\n\n');
   });
 });
-enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 'ember-glimmer/tests/utils/test-case', '@glimmer/runtime'], function (exports, _emberUtils, _emberGlimmerTestsUtilsTestCase, _glimmerRuntime) {
+enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-glimmer/tests/utils/test-case', '@glimmer/runtime', 'ember-utils'], function (exports, _emberGlimmerTestsUtilsTestCase, _glimmerRuntime, _emberUtils) {
   'use strict';
 
   var Counter = (function () {
@@ -35322,7 +35322,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['exports', 'ember-utils', 
 
     Counter.prototype.reset = function reset() {
       this.total = 0;
-      this.counts = new _emberUtils.EmptyObject();
+      this.counts = Object.create(null);
     };
 
     return Counter;
@@ -66761,15 +66761,6 @@ enifed('ember-utils/dictionary.lint-test', ['exports'], function (exports) {
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-utils/dictionary.js should pass ESLint\n\n');
-  });
-});
-enifed('ember-utils/empty-object.lint-test', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('ESLint | ember-utils/empty-object.js');
-  QUnit.test('should pass ESLint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'ember-utils/empty-object.js should pass ESLint\n\n');
   });
 });
 enifed('ember-utils/guid.lint-test', ['exports'], function (exports) {
