@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+e5a6fa04
+ * @version   2.13.0-alpha.1-canary+5cd75d83
  */
 
 var enifed, requireModule, Ember;
@@ -4101,7 +4101,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       this.count = 0;
 
       this._value = value;
-      this._paths = {};
+      this._paths = undefined;
       if (this._watching) {
         var obj = parent.value();
 
@@ -4139,13 +4139,14 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       var ret = new ChainNode(null, null, obj);
       var paths = this._paths;
       var path = undefined;
-
-      for (path in paths) {
-        // this check will also catch non-number vals.
-        if (paths[path] <= 0) {
-          continue;
+      if (paths !== undefined) {
+        for (path in paths) {
+          // this check will also catch non-number vals.
+          if (paths[path] <= 0) {
+            continue;
+          }
+          ret.add(path);
         }
-        ret.add(path);
       }
       return ret;
     };
@@ -4154,7 +4155,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     // path.
 
     ChainNode.prototype.add = function add(path) {
-      var paths = this._paths;
+      var paths = this._paths || (this._paths = {});
       paths[path] = (paths[path] || 0) + 1;
 
       var key = firstKey(path);
@@ -4168,6 +4169,9 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
 
     ChainNode.prototype.remove = function remove(path) {
       var paths = this._paths;
+      if (paths === undefined) {
+        return;
+      }
       if (paths[path] > 0) {
         paths[path]--;
       }
@@ -19849,7 +19853,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+e5a6fa04";
+  exports.default = "2.13.0-alpha.1-canary+5cd75d83";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
