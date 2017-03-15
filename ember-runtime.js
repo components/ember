@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-alpha.1-canary+299c1ab3
+ * @version   2.13.0-alpha.1-canary+e5a6fa04
  */
 
 var enifed, requireModule, Ember;
@@ -1586,12 +1586,7 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
 
     return manager;
   }, _Container$prototype.destroy = function () {
-    eachDestroyable(this, function (item) {
-      if (item.destroy) {
-        item.destroy();
-      }
-    });
-
+    destroyDestroyables(this);
     this.isDestroyed = true;
   }, _Container$prototype.reset = function (fullName) {
     if (arguments.length > 0) {
@@ -1702,7 +1697,7 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
     return container.registry.getOption(fullName, 'singleton') !== false;
   }
 
-  function shouldInstantiate(container, fullName) {
+  function isInstantiatable(container, fullName) {
     return container.registry.getOption(fullName, 'instantiate') !== false;
   }
 
@@ -1744,28 +1739,28 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
     var instantiate = _ref2.instantiate;
     var singleton = _ref2.singleton;
 
-    return singleton !== false && isSingleton(container, fullName) && !instantiate && !shouldInstantiate(container, fullName);
+    return singleton !== false && isSingleton(container, fullName) && !instantiate && !isInstantiatable(container, fullName);
   }
 
   function isSingletonInstance(container, fullName, _ref3) {
     var instantiate = _ref3.instantiate;
     var singleton = _ref3.singleton;
 
-    return singleton !== false && isSingleton(container, fullName) && instantiate !== false && shouldInstantiate(container, fullName);
+    return singleton !== false && isSingleton(container, fullName) && instantiate !== false && isInstantiatable(container, fullName);
   }
 
   function isFactoryClass(container, fullname, _ref4) {
     var instantiate = _ref4.instantiate;
     var singleton = _ref4.singleton;
 
-    return (singleton === false || !isSingleton(container, fullname)) && instantiate === false && !shouldInstantiate(container, fullname);
+    return (singleton === false || !isSingleton(container, fullname)) && instantiate === false && !isInstantiatable(container, fullname);
   }
 
   function isFactoryInstance(container, fullName, _ref5) {
     var instantiate = _ref5.instantiate;
     var singleton = _ref5.singleton;
 
-    return (singleton !== false || isSingleton(container, fullName)) && instantiate !== false && shouldInstantiate(container, fullName);
+    return (singleton !== false || isSingleton(container, fullName)) && instantiate !== false && isInstantiatable(container, fullName);
   }
 
   function instantiateFactory(container, fullName, options) {
@@ -1997,7 +1992,7 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
     });
   }
 
-  function eachDestroyable(container, callback) {
+  function destroyDestroyables(container) {
     var cache = container.cache;
     var keys = Object.keys(cache);
 
@@ -2005,19 +2000,14 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
       var key = keys[i];
       var value = cache[key];
 
-      if (container.registry.getOption(key, 'instantiate') !== false) {
-        callback(value);
+      if (isInstantiatable(container, key) && value.destroy) {
+        value.destroy();
       }
     }
   }
 
   function resetCache(container) {
-    eachDestroyable(container, function (value) {
-      if (value.destroy) {
-        value.destroy();
-      }
-    });
-
+    destroyDestroyables(container);
     container.cache.dict = _emberUtils.dictionary(null);
   }
 
@@ -19859,7 +19849,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-alpha.1-canary+299c1ab3";
+  exports.default = "2.13.0-alpha.1-canary+e5a6fa04";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
