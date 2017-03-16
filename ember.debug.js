@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+cc651ffc
+ * @version   2.14.0-alpha.1-canary+86dd9d2e
  */
 
 var enifed, requireModule, Ember;
@@ -3438,12 +3438,17 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
           container.registry.validateInjections(injections);
         });
 
+        var markAsDynamic = false;
         for (var i = 0; i < injections.length; i++) {
           injection = injections[i];
           hash[injection.property] = lookup(container, injection.fullName);
-          if (!isSingleton(container, injection.fullName)) {
-            markInjectionsAsDynamic(hash);
+          if (!markAsDynamic) {
+            markAsDynamic = !isSingleton(container, injection.fullName);
           }
+        }
+
+        if (markAsDynamic) {
+          markInjectionsAsDynamic(hash);
         }
       })();
     }
@@ -45430,7 +45435,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+cc651ffc";
+  exports.default = "2.14.0-alpha.1-canary+86dd9d2e";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
