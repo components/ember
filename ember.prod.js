@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+86dd9d2e
+ * @version   2.14.0-alpha.1-canary+5fba442b
  */
 
 var enifed, requireModule, Ember;
@@ -3647,12 +3647,19 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
       this.fullName = fullName;
       this.normalizedName = normalizedName;
       this.madeToString = undefined;
+      this.injections = undefined;
     }
 
     FactoryManager.prototype.create = function create() {
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-      var injections = injectionsFor(this.container, this.normalizedName);
+      var injections = this.injections;
+      if (injections === undefined) {
+        injections = injectionsFor(this.container, this.normalizedName);
+        if (areInjectionsDynamic(injections) === false) {
+          this.injections = injections;
+        }
+      }
       var props = _emberUtils.assign({}, injections, options);
 
       props[_emberUtils.NAME_KEY] = this.madeToString || (this.madeToString = this.container.registry.makeToString(this.class, this.fullName));
@@ -42580,7 +42587,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+86dd9d2e";
+  exports.default = "2.14.0-alpha.1-canary+5fba442b";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
