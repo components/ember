@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+42187d2c
+ * @version   2.14.0-alpha.1-canary+641017ab
  */
 
 var enifed, requireModule, Ember;
@@ -42102,7 +42102,7 @@ enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function 
     assert.equal(matching[0], t);
     m.removeFromListeners('hello', t, 'm');
     matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 0);
+    assert.equal(matching, undefined);
   });
 
   QUnit.test('meta.listeners inheritance', function (assert) {
@@ -42121,7 +42121,7 @@ enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function 
     assert.equal(matching[2], 0);
     m.removeFromListeners('hello', target, 'm');
     matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 0);
+    assert.equal(matching, undefined);
     matching = parentMeta.matchingListeners('hello');
     assert.equal(matching.length, 3);
   });

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+42187d2c
+ * @version   2.14.0-alpha.1-canary+641017ab
  */
 
 var enifed, requireModule, Ember;
@@ -5202,6 +5202,9 @@ enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/meta', 'emb
       return;
     }
     var actions = meta.matchingListeners(eventName);
+    if (actions === undefined) {
+      return;
+    }
     var newActions = [];
 
     for (var i = actions.length - 3; i >= 0; i -= 3) {
@@ -5419,7 +5422,8 @@ enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/meta', 'emb
     if (!meta) {
       return false;
     }
-    return meta.matchingListeners(eventName).length > 0;
+    var matched = meta.matchingListeners(eventName);
+    return matched !== undefined && matched.length > 0;
   }
 
   /**
@@ -7572,23 +7576,24 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
 
     matchingListeners: function (eventName) {
       var pointer = this;
-      var result = [];
-      while (pointer) {
+      var result = undefined;
+      while (pointer !== undefined) {
         var listeners = pointer._listeners;
-        if (listeners) {
+        if (listeners !== undefined) {
           for (var index = 0; index < listeners.length - 3; index += 4) {
             if (listeners[index] === eventName) {
+              result = result || [];
               pushUniqueListener(result, listeners, index);
             }
           }
         }
-        if (pointer._listenersFinalized) {
+        if (pointer._listenersFinalized === true) {
           break;
         }
         pointer = pointer.parent;
       }
       var sus = this._suspendedListeners;
-      if (sus) {
+      if (sus !== undefined && result !== undefined) {
         for (var susIndex = 0; susIndex < sus.length - 2; susIndex += 3) {
           if (eventName === sus[susIndex]) {
             for (var resultIndex = 0; resultIndex < result.length - 2; resultIndex += 3) {
@@ -19865,7 +19870,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+42187d2c";
+  exports.default = "2.14.0-alpha.1-canary+641017ab";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
