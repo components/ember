@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+641017ab
+ * @version   2.14.0-alpha.1-canary+24439609
  */
 
 var enifed, requireModule, Ember;
@@ -19184,7 +19184,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
 
   /**
     Creates an `Ember.NativeArray` from an Array like object.
-    Does not modify the original object. Ember.A is not needed if
+    Does not modify the original object's contents. Ember.A is not needed if
     `EmberENV.EXTEND_PROTOTYPES` is `true` (the default value). However,
     it is recommended that you use Ember.A when creating addons for
     ember or when you can not guarantee that `EmberENV.EXTEND_PROTOTYPES`
@@ -19870,7 +19870,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+641017ab";
+  exports.default = "2.14.0-alpha.1-canary+24439609";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
