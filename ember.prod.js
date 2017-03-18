@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+24439609
+ * @version   2.14.0-alpha.1-canary+42639702
  */
 
 var enifed, requireModule, Ember;
@@ -27690,6 +27690,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @param {String} name the name of the route or a URL
       @param {...Object} models the model(s) or identifier(s) to be used while
         transitioning to the route.
+      @param {Object} [options] optional hash with a queryParams property
+        containing a mapping of query parameters
       @return {Transition} the transition object associated with this
         attempted transition
       @since 1.0.0
@@ -42592,7 +42594,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+24439609";
+  exports.default = "2.14.0-alpha.1-canary+42639702";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
