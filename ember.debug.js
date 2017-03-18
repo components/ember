@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+42639702
+ * @version   2.14.0-alpha.1-canary+286af168
  */
 
 var enifed, requireModule, Ember;
@@ -15467,8 +15467,6 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
   function mountMacro(path, params, hash, builder) {
     _emberDebug.assert('You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1 && hash === null);
 
-    _emberDebug.assert('The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}.', typeof params[0] === 'string');
-
     var definitionArgs = [params.slice(0, 1), null, null, null];
     var args = [null, null, null, null];
     builder.component.dynamic(definitionArgs, dynamicEngineFor, args, builder.symbolTable);
@@ -15497,20 +15495,26 @@ enifed('ember-glimmer/syntax/mount', ['exports', '@glimmer/runtime', '@glimmer/r
 
       var nameOrDef = nameRef.value();
 
-      if (this._lastName === nameOrDef) {
+      if (typeof nameOrDef === 'string') {
+        if (this._lastName === nameOrDef) {
+          return this._lastDef;
+        }
+
+        _emberDebug.assert('You used `{{mount \'' + nameOrDef + '\'}}`, but the engine \'' + nameOrDef + '\' can not be found.', env.owner.hasRegistration('engine:' + nameOrDef));
+
+        if (!env.owner.hasRegistration('engine:' + nameOrDef)) {
+          return null;
+        }
+
+        this._lastName = nameOrDef;
+        this._lastDef = new MountDefinition(nameOrDef);
+
         return this._lastDef;
-      }
+      } else {
+        _emberDebug.assert('Invalid engine name \'' + nameOrDef + '\' specified, engine name must be either a string, null or undefined.', nameOrDef === null || nameOrDef === undefined);
 
-      _emberDebug.assert('You used `{{mount \'' + nameOrDef + '\'}}`, but the engine \'' + nameOrDef + '\' can not be found.', env.owner.hasRegistration('engine:' + nameOrDef));
-
-      if (!env.owner.hasRegistration('engine:' + nameOrDef)) {
         return null;
       }
-
-      this._lastName = nameOrDef;
-      this._lastDef = new MountDefinition(nameOrDef);
-
-      return this._lastDef;
     };
 
     return DynamicEngineReference;
@@ -45449,7 +45453,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+42639702";
+  exports.default = "2.14.0-alpha.1-canary+286af168";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

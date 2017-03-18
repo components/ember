@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+42639702
+ * @version   2.14.0-alpha.1-canary+286af168
  */
 
 var enifed, requireModule, Ember;
@@ -32143,12 +32143,12 @@ enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-utils', 
       }, /You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}./i);
     };
 
-    _class.prototype['@test it asserts that the engine name argument is quoted'] = function testItAssertsThatTheEngineNameArgumentIsQuoted() {
+    _class.prototype['@test it asserts when an invalid engine name is provided'] = function testItAssertsWhenAnInvalidEngineNameIsProvided() {
       var _this2 = this;
 
       expectAssertion(function () {
-        _this2.render('{{mount chat}}');
-      }, /The first argument of {{mount}} must be quoted, e.g. {{mount "chat-engine"}}./i);
+        _this2.render('{{mount engineName}}', { engineName: {} });
+      }, /Invalid engine name '\[object Object\]' specified, engine name must be either a string, null or undefined./i);
     };
 
     _class.prototype['@test it asserts that the specified engine is registered'] = function testItAssertsThatTheSpecifiedEngineIsRegistered() {
@@ -32260,6 +32260,78 @@ enifed('ember-glimmer/tests/integration/mount-test', ['exports', 'ember-utils', 
           }, expectedBacktrackingMessage);
         });
       }
+    };
+
+    _class2.prototype['@test it renders with a bound engine name'] = function testItRendersWithABoundEngineName() {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('bound-engine-name');
+      });
+      var controller = undefined;
+      this.registerController('bound-engine-name', _emberRuntime.Controller.extend({
+        engineName: null,
+        init: function () {
+          this._super();
+          controller = this;
+        }
+      }));
+      this.registerTemplate('bound-engine-name', '{{mount engineName}}');
+
+      this.registerEngine('foo', _emberApplication.Engine.extend({
+        router: null,
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('<h2>Foo Engine</h2>', { moduleName: 'application' }));
+        }
+      }));
+      this.registerEngine('bar', _emberApplication.Engine.extend({
+        router: null,
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', _emberGlimmerTestsUtilsHelpers.compile('<h2>Bar Engine</h2>', { moduleName: 'application' }));
+        }
+      }));
+
+      return this.visit('/bound-engine-name').then(function () {
+        _this7.assertComponentElement(_this7.firstChild, { content: '<!---->' });
+
+        _this7.runTask(function () {
+          return _emberMetal.set(controller, 'engineName', 'foo');
+        });
+
+        _this7.assertComponentElement(_this7.firstChild, { content: '<h2>Foo Engine</h2>' });
+
+        _this7.runTask(function () {
+          return _emberMetal.set(controller, 'engineName', undefined);
+        });
+
+        _this7.assertComponentElement(_this7.firstChild, { content: '<!---->' });
+
+        _this7.runTask(function () {
+          return _emberMetal.set(controller, 'engineName', 'foo');
+        });
+
+        _this7.assertComponentElement(_this7.firstChild, { content: '<h2>Foo Engine</h2>' });
+
+        _this7.runTask(function () {
+          return _emberMetal.set(controller, 'engineName', 'bar');
+        });
+
+        _this7.assertComponentElement(_this7.firstChild, { content: '<h2>Bar Engine</h2>' });
+
+        _this7.runTask(function () {
+          return _emberMetal.set(controller, 'engineName', 'foo');
+        });
+
+        _this7.assertComponentElement(_this7.firstChild, { content: '<h2>Foo Engine</h2>' });
+
+        _this7.runTask(function () {
+          return _emberMetal.set(controller, 'engineName', null);
+        });
+
+        _this7.assertComponentElement(_this7.firstChild, { content: '<!---->' });
+      });
     };
 
     return _class2;
