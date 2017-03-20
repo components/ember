@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+1d3b108f
+ * @version   2.14.0-alpha.1-canary+f0ff4864
  */
 
 var enifed, requireModule, Ember;
@@ -34217,7 +34217,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-
     });
   }
 });
-enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime/mixins/enumerable', 'ember-runtime/system/each_proxy'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberRuntimeMixinsEnumerable, _emberRuntimeSystemEach_proxy) {
+enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime/mixins/enumerable'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberRuntimeMixinsEnumerable) {
   /**
   @module ember
   @submodule ember-runtime
@@ -34534,11 +34534,128 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }, _Mixin$create['@each'] = _emberMetal.computed(function () {
     // TODO use Symbol or add to meta
     if (!this.__each) {
-      this.__each = new _emberRuntimeSystemEach_proxy.default(this);
+      this.__each = new EachProxy(this);
     }
 
     return this.__each;
   }).volatile().readOnly(), _Mixin$create));
+
+  /**
+    This is the object instance returned when you get the `@each` property on an
+    array. It uses the unknownProperty handler to automatically create
+    EachArray instances for property names.
+    @class EachProxy
+    @private
+  */
+  function EachProxy(content) {
+    this._content = content;
+    this._keys = undefined;
+    this.__ember_meta__ = null;
+  }
+
+  EachProxy.prototype = {
+    __defineNonEnumerable: function (property) {
+      this[property.name] = property.descriptor.value;
+    },
+
+    // ..........................................................
+    // ARRAY CHANGES
+    // Invokes whenever the content array itself changes.
+
+    arrayWillChange: function (content, idx, removedCnt, addedCnt) {
+      var keys = this._keys;
+      var lim = removedCnt > 0 ? idx + removedCnt : -1;
+      for (var key in keys) {
+        if (lim > 0) {
+          removeObserverForContentKey(content, key, this, idx, lim);
+        }
+        _emberMetal.propertyWillChange(this, key);
+      }
+    },
+
+    arrayDidChange: function (content, idx, removedCnt, addedCnt) {
+      var keys = this._keys;
+      var lim = addedCnt > 0 ? idx + addedCnt : -1;
+      for (var key in keys) {
+        if (lim > 0) {
+          addObserverForContentKey(content, key, this, idx, lim);
+        }
+        _emberMetal.propertyDidChange(this, key);
+      }
+    },
+
+    // ..........................................................
+    // LISTEN FOR NEW OBSERVERS AND OTHER EVENT LISTENERS
+    // Start monitoring keys based on who is listening...
+
+    willWatchProperty: function (property) {
+      this.beginObservingContentKey(property);
+    },
+
+    didUnwatchProperty: function (property) {
+      this.stopObservingContentKey(property);
+    },
+
+    // ..........................................................
+    // CONTENT KEY OBSERVING
+    // Actual watch keys on the source content.
+
+    beginObservingContentKey: function (keyName) {
+      var keys = this._keys;
+      if (!keys) {
+        keys = this._keys = Object.create(null);
+      }
+
+      if (!keys[keyName]) {
+        keys[keyName] = 1;
+        var content = this._content;
+        var len = _emberMetal.get(content, 'length');
+
+        addObserverForContentKey(content, keyName, this, 0, len);
+      } else {
+        keys[keyName]++;
+      }
+    },
+
+    stopObservingContentKey: function (keyName) {
+      var keys = this._keys;
+      if (keys && keys[keyName] > 0 && --keys[keyName] <= 0) {
+        var content = this._content;
+        var len = _emberMetal.get(content, 'length');
+
+        removeObserverForContentKey(content, keyName, this, 0, len);
+      }
+    },
+
+    contentKeyWillChange: function (obj, keyName) {
+      _emberMetal.propertyWillChange(this, keyName);
+    },
+
+    contentKeyDidChange: function (obj, keyName) {
+      _emberMetal.propertyDidChange(this, keyName);
+    }
+  };
+
+  function addObserverForContentKey(content, keyName, proxy, idx, loc) {
+    while (--loc >= idx) {
+      var item = objectAt(content, loc);
+      if (item) {
+        _emberDebug.assert('When using @each to observe the array ' + content + ', the array must return an object', typeof item === 'object');
+        _emberMetal._addBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
+        _emberMetal.addObserver(item, keyName, proxy, 'contentKeyDidChange');
+      }
+    }
+  }
+
+  function removeObserverForContentKey(content, keyName, proxy, idx, loc) {
+    while (--loc >= idx) {
+      var item = objectAt(content, loc);
+      if (item) {
+        _emberMetal._removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
+        _emberMetal.removeObserver(item, keyName, proxy, 'contentKeyDidChange');
+      }
+    }
+  }
 
   exports.default = ArrayMixin;
 });
@@ -39171,129 +39288,6 @@ babelHelpers.classCallCheck(this, Class);
   @param {Object} binding
   @private
 */
-enifed('ember-runtime/system/each_proxy', ['exports', 'ember-debug', 'ember-metal', 'ember-runtime/mixins/array'], function (exports, _emberDebug, _emberMetal, _emberRuntimeMixinsArray) {
-  'use strict';
-
-  exports.default = EachProxy;
-
-  /**
-    This is the object instance returned when you get the `@each` property on an
-    array. It uses the unknownProperty handler to automatically create
-    EachArray instances for property names.
-    @class EachProxy
-    @private
-  */
-
-  function EachProxy(content) {
-    this._content = content;
-    this._keys = undefined;
-    this.__ember_meta__ = null;
-  }
-
-  EachProxy.prototype = {
-    __defineNonEnumerable: function (property) {
-      this[property.name] = property.descriptor.value;
-    },
-
-    // ..........................................................
-    // ARRAY CHANGES
-    // Invokes whenever the content array itself changes.
-
-    arrayWillChange: function (content, idx, removedCnt, addedCnt) {
-      var keys = this._keys;
-      var lim = removedCnt > 0 ? idx + removedCnt : -1;
-      for (var key in keys) {
-        if (lim > 0) {
-          removeObserverForContentKey(content, key, this, idx, lim);
-        }
-        _emberMetal.propertyWillChange(this, key);
-      }
-    },
-
-    arrayDidChange: function (content, idx, removedCnt, addedCnt) {
-      var keys = this._keys;
-      var lim = addedCnt > 0 ? idx + addedCnt : -1;
-      for (var key in keys) {
-        if (lim > 0) {
-          addObserverForContentKey(content, key, this, idx, lim);
-        }
-        _emberMetal.propertyDidChange(this, key);
-      }
-    },
-
-    // ..........................................................
-    // LISTEN FOR NEW OBSERVERS AND OTHER EVENT LISTENERS
-    // Start monitoring keys based on who is listening...
-
-    willWatchProperty: function (property) {
-      this.beginObservingContentKey(property);
-    },
-
-    didUnwatchProperty: function (property) {
-      this.stopObservingContentKey(property);
-    },
-
-    // ..........................................................
-    // CONTENT KEY OBSERVING
-    // Actual watch keys on the source content.
-
-    beginObservingContentKey: function (keyName) {
-      var keys = this._keys;
-      if (!keys) {
-        keys = this._keys = Object.create(null);
-      }
-
-      if (!keys[keyName]) {
-        keys[keyName] = 1;
-        var content = this._content;
-        var len = _emberMetal.get(content, 'length');
-
-        addObserverForContentKey(content, keyName, this, 0, len);
-      } else {
-        keys[keyName]++;
-      }
-    },
-
-    stopObservingContentKey: function (keyName) {
-      var keys = this._keys;
-      if (keys && keys[keyName] > 0 && --keys[keyName] <= 0) {
-        var content = this._content;
-        var len = _emberMetal.get(content, 'length');
-
-        removeObserverForContentKey(content, keyName, this, 0, len);
-      }
-    },
-
-    contentKeyWillChange: function (obj, keyName) {
-      _emberMetal.propertyWillChange(this, keyName);
-    },
-
-    contentKeyDidChange: function (obj, keyName) {
-      _emberMetal.propertyDidChange(this, keyName);
-    }
-  };
-
-  function addObserverForContentKey(content, keyName, proxy, idx, loc) {
-    while (--loc >= idx) {
-      var item = _emberRuntimeMixinsArray.objectAt(content, loc);
-      if (item) {
-        _emberDebug.assert('When using @each to observe the array ' + content + ', the array must return an object', typeof item === 'object');
-        _emberMetal._addBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
-        _emberMetal.addObserver(item, keyName, proxy, 'contentKeyDidChange');
-      }
-    }
-  }
-
-  function removeObserverForContentKey(content, keyName, proxy, idx, loc) {
-    while (--loc >= idx) {
-      var item = _emberRuntimeMixinsArray.objectAt(content, loc);
-      if (item) {
-        _emberMetal._removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
-        _emberMetal.removeObserver(item, keyName, proxy, 'contentKeyDidChange');
-      }
-    }
-  }
-});
 enifed('ember-runtime/system/lazy_load', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   /*globals CustomEvent */
 
@@ -45450,7 +45444,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+1d3b108f";
+  exports.default = "2.14.0-alpha.1-canary+f0ff4864";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
