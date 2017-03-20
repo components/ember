@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-canary+286af168
+ * @version   2.14.0-alpha.1-canary+1d3b108f
  */
 
 var enifed, requireModule, Ember;
@@ -8653,7 +8653,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
   });
 });
 // Ember as namespace
-enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'container', 'ember-application'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _container, _emberApplication) {
+enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'container'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _container) {
   'use strict';
 
   /**
@@ -9038,9 +9038,6 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
             continue;
           }
           var _name = _emberRuntime.String.dasherize(key);
-          if (!(namespace instanceof _emberApplication.Application) && namespace.toString()) {
-            _name = namespace + '/' + _name;
-          }
           types.push(_name);
         }
       });
@@ -45453,7 +45450,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-canary+286af168";
+  exports.default = "2.14.0-alpha.1-canary+1d3b108f";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

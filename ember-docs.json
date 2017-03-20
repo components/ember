@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.286af168"
+        "version": "2.14.0-alpha.1.1d3b108f"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2073,7 +2073,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 20,
+            "line": 19,
             "description": "The `ContainerDebugAdapter` helps the container and resolver interface\nwith tools that debug Ember such as the\n[Ember Inspector](https://github.com/emberjs/ember-inspector)\nfor Chrome and Firefox.\n\nThis class can be extended by a custom resolver implementer\nto override some of the methods with library-specific code.\n\nThe methods likely to be overridden are:\n\n* `canCatalogEntriesByType`\n* `catalogEntriesByType`\n\nThe adapter will need to be registered\nin the application's container as `container-debug-adapter:main`.\n\nExample:\n\n```javascript\nApplication.initializer({\n  name: \"containerDebugAdapter\",\n\n  initialize(application) {\n    application.register('container-debug-adapter:main', require('app/container-debug-adapter'));\n  }\n});\n```"
         },
         "ember-views": {
@@ -2583,7 +2583,7 @@
             "submodule": "ember-extension-support",
             "namespace": "Ember",
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 20,
+            "line": 19,
             "description": "The `DataAdapter` helps a data persistence library\ninterface with tools that debug Ember such\nas the [Ember Extension](https://github.com/tildeio/ember-extension)\nfor Chrome and Firefox.\n\nThis class will be extended by a persistence library\nwhich will override some of the methods with\nlibrary-specific code.\n\nThe methods likely to be overridden are:\n\n* `getFilters`\n* `detect`\n* `columnsForType`\n* `getRecords`\n* `getRecordColumnValues`\n* `getRecordKeywords`\n* `getRecordFilterValues`\n* `getRecordColor`\n* `observeRecord`\n\nThe adapter will need to be registered\nin the application's container as `dataAdapter:main`.\n\nExample:\n\n```javascript\nApplication.initializer({\n  name: \"data-adapter\",\n\n  initialize: function(application) {\n    application.register('data-adapter:main', DS.DataAdapter);\n  }\n});\n```",
             "extends": "EmberObject",
             "access": "public",
@@ -7306,7 +7306,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 68,
+            "line": 67,
             "description": "The container-debug-adapter which is used\nto list all models.",
             "itemtype": "property",
             "name": "containerDebugAdapter",
@@ -7321,7 +7321,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 79,
+            "line": 78,
             "description": "The number of attributes to send\nas columns. (Enough to make the record\nidentifiable).",
             "access": "private",
             "tagname": "",
@@ -7336,7 +7336,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 91,
+            "line": 90,
             "description": "Ember Data > v1.0.0-beta.18\nrequires string model names to be passed\naround instead of the actual factories.\n\nThis is a stamp for the Ember Inspector\nto differentiate between the versions\nto be able to support older versions too.",
             "access": "public",
             "tagname": "",
@@ -7349,7 +7349,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 105,
+            "line": 104,
             "description": "Stores all methods that clear observers.\nThese methods will be called on destruction.",
             "access": "private",
             "tagname": "",
@@ -7363,7 +7363,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 115,
+            "line": 114,
             "description": "Specifies how records can be filtered.\nRecords returned will need to have a `filterValues`\nproperty with a key for every name in the returned array.",
             "access": "public",
             "tagname": "",
@@ -7380,7 +7380,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 129,
+            "line": 128,
             "description": "Fetch the model types and observe them for changes.",
             "access": "public",
             "tagname": "",
@@ -7409,7 +7409,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 174,
+            "line": 173,
             "description": "Fetch the records of a given type and observe them for changes.",
             "access": "public",
             "tagname": "",
@@ -7448,7 +7448,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 241,
+            "line": 240,
             "description": "Clear all observers before destruction",
             "access": "private",
             "tagname": "",
@@ -7461,7 +7461,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 251,
+            "line": 250,
             "description": "Detect whether a class is a model.\n\nTest that against the model class\nof your persistence library.",
             "access": "private",
             "tagname": "",
@@ -7484,7 +7484,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 266,
+            "line": 265,
             "description": "Get the columns for a given model type.",
             "access": "private",
             "tagname": "",
@@ -7508,7 +7508,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 280,
+            "line": 279,
             "description": "Adds observers to a model type class.",
             "access": "private",
             "tagname": "",
@@ -7537,7 +7537,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 313,
+            "line": 312,
             "description": "Wraps a given model type and observes changes to it.",
             "access": "private",
             "tagname": "",
@@ -7566,7 +7566,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 345,
+            "line": 344,
             "description": "Fetches all models defined in the application.",
             "access": "private",
             "tagname": "",
@@ -7583,7 +7583,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 374,
+            "line": 373,
             "description": "Loops over all namespaces and all objects\nattached to them.",
             "access": "private",
             "tagname": "",
@@ -7600,7 +7600,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 403,
+            "line": 399,
             "description": "Fetches all loaded records for a given type.",
             "access": "private",
             "tagname": "",
@@ -7617,7 +7617,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 416,
+            "line": 412,
             "description": "Wraps a record and observers changes to it.",
             "access": "private",
             "tagname": "",
@@ -7641,7 +7641,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 437,
+            "line": 433,
             "description": "Gets the values for each column.",
             "access": "private",
             "tagname": "",
@@ -7658,7 +7658,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 449,
+            "line": 445,
             "description": "Returns keywords to match when searching records.",
             "access": "private",
             "tagname": "",
@@ -7675,7 +7675,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 460,
+            "line": 456,
             "description": "Returns the values of filters defined by `getFilters`.",
             "access": "private",
             "tagname": "",
@@ -7699,7 +7699,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 472,
+            "line": 468,
             "description": "Each record can have a color that represents its state.",
             "access": "private",
             "tagname": "",
@@ -7723,7 +7723,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 485,
+            "line": 481,
             "description": "Observes all relevant properties and re-sends the wrapped record\nwhen a change occurs.",
             "access": "private",
             "tagname": "",
