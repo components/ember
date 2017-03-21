@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+5401a89e
+ * @version   2.14.0-alpha.1-null+92f663ff
  */
 
 var enifed, requireModule, Ember;
@@ -112,21 +112,18 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container/container', ['exports', 'ember-babel', 'ember-debug', 'ember-utils', 'ember-environment'], function (exports, _emberBabel, _emberDebug, _emberUtils, _emberEnvironment) {
+enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug, _emberEnvironment) {
   'use strict';
 
-  exports.LOOKUP_FACTORY = exports.FACTORY_FOR = undefined;
-  exports.default = Container;
-  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
+  exports.LOOKUP_FACTORY = exports.FACTORY_FOR = exports.buildFakeContainerWithDeprecations = exports.Container = exports.privatize = exports.Registry = undefined;
 
 
   var _Container$prototype;
+
   /* globals Proxy */
-
-
   var CONTAINER_OVERRIDE = (0, _emberUtils.symbol)('CONTAINER_OVERRIDE');
-  var FACTORY_FOR = exports.FACTORY_FOR = (0, _emberUtils.symbol)('FACTORY_FOR');
-  var LOOKUP_FACTORY = exports.LOOKUP_FACTORY = (0, _emberUtils.symbol)('LOOKUP_FACTORY');
+  var FACTORY_FOR = (0, _emberUtils.symbol)('FACTORY_FOR');
+  var LOOKUP_FACTORY = (0, _emberUtils.symbol)('LOOKUP_FACTORY');
 
   /**
    A container used to instantiate and cache objects.
@@ -801,55 +798,6 @@ enifed('container/container', ['exports', 'ember-babel', 'ember-debug', 'ember-u
 
     return FactoryManager;
   }();
-});
-
-enifed('container/index', ['exports', 'container/registry', 'container/container'], function (exports, _registry, _container) {
-  'use strict';
-
-  Object.defineProperty(exports, 'Registry', {
-    enumerable: true,
-    get: function () {
-      return _registry.default;
-    }
-  });
-  Object.defineProperty(exports, 'privatize', {
-    enumerable: true,
-    get: function () {
-      return _registry.privatize;
-    }
-  });
-  Object.defineProperty(exports, 'Container', {
-    enumerable: true,
-    get: function () {
-      return _container.default;
-    }
-  });
-  Object.defineProperty(exports, 'buildFakeContainerWithDeprecations', {
-    enumerable: true,
-    get: function () {
-      return _container.buildFakeContainerWithDeprecations;
-    }
-  });
-  Object.defineProperty(exports, 'FACTORY_FOR', {
-    enumerable: true,
-    get: function () {
-      return _container.FACTORY_FOR;
-    }
-  });
-  Object.defineProperty(exports, 'LOOKUP_FACTORY', {
-    enumerable: true,
-    get: function () {
-      return _container.LOOKUP_FACTORY;
-    }
-  });
-});
-
-enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'container/container'], function (exports, _emberUtils, _emberDebug, _container) {
-  'use strict';
-
-  exports.default = Registry;
-  exports.privatize = privatize;
-
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
 
@@ -981,7 +929,7 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'containe
      @return {Container} created container
      */
     container: function (options) {
-      return new _container.default(this, options);
+      return new Container(this, options);
     },
 
     /**
@@ -1626,8 +1574,8 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'containe
   var privateNames = (0, _emberUtils.dictionary)(null);
   var privateSuffix = '' + Math.random() + Date.now();
 
-  function privatize(_ref) {
-    var fullName = _ref[0];
+  function privatize(_ref6) {
+    var fullName = _ref6[0];
 
     var name = privateNames[fullName];
     if (name) {
@@ -1640,6 +1588,20 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'containe
 
     return privateNames[fullName] = (0, _emberUtils.intern)(type + ':' + rawName + '-' + privateSuffix);
   }
+
+  /*
+  Public API for the container is still in flux.
+  The public API, specified on the application namespace should be considered the stable API.
+  // @module container
+    @private
+  */
+
+  exports.Registry = Registry;
+  exports.privatize = privatize;
+  exports.Container = Container;
+  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
+  exports.FACTORY_FOR = FACTORY_FOR;
+  exports.LOOKUP_FACTORY = LOOKUP_FACTORY;
 });
 
 enifed('ember-babel', ['exports'], function (exports) {
@@ -1716,7 +1678,7 @@ enifed('ember-babel', ['exports'], function (exports) {
   var slice = exports.slice = Array.prototype.slice;
 });
 
-enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
+enifed('ember-console', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
 
   function K() {}
@@ -1766,7 +1728,7 @@ enifed('ember-console/index', ['exports', 'ember-environment'], function (export
     @namespace Ember
     @public
   */
-  exports.default = {
+  var index = {
     /**
      Logs the arguments to the console.
      You can pass as many arguments as you want and they will be joined together with a space.
@@ -1855,9 +1817,11 @@ enifed('ember-console/index', ['exports', 'ember-environment'], function (export
     */
     assert: consoleMethod('assert') || assertPolyfill
   };
+
+  exports.default = index;
 });
 
-enifed('ember-environment/global', ['exports'], function (exports) {
+enifed('ember-environment', ['exports'], function (exports) {
   'use strict';
 
   /* globals global, window, self, mainContext */
@@ -1873,16 +1837,32 @@ enifed('ember-environment/global', ['exports'], function (exports) {
   }
 
   // export real global
-  exports.default = checkGlobal(checkElementIdShadowing(typeof global === 'object' && global)) || checkGlobal(typeof self === 'object' && self) || checkGlobal(typeof window === 'object' && window) || mainContext || // set before strict mode in Ember loader/wrapper
-  new Function('return this')();
-});
+  var global$1 = checkGlobal(checkElementIdShadowing(typeof global === 'object' && global)) || checkGlobal(typeof self === 'object' && self) || checkGlobal(typeof window === 'object' && window) || mainContext || // set before strict mode in Ember loader/wrapper
+  new Function('return this')(); // eval outside of strict mode
 
-enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember-environment/utils'], function (exports, _global, _utils) {
-  'use strict';
+  function defaultTrue(v) {
+    return v === false ? false : true;
+  }
 
-  exports.environment = exports.context = exports.ENV = undefined;
+  function defaultFalse(v) {
+    return v === true ? true : false;
+  }
 
+  function normalizeExtendPrototypes(obj) {
+    if (obj === false) {
+      return { String: false, Array: false, Function: false };
+    } else if (!obj || obj === true) {
+      return { String: true, Array: true, Function: true };
+    } else {
+      return {
+        String: defaultTrue(obj.String),
+        Array: defaultTrue(obj.Array),
+        Function: defaultTrue(obj.Function)
+      };
+    }
+  }
 
+  /* globals module */
   /**
     The hash of environment variables used to control various configuration
     settings. To specify your own or override default settings, add the
@@ -1894,8 +1874,7 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @type Object
     @public
   */
-  /* globals module */
-  var ENV = exports.ENV = typeof _global.default.EmberENV === 'object' && _global.default.EmberENV || typeof _global.default.ENV === 'object' && _global.default.ENV || {};
+  var ENV = typeof global$1.EmberENV === 'object' && global$1.EmberENV || typeof global$1.ENV === 'object' && global$1.ENV || {};
 
   // ENABLE_ALL_FEATURES was documented, but you can't actually enable non optional features.
   if (ENV.ENABLE_ALL_FEATURES) {
@@ -1921,7 +1900,7 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @for EmberENV
     @public
   */
-  ENV.EXTEND_PROTOTYPES = (0, _utils.normalizeExtendPrototypes)(ENV.EXTEND_PROTOTYPES);
+  ENV.EXTEND_PROTOTYPES = normalizeExtendPrototypes(ENV.EXTEND_PROTOTYPES);
 
   /**
     The `LOG_STACKTRACE_ON_DEPRECATION` property, when true, tells Ember to log
@@ -1933,7 +1912,7 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @for EmberENV
     @public
   */
-  ENV.LOG_STACKTRACE_ON_DEPRECATION = (0, _utils.defaultTrue)(ENV.LOG_STACKTRACE_ON_DEPRECATION);
+  ENV.LOG_STACKTRACE_ON_DEPRECATION = defaultTrue(ENV.LOG_STACKTRACE_ON_DEPRECATION);
 
   /**
     The `LOG_VERSION` property, when true, tells Ember to log versions of all
@@ -1945,10 +1924,10 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @for EmberENV
     @public
   */
-  ENV.LOG_VERSION = (0, _utils.defaultTrue)(ENV.LOG_VERSION);
+  ENV.LOG_VERSION = defaultTrue(ENV.LOG_VERSION);
 
   // default false
-  ENV.MODEL_FACTORY_INJECTIONS = (0, _utils.defaultFalse)(ENV.MODEL_FACTORY_INJECTIONS);
+  ENV.MODEL_FACTORY_INJECTIONS = defaultFalse(ENV.MODEL_FACTORY_INJECTIONS);
 
   /**
     Debug parameter you can turn on. This will log all bindings that fire to
@@ -1961,27 +1940,27 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @default false
     @public
   */
-  ENV.LOG_BINDINGS = (0, _utils.defaultFalse)(ENV.LOG_BINDINGS);
+  ENV.LOG_BINDINGS = defaultFalse(ENV.LOG_BINDINGS);
 
-  ENV.RAISE_ON_DEPRECATION = (0, _utils.defaultFalse)(ENV.RAISE_ON_DEPRECATION);
+  ENV.RAISE_ON_DEPRECATION = defaultFalse(ENV.RAISE_ON_DEPRECATION);
 
   // check if window exists and actually is the global
-  var hasDOM = typeof window !== 'undefined' && window === _global.default && window.document && window.document.createElement && !ENV.disableBrowserEnvironment; // is this a public thing?
+  var hasDOM = typeof window !== 'undefined' && window === global$1 && window.document && window.document.createElement && !ENV.disableBrowserEnvironment; // is this a public thing?
 
   // legacy imports/exports/lookup stuff (should we keep this??)
-  var originalContext = _global.default.Ember || {};
+  var originalContext = global$1.Ember || {};
 
-  var context = exports.context = {
+  var context = {
     // import jQuery
-    imports: originalContext.imports || _global.default,
+    imports: originalContext.imports || global$1,
     // export Ember
-    exports: originalContext.exports || _global.default,
+    exports: originalContext.exports || global$1,
     // search for Namespaces
-    lookup: originalContext.lookup || _global.default
+    lookup: originalContext.lookup || global$1
   };
 
   // TODO: cleanup single source of truth issues with this stuff
-  var environment = exports.environment = hasDOM ? {
+  var environment = hasDOM ? {
     hasDOM: true,
     isChrome: !!window.chrome && !window.opera,
     isFirefox: typeof InstallTrigger !== 'undefined',
@@ -2000,35 +1979,10 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     userAgent: 'Lynx (textmode)',
     window: null
   };
-});
 
-enifed("ember-environment/utils", ["exports"], function (exports) {
-  "use strict";
-
-  exports.defaultTrue = defaultTrue;
-  exports.defaultFalse = defaultFalse;
-  exports.normalizeExtendPrototypes = normalizeExtendPrototypes;
-  function defaultTrue(v) {
-    return v === false ? false : true;
-  }
-
-  function defaultFalse(v) {
-    return v === true ? true : false;
-  }
-
-  function normalizeExtendPrototypes(obj) {
-    if (obj === false) {
-      return { String: false, Array: false, Function: false };
-    } else if (!obj || obj === true) {
-      return { String: true, Array: true, Function: true };
-    } else {
-      return {
-        String: defaultTrue(obj.String),
-        Array: defaultTrue(obj.Array),
-        Function: defaultTrue(obj.Function)
-      };
-    }
-  }
+  exports.ENV = ENV;
+  exports.context = context;
+  exports.environment = environment;
 });
 
 enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-utils', 'ember-debug', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, _emberBabel, _emberEnvironment, _emberUtils, _emberDebug, _reference, _require2, _emberConsole, _backburner) {

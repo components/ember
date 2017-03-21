@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+5401a89e
+ * @version   2.14.0-alpha.1-null+92f663ff
  */
 
 var enifed, requireModule, Ember;
@@ -112,7 +112,7 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers', 'ember-debug', 'container'], function (_emberUtils, _emberEnvironment, _emberMetal, _index, _internalTestHelpers, _emberDebug, _container) {
+enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'ember-metal', 'container', 'internal-test-helpers', 'ember-debug'], function (_emberUtils, _emberEnvironment, _emberMetal, _container, _internalTestHelpers, _emberDebug) {
   'use strict';
 
   var originalModelInjections = void 0;
@@ -131,7 +131,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   }
 
   QUnit.test('A registered factory returns the same instance each time', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -145,7 +145,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A registered factory is returned from lookupFactory', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -158,7 +158,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A registered factory is returned from lookupFactory is the same factory each time', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -171,7 +171,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A factory returned from lookupFactory has a debugkey', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -181,7 +181,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('fallback for to create time injections if factory has no extend', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var AppleController = (0, _internalTestHelpers.factory)();
     var PostController = (0, _internalTestHelpers.factory)();
@@ -199,7 +199,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('The descendants of a factory returned from lookupFactory have a container and debugkey', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var instance = void 0;
@@ -213,7 +213,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A registered factory returns a fresh instance if singleton: false is passed as an option', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -236,7 +236,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A factory type with a registered injection\'s instances receive that injection', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var Store = (0, _internalTestHelpers.factory)();
@@ -253,7 +253,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('An individual factory with a registered injection receives the injection', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var Store = (0, _internalTestHelpers.factory)();
@@ -273,7 +273,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A factory with both type and individual injections', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var Store = (0, _internalTestHelpers.factory)();
@@ -295,7 +295,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A factory with both type and individual factoryInjections', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var Store = (0, _internalTestHelpers.factory)();
@@ -317,7 +317,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A non-singleton instance is never cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = (0, _internalTestHelpers.factory)();
 
@@ -330,7 +330,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A non-instantiated property is not instantiated', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     var template = function () {};
@@ -339,14 +339,14 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A failed lookup returns undefined', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     equal(container.lookup('doesnot:exist'), undefined);
   });
 
   QUnit.test('An invalid factory throws an error', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     registry.register('controller:foo', {});
@@ -359,7 +359,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   QUnit.test('Injecting a failed lookup raises an error', function () {
     _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
 
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     var fooInstance = {};
@@ -383,7 +383,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('Injecting a falsy value does not raise an error', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var ApplicationController = (0, _internalTestHelpers.factory)();
 
@@ -395,7 +395,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('The container returns same value each time even if the value is falsy', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     registry.register('falsy:value', null, { instantiate: false });
@@ -404,7 +404,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('Destroying the container destroys any cached singletons', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var PostView = (0, _internalTestHelpers.factory)();
@@ -428,7 +428,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('The container can use a registry hook to resolve factories lazily', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -446,7 +446,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('The container normalizes names before resolving', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -461,7 +461,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('The container normalizes names when looking factory up', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -476,7 +476,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('Options can be registered that should be applied to a given factory', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = (0, _internalTestHelpers.factory)();
 
@@ -500,7 +500,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('Options can be registered that should be applied to all factories for a given type', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = (0, _internalTestHelpers.factory)();
 
@@ -524,7 +524,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('An injected non-singleton instance is never cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostView = (0, _internalTestHelpers.factory)();
     var PostViewHelper = (0, _internalTestHelpers.factory)();
@@ -540,7 +540,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('Factory resolves are cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var resolveWasCalled = [];
@@ -558,7 +558,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     var resolveWasCalled = [];
@@ -576,7 +576,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = {};
     var resolveWasCalled = [];
@@ -597,7 +597,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   QUnit.test('The `_onLookup` hook is called on factories when looked up the first time', function () {
     expect(2);
 
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var Apple = (0, _internalTestHelpers.factory)();
 
@@ -615,7 +615,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A factory\'s lazy injections are validated when first instantiated', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var Apple = (0, _internalTestHelpers.factory)();
     var Orange = (0, _internalTestHelpers.factory)();
@@ -637,7 +637,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   QUnit.test('Lazy injection validations are cached', function () {
     expect(1);
 
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var Apple = (0, _internalTestHelpers.factory)();
     var Orange = (0, _internalTestHelpers.factory)();
@@ -658,7 +658,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
 
   QUnit.test('An object with its owner pre-set should be returned from ownerInjection', function () {
     var owner = {};
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container({ owner: owner });
 
     var result = container.ownerInjection();
@@ -667,7 +667,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
     registry.register('controller:post', PostController);
@@ -693,7 +693,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     }
 
     var owner = {};
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container({ owner: owner });
 
     // Define a simple non-extendable factory
@@ -743,7 +743,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('An extendable factory can provide `container` upon create, with a deprecation', function (assert) {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     registry.register('controller:post', (0, _internalTestHelpers.factory)());
@@ -765,7 +765,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('lookupFactory passes options through to expandlocallookup', function (assert) {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -785,7 +785,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('lookup passes options through to expandlocallookup', function (assert) {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
     var PostController = (0, _internalTestHelpers.factory)();
 
@@ -804,7 +804,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('#[FACTORY_FOR] class is the injected factory', function (assert) {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var container = registry.container();
 
     var Component = (0, _internalTestHelpers.factory)();
@@ -820,7 +820,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
 
   if (true) {
     QUnit.test('#factoryFor must supply a fullname', function (assert) {
-      var registry = new _index.Registry();
+      var registry = new _container.Registry();
       var container = registry.container();
       assert.throws(function () {
         container.factoryFor('chad-bar');
@@ -828,7 +828,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     });
 
     QUnit.test('#factoryFor returns a factory manager', function (assert) {
-      var registry = new _index.Registry();
+      var registry = new _container.Registry();
       var container = registry.container();
 
       var Component = (0, _internalTestHelpers.factory)();
@@ -840,7 +840,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     });
 
     QUnit.test('#factoryFor returns a cached factory manager for the same type', function (assert) {
-      var registry = new _index.Registry();
+      var registry = new _container.Registry();
       var container = registry.container();
 
       var Component = (0, _internalTestHelpers.factory)();
@@ -856,7 +856,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     });
 
     QUnit.test('#factoryFor class returns the factory function', function (assert) {
-      var registry = new _index.Registry();
+      var registry = new _container.Registry();
       var container = registry.container();
 
       var Component = (0, _internalTestHelpers.factory)();
@@ -867,7 +867,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     });
 
     QUnit.test('#factoryFor instance have a common parent', function (assert) {
-      var registry = new _index.Registry();
+      var registry = new _container.Registry();
       var container = registry.container();
 
       var Component = (0, _internalTestHelpers.factory)();
@@ -882,7 +882,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     });
 
     QUnit.test('#factoryFor created instances come with instance injections', function (assert) {
-      var registry = new _index.Registry();
+      var registry = new _container.Registry();
       var container = registry.container();
 
       var Component = (0, _internalTestHelpers.factory)();
@@ -899,7 +899,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     });
 
     QUnit.test('#factoryFor options passed to create clobber injections', function (assert) {
-      var registry = new _index.Registry();
+      var registry = new _container.Registry();
       var container = registry.container();
 
       var Component = (0, _internalTestHelpers.factory)();
@@ -956,13 +956,13 @@ enifed('container/tests/owner_test.lint-test', [], function () {
   });
 });
 
-enifed('container/tests/registry_test', ['container/index', 'internal-test-helpers'], function (_index, _internalTestHelpers) {
+enifed('container/tests/registry_test', ['container', 'internal-test-helpers'], function (_container, _internalTestHelpers) {
   'use strict';
 
   QUnit.module('Registry');
 
   QUnit.test('A registered factory is returned from resolve', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
 
     registry.register('controller:post', PostController);
@@ -974,7 +974,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('The registered factory returned from resolve is the same factory each time', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
 
     registry.register('controller:post', PostController);
@@ -983,7 +983,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('The registered value returned from resolve is the same value each time even if the value is falsy', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
 
     registry.register('falsy:value', null, { instantiate: false });
 
@@ -998,13 +998,13 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
         }
       }
     };
-    var registry = new _index.Registry({ resolver: resolver });
+    var registry = new _container.Registry({ resolver: resolver });
 
     strictEqual(registry.resolve('falsy:value'), null);
   });
 
   QUnit.test('A registered factory returns true for `has` if an item is registered', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
 
     registry.register('controller:post', PostController);
@@ -1014,7 +1014,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('Throw exception when trying to inject `type:thing` on all type(s)', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
 
     registry.register('controller:post', PostController);
@@ -1033,7 +1033,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
         }
       }
     };
-    var registry = new _index.Registry({ resolver: resolver });
+    var registry = new _container.Registry({ resolver: resolver });
 
     strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
   });
@@ -1047,13 +1047,13 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
         }
       }
     };
-    var registry = new _index.Registry({ resolver: resolver });
+    var registry = new _container.Registry({ resolver: resolver });
 
     ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
   });
 
   QUnit.test('The registry normalizes names when resolving', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
 
     registry.normalizeFullName = function (fullName) {
@@ -1067,7 +1067,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('The registry normalizes names when checking if the factory is registered', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
 
     registry.normalizeFullName = function (fullName) {
@@ -1083,7 +1083,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   QUnit.test('validateFullName throws an error if name is incorrect', function () {
     expect(2);
 
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
 
     registry.normalize = function (fullName) {
@@ -1101,7 +1101,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('The registry normalizes names when injecting', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
     var user = { name: 'Stef' };
 
@@ -1117,7 +1117,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('cannot register an `undefined` factory', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
 
     throws(function () {
       registry.register('controller:apple', undefined);
@@ -1125,7 +1125,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('can re-register a factory', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var FirstApple = (0, _internalTestHelpers.factory)('first');
     var SecondApple = (0, _internalTestHelpers.factory)('second');
 
@@ -1136,7 +1136,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('cannot re-register a factory if it has been resolved', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var FirstApple = (0, _internalTestHelpers.factory)('first');
     var SecondApple = (0, _internalTestHelpers.factory)('second');
 
@@ -1153,7 +1153,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   QUnit.test('registry.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)', function () {
     expect(1);
 
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var FirstApple = (0, _internalTestHelpers.factory)('first');
     var SecondApple = (0, _internalTestHelpers.factory)('second');
 
@@ -1171,7 +1171,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   QUnit.test('registry.has should not error for invalid fullNames)', function () {
     expect(1);
 
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
 
     ok(!registry.has('foo:bar:baz'));
   });
@@ -1179,7 +1179,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   QUnit.test('once resolved, always return the same result', function () {
     expect(1);
 
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
 
     registry.resolver = {
       resolve: function () {
@@ -1199,7 +1199,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('factory resolves are cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
     var resolveWasCalled = [];
 
@@ -1219,7 +1219,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
     var resolveWasCalled = [];
 
@@ -1239,7 +1239,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = {};
     var resolveWasCalled = [];
 
@@ -1259,7 +1259,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('registry.container creates a container', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
     registry.register('controller:post', PostController);
 
@@ -1282,7 +1282,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({ fallback: fallback, resolver: resolver });
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
 
     equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
 
@@ -1308,7 +1308,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({ fallback: fallback, resolver: resolver });
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
 
     equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
 
@@ -1334,7 +1334,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({ fallback: fallback, resolver: resolver });
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
 
     equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
 
@@ -1348,9 +1348,9 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`resolve` can be handled by a fallback registry', function () {
-    var fallback = new _index.Registry();
+    var fallback = new _container.Registry();
 
-    var registry = new _index.Registry({ fallback: fallback });
+    var registry = new _container.Registry({ fallback: fallback });
     var PostController = (0, _internalTestHelpers.factory)();
 
     fallback.register('controller:post', PostController);
@@ -1362,9 +1362,9 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`has` can be handled by a fallback registry', function () {
-    var fallback = new _index.Registry();
+    var fallback = new _container.Registry();
 
-    var registry = new _index.Registry({ fallback: fallback });
+    var registry = new _container.Registry({ fallback: fallback });
     var PostController = (0, _internalTestHelpers.factory)();
 
     fallback.register('controller:post', PostController);
@@ -1373,8 +1373,8 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`getInjections` includes injections from a fallback registry', function () {
-    var fallback = new _index.Registry();
-    var registry = new _index.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getInjections('model:user').length, 0, 'No injections in the primary registry');
 
@@ -1384,8 +1384,8 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`getTypeInjections` includes type injections from a fallback registry', function () {
-    var fallback = new _index.Registry();
-    var registry = new _index.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getTypeInjections('model').length, 0, 'No injections in the primary registry');
 
@@ -1395,8 +1395,8 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`getFactoryInjections` includes factory injections from a fallback registry', function () {
-    var fallback = new _index.Registry();
-    var registry = new _index.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getFactoryInjections('model:user').length, 0, 'No factory injections in the primary registry');
 
@@ -1406,8 +1406,8 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`getFactoryTypeInjections` includes factory type injections from a fallback registry', function () {
-    var fallback = new _index.Registry();
-    var registry = new _index.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getFactoryTypeInjections('model').length, 0, 'No factory type injections in the primary registry');
 
@@ -1417,7 +1417,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`knownForType` contains keys for each item of a given type', function () {
-    var registry = new _index.Registry();
+    var registry = new _container.Registry();
 
     registry.register('foo:bar-baz', 'baz');
     registry.register('foo:qux-fez', 'fez');
@@ -1431,8 +1431,8 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   });
 
   QUnit.test('`knownForType` includes fallback registry results', function () {
-    var fallback = new _index.Registry();
-    var registry = new _index.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     registry.register('foo:bar-baz', 'baz');
     registry.register('foo:qux-fez', 'fez');
@@ -1459,7 +1459,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
     registry.register('foo:bar-baz', 'baz');
@@ -1478,7 +1478,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
     var registry = void 0;
 
     expectDeprecation(function () {
-      registry = new _index.Registry({
+      registry = new _container.Registry({
         resolver: function (fullName) {
           return fullName + '-resolved';
         }
@@ -1491,7 +1491,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
   QUnit.test('resolver.expandLocalLookup is not required', function (assert) {
     assert.expect(1);
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       resolver: {}
     });
 
@@ -1515,7 +1515,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1549,11 +1549,11 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var fallbackRegistry = new _index.Registry({
+    var fallbackRegistry = new _container.Registry({
       resolver: fallbackResolver
     });
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       fallback: fallbackRegistry,
       resolver: resolver
     });
@@ -1593,7 +1593,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1622,7 +1622,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1655,7 +1655,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1686,7 +1686,7 @@ enifed('container/tests/registry_test', ['container/index', 'internal-test-helpe
       }
     };
 
-    var registry = new _index.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -65624,7 +65624,7 @@ enifed('ember-testing/tests/test/waiters-test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/assign_test', ['ember-utils/assign'], function (_assign) {
+enifed('ember-utils/tests/assign_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   QUnit.module('Ember.assign');
@@ -65635,7 +65635,7 @@ enifed('ember-utils/tests/assign_test', ['ember-utils/assign'], function (_assig
     var c = { c: 3 };
     var a2 = { a: 4 };
 
-    (0, _assign.default)(a, b, c, a2);
+    (0, _emberUtils.assign)(a, b, c, a2);
 
     deepEqual(a, { a: 4, b: 2, c: 3 });
     deepEqual(b, { b: 2 });
@@ -65654,7 +65654,7 @@ enifed('ember-utils/tests/assign_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/can_invoke_test', ['ember-utils/index'], function (_index) {
+enifed('ember-utils/tests/can_invoke_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   var obj = void 0;
@@ -65672,19 +65672,19 @@ enifed('ember-utils/tests/can_invoke_test', ['ember-utils/index'], function (_in
   });
 
   QUnit.test('should return false if the object doesn\'t exist', function () {
-    equal((0, _index.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
+    equal((0, _emberUtils.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
   });
 
   QUnit.test('should return true if the method exists on the object', function () {
-    equal((0, _index.canInvoke)(obj, 'aMethodThatExists'), true);
+    equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatExists'), true);
   });
 
   QUnit.test('should return false if the method doesn\'t exist on the object', function () {
-    equal((0, _index.canInvoke)(obj, 'aMethodThatDoesNotExist'), false);
+    equal((0, _emberUtils.canInvoke)(obj, 'aMethodThatDoesNotExist'), false);
   });
 
   QUnit.test('should return false if the property exists on the object but is a non-function', function () {
-    equal((0, _index.canInvoke)(obj, 'foobar'), false);
+    equal((0, _emberUtils.canInvoke)(obj, 'foobar'), false);
   });
 });
 
@@ -65698,7 +65698,7 @@ enifed('ember-utils/tests/can_invoke_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/checkHasSuper_test', ['ember-environment', 'ember-utils/index'], function (_emberEnvironment, _index) {
+enifed('ember-utils/tests/checkHasSuper_test', ['ember-environment', 'ember-utils'], function (_emberEnvironment, _emberUtils) {
   'use strict';
 
   QUnit.module('checkHasSuper');
@@ -65708,7 +65708,7 @@ enifed('ember-utils/tests/checkHasSuper_test', ['ember-environment', 'ember-util
   // platforms that correctly (for them) fall back to the "always wrap" code.
   if (_emberEnvironment.environment.isPhantom || _emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
     QUnit.test('does not super wrap needlessly [GH #12462]', function (assert) {
-      assert.notOk((0, _index.checkHasSuper)(function () {}), 'empty function does not have super');
+      assert.notOk((0, _emberUtils.checkHasSuper)(function () {}), 'empty function does not have super');
     });
   }
 });
@@ -65723,7 +65723,7 @@ enifed('ember-utils/tests/checkHasSuper_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/generate_guid_test', ['ember-utils/index'], function (_index) {
+enifed('ember-utils/tests/generate_guid_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   QUnit.module('Ember.generateGuid');
@@ -65731,7 +65731,7 @@ enifed('ember-utils/tests/generate_guid_test', ['ember-utils/index'], function (
   QUnit.test('Prefix', function () {
     var a = {};
 
-    ok((0, _index.generateGuid)(a, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
+    ok((0, _emberUtils.generateGuid)(a, 'tyrell').indexOf('tyrell') > -1, 'guid can be prefixed');
   });
 });
 
@@ -65745,22 +65745,22 @@ enifed('ember-utils/tests/generate_guid_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/guid_for_test', ['ember-utils/index'], function (_index) {
+enifed('ember-utils/tests/guid_for_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   QUnit.module('guidFor');
 
   function sameGuid(a, b, message) {
-    equal((0, _index.guidFor)(a), (0, _index.guidFor)(b), message);
+    equal((0, _emberUtils.guidFor)(a), (0, _emberUtils.guidFor)(b), message);
   }
 
   function diffGuid(a, b, message) {
-    ok((0, _index.guidFor)(a) !== (0, _index.guidFor)(b), message);
+    ok((0, _emberUtils.guidFor)(a) !== (0, _emberUtils.guidFor)(b), message);
   }
 
   function nanGuid(obj) {
     var type = typeof obj;
-    ok(isNaN(parseInt((0, _index.guidFor)(obj), 0)), 'guids for ' + type + 'don\'t parse to numbers');
+    ok(isNaN(parseInt((0, _emberUtils.guidFor)(obj), 0)), 'guids for ' + type + 'don\'t parse to numbers');
   }
 
   QUnit.test('Object', function () {
@@ -65841,7 +65841,7 @@ enifed('ember-utils/tests/guid_for_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/inspect_test', ['ember-utils/index'], function (_index) {
+enifed('ember-utils/tests/inspect_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
@@ -65851,33 +65851,33 @@ enifed('ember-utils/tests/inspect_test', ['ember-utils/index'], function (_index
   QUnit.module('Ember.inspect');
 
   QUnit.test('strings', function () {
-    equal((0, _index.inspect)('foo'), 'foo');
+    equal((0, _emberUtils.inspect)('foo'), 'foo');
   });
 
   QUnit.test('numbers', function () {
-    equal((0, _index.inspect)(2.6), '2.6');
+    equal((0, _emberUtils.inspect)(2.6), '2.6');
   });
 
   QUnit.test('null', function () {
-    equal((0, _index.inspect)(null), 'null');
+    equal((0, _emberUtils.inspect)(null), 'null');
   });
 
   QUnit.test('undefined', function () {
-    equal((0, _index.inspect)(undefined), 'undefined');
+    equal((0, _emberUtils.inspect)(undefined), 'undefined');
   });
 
   QUnit.test('true', function () {
-    equal((0, _index.inspect)(true), 'true');
+    equal((0, _emberUtils.inspect)(true), 'true');
   });
 
   QUnit.test('false', function () {
-    equal((0, _index.inspect)(false), 'false');
+    equal((0, _emberUtils.inspect)(false), 'false');
   });
 
   QUnit.test('object', function () {
-    equal((0, _index.inspect)({}), '{}');
-    equal((0, _index.inspect)({ foo: 'bar' }), '{foo: bar}');
-    equal((0, _index.inspect)({
+    equal((0, _emberUtils.inspect)({}), '{}');
+    equal((0, _emberUtils.inspect)({ foo: 'bar' }), '{foo: bar}');
+    equal((0, _emberUtils.inspect)({
       foo: function () {
         return this;
       }
@@ -65886,19 +65886,19 @@ enifed('ember-utils/tests/inspect_test', ['ember-utils/index'], function (_index
 
   QUnit.test('objects without a prototype', function () {
     var prototypelessObj = Object.create(null);
-    equal((0, _index.inspect)({ foo: prototypelessObj }), '{foo: [object Object]}');
+    equal((0, _emberUtils.inspect)({ foo: prototypelessObj }), '{foo: [object Object]}');
   });
 
   QUnit.test('array', function () {
-    equal((0, _index.inspect)([1, 2, 3]), '[1,2,3]');
+    equal((0, _emberUtils.inspect)([1, 2, 3]), '[1,2,3]');
   });
 
   QUnit.test('regexp', function () {
-    equal((0, _index.inspect)(/regexp/), '/regexp/');
+    equal((0, _emberUtils.inspect)(/regexp/), '/regexp/');
   });
 
   QUnit.test('date', function () {
-    var inspected = (0, _index.inspect)(new Date('Sat Apr 30 2011 13:24:11'));
+    var inspected = (0, _emberUtils.inspect)(new Date('Sat Apr 30 2011 13:24:11'));
     ok(inspected.match(/Sat Apr 30/), 'The inspected date has its date');
     ok(inspected.match(/2011/), 'The inspected date has its year');
     ok(inspected.match(/13:24:11/), 'The inspected date has its time');
@@ -65907,7 +65907,7 @@ enifed('ember-utils/tests/inspect_test', ['ember-utils/index'], function (_index
   QUnit.test('inspect outputs the toString() representation of Symbols', function () {
     if (HAS_NATIVE_SYMBOL) {
       var symbol = Symbol('test');
-      equal((0, _index.inspect)(symbol), 'Symbol(test)');
+      equal((0, _emberUtils.inspect)(symbol), 'Symbol(test)');
     } else {
       expect(0);
     }
@@ -65924,43 +65924,43 @@ enifed('ember-utils/tests/inspect_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/make_array_test', ['ember-utils/make-array'], function (_makeArray) {
+enifed('ember-utils/tests/make_array_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   QUnit.module('Ember.makeArray');
 
   QUnit.test('undefined', function () {
-    deepEqual((0, _makeArray.default)(), []);
-    deepEqual((0, _makeArray.default)(undefined), []);
+    deepEqual((0, _emberUtils.makeArray)(), []);
+    deepEqual((0, _emberUtils.makeArray)(undefined), []);
   });
 
   QUnit.test('null', function () {
-    deepEqual((0, _makeArray.default)(null), []);
+    deepEqual((0, _emberUtils.makeArray)(null), []);
   });
 
   QUnit.test('string', function () {
-    deepEqual((0, _makeArray.default)('lindsay'), ['lindsay']);
+    deepEqual((0, _emberUtils.makeArray)('lindsay'), ['lindsay']);
   });
 
   QUnit.test('number', function () {
-    deepEqual((0, _makeArray.default)(0), [0]);
-    deepEqual((0, _makeArray.default)(1), [1]);
+    deepEqual((0, _emberUtils.makeArray)(0), [0]);
+    deepEqual((0, _emberUtils.makeArray)(1), [1]);
   });
 
   QUnit.test('array', function () {
-    deepEqual((0, _makeArray.default)([1, 2, 42]), [1, 2, 42]);
+    deepEqual((0, _emberUtils.makeArray)([1, 2, 42]), [1, 2, 42]);
   });
 
   QUnit.test('true', function () {
-    deepEqual((0, _makeArray.default)(true), [true]);
+    deepEqual((0, _emberUtils.makeArray)(true), [true]);
   });
 
   QUnit.test('false', function () {
-    deepEqual((0, _makeArray.default)(false), [false]);
+    deepEqual((0, _emberUtils.makeArray)(false), [false]);
   });
 
   QUnit.test('object', function () {
-    deepEqual((0, _makeArray.default)({}), [{}]);
+    deepEqual((0, _emberUtils.makeArray)({}), [{}]);
   });
 });
 
@@ -65974,7 +65974,7 @@ enifed('ember-utils/tests/make_array_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/to-string-test', ['ember-utils/index'], function (_index) {
+enifed('ember-utils/tests/to-string-test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   QUnit.module('ember-utils toString');
@@ -65986,13 +65986,13 @@ enifed('ember-utils/tests/to-string-test', ['ember-utils/index'], function (_ind
       }
     };
 
-    strictEqual((0, _index.toString)(obj), 'bob');
+    strictEqual((0, _emberUtils.toString)(obj), 'bob');
   });
 
   QUnit.test('toString falls back to Object.prototype.toString', function () {
     var obj = Object.create(null);
 
-    strictEqual((0, _index.toString)(obj), {}.toString());
+    strictEqual((0, _emberUtils.toString)(obj), {}.toString());
   });
 });
 
@@ -66006,7 +66006,7 @@ enifed('ember-utils/tests/to-string-test.lint-test', [], function () {
   });
 });
 
-enifed('ember-utils/tests/try_invoke_test', ['ember-utils/index'], function (_index) {
+enifed('ember-utils/tests/try_invoke_test', ['ember-utils'], function (_emberUtils) {
   'use strict';
 
   var obj = void 0;
@@ -66028,19 +66028,19 @@ enifed('ember-utils/tests/try_invoke_test', ['ember-utils/index'], function (_in
   });
 
   QUnit.test('should return undefined when the object doesn\'t exist', function () {
-    equal((0, _index.tryInvoke)(undefined, 'aMethodThatDoesNotExist'), undefined);
+    equal((0, _emberUtils.tryInvoke)(undefined, 'aMethodThatDoesNotExist'), undefined);
   });
 
   QUnit.test('should return undefined when asked to perform a method that doesn\'t exist on the object', function () {
-    equal((0, _index.tryInvoke)(obj, 'aMethodThatDoesNotExist'), undefined);
+    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatDoesNotExist'), undefined);
   });
 
   QUnit.test('should return what the method returns when asked to perform a method that exists on the object', function () {
-    equal((0, _index.tryInvoke)(obj, 'aMethodThatExists'), true);
+    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatExists'), true);
   });
 
   QUnit.test('should return what the method returns when asked to perform a method that takes arguments and exists on the object', function () {
-    equal((0, _index.tryInvoke)(obj, 'aMethodThatTakesArguments', [true, true]), true);
+    equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatTakesArguments', [true, true]), true);
   });
 });
 

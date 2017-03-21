@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+5401a89e
+ * @version   2.14.0-alpha.1-null+92f663ff
  */
 
 var enifed, requireModule, Ember;
@@ -9842,21 +9842,18 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
     exports.default = Backburner;
 });
 
-enifed('container/container', ['exports', 'ember-babel', 'ember-debug', 'ember-utils', 'ember-environment'], function (exports, _emberBabel, _emberDebug, _emberUtils, _emberEnvironment) {
+enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug, _emberEnvironment) {
   'use strict';
 
-  exports.LOOKUP_FACTORY = exports.FACTORY_FOR = undefined;
-  exports.default = Container;
-  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
+  exports.LOOKUP_FACTORY = exports.FACTORY_FOR = exports.buildFakeContainerWithDeprecations = exports.Container = exports.privatize = exports.Registry = undefined;
 
 
   var _Container$prototype;
+
   /* globals Proxy */
-
-
   var CONTAINER_OVERRIDE = (0, _emberUtils.symbol)('CONTAINER_OVERRIDE');
-  var FACTORY_FOR = exports.FACTORY_FOR = (0, _emberUtils.symbol)('FACTORY_FOR');
-  var LOOKUP_FACTORY = exports.LOOKUP_FACTORY = (0, _emberUtils.symbol)('LOOKUP_FACTORY');
+  var FACTORY_FOR = (0, _emberUtils.symbol)('FACTORY_FOR');
+  var LOOKUP_FACTORY = (0, _emberUtils.symbol)('LOOKUP_FACTORY');
 
   /**
    A container used to instantiate and cache objects.
@@ -10531,55 +10528,6 @@ enifed('container/container', ['exports', 'ember-babel', 'ember-debug', 'ember-u
 
     return FactoryManager;
   }();
-});
-
-enifed('container/index', ['exports', 'container/registry', 'container/container'], function (exports, _registry, _container) {
-  'use strict';
-
-  Object.defineProperty(exports, 'Registry', {
-    enumerable: true,
-    get: function () {
-      return _registry.default;
-    }
-  });
-  Object.defineProperty(exports, 'privatize', {
-    enumerable: true,
-    get: function () {
-      return _registry.privatize;
-    }
-  });
-  Object.defineProperty(exports, 'Container', {
-    enumerable: true,
-    get: function () {
-      return _container.default;
-    }
-  });
-  Object.defineProperty(exports, 'buildFakeContainerWithDeprecations', {
-    enumerable: true,
-    get: function () {
-      return _container.buildFakeContainerWithDeprecations;
-    }
-  });
-  Object.defineProperty(exports, 'FACTORY_FOR', {
-    enumerable: true,
-    get: function () {
-      return _container.FACTORY_FOR;
-    }
-  });
-  Object.defineProperty(exports, 'LOOKUP_FACTORY', {
-    enumerable: true,
-    get: function () {
-      return _container.LOOKUP_FACTORY;
-    }
-  });
-});
-
-enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'container/container'], function (exports, _emberUtils, _emberDebug, _container) {
-  'use strict';
-
-  exports.default = Registry;
-  exports.privatize = privatize;
-
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+:[^:]+$/;
 
@@ -10711,7 +10659,7 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'containe
      @return {Container} created container
      */
     container: function (options) {
-      return new _container.default(this, options);
+      return new Container(this, options);
     },
 
     /**
@@ -11356,8 +11304,8 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'containe
   var privateNames = (0, _emberUtils.dictionary)(null);
   var privateSuffix = '' + Math.random() + Date.now();
 
-  function privatize(_ref) {
-    var fullName = _ref[0];
+  function privatize(_ref6) {
+    var fullName = _ref6[0];
 
     var name = privateNames[fullName];
     if (name) {
@@ -11370,6 +11318,20 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'containe
 
     return privateNames[fullName] = (0, _emberUtils.intern)(type + ':' + rawName + '-' + privateSuffix);
   }
+
+  /*
+  Public API for the container is still in flux.
+  The public API, specified on the application namespace should be considered the stable API.
+  // @module container
+    @private
+  */
+
+  exports.Registry = Registry;
+  exports.privatize = privatize;
+  exports.Container = Container;
+  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
+  exports.FACTORY_FOR = FACTORY_FOR;
+  exports.LOOKUP_FACTORY = LOOKUP_FACTORY;
 });
 
 enifed("dag-map", ["exports"], function (exports) {
@@ -14355,7 +14317,7 @@ enifed('ember-babel', ['exports'], function (exports) {
   var slice = exports.slice = Array.prototype.slice;
 });
 
-enifed('ember-console/index', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
+enifed('ember-console', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
 
   function K() {}
@@ -14405,7 +14367,7 @@ enifed('ember-console/index', ['exports', 'ember-environment'], function (export
     @namespace Ember
     @public
   */
-  exports.default = {
+  var index = {
     /**
      Logs the arguments to the console.
      You can pass as many arguments as you want and they will be joined together with a space.
@@ -14494,6 +14456,8 @@ enifed('ember-console/index', ['exports', 'ember-environment'], function (export
     */
     assert: consoleMethod('assert') || assertPolyfill
   };
+
+  exports.default = index;
 });
 
 enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _error, _emberConsole, _emberEnvironment, _handlers) {
@@ -15280,7 +15244,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
   }
 });
 
-enifed('ember-environment/global', ['exports'], function (exports) {
+enifed('ember-environment', ['exports'], function (exports) {
   'use strict';
 
   /* globals global, window, self, mainContext */
@@ -15296,16 +15260,32 @@ enifed('ember-environment/global', ['exports'], function (exports) {
   }
 
   // export real global
-  exports.default = checkGlobal(checkElementIdShadowing(typeof global === 'object' && global)) || checkGlobal(typeof self === 'object' && self) || checkGlobal(typeof window === 'object' && window) || mainContext || // set before strict mode in Ember loader/wrapper
-  new Function('return this')();
-});
+  var global$1 = checkGlobal(checkElementIdShadowing(typeof global === 'object' && global)) || checkGlobal(typeof self === 'object' && self) || checkGlobal(typeof window === 'object' && window) || mainContext || // set before strict mode in Ember loader/wrapper
+  new Function('return this')(); // eval outside of strict mode
 
-enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember-environment/utils'], function (exports, _global, _utils) {
-  'use strict';
+  function defaultTrue(v) {
+    return v === false ? false : true;
+  }
 
-  exports.environment = exports.context = exports.ENV = undefined;
+  function defaultFalse(v) {
+    return v === true ? true : false;
+  }
 
+  function normalizeExtendPrototypes(obj) {
+    if (obj === false) {
+      return { String: false, Array: false, Function: false };
+    } else if (!obj || obj === true) {
+      return { String: true, Array: true, Function: true };
+    } else {
+      return {
+        String: defaultTrue(obj.String),
+        Array: defaultTrue(obj.Array),
+        Function: defaultTrue(obj.Function)
+      };
+    }
+  }
 
+  /* globals module */
   /**
     The hash of environment variables used to control various configuration
     settings. To specify your own or override default settings, add the
@@ -15317,8 +15297,7 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @type Object
     @public
   */
-  /* globals module */
-  var ENV = exports.ENV = typeof _global.default.EmberENV === 'object' && _global.default.EmberENV || typeof _global.default.ENV === 'object' && _global.default.ENV || {};
+  var ENV = typeof global$1.EmberENV === 'object' && global$1.EmberENV || typeof global$1.ENV === 'object' && global$1.ENV || {};
 
   // ENABLE_ALL_FEATURES was documented, but you can't actually enable non optional features.
   if (ENV.ENABLE_ALL_FEATURES) {
@@ -15344,7 +15323,7 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @for EmberENV
     @public
   */
-  ENV.EXTEND_PROTOTYPES = (0, _utils.normalizeExtendPrototypes)(ENV.EXTEND_PROTOTYPES);
+  ENV.EXTEND_PROTOTYPES = normalizeExtendPrototypes(ENV.EXTEND_PROTOTYPES);
 
   /**
     The `LOG_STACKTRACE_ON_DEPRECATION` property, when true, tells Ember to log
@@ -15356,7 +15335,7 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @for EmberENV
     @public
   */
-  ENV.LOG_STACKTRACE_ON_DEPRECATION = (0, _utils.defaultTrue)(ENV.LOG_STACKTRACE_ON_DEPRECATION);
+  ENV.LOG_STACKTRACE_ON_DEPRECATION = defaultTrue(ENV.LOG_STACKTRACE_ON_DEPRECATION);
 
   /**
     The `LOG_VERSION` property, when true, tells Ember to log versions of all
@@ -15368,10 +15347,10 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @for EmberENV
     @public
   */
-  ENV.LOG_VERSION = (0, _utils.defaultTrue)(ENV.LOG_VERSION);
+  ENV.LOG_VERSION = defaultTrue(ENV.LOG_VERSION);
 
   // default false
-  ENV.MODEL_FACTORY_INJECTIONS = (0, _utils.defaultFalse)(ENV.MODEL_FACTORY_INJECTIONS);
+  ENV.MODEL_FACTORY_INJECTIONS = defaultFalse(ENV.MODEL_FACTORY_INJECTIONS);
 
   /**
     Debug parameter you can turn on. This will log all bindings that fire to
@@ -15384,27 +15363,27 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     @default false
     @public
   */
-  ENV.LOG_BINDINGS = (0, _utils.defaultFalse)(ENV.LOG_BINDINGS);
+  ENV.LOG_BINDINGS = defaultFalse(ENV.LOG_BINDINGS);
 
-  ENV.RAISE_ON_DEPRECATION = (0, _utils.defaultFalse)(ENV.RAISE_ON_DEPRECATION);
+  ENV.RAISE_ON_DEPRECATION = defaultFalse(ENV.RAISE_ON_DEPRECATION);
 
   // check if window exists and actually is the global
-  var hasDOM = typeof window !== 'undefined' && window === _global.default && window.document && window.document.createElement && !ENV.disableBrowserEnvironment; // is this a public thing?
+  var hasDOM = typeof window !== 'undefined' && window === global$1 && window.document && window.document.createElement && !ENV.disableBrowserEnvironment; // is this a public thing?
 
   // legacy imports/exports/lookup stuff (should we keep this??)
-  var originalContext = _global.default.Ember || {};
+  var originalContext = global$1.Ember || {};
 
-  var context = exports.context = {
+  var context = {
     // import jQuery
-    imports: originalContext.imports || _global.default,
+    imports: originalContext.imports || global$1,
     // export Ember
-    exports: originalContext.exports || _global.default,
+    exports: originalContext.exports || global$1,
     // search for Namespaces
-    lookup: originalContext.lookup || _global.default
+    lookup: originalContext.lookup || global$1
   };
 
   // TODO: cleanup single source of truth issues with this stuff
-  var environment = exports.environment = hasDOM ? {
+  var environment = hasDOM ? {
     hasDOM: true,
     isChrome: !!window.chrome && !window.opera,
     isFirefox: typeof InstallTrigger !== 'undefined',
@@ -15423,35 +15402,10 @@ enifed('ember-environment/index', ['exports', 'ember-environment/global', 'ember
     userAgent: 'Lynx (textmode)',
     window: null
   };
-});
 
-enifed("ember-environment/utils", ["exports"], function (exports) {
-  "use strict";
-
-  exports.defaultTrue = defaultTrue;
-  exports.defaultFalse = defaultFalse;
-  exports.normalizeExtendPrototypes = normalizeExtendPrototypes;
-  function defaultTrue(v) {
-    return v === false ? false : true;
-  }
-
-  function defaultFalse(v) {
-    return v === true ? true : false;
-  }
-
-  function normalizeExtendPrototypes(obj) {
-    if (obj === false) {
-      return { String: false, Array: false, Function: false };
-    } else if (!obj || obj === true) {
-      return { String: true, Array: true, Function: true };
-    } else {
-      return {
-        String: defaultTrue(obj.String),
-        Array: defaultTrue(obj.Array),
-        Function: defaultTrue(obj.Function)
-      };
-    }
-  }
+  exports.ENV = ENV;
+  exports.context = context;
+  exports.environment = environment;
 });
 
 enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-metal', 'ember-runtime'], function (exports, _emberMetal, _emberRuntime) {
@@ -48539,103 +48493,58 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (expor
   }
 });
 
-enifed("ember-utils/apply-str", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-utils', ['exports'], function (exports) {
+  'use strict';
 
-  exports.default = applyStr;
   /**
-   @param {Object} t target
-   @param {String} m method
-   @param {Array} a args
-   @private
-   */
-  function applyStr(t, m, a) {
-    var l = a && a.length;
-    if (!a || !l) {
-      return t[m]();
-    }
-    switch (l) {
-      case 1:
-        return t[m](a[0]);
-      case 2:
-        return t[m](a[0], a[1]);
-      case 3:
-        return t[m](a[0], a[1], a[2]);
-      case 4:
-        return t[m](a[0], a[1], a[2], a[3]);
-      case 5:
-        return t[m](a[0], a[1], a[2], a[3], a[4]);
-      default:
-        return t[m].apply(t, a);
-    }
-  }
-});
-
-enifed("ember-utils/assign", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = assign;
-  /**
-    Copy properties from a source object to a target object.
+    Strongly hint runtimes to intern the provided string.
   
-    ```javascript
-    var a = { first: 'Yehuda' };
-    var b = { last: 'Katz' };
-    var c = { company: 'Tilde Inc.' };
-    Ember.assign(a, b, c); // a === { first: 'Yehuda', last: 'Katz', company: 'Tilde Inc.' }, b === { last: 'Katz' }, c === { company: 'Tilde Inc.' }
-    ```
+    When do I need to use this function?
   
-    @method assign
-    @for Ember
-    @param {Object} original The object to assign into
-    @param {Object} ...args The objects to copy properties from
-    @return {Object}
-    @public
+    For the most part, never. Pre-mature optimization is bad, and often the
+    runtime does exactly what you need it to, and more often the trade-off isn't
+    worth it.
+  
+    Why?
+  
+    Runtimes store strings in at least 2 different representations:
+    Ropes and Symbols (interned strings). The Rope provides a memory efficient
+    data-structure for strings created from concatenation or some other string
+    manipulation like splitting.
+  
+    Unfortunately checking equality of different ropes can be quite costly as
+    runtimes must resort to clever string comparison algorithms. These
+    algorithms typically cost in proportion to the length of the string.
+    Luckily, this is where the Symbols (interned strings) shine. As Symbols are
+    unique by their string content, equality checks can be done by pointer
+    comparison.
+  
+    How do I know if my string is a rope or symbol?
+  
+    Typically (warning general sweeping statement, but truthy in runtimes at
+    present) static strings created as part of the JS source are interned.
+    Strings often used for comparisons can be interned at runtime if some
+    criteria are met.  One of these criteria can be the size of the entire rope.
+    For example, in chrome 38 a rope longer then 12 characters will not
+    intern, nor will segments of that rope.
+  
+    Some numbers: http://jsperf.com/eval-vs-keys/8
+  
+    Known Trick™
+  
+    @private
+    @return {String} interned version of the provided string
   */
-  function assign(original) {
-    for (var i = 1; i < arguments.length; i++) {
-      var arg = arguments[i];
-      if (!arg) {
-        continue;
-      }
-
-      var updates = Object.keys(arg);
-
-      for (var _i = 0; _i < updates.length; _i++) {
-        var prop = updates[_i];
-        original[prop] = arg[prop];
+  function intern(str) {
+    var obj = {};
+    obj[str] = 1;
+    for (var key in obj) {
+      if (key === str) {
+        return key;
       }
     }
-
-    return original;
+    return str;
   }
-});
-
-enifed('ember-utils/dictionary', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = makeDictionary;
-  // the delete is meant to hint at runtimes that this object should remain in
-  // dictionary mode. This is clearly a runtime specific hack, but currently it
-  // appears worthwhile in some usecases. Please note, these deletes do increase
-  // the cost of creation dramatically over a plain Object.create. And as this
-  // only makes sense for long-lived dictionaries that aren't instantiated often.
-  function makeDictionary(parent) {
-    var dict = Object.create(parent);
-    dict['_dict'] = null;
-    delete dict['_dict'];
-    return dict;
-  }
-});
-
-enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports, _intern) {
-  'use strict';
-
-  exports.GUID_KEY_PROPERTY = exports.GUID_DESC = exports.GUID_KEY = undefined;
-  exports.uuid = uuid;
-  exports.generateGuid = generateGuid;
-  exports.guidFor = guidFor;
-
 
   /**
    Previously we used `Ember.$.uuid`, however `$.uuid` has been removed from
@@ -48686,9 +48595,9 @@ enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports,
     @type String
     @final
   */
-  var GUID_KEY = exports.GUID_KEY = (0, _intern.default)('__ember' + +new Date());
+  var GUID_KEY = intern('__ember' + +new Date());
 
-  var GUID_DESC = exports.GUID_DESC = {
+  var GUID_DESC = {
     writable: true,
     configurable: true,
     enumerable: false,
@@ -48702,7 +48611,7 @@ enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports,
     value: null
   };
 
-  var GUID_KEY_PROPERTY = exports.GUID_KEY_PROPERTY = {
+  var GUID_KEY_PROPERTY = {
     name: GUID_KEY,
     descriptor: nullDescriptor
   };
@@ -48827,415 +48736,21 @@ enifed('ember-utils/guid', ['exports', 'ember-utils/intern'], function (exports,
         return ret;
     }
   }
-});
 
-enifed('ember-utils/index', ['exports', 'ember-utils/symbol', 'ember-utils/owner', 'ember-utils/assign', 'ember-utils/dictionary', 'ember-utils/guid', 'ember-utils/intern', 'ember-utils/super', 'ember-utils/inspect', 'ember-utils/lookup-descriptor', 'ember-utils/invoke', 'ember-utils/make-array', 'ember-utils/apply-str', 'ember-utils/name', 'ember-utils/to-string', 'ember-utils/weak-map-utils', 'ember-utils/proxy-utils'], function (exports, _symbol, _owner, _assign, _dictionary, _guid, _intern, _super, _inspect, _lookupDescriptor, _invoke, _makeArray, _applyStr, _name, _toString, _weakMapUtils, _proxyUtils) {
-  'use strict';
-
-  Object.defineProperty(exports, 'symbol', {
-    enumerable: true,
-    get: function () {
-      return _symbol.default;
-    }
-  });
-  Object.defineProperty(exports, 'getOwner', {
-    enumerable: true,
-    get: function () {
-      return _owner.getOwner;
-    }
-  });
-  Object.defineProperty(exports, 'setOwner', {
-    enumerable: true,
-    get: function () {
-      return _owner.setOwner;
-    }
-  });
-  Object.defineProperty(exports, 'OWNER', {
-    enumerable: true,
-    get: function () {
-      return _owner.OWNER;
-    }
-  });
-  Object.defineProperty(exports, 'assign', {
-    enumerable: true,
-    get: function () {
-      return _assign.default;
-    }
-  });
-  Object.defineProperty(exports, 'dictionary', {
-    enumerable: true,
-    get: function () {
-      return _dictionary.default;
-    }
-  });
-  Object.defineProperty(exports, 'uuid', {
-    enumerable: true,
-    get: function () {
-      return _guid.uuid;
-    }
-  });
-  Object.defineProperty(exports, 'GUID_KEY', {
-    enumerable: true,
-    get: function () {
-      return _guid.GUID_KEY;
-    }
-  });
-  Object.defineProperty(exports, 'GUID_DESC', {
-    enumerable: true,
-    get: function () {
-      return _guid.GUID_DESC;
-    }
-  });
-  Object.defineProperty(exports, 'GUID_KEY_PROPERTY', {
-    enumerable: true,
-    get: function () {
-      return _guid.GUID_KEY_PROPERTY;
-    }
-  });
-  Object.defineProperty(exports, 'generateGuid', {
-    enumerable: true,
-    get: function () {
-      return _guid.generateGuid;
-    }
-  });
-  Object.defineProperty(exports, 'guidFor', {
-    enumerable: true,
-    get: function () {
-      return _guid.guidFor;
-    }
-  });
-  Object.defineProperty(exports, 'intern', {
-    enumerable: true,
-    get: function () {
-      return _intern.default;
-    }
-  });
-  Object.defineProperty(exports, 'checkHasSuper', {
-    enumerable: true,
-    get: function () {
-      return _super.checkHasSuper;
-    }
-  });
-  Object.defineProperty(exports, 'ROOT', {
-    enumerable: true,
-    get: function () {
-      return _super.ROOT;
-    }
-  });
-  Object.defineProperty(exports, 'wrap', {
-    enumerable: true,
-    get: function () {
-      return _super.wrap;
-    }
-  });
-  Object.defineProperty(exports, 'inspect', {
-    enumerable: true,
-    get: function () {
-      return _inspect.default;
-    }
-  });
-  Object.defineProperty(exports, 'lookupDescriptor', {
-    enumerable: true,
-    get: function () {
-      return _lookupDescriptor.default;
-    }
-  });
-  Object.defineProperty(exports, 'canInvoke', {
-    enumerable: true,
-    get: function () {
-      return _invoke.canInvoke;
-    }
-  });
-  Object.defineProperty(exports, 'tryInvoke', {
-    enumerable: true,
-    get: function () {
-      return _invoke.tryInvoke;
-    }
-  });
-  Object.defineProperty(exports, 'makeArray', {
-    enumerable: true,
-    get: function () {
-      return _makeArray.default;
-    }
-  });
-  Object.defineProperty(exports, 'applyStr', {
-    enumerable: true,
-    get: function () {
-      return _applyStr.default;
-    }
-  });
-  Object.defineProperty(exports, 'NAME_KEY', {
-    enumerable: true,
-    get: function () {
-      return _name.default;
-    }
-  });
-  Object.defineProperty(exports, 'toString', {
-    enumerable: true,
-    get: function () {
-      return _toString.default;
-    }
-  });
-  Object.defineProperty(exports, 'HAS_NATIVE_WEAKMAP', {
-    enumerable: true,
-    get: function () {
-      return _weakMapUtils.HAS_NATIVE_WEAKMAP;
-    }
-  });
-  Object.defineProperty(exports, 'HAS_NATIVE_PROXY', {
-    enumerable: true,
-    get: function () {
-      return _proxyUtils.HAS_NATIVE_PROXY;
-    }
-  });
-});
-
-enifed('ember-utils/inspect', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = inspect;
-  var objectToString = Object.prototype.toString;
+  function symbol(debugName) {
+    // TODO: Investigate using platform symbols, but we do not
+    // want to require non-enumerability for this API, which
+    // would introduce a large cost.
+    var id = GUID_KEY + Math.floor(Math.random() * new Date());
+    return intern('__' + debugName + '__ [id=' + id + ']');
+  }
 
   /**
-    Convenience method to inspect an object. This method will attempt to
-    convert the object into a useful string description.
-  
-    It is a pretty simple implementation. If you want something more robust,
-    use something like JSDump: https://github.com/NV/jsDump
-  
-    @method inspect
-    @for Ember
-    @param {Object} obj The object you want to inspect.
-    @return {String} A description of the object
-    @since 1.4.0
-    @private
+  @module ember
+  @submodule ember-runtime
   */
-  function inspect(obj) {
-    if (obj === null) {
-      return 'null';
-    }
-    if (obj === undefined) {
-      return 'undefined';
-    }
-    if (Array.isArray(obj)) {
-      return '[' + obj + ']';
-    }
-    // for non objects
-    var type = typeof obj;
-    if (type !== 'object' && type !== 'symbol') {
-      return '' + obj;
-    }
-    // overridden toString
-    if (typeof obj.toString === 'function' && obj.toString !== objectToString) {
-      return obj.toString();
-    }
 
-    // Object.prototype.toString === {}.toString
-    var v = void 0;
-    var ret = [];
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        v = obj[key];
-        if (v === 'toString') {
-          continue;
-        } // ignore useless items
-        if (typeof v === 'function') {
-          v = 'function() { ... }';
-        }
-
-        if (v && typeof v.toString !== 'function') {
-          ret.push(key + ': ' + objectToString.call(v));
-        } else {
-          ret.push(key + ': ' + v);
-        }
-      }
-    }
-    return '{' + ret.join(', ') + '}';
-  }
-});
-
-enifed("ember-utils/intern", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = intern;
-  /**
-    Strongly hint runtimes to intern the provided string.
-  
-    When do I need to use this function?
-  
-    For the most part, never. Pre-mature optimization is bad, and often the
-    runtime does exactly what you need it to, and more often the trade-off isn't
-    worth it.
-  
-    Why?
-  
-    Runtimes store strings in at least 2 different representations:
-    Ropes and Symbols (interned strings). The Rope provides a memory efficient
-    data-structure for strings created from concatenation or some other string
-    manipulation like splitting.
-  
-    Unfortunately checking equality of different ropes can be quite costly as
-    runtimes must resort to clever string comparison algorithms. These
-    algorithms typically cost in proportion to the length of the string.
-    Luckily, this is where the Symbols (interned strings) shine. As Symbols are
-    unique by their string content, equality checks can be done by pointer
-    comparison.
-  
-    How do I know if my string is a rope or symbol?
-  
-    Typically (warning general sweeping statement, but truthy in runtimes at
-    present) static strings created as part of the JS source are interned.
-    Strings often used for comparisons can be interned at runtime if some
-    criteria are met.  One of these criteria can be the size of the entire rope.
-    For example, in chrome 38 a rope longer then 12 characters will not
-    intern, nor will segments of that rope.
-  
-    Some numbers: http://jsperf.com/eval-vs-keys/8
-  
-    Known Trick™
-  
-    @private
-    @return {String} interned version of the provided string
-  */
-  function intern(str) {
-    var obj = {};
-    obj[str] = 1;
-    for (var key in obj) {
-      if (key === str) {
-        return key;
-      }
-    }
-    return str;
-  }
-});
-
-enifed('ember-utils/invoke', ['exports', 'ember-utils/apply-str'], function (exports, _applyStr) {
-  'use strict';
-
-  exports.canInvoke = canInvoke;
-  exports.tryInvoke = tryInvoke;
-
-
-  /**
-    Checks to see if the `methodName` exists on the `obj`.
-  
-    ```javascript
-    let foo = { bar: function() { return 'bar'; }, baz: null };
-  
-    Ember.canInvoke(foo, 'bar'); // true
-    Ember.canInvoke(foo, 'baz'); // false
-    Ember.canInvoke(foo, 'bat'); // false
-    ```
-  
-    @method canInvoke
-    @for Ember
-    @param {Object} obj The object to check for the method
-    @param {String} methodName The method name to check for
-    @return {Boolean}
-    @private
-  */
-  function canInvoke(obj, methodName) {
-    return !!(obj && typeof obj[methodName] === 'function');
-  }
-
-  /**
-    Checks to see if the `methodName` exists on the `obj`,
-    and if it does, invokes it with the arguments passed.
-  
-    ```javascript
-    let d = new Date('03/15/2013');
-  
-    Ember.tryInvoke(d, 'getTime');              // 1363320000000
-    Ember.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000
-    Ember.tryInvoke(d, 'noSuchMethod', [2014]); // undefined
-    ```
-  
-    @method tryInvoke
-    @for Ember
-    @param {Object} obj The object to check for the method
-    @param {String} methodName The method name to check for
-    @param {Array} [args] The arguments to pass to the method
-    @return {*} the return value of the invoked method or undefined if it cannot be invoked
-    @public
-  */
-  function tryInvoke(obj, methodName, args) {
-    if (canInvoke(obj, methodName)) {
-      return args ? (0, _applyStr.default)(obj, methodName, args) : (0, _applyStr.default)(obj, methodName);
-    }
-  }
-});
-
-enifed("ember-utils/lookup-descriptor", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = lookupDescriptor;
-  function lookupDescriptor(obj, keyName) {
-    var current = obj;
-    while (current) {
-      var descriptor = Object.getOwnPropertyDescriptor(current, keyName);
-
-      if (descriptor) {
-        return descriptor;
-      }
-
-      current = Object.getPrototypeOf(current);
-    }
-
-    return null;
-  }
-});
-
-enifed("ember-utils/make-array", ["exports"], function (exports) {
-  "use strict";
-
-  exports.default = makeArray;
-  var isArray = Array.isArray;
-
-  /**
-   Forces the passed object to be part of an array. If the object is already
-   an array, it will return the object. Otherwise, it will add the object to
-   an array. If obj is `null` or `undefined`, it will return an empty array.
-  
-   ```javascript
-   Ember.makeArray();            // []
-   Ember.makeArray(null);        // []
-   Ember.makeArray(undefined);   // []
-   Ember.makeArray('lindsay');   // ['lindsay']
-   Ember.makeArray([1, 2, 42]);  // [1, 2, 42]
-  
-   let controller = Ember.ArrayProxy.create({ content: [] });
-  
-   Ember.makeArray(controller) === controller;  // true
-   ```
-  
-   @method makeArray
-   @for Ember
-   @param {Object} obj the object
-   @return {Array}
-   @private
-   */
-
-  function makeArray(obj) {
-    if (obj === null || obj === undefined) {
-      return [];
-    }
-    return isArray(obj) ? obj : [obj];
-  }
-});
-
-enifed('ember-utils/name', ['exports', 'ember-utils/symbol'], function (exports, _symbol) {
-  'use strict';
-
-  exports.default = (0, _symbol.default)('NAME_KEY');
-});
-
-enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports, _symbol) {
-  'use strict';
-
-  exports.OWNER = undefined;
-  exports.getOwner = getOwner;
-  exports.setOwner = setOwner;
-  var OWNER = exports.OWNER = (0, _symbol.default)('OWNER');
+  var OWNER = symbol('OWNER');
 
   /**
     Framework objects in an Ember application (components, services, routes, etc.)
@@ -49276,11 +48791,6 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
     @since 2.3.0
     @public
   */
-  /**
-  @module ember
-  @submodule ember-runtime
-  */
-
   function getOwner(object) {
     return object[OWNER];
   }
@@ -49299,23 +48809,58 @@ enifed('ember-utils/owner', ['exports', 'ember-utils/symbol'], function (exports
   function setOwner(object, owner) {
     object[OWNER] = owner;
   }
-});
 
-enifed('ember-utils/proxy-utils', ['exports'], function (exports) {
-  'use strict';
+  /**
+    Copy properties from a source object to a target object.
+  
+    ```javascript
+    var a = { first: 'Yehuda' };
+    var b = { last: 'Katz' };
+    var c = { company: 'Tilde Inc.' };
+    Ember.assign(a, b, c); // a === { first: 'Yehuda', last: 'Katz', company: 'Tilde Inc.' }, b === { last: 'Katz' }, c === { company: 'Tilde Inc.' }
+    ```
+  
+    @method assign
+    @for Ember
+    @param {Object} original The object to assign into
+    @param {Object} ...args The objects to copy properties from
+    @return {Object}
+    @public
+  */
+  function assign(original) {
+    for (var i = 1; i < arguments.length; i++) {
+      var arg = arguments[i];
+      if (!arg) {
+        continue;
+      }
 
-  var HAS_NATIVE_PROXY = exports.HAS_NATIVE_PROXY = typeof Proxy === 'function';
-});
+      var updates = Object.keys(arg);
 
-enifed('ember-utils/super', ['exports'], function (exports) {
-  'use strict';
+      for (var _i = 0; _i < updates.length; _i++) {
+        var prop = updates[_i];
+        original[prop] = arg[prop];
+      }
+    }
 
-  exports.ROOT = ROOT;
-  exports.wrap = wrap;
+    return original;
+  }
+
+  // the delete is meant to hint at runtimes that this object should remain in
+  // dictionary mode. This is clearly a runtime specific hack, but currently it
+  // appears worthwhile in some usecases. Please note, these deletes do increase
+  // the cost of creation dramatically over a plain Object.create. And as this
+  // only makes sense for long-lived dictionaries that aren't instantiated often.
+  function makeDictionary(parent) {
+    var dict = Object.create(parent);
+    dict['_dict'] = null;
+    delete dict['_dict'];
+    return dict;
+  }
+
   var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
   var fnToString = Function.prototype.toString;
 
-  var checkHasSuper = exports.checkHasSuper = function () {
+  var checkHasSuper = function () {
     var sourceAvailable = fnToString.call(function () {
       return this;
     }).indexOf('return this') > -1;
@@ -49380,26 +48925,192 @@ enifed('ember-utils/super', ['exports'], function (exports) {
 
     return superWrapper;
   }
-});
 
-enifed('ember-utils/symbol', ['exports', 'ember-utils/guid', 'ember-utils/intern'], function (exports, _guid, _intern) {
-  'use strict';
-
-  exports.default = symbol;
-  function symbol(debugName) {
-    // TODO: Investigate using platform symbols, but we do not
-    // want to require non-enumerability for this API, which
-    // would introduce a large cost.
-    var id = _guid.GUID_KEY + Math.floor(Math.random() * new Date());
-    return (0, _intern.default)('__' + debugName + '__ [id=' + id + ']');
-  }
-});
-
-enifed('ember-utils/to-string', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = toString;
   var objectToString = Object.prototype.toString;
+
+  /**
+    Convenience method to inspect an object. This method will attempt to
+    convert the object into a useful string description.
+  
+    It is a pretty simple implementation. If you want something more robust,
+    use something like JSDump: https://github.com/NV/jsDump
+  
+    @method inspect
+    @for Ember
+    @param {Object} obj The object you want to inspect.
+    @return {String} A description of the object
+    @since 1.4.0
+    @private
+  */
+  function inspect(obj) {
+    if (obj === null) {
+      return 'null';
+    }
+    if (obj === undefined) {
+      return 'undefined';
+    }
+    if (Array.isArray(obj)) {
+      return '[' + obj + ']';
+    }
+    // for non objects
+    var type = typeof obj;
+    if (type !== 'object' && type !== 'symbol') {
+      return '' + obj;
+    }
+    // overridden toString
+    if (typeof obj.toString === 'function' && obj.toString !== objectToString) {
+      return obj.toString();
+    }
+
+    // Object.prototype.toString === {}.toString
+    var v = void 0;
+    var ret = [];
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        v = obj[key];
+        if (v === 'toString') {
+          continue;
+        } // ignore useless items
+        if (typeof v === 'function') {
+          v = 'function() { ... }';
+        }
+
+        if (v && typeof v.toString !== 'function') {
+          ret.push(key + ': ' + objectToString.call(v));
+        } else {
+          ret.push(key + ': ' + v);
+        }
+      }
+    }
+    return '{' + ret.join(', ') + '}';
+  }
+
+  function lookupDescriptor(obj, keyName) {
+    var current = obj;
+    while (current) {
+      var descriptor = Object.getOwnPropertyDescriptor(current, keyName);
+
+      if (descriptor) {
+        return descriptor;
+      }
+
+      current = Object.getPrototypeOf(current);
+    }
+
+    return null;
+  }
+
+  /**
+   @param {Object} t target
+   @param {String} m method
+   @param {Array} a args
+   @private
+   */
+  function applyStr(t, m, a) {
+    var l = a && a.length;
+    if (!a || !l) {
+      return t[m]();
+    }
+    switch (l) {
+      case 1:
+        return t[m](a[0]);
+      case 2:
+        return t[m](a[0], a[1]);
+      case 3:
+        return t[m](a[0], a[1], a[2]);
+      case 4:
+        return t[m](a[0], a[1], a[2], a[3]);
+      case 5:
+        return t[m](a[0], a[1], a[2], a[3], a[4]);
+      default:
+        return t[m].apply(t, a);
+    }
+  }
+
+  /**
+    Checks to see if the `methodName` exists on the `obj`.
+  
+    ```javascript
+    let foo = { bar: function() { return 'bar'; }, baz: null };
+  
+    Ember.canInvoke(foo, 'bar'); // true
+    Ember.canInvoke(foo, 'baz'); // false
+    Ember.canInvoke(foo, 'bat'); // false
+    ```
+  
+    @method canInvoke
+    @for Ember
+    @param {Object} obj The object to check for the method
+    @param {String} methodName The method name to check for
+    @return {Boolean}
+    @private
+  */
+  function canInvoke(obj, methodName) {
+    return !!(obj && typeof obj[methodName] === 'function');
+  }
+
+  /**
+    Checks to see if the `methodName` exists on the `obj`,
+    and if it does, invokes it with the arguments passed.
+  
+    ```javascript
+    let d = new Date('03/15/2013');
+  
+    Ember.tryInvoke(d, 'getTime');              // 1363320000000
+    Ember.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000
+    Ember.tryInvoke(d, 'noSuchMethod', [2014]); // undefined
+    ```
+  
+    @method tryInvoke
+    @for Ember
+    @param {Object} obj The object to check for the method
+    @param {String} methodName The method name to check for
+    @param {Array} [args] The arguments to pass to the method
+    @return {*} the return value of the invoked method or undefined if it cannot be invoked
+    @public
+  */
+  function tryInvoke(obj, methodName, args) {
+    if (canInvoke(obj, methodName)) {
+      return args ? applyStr(obj, methodName, args) : applyStr(obj, methodName);
+    }
+  }
+
+  var isArray = Array.isArray;
+
+  /**
+   Forces the passed object to be part of an array. If the object is already
+   an array, it will return the object. Otherwise, it will add the object to
+   an array. If obj is `null` or `undefined`, it will return an empty array.
+  
+   ```javascript
+   Ember.makeArray();            // []
+   Ember.makeArray(null);        // []
+   Ember.makeArray(undefined);   // []
+   Ember.makeArray('lindsay');   // ['lindsay']
+   Ember.makeArray([1, 2, 42]);  // [1, 2, 42]
+  
+   let controller = Ember.ArrayProxy.create({ content: [] });
+  
+   Ember.makeArray(controller) === controller;  // true
+   ```
+  
+   @method makeArray
+   @for Ember
+   @param {Object} obj the object
+   @return {Array}
+   @private
+   */
+
+  function makeArray(obj) {
+    if (obj === null || obj === undefined) {
+      return [];
+    }
+    return isArray(obj) ? obj : [obj];
+  }
+
+  var name = symbol('NAME_KEY');
+
+  var objectToString$1 = Object.prototype.toString;
 
   /*
    A `toString` util function that supports objects without a `toString`
@@ -49409,15 +49120,11 @@ enifed('ember-utils/to-string', ['exports'], function (exports) {
     if (obj && typeof obj.toString === 'function') {
       return obj.toString();
     } else {
-      return objectToString.call(obj);
+      return objectToString$1.call(obj);
     }
   }
-});
 
-enifed('ember-utils/weak-map-utils', ['exports'], function (exports) {
-  'use strict';
-
-  var HAS_NATIVE_WEAKMAP = exports.HAS_NATIVE_WEAKMAP = function () {
+  var HAS_NATIVE_WEAKMAP = function () {
     // detect if `WeakMap` is even present
     var hasWeakMap = typeof WeakMap === 'function';
     if (!hasWeakMap) {
@@ -49429,6 +49136,46 @@ enifed('ember-utils/weak-map-utils', ['exports'], function (exports) {
     // polyfills as native weakmaps
     return Object.prototype.toString.call(instance) === '[object WeakMap]';
   }();
+
+  var HAS_NATIVE_PROXY = typeof Proxy === 'function';
+
+  /*
+   This package will be eagerly parsed and should have no dependencies on external
+   packages.
+  
+   It is intended to be used to share utility methods that will be needed
+   by every Ember application (and is **not** a dumping ground of useful utilities).
+  
+   Utility methods that are needed in < 80% of cases should be placed
+   elsewhere (so they can be lazily evaluated / parsed).
+  */
+
+  exports.symbol = symbol;
+  exports.getOwner = getOwner;
+  exports.setOwner = setOwner;
+  exports.OWNER = OWNER;
+  exports.assign = assign;
+  exports.dictionary = makeDictionary;
+  exports.uuid = uuid;
+  exports.GUID_KEY = GUID_KEY;
+  exports.GUID_DESC = GUID_DESC;
+  exports.GUID_KEY_PROPERTY = GUID_KEY_PROPERTY;
+  exports.generateGuid = generateGuid;
+  exports.guidFor = guidFor;
+  exports.intern = intern;
+  exports.checkHasSuper = checkHasSuper;
+  exports.ROOT = ROOT;
+  exports.wrap = wrap;
+  exports.inspect = inspect;
+  exports.lookupDescriptor = lookupDescriptor;
+  exports.canInvoke = canInvoke;
+  exports.tryInvoke = tryInvoke;
+  exports.makeArray = makeArray;
+  exports.applyStr = applyStr;
+  exports.NAME_KEY = name;
+  exports.toString = toString;
+  exports.HAS_NATIVE_WEAKMAP = HAS_NATIVE_WEAKMAP;
+  exports.HAS_NATIVE_PROXY = HAS_NATIVE_PROXY;
 });
 
 enifed('ember-views/compat/attrs', ['exports', 'ember-utils'], function (exports, _emberUtils) {
@@ -51922,7 +51669,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+5401a89e";
+  exports.default = "2.14.0-alpha.1-null+92f663ff";
 });
 
 enifed("handlebars", ["exports"], function (exports) {
