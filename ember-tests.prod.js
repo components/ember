@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+92f663ff
+ * @version   2.14.0-alpha.1-null+b1a0ec8d
  */
 
 var enifed, requireModule, Ember;
@@ -74713,7 +74713,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         assert.equal(_this3.controller.get('q'), 'lol');
         assert.equal(_this3.controller.get('z'), 0);
         assert.equal(_this3.$link1.attr('href'), urlPrefix + '/a-1?q=lol');
-        assert.equal(_this3.$link2.attr('href'), urlPrefix + '/a-2?q=lol'); // fail
+        assert.equal(_this3.$link2.attr('href'), urlPrefix + '/a-2?q=lol');
         assert.equal(_this3.$link3.attr('href'), urlPrefix + '/a-3');
 
         _this3.expectedModelHookParams = { id: 'a-3', q: 'lol', z: 123 };
@@ -75211,7 +75211,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     _class3.prototype['@test query params have \'model\' stickiness by default'] = function testQueryParamsHaveModelStickinessByDefault(assert) {
       var _this14 = this;
 
-      assert.expect(59); // Insane.
+      assert.expect(59);
 
       return this.boot().then(function () {
         (0, _emberMetal.run)(_this14.links['s-1-a-1'], 'click');
@@ -75282,7 +75282,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     _class3.prototype['@test query params have \'model\' stickiness by default (url changes)'] = function testQueryParamsHaveModelStickinessByDefaultUrlChanges(assert) {
       var _this15 = this;
 
-      assert.expect(88); // INSANE.
+      assert.expect(88);
 
       return this.boot().then(function () {
         _this15.expectedSiteModelHookParams = { site_id: 's-1', country: 'au' };
@@ -75385,7 +75385,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     _class3.prototype['@test query params have \'model\' stickiness by default (params-based transitions)'] = function testQueryParamsHaveModelStickinessByDefaultParamsBasedTransitions(assert) {
       var _this16 = this;
 
-      assert.expect(118); // <-- INSANE! Like why is this even a thing?
+      assert.expect(118);
 
       return this.boot().then(function () {
         _this16.expectedSiteModelHookParams = { site_id: 's-1', country: 'au' };
