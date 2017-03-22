@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+b1a0ec8d
+ * @version   2.14.0-alpha.1-null+d7a163b5
  */
 
 var enifed, requireModule, Ember;
@@ -1922,7 +1922,7 @@ enifed('ember-application/tests/system/application_instance_test.lint-test', [],
   });
 });
 
-enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _resolver, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _registryCheck) {
+enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _resolver, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _registryCheck, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']),
@@ -1933,398 +1933,475 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
   var trim = _emberViews.jQuery.trim;
 
-  var app = void 0,
-      application = void 0,
-      originalLookup = void 0,
-      originalDebug = void 0,
-      originalWarn = void 0;
+  var secondApp = void 0;
 
-  QUnit.module('Ember.Application', {
-    setup: function () {
-      originalLookup = _emberEnvironment.context.lookup;
-      originalDebug = (0, _emberDebug.getDebugFunction)('debug');
-      originalWarn = (0, _emberDebug.getDebugFunction)('warn');
+  (0, _internalTestHelpers.moduleFor)('Ember.Application, autobooting multiple apps', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<div id=\'one\'><div id=\'one-child\'>HI</div></div><div id=\'two\'>HI</div>');
-      application = (0, _emberMetal.run)(function () {
-        return _application.default.create({ rootElement: '#one', router: null });
-      });
-    },
-    teardown: function () {
-      (0, _emberViews.jQuery)('#qunit-fixture').empty();
-      (0, _emberDebug.setDebugFunction)('debug', originalDebug);
-      (0, _emberDebug.setDebugFunction)('warn', originalWarn);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-      _emberEnvironment.context.lookup = originalLookup;
-
-      if (application) {
-        (0, _emberMetal.run)(application, 'destroy');
-      }
-
-      if (app) {
-        (0, _emberMetal.run)(app, 'destroy');
-      }
+      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">\n        <div id="one-child">HI</div>\n      </div>\n      <div id="two">HI</div>\n    ');
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
     }
-  });
 
-  QUnit.test('you can make a new application in a non-overlapping element', function () {
-    app = (0, _emberMetal.run)(function () {
-      return _application.default.create({ rootElement: '#two', router: null });
-    });
-
-    (0, _emberMetal.run)(app, 'destroy');
-    ok(true, 'should not raise');
-  });
-
-  QUnit.test('you cannot make a new application that is a parent of an existing application', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        return _application.default.create({ rootElement: '#qunit-fixture' });
-      });
-    });
-  });
-
-  QUnit.test('you cannot make a new application that is a descendant of an existing application', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        return _application.default.create({ rootElement: '#one-child' });
-      });
-    });
-  });
-
-  QUnit.test('you cannot make a new application that is a duplicate of an existing application', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        return _application.default.create({ rootElement: '#one' });
-      });
-    });
-  });
-
-  QUnit.test('you cannot make two default applications without a rootElement error', function () {
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
-        return _application.default.create({ router: false });
-      });
-    });
-  });
-
-  QUnit.test('acts like a namespace', function () {
-    var lookup = _emberEnvironment.context.lookup = {};
-
-    app = (0, _emberMetal.run)(function () {
-      return lookup.TestApp = _application.default.create({ rootElement: '#two', router: false });
-    });
-
-    (0, _emberRuntime.setNamespaceSearchDisabled)(false);
-    app.Foo = _emberRuntime.Object.extend();
-    equal(app.Foo.toString(), 'TestApp.Foo', 'Classes pick up their parent namespace');
-  });
-
-  QUnit.test('includes deprecated access to `application.registry`', function () {
-    expect(3);
-
-    ok(typeof application.registry.register === 'function', '#registry.register is available as a function');
-
-    application.__registry__.register = function () {
-      ok(true, '#register alias is called correctly');
+    _class.prototype.buildSecondApplication = function buildSecondApplication(options) {
+      var myOptions = (0, _emberUtils.assign)(this.applicationOptions, options);
+      return this.secondApp = _application.default.create(myOptions);
     };
 
-    expectDeprecation(function () {
-      application.registry.register();
-    }, /Using `Application.registry.register` is deprecated. Please use `Application.register` instead./);
-  });
+    _class.prototype.teardown = function teardown() {
+      _ApplicationTestCase.prototype.teardown.call(this);
 
-  QUnit.test('builds a registry', function () {
-    strictEqual(application.resolveRegistration('application:main'), application, 'application:main is registered');
-    deepEqual(application.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
-    deepEqual(application.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
-    (0, _registryCheck.verifyRegistration)(application, 'controller:basic');
-    (0, _registryCheck.verifyRegistration)(application, '-view-registry:main');
-    (0, _registryCheck.verifyInjection)(application, 'view', '_viewRegistry', '-view-registry:main');
-    (0, _registryCheck.verifyInjection)(application, 'route', '_topLevelViewTemplate', 'template:-outlet');
-    (0, _registryCheck.verifyRegistration)(application, 'route:basic');
-    (0, _registryCheck.verifyRegistration)(application, 'event_dispatcher:main');
-    (0, _registryCheck.verifyInjection)(application, 'router:main', 'namespace', 'application:main');
-    (0, _registryCheck.verifyInjection)(application, 'view:-outlet', 'namespace', 'application:main');
-
-    (0, _registryCheck.verifyRegistration)(application, 'location:auto');
-    (0, _registryCheck.verifyRegistration)(application, 'location:hash');
-    (0, _registryCheck.verifyRegistration)(application, 'location:history');
-    (0, _registryCheck.verifyRegistration)(application, 'location:none');
-
-    (0, _registryCheck.verifyInjection)(application, 'controller', 'target', 'router:main');
-    (0, _registryCheck.verifyInjection)(application, 'controller', 'namespace', 'application:main');
-
-    (0, _registryCheck.verifyRegistration)(application, (0, _container.privatize)(_templateObject));
-    (0, _registryCheck.verifyInjection)(application, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
-    (0, _registryCheck.verifyInjection)(application, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
-
-    (0, _registryCheck.verifyInjection)(application, 'route', 'router', 'router:main');
-
-    (0, _registryCheck.verifyRegistration)(application, 'component:-text-field');
-    (0, _registryCheck.verifyRegistration)(application, 'component:-text-area');
-    (0, _registryCheck.verifyRegistration)(application, 'component:-checkbox');
-    (0, _registryCheck.verifyRegistration)(application, 'component:link-to');
-
-    (0, _registryCheck.verifyRegistration)(application, 'service:-routing');
-    (0, _registryCheck.verifyInjection)(application, 'service:-routing', 'router', 'router:main');
-
-    // DEBUGGING
-    (0, _registryCheck.verifyRegistration)(application, 'resolver-for-debugging:main');
-    (0, _registryCheck.verifyInjection)(application, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
-    (0, _registryCheck.verifyInjection)(application, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
-    (0, _registryCheck.verifyRegistration)(application, 'container-debug-adapter:main');
-    (0, _registryCheck.verifyRegistration)(application, 'component-lookup:main');
-
-    (0, _registryCheck.verifyRegistration)(application, 'service:-glimmer-environment');
-    (0, _registryCheck.verifyRegistration)(application, 'service:-dom-changes');
-    (0, _registryCheck.verifyRegistration)(application, 'service:-dom-tree-construction');
-    (0, _registryCheck.verifyInjection)(application, 'service:-glimmer-environment', 'appendOperations', 'service:-dom-tree-construction');
-    (0, _registryCheck.verifyInjection)(application, 'service:-glimmer-environment', 'updateOperations', 'service:-dom-changes');
-    (0, _registryCheck.verifyInjection)(application, 'renderer', 'env', 'service:-glimmer-environment');
-    (0, _registryCheck.verifyRegistration)(application, 'view:-outlet');
-    (0, _registryCheck.verifyRegistration)(application, 'renderer:-dom');
-    (0, _registryCheck.verifyRegistration)(application, 'renderer:-inert');
-    (0, _registryCheck.verifyRegistration)(application, (0, _container.privatize)(_templateObject2));
-    (0, _registryCheck.verifyRegistration)(application, 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(application, 'view:-outlet', 'template', 'template:-outlet');
-    (0, _registryCheck.verifyInjection)(application, 'template', 'env', 'service:-glimmer-environment');
-    deepEqual(application.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
-  });
-
-  var originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
-
-  QUnit.module('Ember.Application initialization', {
-    teardown: function () {
-      if (app) {
-        (0, _emberMetal.run)(app, 'destroy');
+      if (this.secondApp) {
+        (0, _emberMetal.run)(this.secondApp, 'destroy');
       }
-      (0, _emberGlimmer.setTemplates)({});
-      _emberEnvironment.ENV.LOG_VERSION = originalLogVersion;
+    };
+
+    _class.prototype['@test you can make a new application in a non-overlapping element'] = function (assert) {
+      var _this2 = this;
+
+      var app = (0, _emberMetal.run)(function () {
+        return _this2.buildSecondApplication({
+          rootElement: '#two'
+        });
+      });
+
+      (0, _emberMetal.run)(app, 'destroy');
+      assert.ok(true, 'should not raise');
+    };
+
+    _class.prototype['@test you cannot make a new application that is a parent of an existing application'] = function () {
+      var _this3 = this;
+
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          return _this3.buildSecondApplication({
+            rootElement: '#qunit-fixture'
+          });
+        });
+      });
+    };
+
+    _class.prototype['@test you cannot make a new application that is a descendant of an existing application'] = function () {
+      var _this4 = this;
+
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          return _this4.buildSecondApplication({
+            rootElement: '#one-child'
+          });
+        });
+      });
+    };
+
+    _class.prototype['@test you cannot make a new application that is a duplicate of an existing application'] = function () {
+      var _this5 = this;
+
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          return _this5.buildSecondApplication({
+            rootElement: '#one'
+          });
+        });
+      });
+    };
+
+    _class.prototype['@test you cannot make two default applications without a rootElement error'] = function () {
+      var _this6 = this;
+
+      expectAssertion(function () {
+        (0, _emberMetal.run)(function () {
+          return _this6.buildSecondApplication();
+        });
+      });
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
+          rootElement: '#one',
+          router: null,
+          autoboot: true
+        });
+      }
+    }]);
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Application', function (_ApplicationTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _ApplicationTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.apply(this, arguments));
     }
-  });
 
-  QUnit.test('initialized application goes to initial route', function () {
-    (0, _emberMetal.run)(function () {
-      app = _application.default.create({
-        rootElement: '#qunit-fixture'
+    _class2.prototype['@test includes deprecated access to `application.registry`'] = function testIncludesDeprecatedAccessToApplicationRegistry(assert) {
+      var _this8 = this;
+
+      assert.expect(3);
+
+      assert.ok(typeof this.application.registry.register === 'function', '#registry.register is available as a function');
+
+      this.application.__registry__.register = function () {
+        assert.ok(true, '#register alias is called correctly');
+      };
+
+      expectDeprecation(function () {
+        _this8.application.registry.register();
+      }, /Using `Application.registry.register` is deprecated. Please use `Application.register` instead./);
+    };
+
+    _class2.prototype['@test builds a registry'] = function (assert) {
+      var application = this.application;
+
+      assert.strictEqual(application.resolveRegistration('application:main'), application, 'application:main is registered');
+      assert.deepEqual(application.registeredOptionsForType('component'), { singleton: false }, 'optionsForType \'component\'');
+      assert.deepEqual(application.registeredOptionsForType('view'), { singleton: false }, 'optionsForType \'view\'');
+      (0, _registryCheck.verifyRegistration)(application, 'controller:basic');
+      (0, _registryCheck.verifyRegistration)(application, '-view-registry:main');
+      (0, _registryCheck.verifyInjection)(application, 'view', '_viewRegistry', '-view-registry:main');
+      (0, _registryCheck.verifyInjection)(application, 'route', '_topLevelViewTemplate', 'template:-outlet');
+      (0, _registryCheck.verifyRegistration)(application, 'route:basic');
+      (0, _registryCheck.verifyRegistration)(application, 'event_dispatcher:main');
+      (0, _registryCheck.verifyInjection)(application, 'router:main', 'namespace', 'application:main');
+      (0, _registryCheck.verifyInjection)(application, 'view:-outlet', 'namespace', 'application:main');
+
+      (0, _registryCheck.verifyRegistration)(application, 'location:auto');
+      (0, _registryCheck.verifyRegistration)(application, 'location:hash');
+      (0, _registryCheck.verifyRegistration)(application, 'location:history');
+      (0, _registryCheck.verifyRegistration)(application, 'location:none');
+
+      (0, _registryCheck.verifyInjection)(application, 'controller', 'target', 'router:main');
+      (0, _registryCheck.verifyInjection)(application, 'controller', 'namespace', 'application:main');
+
+      (0, _registryCheck.verifyRegistration)(application, (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(application, 'router', '_bucketCache', (0, _container.privatize)(_templateObject));
+      (0, _registryCheck.verifyInjection)(application, 'route', '_bucketCache', (0, _container.privatize)(_templateObject));
+
+      (0, _registryCheck.verifyInjection)(application, 'route', 'router', 'router:main');
+
+      (0, _registryCheck.verifyRegistration)(application, 'component:-text-field');
+      (0, _registryCheck.verifyRegistration)(application, 'component:-text-area');
+      (0, _registryCheck.verifyRegistration)(application, 'component:-checkbox');
+      (0, _registryCheck.verifyRegistration)(application, 'component:link-to');
+
+      (0, _registryCheck.verifyRegistration)(application, 'service:-routing');
+      (0, _registryCheck.verifyInjection)(application, 'service:-routing', 'router', 'router:main');
+
+      // DEBUGGING
+      (0, _registryCheck.verifyRegistration)(application, 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(application, 'container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+      (0, _registryCheck.verifyInjection)(application, 'data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(application, 'container-debug-adapter:main');
+      (0, _registryCheck.verifyRegistration)(application, 'component-lookup:main');
+
+      (0, _registryCheck.verifyRegistration)(application, 'service:-glimmer-environment');
+      (0, _registryCheck.verifyRegistration)(application, 'service:-dom-changes');
+      (0, _registryCheck.verifyRegistration)(application, 'service:-dom-tree-construction');
+      (0, _registryCheck.verifyInjection)(application, 'service:-glimmer-environment', 'appendOperations', 'service:-dom-tree-construction');
+      (0, _registryCheck.verifyInjection)(application, 'service:-glimmer-environment', 'updateOperations', 'service:-dom-changes');
+      (0, _registryCheck.verifyInjection)(application, 'renderer', 'env', 'service:-glimmer-environment');
+      (0, _registryCheck.verifyRegistration)(application, 'view:-outlet');
+      (0, _registryCheck.verifyRegistration)(application, 'renderer:-dom');
+      (0, _registryCheck.verifyRegistration)(application, 'renderer:-inert');
+      (0, _registryCheck.verifyRegistration)(application, (0, _container.privatize)(_templateObject2));
+      (0, _registryCheck.verifyRegistration)(application, 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(application, 'view:-outlet', 'template', 'template:-outlet');
+      (0, _registryCheck.verifyInjection)(application, 'template', 'env', 'service:-glimmer-environment');
+      assert.deepEqual(application.registeredOptionsForType('helper'), { instantiate: false }, 'optionsForType \'helper\'');
+    };
+
+    return _class2;
+  }(_internalTestHelpers.ApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Application, default resolver with autoboot', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class3, _AutobootApplicationT);
+
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+
+      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+
+      _this9.originalLookup = _emberEnvironment.context.lookup;
+      return _this9;
+    }
+
+    _class3.prototype.teardown = function teardown() {
+      _emberEnvironment.context.lookup = this.originalLookup;
+      _AutobootApplicationT.prototype.teardown.call(this);
+      (0, _emberGlimmer.setTemplates)({});
+    };
+
+    _class3.prototype.createApplication = function createApplication(options) {
+      var myOptions = (0, _emberUtils.assign)({
+        Resolver: _resolver.default
+      }, options);
+      return _AutobootApplicationT.prototype.createApplication.call(this, myOptions);
+    };
+
+    _class3.prototype['@test acts like a namespace'] = function (assert) {
+      var _this10 = this;
+
+      var lookup = _emberEnvironment.context.lookup = {};
+
+      (0, _emberMetal.run)(function () {
+        lookup.TestApp = _this10.createApplication();
       });
 
-      app.Router.reopen({
+      (0, _emberRuntime.setNamespaceSearchDisabled)(false);
+      var Foo = this.application.Foo = _emberRuntime.Object.extend();
+      assert.equal(Foo.toString(), 'TestApp.Foo', 'Classes pick up their parent namespace');
+    };
+
+    _class3.prototype['@test can specify custom router'] = function (assert) {
+      var _this11 = this;
+
+      var MyRouter = _emberRouting.Router.extend();
+      (0, _emberMetal.run)(function () {
+        var app = _this11.createApplication();
+        app.Router = MyRouter;
+      });
+      assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof MyRouter, 'application resolved the correct router');
+    };
+
+    _class3.prototype['@test Minimal Application initialized with just an application template'] = function (assert) {
+      var _this12 = this;
+
+      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">Hello World</script>');
+      (0, _emberMetal.run)(function () {
+        _this12.createApplication();
+      });
+
+      equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'Hello World');
+    };
+
+    return _class3;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Application, autobooting', function (_AutobootApplicationT2) {
+    (0, _emberBabel.inherits)(_class4, _AutobootApplicationT2);
+
+    function _class4() {
+      (0, _emberBabel.classCallCheck)(this, _class4);
+
+      var _this13 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT2.call(this));
+
+      _this13.originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
+      _this13.originalDebug = (0, _emberDebug.getDebugFunction)('debug');
+      _this13.originalWarn = (0, _emberDebug.getDebugFunction)('warn');
+      return _this13;
+    }
+
+    _class4.prototype.teardown = function teardown() {
+      (0, _emberDebug.setDebugFunction)('warn', this.originalWarn);
+      (0, _emberDebug.setDebugFunction)('debug', this.originalDebug);
+      _emberEnvironment.ENV.LOG_VERSION = this.originalLogVersion;
+      _AutobootApplicationT2.prototype.teardown.call(this);
+    };
+
+    _class4.prototype.createApplication = function createApplication(options, MyApplication) {
+      var application = _AutobootApplicationT2.prototype.createApplication.call(this, options, MyApplication);
+      this.add('router:main', _emberRouting.Router.extend({
         location: 'none'
+      }));
+      return application;
+    };
+
+    _class4.prototype['@test initialized application goes to initial route'] = function (assert) {
+      var _this14 = this;
+
+      (0, _emberMetal.run)(function () {
+        _this14.createApplication();
+        _this14.addTemplate('application', '{{outlet}}');
+        _this14.addTemplate('index', '<h1>Hi from index</h1>');
       });
 
-      app.register('template:application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
+      assert.equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hi from index');
+    };
 
-      (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h1>Hi from index</h1>'));
-    });
+    _class4.prototype['@test ready hook is called before routing begins'] = function (assert) {
+      var _this15 = this;
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hi from index');
-  });
+      assert.expect(2);
 
-  QUnit.test('ready hook is called before routing begins', function () {
-    expect(2);
+      (0, _emberMetal.run)(function () {
+        function registerRoute(application, name, callback) {
+          var route = _emberRouting.Route.extend({
+            activate: callback
+          });
 
-    (0, _emberMetal.run)(function () {
-      function registerRoute(application, name, callback) {
-        var route = _emberRouting.Route.extend({
-          activate: callback
+          application.register('route:' + name, route);
+        }
+
+        var MyApplication = _application.default.extend({
+          ready: function () {
+            registerRoute(this, 'index', function () {
+              assert.ok(true, 'last-minute route is activated');
+            });
+          }
         });
 
-        application.register('route:' + name, route);
+        var app = _this15.createApplication({}, MyApplication);
+
+        registerRoute(app, 'application', function () {
+          return ok(true, 'normal route is activated');
+        });
+      });
+    };
+
+    _class4.prototype['@test initialize application via initialize call'] = function (assert) {
+      var _this16 = this;
+
+      (0, _emberMetal.run)(function () {
+        _this16.createApplication();
+      });
+      // This is not a public way to access the container; we just
+      // need to make some assertions about the created router
+      var router = this.application.__deprecatedInstance__.lookup('router:main');
+      assert.equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
+      assert.equal(router.location instanceof _emberRouting.NoneLocation, true, 'Location was set from location implementation name');
+    };
+
+    _class4.prototype['@test initialize application with stateManager via initialize call from Router class'] = function (assert) {
+      var _this17 = this;
+
+      (0, _emberMetal.run)(function () {
+        _this17.createApplication();
+        _this17.addTemplate('application', '<h1>Hello!</h1>');
+      });
+      // This is not a public way to access the container; we just
+      // need to make some assertions about the created router
+      var router = this.application.__deprecatedInstance__.lookup('router:main');
+      assert.equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
+      assert.equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hello!');
+    };
+
+    _class4.prototype['@test Application Controller backs the appplication template'] = function (assert) {
+      var _this18 = this;
+
+      (0, _emberMetal.run)(function () {
+        _this18.createApplication();
+        _this18.addTemplate('application', '<h1>{{greeting}}</h1>');
+        _this18.add('controller:application', _emberRuntime.Controller.extend({
+          greeting: 'Hello!'
+        }));
+      });
+      assert.equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hello!');
+    };
+
+    _class4.prototype['@test enable log of libraries with an ENV var'] = function (assert) {
+      var _this19 = this;
+
+      if (EmberDev && EmberDev.runningProdBuild) {
+        assert.ok(true, 'Logging does not occur in production builds');
+        return;
       }
 
-      var MyApplication = _application.default.extend({
-        ready: function () {
-          registerRoute(this, 'index', function () {
-            ok(true, 'last-minute route is activated');
-          });
-        }
+      var messages = [];
+
+      _emberEnvironment.ENV.LOG_VERSION = true;
+
+      (0, _emberDebug.setDebugFunction)('debug', function (message) {
+        return messages.push(message);
       });
 
-      app = MyApplication.create({
-        rootElement: '#qunit-fixture'
+      _emberMetal.libraries.register('my-lib', '2.0.0a');
+
+      (0, _emberMetal.run)(function () {
+        _this19.createApplication();
       });
 
-      app.Router.reopen({
-        location: 'none'
+      assert.equal(messages[1], 'Ember  : ' + _ember.VERSION);
+      assert.equal(messages[2], 'jQuery : ' + (0, _emberViews.jQuery)().jquery);
+      assert.equal(messages[3], 'my-lib : ' + '2.0.0a');
+
+      _emberMetal.libraries.deRegister('my-lib');
+    };
+
+    _class4.prototype['@test disable log of version of libraries with an ENV var'] = function (assert) {
+      var _this20 = this;
+
+      var logged = false;
+
+      _emberEnvironment.ENV.LOG_VERSION = false;
+
+      (0, _emberDebug.setDebugFunction)('debug', function () {
+        return logged = true;
       });
 
-      registerRoute(app, 'application', function () {
-        return ok(true, 'normal route is activated');
-      });
-    });
-  });
-
-  QUnit.test('initialize application via initialize call', function () {
-    (0, _emberMetal.run)(function () {
-      app = _application.default.create({
-        rootElement: '#qunit-fixture'
+      (0, _emberMetal.run)(function () {
+        _this20.createApplication();
       });
 
-      app.Router.reopen({
-        location: 'none'
+      assert.ok(!logged, 'library version logging skipped');
+    };
+
+    _class4.prototype['@test can resolve custom router'] = function (assert) {
+      var _this21 = this;
+
+      var CustomRouter = _emberRouting.Router.extend();
+
+      (0, _emberMetal.run)(function () {
+        _this21.createApplication();
+        _this21.add('router:main', CustomRouter);
       });
 
-      (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h1>Hello!</h1>'));
-    });
+      assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
+    };
 
-    // This is not a public way to access the container; we just
-    // need to make some assertions about the created router
-    var router = app.__container__.lookup('router:main');
-    equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
-    equal(router.location instanceof _emberRouting.NoneLocation, true, 'Location was set from location implementation name');
-  });
+    _class4.prototype['@test does not leak itself in onLoad._loaded'] = function (assert) {
+      var _this22 = this;
 
-  QUnit.test('initialize application with stateManager via initialize call from Router class', function () {
-    (0, _emberMetal.run)(function () {
-      app = _application.default.create({
-        rootElement: '#qunit-fixture'
+      assert.equal(_emberRuntime._loaded.application, undefined);
+      (0, _emberMetal.run)(function () {
+        return _this22.createApplication();
+      });
+      assert.equal(_emberRuntime._loaded.application, this.application);
+      (0, _emberMetal.run)(this.application, 'destroy');
+      assert.equal(_emberRuntime._loaded.application, undefined);
+    };
+
+    _class4.prototype['@test can build a registry via Ember.Application.buildRegistry() --- simulates ember-test-helpers'] = function (assert) {
+      var namespace = _emberRuntime.Object.create({
+        Resolver: { create: function () {} }
       });
 
-      app.Router.reopen({
-        location: 'none'
-      });
+      var registry = _application.default.buildRegistry(namespace);
 
-      app.register('template:application', (0, _emberTemplateCompiler.compile)('<h1>Hello!</h1>'));
-    });
+      assert.equal(registry.resolve('application:main'), namespace);
+    };
 
-    var router = app.__container__.lookup('router:main');
-    equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
-    equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hello!');
-  });
+    return _class4;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 
-  QUnit.test('ApplicationView is inserted into the page', function () {
-    (0, _emberMetal.run)(function () {
-      app = _application.default.create({
-        rootElement: '#qunit-fixture'
-      });
+  (0, _internalTestHelpers.moduleFor)('Ember.Application#buildRegistry', function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(_class5, _AbstractTestCase);
 
-      (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<h1>Hello!</h1>'));
+    function _class5() {
+      (0, _emberBabel.classCallCheck)(this, _class5);
 
-      app.ApplicationController = _emberRuntime.Controller.extend();
-
-      app.Router.reopen({
-        location: 'none'
-      });
-    });
-
-    equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hello!');
-  });
-
-  QUnit.test('Minimal Application initialized with just an application template', function () {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">Hello World</script>');
-    app = (0, _emberMetal.run)(function () {
-      return _application.default.create({
-        rootElement: '#qunit-fixture'
-      });
-    });
-
-    equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'Hello World');
-  });
-
-  QUnit.test('enable log of libraries with an ENV var', function () {
-    if (EmberDev && EmberDev.runningProdBuild) {
-      ok(true, 'Logging does not occur in production builds');
-      return;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
     }
 
-    var messages = [];
-
-    _emberEnvironment.ENV.LOG_VERSION = true;
-
-    (0, _emberDebug.setDebugFunction)('debug', function (message) {
-      return messages.push(message);
-    });
-
-    _emberMetal.libraries.register('my-lib', '2.0.0a');
-
-    app = (0, _emberMetal.run)(function () {
-      return _application.default.create({
-        rootElement: '#qunit-fixture'
-      });
-    });
-
-    equal(messages[1], 'Ember  : ' + _ember.VERSION);
-    equal(messages[2], 'jQuery : ' + (0, _emberViews.jQuery)().jquery);
-    equal(messages[3], 'my-lib : ' + '2.0.0a');
-
-    _emberMetal.libraries.deRegister('my-lib');
-  });
-
-  QUnit.test('disable log version of libraries with an ENV var', function () {
-    var logged = false;
-
-    _emberEnvironment.ENV.LOG_VERSION = false;
-
-    (0, _emberDebug.setDebugFunction)('debug', function () {
-      return logged = true;
-    });
-
-    (0, _emberViews.jQuery)('#qunit-fixture').empty();
-
-    (0, _emberMetal.run)(function () {
-      app = _application.default.create({
-        rootElement: '#qunit-fixture'
-      });
-
-      app.Router.reopen({
-        location: 'none'
-      });
-    });
-
-    ok(!logged, 'library version logging skipped');
-  });
-
-  QUnit.test('can resolve custom router', function () {
-    var CustomRouter = _emberRouting.Router.extend();
-
-    var Resolver = _resolver.default.extend({
-      resolveMain: function (parsedName) {
-        if (parsedName.type === 'router') {
-          return CustomRouter;
-        } else {
-          return this._super(parsedName);
+    _class5.prototype['@test can build a registry via Ember.Application.buildRegistry() --- simulates ember-test-helpers'] = function (assert) {
+      var namespace = _emberRuntime.Object.create({
+        Resolver: {
+          create: function () {}
         }
-      }
-    });
-
-    app = (0, _emberMetal.run)(function () {
-      return _application.default.create({
-        Resolver: Resolver
       });
-    });
 
-    ok(app.__container__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
-  });
+      var registry = _application.default.buildRegistry(namespace);
 
-  QUnit.test('can specify custom router', function () {
-    app = (0, _emberMetal.run)(function () {
-      return _application.default.create({
-        Router: _emberRouting.Router.extend()
-      });
-    });
+      assert.equal(registry.resolve('application:main'), namespace);
+    };
 
-    ok(app.__container__.lookup('router:main') instanceof _emberRouting.Router, 'application resolved the correct router');
-  });
-
-  QUnit.test('does not leak itself in onLoad._loaded', function () {
-    equal(_emberRuntime._loaded.application, undefined);
-    var app = (0, _emberMetal.run)(_application.default, 'create');
-    equal(_emberRuntime._loaded.application, app);
-    (0, _emberMetal.run)(app, 'destroy');
-    equal(_emberRuntime._loaded.application, undefined);
-  });
-
-  QUnit.test('can build a registry via Ember.Application.buildRegistry() --- simulates ember-test-helpers', function (assert) {
-    var namespace = _emberRuntime.Object.create({
-      Resolver: { create: function () {} }
-    });
-
-    var registry = _application.default.buildRegistry(namespace);
-
-    assert.equal(registry.resolve('application:main'), namespace);
-  });
+    return _class5;
+  }(_internalTestHelpers.AbstractTestCase));
 });
 
 enifed('ember-application/tests/system/application_test.lint-test', [], function () {
@@ -7801,7 +7878,7 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['ember-babel
 
       assert.expect(1);
 
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         actions: {
           handleIt: function (arg) {
             assert.ok(true, 'controller received action properly');
@@ -7809,7 +7886,7 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['ember-babel
         }
       }));
 
-      this.registerTemplate('application', '<button id="handle-it" {{action "handleIt"}}>Click!</button>');
+      this.addTemplate('application', '<button id="handle-it" {{action "handleIt"}}>Click!</button>');
 
       return this.visit('/').then(function () {
         _this2.runTask(function () {
@@ -7823,7 +7900,7 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['ember-babel
 
       assert.expect(1);
 
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         actions: {
           handleIt: function (arg) {
             assert.ok(false, 'application controller should not have received action!');
@@ -7831,7 +7908,7 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['ember-babel
         }
       }));
 
-      this.registerController('index', _emberRuntime.Controller.extend({
+      this.add('controller:index', _emberRuntime.Controller.extend({
         actions: {
           handleIt: function (arg) {
             assert.ok(true, 'controller received action properly');
@@ -7839,7 +7916,7 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['ember-babel
         }
       }));
 
-      this.registerTemplate('index', '<button id="handle-it" {{action "handleIt"}}>Click!</button>');
+      this.addTemplate('index', '<button id="handle-it" {{action "handleIt"}}>Click!</button>');
 
       return this.visit('/').then(function () {
         _this3.runTask(function () {
@@ -7921,12 +7998,12 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       var self = this;
 
-      this.application.register('template:application', (0, _helpers.compile)('Application{{outlet}}'));
+      this.addTemplate('application', 'Application{{outlet}}');
 
       this.router.map(function () {
         this.mount('blog');
       });
-      this.application.register('route-map:blog', function () {
+      this.add('route-map:blog', function () {
         this.route('post', function () {
           this.route('comments');
           this.route('likes');
@@ -7934,13 +8011,13 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         this.route('category', { path: 'category/:id' });
         this.route('author', { path: 'author/:id' });
       });
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         model: function () {
           hooks.push('application - application');
         }
       }));
 
-      this.registerEngine('blog', _emberApplication.Engine.extend({
+      this.add('engine:blog', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
           this.register('controller:application', _emberRuntime.Controller.extend({
@@ -7973,7 +8050,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     _class.prototype.setupAppAndRoutelessEngine = function setupAppAndRoutelessEngine(hooks) {
       this.setupRoutelessEngine(hooks);
 
-      this.registerEngine('chat-engine', _emberApplication.Engine.extend({
+      this.add('engine:chat-engine', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
           this.register('template:application', (0, _helpers.compile)('Engine'));
@@ -7988,19 +8065,19 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     };
 
     _class.prototype.setupAppAndRoutableEngineWithPartial = function setupAppAndRoutableEngineWithPartial(hooks) {
-      this.application.register('template:application', (0, _helpers.compile)('Application{{outlet}}'));
+      this.addTemplate('application', 'Application{{outlet}}');
 
       this.router.map(function () {
         this.mount('blog');
       });
-      this.application.register('route-map:blog', function () {});
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route-map:blog', function () {});
+      this.add('route:application', _emberRouting.Route.extend({
         model: function () {
           hooks.push('application - application');
         }
       }));
 
-      this.registerEngine('blog', _emberApplication.Engine.extend({
+      this.add('engine:blog', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
           this.register('template:foo', (0, _helpers.compile)('foo partial'));
@@ -8015,8 +8092,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     };
 
     _class.prototype.setupRoutelessEngine = function setupRoutelessEngine(hooks) {
-      this.application.register('template:application', (0, _helpers.compile)('Application{{mount "chat-engine"}}'));
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.addTemplate('application', 'Application{{mount "chat-engine"}}');
+      this.add('route:application', _emberRouting.Route.extend({
         model: function () {
           hooks.push('application - application');
         }
@@ -8026,7 +8103,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     _class.prototype.setupAppAndRoutlessEngineWithPartial = function setupAppAndRoutlessEngineWithPartial(hooks) {
       this.setupRoutelessEngine(hooks);
 
-      this.registerEngine('chat-engine', _emberApplication.Engine.extend({
+      this.add('engine:chat-engine', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
           this.register('template:foo', (0, _helpers.compile)('foo partial'));
@@ -8046,9 +8123,9 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
     };
 
     _class.prototype.setupEngineWithAttrs = function setupEngineWithAttrs(hooks) {
-      this.application.register('template:application', (0, _helpers.compile)('Application{{mount "chat-engine"}}'));
+      this.addTemplate('application', 'Application{{mount "chat-engine"}}');
 
-      this.registerEngine('chat-engine', _emberApplication.Engine.extend({
+      this.add('engine:chat-engine', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
           this.register('template:components/foo-bar', (0, _helpers.compile)('{{partial "troll"}}'));
@@ -8082,8 +8159,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       var sharedTemplate = (0, _helpers.compile)((0, _abstractTestCase.strip)(_templateObject));
 
-      this.application.register('template:application', sharedTemplate);
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('template:application', sharedTemplate);
+      this.add('controller:application', _emberRuntime.Controller.extend({
         contextType: 'Application',
         'ambiguous-curlies': 'Controller Data!'
       }));
@@ -8091,9 +8168,9 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       this.router.map(function () {
         this.mount('blog');
       });
-      this.application.register('route-map:blog', function () {});
+      this.add('route-map:blog', function () {});
 
-      this.registerEngine('blog', _emberApplication.Engine.extend({
+      this.add('engine:blog', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
 
@@ -8121,16 +8198,16 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         layout: sharedLayout
       });
 
-      this.application.register('template:application', (0, _helpers.compile)((0, _abstractTestCase.strip)(_templateObject4)));
+      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject4));
 
-      this.application.register('component:my-component', sharedComponent);
+      this.add('component:my-component', sharedComponent);
 
       this.router.map(function () {
         this.mount('blog');
       });
-      this.application.register('route-map:blog', function () {});
+      this.add('route-map:blog', function () {});
 
-      this.registerEngine('blog', _emberApplication.Engine.extend({
+      this.add('engine:blog', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
           this.register('template:application', (0, _helpers.compile)((0, _abstractTestCase.strip)(_templateObject5)));
@@ -8231,7 +8308,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       this.setupAppAndRoutableEngine();
 
-      this.registerEngine('blog', _emberApplication.Engine.extend({
+      this.add('engine:blog', _emberApplication.Engine.extend({
         init: function () {
           this._super.apply(this, arguments);
           this.register('template:application', (0, _helpers.compile)('Engine{{outlet}}'));
@@ -8265,7 +8342,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       assert.expect(2);
 
       this.setupAppAndRoutableEngine();
-      this.application.__registry__.resolver.moduleBasedResolver = true;
       this.additionalEngineRegistrations(function () {
         this.register('template:application_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
@@ -8289,7 +8365,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       assert.expect(2);
 
       this.setupAppAndRoutableEngine();
-      this.application.__registry__.resolver.moduleBasedResolver = true;
       this.additionalEngineRegistrations(function () {
         this.register('template:error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
@@ -8313,7 +8388,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       assert.expect(2);
 
       this.setupAppAndRoutableEngine();
-      this.application.__registry__.resolver.moduleBasedResolver = true;
       this.additionalEngineRegistrations(function () {
         this.register('template:post_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
@@ -8337,7 +8411,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       assert.expect(2);
 
       this.setupAppAndRoutableEngine();
-      this.application.__registry__.resolver.moduleBasedResolver = true;
       this.additionalEngineRegistrations(function () {
         this.register('template:post.error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post.comments', _emberRouting.Route.extend({
@@ -8363,7 +8436,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var resolveLoading = void 0;
 
       this.setupAppAndRoutableEngine();
-      this.application.__registry__.resolver.moduleBasedResolver = true;
       this.additionalEngineRegistrations(function () {
         this.register('template:application_loading', (0, _helpers.compile)('Loading'));
         this.register('template:post', (0, _helpers.compile)('Post'));
@@ -8438,7 +8510,6 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var resolveLoading = void 0;
 
       this.setupAppAndRoutableEngine();
-      this.application.__registry__.resolver.moduleBasedResolver = true;
       this.additionalEngineRegistrations(function () {
         this.register('template:post', (0, _helpers.compile)('{{outlet}}'));
         this.register('template:post.comments', (0, _helpers.compile)('Comments'));
@@ -8585,7 +8656,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
     _class.prototype['@test it can render the application template'] = function testItCanRenderTheApplicationTemplate(assert) {
       var _this2 = this;
 
-      this.registerTemplate('application', 'Hello world!');
+      this.addTemplate('application', 'Hello world!');
 
       return this.visit('/').then(function () {
         _this2.assertText('Hello world!');
@@ -8595,13 +8666,13 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
     _class.prototype['@test it can access the model provided by the route'] = function testItCanAccessTheModelProvidedByTheRoute(assert) {
       var _this3 = this;
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         model: function () {
           return ['red', 'yellow', 'blue'];
         }
       }));
 
-      this.registerTemplate('application', (0, _abstractTestCase.strip)(_templateObject));
+      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/').then(function () {
         _this3.assertComponentElement(_this3.firstChild, {
@@ -8622,13 +8693,13 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
       });
 
       // The "favorite" route will inherit the model
-      this.registerRoute('lists.colors', _emberRouting.Route.extend({
+      this.add('route:lists.colors', _emberRouting.Route.extend({
         model: function () {
           return ['red', 'yellow', 'blue'];
         }
       }));
 
-      this.registerTemplate('lists.colors.favorite', (0, _abstractTestCase.strip)(_templateObject));
+      this.addTemplate('lists.colors.favorite', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/lists/colors/favorite').then(function () {
         _this4.assertComponentElement(_this4.firstChild, {
@@ -8644,11 +8715,11 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('colors');
       });
 
-      this.registerTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
+      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
 
-      this.registerTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
+      this.addTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         renderTemplate: function () {
           this.render();
           this.render('nav', {
@@ -8658,13 +8729,13 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         }
       }));
 
-      this.registerRoute('colors', _emberRouting.Route.extend({
+      this.add('route:colors', _emberRouting.Route.extend({
         model: function () {
           return ['red', 'yellow', 'blue'];
         }
       }));
 
-      this.registerTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
+      this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/colors').then(function () {
         _this5.assertComponentElement(_this5.firstChild, {
@@ -8680,11 +8751,11 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('colors');
       });
 
-      this.registerTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
+      this.addTemplate('application', (0, _abstractTestCase.strip)(_templateObject3));
 
-      this.registerTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
+      this.addTemplate('nav', (0, _abstractTestCase.strip)(_templateObject4));
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         renderTemplate: function () {
           this.render();
           this.render('nav', {
@@ -8694,13 +8765,13 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         }
       }));
 
-      this.registerRoute('colors', _emberRouting.Route.extend({
+      this.add('route:colors', _emberRouting.Route.extend({
         model: function () {
           return ['red', 'yellow', 'blue'];
         }
       }));
 
-      this.registerTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
+      this.addTemplate('colors', (0, _abstractTestCase.strip)(_templateObject));
 
       return this.visit('/colors').then(function () {
         _this6.assertComponentElement(_this6.firstChild, {
@@ -8720,10 +8791,10 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         });
       });
 
-      this.registerTemplate('a', 'A{{outlet}}');
-      this.registerTemplate('b', 'B{{outlet}}');
-      this.registerTemplate('b.c', 'C');
-      this.registerTemplate('b.d', 'D');
+      this.addTemplate('a', 'A{{outlet}}');
+      this.addTemplate('b', 'B{{outlet}}');
+      this.addTemplate('b.c', 'C');
+      this.addTemplate('b.d', 'D');
 
       return this.visit('/b/c').then(function () {
         // this.assertComponentElement(this.firstChild, { content: 'BC' });
@@ -8746,13 +8817,13 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('color', { path: '/colors/:color' });
       });
 
-      this.registerRoute('color', _emberRouting.Route.extend({
+      this.add('route:color', _emberRouting.Route.extend({
         model: function (params) {
           return params.color;
         }
       }));
 
-      this.registerTemplate('color', 'color: {{model}}');
+      this.addTemplate('color', 'color: {{model}}');
 
       return this.visit('/colors/red').then(function () {
         _this8.assertComponentElement(_this8.firstChild, { content: 'color: red' });
@@ -8772,16 +8843,16 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('b');
       });
 
-      this.registerController('a', _emberRuntime.Controller.extend({
+      this.add('controller:a', _emberRuntime.Controller.extend({
         value: 'a'
       }));
 
-      this.registerController('b', _emberRuntime.Controller.extend({
+      this.add('controller:b', _emberRuntime.Controller.extend({
         value: 'b'
       }));
 
-      this.registerTemplate('a', '{{value}}');
-      this.registerTemplate('b', '{{value}}');
+      this.addTemplate('a', '{{value}}');
+      this.addTemplate('b', '{{value}}');
 
       return this.visit('/a').then(function () {
         _this9.assertText('a');
@@ -8798,7 +8869,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('color', { path: '/colors/:color' });
       });
 
-      this.registerRoute('color', _emberRouting.Route.extend({
+      this.add('route:color', _emberRouting.Route.extend({
         model: function (params) {
           return { color: params.color };
         },
@@ -8807,15 +8878,15 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         }
       }));
 
-      this.registerController('red', _emberRuntime.Controller.extend({
+      this.add('controller:red', _emberRuntime.Controller.extend({
         color: 'red'
       }));
 
-      this.registerController('green', _emberRuntime.Controller.extend({
+      this.add('controller:green', _emberRuntime.Controller.extend({
         color: 'green'
       }));
 
-      this.registerTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
+      this.addTemplate('color', 'model color: {{model.color}}, controller color: {{color}}');
 
       return this.visit('/colors/red').then(function () {
         _this10.assertComponentElement(_this10.firstChild, { content: 'model color: red, controller color: red' });
@@ -8835,7 +8906,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('b');
       });
 
-      this.registerRoute('a', _emberRouting.Route.extend({
+      this.add('route:a', _emberRouting.Route.extend({
         model: function () {
           return 'A';
         },
@@ -8844,7 +8915,7 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         }
       }));
 
-      this.registerRoute('b', _emberRouting.Route.extend({
+      this.add('route:b', _emberRouting.Route.extend({
         model: function () {
           return 'B';
         },
@@ -8853,11 +8924,11 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         }
       }));
 
-      this.registerController('common', _emberRuntime.Controller.extend({
+      this.add('controller:common', _emberRuntime.Controller.extend({
         prefix: 'common'
       }));
 
-      this.registerTemplate('common', '{{prefix}} {{model}}');
+      this.addTemplate('common', '{{prefix}} {{model}}');
 
       return this.visit('/a').then(function () {
         _this11.assertComponentElement(_this11.firstChild, { content: 'common A' });
@@ -8878,8 +8949,8 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
     _class.prototype['@test a child outlet is always a fragment'] = function testAChildOutletIsAlwaysAFragment() {
       var _this12 = this;
 
-      this.registerTemplate('application', '{{outlet}}');
-      this.registerTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
+      this.addTemplate('application', '{{outlet}}');
+      this.addTemplate('index', '{{#if true}}1{{/if}}<div>2</div>');
       return this.visit('/').then(function () {
         _this12.assertComponentElement(_this12.firstChild, { content: '1<div>2</div>' });
       });
@@ -8892,13 +8963,13 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('a');
       });
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         activate: function () {
           this.transitionTo('a');
         }
       }));
 
-      this.registerTemplate('a', 'Hello from A!');
+      this.addTemplate('a', 'Hello from A!');
 
       return this.visit('/').then(function () {
         _this13.assertComponentElement(_this13.firstChild, {
@@ -8914,15 +8985,15 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
         this.route('routeWithError');
       });
 
-      this.registerRoute('routeWithError', _emberRouting.Route.extend({
+      this.add('route:routeWithError', _emberRouting.Route.extend({
         model: function () {
           return { name: 'Alex' };
         }
       }));
 
-      this.registerTemplate('routeWithError', 'Hi {{model.name}} {{x-foo person=model}}');
+      this.addTemplate('routeWithError', 'Hi {{model.name}} {{x-foo person=model}}');
 
-      this.registerComponent('x-foo', {
+      this.addComponent('x-foo', {
         ComponentClass: _emberGlimmer.Component.extend({
           init: function () {
             this._super.apply(this, arguments);
@@ -18961,7 +19032,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
 
     _class.prototype['@test accessing `currentWhen` triggers a deprecation'] = function testAccessingCurrentWhenTriggersADeprecation(assert) {
       var component = void 0;
-      this.registerComponent('link-to', {
+      this.addComponent('link-to', {
         ComponentClass: _helpers.LinkComponent.extend({
           init: function () {
             this._super.apply(this, arguments);
@@ -18970,7 +19041,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
         })
       });
 
-      this.registerTemplate('application', '{{link-to \'Index\' \'index\'}}');
+      this.addTemplate('application', '{{link-to \'Index\' \'index\'}}');
 
       return this.visit('/').then(function () {
         expectDeprecation(function () {
@@ -18982,7 +19053,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class.prototype['@test should be able to be inserted in DOM when the router is not present'] = function testShouldBeAbleToBeInsertedInDOMWhenTheRouterIsNotPresent() {
       var _this3 = this;
 
-      this.registerTemplate('application', '{{#link-to \'index\'}}Go to Index{{/link-to}}');
+      this.addTemplate('application', '{{#link-to \'index\'}}Go to Index{{/link-to}}');
 
       return this.visit('/').then(function () {
         _this3.assertText('Go to Index');
@@ -18994,8 +19065,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
 
       var controller = void 0;
 
-      this.registerTemplate('application', '{{link-to title routeName}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addTemplate('application', '{{link-to title routeName}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         init: function () {
           this._super.apply(this, arguments);
           controller = this;
@@ -19017,8 +19088,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class.prototype['@test escaped inline form (double curlies) escapes link title'] = function testEscapedInlineFormDoubleCurliesEscapesLinkTitle() {
       var _this5 = this;
 
-      this.registerTemplate('application', '{{link-to title \'index\'}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addTemplate('application', '{{link-to title \'index\'}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         title: '<b>blah</b>'
       }));
 
@@ -19030,8 +19101,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class.prototype['@test escaped inline form with (-html-safe) does not escape link title'] = function testEscapedInlineFormWithHtmlSafeDoesNotEscapeLinkTitle(assert) {
       var _this6 = this;
 
-      this.registerTemplate('application', '{{link-to (-html-safe title) \'index\'}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addTemplate('application', '{{link-to (-html-safe title) \'index\'}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         title: '<b>blah</b>'
       }));
 
@@ -19044,8 +19115,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class.prototype['@test unescaped inline form (triple curlies) does not escape link title'] = function testUnescapedInlineFormTripleCurliesDoesNotEscapeLinkTitle(assert) {
       var _this7 = this;
 
-      this.registerTemplate('application', '{{{link-to title \'index\'}}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addTemplate('application', '{{{link-to title \'index\'}}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         title: '<b>blah</b>'
       }));
 
@@ -19061,8 +19132,8 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       this.router.map(function () {
         this.route('profile', { path: '/profile/:id' });
       });
-      this.registerTemplate('application', '{{#link-to \'profile\' otherController}}Text{{/link-to}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addTemplate('application', '{{#link-to \'profile\' otherController}}Text{{/link-to}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         otherController: _emberRuntime.Controller.create({
           model: 'foo'
         })
@@ -19078,9 +19149,9 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class.prototype['@test able to safely extend the built-in component and use the normal path'] = function testAbleToSafelyExtendTheBuiltInComponentAndUseTheNormalPath() {
       var _this9 = this;
 
-      this.registerComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
-      this.registerTemplate('application', '{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
+      this.addTemplate('application', '{{#custom-link-to \'index\'}}{{title}}{{/custom-link-to}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         title: 'Hello'
       }));
 
@@ -19092,9 +19163,9 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class.prototype['@test [GH#13432] able to safely extend the built-in component and invoke it inline'] = function testGH13432AbleToSafelyExtendTheBuiltInComponentAndInvokeItInline() {
       var _this10 = this;
 
-      this.registerComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
-      this.registerTemplate('application', '{{custom-link-to title \'index\'}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addComponent('custom-link-to', { ComponentClass: _helpers.LinkComponent.extend() });
+      this.addTemplate('application', '{{custom-link-to title \'index\'}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         title: 'Hello'
       }));
 
@@ -19114,7 +19185,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
 
       var _this11 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest2.apply(this, arguments));
 
-      _this11.registerController('index', _emberRuntime.Controller.extend({
+      _this11.add('controller:index', _emberRuntime.Controller.extend({
         queryParams: ['foo'],
         foo: '123',
         bar: 'yes'
@@ -19125,7 +19196,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class2.prototype['@test populates href with fully supplied query param values'] = function testPopulatesHrefWithFullySuppliedQueryParamValues(assert) {
       var _this12 = this;
 
-      this.registerTemplate('index', '{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\')}}Index{{/link-to}}');
+      this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
         _this12.assertComponentElement(_this12.firstChild.firstElementChild, {
@@ -19139,7 +19210,7 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
     _class2.prototype['@test populates href with partially supplied query param values, but omits if value is default value'] = function testPopulatesHrefWithPartiallySuppliedQueryParamValuesButOmitsIfValueIsDefaultValue() {
       var _this13 = this;
 
-      this.registerTemplate('index', '{{#link-to \'index\' (query-params foo=\'123\')}}Index{{/link-to}}');
+      this.addTemplate('index', '{{#link-to \'index\' (query-params foo=\'123\')}}Index{{/link-to}}');
 
       return this.visit('/').then(function () {
         _this13.assertComponentElement(_this13.firstChild.firstElementChild, {
@@ -19810,7 +19881,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
         });
       });
 
-      this.registerComponent('foo-bar', {
+      this.addComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
           init: function () {
             this._super.apply(this, arguments);
@@ -19820,15 +19891,15 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
         template: '{{val}}'
       });
 
-      this.registerController('a', _emberRuntime.Controller.extend({
+      this.add('controller:a', _emberRuntime.Controller.extend({
         send: function (actionName, actionContext) {
           assert.equal(actionName, 'poke', 'send() method was invoked from a top level controller');
           assert.equal(actionContext, 'top', 'action arguments were passed into the top level controller');
         }
       }));
-      this.registerTemplate('a', '{{foo-bar val="a" poke="poke"}}');
+      this.addTemplate('a', '{{foo-bar val="a" poke="poke"}}');
 
-      this.registerRoute('b', _emberRouting.Route.extend({
+      this.add('route:b', _emberRouting.Route.extend({
         actions: {
           poke: function (actionContext) {
             assert.ok(true, 'Unhandled action sent to route');
@@ -19836,9 +19907,9 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
           }
         }
       }));
-      this.registerTemplate('b', '{{foo-bar val="b" poke="poke"}}');
+      this.addTemplate('b', '{{foo-bar val="b" poke="poke"}}');
 
-      this.registerRoute('c', _emberRouting.Route.extend({
+      this.add('route:c', _emberRouting.Route.extend({
         actions: {
           poke: function (actionContext) {
             assert.ok(true, 'Unhandled action sent to route');
@@ -19846,19 +19917,19 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
           }
         }
       }));
-      this.registerTemplate('c', '{{foo-bar val="c" poke="poke"}}{{outlet}}');
+      this.addTemplate('c', '{{foo-bar val="c" poke="poke"}}{{outlet}}');
 
-      this.registerRoute('c.d', _emberRouting.Route.extend({}));
+      this.add('route:c.d', _emberRouting.Route.extend({}));
 
-      this.registerController('c.d', _emberRuntime.Controller.extend({
+      this.add('controller:c.d', _emberRuntime.Controller.extend({
         send: function (actionName, actionContext) {
           assert.equal(actionName, 'poke', 'send() method was invoked from a nested controller');
           assert.equal(actionContext, 'nested', 'action arguments were passed into the nested controller');
         }
       }));
-      this.registerTemplate('c.d', '{{foo-bar val=".d" poke="poke"}}');
+      this.addTemplate('c.d', '{{foo-bar val=".d" poke="poke"}}');
 
-      this.registerRoute('c.e', _emberRouting.Route.extend({
+      this.add('route:c.e', _emberRouting.Route.extend({
         actions: {
           poke: function (actionContext) {
             assert.ok(true, 'Unhandled action sent to route');
@@ -19866,7 +19937,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
           }
         }
       }));
-      this.registerTemplate('c.e', '{{foo-bar val=".e" poke="poke"}}');
+      this.addTemplate('c.e', '{{foo-bar val=".e" poke="poke"}}');
 
       return this.visit('/a').then(function () {
         return component.sendAction('poke', 'top');
@@ -19900,7 +19971,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
 
       var component = void 0;
 
-      this.registerComponent('x-parent', {
+      this.addComponent('x-parent', {
         ComponentClass: _helpers.Component.extend({
           actions: {
             poke: function () {
@@ -19911,7 +19982,7 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
         template: '{{x-child poke="poke"}}'
       });
 
-      this.registerComponent('x-child', {
+      this.addComponent('x-child', {
         ComponentClass: _helpers.Component.extend({
           init: function () {
             this._super.apply(this, arguments);
@@ -19920,8 +19991,8 @@ enifed('ember-glimmer/tests/integration/components/target-action-test', ['ember-
         })
       });
 
-      this.registerTemplate('application', '{{x-parent}}');
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.addTemplate('application', '{{x-parent}}');
+      this.add('controller:application', _emberRuntime.Controller.extend({
         send: function (actionName) {
           throw new Error('controller action should not be called');
         }
@@ -20213,7 +20284,7 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
 
       var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest.call(this));
 
-      _this.registerComponent('x-tagless', {
+      _this.addComponent('x-tagless', {
         ComponentClass: _helpers.Component.extend({
           tagName: ''
         }),
@@ -20221,7 +20292,7 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
         template: '<div id="{{id}}">[{{id}}] {{#if isShowing}}{{yield}}{{/if}}</div>'
       });
 
-      _this.registerComponent('x-toggle', {
+      _this.addComponent('x-toggle', {
         ComponentClass: _helpers.Component.extend({
           isExpanded: true,
 
@@ -20244,19 +20315,19 @@ enifed('ember-glimmer/tests/integration/components/utils-test', ['ember-babel', 
         }
       });
 
-      _this.registerController('application', ToggleController);
+      _this.add('controller:application', ToggleController);
 
-      _this.registerTemplate('application', '\n      {{x-tagless id="root-1"}}\n\n      {{#x-toggle id="root-2"}}\n        {{x-toggle id="inner-1"}}\n\n        {{#x-toggle id="inner-2"}}\n          {{x-toggle id="inner-3"}}\n        {{/x-toggle}}\n      {{/x-toggle}}\n\n      <button id="toggle-application" {{action "toggle"}}>Toggle</button>\n\n      {{#if isExpanded}}\n        {{x-toggle id="root-3"}}\n      {{/if}}\n\n      {{outlet}}\n    ');
+      _this.addTemplate('application', '\n      {{x-tagless id="root-1"}}\n\n      {{#x-toggle id="root-2"}}\n        {{x-toggle id="inner-1"}}\n\n        {{#x-toggle id="inner-2"}}\n          {{x-toggle id="inner-3"}}\n        {{/x-toggle}}\n      {{/x-toggle}}\n\n      <button id="toggle-application" {{action "toggle"}}>Toggle</button>\n\n      {{#if isExpanded}}\n        {{x-toggle id="root-3"}}\n      {{/if}}\n\n      {{outlet}}\n    ');
 
-      _this.registerController('index', ToggleController.extend({
+      _this.add('controller:index', ToggleController.extend({
         isExpanded: false
       }));
 
-      _this.registerTemplate('index', '\n      {{x-tagless id="root-4"}}\n\n      {{#x-toggle id="root-5" isExpanded=false}}\n        {{x-toggle id="inner-4"}}\n\n        {{#x-toggle id="inner-5"}}\n          {{x-toggle id="inner-6"}}\n        {{/x-toggle}}\n      {{/x-toggle}}\n\n      <button id="toggle-index" {{action "toggle"}}>Toggle</button>\n\n      {{#if isExpanded}}\n        {{x-toggle id="root-6"}}\n      {{/if}}\n    ');
+      _this.addTemplate('index', '\n      {{x-tagless id="root-4"}}\n\n      {{#x-toggle id="root-5" isExpanded=false}}\n        {{x-toggle id="inner-4"}}\n\n        {{#x-toggle id="inner-5"}}\n          {{x-toggle id="inner-6"}}\n        {{/x-toggle}}\n      {{/x-toggle}}\n\n      <button id="toggle-index" {{action "toggle"}}>Toggle</button>\n\n      {{#if isExpanded}}\n        {{x-toggle id="root-6"}}\n      {{/if}}\n    ');
 
-      _this.registerTemplate('zomg', '\n      {{x-tagless id="root-7"}}\n\n      {{#x-toggle id="root-8"}}\n        {{x-toggle id="inner-7"}}\n\n        {{#x-toggle id="inner-8"}}\n          {{x-toggle id="inner-9"}}\n        {{/x-toggle}}\n      {{/x-toggle}}\n\n      {{#x-toggle id="root-9"}}\n        {{outlet}}\n      {{/x-toggle}}\n    ');
+      _this.addTemplate('zomg', '\n      {{x-tagless id="root-7"}}\n\n      {{#x-toggle id="root-8"}}\n        {{x-toggle id="inner-7"}}\n\n        {{#x-toggle id="inner-8"}}\n          {{x-toggle id="inner-9"}}\n        {{/x-toggle}}\n      {{/x-toggle}}\n\n      {{#x-toggle id="root-9"}}\n        {{outlet}}\n      {{/x-toggle}}\n    ');
 
-      _this.registerTemplate('zomg.lol', '\n      {{x-toggle id="inner-10"}}\n    ');
+      _this.addTemplate('zomg.lol', '\n      {{x-toggle id="inner-10"}}\n    ');
 
       _this.router.map(function () {
         this.route('zomg', function () {
@@ -31854,7 +31925,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
 
       var engineRegistrations = _this5.engineRegistrations = {};
 
-      _this5.registerEngine('chat', _emberApplication.Engine.extend({
+      _this5.add('engine:chat', _emberApplication.Engine.extend({
         router: null,
 
         init: function () {
@@ -31868,7 +31939,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         }
       }));
 
-      _this5.registerTemplate('index', '{{mount "chat"}}');
+      _this5.addTemplate('index', '{{mount "chat"}}');
       return _this5;
     }
 
@@ -31917,8 +31988,8 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         this.route('route-with-mount');
       });
 
-      this.registerTemplate('index', '');
-      this.registerTemplate('route-with-mount', '{{mount "chat"}}');
+      this.addTemplate('index', '');
+      this.addTemplate('route-with-mount', '{{mount "chat"}}');
 
       this.engineRegistrations['template:application'] = (0, _helpers.compile)('hi {{person.name}} [{{component-with-backtracking-set person=person}}]', { moduleName: 'application' });
       this.engineRegistrations['controller:application'] = _emberRuntime.Controller.extend({
@@ -31954,23 +32025,23 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         this.route('bound-engine-name');
       });
       var controller = void 0;
-      this.registerController('bound-engine-name', _emberRuntime.Controller.extend({
+      this.add('controller:bound-engine-name', _emberRuntime.Controller.extend({
         engineName: null,
         init: function () {
           this._super();
           controller = this;
         }
       }));
-      this.registerTemplate('bound-engine-name', '{{mount engineName}}');
+      this.addTemplate('bound-engine-name', '{{mount engineName}}');
 
-      this.registerEngine('foo', _emberApplication.Engine.extend({
+      this.add('engine:foo', _emberApplication.Engine.extend({
         router: null,
         init: function () {
           this._super.apply(this, arguments);
           this.register('template:application', (0, _helpers.compile)('<h2>Foo Engine</h2>', { moduleName: 'application' }));
         }
       }));
-      this.registerEngine('bar', _emberApplication.Engine.extend({
+      this.add('engine:bar', _emberApplication.Engine.extend({
         router: null,
         init: function () {
           this._super.apply(this, arguments);
@@ -73383,7 +73454,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       var appModelCount = 0;
       var promiseResolve = void 0;
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         queryParams: {
           appomg: {
             defaultValue: 'applol'
@@ -73400,7 +73471,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       var actionName = typeof loadingReturn !== 'undefined' ? 'loading' : 'ignore';
       var indexModelCount = 0;
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true
@@ -73465,7 +73536,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         });
       });
 
-      this.registerRoute('parent.child', _emberRouting.Route.extend({
+      this.add('route:parent.child', _emberRouting.Route.extend({
         afterModel: function () {
           this.transitionTo('parent.sibling');
         }
@@ -73506,7 +73577,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(6);
 
-      this.registerController('index', _emberRuntime.Controller.extend({
+      this.add('controller:index', _emberRuntime.Controller.extend({
         queryParams: [{ foo: 'other_foo', bar: { as: 'other_bar' } }],
         foo: 'FOO',
         bar: 'BAR'
@@ -73537,7 +73608,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(2);
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         serializeQueryParamKey: _emberRuntime.String.dasherize
       }));
 
@@ -73600,7 +73671,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index');
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { foo: 'bar' });
         }
@@ -73618,7 +73689,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index');
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { foo: 'bar', id: 'baz' });
         }
@@ -73636,7 +73707,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index');
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { foo: 'baz', id: 'boo' });
         }
@@ -73674,15 +73745,15 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         this.route('about');
       });
 
-      this.registerTemplate('home', '<h3>{{link-to \'About\' \'about\' (query-params lol=\'wat\') id=\'link-to-about\'}}</h3>');
-      this.registerTemplate('about', '<h3>{{link-to \'Home\' \'home\'  (query-params foo=\'naw\')}}</h3>');
-      this.registerTemplate('cats.index', '<h3>{{link-to \'Cats\' \'cats\'  (query-params name=\'domino\') id=\'cats-link\'}}</h3>');
+      this.addTemplate('home', '<h3>{{link-to \'About\' \'about\' (query-params lol=\'wat\') id=\'link-to-about\'}}</h3>');
+      this.addTemplate('about', '<h3>{{link-to \'Home\' \'home\'  (query-params foo=\'naw\')}}</h3>');
+      this.addTemplate('cats.index', '<h3>{{link-to \'Cats\' \'cats\'  (query-params name=\'domino\') id=\'cats-link\'}}</h3>');
 
       var homeShouldBeCreated = false;
       var aboutShouldBeCreated = false;
       var catsIndexShouldBeCreated = false;
 
-      this.registerRoute('home', _emberRouting.Route.extend({
+      this.add('route:home', _emberRouting.Route.extend({
         setup: function () {
           homeShouldBeCreated = true;
           this._super.apply(this, arguments);
@@ -73696,7 +73767,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         }
       });
 
-      this.registerRoute('about', _emberRouting.Route.extend({
+      this.add('route:about', _emberRouting.Route.extend({
         setup: function () {
           aboutShouldBeCreated = true;
           this._super.apply(this, arguments);
@@ -73710,7 +73781,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         }
       });
 
-      this.registerRoute('cats.index', _emberRouting.Route.extend({
+      this.add('route:cats.index', _emberRouting.Route.extend({
         model: function () {
           return [];
         },
@@ -73723,7 +73794,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         }
       }));
 
-      this.registerController('cats.index', _emberRuntime.Controller.extend({
+      this.add('controller:cats.index', _emberRuntime.Controller.extend({
         queryParams: ['breed', 'name'],
         breed: 'Golden',
         name: null,
@@ -73757,7 +73828,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('application');
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         setupController: function (controller) {
           assert.equal(controller.get('foo'), 'YEAH', 'controller\'s foo QP property set before setupController called');
         }
@@ -73771,7 +73842,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('application', { faz: 'foo' });
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         setupController: function (controller) {
           assert.equal(controller.get('faz'), 'YEAH', 'controller\'s foo QP property set before setupController called');
         }
@@ -73789,7 +73860,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index');
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params, transition) {
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: 'bar' }, 'could retrieve params for index');
         }
@@ -73807,7 +73878,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index');
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params, transition) {
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: 'boo' }, 'could retrieve params for index');
         }
@@ -73825,7 +73896,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index', 'foo', false);
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params, transition) {
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: false }, 'could retrieve params for index');
         }
@@ -73843,7 +73914,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index', 'foo', true);
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params, transition) {
           assert.deepEqual(this.paramsFor('index'), { something: 'baz', foo: false }, 'could retrieve params for index');
         }
@@ -73858,13 +73929,13 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('application', 'appomg', 'applol');
       this.setSingleQPController('index', 'omg', 'lol');
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { appomg: 'applol' });
         }
       }));
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { omg: 'lol' });
           assert.deepEqual(this.paramsFor('application'), { appomg: 'applol' });
@@ -73880,13 +73951,13 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('application', 'appomg', 'applol');
       this.setSingleQPController('index', 'omg', 'lol');
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { appomg: 'appyes' });
         }
       }));
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { omg: 'yes' });
           assert.deepEqual(this.paramsFor('application'), { appomg: 'appyes' });
@@ -73905,14 +73976,14 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'omg', 'lol');
 
       var appModelCount = 0;
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         model: function (params) {
           appModelCount++;
         }
       }));
 
       var indexModelCount = 0;
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true
@@ -73950,7 +74021,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'steely', 'lel');
 
       var refreshCount = 0;
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         queryParams: {
           alex: {
             refreshModel: true
@@ -73977,7 +74048,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('application', 'appomg', 'applol');
       this.setSingleQPController('index', 'omg', 'lol');
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true
@@ -73994,7 +74065,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
     _class.prototype['@test queryParams are updated when a controller property is set and the route is refreshed. Issue #13263  '] = function testQueryParamsAreUpdatedWhenAControllerPropertyIsSetAndTheRouteIsRefreshedIssue13263(assert) {
       var _this13 = this;
 
-      this.registerTemplate('application', '<button id="test-button" {{action \'increment\'}}>Increment</button><span id="test-value">{{foo}}</span>{{outlet}}');
+      this.addTemplate('application', '<button id="test-button" {{action \'increment\'}}>Increment</button><span id="test-value">{{foo}}</span>{{outlet}}');
 
       this.setSingleQPController('application', 'foo', 1, {
         actions: {
@@ -74005,7 +74076,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         }
       });
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         actions: {
           refreshRoute: function () {
             this.refresh();
@@ -74035,14 +74106,14 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'omg', 'lol');
 
       var appModelCount = 0;
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         model: function (params) {
           appModelCount++;
         }
       }));
 
       var indexModelCount = 0;
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         queryParams: _emberRuntime.Object.create({
           unknownProperty: function (keyName) {
             return { refreshModel: true };
@@ -74079,7 +74150,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       this.setSingleQPController('index', 'omg', 'lol');
 
       var indexModelCount = 0;
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true
@@ -74114,7 +74185,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('application', 'alex', 'matchneer');
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         queryParams: {
           alex: {
             replace: true
@@ -74134,11 +74205,11 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(2);
 
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         queryParams: [{ commitBy: 'commit_by' }]
       }));
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         queryParams: {
           commitBy: {
             replace: true
@@ -74158,13 +74229,13 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(3);
 
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         queryParams: ['alex', 'steely'],
         alex: 'matchneer',
         steely: 'dan'
       }));
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         queryParams: {
           alex: {
             replace: true
@@ -74189,8 +74260,8 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
     };
 
     _class.prototype['@test can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent'] = function testCanOptIntoFullTransitionBySettingRefreshModelInRouteQueryParamsWhenTransitioningFromChildToParent(assert) {
-      this.registerTemplate('parent', '{{outlet}}');
-      this.registerTemplate('parent.child', '{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
+      this.addTemplate('parent', '{{outlet}}');
+      this.addTemplate('parent.child', '{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
 
       this.router.map(function () {
         this.route('parent', function () {
@@ -74199,7 +74270,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       });
 
       var parentModelCount = 0;
-      this.registerRoute('parent', _emberRouting.Route.extend({
+      this.add('route:parent', _emberRouting.Route.extend({
         model: function () {
           parentModelCount++;
         },
@@ -74228,7 +74299,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('application', 'alex', 'matchneer');
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         queryParams: _emberRuntime.Object.create({
           unknownProperty: function (keyName) {
             // We are simulating all qps requiring refresh
@@ -74255,7 +74326,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index', 'omg', 'lol');
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         setupController: function (controller) {
           assert.ok(true, 'setupController called');
           controller.set('omg', 'OVERRIDE');
@@ -74285,7 +74356,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index', 'omg', ['lol']);
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         setupController: function (controller) {
           assert.ok(true, 'setupController called');
           controller.set('omg', ['OVERRIDE']);
@@ -74331,7 +74402,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         });
       });
 
-      this.registerTemplate('application', '{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
+      this.addTemplate('application', '{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
 
       this.setSingleQPController('abc.def', 'foo', 'lol');
       this.setSingleQPController('abc.def.zoo', 'bar', 'haha');
@@ -74371,7 +74442,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
     _class.prototype['@test transitionTo supports query params (multiple)'] = function testTransitionToSupportsQueryParamsMultiple(assert) {
       var _this25 = this;
 
-      this.registerController('index', _emberRuntime.Controller.extend({
+      this.add('controller:index', _emberRuntime.Controller.extend({
         queryParams: ['foo', 'bar'],
         foo: 'lol',
         bar: 'wat'
@@ -74412,7 +74483,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(1);
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -74435,7 +74506,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('index', 'foo', false);
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         model: function (params) {
           assert.equal(params.foo, true, 'model hook received foo as boolean true');
         }
@@ -74455,7 +74526,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(1);
 
-      this.registerController('index', _emberRuntime.Controller.extend({
+      this.add('controller:index', _emberRuntime.Controller.extend({
         queryParams: ['foo'],
         foo: ''
       }));
@@ -74576,7 +74647,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       });
 
       var modelCount = 0;
-      this.registerRoute('home', _emberRouting.Route.extend({
+      this.add('route:home', _emberRouting.Route.extend({
         model: function () {
           modelCount++;
         }
@@ -74610,7 +74681,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       // unless we return a copy of the params hash.
       this.setSingleQPController('application', 'woot', 'wat');
 
-      this.registerRoute('other', _emberRouting.Route.extend({
+      this.add('route:other', _emberRouting.Route.extend({
         model: function (p, trans) {
           var m = (0, _emberMetal.meta)(trans.params.application);
           assert.ok(!m.peekWatching('woot'), 'A meta object isn\'t constructed for this params POJO');
@@ -74629,13 +74700,13 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         woot: undefined
       });
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         model: function (p, trans) {
           return { woot: true };
         }
       }));
 
-      this.registerRoute('index', _emberRouting.Route.extend({
+      this.add('route:index', _emberRouting.Route.extend({
         setupController: function (controller, model) {
           assert.deepEqual(model, { woot: true }, 'index route inherited model route from parent route');
         }
@@ -74649,7 +74720,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(5);
 
-      this.registerTemplate('application', '{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}{{outlet}}');
+      this.addTemplate('application', '{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}{{outlet}}');
 
       this.router.map(function () {
         this.route('foo');
@@ -74658,7 +74729,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.setSingleQPController('bar', 'raytiley', 'israd');
 
-      this.registerRoute('bar', _emberRouting.Route.extend({
+      this.add('route:bar', _emberRouting.Route.extend({
         queryParams: {
           raytiley: {
             replace: true
@@ -74695,13 +74766,13 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         this.route('example');
       });
 
-      this.registerTemplate('application', '{{link-to \'Example\' \'example\' (query-params foo=undefined) id=\'the-link\'}}');
+      this.addTemplate('application', '{{link-to \'Example\' \'example\' (query-params foo=undefined) id=\'the-link\'}}');
 
       this.setSingleQPController('example', 'foo', undefined, {
         foo: undefined
       });
 
-      this.registerRoute('example', _emberRouting.Route.extend({
+      this.add('route:example', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { foo: undefined });
         }
@@ -74733,7 +74804,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       assert.expect(1);
 
-      this.registerRoute('application', _emberRouting.Route.extend({
+      this.add('route:application', _emberRouting.Route.extend({
         queryParams: [{ commitBy: { replace: true } }]
       }));
 
@@ -74751,7 +74822,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         this.route('constructor');
       });
 
-      this.registerRoute('constructor', _emberRouting.Route.extend({
+      this.add('route:constructor', _emberRouting.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -74886,7 +74957,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       assert.expect(32);
 
-      this.registerTemplate('application', '{{#each articles as |a|}} {{link-to \'Article\' \'' + articleLookup + '\' a.id id=a.id}} {{/each}}');
+      this.addTemplate('application', '{{#each articles as |a|}} {{link-to \'Article\' \'' + articleLookup + '\' a.id id=a.id}} {{/each}}');
 
       return this.boot().then(function () {
         _this4.expectedModelHookParams = { id: 'a-1', q: 'wat', z: 0 };
@@ -75031,7 +75102,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       });
 
-      this.registerTemplate('about', '{{link-to \'A\' \'' + commentsLookup + '\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'' + commentsLookup + '\' \'a-2\' id=\'two\'}}');
+      this.addTemplate('about', '{{link-to \'A\' \'' + commentsLookup + '\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'' + commentsLookup + '\' \'a-2\' id=\'two\'}}');
 
       return this.visitApplication().then(function () {
         _this7.transitionTo(commentsLookup, 'a-1');
@@ -75080,13 +75151,13 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       var articles = (0, _emberRuntime.A)([{ id: 'a-1' }, { id: 'a-2' }, { id: 'a-3' }]);
 
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         articles: articles
       }));
 
       var self = this;
       var assert = this.assert;
-      this.registerRoute('article', _emberRouting.Route.extend({
+      this.add('route:article', _emberRouting.Route.extend({
         model: function (params) {
           if (self.expectedModelHookParams) {
             assert.deepEqual(params, self.expectedModelHookParams, 'the ArticleRoute model hook received the expected merged dynamic segment + query params hash');
@@ -75096,18 +75167,18 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       }));
 
-      this.registerController('article', _emberRuntime.Controller.extend({
+      this.add('controller:article', _emberRuntime.Controller.extend({
         queryParams: ['q', 'z'],
         q: 'wat',
         z: 0
       }));
 
-      this.registerController('comments', _emberRuntime.Controller.extend({
+      this.add('controller:comments', _emberRuntime.Controller.extend({
         queryParams: 'page',
         page: 1
       }));
 
-      this.registerTemplate('application', '{{#each articles as |a|}} 1{{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}');
+      this.addTemplate('application', '{{#each articles as |a|}} 1{{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}');
     };
 
     _class.prototype.visitApplication = function visitApplication() {
@@ -75176,13 +75247,13 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       var site_articles = (0, _emberRuntime.A)([{ id: 'a-1' }, { id: 'a-2' }, { id: 'a-3' }]);
 
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         articles: site_articles
       }));
 
       var self = this;
       var assert = this.assert;
-      this.registerRoute('site.article', _emberRouting.Route.extend({
+      this.add('route:site.article', _emberRouting.Route.extend({
         model: function (params) {
           if (self.expectedModelHookParams) {
             assert.deepEqual(params, self.expectedModelHookParams, 'the ArticleRoute model hook received the expected merged dynamic segment + query params hash');
@@ -75192,18 +75263,18 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       }));
 
-      this.registerController('site.article', _emberRuntime.Controller.extend({
+      this.add('controller:site.article', _emberRuntime.Controller.extend({
         queryParams: ['q', 'z'],
         q: 'wat',
         z: 0
       }));
 
-      this.registerController('site.article.comments', _emberRuntime.Controller.extend({
+      this.add('controller:site.article.comments', _emberRuntime.Controller.extend({
         queryParams: 'page',
         page: 1
       }));
 
-      this.registerTemplate('application', '{{#each articles as |a|}} {{link-to \'Article\' \'site.article\' a id=a.id}} {{/each}} {{outlet}}');
+      this.addTemplate('application', '{{#each articles as |a|}} {{link-to \'Article\' \'site.article\' a id=a.id}} {{/each}} {{outlet}}');
     };
 
     _class2.prototype.visitApplication = function visitApplication() {
@@ -75272,7 +75343,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       var sites = (0, _emberRuntime.A)([{ id: 's-1' }, { id: 's-2' }, { id: 's-3' }]);
       var site_articles = (0, _emberRuntime.A)([{ id: 'a-1' }, { id: 'a-2' }, { id: 'a-3' }]);
 
-      this.registerController('application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         siteArticles: site_articles,
         sites: sites,
         allSitesAllArticles: (0, _emberMetal.computed)({
@@ -75292,7 +75363,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       var self = this;
       var assert = this.assert;
-      this.registerRoute('site', _emberRouting.Route.extend({
+      this.add('route:site', _emberRouting.Route.extend({
         model: function (params) {
           if (self.expectedSiteModelHookParams) {
             assert.deepEqual(params, self.expectedSiteModelHookParams, 'the SiteRoute model hook received the expected merged dynamic segment + query params hash');
@@ -75302,7 +75373,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       }));
 
-      this.registerRoute('site.article', _emberRouting.Route.extend({
+      this.add('route:site.article', _emberRouting.Route.extend({
         model: function (params) {
           if (self.expectedArticleModelHookParams) {
             assert.deepEqual(params, self.expectedArticleModelHookParams, 'the SiteArticleRoute model hook received the expected merged dynamic segment + query params hash');
@@ -75312,23 +75383,23 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       }));
 
-      this.registerController('site', _emberRuntime.Controller.extend({
+      this.add('controller:site', _emberRuntime.Controller.extend({
         queryParams: ['country'],
         country: 'au'
       }));
 
-      this.registerController('site.article', _emberRuntime.Controller.extend({
+      this.add('controller:site.article', _emberRuntime.Controller.extend({
         queryParams: ['q', 'z'],
         q: 'wat',
         z: 0
       }));
 
-      this.registerController('site.article.comments', _emberRuntime.Controller.extend({
+      this.add('controller:site.article.comments', _emberRuntime.Controller.extend({
         queryParams: ['page'],
         page: 1
       }));
 
-      this.registerTemplate('application', '{{#each allSitesAllArticles as |a|}} {{#link-to \'site.article\' a.site_id a.article_id id=a.id}}Article [{{a.site_id}}] [{{a.article_id}}]{{/link-to}} {{/each}} {{outlet}}');
+      this.addTemplate('application', '{{#each allSitesAllArticles as |a|}} {{#link-to \'site.article\' a.site_id a.article_id id=a.id}}Article [{{a.site_id}}] [{{a.article_id}}]{{/link-to}} {{/each}} {{outlet}}');
     };
 
     _class3.prototype.visitApplication = function visitApplication() {
@@ -75823,8 +75894,8 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       var parentController = _emberRuntime.Controller.extend({
         queryParams: { page: 'page' }
       });
-      this.registerController('parent', parentController);
-      this.registerRoute('parent.child', _emberRouting.Route.extend({ controllerName: 'parent' }));
+      this.add('controller:parent', parentController);
+      this.add('route:parent.child', _emberRouting.Route.extend({ controllerName: 'parent' }));
 
       return this.setupBase('/parent').then(function () {
         _this6.transitionTo('parent.child', { queryParams: { page: 2 } });
@@ -75855,11 +75926,11 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
         page: 1
       });
 
-      this.registerController('parent', _emberRuntime.Controller.extend(HasPage, {
+      this.add('controller:parent', _emberRuntime.Controller.extend(HasPage, {
         queryParams: { page: 'yespage' }
       }));
 
-      this.registerController('parent.child', _emberRuntime.Controller.extend(HasPage));
+      this.add('controller:parent.child', _emberRuntime.Controller.extend(HasPage));
 
       return this.setupBase().then(function () {
         _this8.assertCurrentPath('/parent/child');
@@ -75918,7 +75989,7 @@ enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test
       this.setSingleQPController('post');
 
       var setupAppTemplate = function () {
-        _this2.registerTemplate('application', '\n        {{link-to \'Post\' \'post\' 1337 (query-params foo=\'bar\') class=\'post-link\'}}\n        {{link-to \'Post\' \'post\' 7331 (query-params foo=\'boo\') class=\'post-link\'}}\n        {{outlet}}\n      ');
+        _this2.addTemplate('application', '\n        {{link-to \'Post\' \'post\' 1337 (query-params foo=\'bar\') class=\'post-link\'}}\n        {{link-to \'Post\' \'post\' 7331 (query-params foo=\'boo\') class=\'post-link\'}}\n        {{outlet}}\n      ');
       };
 
       setupAppTemplate();
@@ -76067,13 +76138,13 @@ enifed('ember/tests/routing/query_params_test/query_param_async_get_handler_test
         this.route('example');
       });
 
-      this.registerTemplate('application', '{{link-to \'Example\' \'example\' (query-params foo=undefined) id=\'the-link\'}}');
+      this.addTemplate('application', '{{link-to \'Example\' \'example\' (query-params foo=undefined) id=\'the-link\'}}');
 
       this.setSingleQPController('example', 'foo', undefined, {
         foo: undefined
       });
 
-      this.registerRoute('example', _emberRouting.Route.extend({
+      this.add('route:example', _emberRouting.Route.extend({
         model: function (params) {
           assert.deepEqual(params, { foo: undefined });
         }
@@ -76161,9 +76232,9 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     _class.prototype.testParamlessLinks = function testParamlessLinks(assert, routeName) {
       assert.expect(1);
 
-      this.registerTemplate(routeName, '{{link-to \'index\' \'index\' id=\'index-link\'}}');
+      this.addTemplate(routeName, '{{link-to \'index\' \'index\' id=\'index-link\'}}');
 
-      this.registerController(routeName, _emberRuntime.Controller.extend({
+      this.add('controller:' + routeName, _emberRuntime.Controller.extend({
         queryParams: ['foo'],
         foo: 'wat'
       }));
@@ -76218,22 +76289,22 @@ enifed('ember/tests/routing/query_params_test/shared_state_test', ['ember-babel'
         this.route('dashboard');
       });
 
-      this.application.register('service:filters', _emberRuntime.Service.extend({
+      this.add('service:filters', _emberRuntime.Service.extend({
         shared: true
       }));
 
-      this.registerController('home', _emberRuntime.Controller.extend({
+      this.add('controller:home', _emberRuntime.Controller.extend({
         filters: _ember.default.inject.service()
       }));
 
-      this.registerController('dashboard', _emberRuntime.Controller.extend({
+      this.add('controller:dashboard', _emberRuntime.Controller.extend({
         filters: _ember.default.inject.service(),
         queryParams: [{ 'filters.shared': 'shared' }]
       }));
 
-      this.registerTemplate('application', '{{link-to \'Home\' \'home\' }} <div> {{outlet}} </div>');
-      this.registerTemplate('home', '{{link-to \'Dashboard\' \'dashboard\' }}{{input type="checkbox" id=\'filters-checkbox\' checked=(mut filters.shared) }}');
-      this.registerTemplate('dashboard', '{{link-to \'Home\' \'home\' }}');
+      this.addTemplate('application', '{{link-to \'Home\' \'home\' }} <div> {{outlet}} </div>');
+      this.addTemplate('home', '{{link-to \'Dashboard\' \'dashboard\' }}{{input type="checkbox" id=\'filters-checkbox\' checked=(mut filters.shared) }}');
+      this.addTemplate('dashboard', '{{link-to \'Home\' \'home\' }}');
     };
 
     _class.prototype.visitApplication = function visitApplication() {
@@ -76464,7 +76535,7 @@ enifed('ember/tests/routing/router_service_test/basic_test', ['ember-babel', 'em
 
         assert.expect(1);
 
-        this.registerRoute('parent.index', _emberRouting.Route.extend({
+        this.add('route:parent.index', _emberRouting.Route.extend({
           init: function () {
             this._super();
             (0, _emberMetal.set)(this.router, 'rootURL', '/homepage');
@@ -76539,11 +76610,11 @@ enifed('ember/tests/routing/router_service_test/currenturl_lifecycle_test', ['em
 
         ROUTE_NAMES.forEach(function (name) {
           var routeName = 'parent.' + name;
-          _this.registerRoute(routeName, InstrumentedRoute.extend());
-          _this.registerTemplate(routeName, '{{current-url}}');
+          _this.add('route:' + routeName, InstrumentedRoute.extend());
+          _this.addTemplate(routeName, '{{current-url}}');
         });
 
-        _this.registerComponent('current-url', {
+        _this.addComponent('current-url', {
           ComponentClass: _emberGlimmer.Component.extend({
             routerService: _emberRuntime.inject.service('router'),
             currentURL: (0, _emberRuntime.readOnly)('routerService.currentURL')
@@ -76667,7 +76738,7 @@ enifed('ember/tests/routing/router_service_test/replaceWith_test', ['ember-babel
         var testCase = _this;
         testCase.state = [];
 
-        _this.application.register('location:test', _emberRouting.NoneLocation.extend({
+        _this.add('location:test', _emberRouting.NoneLocation.extend({
           setURL: function (path) {
             testCase.state.push(path);
             this.set('path', path);
@@ -76785,7 +76856,7 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var testCase = _this;
         testCase.state = [];
 
-        _this.application.register('location:test', _emberRouting.NoneLocation.extend({
+        _this.add('location:test', _emberRouting.NoneLocation.extend({
           setURL: function (path) {
             testCase.state.push(path);
             this.set('path', path);
@@ -76855,9 +76926,9 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
 
         var componentInstance = void 0;
 
-        this.registerTemplate('parent.index', '{{foo-bar}}');
+        this.addTemplate('parent.index', '{{foo-bar}}');
 
-        this.registerComponent('foo-bar', {
+        this.addComponent('foo-bar', {
           ComponentClass: _emberGlimmer.Component.extend({
             routerService: _emberRuntime.inject.service('router'),
             init: function () {
@@ -76890,9 +76961,9 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
 
         var componentInstance = void 0;
 
-        this.registerTemplate('parent.index', '{{foo-bar}}');
+        this.addTemplate('parent.index', '{{foo-bar}}');
 
-        this.registerComponent('foo-bar', {
+        this.addComponent('foo-bar', {
           ComponentClass: _emberGlimmer.Component.extend({
             routerService: _emberRuntime.inject.service('router'),
             init: function () {
@@ -76926,10 +76997,10 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var componentInstance = void 0;
         var dynamicModel = { id: 1, contents: 'much dynamicism' };
 
-        this.registerTemplate('parent.index', '{{foo-bar}}');
-        this.registerTemplate('dynamic', '{{model.contents}}');
+        this.addTemplate('parent.index', '{{foo-bar}}');
+        this.addTemplate('dynamic', '{{model.contents}}');
 
-        this.registerComponent('foo-bar', {
+        this.addComponent('foo-bar', {
           ComponentClass: _emberGlimmer.Component.extend({
             routerService: _emberRuntime.inject.service('router'),
             init: function () {
@@ -76965,16 +77036,16 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var componentInstance = void 0;
         var dynamicModel = { id: 1, contents: 'much dynamicism' };
 
-        this.registerRoute('dynamic', _emberRouting.Route.extend({
+        this.add('route:dynamic', _emberRouting.Route.extend({
           model: function () {
             return dynamicModel;
           }
         }));
 
-        this.registerTemplate('parent.index', '{{foo-bar}}');
-        this.registerTemplate('dynamic', '{{model.contents}}');
+        this.addTemplate('parent.index', '{{foo-bar}}');
+        this.addTemplate('dynamic', '{{model.contents}}');
 
-        this.registerComponent('foo-bar', {
+        this.addComponent('foo-bar', {
           ComponentClass: _emberGlimmer.Component.extend({
             routerService: _emberRuntime.inject.service('router'),
             init: function () {
@@ -77219,7 +77290,7 @@ enifed('ember/tests/routing/router_service_test/urlFor_test', ['ember-babel', 'e
         var expectedURL = void 0;
         var dynamicModel = { id: 1 };
 
-        this.registerRoute('dynamic', _emberRouting.Route.extend({
+        this.add('route:dynamic', _emberRouting.Route.extend({
           model: function () {
             return dynamicModel;
           }
@@ -77264,7 +77335,7 @@ enifed('ember/tests/routing/router_service_test/urlFor_test', ['ember-babel', 'e
         var queryParams = buildQueryParams({ foo: 'bar' });
         var dynamicModel = { id: 1 };
 
-        this.registerRoute('dynamic', _emberRouting.Route.extend({
+        this.add('route:dynamic', _emberRouting.Route.extend({
           model: function () {
             return dynamicModel;
           }
@@ -78877,7 +78948,7 @@ enifed('internal-test-helpers/factory.lint-test', [], function () {
   });
 });
 
-enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering', 'internal-test-helpers/test-cases/router'], function (exports, _factory, _buildOwner, _confirmExport, _equalInnerHtml, _equalTokens, _moduleFor, _strip, _applyMixins, _matchers, _run, _testGroups, _abstract, _abstractApplication, _application, _queryParam, _abstractRendering, _rendering, _router) {
+enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering', 'internal-test-helpers/test-cases/router', 'internal-test-helpers/test-cases/autoboot-application', 'internal-test-helpers/test-resolver'], function (exports, _factory, _buildOwner, _confirmExport, _equalInnerHtml, _equalTokens, _moduleFor, _strip, _applyMixins, _matchers, _run, _testGroups, _abstract, _abstractApplication, _application, _queryParam, _abstractRendering, _rendering, _router, _autobootApplication, _testResolver) {
   'use strict';
 
   Object.defineProperty(exports, 'factory', {
@@ -79016,6 +79087,24 @@ enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory
     enumerable: true,
     get: function () {
       return _router.default;
+    }
+  });
+  Object.defineProperty(exports, 'AutobootApplicationTestCase', {
+    enumerable: true,
+    get: function () {
+      return _autobootApplication.default;
+    }
+  });
+  Object.defineProperty(exports, 'TestResolver', {
+    enumerable: true,
+    get: function () {
+      return _testResolver.default;
+    }
+  });
+  Object.defineProperty(exports, 'ModuleBasedTestResolver', {
+    enumerable: true,
+    get: function () {
+      return _testResolver.ModuleBasedResolver;
     }
   });
 });
@@ -79263,7 +79352,7 @@ enifed('internal-test-helpers/strip.lint-test', [], function () {
   });
 });
 
-enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-metal', 'ember-views', 'ember-application', 'ember-routing', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberMetal, _emberViews, _emberApplication, _emberRouting, _emberTemplateCompiler, _abstract, _run) {
+enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-metal', 'ember-views', 'ember-application', 'ember-routing', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-resolver', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberMetal, _emberViews, _emberApplication, _emberRouting, _emberTemplateCompiler, _abstract, _testResolver, _run) {
   'use strict';
 
   var AbstractApplicationTestCase = function (_AbstractTestCase) {
@@ -79276,19 +79365,20 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
 
       _this.element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
 
-      _this.application = (0, _emberMetal.run)(_emberApplication.Application, 'create', _this.applicationOptions);
+      var applicationOptions = _this.applicationOptions;
 
-      _this.router = _this.application.Router = _emberRouting.Router.extend(_this.routerOptions);
+      _this.application = (0, _emberMetal.run)(_emberApplication.Application, 'create', applicationOptions);
+
+      _this.resolver = applicationOptions.Resolver.lastInstance;
+
+      _this.add('router:main', _emberRouting.Router.extend(_this.routerOptions));
 
       _this.applicationInstance = null;
       return _this;
     }
 
     AbstractApplicationTestCase.prototype.teardown = function teardown() {
-      if (this.applicationInstance) {
-        (0, _run.runDestroy)(this.applicationInstance);
-      }
-
+      (0, _run.runDestroy)(this.applicationInstance);
       (0, _run.runDestroy)(this.application);
     };
 
@@ -79314,39 +79404,31 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       return _emberTemplateCompiler.compile.apply(undefined, arguments);
     };
 
-    AbstractApplicationTestCase.prototype.registerRoute = function registerRoute(name, route) {
-      this.application.register('route:' + name, route);
+    AbstractApplicationTestCase.prototype.add = function add(specifier, factory) {
+      this.resolver.add(specifier, factory);
     };
 
-    AbstractApplicationTestCase.prototype.registerTemplate = function registerTemplate(name, template) {
-      this.application.register('template:' + name, this.compile(template, {
-        moduleName: name
+    AbstractApplicationTestCase.prototype.addTemplate = function addTemplate(templateName, templateString) {
+      this.resolver.add('template:' + templateName, this.compile(templateString, {
+        moduleName: templateName
       }));
     };
 
-    AbstractApplicationTestCase.prototype.registerComponent = function registerComponent(name, _ref) {
+    AbstractApplicationTestCase.prototype.addComponent = function addComponent(name, _ref) {
       var _ref$ComponentClass = _ref.ComponentClass,
           ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass,
           _ref$template = _ref.template,
           template = _ref$template === undefined ? null : _ref$template;
 
       if (ComponentClass) {
-        this.application.register('component:' + name, ComponentClass);
+        this.resolver.add('component:' + name, ComponentClass);
       }
 
       if (typeof template === 'string') {
-        this.application.register('template:components/' + name, this.compile(template, {
+        this.resolver.add('template:components/' + name, this.compile(template, {
           moduleName: 'components/' + name
         }));
       }
-    };
-
-    AbstractApplicationTestCase.prototype.registerController = function registerController(name, controller) {
-      this.application.register('controller:' + name, controller);
-    };
-
-    AbstractApplicationTestCase.prototype.registerEngine = function registerEngine(name, engine) {
-      this.application.register('engine:' + name, engine);
     };
 
     (0, _emberBabel.createClass)(AbstractApplicationTestCase, [{
@@ -79354,7 +79436,8 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       get: function () {
         return {
           rootElement: '#qunit-fixture',
-          autoboot: false
+          autoboot: false,
+          Resolver: _testResolver.ModuleBasedResolver
         };
       }
     }, {
@@ -79363,6 +79446,11 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
         return {
           location: 'none'
         };
+      }
+    }, {
+      key: 'router',
+      get: function () {
+        return this.application.resolveRegistration('router:main');
       }
     }, {
       key: 'appRouter',
@@ -79769,6 +79857,59 @@ enifed('internal-test-helpers/test-cases/application.lint-test', [], function ()
   });
 });
 
+enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'internal-test-helpers/run'], function (exports, _emberBabel, _abstract, _testResolver, _emberApplication, _emberUtils, _run) {
+  'use strict';
+
+  var AutobootApplicationTestCase = function (_AbstractTestCase) {
+    (0, _emberBabel.inherits)(AutobootApplicationTestCase, _AbstractTestCase);
+
+    function AutobootApplicationTestCase() {
+      (0, _emberBabel.classCallCheck)(this, AutobootApplicationTestCase);
+
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
+    }
+
+    AutobootApplicationTestCase.prototype.teardown = function teardown() {
+      (0, _run.runDestroy)(this.application);
+      _AbstractTestCase.prototype.teardown.call(this);
+    };
+
+    AutobootApplicationTestCase.prototype.createApplication = function createApplication(options) {
+      var MyApplication = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _emberApplication.Application;
+
+      var myOptions = (0, _emberUtils.assign)({
+        rootElement: '#qunit-fixture',
+        Resolver: _testResolver.default
+      }, options);
+      var application = this.application = MyApplication.create(myOptions);
+      this.resolver = myOptions.Resolver.lastInstance;
+      return application;
+    };
+
+    AutobootApplicationTestCase.prototype.add = function add(specifier, factory) {
+      this.resolver.add(specifier, factory);
+    };
+
+    AutobootApplicationTestCase.prototype.addTemplate = function addTemplate(templateName, templateString) {
+      this.resolver.addTemplate(templateName, templateString);
+    };
+
+    return AutobootApplicationTestCase;
+  }(_abstract.default);
+
+  exports.default = AutobootApplicationTestCase;
+});
+
+enifed('internal-test-helpers/test-cases/autoboot-application.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('ESLint | internal-test-helpers/test-cases/autoboot-application.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'internal-test-helpers/test-cases/autoboot-application.js should pass ESLint\n\n');
+  });
+});
+
 enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel', 'ember-runtime', 'ember-routing', 'ember-metal', 'internal-test-helpers/test-cases/application'], function (exports, _emberBabel, _emberRuntime, _emberRouting, _emberMetal, _application) {
   'use strict';
 
@@ -79783,7 +79924,7 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel'
       var testCase = _this;
       testCase.expectedPushURL = null;
       testCase.expectedReplaceURL = null;
-      _this.application.register('location:test', _emberRouting.NoneLocation.extend({
+      _this.add('location:test', _emberRouting.NoneLocation.extend({
         setURL: function (path) {
           if (testCase.expectedReplaceURL) {
             testCase.assert.ok(false, 'pushState occurred but a replaceState was expected');
@@ -79853,7 +79994,7 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel'
       var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'bar';
       var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-      this.registerController(routeName, _emberRuntime.Controller.extend((_Controller$extend = {
+      this.add('controller:' + routeName, _emberRuntime.Controller.extend((_Controller$extend = {
         queryParams: [param]
       }, _Controller$extend[param] = defaultValue, _Controller$extend), options));
     };
@@ -79873,7 +80014,7 @@ enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel'
       var defaultValue = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
       var options = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
 
-      this.registerController(routeName, _emberRuntime.Controller.extend((_Controller$extend2 = {
+      this.add('controller:' + routeName, _emberRuntime.Controller.extend((_Controller$extend2 = {
         queryParams: (_queryParams = {}, _queryParams[prop] = urlKey, _queryParams)
       }, _Controller$extend2[prop] = defaultValue, _Controller$extend2), options));
     };
@@ -80072,6 +80213,88 @@ enifed('internal-test-helpers/test-groups.lint-test', [], function () {
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'internal-test-helpers/test-groups.js should pass ESLint\n\n');
+  });
+});
+
+enifed('internal-test-helpers/test-resolver', ['exports', 'ember-babel', 'ember-template-compiler'], function (exports, _emberBabel, _emberTemplateCompiler) {
+  'use strict';
+
+  exports.ModuleBasedResolver = undefined;
+
+
+  var Resolver = function () {
+    function Resolver() {
+      (0, _emberBabel.classCallCheck)(this, Resolver);
+
+      this._registered = {};
+      this.constructor.lastInstance = this;
+    }
+
+    Resolver.prototype.resolve = function resolve(specifier) {
+      return this._registered[specifier];
+    };
+
+    Resolver.prototype.add = function add(specifier, factory) {
+      if (specifier.indexOf(':') === -1) {
+        throw new Error('Specifiers added to the resolver must be in the format of type:name');
+      }
+      return this._registered[specifier] = factory;
+    };
+
+    Resolver.prototype.addTemplate = function addTemplate(templateName, template) {
+      var templateType = typeof template;
+      if (templateType !== 'string') {
+        throw new Error('You called addTemplate for "' + templateName + '" with a template argument of type of \'' + templateType + '\'. addTemplate expects an argument of an uncompiled template as a string.');
+      }
+      return this._registered['template:' + templateName] = (0, _emberTemplateCompiler.compile)(template, {
+        moduleName: templateName
+      });
+    };
+
+    Resolver.create = function create() {
+      return new this();
+    };
+
+    return Resolver;
+  }();
+
+  exports.default = Resolver;
+
+
+  /*
+   * A resolver with moduleBasedResolver = true handles error and loading
+   * substates differently than a standard resolver.
+   */
+
+  var ModuleBasedResolver = function (_Resolver) {
+    (0, _emberBabel.inherits)(ModuleBasedResolver, _Resolver);
+
+    function ModuleBasedResolver() {
+      (0, _emberBabel.classCallCheck)(this, ModuleBasedResolver);
+
+      return (0, _emberBabel.possibleConstructorReturn)(this, _Resolver.apply(this, arguments));
+    }
+
+    (0, _emberBabel.createClass)(ModuleBasedResolver, [{
+      key: 'moduleBasedResolver',
+      get: function () {
+        return true;
+      }
+    }]);
+
+    return ModuleBasedResolver;
+  }(Resolver);
+
+  exports.ModuleBasedResolver = ModuleBasedResolver;
+});
+
+enifed('internal-test-helpers/test-resolver.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('ESLint | internal-test-helpers/test-resolver.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'internal-test-helpers/test-resolver.js should pass ESLint\n\n');
   });
 });
 
