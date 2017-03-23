@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+2f686e30
+ * @version   2.14.0-alpha.1-null+ef6cb33f
  */
 
 var enifed, requireModule, Ember;
@@ -78268,59 +78268,29 @@ enifed('ember/tests/routing/substates_test.lint-test', [], function () {
   });
 });
 
-enifed('ember/tests/routing/toplevel_dom_test', ['ember-metal', 'ember-template-compiler', 'ember-application', 'ember-views', 'ember-routing', 'ember-glimmer'], function (_emberMetal, _emberTemplateCompiler, _emberApplication, _emberViews, _emberRouting, _emberGlimmer) {
+enifed('ember/tests/routing/toplevel_dom_test', ['ember-babel', 'internal-test-helpers'], function (_emberBabel, _internalTestHelpers) {
   'use strict';
 
-  var App = void 0,
-      templates = void 0,
-      container = void 0;
+  (0, _internalTestHelpers.moduleFor)('Top Level DOM Structure', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  function bootApplication() {
-    for (var name in templates) {
-      (0, _emberGlimmer.setTemplate)(name, (0, _emberTemplateCompiler.compile)(templates[name]));
+    function _class() {
+
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
-    container.lookup('router:main');
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-  }
 
-  QUnit.module('Top Level DOM Structure', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create({
-          name: 'App',
-          rootElement: '#qunit-fixture'
-        });
+    _class.prototype['@test Topmost template always get an element'] = function testTopmostTemplateAlwaysGetAnElement(assert) {
+      var _this2 = this;
 
-        App.deferReadiness();
+      this.addTemplate('application', 'hello world');
 
-        App.Router.reopen({
-          location: 'none'
-        });
-
-        container = App.__container__;
-
-        templates = {
-          application: 'hello world'
-        };
+      return this.visit('/').then(function () {
+        assert.equal(_this2.$('> .ember-view').text(), 'hello world');
       });
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        App.destroy();
-        App = null;
-        (0, _emberGlimmer.setTemplates)({});
-      });
+    };
 
-      _emberRouting.NoneLocation.reopen({
-        path: ''
-      });
-    }
-  });
-
-  QUnit.test('Topmost template always get an element', function () {
-    bootApplication();
-    equal((0, _emberViews.jQuery)('#qunit-fixture > .ember-view').text(), 'hello world');
-  });
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember/tests/routing/toplevel_dom_test.lint-test', [], function () {
