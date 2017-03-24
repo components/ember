@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+5506aba6
+ * @version   2.14.0-alpha.1-null+ff08ecb1
  */
 
 var enifed, requireModule, Ember;
@@ -69225,78 +69225,49 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test.lint-tes
   });
 });
 
-enifed('ember/tests/homepage_example_test', ['ember-routing', 'ember-metal', 'ember-application', 'ember-runtime', 'ember-template-compiler', 'ember-views', 'ember-glimmer'], function (_emberRouting, _emberMetal, _emberApplication, _emberRuntime, _emberTemplateCompiler, _emberViews, _emberGlimmer) {
+enifed('ember/tests/homepage_example_test', ['ember-babel', 'ember-routing', 'ember-metal', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberRouting, _emberMetal, _emberRuntime, _internalTestHelpers) {
   'use strict';
 
-  var App = void 0,
-      $fixture = void 0;
+  (0, _internalTestHelpers.moduleFor)('The example renders correctly', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  function setupExample() {
-    // setup templates
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h1>People</h1><ul>{{#each model as |person|}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>'));
+    function _class() {
 
-    App.Person = _emberRuntime.Object.extend({
-      firstName: null,
-      lastName: null,
-
-      fullName: (0, _emberMetal.computed)('firstName', 'lastName', function () {
-        return this.get('firstName') + ' ' + this.get('lastName');
-      })
-    });
-
-    App.IndexRoute = _emberRouting.Route.extend({
-      model: function () {
-        var people = (0, _emberRuntime.A)([App.Person.create({
-          firstName: 'Tom',
-          lastName: 'Dale'
-        }), App.Person.create({
-          firstName: 'Yehuda',
-          lastName: 'Katz'
-        })]);
-        return people;
-      }
-    });
-  }
-
-  QUnit.module('Homepage Example', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create({
-          name: 'App',
-          rootElement: '#qunit-fixture'
-        });
-        App.deferReadiness();
-
-        App.Router.reopen({
-          location: 'none'
-        });
-
-        App.LoadingRoute = _emberRouting.Route.extend();
-      });
-
-      $fixture = (0, _emberViews.jQuery)('#qunit-fixture');
-      setupExample();
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        return App.destroy();
-      });
-
-      App = null;
-
-      (0, _emberGlimmer.setTemplates)({});
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
-  });
 
-  QUnit.test('The example renders correctly', function () {
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+    _class.prototype['@test Render index template into application outlet'] = function testRenderIndexTemplateIntoApplicationOutlet(assert) {
+      var _this2 = this;
 
-    equal($fixture.find('h1:contains(People)').length, 1);
-    equal($fixture.find('li').length, 2);
-    equal($fixture.find('li:nth-of-type(1)').text(), 'Hello, Tom Dale!');
-    equal($fixture.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
-  });
+      this.addTemplate('application', '{{outlet}}');
+      this.addTemplate('index', '<h1>People</h1><ul>{{#each model as |person|}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>');
+
+      var Person = _emberRuntime.Object.extend({
+        firstName: null,
+        lastName: null,
+        fullName: (0, _emberMetal.computed)('firstName', 'lastName', function () {
+          return this.get('firstName') + ' ' + this.get('lastName');
+        })
+      });
+
+      this.add('route:index', _emberRouting.Route.extend({
+        model: function () {
+          return (0, _emberRuntime.A)([Person.create({ firstName: 'Tom', lastName: 'Dale' }), Person.create({ firstName: 'Yehuda', lastName: 'Katz' })]);
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var $ = _this2.$();
+
+        assert.equal($.find('h1:contains(People)').length, 1);
+        assert.equal($.find('li').length, 2);
+        assert.equal($.find('li:nth-of-type(1)').text(), 'Hello, Tom Dale!');
+        assert.equal($.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember/tests/homepage_example_test.lint-test', [], function () {
