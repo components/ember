@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ff08ecb1
+ * @version   2.14.0-alpha.1-null+030606cc
  */
 
 var enifed, requireModule, Ember;
@@ -66834,122 +66834,96 @@ enifed('ember/tests/global-api-test.lint-test', [], function () {
   });
 });
 
-enifed('ember/tests/helpers/helper_registration_test', ['ember-runtime', 'ember-metal', 'ember-template-compiler', 'ember-glimmer', 'ember-application', 'ember-routing', 'ember-views'], function (_emberRuntime, _emberMetal, _emberTemplateCompiler, _emberGlimmer, _emberApplication, _emberRouting, _emberViews) {
+enifed('ember/tests/helpers/helper_registration_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-glimmer'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberGlimmer) {
   'use strict';
 
-  var App = void 0,
-      appInstance = void 0;
+  (0, _internalTestHelpers.moduleFor)('Application Lifecycle - Helper Registration', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  QUnit.module('Application Lifecycle - Helper Registration', {
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        if (App) {
-          App.destroy();
-        }
+    function _class() {
 
-        App = appInstance = null;
-        (0, _emberGlimmer.setTemplates)({});
-      });
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
-  });
 
-  function boot(callback) {
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create({
-        name: 'App',
-        rootElement: '#qunit-fixture'
+    _class.prototype['@test Unbound dashed helpers registered on the container can be late-invoked'] = function testUnboundDashedHelpersRegisteredOnTheContainerCanBeLateInvoked(assert) {
+      var _this2 = this;
+
+      this.addTemplate('application', '<div id=\'wrapper\'>{{x-borf}} {{x-borf \'YES\'}}</div>');
+
+      var myHelper = (0, _emberGlimmer.helper)(function (params) {
+        return params[0] || 'BORF';
       });
+      this.application.register('helper:x-borf', myHelper);
 
-      App.deferReadiness();
-
-      App.Router = _emberRouting.Router.extend({
-        location: 'none'
+      return this.visit('/').then(function () {
+        assert.equal(_this2.$('#wrapper').text(), 'BORF YES', 'The helper was invoked from the container');
       });
+    };
 
-      // We shouldn't be testing this
-      appInstance = App.__deprecatedInstance__;
+    _class.prototype['@test Bound helpers registered on the container can be late-invoked'] = function testBoundHelpersRegisteredOnTheContainerCanBeLateInvoked(assert) {
+      var _this3 = this;
 
-      if (callback) {
-        callback();
-      }
-    });
+      this.addTemplate('application', '<div id=\'wrapper\'>{{x-reverse}} {{x-reverse foo}}</div>');
 
-    var router = appInstance.lookup('router:main');
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-  }
-
-  QUnit.test('Unbound dashed helpers registered on the container can be late-invoked', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{x-borf}} {{x-borf \'YES\'}}</div>'));
-    var myHelper = (0, _emberGlimmer.helper)(function (params) {
-      return params[0] || 'BORF';
-    });
-
-    boot(function () {
-      App.register('helper:x-borf', myHelper);
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'BORF YES', 'The helper was invoked from the container');
-  });
-
-  QUnit.test('Bound helpers registered on the container can be late-invoked', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{x-reverse}} {{x-reverse foo}}</div>'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
+      this.add('controller:application', _emberRuntime.Controller.extend({
         foo: 'alex'
       }));
 
-      appInstance.register('helper:x-reverse', (0, _emberGlimmer.helper)(function (_ref) {
+      this.application.register('helper:x-reverse', (0, _emberGlimmer.helper)(function (_ref) {
         var value = _ref[0];
 
         return value ? value.split('').reverse().join('') : '--';
       }));
-    });
 
-    equal((0, _emberViews.jQuery)('#wrapper').text(), '-- xela', 'The bound helper was invoked from the container');
-  });
+      return this.visit('/').then(function () {
+        assert.equal(_this3.$('#wrapper').text(), '-- xela', 'The bound helper was invoked from the container');
+      });
+    };
 
-  QUnit.test('Undashed helpers registered on the container can be invoked', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{omg}}|{{yorp \'boo\'}}|{{yorp \'ya\'}}</div>'));
+    _class.prototype['@test Undashed helpers registered on the container can be invoked'] = function testUndashedHelpersRegisteredOnTheContainerCanBeInvoked(assert) {
+      var _this4 = this;
 
-    boot(function () {
-      appInstance.register('helper:omg', (0, _emberGlimmer.helper)(function () {
+      this.addTemplate('application', '<div id=\'wrapper\'>{{omg}}|{{yorp \'boo\'}}|{{yorp \'ya\'}}</div>');
+
+      this.application.register('helper:omg', (0, _emberGlimmer.helper)(function () {
         return 'OMG';
       }));
 
-      appInstance.register('helper:yorp', (0, _emberGlimmer.helper)(function (_ref2) {
+      this.application.register('helper:yorp', (0, _emberGlimmer.helper)(function (_ref2) {
         var value = _ref2[0];
         return value;
       }));
-    });
 
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'OMG|boo|ya', 'The helper was invoked from the container');
-  });
+      return this.visit('/').then(function () {
+        assert.equal(_this4.$('#wrapper').text(), 'OMG|boo|ya', 'The helper was invoked from the container');
+      });
+    };
 
-  QUnit.test('Helpers can receive injections', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{full-name}}</div>'));
+    _class.prototype['@test Helpers can receive injections'] = function testHelpersCanReceiveInjections(assert) {
+      this.addTemplate('application', '<div id=\'wrapper\'>{{full-name}}</div>');
 
-    var serviceCalled = false;
-    boot(function () {
-      appInstance.register('service:name-builder', _emberRuntime.Service.extend({
+      var serviceCalled = false;
+
+      this.add('service:name-builder', _emberRuntime.Service.extend({
         build: function () {
           serviceCalled = true;
         }
       }));
-      appInstance.register('helper:full-name', _emberGlimmer.Helper.extend({
+
+      this.add('helper:full-name', _emberGlimmer.Helper.extend({
         nameBuilder: _emberRuntime.inject.service('name-builder'),
         compute: function () {
           this.get('nameBuilder').build();
         }
       }));
-    });
 
-    ok(serviceCalled, 'service was injected, method called');
-  });
+      return this.visit('/').then(function () {
+        assert.ok(serviceCalled, 'service was injected, method called');
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember/tests/helpers/helper_registration_test.lint-test', [], function () {
