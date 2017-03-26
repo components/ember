@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+16a14a92
+ * @version   2.14.0-alpha.1-null+ee8ab348
  */
 
 var enifed, requireModule, Ember;
@@ -430,12 +430,12 @@ enifed("ember-debug/error", ["exports", "ember-babel"], function (exports, _embe
   exports.default = EmberError;
 });
 
-enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', 'ember/features'], function (exports, _emberUtils, _emberEnvironment, _features) {
+enifed('ember-debug/features', ['exports', 'ember-environment', 'ember/features'], function (exports, _emberEnvironment, _features) {
   'use strict';
 
-  exports.DEFAULT_FEATURES = exports.FEATURES = undefined;
   exports.default = isEnabled;
 
+  var FEATURES = _features.FEATURES;
 
   /**
     The hash of enabled Canary features. Add to this, any canary features
@@ -450,7 +450,8 @@ enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', '
     @since 1.1.0
     @public
   */
-  var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(_features.default, _emberEnvironment.ENV.FEATURES);
+
+  // Auto-generated
 
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
@@ -468,6 +469,7 @@ enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', '
     @since 1.1.0
     @public
   */
+
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
 
@@ -479,8 +481,6 @@ enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', '
       return false;
     }
   }
-
-  exports.DEFAULT_FEATURES = _features.default;
 });
 
 enifed("ember-debug/handlers", ["exports"], function (exports) {
@@ -511,10 +511,10 @@ enifed("ember-debug/handlers", ["exports"], function (exports) {
   }
 });
 
-enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/deprecate', 'ember-debug/features', 'ember-debug/error', 'ember-debug/testing', 'ember/features', 'ember-environment', 'ember-console'], function (exports, _warn2, _deprecate2, _features, _error, _testing, _features2, _emberEnvironment, _emberConsole) {
+enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/deprecate', 'ember-debug/features', 'ember-debug/error', 'ember-debug/testing', 'ember-environment', 'ember-console', 'ember/features'], function (exports, _warn2, _deprecate2, _features, _error, _testing, _emberEnvironment, _emberConsole, _features2) {
   'use strict';
 
-  exports.runningNonEmberDebugJS = exports.debugFunctions = exports.setTesting = exports.isTesting = exports.Error = exports.FEATURES = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
+  exports.runningNonEmberDebugJS = exports.debugFunctions = exports.setTesting = exports.isTesting = exports.Error = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
   Object.defineProperty(exports, 'registerWarnHandler', {
     enumerable: true,
     get: function () {
@@ -531,12 +531,6 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     enumerable: true,
     get: function () {
       return _features.default;
-    }
-  });
-  Object.defineProperty(exports, 'FEATURES', {
-    enumerable: true,
-    get: function () {
-      return _features.FEATURES;
     }
   });
   Object.defineProperty(exports, 'Error', {
@@ -569,6 +563,10 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
   exports.runInDebug = runInDebug;
   exports.debugSeal = debugSeal;
   exports.debugFreeze = debugFreeze;
+
+  var DEFAULT_FEATURES = _features2.DEFAULT_FEATURES,
+      FEATURES = _features2.FEATURES;
+
   var debugFunctions = exports.debugFunctions = {
     assert: function () {},
     info: function () {},
@@ -580,7 +578,6 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
       return _ref = arguments.length - 1, arguments.length <= _ref ? undefined : arguments[_ref];
     },
-    runInDebug: function () {},
     debugSeal: function () {},
     debugFreeze: function () {}
   };
@@ -763,15 +760,15 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   if (!(0, _testing.isTesting)()) {
     // Complain if they're using FEATURE flags in builds other than canary
-    _features.FEATURES['features-stripped-test'] = true;
+    FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
     if ((0, _features.default)('features-stripped-test')) {
       featuresWereStripped = false;
     }
 
-    delete _features.FEATURES['features-stripped-test'];
-    _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _features2.default, featuresWereStripped);
+    delete FEATURES['features-stripped-test'];
+    _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, DEFAULT_FEATURES, featuresWereStripped);
 
     // Inform the developer about the Ember Inspector if not installed.
     var isFirefox = _emberEnvironment.environment.isFirefox;
@@ -1349,7 +1346,7 @@ enifed('ember-testing/ext/rsvp', ['exports', 'ember-runtime', 'ember-metal', 'em
   exports.default = _emberRuntime.RSVP;
 });
 
-enifed('ember-testing/helpers', ['ember-debug', 'ember-testing/test/helpers', 'ember-testing/helpers/and_then', 'ember-testing/helpers/click', 'ember-testing/helpers/current_path', 'ember-testing/helpers/current_route_name', 'ember-testing/helpers/current_url', 'ember-testing/helpers/fill_in', 'ember-testing/helpers/find', 'ember-testing/helpers/find_with_assert', 'ember-testing/helpers/key_event', 'ember-testing/helpers/pause_test', 'ember-testing/helpers/trigger_event', 'ember-testing/helpers/visit', 'ember-testing/helpers/wait'], function (_emberDebug, _helpers, _and_then, _click, _current_path, _current_route_name, _current_url, _fill_in, _find, _find_with_assert, _key_event, _pause_test, _trigger_event, _visit, _wait) {
+enifed('ember-testing/helpers', ['ember-testing/test/helpers', 'ember-testing/helpers/and_then', 'ember-testing/helpers/click', 'ember-testing/helpers/current_path', 'ember-testing/helpers/current_route_name', 'ember-testing/helpers/current_url', 'ember-testing/helpers/fill_in', 'ember-testing/helpers/find', 'ember-testing/helpers/find_with_assert', 'ember-testing/helpers/key_event', 'ember-testing/helpers/pause_test', 'ember-testing/helpers/trigger_event', 'ember-testing/helpers/visit', 'ember-testing/helpers/wait', 'ember/features'], function (_helpers, _and_then, _click, _current_path, _current_route_name, _current_url, _fill_in, _find, _find_with_assert, _key_event, _pause_test, _trigger_event, _visit, _wait) {
   'use strict';
 
   (0, _helpers.registerAsyncHelper)('visit', _visit.default);
@@ -1691,13 +1688,15 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
   }
 });
 
-enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-console', 'ember-debug'], function (exports, _emberRuntime, _emberConsole, _emberDebug) {
+enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-console', 'ember-debug', 'ember/features'], function (exports, _emberRuntime, _emberConsole, _emberDebug) {
   'use strict';
 
   exports.resumeTest = resumeTest;
   exports.pauseTest = pauseTest;
-
-
+  /**
+  @module ember
+  @submodule ember-testing
+  */
   var resume = void 0;
 
   /**
@@ -1707,12 +1706,9 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
    @return {void}
    @public
   */
-  /**
-  @module ember
-  @submodule ember-testing
-  */
   function resumeTest() {
-    (0, _emberDebug.assert)('Testing has not been paused. There is nothing to resume.', resume);
+    true && (0, _emberDebug.assert)('Testing has not been paused. There is nothing to resume.', resume);
+
     resume();
     resume = undefined;
   }
@@ -2078,7 +2074,7 @@ enifed('ember-testing/support', ['ember-debug', 'ember-views', 'ember-environmen
 
       // Try again to verify that the patch took effect or blow up.
       testCheckboxClick(function () {
-        (0, _emberDebug.warn)('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
+        true && (0, _emberDebug.warn)('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
       });
     });
   }
@@ -2623,7 +2619,7 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (expor
   }
 
   function generateDeprecatedWaitersArray() {
-    (0, _emberDebug.deprecate)('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', false, { until: '2.8.0', id: 'ember-testing.test-waiters' });
+    true && !false && (0, _emberDebug.deprecate)('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', false, { until: '2.8.0', id: 'ember-testing.test-waiters' });
 
     var array = new Array(callbacks.length);
     for (var i = 0; i < callbacks.length; i++) {

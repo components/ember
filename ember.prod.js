@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+16a14a92
+ * @version   2.14.0-alpha.1-null+ee8ab348
  */
 
 var enifed, requireModule, Ember;
@@ -849,7 +849,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             }
         };
 
-        PrimitiveReference.prototype.get = function get(_key) {
+        PrimitiveReference.prototype.get = function get() {
             return UNDEFINED_REFERENCE;
         };
 
@@ -868,8 +868,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         }
 
         StringReference.prototype.get = function get(key) {
+            var lengthReference;
+
             if (key === 'length') {
-                var lengthReference = this.lengthReference;
+                lengthReference = this.lengthReference;
 
                 if (lengthReference === null) {
                     lengthReference = this.lengthReference = new ValueReference(this.inner.length);
@@ -976,7 +978,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return this.blocks[value - 1];
         };
 
-        Constants.prototype.block = function block(_block2) {
+        Constants.prototype.block = function (_block2) {
             var index = this.blocks.length;
             this.blocks.push(_block2);
             return index + 1;
@@ -1189,10 +1191,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             vm.updateWith(new Assert(cache));
         }
     });
-    var ConstTest = function (ref, _env) {
+    var ConstTest = function (ref) {
         return new _reference2.ConstReference(!!ref.value());
     };
-    var SimpleTest = function (ref, _env) {
+    var SimpleTest = function (ref) {
         return ref;
     };
     var EnvironmentTest = function (ref, env) {
@@ -1387,7 +1389,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return (0, _emberBabel.possibleConstructorReturn)(this, _CompiledPositionalAr.call(this, EMPTY_ARRAY));
         }
 
-        _class.prototype.evaluate = function evaluate(_vm) {
+        _class.prototype.evaluate = function evaluate() {
             return EVALUATED_EMPTY_POSITIONAL_ARGS;
         };
 
@@ -1514,7 +1516,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return (0, _emberBabel.possibleConstructorReturn)(this, _CompiledNamedArgs.call(this, EMPTY_ARRAY, EMPTY_ARRAY));
         }
 
-        _class3.prototype.evaluate = function evaluate(_vm) {
+        _class3.prototype.evaluate = function evaluate() {
             return EVALUATED_EMPTY_NAMED_ARGS;
         };
 
@@ -1563,7 +1565,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return index === -1 ? UNDEFINED_REFERENCE : values[index];
         };
 
-        EvaluatedNamedArgs.prototype.has = function has(key) {
+        EvaluatedNamedArgs.prototype.has = function (key) {
             return this.keys.indexOf(key) !== -1;
         };
 
@@ -1615,7 +1617,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return UNDEFINED_REFERENCE;
         };
 
-        _class4.prototype.has = function has(_key) {
+        _class4.prototype.has = function () {
             return false;
         };
 
@@ -1671,7 +1673,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return (0, _emberBabel.possibleConstructorReturn)(this, _CompiledArgs.call(this, COMPILED_EMPTY_POSITIONAL_ARGS, COMPILED_EMPTY_NAMED_ARGS, EMPTY_BLOCKS));
         }
 
-        _class5.prototype.evaluate = function evaluate(_vm) {
+        _class5.prototype.evaluate = function evaluate() {
             return EMPTY_EVALUATED_ARGS;
         };
 
@@ -1851,7 +1853,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return _this13;
         }
 
-        UpdateComponentOpcode.prototype.evaluate = function evaluate(_vm) {
+        UpdateComponentOpcode.prototype.evaluate = function evaluate() {
             var component = this.component,
                 manager = this.manager,
                 args = this.args,
@@ -2035,8 +2037,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         }
 
         TextUpsert.prototype.update = function update(_dom, value) {
+            var textNode;
+
             if (isString(value)) {
-                var textNode = this.textNode;
+                textNode = this.textNode;
 
                 textNode.nodeValue = value;
                 return true;
@@ -2062,8 +2066,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         HTMLUpsert.prototype.update = function update(dom, value) {
+            var bounds$$1;
+
             if (isString(value)) {
-                var bounds$$1 = this.bounds;
+                bounds$$1 = this.bounds;
 
                 var parentElement = bounds$$1.parentElement();
                 var nextSibling = clear(bounds$$1);
@@ -2095,10 +2101,12 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         SafeStringUpsert.prototype.update = function update(dom, value) {
+            var bounds$$1;
+
             if (isSafeString(value)) {
                 var stringValue = value.toHTML();
                 if (stringValue !== this.lastStringValue) {
-                    var bounds$$1 = this.bounds;
+                    bounds$$1 = this.bounds;
 
                     var parentElement = bounds$$1.parentElement();
                     var nextSibling = clear(bounds$$1);
@@ -2128,8 +2136,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         NodeUpsert.prototype.update = function update(dom, value) {
+            var bounds$$1;
+
             if (isNode(value)) {
-                var bounds$$1 = this.bounds;
+                bounds$$1 = this.bounds;
 
                 var parentElement = bounds$$1.parentElement();
                 var nextSibling = clear(bounds$$1);
@@ -2327,9 +2337,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         SimpleElementOperations.prototype.addAttribute = function addAttribute(attribute) {
-            var opcode = attribute.flush(this.env);
+            var opcode = attribute.flush(this.env),
+                opcodes;
             if (opcode) {
-                var opcodes = this.opcodes;
+                opcodes = this.opcodes;
 
                 if (!opcodes) {
                     opcodes = this.opcodes = [];
@@ -2744,7 +2755,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return (0, _util.expect)(this.operations, method + ' should only be called while constructing an element');
         };
 
-        ElementStack.prototype.block = function block() {
+        ElementStack.prototype.block = function () {
             return (0, _util.expect)(this.blockStack.current, "Expected a current block tracker");
         };
 
@@ -3032,7 +3043,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return tail && tail.lastNode();
         };
 
-        BlockListTracker.prototype.openElement = function openElement(_element) {
+        BlockListTracker.prototype.openElement = function openElement() {
             (0, _util.assert)(false, 'Cannot openElement directly inside a block list');
         };
 
@@ -3040,15 +3051,15 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             (0, _util.assert)(false, 'Cannot closeElement directly inside a block list');
         };
 
-        BlockListTracker.prototype.newNode = function newNode(_node) {
+        BlockListTracker.prototype.newNode = function newNode() {
             (0, _util.assert)(false, 'Cannot create a new node directly inside a block list');
         };
 
-        BlockListTracker.prototype.newBounds = function newBounds(_bounds) {};
+        BlockListTracker.prototype.newBounds = function newBounds() {};
 
-        BlockListTracker.prototype.newDestroyable = function newDestroyable(_d) {};
+        BlockListTracker.prototype.newDestroyable = function newDestroyable() {};
 
-        BlockListTracker.prototype.finalize = function finalize(_stack) {};
+        BlockListTracker.prototype.finalize = function finalize() {};
 
         return BlockListTracker;
     }();
@@ -3065,7 +3076,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return _this24;
         }
 
-        CompiledValue.prototype.evaluate = function evaluate(_vm) {
+        CompiledValue.prototype.evaluate = function evaluate() {
             return this.reference;
         };
 
@@ -3206,20 +3217,15 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         Labels.prototype.patch = function patch(opcodes) {
+            var _jumps$i, at, target, Target, _ranges$_i, at, start, end, Range;
+
             for (var i = 0; i < this.jumps.length; i++) {
-                var _jumps$i = this.jumps[i],
-                    at = _jumps$i.at,
-                    target = _jumps$i.target,
-                    Target = _jumps$i.Target;
+                _jumps$i = this.jumps[i], at = _jumps$i.at, target = _jumps$i.target, Target = _jumps$i.Target;
 
                 opcodes.set(at, Target, this.labels[target]);
             }
             for (var _i = 0; _i < this.ranges.length; _i++) {
-                var _ranges$_i = this.ranges[_i],
-                    at = _ranges$_i.at,
-                    start = _ranges$_i.start,
-                    end = _ranges$_i.end,
-                    Range = _ranges$_i.Range;
+                _ranges$_i = this.ranges[_i], at = _ranges$_i.at, start = _ranges$_i.start, end = _ranges$_i.end, Range = _ranges$_i.Range;
 
                 opcodes.set(at, Range, this.labels[start], this.labels[end] - 1);
             }
@@ -3374,7 +3380,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             this.opcode(43 /* DynamicAttr */, name, trusting | 0);
         };
 
-        BasicOpcodeBuilder.prototype.comment = function comment(_comment) {
+        BasicOpcodeBuilder.prototype.comment = function (_comment) {
             var comment = this.constants.string(_comment);
             this.opcode(30 /* Comment */, comment);
         };
@@ -3532,7 +3538,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             this.labels.jump(this.pos, 18 /* JumpUnless */, target);
         };
 
-        BasicOpcodeBuilder.prototype.names = function names(_names) {
+        BasicOpcodeBuilder.prototype.names = function (_names) {
             var _this28 = this;
 
             var names = _names.map(function (n) {
@@ -3541,7 +3547,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return this.constants.array(names);
         };
 
-        BasicOpcodeBuilder.prototype.symbols = function symbols(_symbols2) {
+        BasicOpcodeBuilder.prototype.symbols = function (_symbols2) {
             return this.constants.array(_symbols2);
         };
 
@@ -3553,7 +3559,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return this.constants.expression(this.compile(_args2));
         };
 
-        BasicOpcodeBuilder.prototype.block = function block(_block3) {
+        BasicOpcodeBuilder.prototype.block = function (_block3) {
             return this.constants.block(_block3);
         };
 
@@ -4129,7 +4135,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
     var E = _wireFormat.Expressions;
     var Ops$3 = _wireFormat.Ops;
 
-    SPECIALIZE.add(Ops$3.Append, function (sexp, _symbolTable) {
+    SPECIALIZE.add(Ops$3.Append, function (sexp) {
         var expression = sexp[1];
         if (Array.isArray(expression) && E.isGet(expression)) {
             var path = expression[1];
@@ -4139,13 +4145,13 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         }
         return [Ops$3.OptimizedAppend, sexp[1], sexp[2]];
     });
-    SPECIALIZE.add(Ops$3.DynamicAttr, function (sexp, _symbolTable) {
+    SPECIALIZE.add(Ops$3.DynamicAttr, function (sexp) {
         return [Ops$3.AnyDynamicAttr, sexp[1], sexp[2], sexp[3], false];
     });
-    SPECIALIZE.add(Ops$3.TrustingAttr, function (sexp, _symbolTable) {
+    SPECIALIZE.add(Ops$3.TrustingAttr, function (sexp) {
         return [Ops$3.AnyDynamicAttr, sexp[1], sexp[2], sexp[3], true];
     });
-    SPECIALIZE.add(Ops$3.Partial, function (sexp, _table) {
+    SPECIALIZE.add(Ops$3.Partial, function (sexp) {
         var expression = sexp[1];
         if (typeof expression === 'string') {
             return [Ops$3.StaticPartial, expression];
@@ -4337,22 +4343,21 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         BaselineSyntax.isDebugger = (0, _wireFormat.is)(Ops$$1.Debugger);
         var NestedBlock;
         (function (NestedBlock) {
-            function defaultBlock(sexp) {
+            NestedBlock.defaultBlock = function (sexp) {
                 return sexp[4];
-            }
-            NestedBlock.defaultBlock = defaultBlock;
-            function inverseBlock(sexp) {
+            };
+
+            NestedBlock.inverseBlock = function (sexp) {
                 return sexp[5];
-            }
-            NestedBlock.inverseBlock = inverseBlock;
-            function params(sexp) {
+            };
+
+            NestedBlock.params = function (sexp) {
                 return sexp[2];
-            }
-            NestedBlock.params = params;
-            function hash(sexp) {
+            };
+
+            NestedBlock.hash = function (sexp) {
                 return sexp[3];
-            }
-            NestedBlock.hash = hash;
+            };
         })(NestedBlock = BaselineSyntax.NestedBlock || (BaselineSyntax.NestedBlock = {}));
     })(BaselineSyntax || (exports.BaselineSyntax = BaselineSyntax = {}));
     var Ops$2 = _wireFormat.Ops;
@@ -4849,10 +4854,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
     STATEMENTS.add(Ops$1.Debugger, function (sexp, builder) {
         builder.putValue([Ops$1.Function, function (vm) {
             var context = vm.getSelf().value();
-            var get = function (path) {
+
+            callback(context, function (path) {
                 return getter(vm, builder)(path).value();
-            };
-            callback(context, get);
+            });
         }]);
         return sexp;
     });
@@ -4900,7 +4905,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
     EXPRESSIONS.add(Ops$1.Get, function (sexp, builder) {
         return compileRef(sexp[1], builder);
     });
-    EXPRESSIONS.add(Ops$1.Undefined, function (_sexp, _builder) {
+    EXPRESSIONS.add(Ops$1.Undefined, function () {
         return new CompiledValue(undefined);
     });
     EXPRESSIONS.add(Ops$1.Arg, function (sexp, builder) {
@@ -5554,10 +5559,9 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         }(TreeConstructionClass);
     }
     function fixSVG(parent, div, html, reference) {
+        div.innerHTML = '<svg>' + html + '</svg>';
         // IE, Edge: also do not correctly support using `innerHTML` on SVG
         // namespaced elements. So here a wrapper is used.
-        var wrappedHtml = '<svg>' + html + '</svg>';
-        div.innerHTML = wrappedHtml;
 
         var _moveNodesBefore2 = moveNodesBefore(div.firstChild, parent, reference),
             first = _moveNodesBefore2[0],
@@ -5840,9 +5844,10 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         DOMChanges.prototype.insertNodeBefore = function insertNodeBefore(parent, node, reference) {
+            var firstChild, lastChild;
+
             if (isDocumentFragment(node)) {
-                var firstChild = node.firstChild,
-                    lastChild = node.lastChild;
+                firstChild = node.firstChild, lastChild = node.lastChild;
 
                 this.insertBefore(parent, node, reference);
                 return new ConcreteBounds(parent, firstChild, lastChild);
@@ -5912,7 +5917,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
     var helper$1 = helper;
     var DOMTreeConstruction = DOM.DOMTreeConstruction;
 
-    function defaultManagers(element, attr, _isTrusting, _namespace) {
+    function defaultManagers(element, attr) {
         var tagName = element.tagName;
         var isSVG = element.namespaceURI === SVG_NAMESPACE$$1;
         if (isSVG) {
@@ -6002,7 +6007,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return (0, _emberBabel.possibleConstructorReturn)(this, _AttributeManager.apply(this, arguments));
         }
 
-        PropertyManager.prototype.setAttribute = function setAttribute(_env, element, value, _namespace) {
+        PropertyManager.prototype.setAttribute = function setAttribute(_env, element, value) {
             if (!isAttrRemovalValue(value)) {
                 element[this.attr] = value;
             }
@@ -6080,8 +6085,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         }
 
         InputValuePropertyManager.prototype.setAttribute = function setAttribute(_env, element, value) {
-            var input = element;
-            input.value = normalizeTextValue(value);
+            element.value = normalizeTextValue(value);
         };
 
         InputValuePropertyManager.prototype.updateAttribute = function updateAttribute(_env, element, value) {
@@ -6111,8 +6115,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
 
         OptionSelectedManager.prototype.setAttribute = function setAttribute(_env, element, value) {
             if (value !== null && value !== undefined && value !== false) {
-                var option = element;
-                option.selected = true;
+                element.selected = true;
             }
         };
 
@@ -6142,7 +6145,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             _AttributeManager3.prototype.setAttribute.call(this, env, element, sanitizeAttributeValue(env, element, this.attr, value));
         };
 
-        SafeAttributeManager.prototype.updateAttribute = function updateAttribute(env, element, value, _namespace) {
+        SafeAttributeManager.prototype.updateAttribute = function updateAttribute(env, element, value) {
             _AttributeManager3.prototype.updateAttribute.call(this, env, element, sanitizeAttributeValue(env, element, this.attr, value));
         };
 
@@ -6446,7 +6449,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return defaultManagers(element, attr, isTrusting, namespace === undefined ? null : namespace);
         };
 
-        Environment.prototype.macros = function macros() {
+        Environment.prototype.macros = function () {
             var macros = this._macros;
             if (!macros) {
                 this._macros = macros = populateBuiltins();
@@ -7262,7 +7265,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             this.didInsert = true;
         };
 
-        ListRevalidationDelegate.prototype.retain = function retain(_key, _item, _memo) {};
+        ListRevalidationDelegate.prototype.retain = function retain() {};
 
         ListRevalidationDelegate.prototype.move = function move(key, _item, _memo, before) {
             var map$$1 = this.map,
@@ -7324,11 +7327,13 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
 
         ListBlockOpcode.prototype.evaluate = function evaluate(vm) {
             var artifacts = this.artifacts,
-                lastIterated = this.lastIterated;
+                lastIterated = this.lastIterated,
+                bounds$$1,
+                dom;
 
             if (!artifacts.tag.validate(lastIterated)) {
-                var bounds$$1 = this.bounds;
-                var dom = vm.dom;
+                bounds$$1 = this.bounds;
+                dom = vm.dom;
 
                 var marker = dom.createComment('');
                 dom.insertAfter(bounds$$1.parentElement(), marker, (0, _util.expect)(bounds$$1.lastNode(), "can't insert after an empty bounds"));
@@ -7603,11 +7608,13 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         }
 
         UpdateOpcode.prototype.evaluate = function evaluate(vm) {
-            var value = this.cache.revalidate();
+            var value = this.cache.revalidate(),
+                bounds$$1,
+                upsert,
+                dom;
             if ((0, _reference2.isModified)(value)) {
-                var bounds$$1 = this.bounds,
-                    upsert = this.upsert;
-                var dom = vm.dom;
+                bounds$$1 = this.bounds, upsert = this.upsert;
+                dom = vm.dom;
 
                 if (!this.upsert.update(dom, value)) {
                     var cursor = new Cursor(bounds$$1.parentElement(), clear(bounds$$1));
@@ -7924,14 +7931,14 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
 
         var env = vm.env;
         var symbolTable = vm.constants.getOther(_symbolTable);
-        function lookupPartial(name) {
+
+        var reference = (0, _reference2.map)(vm.frame.getOperand(), function (name) {
             var normalized = String(name);
             if (!env.hasPartial(normalized, symbolTable)) {
                 throw new Error('Could not find a partial named "' + normalized + '"');
             }
             return env.lookupPartial(normalized, symbolTable);
-        }
-        var reference = (0, _reference2.map)(vm.frame.getOperand(), lookupPartial);
+        });
         var cache = (0, _reference2.isConst)(reference) ? undefined : new _reference2.ReferenceCache(reference);
         var definition = cache ? cache.peek() : reference.value();
         vm.frame.setImmediate(definition);
@@ -8038,14 +8045,14 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
 
         var parsedBlock = void 0;
         var id = templateId || 'client-' + clientId++;
-        var create = function (env, envMeta) {
-            var newMeta = envMeta ? (0, _util.assign)({}, envMeta, meta) : meta;
-            if (!parsedBlock) {
-                parsedBlock = JSON.parse(block);
-            }
-            return template(parsedBlock, id, newMeta, env);
-        };
-        return { id: id, meta: meta, create: create };
+
+        return { id: id, meta: meta, create: function (env, envMeta) {
+                var newMeta = envMeta ? (0, _util.assign)({}, envMeta, meta) : meta;
+                if (!parsedBlock) {
+                    parsedBlock = JSON.parse(block);
+                }
+                return template(parsedBlock, id, newMeta, env);
+            } };
     }
     function template(block, id, meta, env) {
         var scanner = new Scanner(block, meta, env);
@@ -8055,20 +8062,18 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             return entryPoint;
         };
         var layout = void 0;
-        var asLayout = function () {
-            if (!layout) layout = scanner.scanLayout();
-            return layout;
-        };
-        var asPartial = function (symbols) {
-            return scanner.scanPartial(symbols);
-        };
-        var render = function (self, appendTo, dynamicScope) {
-            var elementStack = ElementStack.forInitialRender(env, appendTo, null);
-            var compiled = asEntryPoint().compile(env);
-            var vm = VM.initial(env, self, dynamicScope, elementStack, compiled);
-            return new TemplateIterator(vm);
-        };
-        return { id: id, meta: meta, _block: block, asEntryPoint: asEntryPoint, asLayout: asLayout, asPartial: asPartial, render: render };
+
+        return { id: id, meta: meta, _block: block, asEntryPoint: asEntryPoint, asLayout: function () {
+                if (!layout) layout = scanner.scanLayout();
+                return layout;
+            }, asPartial: function (symbols) {
+                return scanner.scanPartial(symbols);
+            }, render: function (self, appendTo, dynamicScope) {
+                var elementStack = ElementStack.forInitialRender(env, appendTo, null);
+                var compiled = asEntryPoint().compile(env);
+                var vm = VM.initial(env, self, dynamicScope, elementStack, compiled);
+                return new TemplateIterator(vm);
+            } };
     }
 
     var DynamicVarReference = function () {
@@ -8098,7 +8103,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         return DynamicVarReference;
     }();
 
-    function getDynamicVar(vm, args, _symbolTable) {
+    function getDynamicVar(vm, args) {
         var scope = vm.dynamicScope();
         var nameRef = args.positional.at(0);
         return new DynamicVarReference(scope, nameRef);
@@ -8257,11 +8262,11 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     var NullConsole = function () {
         function NullConsole() {}
 
-        NullConsole.prototype.log = function log(_message) {};
+        NullConsole.prototype.log = function log() {};
 
-        NullConsole.prototype.warn = function warn(_message) {};
+        NullConsole.prototype.warn = function warn() {};
 
-        NullConsole.prototype.error = function error(_message) {};
+        NullConsole.prototype.error = function error() {};
 
         NullConsole.prototype.trace = function trace() {};
 
@@ -8735,13 +8740,13 @@ enifed("@glimmer/wire-format", ["exports"], function (exports) {
         Expressions.isHasBlock = is(Opcodes.HasBlock);
         Expressions.isHasBlockParams = is(Opcodes.HasBlockParams);
         Expressions.isUndefined = is(Opcodes.Undefined);
-        function isPrimitiveValue(value) {
+
+        Expressions.isPrimitiveValue = function (value) {
             if (value === null) {
                 return true;
             }
             return typeof value !== 'object';
-        }
-        Expressions.isPrimitiveValue = isPrimitiveValue;
+        };
     })(Expressions || (exports.Expressions = Expressions = {}));
     var Statements;
     (function (Statements) {
@@ -8770,14 +8775,14 @@ enifed("@glimmer/wire-format", ["exports"], function (exports) {
             return val[0] === Opcodes.StaticArg || val[0] === Opcodes.DynamicArg;
         }
         Statements.isArgument = isArgument;
-        function isParameter(val) {
+
+        Statements.isParameter = function (val) {
             return isAttribute(val) || isArgument(val);
-        }
-        Statements.isParameter = isParameter;
-        function getParameterName(s) {
+        };
+
+        Statements.getParameterName = function (s) {
             return s[1];
-        }
-        Statements.getParameterName = getParameterName;
+        };
     })(Statements || (exports.Statements = Statements = {}));
 
     exports.is = is;
@@ -9234,11 +9239,14 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Backburner.prototype.run = function run(target, method) {
-            for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+            for (_len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
                 args[_key - 2] = arguments[_key];
             }
 
-            var length = arguments.length;
+            var length = arguments.length,
+                _len,
+                args,
+                _key;
             var _method = void 0;
             var _target = void 0;
             if (length === 1) {
@@ -9293,7 +9301,7 @@ enifed('backburner', ['exports'], function (exports) {
                 return method.call(target);
             } else {
                 var args = new Array(length - 2);
-                for (var i = 0, l = length - 2; i < l; i++) {
+                for (var i = 0; i < length - 2; i++) {
                     args[i] = arguments[i + 2];
                 }
                 return method.apply(target, args);
@@ -9408,7 +9416,8 @@ enifed('backburner', ['exports'], function (exports) {
                 method = target[method];
             }
             var onError = getOnError(this.options);
-            function fn() {
+
+            return this._setTimeout(function () {
                 if (onError) {
                     try {
                         method.apply(target, args);
@@ -9418,8 +9427,7 @@ enifed('backburner', ['exports'], function (exports) {
                 } else {
                     method.apply(target, args);
                 }
-            }
-            return this._setTimeout(fn, executeAt);
+            }, executeAt);
         };
 
         Backburner.prototype.throttle = function throttle(target, method /* , args, wait, [immediate] */) {
@@ -9536,9 +9544,7 @@ enifed('backburner', ['exports'], function (exports) {
                 }
             } else if (Object.prototype.toString.call(timer) === '[object Array]') {
                 return this._cancelItem(findThrottler, this._throttlers, timer) || this._cancelItem(findDebouncee, this._debouncees, timer);
-            } else {
-                return; // timer was null or not a timer
-            }
+            } else {}
         };
 
         Backburner.prototype._setTimeout = function _setTimeout(fn, executeAt) {
@@ -9770,6 +9776,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
      @return {any}
      */
     lookup: function (fullName, options) {
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
+
       return lookup(this, this.registry.normalize(fullName), options);
     },
 
@@ -9783,27 +9791,30 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
      @return {any}
      */
     lookupFactory: function (fullName, options) {
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      false && !false && (0, _emberDebug.deprecate)('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', false, { id: 'container-lookupFactory', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_migrating-from-_lookupfactory-to-factoryfor' });
 
       return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
     }
   }, _Container$prototype[LOOKUP_FACTORY] = function (fullName, options) {
+    false && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
+
     return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
   }, _Container$prototype[FACTORY_FOR] = function (fullName) {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     if (true) {
-      if (true) {
-        return this.factoryFor(fullName, options);
-      } else {
-        /* This throws in case of a poorly designed build */
-        throw new Error('If ember-no-double-extend is enabled, ember-factory-for must also be enabled');
-      }
+      return this.factoryFor(fullName, options);
     }
     var factory = this[LOOKUP_FACTORY](fullName, options);
     if (factory === undefined) {
       return;
     }
     var manager = new DeprecatedFactoryManager(this, factory, fullName);
+
+    if (false) {
+      manager = wrapManagerInDeprecationProxy(manager);
+    }
 
     return manager;
   }, _Container$prototype.destroy = function () {
@@ -9819,6 +9830,41 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     var _ref;
 
     return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
+  }, _Container$prototype.factoryFor = function (fullName) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var normalizedName = this.registry.normalize(fullName);
+
+    false && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName));
+
+    if (options.source) {
+      normalizedName = this.registry.expandLocalLookup(fullName, options);
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!normalizedName) {
+        return;
+      }
+    }
+
+    var cached = this.factoryManagerCache[normalizedName];
+
+    if (cached) {
+      return cached;
+    }
+
+    var factory = this.registry.resolve(normalizedName);
+
+    if (factory === undefined) {
+      return;
+    }
+
+    var manager = new FactoryManager(this, factory, fullName, normalizedName);
+
+    if (false) {
+      manager = wrapManagerInDeprecationProxy(manager);
+    }
+
+    this.factoryManagerCache[normalizedName] = manager;
+    return manager;
   }, _Container$prototype);
 
   /*
@@ -9827,18 +9873,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
    */
   function wrapManagerInDeprecationProxy(manager) {
     if (_emberUtils.HAS_NATIVE_PROXY) {
-      var validator = {
-        get: function (obj, prop) {
-          if (prop !== 'class' && prop !== 'create') {
-            throw new Error('You attempted to access "' + prop + '" on a factory manager created by container#factoryFor. "' + prop + '" is not a member of a factory manager."');
-          }
-
-          return obj[prop];
-        },
-        set: function (obj, prop, value) {
-          throw new Error('You attempted to set "' + prop + '" on a factory manager created by container#factoryFor. A factory manager is a read-only construct.');
-        }
-      };
 
       // Note:
       // We have to proxy access to the manager here so that private property
@@ -9851,55 +9885,21 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
         }
       };
 
-      return new Proxy(proxiedManager, validator);
+      return new Proxy(proxiedManager, {
+        get: function (obj, prop) {
+          if (prop !== 'class' && prop !== 'create') {
+            throw new Error('You attempted to access "' + prop + '" on a factory manager created by container#factoryFor. "' + prop + '" is not a member of a factory manager."');
+          }
+
+          return obj[prop];
+        },
+        set: function (obj, prop) {
+          throw new Error('You attempted to set "' + prop + '" on a factory manager created by container#factoryFor. A factory manager is a read-only construct.');
+        }
+      });
     }
 
     return manager;
-  }
-
-  if (true) {
-    /**
-     Given a fullName, return the corresponding factory. The consumer of the factory
-     is responsible for the destruction of any factory instances, as there is no
-     way for the container to ensure instances are destroyed when it itself is
-     destroyed.
-      @public
-     @method factoryFor
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] The fullname of the request source (used for local lookup)
-     @return {any}
-     */
-    Container.prototype.factoryFor = function _factoryFor(fullName) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      var normalizedName = this.registry.normalize(fullName);
-
-      if (options.source) {
-        normalizedName = this.registry.expandLocalLookup(fullName, options);
-        // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!normalizedName) {
-          return;
-        }
-      }
-
-      var cached = this.factoryManagerCache[normalizedName];
-
-      if (cached) {
-        return cached;
-      }
-
-      var factory = this.registry.resolve(normalizedName);
-
-      if (factory === undefined) {
-        return;
-      }
-
-      var manager = new FactoryManager(this, factory, fullName, normalizedName);
-
-      this.factoryManagerCache[normalizedName] = manager;
-      return manager;
-    };
   }
 
   function isSingleton(container, fullName) {
@@ -9926,22 +9926,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       return container.cache[fullName];
     }
 
-    if (true) {
-      return instantiateFactory(container, fullName, options);
-    } else {
-      var factory = deprecatedFactoryFor(container, fullName);
-      var value = instantiate(factory, {}, container, fullName);
-
-      if (value === undefined) {
-        return;
-      }
-
-      if (isSingleton(container, fullName) && options.singleton !== false) {
-        container.cache[fullName] = value;
-      }
-
-      return value;
-    }
+    return instantiateFactory(container, fullName, options);
   }
 
   function isSingletonClass(container, fullName, _ref2) {
@@ -10018,6 +10003,10 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
         if (arguments[i]) {
           injections = injections.concat(arguments[i]);
         }
+      }
+
+      if (false) {
+        container.registry.validateInjections(injections);
       }
 
       var markAsDynamic = false;
@@ -10124,6 +10113,16 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
       validationCache = container.validationCache;
 
+      if (false) {
+        // Ensure that all lazy injections are valid at instantiation time
+        if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
+          lazyInjections = factory._lazyInjections();
+          lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
+
+          container.registry.validateInjections(lazyInjections);
+        }
+      }
+
       validationCache[fullName] = true;
 
       var obj = void 0;
@@ -10174,9 +10173,12 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       configurable: true,
       enumerable: false,
       get: function () {
+        false && !false && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+
         return this[CONTAINER_OVERRIDE] || container;
       },
       set: function (value) {
+        false && !false && (0, _emberDebug.deprecate)('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
 
         this[CONTAINER_OVERRIDE] = value;
 
@@ -10234,6 +10236,12 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
   function buildFakeContainerFunction(container, containerProperty, ownerProperty) {
     return function () {
+      false && !false && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
+        id: 'ember-application.injected-container',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
+      });
+
       return container[containerProperty].apply(container, arguments);
     };
   }
@@ -10267,8 +10275,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     }
 
     FactoryManager.prototype.create = function create() {
-      var _this = this;
-
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
       var injections = this.injections;
@@ -10281,6 +10287,20 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       var props = (0, _emberUtils.assign)({}, injections, options);
 
       props[_emberUtils.NAME_KEY] = this.madeToString || (this.madeToString = this.container.registry.makeToString(this.class, this.fullName));
+
+      if (false) {
+        var lazyInjections = void 0;
+        var validationCache = this.container.validationCache;
+        // Ensure that all lazy injections are valid at instantiation time
+        if (!validationCache[this.fullName] && this.class && typeof this.class._lazyInjections === 'function') {
+          lazyInjections = this.class._lazyInjections();
+          lazyInjections = this.container.registry.normalizeInjectionsHash(lazyInjections);
+
+          this.container.registry.validateInjections(lazyInjections);
+        }
+
+        validationCache[this.fullName] = true;
+      }
 
       if (!this.class.create) {
         throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
@@ -10447,6 +10467,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
      */
     register: function (fullName, factory) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       if (factory === undefined) {
         throw new TypeError('Attempting to register an unknown factory: \'' + fullName + '\'');
@@ -10477,6 +10498,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
      @param {String} fullName
      */
     unregister: function (fullName) {
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
 
@@ -10517,10 +10539,11 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
      @return {Function} fullName's factory
      */
     resolve: function (fullName, options) {
-      var factory = resolve(this, this.normalize(fullName), options);
-      if (factory === undefined && this.fallback) {
-        var _fallback;
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
+      var factory = resolve(this, this.normalize(fullName), options),
+          _fallback;
+      if (factory === undefined && this.fallback) {
         factory = (_fallback = this.fallback).resolve.apply(_fallback, arguments);
       }
       return factory;
@@ -10710,6 +10733,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
      @param {String} fullName
      */
     typeInjection: function (type, property, fullName) {
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var fullNameType = fullName.split(':')[0];
       if (fullNameType === type) {
@@ -10764,6 +10788,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       if (fullName.indexOf(':') === -1) {
         return this.typeInjection(fullName, property, normalizedInjectionName);
       }
+
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
 
@@ -10909,6 +10935,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
       for (var i = 0; i < injections.length; i++) {
         fullName = injections[i].fullName;
+
+        false && (0, _emberDebug.assert)('Attempting to inject an unknown injection: \'' + fullName + '\'', this.has(fullName));
       }
     },
     normalizeInjectionsHash: function (hash) {
@@ -10916,6 +10944,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
       for (var key in hash) {
         if (hash.hasOwnProperty(key)) {
+          false && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
 
           injections.push({
             property: key,
@@ -10957,6 +10986,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
   };
 
   function deprecateResolverFunction(registry) {
+    false && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
+
     registry.resolver = {
       resolve: registry.resolver
     };
@@ -10980,8 +11011,11 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
    @param {String} [options.source] the fullname of the request source (used for local lookups)
    @return {String} fullName
    */
-  Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
+  Registry.prototype.expandLocalLookup = function (fullName, options) {
     if (this.resolver && this.resolver.expandLocalLookup) {
+      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      false && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
+      false && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
 
       var normalizedFullName = this.normalize(fullName);
       var normalizedSource = this.normalize(options.source);
@@ -11116,7 +11150,8 @@ enifed("dag-map", ["exports"], function (exports) {
          *                                            vertices that must be after this vertex is visited.
          */
         DAG.prototype.add = function (key, value, before, after) {
-            var vertices = this._vertices;
+            var vertices = this._vertices,
+                i;
             var v = vertices.add(key);
             v.val = value;
             if (before) {
@@ -11132,7 +11167,7 @@ enifed("dag-map", ["exports"], function (exports) {
                 if (typeof after === "string") {
                     vertices.addEdge(vertices.add(after), v);
                 } else {
-                    for (var i = 0; i < after.length; i++) {
+                    for (i = 0; i < after.length; i++) {
                         vertices.addEdge(vertices.add(after[i]), v);
                     }
                 }
@@ -11178,11 +11213,13 @@ enifed("dag-map", ["exports"], function (exports) {
         };
         Vertices.prototype.addEdge = function (v, w) {
             this.check(v, w.key);
-            var inc = w.inc;
+            var inc = w.inc,
+                i;
             if (!inc) {
                 w.inc = [v.id];
             } else {
-                var i = 0;
+                i = 0;
+
                 for (; i < inc.length; i++) {
                     if (inc[i] === v.id) return;
                 }
@@ -11192,9 +11229,12 @@ enifed("dag-map", ["exports"], function (exports) {
         };
         Vertices.prototype.topsort = function (cb) {
             this.reset();
-            var vertices = this.vertices;
-            for (var i = 0; i < vertices.length; i++) {
-                var vertex = vertices[i];
+            var vertices = this.vertices,
+                i,
+                vertex;
+            for (i = 0; i < vertices.length; i++) {
+                vertex = vertices[i];
+
                 if (vertex.out) continue;
                 this.visit(vertex, undefined);
             }
@@ -11204,13 +11244,17 @@ enifed("dag-map", ["exports"], function (exports) {
             if (v.key === w) {
                 throw new Error("cycle detected: " + w + " <- " + w);
             }
-            var inc = v.inc;
+            var inc = v.inc,
+                i,
+                key,
+                msg_1;
             // quick check
             if (!inc || inc.length === 0) return;
             var vertices = this.vertices;
             // shallow check
-            for (var i = 0; i < inc.length; i++) {
-                var key = vertices[inc[i]].key;
+            for (i = 0; i < inc.length; i++) {
+                key = vertices[inc[i]].key;
+
                 if (key === w) {
                     throw new Error("cycle detected: " + w + " <- " + v.key + " <- " + w);
                 }
@@ -11219,7 +11263,8 @@ enifed("dag-map", ["exports"], function (exports) {
             this.reset();
             this.visit(v, w);
             if (this.result.len > 0) {
-                var msg_1 = "cycle detected: " + w;
+                msg_1 = "cycle detected: " + w;
+
                 this.each(function (key) {
                     msg_1 += " <- " + key;
                 });
@@ -11229,9 +11274,12 @@ enifed("dag-map", ["exports"], function (exports) {
         Vertices.prototype.each = function (cb) {
             var _a = this,
                 result = _a.result,
-                vertices = _a.vertices;
-            for (var i = 0; i < result.len; i++) {
-                var vertex = vertices[result.stack[i]];
+                vertices = _a.vertices,
+                i,
+                vertex;
+            for (i = 0; i < result.len; i++) {
+                vertex = vertices[result.stack[i]];
+
                 cb(vertex.key, vertex.val);
             }
         };
@@ -11239,8 +11287,9 @@ enifed("dag-map", ["exports"], function (exports) {
         Vertices.prototype.reset = function () {
             this.stack.len = 0;
             this.result.len = 0;
-            var vertices = this.vertices;
-            for (var i = 0; i < vertices.length; i++) {
+            var vertices = this.vertices,
+                i;
+            for (i = 0; i < vertices.length; i++) {
                 vertices[i].mark = false;
             }
         };
@@ -11248,10 +11297,15 @@ enifed("dag-map", ["exports"], function (exports) {
             var _a = this,
                 stack = _a.stack,
                 result = _a.result,
-                vertices = _a.vertices;
+                vertices = _a.vertices,
+                index,
+                vertex,
+                incoming,
+                i;
             stack.push(start.id);
             while (stack.len) {
-                var index = stack.pop();
+                index = stack.pop();
+
                 if (index < 0) {
                     index = ~index;
                     if (search) {
@@ -11260,7 +11314,8 @@ enifed("dag-map", ["exports"], function (exports) {
                         result.push(index);
                     }
                 } else {
-                    var vertex = vertices[index];
+                    vertex = vertices[index];
+
                     if (vertex.mark) {
                         continue;
                     }
@@ -11272,9 +11327,11 @@ enifed("dag-map", ["exports"], function (exports) {
                     }
                     vertex.mark = true;
                     stack.push(~index);
-                    var incoming = vertex.inc;
+                    incoming = vertex.inc;
+
                     if (incoming) {
-                        var i = incoming.length;
+                        i = incoming.length;
+
                         while (i--) {
                             index = incoming[i];
                             if (!vertices[index].mark) {
@@ -11680,7 +11737,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     @namespace Ember.ApplicationInstance
     @public
   */
-  BootOptions = function BootOptions() {
+  BootOptions = function () {
     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     /**
@@ -11840,6 +11897,12 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
       var instance = this;
       return {
         lookup: function () {
+          false && !false && (0, _emberDebug.deprecate)('Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead.', false, {
+            id: 'ember-application.app-instance-container',
+            until: '3.0.0',
+            url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-applicationinstance-container'
+          });
+
           return instance.lookup.apply(instance, arguments);
         }
       };
@@ -11857,7 +11920,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
   exports.default = ApplicationInstance;
 });
 
-enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember-utils', 'ember-environment', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application/system/application-instance', 'container', 'ember-application/system/engine', 'ember-glimmer'], function (exports, _emberBabel, _emberUtils, _emberEnvironment, _emberDebug, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _applicationInstance, _container, _engine, _emberGlimmer) {
+enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember-utils', 'ember-environment', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application/system/application-instance', 'container', 'ember-application/system/engine', 'ember-glimmer', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberEnvironment, _emberDebug, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _applicationInstance, _container, _engine, _emberGlimmer, _features) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']);
@@ -12143,7 +12206,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
     */
     _globalsMode: true,
 
-    init: function (options) {
+    init: function () {
       this._super.apply(this, arguments);
 
       if (!this.$) {
@@ -12151,6 +12214,10 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       }
 
       registerLibraries();
+
+      if (false) {
+        logLibraryVersions();
+      }
 
       // Start off the number of deferrals at 1. This will be decremented by
       // the Application's own `boot` method.
@@ -12300,6 +12367,9 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       @public
     */
     deferReadiness: function () {
+      false && (0, _emberDebug.assert)('You must call deferReadiness on an instance of Ember.Application', this instanceof Application);
+      false && (0, _emberDebug.assert)('You cannot defer readiness since the `ready()` hook has already been called.', this._readinessDeferrals > 0);
+
       this._readinessDeferrals++;
     },
 
@@ -12312,6 +12382,8 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       @public
     */
     advanceReadiness: function () {
+      false && (0, _emberDebug.assert)('You must call advanceReadiness on an instance of Ember.Application', this instanceof Application);
+
       this._readinessDeferrals--;
 
       if (this._readinessDeferrals === 0) {
@@ -12438,6 +12510,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       @public
     */
     reset: function () {
+      false && (0, _emberDebug.assert)('Calling reset() on instances of `Ember.Application` is not\n            supported when globals mode is disabled; call `visit()` to\n            create new `Ember.ApplicationInstance`s and dispose them\n            via their `destroy()` method instead.', this._globalsMode && this.autoboot);
 
       var instance = this.__deprecatedInstance__;
 
@@ -12446,13 +12519,11 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       this._bootResolver = null;
       this._booted = false;
 
-      function handleReset() {
+      _emberMetal.run.join(this, function () {
         (0, _emberMetal.run)(instance, 'destroy');
         this._buildDeprecatedInstance();
         _emberMetal.run.schedule('actions', this, '_bootSync');
-      }
-
-      _emberMetal.run.join(this, handleReset);
+      });
     },
 
     /**
@@ -12732,8 +12803,8 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       @return {Ember.Registry} the built registry
       @private
     */
-    buildRegistry: function (application) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    buildRegistry: function () {
+      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var registry = this._super.apply(this, arguments);
 
@@ -12765,7 +12836,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
 
     registry.register((0, _container.privatize)(_templateObject), _emberRouting.BucketCache);
 
-    if ((0, _emberDebug.isFeatureEnabled)('ember-routing-router-service')) {
+    if (_features.EMBER_ROUTING_ROUTER_SERVICE) {
       registry.register('service:router', _emberRouting.RouterService);
       registry.injection('service:router', 'router', 'router:main');
     }
@@ -12782,7 +12853,27 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
   }
 
   function logLibraryVersions() {
-    var _this2 = this;
+    if (false) {
+      if (_emberEnvironment.ENV.LOG_VERSION) {
+        // we only need to see this once per Application#init
+        _emberEnvironment.ENV.LOG_VERSION = false;
+        var libs = _emberMetal.libraries._registry;
+
+        var nameLengths = libs.map(function (item) {
+          return (0, _emberMetal.get)(item, 'name.length');
+        });
+
+        var maxNameLength = Math.max.apply(this, nameLengths);
+
+        (0, _emberDebug.debug)('-------------------------------');
+        for (var i = 0; i < libs.length; i++) {
+          var lib = libs[i];
+          var spaces = new Array(maxNameLength - lib.name.length + 1).join(' ');
+          (0, _emberDebug.debug)([lib.name, spaces, ' : ', lib.version].join(''));
+        }
+        (0, _emberDebug.debug)('-------------------------------');
+      }
+    }
   }
 
   exports.default = Application;
@@ -12884,6 +12975,8 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
         return this;
       }
 
+      false && (0, _emberDebug.assert)('An engine instance\'s parent must be set via `setEngineParent(engine, parent)` prior to calling `engine.boot()`.', (0, _engineParent.getEngineParent)(this));
+
       this.cloneParentDependencies();
 
       this.setupRegistry(options);
@@ -12957,9 +13050,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
 
       var parent = (0, _engineParent.getEngineParent)(this);
 
-      var registrations = ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'];
-
-      registrations.forEach(function (key) {
+      ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
         return _this2.register(key, parent.resolveRegistration(key));
       });
 
@@ -13158,7 +13249,14 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
       var _this = this;
 
       this._runInitializer('initializers', function (name, initializer) {
+        false && (0, _emberDebug.assert)('No application initializer named \'' + name + '\'', !!initializer);
+
         if (initializer.initialize.length === 2) {
+          false && !false && (0, _emberDebug.deprecate)('The `initialize` method for Application initializer \'' + name + '\' should take only one argument - `App`, an instance of an `Application`.', false, {
+            id: 'ember-application.app-initializer-initialize-arguments',
+            until: '3.0.0',
+            url: 'http://emberjs.com/deprecations/v2.x/#toc_initializer-arity'
+          });
 
           initializer.initialize(_this.__registry__, _this);
         } else {
@@ -13174,6 +13272,8 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
     */
     runInstanceInitializers: function (instance) {
       this._runInitializer('instanceInitializers', function (name, initializer) {
+        false && (0, _emberDebug.assert)('No instance initializer named \'' + name + '\'', !!initializer);
+
         initializer.initialize(instance);
       });
     },
@@ -13368,7 +13468,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
       @private
     */
     buildRegistry: function (namespace) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var registry = new _container.Registry({
         resolver: resolverFor(namespace)
@@ -13435,6 +13535,10 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
         attrs[bucketName] = Object.create(this[bucketName]);
         this.reopenClass(attrs);
       }
+
+      false && (0, _emberDebug.assert)('The ' + humanName + ' \'' + initializer.name + '\' has already been registered', !this[bucketName][initializer.name]);
+      false && (0, _emberDebug.assert)('An ' + humanName + ' cannot be registered without an initialize function', (0, _emberUtils.canInvoke)(initializer, 'initialize'));
+      false && (0, _emberDebug.assert)('An ' + humanName + ' cannot be registered without a name property', initializer.name !== undefined);
 
       this[bucketName][initializer.name] = initializer;
     };
@@ -13595,6 +13699,8 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
           type = _fullName$split[0],
           name = _fullName$split[1];
 
+      false && (0, _emberDebug.assert)('Tried to normalize a container name without a colon (:) in it. ' + 'You probably tried to lookup a name that did not contain a type, ' + 'a colon, and a name. A proper lookup name would be `view:post`.', fullName.split(':').length === 2);
+
       if (type !== 'template') {
         var result = name;
 
@@ -13632,8 +13738,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       @public
     */
     resolve: function (fullName) {
-      var _this = this;
-
       var parsedName = this.parseName(fullName);
       var resolveMethodName = parsedName.resolveMethodName;
       var resolved = void 0;
@@ -13643,6 +13747,12 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       }
 
       resolved = resolved || this.resolveOther(parsedName);
+
+      if (false) {
+        if (parsedName.root && parsedName.root.LOG_RESOLVER) {
+          this._logLookup(resolved, parsedName);
+        }
+      }
 
       if (resolved) {
         (0, _validateType.default)(resolved, parsedName);
@@ -13679,6 +13789,8 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
         name = parts[parts.length - 1];
         var namespaceName = _emberRuntime.String.capitalize(parts.slice(0, -1).join('.'));
         root = _emberRuntime.Namespace.byName(namespaceName);
+
+        false && (0, _emberDebug.assert)('You are looking for a ' + name + ' ' + type + ' in the ' + namespaceName + ' namespace, but the namespace could not be found', root);
       }
 
       var resolveMethodName = fullNameWithoutType === 'main' ? 'Main' : _emberRuntime.String.classify(type);
@@ -13723,7 +13835,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
       return description;
     },
-    makeToString: function (factory, fullName) {
+    makeToString: function (factory) {
       return factory.toString();
     },
 
@@ -13856,6 +13968,8 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       } else {
         padding = new Array(60 - parsedName.fullName.length).join('.');
       }
+
+      (0, _emberDebug.info)(symbol, parsedName.fullName, padding, this.lookupDescription(parsedName.fullName));
     },
 
     /**
@@ -13932,7 +14046,11 @@ enifed('ember-application/utils/validate-type', ['exports', 'ember-debug'], func
         factoryFlag = validationAttributes[1],
         expectedType = validationAttributes[2];
 
-    if (action === 'deprecate') {} else {}
+    if (action === 'deprecate') {
+      false && !!!resolvedType[factoryFlag] && (0, _emberDebug.deprecate)('In Ember 2.0 ' + parsedName.type + ' factories must have an `' + factoryFlag + '` ' + ('property set to true. You registered ' + resolvedType + ' as a ' + parsedName.type + ' ') + ('factory. Either add the `' + factoryFlag + '` property to this factory or ') + ('extend from ' + expectedType + '.'), !!resolvedType[factoryFlag], { id: 'ember-application.validate-type', until: '3.0.0' });
+    } else {
+      false && (0, _emberDebug.assert)('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but ' + ('instead it was ' + resolvedType + '.'), !!resolvedType[factoryFlag]);
+    }
   }
 });
 
@@ -13962,8 +14080,11 @@ enifed('ember-babel', ['exports'], function (exports) {
   }
 
   function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
+    var i, descriptor;
+
+    for (i = 0; i < props.length; i++) {
+      descriptor = props[i];
+
       descriptor.enumerable = descriptor.enumerable || false;
       descriptor.configurable = true;
       if ('value' in descriptor) descriptor.writable = true;
@@ -13978,10 +14099,14 @@ enifed('ember-babel', ['exports'], function (exports) {
   }
 
   function defaults(obj, defaults) {
-    var keys = Object.getOwnPropertyNames(defaults);
-    for (var i = 0; i < keys.length; i++) {
-      var key = keys[i];
-      var value = Object.getOwnPropertyDescriptor(defaults, key);
+    var keys = Object.getOwnPropertyNames(defaults),
+        i,
+        key,
+        value;
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      value = Object.getOwnPropertyDescriptor(defaults, key);
+
       if (value && value.configurable && obj[key] === undefined) {
         Object.defineProperty(obj, key, value);
       }
@@ -14202,7 +14327,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     return message;
   }
 
-  registerHandler(function logDeprecationToConsole(message, options) {
+  registerHandler(function (message, options) {
     var updatedMessage = formatMessage(message, options);
 
     _emberConsole.default.warn('DEPRECATION: ' + updatedMessage);
@@ -14224,7 +14349,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     };
   }
 
-  registerHandler(function logDeprecationStackTrace(message, options, next) {
+  registerHandler(function (message, options, next) {
     if (_emberEnvironment.ENV.LOG_STACKTRACE_ON_DEPRECATION) {
       var stackStr = '';
       var error = captureErrorForStack();
@@ -14251,7 +14376,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     }
   });
 
-  registerHandler(function raiseOnDeprecation(message, options, next) {
+  registerHandler(function (message, options, next) {
     if (_emberEnvironment.ENV.RAISE_ON_DEPRECATION) {
       var updatedMessage = formatMessage(message);
 
@@ -14350,11 +14475,10 @@ enifed("ember-debug/error", ["exports", "ember-babel"], function (exports, _embe
 
     function EmberError(message) {
 
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ExtendBuiltin.call(this));
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ExtendBuiltin.call(this)),
+          _ret;
 
       if (!(_this instanceof EmberError)) {
-        var _ret;
-
         return _ret = new EmberError(message), (0, _emberBabel.possibleConstructorReturn)(_this, _ret);
       }
 
@@ -14382,12 +14506,12 @@ enifed("ember-debug/error", ["exports", "ember-babel"], function (exports, _embe
   exports.default = EmberError;
 });
 
-enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', 'ember/features'], function (exports, _emberUtils, _emberEnvironment, _features) {
+enifed('ember-debug/features', ['exports', 'ember-environment', 'ember/features'], function (exports, _emberEnvironment, _features) {
   'use strict';
 
-  exports.DEFAULT_FEATURES = exports.FEATURES = undefined;
   exports.default = isEnabled;
 
+  var FEATURES = _features.FEATURES;
 
   /**
     The hash of enabled Canary features. Add to this, any canary features
@@ -14402,7 +14526,8 @@ enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', '
     @since 1.1.0
     @public
   */
-  var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(_features.default, _emberEnvironment.ENV.FEATURES);
+
+  // Auto-generated
 
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
@@ -14420,6 +14545,7 @@ enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', '
     @since 1.1.0
     @public
   */
+
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
 
@@ -14431,8 +14557,6 @@ enifed('ember-debug/features', ['exports', 'ember-utils', 'ember-environment', '
       return false;
     }
   }
-
-  exports.DEFAULT_FEATURES = _features.default;
 });
 
 enifed("ember-debug/handlers", ["exports"], function (exports) {
@@ -14463,10 +14587,10 @@ enifed("ember-debug/handlers", ["exports"], function (exports) {
   }
 });
 
-enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/deprecate', 'ember-debug/features', 'ember-debug/error', 'ember-debug/testing', 'ember/features', 'ember-environment', 'ember-console'], function (exports, _warn2, _deprecate2, _features, _error, _testing, _features2, _emberEnvironment, _emberConsole) {
+enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/deprecate', 'ember-debug/features', 'ember-debug/error', 'ember-debug/testing', 'ember-environment', 'ember-console', 'ember/features'], function (exports, _warn2, _deprecate2, _features, _error, _testing, _emberEnvironment, _emberConsole, _features2) {
   'use strict';
 
-  exports.runningNonEmberDebugJS = exports.debugFunctions = exports.setTesting = exports.isTesting = exports.Error = exports.FEATURES = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
+  exports.runningNonEmberDebugJS = exports.debugFunctions = exports.setTesting = exports.isTesting = exports.Error = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
   Object.defineProperty(exports, 'registerWarnHandler', {
     enumerable: true,
     get: function () {
@@ -14483,12 +14607,6 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     enumerable: true,
     get: function () {
       return _features.default;
-    }
-  });
-  Object.defineProperty(exports, 'FEATURES', {
-    enumerable: true,
-    get: function () {
-      return _features.FEATURES;
     }
   });
   Object.defineProperty(exports, 'Error', {
@@ -14521,6 +14639,10 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
   exports.runInDebug = runInDebug;
   exports.debugSeal = debugSeal;
   exports.debugFreeze = debugFreeze;
+
+  var DEFAULT_FEATURES = _features2.DEFAULT_FEATURES,
+      FEATURES = _features2.FEATURES;
+
   var debugFunctions = exports.debugFunctions = {
     assert: function () {},
     info: function () {},
@@ -14532,7 +14654,6 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
       return _ref = arguments.length - 1, arguments.length <= _ref ? undefined : arguments[_ref];
     },
-    runInDebug: function () {},
     debugSeal: function () {},
     debugFreeze: function () {}
   };
@@ -14569,7 +14690,7 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     @public
     @since 1.0.0
   */
-  setDebugFunction('assert', function assert(desc, test) {
+  setDebugFunction('assert', function (desc, test) {
     if (!test) {
       throw new _error.default('Assertion Failed: ' + desc);
     }
@@ -14589,7 +14710,7 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     @param {String} message A debug message to display.
     @public
   */
-  setDebugFunction('debug', function debug(message) {
+  setDebugFunction('debug', function (message) {
     _emberConsole.default.debug('DEBUG: ' + message);
   });
 
@@ -14602,7 +14723,7 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     @method info
     @private
   */
-  setDebugFunction('info', function info() {
+  setDebugFunction('info', function () {
     _emberConsole.default.info.apply(undefined, arguments);
   });
 
@@ -14625,23 +14746,22 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     @return {Function} A new function that wraps the original function with a deprecation warning
     @private
   */
-  setDebugFunction('deprecateFunc', function deprecateFunc() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+  setDebugFunction('deprecateFunc', function () {
+    var _len, args, _key, message, options, func, _message, _func;
+
+    for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
     if (args.length === 3) {
-      var message = args[0],
-          options = args[1],
-          func = args[2];
+      message = args[0], options = args[1], func = args[2];
 
       return function () {
         deprecate(message, false, options);
         return func.apply(this, arguments);
       };
     } else {
-      var _message = args[0],
-          _func = args[1];
+      _message = args[0], _func = args[1];
 
       return function () {
         deprecate(_message);
@@ -14671,15 +14791,15 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     @since 1.5.0
     @public
   */
-  setDebugFunction('runInDebug', function runInDebug(func) {
+  setDebugFunction('runInDebug', function (func) {
     func();
   });
 
-  setDebugFunction('debugSeal', function debugSeal(obj) {
+  setDebugFunction('debugSeal', function (obj) {
     Object.seal(obj);
   });
 
-  setDebugFunction('debugFreeze', function debugFreeze(obj) {
+  setDebugFunction('debugFreeze', function (obj) {
     Object.freeze(obj);
   });
 
@@ -14715,15 +14835,15 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   if (!(0, _testing.isTesting)()) {
     // Complain if they're using FEATURE flags in builds other than canary
-    _features.FEATURES['features-stripped-test'] = true;
+    FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
     if ((0, _features.default)('features-stripped-test')) {
       featuresWereStripped = false;
     }
 
-    delete _features.FEATURES['features-stripped-test'];
-    _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, _features2.default, featuresWereStripped);
+    delete FEATURES['features-stripped-test'];
+    _warnIfUsingStrippedFeatureFlags(_emberEnvironment.ENV.FEATURES, DEFAULT_FEATURES, featuresWereStripped);
 
     // Inform the developer about the Ember Inspector if not installed.
     var isFirefox = _emberEnvironment.environment.isFirefox;
@@ -14755,9 +14875,6 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     used a nice helpful warning message will be printed out.
   */
   var runningNonEmberDebugJS = exports.runningNonEmberDebugJS = false;
-  if (runningNonEmberDebugJS) {
-    warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
-  }
 
   function getDebugFunction(name) {
     return debugFunctions[name];
@@ -14864,7 +14981,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
     (0, _handlers.registerHandler)('warn', handler);
   }
 
-  registerHandler(function logWarning(message, options) {
+  registerHandler(function (message) {
     _emberConsole.default.warn('WARNING: ' + message);
     if ('trace' in _emberConsole.default) {
       _emberConsole.default.trace();
@@ -15287,20 +15404,18 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
         return _this2.wrapRecord(record);
       });
 
-      var contentDidChange = function (array, idx, removedCount, addedCount) {
-        for (var i = idx; i < idx + addedCount; i++) {
-          var record = (0, _emberRuntime.objectAt)(array, i);
-          var wrapped = _this2.wrapRecord(record);
-          releaseMethods.push(_this2.observeRecord(record, recordUpdated));
-          recordsAdded([wrapped]);
-        }
+      var observer = { didChange: function (array, idx, removedCount, addedCount) {
+          for (var i = idx; i < idx + addedCount; i++) {
+            var record = (0, _emberRuntime.objectAt)(array, i);
+            var wrapped = _this2.wrapRecord(record);
+            releaseMethods.push(_this2.observeRecord(record, recordUpdated));
+            recordsAdded([wrapped]);
+          }
 
-        if (removedCount) {
-          recordsRemoved(idx, removedCount);
-        }
-      };
-
-      var observer = { didChange: contentDidChange, willChange: function () {
+          if (removedCount) {
+            recordsRemoved(idx, removedCount);
+          }
+        }, willChange: function () {
           return this;
         }
       };
@@ -15341,7 +15456,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @param {Class} klass The class to test.
       @return boolean Whether the class is a model class or not.
     */
-    detect: function (klass) {
+    detect: function () {
       return false;
     },
 
@@ -15354,7 +15469,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
        name: {String} The name of the column.
        desc: {String} Humanized description (what would show in a table column name).
     */
-    columnsForType: function (type) {
+    columnsForType: function () {
       return (0, _emberRuntime.A)();
     },
 
@@ -15388,11 +15503,9 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
 
       (0, _emberRuntime.addArrayObserver)(records, this, observer);
 
-      var release = function () {
+      return function () {
         return (0, _emberRuntime.removeArrayObserver)(records, _this3, observer);
       };
-
-      return release;
     },
 
     /**
@@ -15496,7 +15609,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
        This array will be observed for changes,
        so it should update when new records are added/removed.
     */
-    getRecords: function (type) {
+    getRecords: function () {
       return (0, _emberRuntime.A)();
     },
 
@@ -15527,7 +15640,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @return {Object} Keys should match column names defined
       by the model type.
     */
-    getRecordColumnValues: function (record) {
+    getRecordColumnValues: function () {
       return {};
     },
 
@@ -15537,7 +15650,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @method getRecordKeywords
       @return {Array} Relevant keywords for search.
     */
-    getRecordKeywords: function (record) {
+    getRecordKeywords: function () {
       return (0, _emberRuntime.A)();
     },
 
@@ -15548,7 +15661,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @param {Object} record The record instance.
       @return {Object} The filter values.
     */
-    getRecordFilterValues: function (record) {
+    getRecordFilterValues: function () {
       return {};
     },
 
@@ -15560,7 +15673,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @return {String} The records color.
         Possible options: black, red, blue, green.
     */
-    getRecordColor: function (record) {
+    getRecordColor: function () {
       return null;
     },
 
@@ -15573,7 +15686,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       @param {Function} recordUpdated The callback to call when a record is updated.
       @return {Function} The function to call to remove all observers.
     */
-    observeRecord: function (record, recordUpdated) {
+    observeRecord: function () {
       return function () {};
     }
   });
@@ -16121,11 +16234,29 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
       // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
       // logic is supported with a deprecation
       if (this.defaultLayout && !this.layout) {
+        false && !false && (0, _emberDebug.deprecate)('Specifying `defaultLayout` to ' + this + ' is deprecated. Please use `layout` instead.', false, {
+          id: 'ember-views.component.defaultLayout',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-component-defaultlayout'
+        });
 
         this.layout = this.defaultLayout;
       }
 
       // If in a tagless component, assert that no event handlers are defined
+      false && (0, _emberDebug.assert)('You can not define a function that handles DOM events in the `' + this + '` tagless component since it doesn\'t have any DOM element.', this.tagName !== '' || !this.renderer._destinedForDOM || !function () {
+        var eventDispatcher = (0, _emberUtils.getOwner)(_this).lookup('event_dispatcher:main');
+        var events = eventDispatcher && eventDispatcher._finalEvents || {};
+
+        for (var key in events) {
+          var methodName = events[key];
+
+          if (typeof _this[methodName] === 'function') {
+            return true; // indicate that the assertion should be triggered
+          }
+        }
+      }());
+      false && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `tagName` (' + this + ').', !(this.tagName && this.tagName.isDescriptor));
     },
     rerender: function () {
       this[DIRTY_TAG].dirty();
@@ -16385,7 +16516,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       @private
     */
     disabled: (0, _emberMetal.computed)({
-      get: function (key, value) {
+      get: function () {
         return false;
       },
       set: function (key, value) {
@@ -16431,7 +16562,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
        @property active
       @private
     */
-    active: (0, _emberMetal.computed)('attrs.params', '_routing.currentState', function computeLinkToComponentActive() {
+    active: (0, _emberMetal.computed)('attrs.params', '_routing.currentState', function () {
       var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
       if (!currentState) {
         return false;
@@ -16440,7 +16571,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       return this._computeActive(currentState);
     }),
 
-    willBeActive: (0, _emberMetal.computed)('_routing.targetState', function computeLinkToComponentWillBeActive() {
+    willBeActive: (0, _emberMetal.computed)('_routing.targetState', function () {
       var routing = (0, _emberMetal.get)(this, '_routing');
       var targetState = (0, _emberMetal.get)(routing, 'targetState');
       if ((0, _emberMetal.get)(routing, 'currentState') === targetState) {
@@ -16450,7 +16581,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       return !!this._computeActive(targetState);
     }),
 
-    transitioningIn: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningIn() {
+    transitioningIn: (0, _emberMetal.computed)('active', 'willBeActive', function () {
       var willBeActive = (0, _emberMetal.get)(this, 'willBeActive');
       if (typeof willBeActive === 'undefined') {
         return false;
@@ -16459,7 +16590,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       return !(0, _emberMetal.get)(this, 'active') && willBeActive && 'ember-transitioning-in';
     }),
 
-    transitioningOut: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningOut() {
+    transitioningOut: (0, _emberMetal.computed)('active', 'willBeActive', function () {
       var willBeActive = (0, _emberMetal.get)(this, 'willBeActive');
       if (typeof willBeActive === 'undefined') {
         return false;
@@ -16526,7 +16657,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
 
     queryParams: null,
 
-    qualifiedRouteName: (0, _emberMetal.computed)('targetRouteName', '_routing.currentState', function computeLinkToComponentQualifiedRouteName() {
+    qualifiedRouteName: (0, _emberMetal.computed)('targetRouteName', '_routing.currentState', function () {
       var params = (0, _emberMetal.get)(this, 'params').slice();
       var lastParam = params[params.length - 1];
       if (lastParam && lastParam.isQueryParams) {
@@ -16539,7 +16670,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       return (0, _emberMetal.get)(this, 'targetRouteName');
     }),
 
-    resolvedQueryParams: (0, _emberMetal.computed)('queryParams', function computeLinkToComponentResolvedQueryParams() {
+    resolvedQueryParams: (0, _emberMetal.computed)('queryParams', function () {
       var resolvedQueryParams = {};
       var queryParams = (0, _emberMetal.get)(this, 'queryParams');
 
@@ -16566,7 +16697,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
        @property href
       @private
     */
-    href: (0, _emberMetal.computed)('models', 'qualifiedRouteName', function computeLinkToComponentHref() {
+    href: (0, _emberMetal.computed)('models', 'qualifiedRouteName', function () {
       if ((0, _emberMetal.get)(this, 'tagName') !== 'a') {
         return;
       }
@@ -16581,10 +16712,29 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       var routing = (0, _emberMetal.get)(this, '_routing');
       var queryParams = (0, _emberMetal.get)(this, 'queryParams.values');
 
+      if (false) {
+        /*
+         * Unfortunately, to get decent error messages, we need to do this.
+         * In some future state we should be able to use a "feature flag"
+         * which allows us to strip this without needing to call it twice.
+         *
+         * if (isDebugBuild()) {
+         *   // Do the useful debug thing, probably including try/catch.
+         * } else {
+         *   // Do the performant thing.
+         * }
+         */
+        try {
+          routing.generateURL(qualifiedRouteName, models, queryParams);
+        } catch (e) {
+          false && (0, _emberDebug.assert)('You attempted to define a `{{link-to "' + qualifiedRouteName + '"}}` but did not pass the parameters required for generating its dynamic segments. ' + e.message);
+        }
+      }
+
       return routing.generateURL(qualifiedRouteName, models, queryParams);
     }),
 
-    loading: (0, _emberMetal.computed)('_modelsAreLoaded', 'qualifiedRouteName', function computeLinkToComponentLoading() {
+    loading: (0, _emberMetal.computed)('_modelsAreLoaded', 'qualifiedRouteName', function () {
       var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
       var modelsAreLoaded = (0, _emberMetal.get)(this, '_modelsAreLoaded');
 
@@ -16593,7 +16743,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       }
     }),
 
-    _modelsAreLoaded: (0, _emberMetal.computed)('models', function computeLinkToComponentModelsAreLoaded() {
+    _modelsAreLoaded: (0, _emberMetal.computed)('models', function () {
       var models = (0, _emberMetal.get)(this, 'models');
       for (var i = 0; i < models.length; i++) {
         if (models[i] == null) {
@@ -16612,6 +16762,8 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
         var value = params[i + 1];
 
         while (_emberRuntime.ControllerMixin.detect(value)) {
+          false && !false && (0, _emberDebug.deprecate)('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. ' + (this.parentView ? 'Please update `' + this.parentView + '` to use `{{link-to "post" someController.model}}` instead.' : ''), false, { id: 'ember-routing-views.controller-wrapped-param', until: '3.0.0' });
+
           value = value.get('model');
         }
 
@@ -16640,6 +16792,14 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
         // Do not mutate params in place
         params = params.slice();
       }
+
+      false && (0, _emberDebug.assert)('You must provide one or more parameters to the link-to component.', function () {
+        if (!params) {
+          return false;
+        }
+
+        return params.length;
+      }());
 
       var disabledWhen = (0, _emberMetal.get)(this, 'disabledWhen');
       if (disabledWhen !== undefined) {
@@ -17209,11 +17369,10 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
 
       _this._templateCache = new _emberMetal.Cache(1000, function (_ref4) {
         var Template = _ref4.Template,
-            owner = _ref4.owner;
+            owner = _ref4.owner,
+            _Template$create;
 
         if (Template.create) {
-          var _Template$create;
-
           // we received a factory
           return Template.create((_Template$create = { env: _this }, _Template$create[_emberUtils.OWNER] = owner, _Template$create));
         } else {
@@ -17264,10 +17423,13 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
         '-get-dynamic-var': _runtime.getDynamicVar
       };
 
+      if (false) {
+        _this.debugStack = new _debugStack.default();
+      }
       return _this;
     }
 
-    Environment.prototype.macros = function macros() {
+    Environment.prototype.macros = function () {
       var macros = _GlimmerEnvironment.prototype.macros.call(this);
       (0, _syntax.populateMacros)(macros.blocks, macros.inlines);
       return macros;
@@ -17347,40 +17509,22 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
       var blockMeta = symbolTable.getMeta();
       var owner = blockMeta.owner;
       var options = blockMeta.moduleName && { source: 'template:' + blockMeta.moduleName } || {};
+      var helperFactory = owner[_container.FACTORY_FOR]('helper:' + name, options) || owner[_container.FACTORY_FOR]('helper:' + name);
 
-      if (true) {
-        var helperFactory = owner[_container.FACTORY_FOR]('helper:' + name, options) || owner[_container.FACTORY_FOR]('helper:' + name);
-
-        // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
-        if (helperFactory.class.isHelperInstance) {
-          return function (vm, args) {
-            return _references.SimpleHelperReference.create(helperFactory.class.compute, args);
-          };
-        } else if (helperFactory.class.isHelperFactory) {
-          if (!true) {
-            helperFactory = helperFactory.create();
-          }
-          return function (vm, args) {
-            return _references.ClassBasedHelperReference.create(helperFactory, vm, args);
-          };
-        } else {
-          throw new Error(name + ' is not a helper');
+      // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
+      if (helperFactory.class.isHelperInstance) {
+        return function (vm, args) {
+          return _references.SimpleHelperReference.create(helperFactory.class.compute, args);
+        };
+      } else if (helperFactory.class.isHelperFactory) {
+        if (!true) {
+          helperFactory = helperFactory.create();
         }
+        return function (vm, args) {
+          return _references.ClassBasedHelperReference.create(helperFactory, vm, args);
+        };
       } else {
-        var _helperFactory = owner.lookup('helper:' + name, options) || owner.lookup('helper:' + name);
-
-        // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
-        if (_helperFactory.isHelperInstance) {
-          return function (vm, args) {
-            return _references.SimpleHelperReference.create(_helperFactory.compute, args);
-          };
-        } else if (_helperFactory.isHelperFactory) {
-          return function (vm, args) {
-            return _references.ClassBasedHelperReference.create(_helperFactory, vm, args);
-          };
-        } else {
-          throw new Error(name + ' is not a helper');
-        }
+        throw new Error(name + ' is not a helper');
       }
     };
 
@@ -17408,17 +17552,17 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
     };
 
     Environment.prototype.scheduleInstallModifier = function scheduleInstallModifier() {
-      if (this.isInteractive) {
-        var _GlimmerEnvironment$p;
+      var _GlimmerEnvironment$p;
 
+      if (this.isInteractive) {
         (_GlimmerEnvironment$p = _GlimmerEnvironment.prototype.scheduleInstallModifier).call.apply(_GlimmerEnvironment$p, [this].concat(Array.prototype.slice.call(arguments)));
       }
     };
 
     Environment.prototype.scheduleUpdateModifier = function scheduleUpdateModifier() {
-      if (this.isInteractive) {
-        var _GlimmerEnvironment$p2;
+      var _GlimmerEnvironment$p2;
 
+      if (this.isInteractive) {
         (_GlimmerEnvironment$p2 = _GlimmerEnvironment.prototype.scheduleUpdateModifier).call.apply(_GlimmerEnvironment$p2, [this].concat(Array.prototype.slice.call(arguments)));
       }
     };
@@ -17452,6 +17596,56 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
   }(_runtime.Environment);
 
   exports.default = Environment;
+
+
+  if (false) {
+    var StyleAttributeManager = function (_AttributeManager) {
+      (0, _emberBabel.inherits)(StyleAttributeManager, _AttributeManager);
+
+      function StyleAttributeManager() {
+
+        return (0, _emberBabel.possibleConstructorReturn)(this, _AttributeManager.apply(this, arguments));
+      }
+
+      StyleAttributeManager.prototype.setAttribute = function setAttribute(dom, element, value) {
+        var _AttributeManager$pro;
+
+        false && (0, _emberDebug.warn)((0, _emberViews.constructStyleDeprecationMessage)(value), function () {
+          if (value === null || value === undefined || (0, _runtime.isSafeString)(value)) {
+            return true;
+          }
+          return false;
+        }(), { id: 'ember-htmlbars.style-xss-warning' });
+
+        (_AttributeManager$pro = _AttributeManager.prototype.setAttribute).call.apply(_AttributeManager$pro, [this].concat(Array.prototype.slice.call(arguments)));
+      };
+
+      StyleAttributeManager.prototype.updateAttribute = function updateAttribute(dom, element, value) {
+        var _AttributeManager$pro2;
+
+        false && (0, _emberDebug.warn)((0, _emberViews.constructStyleDeprecationMessage)(value), function () {
+          if (value === null || value === undefined || (0, _runtime.isSafeString)(value)) {
+            return true;
+          }
+          return false;
+        }(), { id: 'ember-htmlbars.style-xss-warning' });
+
+        (_AttributeManager$pro2 = _AttributeManager.prototype.updateAttribute).call.apply(_AttributeManager$pro2, [this].concat(Array.prototype.slice.call(arguments)));
+      };
+
+      return StyleAttributeManager;
+    }(_runtime.AttributeManager);
+
+    var STYLE_ATTRIBUTE_MANANGER = new StyleAttributeManager('style');
+
+    Environment.prototype.attributeFor = function (element, attribute, isTrusting) {
+      if (attribute === 'style' && !isTrusting) {
+        return STYLE_ATTRIBUTE_MANANGER;
+      }
+
+      return _runtime.Environment.prototype.attributeFor.call(this, element, attribute, isTrusting);
+    };
+  }
 });
 
 enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@glimmer/reference'], function (exports, _emberUtils, _emberRuntime, _reference) {
@@ -18018,16 +18212,21 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
   }
 
   function makeDynamicClosureAction(context, targetRef, actionRef, processArgs, debugKey) {
+    // We don't allow undefined/null values, so this creates a throw-away action to trigger the assertions
+    if (false) {
+      makeClosureAction(context, targetRef.value(), actionRef.value(), processArgs, debugKey);
+    }
 
     return function () {
       return makeClosureAction(context, targetRef.value(), actionRef.value(), processArgs, debugKey).apply(undefined, arguments);
     };
-    // We don't allow undefined/null values, so this creates a throw-away action to trigger the assertions
   }
 
   function makeClosureAction(context, target, action, processArgs, debugKey) {
     var self = void 0,
         fn = void 0;
+
+    false && (0, _emberDebug.assert)('Action passed is null or undefined in (action) from ' + target + '.', !(0, _emberMetal.isNone)(action));
 
     if (typeof action[INVOKE] === 'function') {
       self = action;
@@ -18038,18 +18237,25 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
       if (typeofAction === 'string') {
         self = target;
         fn = target.actions && target.actions[action];
+
+        false && (0, _emberDebug.assert)('An action named \'' + action + '\' was not found in ' + target, fn);
       } else if (typeofAction === 'function') {
         self = context;
         fn = action;
-      } else {}
+      } else {
+        false && (0, _emberDebug.assert)('An action could not be made for `' + (debugKey || action) + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + (debugKey || 'myAction') + '\')`) or a function available in ' + target + '.', false);
+      }
     }
 
     return function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      var payload = { target: self, args: args, label: '@glimmer/closure-action' };
+      var payload = { target: self, args: args, label: '@glimmer/closure-action' },
+          _len,
+          args,
+          _key;
       return (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
         return _emberMetal.run.join.apply(_emberMetal.run, [self, fn].concat(processArgs(args)));
       });
@@ -18234,10 +18440,16 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
       this.lastName = nameOrDef;
 
       if (typeof nameOrDef === 'string') {
+        false && (0, _emberDebug.assert)('You cannot use the input helper as a contextual helper. Please extend Ember.TextField or Ember.Checkbox to use it as a contextual component.', nameOrDef !== 'input');
+        false && (0, _emberDebug.assert)('You cannot use the textarea helper as a contextual helper. Please extend Ember.TextArea to use it as a contextual component.', nameOrDef !== 'textarea');
+
         definition = env.getComponentDefinition([nameOrDef], symbolTable);
+        false && (0, _emberDebug.assert)('The component helper cannot be used without a valid component name. You used "' + nameOrDef + '" via (component "' + nameOrDef + '")', definition);
       } else if ((0, _runtime.isComponentDefinition)(nameOrDef)) {
         definition = nameOrDef;
       } else {
+        false && (0, _emberDebug.assert)('You cannot create a component from ' + nameOrDef + ' using the {{component}} helper', nameOrDef);
+
         return null;
       }
 
@@ -18267,6 +18479,10 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
     inverse: null
   };
 
+  if (false) {
+    EMPTY_BLOCKS = Object.freeze(EMPTY_BLOCKS);
+  }
+
   function curryArgs(definition, newArgs) {
     var args = definition.args,
         ComponentClass = definition.ComponentClass;
@@ -18288,14 +18504,12 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
       (0, _curlyComponent.validatePositionalParameters)(newArgs.named, slicedPositionalArgs, positionalParams);
     }
 
-    var isRest = typeof positionalParams === 'string';
-
     // For non-rest position params, we need to perform the position -> name mapping
     // at each layer to avoid a collision later when the args are used to construct
     // the component instance (inside of processArgs(), inside of create()).
     var positionalToNamedParams = {};
 
-    if (!isRest && positionalParams && positionalParams.length > 0) {
+    if (!(typeof positionalParams === 'string') && positionalParams && positionalParams.length > 0) {
       var limit = Math.min(positionalParams.length, slicedPositionalArgs.length);
 
       for (var i = 0; i < limit; i++) {
@@ -18755,6 +18969,8 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-babel', 'ember-debu
       case 3:
         return ConditionalHelperReference.create(positional.at(0), positional.at(1), positional.at(2));
       default:
+        false && (0, _emberDebug.assert)('The inline form of the `if` helper expects two or three arguments, e.g. ' + '`{{if trialExpired "Expired" expiryDate}}`.');
+
     }
   }
 
@@ -18787,6 +19003,8 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-babel', 'ember-debu
       case 3:
         return ConditionalHelperReference.create(positional.at(0), positional.at(2), positional.at(1));
       default:
+        false && (0, _emberDebug.assert)('The inline form of the `unless` helper expects two or three arguments, e.g. ' + '`{{unless isFirstLogin "Welcome back!"}}`.');
+
     }
   }
 });
@@ -18898,7 +19116,7 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-debug', 'e
     //
     // This message is alright for the first case, but could be quite
     // confusing for the second case.
-
+    false && (0, _emberDebug.assert)('You can only pass a path to mut', rawRef[_references.UPDATE]);
 
     var wrappedRef = Object.create(rawRef);
 
@@ -19024,6 +19242,7 @@ enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-utils', 'ember-gl
   function queryParams(_ref) {
     var positional = _ref.positional,
         named = _ref.named;
+    false && (0, _emberDebug.assert)('The `query-params` helper only accepts hash parameters, e.g. (query-params queryParamPropertyName=\'foo\') as opposed to just (query-params \'foo\')', positional.value().length === 0);
 
     return _emberRouting.QueryParams.create({
       values: (0, _emberUtils.assign)({}, named.value())
@@ -19049,6 +19268,7 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-debug', 'ember-glimme
   'use strict';
 
   exports.default = function (vm, args) {
+    false && (0, _emberDebug.assert)('unbound helper cannot be called with multiple params or hash params', args.positional.values.length === 1 && args.named.keys.length === 0);
 
     return _references.UnboundReference.create(args.positional.at(0).value());
   };
@@ -19293,6 +19513,8 @@ enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-debug', 'ember-glim
   @submodule ember-glimmer
   */
   function makeBoundHelper(fn) {
+    false && !false && (0, _emberDebug.deprecate)('Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.', false, { id: 'ember-htmlbars.make-bound-helper', until: '3.0.0' });
+
     return (0, _helper.helper)(fn);
   }
 });
@@ -19437,6 +19659,8 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
             target.send.apply(target, [actionName].concat(args));
           });
         } else {
+          false && (0, _emberDebug.assert)('The action \'' + actionName + '\' did not exist on ' + target, typeof target[actionName] === 'function');
+
           (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
             target[actionName].apply(target, args);
           });
@@ -19472,6 +19696,8 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
         } else {
           var actionLabel = actionNameRef._propertyKey;
           actionName = actionNameRef.value();
+
+          false && (0, _emberDebug.assert)('You specified a quoteless path, `' + actionLabel + '`, to the ' + '{{action}} helper which did not resolve to an action name (a ' + 'string). Perhaps you meant to use a quoted actionName? (e.g. ' + '{{action "' + actionLabel + '"}}).', typeof actionName === 'string' || typeof actionName === 'function');
         }
       }
 
@@ -19583,7 +19809,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
   var backburner = _emberMetal.run.backburner;
 
   var DynamicScope = function () {
-    function DynamicScope(view, outletState, rootOutletState, targetObject) {
+    function DynamicScope(view, outletState, rootOutletState) {
 
       this.view = view;
       this.outletState = outletState;
@@ -19595,10 +19821,14 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
     };
 
     DynamicScope.prototype.get = function get(key) {
+      false && (0, _emberDebug.assert)('Using `-get-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState');
+
       return this.outletState;
     };
 
     DynamicScope.prototype.set = function set(key, value) {
+      false && (0, _emberDebug.assert)('Using `-with-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState');
+
       this.outletState = value;
       return value;
     };
@@ -19609,6 +19839,8 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
   var RootState = function () {
     function RootState(root, env, template, self, parentElement, dynamicScope) {
       var _this = this;
+
+      false && (0, _emberDebug.assert)('You cannot render `' + self.value() + '` without a template.', template);
 
       this.id = (0, _emberViews.getViewId)(root);
       this.env = env;
@@ -19687,11 +19919,14 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
   });
 
   function register(renderer) {
+    false && (0, _emberDebug.assert)('Cannot register the same renderer twice', renderers.indexOf(renderer) === -1);
+
     renderers.push(renderer);
   }
 
   function deregister(renderer) {
     var index = renderers.indexOf(renderer);
+    false && (0, _emberDebug.assert)('Cannot deregister unknown unregistered renderer', index !== -1);
 
     renderers.splice(index, 1);
   }
@@ -19705,7 +19940,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
   function K() {}
 
   var loops = 0;
-  function loopEnd(current, next) {
+  function loopEnd() {
     for (var i = 0; i < renderers.length; i++) {
       if (!renderers[i]._isValid()) {
         if (loops > 10) {
@@ -19768,12 +20003,13 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
       this._renderRoot(rootState);
     };
 
-    Renderer.prototype.rerender = function rerender(view) {
+    Renderer.prototype.rerender = function rerender() {
       this._scheduleRevalidate();
     };
 
-    Renderer.prototype.register = function register(view) {
+    Renderer.prototype.register = function (view) {
       var id = (0, _emberViews.getViewId)(view);
+      false && (0, _emberDebug.assert)('Attempted to register a view with an id already in use: ' + id, !this._viewRegistry[id]);
 
       this._viewRegistry[id] = view;
     };
@@ -19825,7 +20061,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
       this._clearAllRoots();
     };
 
-    Renderer.prototype.getElement = function getElement(view) {
+    Renderer.prototype.getElement = function getElement() {
       // overriden in the subclasses
     };
 
@@ -19858,7 +20094,8 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
     Renderer.prototype._renderRoots = function _renderRoots() {
       var roots = this._roots,
           env = this._env,
-          removedRoots = this._removedRoots;
+          removedRoots = this._removedRoots,
+          shouldReflush;
 
       var globalShouldReflush = void 0,
           initialRootsLength = void 0;
@@ -19883,7 +20120,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
             continue;
           }
 
-          var shouldReflush = root.shouldReflush;
+          shouldReflush = root.shouldReflush;
 
           // when processing non-initial reflush loops,
           // do not process more roots than needed
@@ -19993,7 +20230,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
       return new this(env, rootTemplate, _viewRegistry, false);
     };
 
-    InertRenderer.prototype.getElement = function getElement(view) {
+    InertRenderer.prototype.getElement = function getElement() {
       throw new Error('Accessing `this.element` is not allowed in non-interactive environments (such as FastBoot).');
     };
 
@@ -20099,6 +20336,7 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
 
   function refineInlineSyntax(path, params, hash, builder) {
     var name = path[0];
+    false && (0, _emberDebug.assert)('You attempted to overwrite the built-in helper "' + name + '" which is not allowed. Please rename the helper.', !(builder.env.builtInHelpers[name] && builder.env.owner.hasRegistration('helper:' + name)));
 
     if (path.length > 1) {
       return (0, _dynamicComponent.closureComponentMacro)(path, params, hash, null, null, builder);
@@ -20148,6 +20386,9 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
       builder.component.static(definition, [params, hash, _default, inverse], symbolTable);
       return true;
     }
+
+    false && (0, _emberDebug.assert)('A component or helper named "' + name + '" could not be found', builder.env.hasHelper(path, symbolTable));
+    false && (0, _emberDebug.assert)('Helpers may not be used in the block form, for example {{#' + name + '}}{{/' + name + '}}. Please use a component, or alternatively use the helper in combination with a built-in Ember helper, for example {{#if (' + name + ')}}{{/if}}.', !builder.env.hasHelper(path, symbolTable));
 
     return false;
   }
@@ -20249,10 +20490,22 @@ enifed('ember-glimmer/syntax/-with-dynamic-vars', ['exports', '@glimmer/runtime'
   }
 });
 
-enifed('ember-glimmer/syntax/abstract-manager', ['exports', 'ember-debug'], function (exports, _emberDebug) {
+enifed('ember-glimmer/syntax/abstract-manager', ['exports'], function (exports) {
   'use strict';
 
   var AbstractManager = function AbstractManager() {};
+
+  if (false) {
+    AbstractManager.prototype._pushToDebugStack = function (name, environment) {
+      this.debugStack = environment.debugStack;
+      this.debugStack.push(name);
+    };
+
+    AbstractManager.prototype._pushEngineToDebugStack = function (name, environment) {
+      this.debugStack = environment.debugStack;
+      this.debugStack.pushEngine(name);
+    };
+  }
 
   exports.default = AbstractManager;
 });
@@ -20268,12 +20521,66 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
 
   var DEFAULT_LAYOUT = (0, _container.privatize)(_templateObject);
 
-  function processComponentInitializationAssertions(component, props) {}
+  function processComponentInitializationAssertions(component, props) {
+    false && (0, _emberDebug.assert)('classNameBindings must not have spaces in them: ' + component.toString(), function () {
+      var classNameBindings = component.classNameBindings;
 
-  function validatePositionalParameters(named, positional, positionalParamsDefinition) {}
+      for (var i = 0; i < classNameBindings.length; i++) {
+        var binding = classNameBindings[i];
+        if (binding.split(' ').length > 1) {
+          return false;
+        }
+      }
+      return true;
+    }());
+    false && (0, _emberDebug.assert)('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), function () {
+      var classNameBindings = component.classNameBindings,
+          tagName = component.tagName;
+
+      return tagName !== '' || !classNameBindings || classNameBindings.length === 0;
+    }());
+    false && (0, _emberDebug.assert)('You cannot use `elementId` on a tag-less component: ' + component.toString(), function () {
+      var elementId = component.elementId,
+          tagName = component.tagName;
+
+      return tagName !== '' || props.id === elementId || !elementId && elementId !== '';
+    }());
+    false && (0, _emberDebug.assert)('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), function () {
+      var attributeBindings = component.attributeBindings,
+          tagName = component.tagName;
+
+      return tagName !== '' || !attributeBindings || attributeBindings.length === 0;
+    }());
+  }
+
+  function validatePositionalParameters(named, positional, positionalParamsDefinition) {
+    if (false) {
+      if (!named || !positional || !positional.length) {
+        return;
+      }
+
+      var paramType = typeof positionalParamsDefinition;
+
+      if (paramType === 'string') {
+        false && (0, _emberDebug.assert)('You cannot specify positional parameters and the hash argument `' + positionalParamsDefinition + '`.', !named.has(positionalParamsDefinition));
+      } else {
+        if (positional.length < positionalParamsDefinition.length) {
+          positionalParamsDefinition = positionalParamsDefinition.slice(0, positional.length);
+        }
+
+        for (var i = 0; i < positionalParamsDefinition.length; i++) {
+          var name = positionalParamsDefinition[i];
+
+          false && (0, _emberDebug.assert)('You cannot specify both a positional param (at position ' + i + ') and the hash argument `' + name + '`.', !named.has(name));
+        }
+      }
+    }
+  }
 
   function aliasIdToElementId(args, props) {
     if (args.named.has('id')) {
+      false && (0, _emberDebug.assert)('You cannot invoke a component with both \'id\' and \'elementId\' at the same time.', !args.named.has('elementId'));
+
       props.elementId = props.id;
     }
   }
@@ -20367,7 +20674,9 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
     };
 
     CurlyComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, callerSelfRef, hasBlock) {
-      var _this2 = this;
+      if (false) {
+        this._pushToDebugStack('component:' + definition.name, environment);
+      }
 
       var parentView = dynamicScope.view;
 
@@ -20414,6 +20723,10 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
         bucket.classRef = args.named.get('class');
       }
 
+      if (false) {
+        processComponentInitializationAssertions(component, props);
+      }
+
       if (environment.isInteractive && component.tagName !== '') {
         component.trigger('willRender');
       }
@@ -20422,9 +20735,10 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
     };
 
     CurlyComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      var template = definition.template;
+      var template = definition.template,
+          component;
       if (!template) {
-        var component = bucket.component;
+        component = bucket.component;
 
         template = this.templateFor(component, env);
       }
@@ -20495,10 +20809,12 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
     };
 
     CurlyComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket, bounds) {
-      var _this3 = this;
-
       bucket.component[_component.BOUNDS] = bounds;
       bucket.finalize();
+
+      if (false) {
+        this.debugStack.pop();
+      }
     };
 
     CurlyComponentManager.prototype.getTag = function getTag(_ref3) {
@@ -20518,20 +20834,23 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
       }
     };
 
-    CurlyComponentManager.prototype.update = function update(bucket, _, dynamicScope) {
-      var _this4 = this;
-
+    CurlyComponentManager.prototype.update = function update(bucket) {
       var component = bucket.component,
           args = bucket.args,
           argsRevision = bucket.argsRevision,
-          environment = bucket.environment;
+          environment = bucket.environment,
+          _args$value,
+          attrs,
+          props;
+
+      if (false) {
+        this._pushToDebugStack(component._debugContainerKey, environment);
+      }
 
       bucket.finalizer = (0, _emberMetal._instrumentStart)('render.component', rerenderInstrumentDetails, component);
 
       if (!args.tag.validate(argsRevision)) {
-        var _args$value = args.value(),
-            attrs = _args$value.attrs,
-            props = _args$value.props;
+        _args$value = args.value(), attrs = _args$value.attrs, props = _args$value.props;
 
         bucket.argsRevision = args.tag.value();
 
@@ -20553,9 +20872,11 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
     };
 
     CurlyComponentManager.prototype.didUpdateLayout = function didUpdateLayout(bucket) {
-      var _this5 = this;
-
       bucket.finalize();
+
+      if (false) {
+        this.debugStack.pop();
+      }
     };
 
     CurlyComponentManager.prototype.didUpdate = function didUpdate(_ref5) {
@@ -20585,10 +20906,12 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
       return (0, _emberBabel.possibleConstructorReturn)(this, _CurlyComponentManage.apply(this, arguments));
     }
 
-    TopComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, currentScope, hasBlock) {
-      var _this7 = this;
-
+    TopComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
       var component = definition.ComponentClass.create();
+
+      if (false) {
+        this._pushToDebugStack(component._debugContainerKey, environment);
+      }
 
       var finalizer = (0, _emberMetal._instrumentStart)('render.component', initialRenderInstrumentDetails, component);
 
@@ -20605,6 +20928,10 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
         if (environment.isInteractive) {
           component.trigger('willInsertElement');
         }
+      }
+
+      if (false) {
+        processComponentInitializationAssertions(component, {});
       }
 
       return new ComponentStateBucket(environment, component, args, finalizer);
@@ -20630,11 +20957,11 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
 
     function CurlyComponentDefinition(name, ComponentClass, template, args) {
 
-      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, name, MANAGER, ComponentClass));
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, name, MANAGER, ComponentClass));
 
-      _this8.template = template;
-      _this8.args = args;
-      return _this8;
+      _this3.template = template;
+      _this3.args = args;
+      return _this3;
     }
 
     return CurlyComponentDefinition;
@@ -20645,16 +20972,16 @@ enifed('ember-glimmer/syntax/curly-component', ['exports', 'ember-babel', 'ember
 
     function RootComponentDefinition(instance) {
 
-      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, '-root', ROOT_MANAGER, {
+      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, '-root', ROOT_MANAGER, {
         class: instance.constructor,
         create: function () {
           return instance;
         }
       }));
 
-      _this9.template = undefined;
-      _this9.args = undefined;
-      return _this9;
+      _this4.template = undefined;
+      _this4.args = undefined;
+      return _this4;
     }
 
     return RootComponentDefinition;
@@ -20697,9 +21024,7 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', '@glimmer/runtime',
   }
 
   function closureComponentMacro(path, params, hash, _default, inverse, builder) {
-    var definitionArgs = [[['get', path]], hash, _default, inverse];
-    var args = [params, hash, _default, inverse];
-    builder.component.dynamic(definitionArgs, dynamicComponentFor, args, builder.symbolTable);
+    builder.component.dynamic([[['get', path]], hash, _default, inverse], dynamicComponentFor, [params, hash, _default, inverse], builder.symbolTable);
     return true;
   }
 
@@ -20752,6 +21077,8 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', '@glimmer/runtime',
 
       if (typeof nameOrDef === 'string') {
         var definition = env.getComponentDefinition([nameOrDef], symbolTable);
+
+        false && (0, _emberDebug.assert)('Could not find component named "' + nameOrDef + '" (no component or template with that name was found)', definition);
 
         return definition;
       } else if ((0, _runtime.isComponentDefinition)(nameOrDef)) {
@@ -20939,6 +21266,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
       var typeArg = values[typeIndex];
       if (!Array.isArray(typeArg)) {
         if (typeArg === 'checkbox') {
+          false && (0, _emberDebug.assert)('{{input type=\'checkbox\'}} does not support setting `value=someBooleanValue`; ' + 'you must use `checked=someBooleanValue` instead.', valueIndex === -1);
 
           (0, _bindings.wrapComponentClassAttribute)(hash);
 
@@ -20995,10 +21323,11 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', '@glimmer/runtim
     @public
   */
   function mountMacro(path, params, hash, builder) {
+    false && (0, _emberDebug.assert)('You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1 && hash === null);
 
     var definitionArgs = [params.slice(0, 1), null, null, null];
-    var args = [null, null, null, null];
-    builder.component.dynamic(definitionArgs, dynamicEngineFor, args, builder.symbolTable);
+
+    builder.component.dynamic(definitionArgs, dynamicEngineFor, [null, null, null, null], builder.symbolTable);
     return true;
   }
 
@@ -21028,6 +21357,8 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', '@glimmer/runtim
           return this._lastDef;
         }
 
+        false && (0, _emberDebug.assert)('You used `{{mount \'' + nameOrDef + '\'}}`, but the engine \'' + nameOrDef + '\' can not be found.', env.owner.hasRegistration('engine:' + nameOrDef));
+
         if (!env.owner.hasRegistration('engine:' + nameOrDef)) {
           return null;
         }
@@ -21037,6 +21368,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', '@glimmer/runtim
 
         return this._lastDef;
       } else {
+        false && (0, _emberDebug.assert)('Invalid engine name \'' + nameOrDef + '\' specified, engine name must be either a string, null or undefined.', nameOrDef === null || nameOrDef === undefined);
 
         return null;
       }
@@ -21060,7 +21392,9 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', '@glimmer/runtim
     MountManager.prototype.create = function create(environment, _ref2, args, dynamicScope) {
       var name = _ref2.name;
 
-      var _this2 = this;
+      if (false) {
+        this._pushEngineToDebugStack('engine:' + name, environment);
+      }
 
       dynamicScope.outletState = _reference.UNDEFINED_REFERENCE;
 
@@ -21093,16 +21427,18 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', '@glimmer/runtim
     MountManager.prototype.didCreateElement = function didCreateElement() {};
 
     MountManager.prototype.didRenderLayout = function didRenderLayout() {
-      var _this3 = this;
+      if (false) {
+        this.debugStack.pop();
+      }
     };
 
-    MountManager.prototype.didCreate = function didCreate(state) {};
+    MountManager.prototype.didCreate = function didCreate() {};
 
-    MountManager.prototype.update = function update(state, args, dynamicScope) {};
+    MountManager.prototype.update = function update() {};
 
     MountManager.prototype.didUpdateLayout = function didUpdateLayout() {};
 
-    MountManager.prototype.didUpdate = function didUpdate(state) {};
+    MountManager.prototype.didUpdate = function didUpdate() {};
 
     return MountManager;
   }(_abstractManager.default);
@@ -21121,13 +21457,16 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', '@glimmer/runtim
   }(_runtime.ComponentDefinition);
 });
 
-enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/abstract-manager', '@glimmer/reference'], function (exports, _emberBabel, _emberUtils, _runtime, _emberDebug, _emberMetal, _references, _abstractManager, _reference) {
+enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', '@glimmer/runtime', 'ember-metal', 'ember-glimmer/utils/references', 'ember-glimmer/syntax/abstract-manager', '@glimmer/reference'], function (exports, _emberBabel, _emberUtils, _runtime, _emberMetal, _references, _abstractManager, _reference) {
   'use strict';
 
   exports.OutletLayoutCompiler = exports.TopLevelOutletComponentDefinition = undefined;
   exports.outletMacro = outletMacro;
 
-
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   function outletComponentFor(vm) {
     var _vm$dynamicScope = vm.dynamicScope(),
         outletState = _vm$dynamicScope.outletState;
@@ -21191,11 +21530,6 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
     @param {String} [name]
     @for Ember.Templates.helpers
     @public
-  */
-
-  /**
-  @module ember
-  @submodule ember-glimmer
   */
   function outletMacro(path, params, hash, builder) {
     if (!params) {
@@ -21305,7 +21639,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
     };
 
     OutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      var _this2 = this;
+      if (false) {
+        this._pushToDebugStack('template:' + definition.template.meta.moduleName, environment);
+      }
 
       var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get('outlets').get(definition.outletName);
       var outletState = outletStateReference.value();
@@ -21331,20 +21667,22 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
     };
 
     OutletComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket) {
-      var _this3 = this;
-
       bucket.finalize();
+
+      if (false) {
+        this.debugStack.pop();
+      }
     };
 
     OutletComponentManager.prototype.didCreateElement = function didCreateElement() {};
 
-    OutletComponentManager.prototype.didCreate = function didCreate(state) {};
+    OutletComponentManager.prototype.didCreate = function didCreate() {};
 
-    OutletComponentManager.prototype.update = function update(bucket) {};
+    OutletComponentManager.prototype.update = function update() {};
 
-    OutletComponentManager.prototype.didUpdateLayout = function didUpdateLayout(bucket) {};
+    OutletComponentManager.prototype.didUpdateLayout = function didUpdateLayout() {};
 
-    OutletComponentManager.prototype.didUpdate = function didUpdate(state) {};
+    OutletComponentManager.prototype.didUpdate = function didUpdate() {};
 
     return OutletComponentManager;
   }(_abstractManager.default);
@@ -21360,8 +21698,9 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
     }
 
     TopLevelOutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      var _this5 = this;
-
+      if (false) {
+        this._pushToDebugStack('template:' + definition.template.meta.moduleName, environment);
+      }
       return new StateBucket(dynamicScope.outletState.value());
     };
 
@@ -21379,11 +21718,11 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
 
     function TopLevelOutletComponentDefinition(instance) {
 
-      var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'outlet', TOP_LEVEL_MANAGER, instance));
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'outlet', TOP_LEVEL_MANAGER, instance));
 
-      _this6.template = instance.template;
-      (0, _emberUtils.generateGuid)(_this6);
-      return _this6;
+      _this3.template = instance.template;
+      (0, _emberUtils.generateGuid)(_this3);
+      return _this3;
     }
 
     return TopLevelOutletComponentDefinition;
@@ -21412,12 +21751,12 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
 
     function OutletComponentDefinition(outletName, template) {
 
-      var _this7 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, 'outlet', MANAGER, null));
+      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, 'outlet', MANAGER, null));
 
-      _this7.outletName = outletName;
-      _this7.template = template;
-      (0, _emberUtils.generateGuid)(_this7);
-      return _this7;
+      _this4.outletName = outletName;
+      _this4.template = template;
+      (0, _emberUtils.generateGuid)(_this4);
+      return _this4;
     }
 
     return OutletComponentDefinition;
@@ -21453,7 +21792,12 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
     var args = vm.getArgs();
     var nameRef = args.positional.at(0);
 
+    false && (0, _emberDebug.assert)('The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.', (0, _reference.isConst)(nameRef));
+    false && (0, _emberDebug.assert)('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', args.positional.length === 1 || !(0, _reference.isConst)(args.positional.at(1)));
+
     var templateName = nameRef.value();
+
+    false && (0, _emberDebug.assert)('You used `{{render \'' + templateName + '\'}}`, but \'' + templateName + '\' can not be found as a template.', env.owner.hasRegistration('template:' + templateName));
 
     var template = env.owner.lookup('template:' + templateName);
 
@@ -21462,7 +21806,11 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
     if (args.named.has('controller')) {
       var controllerNameRef = args.named.get('controller');
 
+      false && (0, _emberDebug.assert)('The controller argument for {{render}} must be quoted, e.g. {{render "sidebar" controller="foo"}}.', (0, _reference.isConst)(controllerNameRef));
+
       controllerName = controllerNameRef.value();
+
+      false && (0, _emberDebug.assert)('The controller name you supplied \'' + controllerName + '\' did not resolve to a controller.', env.owner.hasRegistration('controller:' + controllerName));
     } else {
       controllerName = templateName;
     }
@@ -21600,6 +21948,12 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
     return AbstractRenderManager;
   }(_abstractManager.default);
 
+  if (false) {
+    AbstractRenderManager.prototype.didRenderLayout = function () {
+      this.debugStack.pop();
+    };
+  }
+
   var SingletonRenderManager = function (_AbstractRenderManage) {
     (0, _emberBabel.inherits)(SingletonRenderManager, _AbstractRenderManage);
 
@@ -21609,12 +21963,14 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
     }
 
     SingletonRenderManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      var _this3 = this;
-
       var name = definition.name,
           env = definition.env;
 
       var controller = env.owner.lookup('controller:' + name) || (0, _emberRouting.generateController)(env.owner, name);
+
+      if (false) {
+        this._pushToDebugStack('controller:' + name + ' (with the render helper)', environment);
+      }
 
       if (dynamicScope.rootOutletState) {
         dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
@@ -21637,8 +21993,6 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
     }
 
     NonSingletonRenderManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      var _this5 = this;
-
       var name = definition.name,
           env = definition.env;
 
@@ -21648,6 +22002,10 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
       var factory = controllerFactory || (0, _emberRouting.generateControllerFactory)(env.owner, name);
       var controller = factory.create({ model: modelRef.value() });
 
+      if (false) {
+        this._pushToDebugStack('controller:' + name + ' (with the render helper)', environment);
+      }
+
       if (dynamicScope.rootOutletState) {
         dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
       }
@@ -21655,7 +22013,7 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
       return { controller: controller };
     };
 
-    NonSingletonRenderManager.prototype.update = function update(_ref2, args, dynamicScope) {
+    NonSingletonRenderManager.prototype.update = function update(_ref2, args) {
       var controller = _ref2.controller;
 
       controller.set('model', args.positional.at(0).value());
@@ -21677,12 +22035,12 @@ enifed('ember-glimmer/syntax/render', ['exports', 'ember-babel', '@glimmer/runti
 
     function RenderDefinition(name, template, env, manager) {
 
-      var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'render', manager, null));
+      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'render', manager, null));
 
-      _this6.name = name;
-      _this6.template = template;
-      _this6.env = env;
-      return _this6;
+      _this4.name = name;
+      _this4.template = template;
+      _this4.env = env;
+      return _this4;
     }
 
     return RenderDefinition;
@@ -21805,13 +22163,14 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
     }
 
     var keys = hash[0],
-        values = hash[1];
+        values = hash[1],
+        _values$index,
+        type;
 
     var index = keys.indexOf('class');
 
     if (index !== -1) {
-      var _values$index = values[index],
-          type = _values$index[0];
+      _values$index = values[index], type = _values$index[0];
 
       if (type === _wireFormat.Ops.Get) {
         var getExp = values[index];
@@ -21829,10 +22188,14 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
       var colonIndex = microsyntax.indexOf(':');
 
       if (colonIndex === -1) {
+        false && (0, _emberDebug.assert)('You cannot use class as an attributeBinding, use classNameBindings instead.', microsyntax !== 'class');
+
         return [microsyntax, microsyntax, true];
       } else {
         var prop = microsyntax.substring(0, colonIndex);
         var attribute = microsyntax.substring(colonIndex + 1);
+
+        false && (0, _emberDebug.assert)('You cannot use class as an attributeBinding, use classNameBindings instead.', attribute !== 'class');
 
         return [prop, attribute, false];
       }
@@ -21853,6 +22216,8 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
 
       var isPath = prop.indexOf('.') > -1;
       var reference = isPath ? referenceForParts(component, prop.split('.')) : referenceForKey(component, prop);
+
+      false && (0, _emberDebug.assert)('Illegal attributeBinding: \'' + prop + '\' is not a valid attribute name.', !(isSimple && isPath));
 
       if (attribute === 'style') {
         reference = new StyleBindingReference(reference, referenceForKey(component, 'isVisible'));
@@ -21911,9 +22276,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
           truthy = _microsyntax$split[1],
           falsy = _microsyntax$split[2];
 
-      var isStatic = prop === '';
-
-      if (isStatic) {
+      if (prop === '') {
         operations.addStaticAttribute(element, 'class', truthy);
       } else {
         var isPath = prop.indexOf('.') > -1;
@@ -21947,11 +22310,12 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
     }
 
     SimpleClassNameBindingReference.prototype.compute = function compute() {
-      var value = this.inner.value();
+      var value = this.inner.value(),
+          path,
+          dasherizedPath;
 
       if (value === true) {
-        var path = this.path,
-            dasherizedPath = this.dasherizedPath;
+        path = this.path, dasherizedPath = this.dasherizedPath;
 
         return dasherizedPath || (this.dasherizedPath = _emberRuntime.String.dasherize(path));
       } else if (value || value === 0) {
@@ -21990,10 +22354,92 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
   }(_reference.CachedReference);
 });
 
-enifed('ember-glimmer/utils/debug-stack', ['exports', 'ember-babel', 'ember-debug'], function (exports, _emberBabel, _emberDebug) {
+enifed('ember-glimmer/utils/debug-stack', ['exports', 'ember-babel'], function (exports, _emberBabel) {
   'use strict';
 
   var DebugStack = void 0;
+
+  if (false) {
+    var Element = function Element(name) {
+
+      this.name = name;
+    };
+
+    var TemplateElement = function (_Element) {
+      (0, _emberBabel.inherits)(TemplateElement, _Element);
+
+      function TemplateElement() {
+
+        return (0, _emberBabel.possibleConstructorReturn)(this, _Element.apply(this, arguments));
+      }
+
+      return TemplateElement;
+    }(Element);
+
+    var EngineElement = function (_Element2) {
+      (0, _emberBabel.inherits)(EngineElement, _Element2);
+
+      function EngineElement() {
+
+        return (0, _emberBabel.possibleConstructorReturn)(this, _Element2.apply(this, arguments));
+      }
+
+      return EngineElement;
+    }(Element);
+
+    DebugStack = function () {
+      function DebugStack() {
+
+        this._stack = [];
+      }
+
+      DebugStack.prototype.push = function push(name) {
+        this._stack.push(new TemplateElement(name));
+      };
+
+      DebugStack.prototype.pushEngine = function pushEngine(name) {
+        this._stack.push(new EngineElement(name));
+      };
+
+      DebugStack.prototype.pop = function pop() {
+        var element = this._stack.pop();
+
+        if (element) {
+          return element.name;
+        }
+      };
+
+      DebugStack.prototype.peek = function peek() {
+        var template = this._currentTemplate();
+        var engine = this._currentEngine();
+
+        if (engine) {
+          return '"' + template + '" (in "' + engine + '")';
+        } else if (template) {
+          return '"' + template + '"';
+        }
+      };
+
+      DebugStack.prototype._currentTemplate = function _currentTemplate() {
+        return this._getCurrentByType(TemplateElement);
+      };
+
+      DebugStack.prototype._currentEngine = function _currentEngine() {
+        return this._getCurrentByType(EngineElement);
+      };
+
+      DebugStack.prototype._getCurrentByType = function _getCurrentByType(type) {
+        for (var i = this._stack.length; i >= 0; i--) {
+          var element = this._stack[i];
+          if (element instanceof type) {
+            return element.name;
+          }
+        }
+      };
+
+      return DebugStack;
+    }();
+  }
 
   exports.default = DebugStack;
 });
@@ -22461,7 +22907,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', '@glimmer/
   }();
 });
 
-enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-babel', 'ember-utils', 'ember-metal', '@glimmer/reference', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember-debug'], function (exports, _runtime, _emberBabel, _emberUtils, _emberMetal, _reference, _toBool, _helper, _emberDebug) {
+enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-babel', 'ember-utils', 'ember-metal', '@glimmer/reference', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper'], function (exports, _runtime, _emberBabel, _emberUtils, _emberMetal, _reference, _toBool, _helper) {
   'use strict';
 
   exports.UnboundReference = exports.InternalHelperReference = exports.ClassBasedHelperReference = exports.SimpleHelperReference = exports.ConditionalReference = exports.UpdatablePrimitiveReference = exports.UpdatableReference = exports.NestedPropertyReference = exports.RootPropertyReference = exports.PropertyReference = exports.RootReference = exports.CachedReference = exports.UNDEFINED_REFERENCE = exports.NULL_REFERENCE = exports.UPDATE = undefined;
@@ -22800,12 +23246,20 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
     (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
 
     SimpleHelperReference.create = function create(helper, args) {
+      var positional, named;
+
       if ((0, _reference.isConst)(args)) {
-        var positional = args.positional,
-            named = args.named;
+        positional = args.positional, named = args.named;
 
         var positionalValue = positional.value();
         var namedValue = named.value();
+
+        if (false) {
+          if (_emberUtils.HAS_NATIVE_WEAKMAP) {
+            Object.freeze(positionalValue);
+            Object.freeze(namedValue);
+          }
+        }
 
         var result = helper(positionalValue, namedValue);
 
@@ -22842,6 +23296,13 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
       var positionalValue = positional.value();
       var namedValue = named.value();
 
+      if (false) {
+        if (_emberUtils.HAS_NATIVE_WEAKMAP) {
+          Object.freeze(positionalValue);
+          Object.freeze(namedValue);
+        }
+      }
+
       return helper(positionalValue, namedValue);
     };
 
@@ -22875,6 +23336,13 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
 
       var positionalValue = positional.value();
       var namedValue = named.value();
+
+      if (false) {
+        if (_emberUtils.HAS_NATIVE_WEAKMAP) {
+          Object.freeze(positionalValue);
+          Object.freeze(namedValue);
+        }
+      }
 
       return instance.compute(positionalValue, namedValue);
     };
@@ -22964,6 +23432,11 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (expor
   */
 
   function getSafeString() {
+    false && !false && (0, _emberDebug.deprecate)('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
+      id: 'ember-htmlbars.ember-handlebars-safestring',
+      until: '3.0.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
+    });
 
     return SafeString;
   }
@@ -23260,7 +23733,7 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', 'ember-utils', '
   exports.default = OutletView;
 });
 
-enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-utils', 'ember-debug', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, _emberBabel, _emberEnvironment, _emberUtils, _emberDebug, _reference, _require2, _emberConsole, _backburner) {
+enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-utils', 'ember-debug', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, _emberBabel, _emberEnvironment, _emberUtils, _emberDebug, _features, _reference, _require2, _emberConsole, _backburner) {
   'use strict';
 
   exports.descriptor = exports.isProxy = exports.assertNotRendered = exports.didRender = undefined;
@@ -23531,6 +24004,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function addListener(obj, eventName, target, method, once) {
+    false && (0, _emberDebug.assert)('You must pass at least an object and event name to Ember.addListener', !!obj && !!eventName);
+    false && !(eventName !== 'didInitAttrs') && (0, _emberDebug.deprecate)('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
+      id: 'ember-views.did-init-attrs',
+      until: '3.0.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+    });
 
     if (!method && 'function' === typeof target) {
       method = target;
@@ -23563,6 +24042,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function removeListener(obj, eventName, target, method) {
+    false && (0, _emberDebug.assert)('You must pass at least an object and event name to Ember.removeListener', !!obj && !!eventName);
 
     if (!method && 'function' === typeof target) {
       method = target;
@@ -23757,13 +24237,16 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function on() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+    for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
-    var func = args.pop();
-    var events = args;
-    func.__ember_listens__ = events;
+    var func = args.pop(),
+        _len,
+        args,
+        _key;
+
+    func.__ember_listens__ = args;
     return func;
   }
 
@@ -23936,7 +24419,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     exports.runInTransaction = runInTransaction = function (context$$1, methodName) {
       shouldReflush = false;
       inTransaction = true;
-
+      if (false) {
+        debugStack = context$$1.env.debugStack;
+      }
       context$$1[methodName]();
       inTransaction = false;
       counter++;
@@ -23950,6 +24435,16 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       var meta$$1 = meta(object);
       var lastRendered = meta$$1.writableLastRendered();
       lastRendered[key] = counter;
+
+      if (false) {
+        var referenceMap = meta$$1.writableLastRenderedReferenceMap();
+        referenceMap[key] = reference;
+
+        var templateMap = meta$$1.writableLastRenderedTemplateMap();
+        if (templateMap[key] === undefined) {
+          templateMap[key] = debugStack.peek();
+        }
+      }
     };
 
     exports.assertNotRendered = assertNotRendered = function (object, key, _meta) {
@@ -23957,6 +24452,35 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       var lastRendered = meta$$1.readableLastRendered();
 
       if (lastRendered && lastRendered[key] === counter) {
+        if (false) {
+          var templateMap = meta$$1.readableLastRenderedTemplateMap();
+          var lastRenderedIn = templateMap[key];
+          var currentlyIn = debugStack.peek();
+
+          var referenceMap = meta$$1.readableLastRenderedReferenceMap();
+          var lastRef = referenceMap[key];
+          var parts = [];
+          var label = void 0;
+
+          if (lastRef) {
+            while (lastRef && lastRef._propertyKey) {
+              parts.unshift(lastRef._propertyKey);
+              lastRef = lastRef._parentReference;
+            }
+
+            label = parts.join('.');
+          } else {
+            label = 'the same value';
+          }
+
+          var message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
+
+          if (false) {
+            false && !false && (0, _emberDebug.deprecate)(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+          } else {
+            false && (0, _emberDebug.assert)(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
+          }
+        }
 
         shouldReflush = true;
       }
@@ -24295,7 +24819,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       var m = peekMeta(this);
       if (!m.isInitialized(this)) {
         m.writeValues(name, value);
-      } else {}
+      } else {
+        false && (0, _emberDebug.assert)('You must use Ember.set() to set the `' + name + '` property (of ' + this + ') to `' + value + '`.', false);
+      }
     }
 
     SETTER_FUNCTION.isMandatorySetter = true;
@@ -24303,7 +24829,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }
 
   function DEFAULT_GETTER_FUNCTION(name) {
-    return function GETTER_FUNCTION() {
+    return function () {
       var meta$$1 = peekMeta(this);
       return meta$$1 && meta$$1.peekValues(name);
     };
@@ -24507,7 +25033,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     // Future traveler, although this code looks scary. It merely exists in
     // development to aid in development asertions. Production builds of
     // ember strip this entire block out
-    handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
+    handleMandatorySetter = function (m, obj, keyName) {
       var descriptor = (0, _emberUtils.lookupDescriptor)(obj, keyName);
       var configurable = descriptor ? descriptor.configurable : true;
       var isWritable = descriptor ? descriptor.writable : true;
@@ -24687,7 +25213,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
     };
 
-    ChainWatchers.prototype.has = function has(key, node) {
+    ChainWatchers.prototype.has = function (key, node) {
       var nodes = this.chains[key];
       if (nodes) {
         for (var i = 0; i < nodes.length; i++) {
@@ -24821,7 +25347,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return this._value;
     };
 
-    ChainNode.prototype.destroy = function destroy() {
+    ChainNode.prototype.destroy = function () {
       if (this._watching) {
         var obj = this._object;
         if (obj) {
@@ -25089,7 +25615,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var Meta = function () {
     function Meta(obj, parentMeta) {
-      var _this = this;
+
+      if (false) {
+        counters.metaInstantiated++;
+      }
 
       this._cache = undefined;
       this._weak = undefined;
@@ -25122,6 +25651,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
       if (false || false) {
         this._lastRendered = undefined;
+        if (false) {
+          this._lastRenderedReferenceMap = undefined;
+          this._lastRenderedTemplateMap = undefined;
+        }
       }
 
       this._initializeListeners();
@@ -25131,7 +25664,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return this.proto !== obj;
     };
 
-    Meta.prototype.destroy = function destroy() {
+    Meta.prototype.destroy = function () {
       if (this.isMetaDestroyed()) {
         return;
       }
@@ -25201,7 +25734,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       this._flags |= META_DESTROYED;
     };
 
-    Meta.prototype.isProxy = function isProxy() {
+    Meta.prototype.isProxy = function () {
       return (this._flags & IS_PROXY) !== 0;
     };
 
@@ -25243,6 +25776,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
 
     Meta.prototype.writeDeps = function writeDeps(subkey, itemkey, value) {
+      false && (0, _emberDebug.assert)('Cannot call writeDeps after the object is destroyed.', !this.isMetaDestroyed());
 
       var outerMap = this._getOrCreateOwnMap('_deps');
       var innerMap = outerMap[subkey];
@@ -25285,7 +25819,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     Meta.prototype._forEachIn = function _forEachIn(key, subkey, fn) {
-      var pointer = this;
+      var pointer = this,
+          _calls$i,
+          _innerKey,
+          value;
       var seen = void 0;
       var calls = void 0;
       while (pointer !== undefined) {
@@ -25307,9 +25844,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
       if (calls) {
         for (var i = 0; i < calls.length; i++) {
-          var _calls$i = calls[i],
-              _innerKey = _calls$i[0],
-              value = _calls$i[1];
+          _calls$i = calls[i], _innerKey = _calls$i[0], value = _calls$i[1];
 
           fn(_innerKey, value);
         }
@@ -25317,12 +25852,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     Meta.prototype.readInheritedValue = function readInheritedValue(key, subkey) {
-      var internalKey = '_' + key;
 
       var pointer = this;
 
       while (pointer !== undefined) {
-        var map = pointer[internalKey];
+        var map = pointer['_' + key];
         if (map) {
           var value = map[subkey];
           if (value !== undefined || subkey in map) {
@@ -25378,6 +25912,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var capitalized = capitalize(name);
 
     Meta.prototype['write' + capitalized] = function (subkey, value) {
+      false && (0, _emberDebug.assert)('Cannot call write' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap(key);
       map[subkey] = value;
@@ -25406,6 +25941,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     Meta.prototype['clear' + capitalized] = function () {
+      false && (0, _emberDebug.assert)('Cannot call clear' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       this[key] = undefined;
     };
@@ -25427,6 +25963,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var key = memberProperty(name);
     var capitalized = capitalize(name);
     Meta.prototype['writable' + capitalized] = function (create) {
+      false && (0, _emberDebug.assert)('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
       if (!ret) {
@@ -25446,6 +25983,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var key = memberProperty(name);
     var capitalized = capitalize(name);
     Meta.prototype['writable' + capitalized] = function (create) {
+      false && (0, _emberDebug.assert)('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
       if (!ret) {
@@ -25488,12 +26026,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   if (false) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
-      var internalKey = '_' + key;
 
       var pointer = this;
 
       while (pointer !== undefined) {
-        var map = pointer[internalKey];
+        var map = pointer['_' + key];
         if (map) {
           var value = map[subkey];
           if (value !== undefined || subkey in map) {
@@ -25526,22 +26063,30 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var getPrototypeOf = Object.getPrototypeOf;
     var metaStore = new WeakMap();
 
-    setMeta = function WeakMap_setMeta(obj, meta) {
+    setMeta = function (obj, meta) {
+      if (false) {
+        counters.setCalls++;
+      }
       metaStore.set(obj, meta);
     };
 
-    exports.peekMeta = peekMeta = function WeakMap_peekMeta(obj) {
+    exports.peekMeta = peekMeta = function (obj) {
+      if (false) {
+        counters.peekCalls++;
+      }
 
       return metaStore.get(obj);
     };
 
-    exports.peekMeta = peekMeta = function WeakMap_peekParentMeta(obj) {
+    exports.peekMeta = peekMeta = function (obj) {
       var pointer = obj;
       var meta = void 0;
       while (pointer) {
         meta = metaStore.get(pointer);
         // jshint loopfunc:true
-
+        if (false) {
+          counters.peekCalls++;
+        }
         // stop if we find a `null` value, since
         // that means the meta was deleted
         // any other truthy value is a "real" meta
@@ -25550,10 +26095,13 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         }
 
         pointer = getPrototypeOf(pointer);
+        if (false) {
+          counters.peakPrototypeWalks++;
+        }
       }
     };
   } else {
-    setMeta = function Fallback_setMeta(obj, meta) {
+    setMeta = function (obj, meta) {
       // if `null` already, just set it to the new value
       // otherwise define property first
       if (obj[META_FIELD] !== null) {
@@ -25567,12 +26115,15 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       obj[META_FIELD] = meta;
     };
 
-    exports.peekMeta = peekMeta = function Fallback_peekMeta(obj) {
+    exports.peekMeta = peekMeta = function (obj) {
       return obj[META_FIELD];
     };
   }
 
   function deleteMeta(obj) {
+    if (false) {
+      counters.deleteCalls++;
+    }
 
     var meta = peekMeta(obj);
     if (meta) {
@@ -25599,6 +26150,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @return {Object} the meta hash for an object
   */
   function meta(obj) {
+    if (false) {
+      counters.metaCalls++;
+    }
 
     var maybeMeta = peekMeta(obj);
     var parent = void 0;
@@ -25794,6 +26348,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function _get(obj, keyName) {
+    false && (0, _emberDebug.assert)('Get must be called with two arguments; an object and a property key', arguments.length === 2);
+    false && (0, _emberDebug.assert)('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
+    false && (0, _emberDebug.assert)('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
+    false && (0, _emberDebug.assert)('\'this\' in paths is not supported', !hasThis(keyName));
+    false && (0, _emberDebug.assert)('Cannot call `Ember.get` with an empty string', keyName !== '');
 
     var value = obj[keyName];
     var desc = value !== null && typeof value === 'object' && value.isDescriptor ? value : undefined;
@@ -25887,6 +26446,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function _set2(obj, keyName, value, tolerant) {
+    false && (0, _emberDebug.assert)('Set must be called with three or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
+    false && (0, _emberDebug.assert)('Cannot call set with \'' + keyName + '\' on an undefined object.', obj && typeof obj === 'object' || typeof obj === 'function');
+    false && (0, _emberDebug.assert)('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
+    false && (0, _emberDebug.assert)('\'this\' in paths is not supported', !hasThis(keyName));
+    false && (0, _emberDebug.assert)('calling set on destroyed object: ' + (0, _emberUtils.toString)(obj) + '.' + keyName + ' = ' + (0, _emberUtils.toString)(value), !obj.isDestroyed);
 
     if (isPath(keyName)) {
       return setPath(obj, keyName, value, tolerant);
@@ -25907,7 +26471,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       /* computed property */
       desc.set(obj, keyName, value);
     } else if (obj.setUnknownProperty && currentValue === undefined && !(keyName in obj)) {
-      obj.setUnknownProperty(keyName, value); /* unknown property */
+      /* unknown property */
+      false && (0, _emberDebug.assert)('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
+
+      obj.setUnknownProperty(keyName, value);
     } else if (currentValue === value) {
       /* no change */
       return value;
@@ -26027,6 +26594,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     expansion, and is passed the expansion.
   */
   function expandProperties(pattern, callback) {
+    false && (0, _emberDebug.assert)('A computed property key must be a string', typeof pattern === 'string');
+    false && (0, _emberDebug.assert)('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
 
     var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern;
     var properties = [pattern];
@@ -26044,7 +26613,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
           if (!inside) {
             bookmark = i - 1;
             inside = true;
-          } else {}
+          } else {
+            false && (0, _emberDebug.assert)(unbalancedNestedError, false);
+          }
           break;
         // Opening curly brace will be the last character of the brace expansion we encounter.
         // Apply the brace expansion so long as we've already seen a closing curly brace.
@@ -26061,11 +26632,15 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
               }
             }
             inside = false;
-          } else {}
+          } else {
+            false && (0, _emberDebug.assert)(unbalancedNestedError, false);
+          }
           break;
       }
     }
-    if (inside) {}
+    if (inside) {
+      false && (0, _emberDebug.assert)(unbalancedNestedError, false);
+    }
 
     for (var _i3 = 0; _i3 < properties.length; _i3++) {
       callback(properties[_i3].replace(END_WITH_EACH_REGEX, '.[]'));
@@ -26293,9 +26868,21 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     if (typeof config === 'function') {
       this._getter = config;
     } else {
+      false && (0, _emberDebug.assert)('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
+      false && (0, _emberDebug.assert)('Config object passed to an Ember.computed can only contain `get` or `set` keys.', function () {
+        var keys = Object.keys(config);
+        for (var i = 0; i < keys.length; i++) {
+          if (keys[i] !== 'get' && keys[i] !== 'set') {
+            return false;
+          }
+        }
+        return true;
+      }());
+
       this._getter = config.get;
       this._setter = config.set;
     }
+    false && (0, _emberDebug.assert)('Computed properties must receive a getter or a setter, you passed none.', !!this._getter || !!this._setter);
 
     this._dependentKeys = undefined;
     this._suspended = undefined;
@@ -26361,6 +26948,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   */
   ComputedPropertyPrototype.readOnly = function () {
     this._readOnly = true;
+    false && (0, _emberDebug.assert)('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
 
     return this;
   };
@@ -26397,6 +26985,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var args = [];
 
     function addArg(property) {
+      false && (0, _emberDebug.warn)('Dependent keys containing @each only work one level deep. ' + ('You used the key "' + property + '" which is invalid. ') + 'Please create an intermediary computed property.', DEEP_EACH_REGEX.test(property) === false, { id: 'ember-metal.computed-deep-each' });
+
       args.push(property);
     }
 
@@ -26494,7 +27084,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     return ret;
   };
 
-  ComputedPropertyPrototype.set = function computedPropertySetEntry(obj, keyName, value) {
+  ComputedPropertyPrototype.set = function (obj, keyName, value) {
     if (this._readOnly) {
       this._throwReadOnlyError(obj, keyName);
     }
@@ -26510,22 +27100,22 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     return this.setWithSuspend(obj, keyName, value);
   };
 
-  ComputedPropertyPrototype._throwReadOnlyError = function computedPropertyThrowReadOnlyError(obj, keyName) {
+  ComputedPropertyPrototype._throwReadOnlyError = function (obj, keyName) {
     throw new _emberDebug.Error('Cannot set read-only property "' + keyName + '" on object: ' + (0, _emberUtils.inspect)(obj));
   };
 
-  ComputedPropertyPrototype.clobberSet = function computedPropertyClobberSet(obj, keyName, value) {
+  ComputedPropertyPrototype.clobberSet = function (obj, keyName, value) {
     var cachedValue = cacheFor(obj, keyName);
     defineProperty(obj, keyName, null, cachedValue);
     _set2(obj, keyName, value);
     return value;
   };
 
-  ComputedPropertyPrototype.volatileSet = function computedPropertyVolatileSet(obj, keyName, value) {
+  ComputedPropertyPrototype.volatileSet = function (obj, keyName, value) {
     return this._setter.call(obj, keyName, value);
   };
 
-  ComputedPropertyPrototype.setWithSuspend = function computedPropertySetWithSuspend(obj, keyName, value) {
+  ComputedPropertyPrototype.setWithSuspend = function (obj, keyName, value) {
     var oldSuspended = this._suspended;
     this._suspended = obj;
     try {
@@ -26535,7 +27125,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
   };
 
-  ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
+  ComputedPropertyPrototype._set = function (obj, keyName, value) {
     // cache requires own meta
     var meta$$1 = meta(obj);
     // either there is a writable cache or we need one to update
@@ -26748,15 +27338,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     function AliasedProperty(altKey) {
 
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _Descriptor.call(this));
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _Descriptor.call(this));
 
-      _this2.isDescriptor = true;
-      _this2.altKey = altKey;
-      _this2._dependentKeys = [altKey];
-      return _this2;
+      _this.isDescriptor = true;
+      _this.altKey = altKey;
+      _this._dependentKeys = [altKey];
+      return _this;
     }
 
     AliasedProperty.prototype.setup = function setup(obj, keyName) {
+      false && (0, _emberDebug.assert)('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
+
       var meta$$1 = meta(obj);
       if (meta$$1.peekWatching(keyName)) {
         addDependentKeys(this, obj, keyName, meta$$1);
@@ -26806,7 +27398,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     return AliasedProperty;
   }(Descriptor);
 
-  function AliasedProperty_readOnlySet(obj, keyName, value) {
+  function AliasedProperty_readOnlySet(obj, keyName) {
     throw new _emberDebug.Error('Cannot set read-only property \'' + keyName + '\' on object: ' + (0, _emberUtils.inspect)(obj));
   }
 
@@ -26870,7 +27462,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   */
 
   function deprecateProperty(object, deprecatedKey, newKey, options) {
-    function _deprecate() {}
+    function _deprecate() {
+      false && !false && (0, _emberDebug.deprecate)('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.', false, options);
+    }
 
     Object.defineProperty(object, deprecatedKey, {
       configurable: true,
@@ -26997,7 +27591,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }
 
   var flaggedInstrument = void 0;
-  if ((0, _emberDebug.isFeatureEnabled)('ember-improved-instrumentation')) {
+  if (_features.EMBER_IMPROVED_INSTRUMENTATION) {
     exports.flaggedInstrument = flaggedInstrument = instrument;
   } else {
     exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
@@ -27053,7 +27647,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       beforeValues[i] = listener.before(name, timestamp, payload);
     }
 
-    return function _instrumentEnd() {
+    return function () {
       var i = void 0,
           listener = void 0;
       var timestamp = time();
@@ -27217,19 +27811,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
    * in ember-metal.
    */
   function WeakMap$1(iterable) {
+    var _iterable$i, key, value;
+
     if (!(this instanceof WeakMap$1)) {
       throw new TypeError('Constructor WeakMap requires \'new\'');
     }
 
     this._id = _emberUtils.GUID_KEY + id++;
 
-    if (iterable === null || iterable === undefined) {
-      return;
-    } else if (Array.isArray(iterable)) {
+    if (iterable === null || iterable === undefined) {} else if (Array.isArray(iterable)) {
       for (var i = 0; i < iterable.length; i++) {
-        var _iterable$i = iterable[i],
-            key = _iterable$i[0],
-            value = _iterable$i[1];
+        _iterable$i = iterable[i], key = _iterable$i[0], value = _iterable$i[1];
 
         this.set(key, value);
       }
@@ -27628,12 +28220,16 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.bind = function () {
-    for (var _len2 = arguments.length, curried = Array(_len2), _key3 = 0; _key3 < _len2; _key3++) {
+    var _len2, curried, _key3;
+
+    for (_len2 = arguments.length, curried = Array(_len2), _key3 = 0; _key3 < _len2; _key3++) {
       curried[_key3] = arguments[_key3];
     }
 
     return function () {
-      for (var _len3 = arguments.length, args = Array(_len3), _key4 = 0; _key4 < _len3; _key4++) {
+      var _len3, args, _key4;
+
+      for (_len3 = arguments.length, args = Array(_len3), _key4 = 0; _key4 < _len3; _key4++) {
         args[_key4] = arguments[_key4];
       }
 
@@ -27734,6 +28330,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.schedule = function () /* queue, target, method */{
+    false && (0, _emberDebug.assert)('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !(0, _emberDebug.isTesting)());
 
     return backburner.schedule.apply(backburner, arguments);
   };
@@ -27815,7 +28412,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.once = function () {
-    for (var _len4 = arguments.length, args = Array(_len4), _key5 = 0; _key5 < _len4; _key5++) {
+    var _len4, args, _key5;
+
+    false && (0, _emberDebug.assert)('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !(0, _emberDebug.isTesting)());
+
+    for (_len4 = arguments.length, args = Array(_len4), _key5 = 0; _key5 < _len4; _key5++) {
       args[_key5] = arguments[_key5];
     }
 
@@ -27876,6 +28477,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.scheduleOnce = function () /*queue, target, method*/{
+    false && (0, _emberDebug.assert)('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !(0, _emberDebug.isTesting)());
+
     return backburner.scheduleOnce.apply(backburner, arguments);
   };
 
@@ -27943,7 +28546,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.next = function () {
-    for (var _len5 = arguments.length, args = Array(_len5), _key6 = 0; _key6 < _len5; _key6++) {
+    var _len5, args, _key6;
+
+    for (_len5 = arguments.length, args = Array(_len5), _key6 = 0; _key6 < _len5; _key6++) {
       args[_key6] = arguments[_key6];
     }
 
@@ -28187,7 +28792,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
           index = this._coreLibIndex++;
         }
         this._registry.splice(index, 0, { name: name, version: version });
-      } else {}
+      } else {
+        false && (0, _emberDebug.warn)('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
+      }
     },
     registerCoreLibrary: function (name, version) {
       this.register(name, version, true);
@@ -28203,7 +28810,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
   };
 
-  if ((0, _emberDebug.isFeatureEnabled)('ember-libraries-isregistered')) {
+  if (_features.EMBER_LIBRARIES_ISREGISTERED) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -28908,7 +29515,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       @public
     */
 
-    Binding.prototype.copy = function copy() {
+    Binding.prototype.copy = function () {
       var copy = new Binding(this._to, this._from);
       if (this._oneWay) {
         copy._oneWay = true;
@@ -28977,7 +29584,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       @public
     */
 
-    Binding.prototype.toString = function toString() {
+    Binding.prototype.toString = function () {
       var oneWay = this._oneWay ? '[oneWay]' : '';
       return 'Ember.Binding<' + (0, _emberUtils.guidFor)(this) + '>(' + this._from + ' -> ' + this._to + ')' + oneWay;
     };
@@ -28997,6 +29604,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     */
 
     Binding.prototype.connect = function connect(obj) {
+      false && (0, _emberDebug.assert)('Must pass a valid object to Ember.Binding.connect()', !!obj);
 
       var fromObj = void 0,
           fromPath = void 0,
@@ -29050,9 +29658,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     */
 
     Binding.prototype.disconnect = function disconnect() {
+      false && (0, _emberDebug.assert)('Must pass a valid object to Ember.Binding.disconnect()', !!this._toObj);
 
       // Remove an observer on the object so we're no longer notified of
       // changes that should update bindings.
+
       removeObserver(this._fromObj, this._fromPath, this, 'fromDidChange');
 
       // If the binding is two-way, remove the observer from the target as well.
@@ -29070,13 +29680,13 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     /* Called when the from side changes. */
 
-    Binding.prototype.fromDidChange = function fromDidChange(target) {
+    Binding.prototype.fromDidChange = function fromDidChange() {
       this._scheduleSync('fwd');
     };
 
     /* Called when the to side changes. */
 
-    Binding.prototype.toDidChange = function toDidChange(target) {
+    Binding.prototype.toDidChange = function toDidChange() {
       this._scheduleSync('back');
     };
 
@@ -29144,11 +29754,23 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }();
 
   function fireDeprecations(obj, toPath, fromPath, deprecateGlobal, deprecateOneWay, deprecateAlias) {
-    var deprecateGlobalMessage = '`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.';
-    var deprecateOneWayMessage = '`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.';
-    var deprecateAliasMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
 
     var objectInfo = 'The `' + toPath + '` property of `' + obj + '` is an `Ember.Binding` connected to `' + fromPath + '`, but ';
+    false && !!deprecateGlobal && (0, _emberDebug.deprecate)(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.'), !deprecateGlobal, {
+      id: 'ember-metal.binding',
+      until: '3.0.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+    });
+    false && !!deprecateOneWay && (0, _emberDebug.deprecate)(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.'), !deprecateOneWay, {
+      id: 'ember-metal.binding',
+      until: '3.0.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+    });
+    false && !!deprecateAlias && (0, _emberDebug.deprecate)(objectInfo + ('`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.'), !deprecateAlias, {
+      id: 'ember-metal.binding',
+      until: '3.0.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+    });
   }
 
   function mixinProperties$1(to, from) {
@@ -29446,11 +30068,27 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
     }
 
+    if (false) {
+      // it is possible to use concatenatedProperties with strings (which cannot be frozen)
+      // only freeze objects...
+      if (typeof ret === 'object' && ret !== null) {
+        // prevent mutating `concatenatedProperties` array after it is applied
+        Object.freeze(ret);
+      }
+    }
+
     return ret;
   }
 
   function applyMergedProperties(obj, key, value, values) {
     var baseValue = values[key] || obj[key];
+
+    if (false) {
+      if (isArray(value)) {
+        // use conditional to avoid stringifying every time
+        false && (0, _emberDebug.assert)('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', false);
+      }
+    }
 
     if (!baseValue) {
       return value;
@@ -29523,6 +30161,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     for (var i = 0; i < mixins.length; i++) {
       currentMixin = mixins[i];
+      false && (0, _emberDebug.assert)('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
 
       props = mixinProperties(meta$$1, currentMixin);
       if (props === CONTINUE) {
@@ -29704,7 +30343,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function mixin(obj) {
-    for (var _len6 = arguments.length, args = Array(_len6 > 1 ? _len6 - 1 : 0), _key7 = 1; _key7 < _len6; _key7++) {
+    var _len6, args, _key7;
+
+    for (_len6 = arguments.length, args = Array(_len6 > 1 ? _len6 - 1 : 0), _key7 = 1; _key7 < _len6; _key7++) {
       args[_key7 - 1] = arguments[_key7];
     }
 
@@ -29800,10 +30441,13 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       this._without = undefined;
       this[_emberUtils.GUID_KEY] = null;
       this[_emberUtils.NAME_KEY] = null;
+      (0, _emberDebug.debugSeal)(this);
     }
 
     Mixin.applyPartial = function applyPartial(obj) {
-      for (var _len7 = arguments.length, args = Array(_len7 > 1 ? _len7 - 1 : 0), _key8 = 1; _key8 < _len7; _key8++) {
+      var _len7, args, _key8;
+
+      for (_len7 = arguments.length, args = Array(_len7 > 1 ? _len7 - 1 : 0), _key8 = 1; _key8 < _len7; _key8++) {
         args[_key8 - 1] = arguments[_key8];
       }
 
@@ -29820,9 +30464,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     Mixin.create = function create() {
       // ES6TODO: this relies on a global state?
       unprocessedFlag = true;
-      var M = this;
+      var M = this,
+          _len8,
+          args,
+          _key9;
 
-      for (var _len8 = arguments.length, args = Array(_len8), _key9 = 0; _key9 < _len8; _key9++) {
+      for (_len8 = arguments.length, args = Array(_len8), _key9 = 0; _key9 < _len8; _key9++) {
         args[_key9] = arguments[_key9];
       }
 
@@ -29890,6 +30537,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     for (idx = 0; idx < arguments.length; idx++) {
       currentMixin = arguments[idx];
+      false && (0, _emberDebug.assert)('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
 
       if (currentMixin instanceof Mixin) {
         mixins.push(currentMixin);
@@ -29959,9 +30607,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   };
 
   MixinPrototype.without = function () {
-    var ret = new Mixin([this]);
+    var ret = new Mixin([this]),
+        _len9,
+        args,
+        _key10;
 
-    for (var _len9 = arguments.length, args = Array(_len9), _key10 = 0; _key10 < _len9; _key10++) {
+    for (_len9 = arguments.length, args = Array(_len9), _key10 = 0; _key10 < _len9; _key10++) {
       args[_key10] = arguments[_key10];
     }
 
@@ -29990,12 +30641,13 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   MixinPrototype.keys = function () {
     var keys = {};
-    var seen = {};
 
-    _keys(keys, this, seen);
+    _keys(keys, this, {});
     var ret = Object.keys(keys);
     return ret;
   };
+
+  (0, _emberDebug.debugSeal)(MixinPrototype);
 
   var REQUIRED = new Descriptor();
   REQUIRED.toString = function () {
@@ -30010,6 +30662,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function required() {
+    false && !false && (0, _emberDebug.deprecate)('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false, { id: 'ember-metal.required', until: '3.0.0' });
+
     return REQUIRED;
   }
 
@@ -30072,11 +30726,14 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function observer() {
-    for (var _len10 = arguments.length, args = Array(_len10), _key11 = 0; _key11 < _len10; _key11++) {
+    for (_len10 = arguments.length, args = Array(_len10), _key11 = 0; _key11 < _len10; _key11++) {
       args[_key11] = arguments[_key11];
     }
 
-    var func = args.slice(-1)[0];
+    var func = args.slice(-1)[0],
+        _len10,
+        args,
+        _key11;
     var paths = void 0;
 
     var addWatchedProperty = function (path) {
@@ -30085,10 +30742,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var _paths = args.slice(0, -1);
 
     if (typeof func !== 'function') {
+      // revert to old, soft-deprecated argument ordering
+      false && !false && (0, _emberDebug.deprecate)('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
 
       func = args[0];
-      // revert to old, soft-deprecated argument ordering
-
       _paths = args.slice(1);
     }
 
@@ -30132,9 +30789,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function _immediateObserver() {
+    false && !false && (0, _emberDebug.deprecate)('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
 
     for (var i = 0; i < arguments.length; i++) {
       var arg = arguments[i];
+      false && (0, _emberDebug.assert)('Immediate observers must observe internal properties only, not properties on other objects.', typeof arg !== 'string' || arg.indexOf('.') === -1);
     }
 
     return observer.apply(this, arguments);
@@ -30157,11 +30816,14 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function _beforeObserver() {
-    for (var _len11 = arguments.length, args = Array(_len11), _key12 = 0; _key12 < _len11; _key12++) {
+    for (_len11 = arguments.length, args = Array(_len11), _key12 = 0; _key12 < _len11; _key12++) {
       args[_key12] = arguments[_key12];
     }
 
-    var func = args.slice(-1)[0];
+    var func = args.slice(-1)[0],
+        _len11,
+        args,
+        _key12;
     var paths = void 0;
 
     var addWatchedProperty = function (path) {
@@ -30213,6 +30875,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   function injectedPropertyGet(keyName) {
     var desc = this[keyName];
     var owner = (0, _emberUtils.getOwner)(this) || this.container; // fallback to `container` for backwards compat
+
+    false && (0, _emberDebug.assert)('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
+    false && (0, _emberDebug.assert)('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
 
     return owner.lookup(desc.type + ':' + (desc.name || keyName));
   }
@@ -30276,17 +30941,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     function Descriptor$1(desc) {
 
-      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _Descriptor2.call(this));
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _Descriptor2.call(this));
 
-      _this3.desc = desc;
-      return _this3;
+      _this2.desc = desc;
+      return _this2;
     }
 
     Descriptor$1.prototype.setup = function setup(obj, key) {
       Object.defineProperty(obj, key, this.desc);
     };
 
-    Descriptor$1.prototype.teardown = function teardown(obj, key) {};
+    Descriptor$1.prototype.teardown = function teardown() {};
 
     return Descriptor$1;
   }(Descriptor);
@@ -30519,10 +31184,13 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
     */
     transitionToRoute: function () {
       // target may be either another controller or a router
-      var target = (0, _emberMetal.get)(this, 'target');
+      var target = (0, _emberMetal.get)(this, 'target'),
+          _len,
+          args,
+          _key;
       var method = target.transitionToRoute || target.transitionTo;
 
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -30576,10 +31244,13 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
     */
     replaceRoute: function () {
       // target may be either another controller or a router
-      var target = (0, _emberMetal.get)(this, 'target');
+      var target = (0, _emberMetal.get)(this, 'target'),
+          _len2,
+          args,
+          _key2;
       var method = target.replaceRoute || target.replaceWith;
 
-      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         args[_key2] = arguments[_key2];
       }
 
@@ -30724,8 +31395,10 @@ enifed('ember-routing/location/api', ['exports', 'ember-debug', 'ember-environme
     */
     create: function (options) {
       var implementation = options && options.implementation;
+      false && (0, _emberDebug.assert)('Ember.Location.create: you must specify a \'implementation\' option', !!implementation);
 
       var implementationClass = this.implementations[implementation];
+      false && (0, _emberDebug.assert)('Ember.Location.create: ' + implementation + ' is not a valid implementation', !!implementationClass);
 
       return implementationClass.create.apply(implementationClass, arguments);
     },
@@ -30819,6 +31492,8 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember
     detect: function () {
       var rootURL = this.rootURL;
 
+      false && (0, _emberDebug.assert)('rootURL must end with a trailing forward slash e.g. "/app/"', rootURL.charAt(rootURL.length - 1) === '/');
+
       var implementation = detectImplementation({
         location: this.location,
         history: this.history,
@@ -30835,6 +31510,8 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember
 
       var concrete = (0, _emberUtils.getOwner)(this).lookup('location:' + implementation);
       (0, _emberMetal.set)(concrete, 'rootURL', rootURL);
+
+      false && (0, _emberDebug.assert)('Could not find location \'' + implementation + '\'.', !!concrete);
 
       (0, _emberMetal.set)(this, 'concreteImplementation', concrete);
     },
@@ -30858,9 +31535,13 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember
 
   function delegateToConcreteImplementation(methodName) {
     return function () {
-      var concreteImplementation = (0, _emberMetal.get)(this, 'concreteImplementation');
+      var concreteImplementation = (0, _emberMetal.get)(this, 'concreteImplementation'),
+          _len,
+          args,
+          _key;
+      false && (0, _emberDebug.assert)('AutoLocation\'s detect() method should be called before calling any other hooks.', !!concreteImplementation);
 
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -30948,9 +31629,12 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-utils', 'ember
     var routeHash = void 0,
         hashParts = void 0;
 
+    false && (0, _emberDebug.assert)('Path ' + path + ' does not start with the provided rootURL ' + rootURL, rootURLIndex === 0);
+
     // By convention, Ember.js routes using HashLocation are required to start
     // with `#/`. Anything else should NOT be considered a route and should
     // be passed straight through, without transformation.
+
     if (hash.substr(0, 2) === '#/') {
       // There could be extra hash segments after the route
       hashParts = hash.substr(1).split('#');
@@ -31131,7 +31815,7 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal', 'ember
   });
 });
 
-enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime', 'ember-routing/location/api'], function (exports, _emberMetal, _emberDebug, _emberRuntime, _api) {
+enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/location/api'], function (exports, _emberMetal, _emberRuntime, _api) {
   'use strict';
 
   /**
@@ -31144,7 +31828,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
   var _uuid = void 0;
 
   if (true) {
-    _uuid = function _uuid() {
+    _uuid = function () {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r, v;
         r = Math.random() * 16 | 0;
@@ -31405,6 +32089,8 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal', 'ember
 
     detect: function () {
       var rootURL = this.rootURL;
+
+      false && (0, _emberDebug.assert)('rootURL must end with a trailing forward slash e.g. "/app/"', rootURL.charAt(rootURL.length - 1) === '/');
     },
 
     /**
@@ -31865,6 +32551,14 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-debug'], fu
         options = {};
       }
 
+      false && (0, _emberDebug.assert)('\'' + name + '\' cannot be used as a route name.', function () {
+        if (options.overrideNameAssertion === true) {
+          return true;
+        }
+
+        return ['array', 'basic', 'object', 'application'].indexOf(name) === -1;
+      }());
+
       if (this.enableLoadingSubstates) {
         createRoute(this, name + '_loading', { resetNamespace: options.resetNamespace });
         createRoute(this, name + '_error', { resetNamespace: options.resetNamespace, path: dummyErrorRoute });
@@ -31918,6 +32612,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-debug'], fu
       }
 
       options.resetNamespace = true;
+      false && !false && (0, _emberDebug.deprecate)('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.', false, { id: 'ember-routing.router-resource', until: '3.0.0' });
 
       this.route(name, options, callback);
     };
@@ -31987,8 +32682,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-debug'], fu
         }
       }
 
-      var localFullName = 'application';
-      var routeInfo = (0, _emberUtils.assign)({ localFullName: localFullName }, engineInfo);
+      var routeInfo = (0, _emberUtils.assign)({ localFullName: 'application' }, engineInfo);
 
       if (this.enableLoadingSubstates) {
         // These values are important to register the loading routes under their
@@ -32055,6 +32749,7 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'c
   exports.generateControllerFactory = generateControllerFactory;
   exports.default = generateController;
 
+
   /**
   @module ember
   @submodule ember-routing
@@ -32068,7 +32763,7 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'c
     @private
   */
 
-  function generateControllerFactory(owner, controllerName, context) {
+  function generateControllerFactory(owner, controllerName) {
     var Factory = owner[_container.FACTORY_FOR]('controller:basic').class;
 
     Factory = Factory.extend({
@@ -32077,9 +32772,7 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'c
       }
     });
 
-    var fullName = 'controller:' + controllerName;
-
-    owner.register(fullName, Factory);
+    owner.register('controller:' + controllerName, Factory);
 
     return Factory;
   }
@@ -32098,6 +32791,12 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'c
 
     var fullName = 'controller:' + controllerName;
     var instance = owner.lookup(fullName);
+
+    if (false) {
+      if ((0, _emberMetal.get)(instance, 'namespace.LOG_ACTIVE_GENERATION')) {
+        (0, _emberDebug.info)('generated -> ' + fullName, { fullName: fullName });
+      }
+    }
 
     return instance;
   }
@@ -32474,6 +33173,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var queryParams = getQueryParamsFor(route, state);
 
       return Object.keys(queryParams).reduce(function (params, key) {
+        false && (0, _emberDebug.assert)('The route \'' + _this2.routeName + '\' has both a dynamic segment and query param with name \'' + key + '\'. Please rename one to avoid collisions.', !params[key]);
+
         params[key] = queryParams[key];
         return params;
       }, params);
@@ -33101,7 +33802,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @since 1.0.0
       @public
     */
-    transitionTo: function (name, context) {
+    transitionTo: function () {
       var router = this.router;
       return router.transitionTo.apply(router, (0, _utils.prefixRouteNameArg)(this, arguments));
     },
@@ -33229,13 +33930,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @public
     */
     send: function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      var _len, args, _key, _router;
+
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
       if (this.router && this.router._routerMicrolib || !(0, _emberDebug.isTesting)()) {
-        var _router;
-
         (_router = this.router).send.apply(_router, args);
       } else {
         var name = args[0];
@@ -33561,11 +34262,15 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         find: function (name, value) {
           var modelClass = owner[_container.FACTORY_FOR]('model:' + name);
 
+          false && (0, _emberDebug.assert)('You used the dynamic segment ' + name + '_id in your route ' + routeName + ', but ' + namespace + '.' + _emberRuntime.String.classify(name) + ' did not exist and you did not override your route\'s `model` hook.', !!modelClass);
+
           if (!modelClass) {
             return;
           }
 
           modelClass = modelClass.class;
+
+          false && (0, _emberDebug.assert)(_emberRuntime.String.classify(name) + ' has no method `find`.', typeof modelClass.find === 'function');
 
           return modelClass.find(value);
         }
@@ -33663,7 +34368,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @since 1.0.0
       @public
     */
-    setupController: function (controller, context, transition) {
+    setupController: function (controller, context) {
       if (controller && context !== undefined) {
         (0, _emberMetal.set)(controller, 'model', context);
       }
@@ -33703,7 +34408,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       // NOTE: We're specifically checking that skipAssert is true, because according
       //   to the old API the second parameter was model. We do not want people who
       //   passed a model to skip the assertion.
-
+      false && (0, _emberDebug.assert)('The controller named \'' + name + '\' could not be found. Make sure that this route exists and has already been entered at least once. If you are accessing a controller not associated with a route, make sure the controller class is explicitly defined.', controller || _skipAssert === true);
 
       return controller;
     },
@@ -33819,7 +34524,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @since 1.0.0
       @public
     */
-    renderTemplate: function (controller, model) {
+    renderTemplate: function () {
       this.render();
     },
 
@@ -33926,8 +34631,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @public
     */
     render: function (_name, options) {
+      false && (0, _emberDebug.assert)('The name in the given arguments is undefined', arguments.length > 0 ? !(0, _emberMetal.isNone)(arguments[0]) : true);
 
-      var namePassed = typeof _name === 'string' && !!_name;
       var isDefaultRender = arguments.length === 0 || (0, _emberMetal.isEmpty)(arguments[0]);
       var name = void 0;
 
@@ -33938,7 +34643,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         name = _name;
       }
 
-      var renderOptions = buildRenderOptions(this, namePassed, isDefaultRender, name, options);
+      var renderOptions = buildRenderOptions(this, typeof _name === 'string' && !!_name, isDefaultRender, name, options);
       this.connections.push(renderOptions);
       _emberMetal.run.once(this.router, '_setOutlets');
     },
@@ -34139,6 +34844,15 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       ViewClass: undefined
     };
 
+    false && (0, _emberDebug.assert)('Could not find "' + name + '" template, view, or component.', isDefaultRender || template);
+
+    if (false) {
+      var LOG_VIEW_LOOKUPS = (0, _emberMetal.get)(route.router, 'namespace.LOG_VIEW_LOOKUPS');
+      if (LOG_VIEW_LOOKUPS && !template) {
+        (0, _emberDebug.info)('Could not find "' + name + '" template. Nothing will be rendered', { fullName: 'template:' + name });
+      }
+    }
+
     return renderOptions;
   }
 
@@ -34313,8 +35027,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     rootURL: '/',
 
     _initRouterJs: function () {
-      var _this = this;
-
       var routerMicrolib = this._routerMicrolib = new _router.default();
       routerMicrolib.triggerEvent = triggerEvent;
 
@@ -34329,6 +35041,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           dslCallbacks[i].call(this);
         }
       });
+
+      if (false) {
+        if ((0, _emberMetal.get)(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
+          routerMicrolib.log = _emberConsole.default.debug;
+        }
+      }
 
       routerMicrolib.map(dsl.generate());
     },
@@ -34424,7 +35142,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
     },
     setupRouter: function () {
-      var _this2 = this;
+      var _this = this;
 
       this._initRouterJs();
       this._setupLocation();
@@ -34440,7 +35158,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this._setupRouter(location);
 
       location.onUpdateURL(function (url) {
-        _this2.handleURL(url);
+        _this.handleURL(url);
       });
 
       return true;
@@ -34469,8 +35187,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @since 1.2.0
     */
     didTransition: function (infos) {
-      var _this3 = this;
-
       updatePaths(this);
 
       this._cancelSlowTransitionTimer();
@@ -34481,6 +35197,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       // Put this in the runloop so url will be accurate. Seems
       // less surprising than didTransition being out of sync.
       _emberMetal.run.once(this, this.trigger, 'didTransition');
+
+      if (false) {
+        if ((0, _emberMetal.get)(this, 'namespace').LOG_TRANSITIONS) {
+          _emberConsole.default.log('Transitioned into \'' + EmberRouter._routePath(infos) + '\'');
+        }
+      }
     },
     _setOutlets: function () {
       // This is triggered async during Ember.Route#willDestroy.
@@ -34546,9 +35268,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @since 1.11.0
     */
     willTransition: function (oldInfos, newInfos, transition) {
-      var _this4 = this;
-
       _emberMetal.run.once(this, this.trigger, 'willTransition', transition);
+
+      if (false) {
+        if ((0, _emberMetal.get)(this, 'namespace').LOG_TRANSITIONS) {
+          _emberConsole.default.log('Preparing to transition from \'' + EmberRouter._routePath(oldInfos) + '\' to \'' + EmberRouter._routePath(newInfos) + '\'');
+        }
+      }
     },
     handleURL: function (url) {
       // Until we have an ember-idiomatic way of accessing #hashes, we need to
@@ -34577,9 +35303,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @public
     */
     transitionTo: function () {
-      var queryParams = void 0;
+      var queryParams = void 0,
+          _len,
+          args,
+          _key;
 
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -34598,12 +35327,18 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       return this._doTransition(targetRouteName, args, queryParams);
     },
     intermediateTransitionTo: function () {
-      var _routerMicrolib,
-          _this5 = this;
+      var _routerMicrolib;
 
       (_routerMicrolib = this._routerMicrolib).intermediateTransitionTo.apply(_routerMicrolib, arguments);
 
       updatePaths(this);
+
+      if (false) {
+        var infos = this._routerMicrolib.currentHandlerInfos;
+        if ((0, _emberMetal.get)(this, 'namespace').LOG_TRANSITIONS) {
+          _emberConsole.default.log('Intermediate-transitioned into \'' + EmberRouter._routePath(infos) + '\'');
+        }
+      }
     },
     replaceWith: function () {
       return this.transitionTo.apply(this, arguments).method('replace');
@@ -34622,7 +35357,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @return {Boolean}
       @private
     */
-    isActive: function (routeName) {
+    isActive: function () {
       var _routerMicrolib3;
 
       return (_routerMicrolib3 = this._routerMicrolib).isActive.apply(_routerMicrolib3, arguments);
@@ -34643,7 +35378,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     isActiveIntent: function (routeName, models, queryParams) {
       return this.currentState.isActiveIntent(routeName, models, queryParams);
     },
-    send: function (name, context) {
+    send: function () {
       var _routerMicrolib4;
 
       (_routerMicrolib4 = this._routerMicrolib).trigger.apply(_routerMicrolib4, arguments);
@@ -34761,7 +35496,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
     },
     _getHandlerFunction: function () {
-      var _this6 = this;
+      var _this2 = this;
 
       var seen = Object.create(null);
       var owner = (0, _emberUtils.getOwner)(this);
@@ -34769,10 +35504,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       return function (name) {
         var routeName = name;
         var routeOwner = owner;
-        var engineInfo = _this6._engineInfoByRoute[routeName];
+        var engineInfo = _this2._engineInfoByRoute[routeName];
 
         if (engineInfo) {
-          var engineInstance = _this6._getEngineInstance(engineInfo);
+          var engineInstance = _this2._getEngineInstance(engineInfo);
 
           routeOwner = engineInstance;
           routeName = engineInfo.localFullName;
@@ -34792,6 +35527,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           var DefaultRoute = routeOwner[_container.FACTORY_FOR]('route:basic').class;
           routeOwner.register(fullRouteName, DefaultRoute.extend());
           handler = routeOwner.lookup(fullRouteName);
+
+          if (false) {
+            if ((0, _emberMetal.get)(_this2, 'namespace.LOG_ACTIVE_GENERATION')) {
+              (0, _emberDebug.info)('generated -> ' + fullRouteName, { fullName: fullRouteName });
+            }
+          }
         }
 
         handler._setRouteName(routeName);
@@ -34804,10 +35545,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       };
     },
     _getSerializerFunction: function () {
-      var _this7 = this;
+      var _this3 = this;
 
       return function (name) {
-        var engineInfo = _this7._engineInfoByRoute[name];
+        var engineInfo = _this3._engineInfoByRoute[name];
 
         // If this is not an Engine route, we fall back to the handler for serialization
         if (!engineInfo) {
@@ -34865,16 +35606,14 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @return {Void}
     */
     _serializeQueryParams: function (handlerInfos, queryParams) {
-      var _this8 = this;
+      var _this4 = this;
 
       forEachQueryParam(this, handlerInfos, queryParams, function (key, value, qp) {
         if (qp) {
           delete queryParams[key];
           queryParams[qp.urlKey] = qp.route.serializeQueryParam(value, qp.urlKey, qp.type);
-        } else if (value === undefined) {
-          return; // We don't serialize undefined values
-        } else {
-          queryParams[key] = _this8._serializeQueryParam(value, (0, _emberRuntime.typeOf)(value));
+        } else if (value === undefined) {} else {
+          queryParams[key] = _this4._serializeQueryParam(value, (0, _emberRuntime.typeOf)(value));
         }
       });
     },
@@ -34954,6 +35693,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       var _routerMicrolib5;
 
       var targetRouteName = _targetRouteName || (0, _utils.getActiveTargetName)(this._routerMicrolib);
+      false && (0, _emberDebug.assert)('The route ' + targetRouteName + ' was not found', targetRouteName && this._routerMicrolib.hasRoute(targetRouteName));
 
       var queryParams = {};
 
@@ -35057,6 +35797,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
           if (qpOther && qpOther.controllerName !== qp.controllerName) {
             var otherQP = qpsByUrlKey[urlKey];
+            false && (0, _emberDebug.assert)('You\'re not allowed to have more than one controller property map to the same query param key, but both `' + otherQP.scopedPropertyName + '` and `' + qp.scopedPropertyName + '` map to `' + urlKey + '`. You can fix this by mapping one of the controller properties to a different query param key via the `as` config option, e.g. `' + otherQP.prop + ': { as: \'other-' + otherQP.prop + '\' }`', false);
           }
 
           qpsByUrlKey[urlKey] = qp;
@@ -35089,20 +35830,26 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       @return {Void}
     */
     _fullyScopeQueryParams: function (leafRouteName, contexts, queryParams) {
-      var state = calculatePostTransitionState(this, leafRouteName, contexts);
+      var state = calculatePostTransitionState(this, leafRouteName, contexts),
+          i,
+          len,
+          qpMeta,
+          j,
+          qpLen,
+          qp,
+          presentProp;
       var handlerInfos = state.handlerInfos;
 
-      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-        var qpMeta = this._getQPMeta(handlerInfos[i]);
+      for (i = 0, len = handlerInfos.length; i < len; ++i) {
+        qpMeta = this._getQPMeta(handlerInfos[i]);
 
         if (!qpMeta) {
           continue;
         }
 
-        for (var j = 0, qpLen = qpMeta.qps.length; j < qpLen; ++j) {
-          var qp = qpMeta.qps[j];
-
-          var presentProp = qp.prop in queryParams && qp.prop || qp.scopedPropertyName in queryParams && qp.scopedPropertyName || qp.urlKey in queryParams && qp.urlKey;
+        for (j = 0, qpLen = qpMeta.qps.length; j < qpLen; ++j) {
+          qp = qpMeta.qps[j];
+          presentProp = qp.prop in queryParams && qp.prop || qp.scopedPropertyName in queryParams && qp.scopedPropertyName || qp.urlKey in queryParams && qp.urlKey;
 
           if (presentProp) {
             if (presentProp !== qp.scopedPropertyName) {
@@ -35208,6 +35955,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       if (!engineInstance) {
         var owner = (0, _emberUtils.getOwner)(this);
+
+        false && (0, _emberDebug.assert)('You attempted to mount the engine \'' + name + '\' in your router map, but the engine can not be found.', owner.hasRegistration('engine:' + name));
 
         engineInstance = owner.buildChildEngineInstance(name, {
           routable: true,
@@ -35369,12 +36118,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     var owner = (0, _emberUtils.getOwner)(route);
 
     var routeName = route.routeName;
-    var substateName = routeName + '_' + state;
 
     var routeNameFull = route.fullRouteName;
     var substateNameFull = routeNameFull + '_' + state;
 
-    return routeHasBeenDefined(owner, router, substateName, substateNameFull) ? substateNameFull : '';
+    return routeHasBeenDefined(owner, router, routeName + '_' + state, substateNameFull) ? substateNameFull : '';
   }
 
   /**
@@ -35673,6 +36421,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       (0, _emberMetal.set)(target.outlets, renderOptions.outlet, myState);
     } else {
       if (renderOptions.into) {
+        false && !false && (0, _emberDebug.deprecate)('Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated.', false, {
+          id: 'ember-routing.top-level-render-helper',
+          until: '3.0.0',
+          url: 'http://emberjs.com/deprecations/v2.x/#toc_rendering-into-a-render-helper-that-resolves-to-an-outlet'
+        });
 
         // Megahax time. Post-3.0-breaking-changes, we will just assert
         // right here that the user tried to target a nonexistent
@@ -35680,6 +36433,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         // helper, and people are allowed to target templates rendered
         // by the render helper. So instead we defer doing anyting with
         // these orphan renders until afterRender.
+
         appendOrphan(liveRoutes, renderOptions.into, myState);
       } else {
         liveRoutes = myState;
@@ -35701,7 +36455,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       };
     }
     liveRoutes.outlets.__ember_orphans__.outlets[into] = myState;
-    _emberMetal.run.schedule('afterRender', function () {});
+    _emberMetal.run.schedule('afterRender', function () {
+      // `wasUsed` gets set by the render helper.
+      false && (0, _emberDebug.assert)('You attempted to render into \'' + into + '\' but it was not found', liveRoutes.outlets.__ember_orphans__.outlets[into].wasUsed);
+    });
   }
 
   function representEmptyRoute(liveRoutes, defaultParentState, route) {
@@ -36171,6 +36928,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
 
     for (var i = 0; i < properties.length; i++) {
       var property = properties[i];
+      false && (0, _emberDebug.assert)('Dependent keys passed to Ember.computed.' + predicateName + '() can\'t have spaces.', property.indexOf(' ') < 0);
 
       (0, _emberMetal.expandProperties)(property, extractProperty);
     }
@@ -36180,11 +36938,14 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
 
   function generateComputedWithPredicate(name, predicate) {
     return function () {
-      for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
+      for (_len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
         properties[_key] = arguments[_key];
       }
 
-      var expandedProperties = expandPropertiesToArray(name, properties);
+      var expandedProperties = expandPropertiesToArray(name, properties),
+          _len,
+          properties,
+          _key;
 
       var computedFunc = (0, _emberMetal.computed)(function () {
         var lastIdx = expandedProperties.length - 1;
@@ -36801,9 +37562,13 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
   function deprecatingAlias(dependentKey, options) {
     return (0, _emberMetal.computed)(dependentKey, {
       get: function (key) {
+        false && !false && (0, _emberDebug.deprecate)('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.', false, options);
+
         return (0, _emberMetal.get)(this, dependentKey);
       },
       set: function (key, value) {
+        false && !false && (0, _emberDebug.deprecate)('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.', false, options);
+
         (0, _emberMetal.set)(this, dependentKey, value);
         return value;
       }
@@ -37063,6 +37828,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function mapBy(dependentKey, propertyKey) {
+    false && (0, _emberDebug.assert)('Ember.computed.mapBy expects a property string for its second argument, ' + 'perhaps you meant to use "map"', typeof propertyKey === 'string');
 
     return map(dependentKey + '.@each.' + propertyKey, function (item) {
       return (0, _emberMetal.get)(item, propertyKey);
@@ -37208,7 +37974,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function uniq() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+    var _len, args, _key;
+
+    for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
@@ -37342,7 +38110,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function intersect() {
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    var _len2, args, _key2;
+
+    for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
     }
 
@@ -37459,7 +38229,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function collect() {
-    for (var _len3 = arguments.length, dependentKeys = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    var _len3, dependentKeys, _key3;
+
+    for (_len3 = arguments.length, dependentKeys = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       dependentKeys[_key3] = arguments[_key3];
     }
 
@@ -37545,6 +38317,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function sort(itemsKey, sortDefinition) {
+    false && (0, _emberDebug.assert)('Ember.computed.sort requires two arguments: an array key to sort and ' + 'either a sort properties key or sort function', arguments.length === 2);
 
     if (typeof sortDefinition === 'function') {
       return customSort(itemsKey, sortDefinition);
@@ -37571,6 +38344,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
       var itemsKeyIsAtThis = itemsKey === '@this';
       var sortProperties = (0, _emberMetal.get)(this, sortPropertiesKey);
+
+      false && (0, _emberDebug.assert)('The sort definition for \'' + key + '\' on ' + this + ' must be a function or an array of strings', (0, _utils.isArray)(sortProperties) && sortProperties.every(function (s) {
+        return typeof s === 'string';
+      }));
 
       var normalizedSortProperties = normalizeSortProperties(sortProperties);
 
@@ -37628,10 +38405,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
   function sortByNormalizedSortProperties(items, normalizedSortProperties) {
     return (0, _native_array.A)(items.slice().sort(function (itemA, itemB) {
+      var _normalizedSortProper, prop, direction;
+
       for (var i = 0; i < normalizedSortProperties.length; i++) {
-        var _normalizedSortProper = normalizedSortProperties[i],
-            prop = _normalizedSortProper[0],
-            direction = _normalizedSortProper[1];
+        _normalizedSortProper = normalizedSortProperties[i], prop = _normalizedSortProper[0], direction = _normalizedSortProper[1];
 
         var result = (0, _compare.default)((0, _emberMetal.get)(itemA, prop), (0, _emberMetal.get)(itemB, prop));
         if (result !== 0) {
@@ -37663,7 +38440,9 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
 
   (0, _action_handler.deprecateUnderscoreActions)(Controller);
 
-  function controllerInjectionHelper(factory) {}
+  function controllerInjectionHelper(factory) {
+    false && (0, _emberDebug.assert)('Defining an injected controller property on a ' + 'non-controller is not allowed.', _controller.default.detect(factory.PrototypeMixin));
+  }
 
   /**
     Creates a property that lazily looks up another controller in the container.
@@ -37722,8 +38501,11 @@ enifed('ember-runtime/copy', ['exports', 'ember-debug', 'ember-runtime/system/ob
       return copies[loc];
     }
 
+    false && (0, _emberDebug.assert)('Cannot clone an Ember.Object that does not implement Ember.Copyable', !(obj instanceof _object.default) || _copyable.default && _copyable.default.detect(obj));
+
     // IMPORTANT: this specific test will detect a native array only. Any other
     // object will need to implement Copyable.
+
     if (Array.isArray(obj)) {
       ret = obj.slice();
 
@@ -37882,7 +38664,9 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       @public
     */
     FunctionPrototype.observes = function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      var _len, args, _key;
+
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -37891,8 +38675,17 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
     };
 
     FunctionPrototype._observesImmediately = function () {
+      false && (0, _emberDebug.assert)('Immediate observers must observe internal properties only, ' + 'not properties on other objects.', function () {
+        for (var i = 0; i < arguments.length; i++) {
+          if (arguments[i].indexOf('.') !== -1) {
+            return false;
+          }
+        }
+        return true;
+      });
 
       // observes handles property expansion
+
       return this.observes.apply(this, arguments);
     };
     /**
@@ -37980,6 +38773,8 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'rsvp', 'ember-metal', 'ember-debug
     }
 
     if (reason.name === 'UnrecognizedURLError') {
+      false && (0, _emberDebug.assert)('The URL \'' + reason.message + '\' did not match any routes in your application', false);
+
       return;
     }
 
@@ -38024,7 +38819,9 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
       @deprecated
     */
     StringPrototype.fmt = function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      var _len, args, _key;
+
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -38048,7 +38845,9 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
       @private
     */
     StringPrototype.loc = function () {
-      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      var _len2, args, _key2;
+
+      for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         args[_key2] = arguments[_key2];
       }
 
@@ -38619,7 +39418,9 @@ enifed('ember-runtime/inject', ['exports', 'ember-metal', 'ember-debug'], functi
     @static
     @public
   */
-  function inject() {}
+  function inject() {
+    false && (0, _emberDebug.assert)('Injected properties must be created through helpers, see \'' + Object.keys(inject).join('"', '"') + '\'');
+  }
 
   // Dictionary of injection validations by type, added to by `createInjectionHelper`
   var typeValidators = {};
@@ -38818,6 +39619,8 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-babel', '@glimmer/refer
     }),
 
     _contentDidChange: (0, _emberMetal.observer)('content', function () {
+      false && (0, _emberDebug.assert)('Can\'t set Proxy\'s content to itself', (0, _emberMetal.get)(this, 'content') !== this);
+
       (0, _emberMetal.tagFor)(this).contentDidChange();
     }),
 
@@ -38838,6 +39641,8 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-babel', '@glimmer/refer
     unknownProperty: function (key) {
       var content = (0, _emberMetal.get)(this, 'content');
       if (content) {
+        false && !!this.isController && (0, _emberDebug.deprecate)('You attempted to access `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
+
         return (0, _emberMetal.get)(content, key);
       }
     },
@@ -38851,6 +39656,8 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-babel', '@glimmer/refer
       }
 
       var content = (0, _emberMetal.get)(this, 'content');
+      false && (0, _emberDebug.assert)('Cannot delegate set(\'' + key + '\', ' + value + ') to the \'content\' property of object proxy ' + this + ': its \'content\' is undefined.', content);
+      false && !!this.isController && (0, _emberDebug.deprecate)('You attempted to set `' + key + '` from `' + this + '`, but object proxying is deprecated. Please use `model.' + key + '` instead.', !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
 
       return (0, _emberMetal.set)(content, key, value);
     }
@@ -39010,7 +39817,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-
       @public
     */
     send: function (actionName) {
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      for (_len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         args[_key - 1] = arguments[_key];
       }
 
@@ -39021,14 +39828,21 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-
         }
       }
 
-      var target = (0, _emberMetal.get)(this, 'target');
+      var target = (0, _emberMetal.get)(this, 'target'),
+          _len,
+          args,
+          _key;
       if (target) {
+        false && (0, _emberDebug.assert)('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
+
         target.send.apply(target, arguments);
       }
     },
     willMergeMixin: function (props) {
+      false && (0, _emberDebug.assert)('Specifying `_actions` and `actions` in the same mixin is not supported.', !props.actions || !props._actions);
 
       if (props._actions) {
+        false && !false && (0, _emberDebug.deprecate)('Specifying actions in `_actions` is deprecated, please use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
 
         props.actions = props._actions;
         delete props._actions;
@@ -39041,8 +39855,12 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-
     Object.defineProperty(factory.prototype, '_actions', {
       configurable: true,
       enumerable: false,
-      set: function (value) {},
+      set: function () {
+        false && (0, _emberDebug.assert)('You cannot set `_actions` on ' + this + ', please use `actions` instead.');
+      },
       get: function () {
+        false && !false && (0, _emberDebug.deprecate)('Usage of `_actions` is deprecated, use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
+
         return (0, _emberMetal.get)(this, 'actions');
       }
     });
@@ -39257,7 +40075,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }, _Mixin$create.nextObject = function (idx) {
     return objectAt(this, idx);
   }, _Mixin$create['[]'] = (0, _emberMetal.computed)({
-    get: function (key) {
+    get: function () {
       return this;
     },
     set: function (key, value) {
@@ -39269,6 +40087,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }).readOnly(), _Mixin$create.lastObject = (0, _emberMetal.computed)(function () {
     return objectAt(this, (0, _emberMetal.get)(this, 'length') - 1);
   }).readOnly(), _Mixin$create.contains = function (obj) {
+    false && !false && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
 
     return this.indexOf(obj) >= 0;
   }, _Mixin$create.slice = function (beginIndex, endIndex) {
@@ -39394,7 +40213,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     // ARRAY CHANGES
     // Invokes whenever the content array itself changes.
 
-    arrayWillChange: function (content, idx, removedCnt, addedCnt) {
+    arrayWillChange: function (content, idx, removedCnt) {
       var keys = this._keys;
       var lim = removedCnt > 0 ? idx + removedCnt : -1;
       for (var key in keys) {
@@ -39467,6 +40286,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     while (--loc >= idx) {
       var item = objectAt(content, loc);
       if (item) {
+        false && (0, _emberDebug.assert)('When using @each to observe the array ' + content + ', the array must return an object', typeof item === 'object');
+
         (0, _emberMetal._addBeforeObserver)(item, keyName, proxy, 'contentKeyWillChange');
         (0, _emberMetal.addObserver)(item, keyName, proxy, 'contentKeyDidChange');
       }
@@ -39509,7 +40330,7 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal'], function (
   });
 });
 
-enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'container', 'ember-debug'], function (exports, _emberMetal, _container, _emberDebug) {
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'container'], function (exports, _emberMetal, _container) {
   'use strict';
 
   var _containerProxyMixin;
@@ -39618,45 +40439,11 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal', 'conta
     if (this.__container__) {
       (0, _emberMetal.run)(this.__container__, 'destroy');
     }
+  }, _containerProxyMixin.factoryFor = function (fullName) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    return this.__container__.factoryFor(fullName, options);
   }, _containerProxyMixin);
-
-  if (true) {
-    /**
-     Given a fullName return a factory manager.
-      This method returns a manager which can be used for introspection of the
-     factory's class or for the creation of factory instances with initial
-     properties. The manager is an object with the following properties:
-      * `class` - The registered or resolved class.
-     * `create` - A function that will create an instance of the class with
-       any dependencies injected.
-      For example:
-      ```javascript
-     let owner = Ember.getOwner(otherInstance);
-     // the owner is commonly the `applicationInstance`, and can be accessed via
-     // an instance initializer.
-      let factory = owner.factoryFor('service:bespoke');
-      factory.class;
-     // The registered or resolved class. For example when used with an Ember-CLI
-     // app, this would be the default export from `app/services/bespoke.js`.
-      let instance = factory.create({
-       someProperty: 'an initial property value'
-     });
-     // Create an instance with any injections and the passed options as
-     // initial properties.
-     ```
-      @public
-     @class ContainerProxyMixin
-     @method factoryFor
-     @param {String} fullName
-     @param {Object} options
-     @return {FactoryManager}
-     */
-    containerProxyMixin.factoryFor = function ContainerProxyMixin_factoryFor(fullName) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return this.__container__.factoryFor(fullName, options);
-    };
-  }
 
   exports.default = _emberMetal.Mixin.create(containerProxyMixin);
 });
@@ -39724,6 +40511,8 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
       if (props.content && !modelSpecified) {
         props.model = props.content;
         delete props['content'];
+
+        false && !false && (0, _emberDebug.deprecate)('Do not specify `content` on a Controller, use `model` instead.', false, { id: 'ember-runtime.will-merge-mixin', until: '3.0.0' });
       }
     }
   });
@@ -39758,6 +40547,8 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-debug'
       @private
     */
     frozenCopy: function () {
+      false && !false && (0, _emberDebug.deprecate)('`frozenCopy` is deprecated, use `Object.freeze` instead.', false, { id: 'ember-runtime.frozen-copy', until: '3.0.0' });
+
       if (_freezable.Freezable && _freezable.Freezable.detect(this)) {
         return (0, _emberMetal.get)(this, 'isFrozen') ? this : this.copy().freeze();
       } else {
@@ -39797,12 +40588,10 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
   function iter(key, value) {
     var valueProvided = arguments.length === 2;
 
-    function i(item) {
+    return function (item) {
       var cur = (0, _emberMetal.get)(item, key);
       return valueProvided ? value === cur : !!cur;
-    }
-
-    return i;
+    };
   }
 
   /**
@@ -39962,6 +40751,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @public
     */
     contains: function (obj) {
+      false && !false && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
 
       var found = this.find(function (item) {
         return item === obj;
@@ -40159,7 +40949,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @return {Array} filtered array
       @public
     */
-    filterBy: function (key, value) {
+    filterBy: function () {
       return this.filter(iter.apply(this, arguments));
     },
 
@@ -40174,13 +40964,11 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @public
     */
     rejectBy: function (key, value) {
-      var exactValue = function (item) {
+      var use = arguments.length === 2 ? function (item) {
         return (0, _emberMetal.get)(item, key) === value;
-      };
-      var hasValue = function (item) {
+      } : function (item) {
         return !!(0, _emberMetal.get)(item, key);
       };
-      var use = arguments.length === 2 ? exactValue : hasValue;
 
       return this.reject(use);
     },
@@ -40249,7 +41037,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @return {Object} found item or `undefined`
       @public
     */
-    findBy: function (key, value) {
+    findBy: function () {
       return this.find(iter.apply(this, arguments));
     },
 
@@ -40297,7 +41085,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @since 1.3.0
       @public
     */
-    isEvery: function (key, value) {
+    isEvery: function () {
       return this.every(iter.apply(this, arguments));
     },
 
@@ -40362,7 +41150,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @since 1.3.0
       @public
     */
-    isAny: function (key, value) {
+    isAny: function () {
       return this.any(iter.apply(this, arguments));
     },
 
@@ -40418,11 +41206,14 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @public
     */
     invoke: function (methodName) {
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      for (_len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         args[_key - 1] = arguments[_key];
       }
 
-      var ret = emberA();
+      var ret = emberA(),
+          _len,
+          args,
+          _key;
 
       this.forEach(function (x, idx) {
         var method = x && x[methodName];
@@ -40534,7 +41325,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @private
     */
     '[]': (0, _emberMetal.computed)({
-      get: function (key) {
+      get: function () {
         return this;
       }
     }),
@@ -40790,6 +41581,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       @public
     */
     includes: function (obj) {
+      false && (0, _emberDebug.assert)('Enumerable#includes cannot accept a second argument "startAt" as enumerable items are unordered.', arguments.length === 1);
 
       var len = (0, _emberMetal.get)(this, 'length');
       var idx = void 0,
@@ -40886,7 +41678,9 @@ enifed('ember-runtime/mixins/evented', ['exports', 'ember-metal'], function (exp
       @public
     */
     trigger: function (name) {
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      var _len, args, _key;
+
+      for (_len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         args[_key - 1] = arguments[_key];
       }
 
@@ -40991,6 +41785,8 @@ enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal', 'ember-debug
 
   var Freezable = exports.Freezable = _emberMetal.Mixin.create({
     init: function () {
+      false && !false && (0, _emberDebug.deprecate)('`Ember.Freezable` is deprecated, use `Object.freeze` instead.', false, { id: 'ember-runtime.freezable-init', until: '3.0.0' });
+
       this._super.apply(this, arguments);
     },
 
@@ -41503,7 +42299,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       @public
     */
     getProperties: function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      var _len, args, _key;
+
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -41754,6 +42552,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       if ((0, _emberMetal.isNone)(increment)) {
         increment = 1;
       }
+      false && (0, _emberDebug.assert)('Must pass a numeric value to incrementProperty', !isNaN(parseFloat(increment)) && isFinite(increment));
 
       return (0, _emberMetal.set)(this, keyName, (parseFloat((0, _emberMetal.get)(this, keyName)) || 0) + increment);
     },
@@ -41774,6 +42573,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       if ((0, _emberMetal.isNone)(decrement)) {
         decrement = 1;
       }
+      false && (0, _emberDebug.assert)('Must pass a numeric value to decrementProperty', !isNaN(parseFloat(decrement)) && isFinite(decrement));
 
       return (0, _emberMetal.set)(this, keyName, ((0, _emberMetal.get)(this, keyName) || 0) - decrement);
     },
@@ -42245,6 +43045,12 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal', 'ember-
 
   function buildFakeRegistryFunction(instance, typeForMessage, deprecatedProperty, nonDeprecatedProperty) {
     return function () {
+      false && !false && (0, _emberDebug.deprecate)('Using `' + typeForMessage + '.registry.' + deprecatedProperty + '` is deprecated. Please use `' + typeForMessage + '.' + nonDeprecatedProperty + '` instead.', false, {
+        id: 'ember-application.app-instance-registry',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-application-registry-ember-applicationinstance-registry'
+      });
+
       return instance[nonDeprecatedProperty].apply(instance, arguments);
     };
   }
@@ -42320,7 +43126,9 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
     @private
     */
     triggerAction: function () {
-      var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _target,
+          _target2;
 
       var action = opts.action || (0, _emberMetal.get)(this, 'action');
       var target = opts.target;
@@ -42348,11 +43156,9 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
         var ret = void 0;
 
         if (target.send) {
-          var _target;
-
           ret = (_target = target).send.apply(_target, args(actionContext, action));
         } else {
-          var _target2;
+          false && (0, _emberDebug.assert)('The action \'' + action + '\' did not exist on ' + target, typeof target[action] === 'function');
 
           ret = (_target2 = target)[action].apply(_target2, args(actionContext));
         }
@@ -42587,6 +43393,8 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     _contentDidChange: (0, _emberMetal.observer)('content', function () {
       var content = (0, _emberMetal.get)(this, 'content');
 
+      false && (0, _emberDebug.assert)('Can\'t set ArrayProxy\'s content to itself', content !== this);
+
       this._setupContent();
     }),
 
@@ -42594,6 +43402,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       var content = (0, _emberMetal.get)(this, 'content');
 
       if (content) {
+        false && (0, _emberDebug.assert)('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof content, (0, _utils.isArray)(content) || content.isDestroyed);
 
         (0, _array.addArrayObserver)(content, this, {
           willChange: 'contentArrayWillChange',
@@ -42616,6 +43425,8 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       var arrangedContent = (0, _emberMetal.get)(this, 'arrangedContent');
       var len = arrangedContent ? (0, _emberMetal.get)(arrangedContent, 'length') : 0;
 
+      false && (0, _emberDebug.assert)('Can\'t set ArrayProxy\'s content to itself', arrangedContent !== this);
+
       this._setupArrangedContent();
 
       this.arrangedContentDidChange(this);
@@ -42626,6 +43437,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       var arrangedContent = (0, _emberMetal.get)(this, 'arrangedContent');
 
       if (arrangedContent) {
+        false && (0, _emberDebug.assert)('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof arrangedContent, (0, _utils.isArray)(arrangedContent) || arrangedContent.isDestroyed);
 
         (0, _array.addArrayObserver)(arrangedContent, this, {
           willChange: 'arrangedContentArrayWillChange',
@@ -42659,6 +43471,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
 
     _replace: function (idx, amt, objects) {
       var content = (0, _emberMetal.get)(this, 'content');
+      false && (0, _emberDebug.assert)('The content property of ' + this.constructor + ' should be set before modifying it', content);
 
       if (content) {
         this.replaceContent(idx, amt, objects);
@@ -42832,6 +43645,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
           for (var i = 0; i < props.length; i++) {
             var properties = props[i];
+            false && (0, _emberDebug.assert)('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create separately instead.', !(properties instanceof _emberMetal.Mixin));
 
             if (typeof properties !== 'object' && properties !== undefined) {
               throw new _emberDebug.Error('Ember.Object.create only accepts objects.');
@@ -42853,6 +43667,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
               var possibleDesc = this[keyName];
               var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+
+              false && (0, _emberDebug.assert)('Ember.Object.create no longer supports defining computed ' + 'properties. Define computed properties using extend() or reopen() ' + 'before calling create().', !(value instanceof _emberMetal.ComputedProperty));
+              false && (0, _emberDebug.assert)('Ember.Object.create no longer supports defining methods that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
+              false && (0, _emberDebug.assert)('`actions` must be provided at extend time, not at create time, ' + 'when Ember.ActionHandler is used (i.e. views, controllers & routes).', !(keyName === 'actions' && _action_handler.default.detect(this)));
 
               if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) >= 0) {
                 var baseValue = this[keyName];
@@ -42947,7 +43765,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
   };
   CoreObject.PrototypeMixin = _emberMetal.Mixin.create((_Mixin$create = {
     reopen: function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      var _len, args, _key;
+
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
@@ -42991,6 +43811,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
       if (typeof value === 'object' && value !== null && value.isDescriptor) {
         return;
       }
+
+      false && (0, _emberDebug.assert)(('You cannot set `' + this + '.isDestroyed` directly, please use ').destroy()(_templateObject), false);
     }
   }), _Mixin$create.isDestroying = (0, _emberMetal.descriptor)({
     get: function () {
@@ -43001,6 +43823,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
       if (typeof value === 'object' && value !== null && value.isDescriptor) {
         return;
       }
+
+      false && (0, _emberDebug.assert)(('You cannot set `' + this + '.isDestroying` directly, please use ').destroy()(_templateObject), false);
     }
   }), _Mixin$create.destroy = function () {
     var m = (0, _emberMetal.meta)(this);
@@ -43069,9 +43893,12 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     Class.ClassMixin.apply(Class);
     return Class;
   }, _ClassMixinProps.create = function () {
-    var C = this;
+    var C = this,
+        _len2,
+        args,
+        _key2;
 
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
     }
 
@@ -43105,6 +43932,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     var possibleDesc = proto[key];
     var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
+    false && (0, _emberDebug.assert)('metaForProperty() could not find a computed property with key \'' + key + '\'.', !!desc && desc instanceof _emberMetal.ComputedProperty);
+
     return desc._meta || {};
   }, _ClassMixinProps._computedProperties = (0, _emberMetal.computed)(function () {
     hasCachedComputedProperties = true;
@@ -43135,7 +43964,18 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     }
   }, _ClassMixinProps);
 
-  function injectedPropertyAssertion() {}
+  function injectedPropertyAssertion() {
+    false && (0, _emberDebug.assert)('Injected properties are invalid', (0, _inject.validatePropertyInjections)(this));
+  }
+
+  if (false) {
+    /**
+      Provides lookup-time type validation for injected properties.
+       @private
+      @method _onLookup
+    */
+    ClassMixinProps._onLookup = injectedPropertyAssertion;
+  }
 
   /**
     Returns a hash of property names and container names that injected
@@ -43674,6 +44514,22 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
 
   var FrameworkObject = exports.FrameworkObject = EmberObject;
 
+  if (false) {
+    var _EmberObject$extend;
+
+    var INIT_WAS_CALLED = (0, _emberUtils.symbol)('INIT_WAS_CALLED');
+    var ASSERT_INIT_WAS_CALLED = (0, _emberUtils.symbol)('ASSERT_INIT_WAS_CALLED');
+
+    exports.FrameworkObject = FrameworkObject = EmberObject.extend((_EmberObject$extend = {
+      init: function () {
+        this._super.apply(this, arguments);
+        this[INIT_WAS_CALLED] = true;
+      }
+    }, _EmberObject$extend[ASSERT_INIT_WAS_CALLED] = (0, _emberMetal.on)('init', function () {
+      false && (0, _emberDebug.assert)('You must call `this._super(...arguments);` when overriding `init` on a framework object. Please update ' + this + ' to call `this._super(...arguments);` from `init`.', this[INIT_WAS_CALLED]);
+    }), _EmberObject$extend));
+  }
+
   exports.default = EmberObject;
 });
 
@@ -43754,7 +44610,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
   var CAMELIZE_CACHE = new _emberMetal.Cache(1000, function (key) {
     return key.replace(STRING_CAMELIZE_REGEXP_1, function (match, separator, chr) {
       return chr ? chr.toUpperCase() : '';
-    }).replace(STRING_CAMELIZE_REGEXP_2, function (match, separator, chr) {
+    }).replace(STRING_CAMELIZE_REGEXP_2, function (match) {
       return match.toLowerCase();
     });
   });
@@ -43774,7 +44630,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     for (var i = 0; i < parts.length; i++) {
       parts[i] = parts[i].replace(STRING_CLASSIFY_REGEXP_1, replace1).replace(STRING_CLASSIFY_REGEXP_2, replace2);
     }
-    return parts.join('/').replace(STRING_CLASSIFY_REGEXP_3, function (match, separator, chr) {
+    return parts.join('/').replace(STRING_CLASSIFY_REGEXP_3, function (match) {
       return match.toUpperCase();
     });
   });
@@ -43789,7 +44645,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
   var STRING_CAPITALIZE_REGEXP = /(^|\/)([a-z])/g;
 
   var CAPITALIZE_CACHE = new _emberMetal.Cache(1000, function (str) {
-    return str.replace(STRING_CAPITALIZE_REGEXP, function (match, separator, chr) {
+    return str.replace(STRING_CAPITALIZE_REGEXP, function (match) {
       return match.toUpperCase();
     });
   });
@@ -43820,7 +44676,9 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     });
   }
 
-  function fmt(str, formats) {
+  function fmt() {
+    false && !false && (0, _emberDebug.deprecate)('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'http://babeljs.io/docs/learn-es2015/#template-strings' });
+
     return _fmt.apply(undefined, arguments);
   }
 
@@ -44372,10 +45230,8 @@ enifed('ember-utils', ['exports'], function (exports) {
   */
   function guidFor(obj) {
     var type = typeof obj;
-    var isObject = type === 'object' && obj !== null;
-    var isFunction = type === 'function';
 
-    if ((isObject || isFunction) && obj[GUID_KEY]) {
+    if ((type === 'object' && obj !== null || type === 'function') && obj[GUID_KEY]) {
       return obj[GUID_KEY];
     }
 
@@ -44568,12 +45424,12 @@ enifed('ember-utils', ['exports'], function (exports) {
     }).indexOf('return this') > -1;
 
     if (sourceAvailable) {
-      return function checkHasSuper(func) {
+      return function (func) {
         return HAS_SUPER_PATTERN.test(fnToString.call(func));
       };
     }
 
-    return function checkHasSuper() {
+    return function () {
       return true;
     };
   }();
@@ -44898,13 +45754,14 @@ enifed('ember-views/component_lookup', ['exports', 'ember-debug', 'ember-runtime
 
   exports.default = _emberRuntime.Object.extend({
     componentFor: function (name, owner, options) {
-      var fullName = 'component:' + name;
-      return owner[_container.FACTORY_FOR](fullName, options);
+      false && (0, _emberDebug.assert)('You cannot use \'' + name + '\' as a component name. Component names must contain a hyphen.', ~name.indexOf('-'));
+
+      return owner[_container.FACTORY_FOR]('component:' + name, options);
     },
     layoutFor: function (name, owner, options) {
+      false && (0, _emberDebug.assert)('You cannot use \'' + name + '\' as a component name. Component names must contain a hyphen.', ~name.indexOf('-'));
 
-      var templateFullName = 'template:components/' + name;
-      return owner.lookup(templateFullName, options);
+      return owner.lookup('template:components/' + name, options);
     }
   });
 });
@@ -45089,6 +45946,8 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
       actionName = actionName.value;
     }
 
+    false && (0, _emberDebug.assert)('The default action was triggered on the component ' + component.toString() + ', but the action name (' + actionName + ') was not a string.', (0, _emberMetal.isNone)(actionName) || typeof actionName === 'string' || typeof actionName === 'function');
+
     return actionName;
   }
 
@@ -45168,11 +46027,14 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
       @public
     */
     sendAction: function (action) {
-      for (var _len = arguments.length, contexts = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      for (_len = arguments.length, contexts = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         contexts[_key - 1] = arguments[_key];
       }
 
-      var actionName = void 0;
+      var actionName = void 0,
+          _len,
+          contexts,
+          _key;
 
       // Send the default action
       if (action === undefined) {
@@ -45196,11 +46058,14 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
       }
     },
     send: function (actionName) {
-      for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      for (_len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
         args[_key2 - 1] = arguments[_key2];
       }
 
-      var action = this.actions && this.actions[actionName];
+      var action = this.actions && this.actions[actionName],
+          _len2,
+          args,
+          _key2;
 
       if (action) {
         var shouldBubble = action.apply(this, args) === true;
@@ -45211,8 +46076,12 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
 
       var target = (0, _emberMetal.get)(this, 'target');
       if (target) {
+        false && (0, _emberDebug.assert)('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
+
         target.send.apply(target, arguments);
-      } else {}
+      } else {
+        false && (0, _emberDebug.assert)((0, _emberUtils.inspect)(this) + ' had no action handler for: ' + actionName, action);
+      }
     }
   });
 });
@@ -45273,6 +46142,9 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal', 'emb
 
     init: function () {
       this._super.apply(this, arguments);
+
+      false && (0, _emberDebug.assert)('Only arrays are allowed for \'classNameBindings\'', Array.isArray(this.classNameBindings));
+      false && (0, _emberDebug.assert)('Only arrays of static class strings are allowed for \'classNames\'. For dynamic classes, use \'classNameBindings\'.', Array.isArray(this.classNames));
     },
 
     /**
@@ -45491,8 +46363,7 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
     bubbles: false,
 
     interpretKeyEvents: function (event) {
-      var map = KEY_EVENTS;
-      var method = map[event.keyCode];
+      var method = KEY_EVENTS[event.keyCode];
 
       this._elementValueDidChange();
       if (method) {
@@ -45678,6 +46549,57 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
     component.trigger(hook, { attrs: newAttrs, oldAttrs: oldAttrs, newAttrs: newAttrs });
   };
 
+  if (false) {
+    var Attrs = function () {
+      function Attrs(oldAttrs, newAttrs, message) {
+
+        this._oldAttrs = oldAttrs;
+        this._newAttrs = newAttrs;
+        this._message = message;
+      }
+
+      (0, _emberBabel.createClass)(Attrs, [{
+        key: 'attrs',
+        get: function () {
+          return this.newAttrs;
+        }
+      }, {
+        key: 'oldAttrs',
+        get: function () {
+          false && !false && (0, _emberDebug.deprecate)(this._message, false, {
+            id: 'ember-views.lifecycle-hook-arguments',
+            until: '2.13.0',
+            url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+          });
+
+          return this._oldAttrs;
+        }
+      }, {
+        key: 'newAttrs',
+        get: function () {
+          false && !false && (0, _emberDebug.deprecate)(this._message, false, {
+            id: 'ember-views.lifecycle-hook-arguments',
+            until: '2.13.0',
+            url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+          });
+
+          return this._newAttrs;
+        }
+      }]);
+
+      return Attrs;
+    }();
+
+    exports.dispatchLifeCycleHook = dispatchLifeCycleHook = function (component, hook, oldAttrs, newAttrs) {
+      if (typeof component[hook] === 'function' && component[hook].length !== 0) {
+        // Already warned in init
+        component.trigger(hook, { attrs: newAttrs, oldAttrs: oldAttrs, newAttrs: newAttrs });
+      } else {
+        component.trigger(hook, new Attrs(oldAttrs, newAttrs, '[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + component.toString() + '#' + hook + '` to stop taking arguments.'));
+      }
+    };
+  }
+
   /**
    @class ViewMixin
    @namespace Ember
@@ -45757,6 +46679,8 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
       return this.renderer.getElement(this);
     }
   }), _Mixin$create.$ = function (sel) {
+    false && (0, _emberDebug.assert)('You cannot access this.$() on a component with `tagName: \'\'` specified.', this.tagName !== '');
+
     if (this.element) {
       return sel ? (0, _jquery.default)(sel, this.element) : (0, _jquery.default)(this.element);
     }
@@ -45766,8 +46690,26 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
 
     if (env.hasDOM) {
       target = typeof selector === 'string' ? document.querySelector(selector) : selector;
+
+      false && (0, _emberDebug.assert)('You tried to append to (' + selector + ') but that isn\'t in the DOM', target);
+      false && (0, _emberDebug.assert)('You cannot append to an existing Ember.View.', !(0, _utils.matches)(target, '.ember-view'));
+      false && (0, _emberDebug.assert)('You cannot append to an existing Ember.View.', function () {
+        var node = target.parentNode;
+        while (node) {
+          if (node.nodeType !== 9 && (0, _utils.matches)(node, '.ember-view')) {
+            return false;
+          }
+
+          node = node.parentNode;
+        }
+
+        return true;
+      }());
     } else {
       target = selector;
+
+      false && (0, _emberDebug.assert)('You tried to append to a selector string (' + selector + ') in an environment without jQuery', typeof target !== 'string');
+      false && (0, _emberDebug.assert)('You tried to append to a non-Element (' + selector + ') in an environment without jQuery', typeof selector.appendChild === 'function');
     }
 
     this.renderer.appendTo(this, target);
@@ -45775,6 +46717,11 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
     return this;
   }, _Mixin$create.renderToElement = function () {
     var tagName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+    false && !false && (0, _emberDebug.deprecate)('Using the `renderToElement` is deprecated in favor of `appendTo`. Called in ' + this.toString(), false, {
+      id: 'ember-views.render-to-element',
+      until: '2.12.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_code-rendertoelement-code'
+    });
 
     var element = this.renderer.createElement(tagName);
 
@@ -45782,6 +46729,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
     return element;
   }, _Mixin$create.replaceIn = function (selector) {
     var target = (0, _jquery.default)(selector);
+
+    false && (0, _emberDebug.assert)('You tried to replace in (' + selector + ') but that isn\'t in the DOM', target.length > 0);
+    false && (0, _emberDebug.assert)('You cannot replace an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
 
     this.renderer.replaceIn(this, target[0]);
 
@@ -45812,6 +46762,28 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
         dispatcher.canDispatchToEventManager = true;
       }
     }
+
+    false && !(typeof this.didInitAttrs !== 'function') && (0, _emberDebug.deprecate)('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
+      id: 'ember-views.did-init-attrs',
+      until: '3.0.0',
+      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+    });
+    false && !(typeof this.didInitAttrs !== 'function' || this.didInitAttrs.length === 0) && (0, _emberDebug.deprecate)('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didInitAttrs` to stop taking arguments.', typeof this.didInitAttrs !== 'function' || this.didInitAttrs.length === 0, {
+      id: 'ember-views.lifecycle-hook-arguments',
+      until: '2.13.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+    });
+    false && !(typeof this.didReceiveAttrs !== 'function' || this.didReceiveAttrs.length === 0) && (0, _emberDebug.deprecate)('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didReceiveAttrs` to stop taking arguments.', typeof this.didReceiveAttrs !== 'function' || this.didReceiveAttrs.length === 0, {
+      id: 'ember-views.lifecycle-hook-arguments',
+      until: '2.13.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+    });
+    false && !(typeof this.didUpdateAttrs !== 'function' || this.didUpdateAttrs.length === 0) && (0, _emberDebug.deprecate)('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didUpdateAttrs` to stop taking arguments.', typeof this.didUpdateAttrs !== 'function' || this.didUpdateAttrs.length === 0, {
+      id: 'ember-views.lifecycle-hook-arguments',
+      until: '2.13.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
+    });
+    false && (0, _emberDebug.assert)('Using a custom `.render` function is no longer supported.', !this.render);
   }, _Mixin$create.__defineNonEnumerable = function (property) {
     this[property.name] = property.descriptor.value;
   }, _Mixin$create.handleEvent = function (eventName, evt) {
@@ -45961,6 +46933,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
     init: function () {
       this._super();
+      false && (0, _emberDebug.assert)('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', _emberEnvironment.environment.hasDOM);
     },
 
     /**
@@ -45984,6 +46957,10 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       }
 
       rootElement = (0, _jquery.default)(rootElement);
+
+      false && (0, _emberDebug.assert)('You cannot use the same root element (' + (rootElement.selector || rootElement[0].tagName) + ') multiple times in an Ember.Application', !rootElement.is(ROOT_ELEMENT_SELECTOR));
+      false && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is a descendent of an existing Ember.Application', !rootElement.closest(ROOT_ELEMENT_SELECTOR).length);
+      false && (0, _emberDebug.assert)('You cannot make a new Ember.Application using a root element that is an ancestor of an existing Ember.Application', !rootElement.find(ROOT_ELEMENT_SELECTOR).length);
 
       rootElement.addClass(ROOT_ELEMENT_CLASS);
 
@@ -46165,6 +47142,8 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-debug'], function
 
     var template = templateFor(owner, parseUnderscoredName(templateName), templateName);
 
+    false && (0, _emberDebug.assert)('Unable to find partial with name "' + templateName + '"', !!template);
+
     return template;
   }
 
@@ -46180,6 +47159,7 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-debug'], function
     if (!name) {
       return;
     }
+    false && (0, _emberDebug.assert)('templateNames are not allowed to contain periods: ' + name, name.indexOf('.') === -1);
 
     if (!owner) {
       throw new _emberDebug.Error('Container was not found when looking up a views template. ' + 'This is most likely due to manually instantiating an Ember.View. ' + 'See: http://git.io/EKPpnA');
@@ -46646,6 +47626,12 @@ enifed('ember-views/views/states/in_dom', ['exports', 'ember-utils', 'ember-meta
       // Register the view for event handling. This hash is used by
       // Ember.EventDispatcher to dispatch incoming events.
       view.renderer.register(view);
+
+      if (false) {
+        (0, _emberMetal._addBeforeObserver)(view, 'elementId', function () {
+          throw new _emberDebug.Error('Changing a view\'s elementId after creation is not allowed');
+        });
+      }
     },
     exit: function (view) {
       view.renderer.unregister(view);
@@ -46678,13 +47664,22 @@ enifed("ember-views/views/view", [], function () {
   "use strict";
 });
 
-enifed("ember/features", ["exports"], function (exports) {
-  "use strict";
+enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
+  'use strict';
 
-  exports.default = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": true, "ember-factory-for": true, "ember-no-double-extend": true, "ember-routing-router-service": null, "ember-unique-location-history-state": true, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+  exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+  var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": true, "ember-factory-for": true, "ember-no-double-extend": true, "ember-routing-router-service": null, "ember-unique-location-history-state": true, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+  var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
+
+  var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
+  var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
+  var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
+  var EMBER_METAL_WEAKMAP = exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
+
+  var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
 });
 
-enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module', 'ember-utils', 'container', 'ember-metal', 'ember-debug', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require2, _emberEnvironment, _nodeModule, _emberUtils, _container, _emberMetal, _emberDebug, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _version, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
+enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module', 'ember-utils', 'container', 'ember-metal', 'ember/features', 'ember-debug', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require2, _emberEnvironment, _nodeModule, _emberUtils, _container, _emberMetal, _features, _emberDebug, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _version, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
 
   exports.VERSION = undefined;
@@ -46730,7 +47725,10 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.debug = _emberDebug.debug;
   _emberMetal.default.deprecate = function () {};
   _emberMetal.default.deprecateFunc = function () {};
-
+  if (false) {
+    _emberMetal.default.deprecate = _emberDebug.deprecate;
+    _emberMetal.default.deprecateFunc = _emberDebug.deprecateFunc;
+  }
   _emberMetal.default.deprecateFunc = _emberDebug.deprecateFunc;
   _emberMetal.default.runInDebug = _emberDebug.runInDebug;
   /**
@@ -46760,7 +47758,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default._getPath = _emberMetal._getPath;
   _emberMetal.default.set = _emberMetal.set;
   _emberMetal.default.trySet = _emberMetal.trySet;
-  _emberMetal.default.FEATURES = _emberDebug.FEATURES;
+  _emberMetal.default.FEATURES = _features.FEATURES;
   _emberMetal.default.FEATURES.isEnabled = _emberDebug.isFeatureEnabled;
   _emberMetal.default._Cache = _emberMetal.Cache;
   _emberMetal.default.on = _emberMetal.on;
@@ -46824,7 +47822,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.Binding = _emberMetal.Binding;
   _emberMetal.default.isGlobalPath = _emberMetal.isGlobalPath;
 
-  if (_emberDebug.isFeatureEnabled('ember-metal-weakmap')) {
+  if (_features.EMBER_METAL_WEAKMAP) {
     _emberMetal.default.WeakMap = _emberMetal.WeakMap;
   }
 
@@ -46939,6 +47937,11 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 
   Object.defineProperty(_emberMetal.default, 'K', {
     get: function () {
+      false && !false && (0, _emberDebug.deprecate)('Ember.K is deprecated in favor of defining a function inline.', false, {
+        id: 'ember-metal.ember-k',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_code-ember-k-code'
+      });
 
       return deprecatedEmberK;
     }
@@ -46956,6 +47959,11 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
    @private
    */
   _emberMetal.default.Backburner = function () {
+    false && !false && (0, _emberDebug.deprecate)('Usage of Ember.Backburner is deprecated.', false, {
+      id: 'ember-metal.ember-backburner',
+      until: '2.8.0',
+      url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-backburner'
+    });
 
     function BackburnerAlias(args) {
       return _backburner.default.apply(this, args);
@@ -47229,7 +48237,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+16a14a92";
+  exports.default = "2.14.0-alpha.1-null+ee8ab348";
 });
 
 enifed('node-module', ['exports'], function(_exports) {
@@ -47255,12 +48263,12 @@ enifed("route-recognizer", ["exports"], function (exports) {
         return map;
     }
 
-    var Target = function Target(path, matcher, delegate) {
+    var Target = function (path, matcher, delegate) {
         this.path = path;
         this.matcher = matcher;
         this.delegate = delegate;
     };
-    Target.prototype.to = function to(target, callback) {
+    Target.prototype.to = function (target, callback) {
         var delegate = this.delegate;
         if (delegate && delegate.willAddRoute) {
             target = delegate.willAddRoute(this.matcher.target, target);
@@ -47273,15 +48281,15 @@ enifed("route-recognizer", ["exports"], function (exports) {
             this.matcher.addChild(this.path, target, callback, this.delegate);
         }
     };
-    var Matcher = function Matcher(target) {
+    var Matcher = function (target) {
         this.routes = createMap();
         this.children = createMap();
         this.target = target;
     };
-    Matcher.prototype.add = function add(path, target) {
+    Matcher.prototype.add = function (path, target) {
         this.routes[path] = target;
     };
-    Matcher.prototype.addChild = function addChild(path, target, callback, delegate) {
+    Matcher.prototype.addChild = function (path, target, callback, delegate) {
         var matcher = new Matcher(target);
         this.children[path] = matcher;
         var match = generateMatch(path, matcher, delegate);
@@ -47291,20 +48299,19 @@ enifed("route-recognizer", ["exports"], function (exports) {
         callback(match);
     };
     function generateMatch(startingPath, matcher, delegate) {
-        function match(path, callback) {
+        return function (path, callback) {
             var fullPath = startingPath + path;
             if (callback) {
                 callback(generateMatch(fullPath, matcher, delegate));
             } else {
                 return new Target(fullPath, matcher, delegate);
             }
-        }
-        ;
-        return match;
+        };
     }
     function addRoute(routeArray, path, handler) {
-        var len = 0;
-        for (var i = 0; i < routeArray.length; i++) {
+        var len = 0,
+            i;
+        for (i = 0; i < routeArray.length; i++) {
             len += routeArray[i].path.length;
         }
         path = path.substr(len);
@@ -47312,13 +48319,19 @@ enifed("route-recognizer", ["exports"], function (exports) {
         routeArray.push(route);
     }
     function eachRoute(baseRoute, matcher, callback, binding) {
-        var routes = matcher.routes;
+        var routes = matcher.routes,
+            i,
+            path,
+            routeArray,
+            nested;
         var paths = Object.keys(routes);
-        for (var i = 0; i < paths.length; i++) {
-            var path = paths[i];
-            var routeArray = baseRoute.slice();
+        for (i = 0; i < paths.length; i++) {
+            path = paths[i];
+            routeArray = baseRoute.slice();
+
             addRoute(routeArray, path, routes[path]);
-            var nested = matcher.children[path];
+            nested = matcher.children[path];
+
             if (nested) {
                 eachRoute(routeArray, nested, callback, binding);
             } else {
@@ -47390,10 +48403,13 @@ enifed("route-recognizer", ["exports"], function (exports) {
     }
     var eachChar = [];
     eachChar[0 /* Static */] = function (segment, currentState) {
-        var state = currentState;
+        var state = currentState,
+            i,
+            ch;
         var value = segment.value;
-        for (var i = 0; i < value.length; i++) {
-            var ch = value.charCodeAt(i);
+        for (i = 0; i < value.length; i++) {
+            ch = value.charCodeAt(i);
+
             state = state.put(ch, false, false);
         }
         return state;
@@ -47447,11 +48463,16 @@ enifed("route-recognizer", ["exports"], function (exports) {
         if (route.length > 0 && route.charCodeAt(0) === 47 /* SLASH */) {
                 route = route.substr(1);
             }
-        var parts = route.split("/");
-        for (var i = 0; i < parts.length; i++) {
-            var part = parts[i];
-            var flags = 0;
-            var type = 0;
+        var parts = route.split("/"),
+            i,
+            part,
+            flags,
+            type;
+        for (i = 0; i < parts.length; i++) {
+            part = parts[i];
+            flags = 0;
+            type = 0;
+
             if (part === "") {
                 type = 4 /* Epsilon */;
             } else if (part.charCodeAt(0) === 58 /* COLON */) {
@@ -47492,7 +48513,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
     // Currently, State is implemented naively by looping over `nextStates` and
     // comparing a character specification against a character. A more efficient
     // implementation would use a hash of keys pointing at one or more next states.
-    var State = function State(states, id, char, negate, repeat) {
+    var State = function (states, id, char, negate, repeat) {
         this.states = states;
         this.id = id;
         this.char = char;
@@ -47503,34 +48524,39 @@ enifed("route-recognizer", ["exports"], function (exports) {
         this.handlers = undefined;
         this.types = undefined;
     };
-    State.prototype.regex = function regex$1() {
+    State.prototype.regex = function () {
         if (!this._regex) {
             this._regex = new RegExp(this.pattern);
         }
         return this._regex;
     };
-    State.prototype.get = function get(char, negate) {
-        var this$1 = this;
+    State.prototype.get = function (char, negate) {
+        var this$1 = this,
+            i,
+            child,
+            child$1;
 
         var nextStates = this.nextStates;
         if (nextStates === null) {
             return;
         }
         if (isArray(nextStates)) {
-            for (var i = 0; i < nextStates.length; i++) {
-                var child = this$1.states[nextStates[i]];
+            for (i = 0; i < nextStates.length; i++) {
+                child = this$1.states[nextStates[i]];
+
                 if (isEqualCharSpec(child, char, negate)) {
                     return child;
                 }
             }
         } else {
-            var child$1 = this.states[nextStates];
+            child$1 = this.states[nextStates];
+
             if (isEqualCharSpec(child$1, char, negate)) {
                 return child$1;
             }
         }
     };
-    State.prototype.put = function put(char, negate, repeat) {
+    State.prototype.put = function (char, negate, repeat) {
         var state;
         // If the character specification already exists in a child of the current
         // state, just return that state.
@@ -47553,8 +48579,11 @@ enifed("route-recognizer", ["exports"], function (exports) {
         return state;
     };
     // Find a list of child states matching the next character
-    State.prototype.match = function match(ch) {
-        var this$1 = this;
+    State.prototype.match = function (ch) {
+        var this$1 = this,
+            i,
+            child,
+            child$1;
 
         var nextStates = this.nextStates;
         if (!nextStates) {
@@ -47562,14 +48591,16 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         var returned = [];
         if (isArray(nextStates)) {
-            for (var i = 0; i < nextStates.length; i++) {
-                var child = this$1.states[nextStates[i]];
+            for (i = 0; i < nextStates.length; i++) {
+                child = this$1.states[nextStates[i]];
+
                 if (isMatch(child, ch)) {
                     returned.push(child);
                 }
             }
         } else {
-            var child$1 = this.states[nextStates];
+            child$1 = this.states[nextStates];
+
             if (isMatch(child$1, ch)) {
                 returned.push(child$1);
             }
@@ -47620,23 +48651,35 @@ enifed("route-recognizer", ["exports"], function (exports) {
         });
     }
     function recognizeChar(states, ch) {
-        var nextStates = [];
-        for (var i = 0, l = states.length; i < l; i++) {
-            var state = states[i];
+        var nextStates = [],
+            i,
+            l,
+            state;
+        for (i = 0, l = states.length; i < l; i++) {
+            state = states[i];
+
             nextStates = nextStates.concat(state.match(ch));
         }
         return nextStates;
     }
-    var RecognizeResults = function RecognizeResults(queryParams) {
+    var RecognizeResults = function (queryParams) {
         this.length = 0;
         this.queryParams = queryParams || {};
     };
-    ;
+
     RecognizeResults.prototype.splice = Array.prototype.splice;
     RecognizeResults.prototype.slice = Array.prototype.slice;
     RecognizeResults.prototype.push = Array.prototype.push;
     function findHandler(state, originalPath, queryParams) {
-        var handlers = state.handlers;
+        var handlers = state.handlers,
+            i,
+            handler,
+            names,
+            shouldDecodes,
+            params,
+            j,
+            name,
+            capture;
         var regex = state.regex();
         if (!regex || !handlers) {
             throw new Error("state not initialized");
@@ -47645,14 +48688,16 @@ enifed("route-recognizer", ["exports"], function (exports) {
         var currentCapture = 1;
         var result = new RecognizeResults(queryParams);
         result.length = handlers.length;
-        for (var i = 0; i < handlers.length; i++) {
-            var handler = handlers[i];
-            var names = handler.names;
-            var shouldDecodes = handler.shouldDecodes;
-            var params = {};
-            for (var j = 0; j < names.length; j++) {
-                var name = names[j];
-                var capture = captures && captures[currentCapture++];
+        for (i = 0; i < handlers.length; i++) {
+            handler = handlers[i];
+            names = handler.names;
+            shouldDecodes = handler.shouldDecodes;
+            params = {};
+
+            for (j = 0; j < names.length; j++) {
+                name = names[j];
+                capture = captures && captures[currentCapture++];
+
                 if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS && shouldDecodes[j]) {
                     params[name] = capture && decodeURIComponent(capture);
                 } else {
@@ -47674,7 +48719,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         return result;
     }
-    var RouteRecognizer = function RouteRecognizer() {
+    var RouteRecognizer = function () {
         this.names = createMap();
         var states = [];
         var state = new State(states, 0, -1 /* ANY */, true, false);
@@ -47682,22 +48727,30 @@ enifed("route-recognizer", ["exports"], function (exports) {
         this.states = states;
         this.rootState = state;
     };
-    RouteRecognizer.prototype.add = function add(routes, options) {
-        var currentState = this.rootState;
+    RouteRecognizer.prototype.add = function (routes, options) {
+        var currentState = this.rootState,
+            i,
+            route,
+            names,
+            shouldDecodes,
+            segment,
+            handler;
         var pattern = "^";
         var types = [0, 0, 0];
         var handlers = new Array(routes.length);
         var allSegments = [];
         var isEmpty = true;
         var j = 0;
-        for (var i = 0; i < routes.length; i++) {
-            var route = routes[i];
-            var names = [];
-            var shouldDecodes = [];
+        for (i = 0; i < routes.length; i++) {
+            route = routes[i];
+            names = [];
+            shouldDecodes = [];
+
             parse(allSegments, route.path, names, types, shouldDecodes);
             // preserve j so it points to the start of newly added segments
             for (; j < allSegments.length; j++) {
-                var segment = allSegments[j];
+                segment = allSegments[j];
+
                 if (segment.type === 4 /* Epsilon */) {
                         continue;
                     }
@@ -47709,7 +48762,8 @@ enifed("route-recognizer", ["exports"], function (exports) {
                 currentState = eachChar[segment.type](segment, currentState);
                 pattern += regex[segment.type](segment);
             }
-            var handler = { handler: route.handler, names: names, shouldDecodes: shouldDecodes };
+            handler = { handler: route.handler, names: names, shouldDecodes: shouldDecodes };
+
             handlers[i] = handler;
         }
         if (isEmpty) {
@@ -47733,29 +48787,33 @@ enifed("route-recognizer", ["exports"], function (exports) {
             };
         }
     };
-    RouteRecognizer.prototype.handlersFor = function handlersFor(name) {
-        var route = this.names[name];
+    RouteRecognizer.prototype.handlersFor = function (name) {
+        var route = this.names[name],
+            i;
         if (!route) {
             throw new Error("There is no route named " + name);
         }
         var result = new Array(route.handlers.length);
-        for (var i = 0; i < route.handlers.length; i++) {
+        for (i = 0; i < route.handlers.length; i++) {
             result[i] = route.handlers[i];
         }
         return result;
     };
-    RouteRecognizer.prototype.hasRoute = function hasRoute(name) {
+    RouteRecognizer.prototype.hasRoute = function (name) {
         return !!this.names[name];
     };
-    RouteRecognizer.prototype.generate = function generate$1(name, params) {
-        var route = this.names[name];
+    RouteRecognizer.prototype.generate = function (name, params) {
+        var route = this.names[name],
+            i,
+            segment;
         var output = "";
         if (!route) {
             throw new Error("There is no route named " + name);
         }
         var segments = route.segments;
-        for (var i = 0; i < segments.length; i++) {
-            var segment = segments[i];
+        for (i = 0; i < segments.length; i++) {
+            segment = segments[i];
+
             if (segment.type === 4 /* Epsilon */) {
                     continue;
                 }
@@ -47770,20 +48828,29 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         return output;
     };
-    RouteRecognizer.prototype.generateQueryString = function generateQueryString(params) {
-        var pairs = [];
+    RouteRecognizer.prototype.generateQueryString = function (params) {
+        var pairs = [],
+            i,
+            key,
+            value,
+            pair,
+            j,
+            arrayPair;
         var keys = Object.keys(params);
         keys.sort();
-        for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
-            var value = params[key];
+        for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = params[key];
+
             if (value == null) {
                 continue;
             }
-            var pair = encodeURIComponent(key);
+            pair = encodeURIComponent(key);
+
             if (isArray(value)) {
-                for (var j = 0; j < value.length; j++) {
-                    var arrayPair = key + "[]" + "=" + encodeURIComponent(value[j]);
+                for (j = 0; j < value.length; j++) {
+                    arrayPair = key + "[]" + "=" + encodeURIComponent(value[j]);
+
                     pairs.push(arrayPair);
                 }
             } else {
@@ -47796,15 +48863,18 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         return "?" + pairs.join("&");
     };
-    RouteRecognizer.prototype.parseQueryString = function parseQueryString(queryString) {
-        var pairs = queryString.split("&");
+    RouteRecognizer.prototype.parseQueryString = function (queryString) {
+        var pairs = queryString.split("&"),
+            i,
+            pair,
+            key,
+            keyLength,
+            isArray,
+            value;
         var queryParams = {};
-        for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i].split("="),
-                key = decodeQueryParamPart(pair[0]),
-                keyLength = key.length,
-                isArray = false,
-                value = void 0;
+        for (i = 0; i < pairs.length; i++) {
+            pair = pairs[i].split("="), key = decodeQueryParamPart(pair[0]), keyLength = key.length, isArray = false, value = void 0;
+
             if (pair.length === 1) {
                 value = "true";
             } else {
@@ -47826,8 +48896,8 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         return queryParams;
     };
-    RouteRecognizer.prototype.recognize = function recognize(path) {
-        var results;
+    RouteRecognizer.prototype.recognize = function (path) {
+        var results, queryString, i, i$1;
         var states = [this.rootState];
         var queryParams = {};
         var isSlashDropped = false;
@@ -47837,7 +48907,8 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         var queryStart = path.indexOf("?");
         if (queryStart !== -1) {
-            var queryString = path.substr(queryStart + 1, path.length);
+            queryString = path.substr(queryStart + 1, path.length);
+
             path = path.substr(0, queryStart);
             queryParams = this.parseQueryString(queryString);
         }
@@ -47857,14 +48928,14 @@ enifed("route-recognizer", ["exports"], function (exports) {
             originalPath = originalPath.substr(0, originalPath.length - 1);
             isSlashDropped = true;
         }
-        for (var i = 0; i < path.length; i++) {
+        for (i = 0; i < path.length; i++) {
             states = recognizeChar(states, path.charCodeAt(i));
             if (!states.length) {
                 break;
             }
         }
         var solutions = [];
-        for (var i$1 = 0; i$1 < states.length; i$1++) {
+        for (i$1 = 0; i$1 < states.length; i$1++) {
             if (states[i$1].handlers) {
                 solutions.push(states[i$1]);
             }
@@ -47958,11 +49029,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     Coerces query param properties and array elements into strings.
   **/
   function coerceQueryParamsToString(queryParams) {
+    var i, l;
+
     for (var key in queryParams) {
       if (typeof queryParams[key] === 'number') {
         queryParams[key] = '' + queryParams[key];
       } else if (isArray(queryParams[key])) {
-        for (var i = 0, l = queryParams[key].length; i < l; i++) {
+        for (i = 0, l = queryParams[key].length; i < l; i++) {
           queryParams[key][i] = '' + queryParams[key][i];
         }
       }
@@ -47998,7 +49071,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   function forEach(array, callback) {
-    for (var i = 0, l = array.length; i < l && false !== callback(array[i]); i++) {}
+    var i, l;
+
+    for (i = 0, l = array.length; i < l && false !== callback(array[i]); i++) {}
   }
 
   function trigger(router, handlerInfos, ignoreFailure, args) {
@@ -48007,7 +49082,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       return;
     }
 
-    var name = args.shift();
+    var name = args.shift(),
+        i,
+        handlerInfo,
+        handler;
 
     if (!handlerInfos) {
       if (ignoreFailure) {
@@ -48022,12 +49100,12 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       handler.events[name].apply(handler, args);
     }
 
-    for (var i = handlerInfos.length - 1; i >= 0; i--) {
-      var handlerInfo = handlerInfos[i],
-          handler = handlerInfo.handler;
+    for (i = handlerInfos.length - 1; i >= 0; i--) {
+      handlerInfo = handlerInfos[i], handler = handlerInfo.handler;
 
       // If there is no handler, it means the handler hasn't resolved yet which
       // means that we should trigger the event later when the handler is available
+
       if (!handler) {
         handlerInfo.handlerPromise.then(bind(null, delayedEvent, name, args));
         continue;
@@ -48052,12 +49130,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   function getChangelist(oldObject, newObject) {
-    var key;
     var results = {
       all: {},
       changed: {},
       removed: {}
-    };
+    },
+        i,
+        l;
 
     merge(results.all, newObject);
 
@@ -48066,7 +49145,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     coerceQueryParamsToString(newObject);
 
     // Calculate removals
-    for (key in oldObject) {
+    for (var key in oldObject) {
       if (oldObject.hasOwnProperty(key)) {
         if (!newObject.hasOwnProperty(key)) {
           didChange = true;
@@ -48083,7 +49162,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
             results.changed[key] = newObject[key];
             didChange = true;
           } else {
-            for (var i = 0, l = oldObject[key].length; i < l; i++) {
+            for (i = 0, l = oldObject[key].length; i < l; i++) {
               if (oldObject[key][i] !== newObject[key][i]) {
                 results.changed[key] = newObject[key];
                 didChange = true;
@@ -48176,7 +49255,18 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var wasAborted = false;
 
       // The prelude RSVP.resolve() asyncs us into the promise land.
-      return _rsvp.Promise.resolve(null, this.promiseLabel("Start transition")).then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler'))['catch'](handleError, this.promiseLabel('Handle error'));
+      return _rsvp.Promise.resolve(null, this.promiseLabel("Start transition")).then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler'))['catch'](function (error) {
+        // This is the only possible
+        // reject value of TransitionState#resolve
+        var handlerInfos = currentState.handlerInfos;
+        var errorHandlerIndex = payload.resolveIndex >= handlerInfos.length ? handlerInfos.length - 1 : payload.resolveIndex;
+        return _rsvp.Promise.reject({
+          error: error,
+          handlerWithError: currentState.handlerInfos[errorHandlerIndex].handler,
+          wasAborted: wasAborted,
+          state: currentState
+        });
+      }, this.promiseLabel('Handle error'));
 
       function innerShouldContinue() {
         return _rsvp.Promise.resolve(shouldContinue(), currentState.promiseLabel("Check if should continue"))['catch'](function (reason) {
@@ -48188,21 +49278,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         }, currentState.promiseLabel("Handle abort"));
       }
 
-      function handleError(error) {
-        // This is the only possible
-        // reject value of TransitionState#resolve
-        var handlerInfos = currentState.handlerInfos;
-        var errorHandlerIndex = payload.resolveIndex >= handlerInfos.length ? handlerInfos.length - 1 : payload.resolveIndex;
-        return _rsvp.Promise.reject({
-          error: error,
-          handlerWithError: currentState.handlerInfos[errorHandlerIndex].handler,
-          wasAborted: wasAborted,
-          state: currentState
-        });
-      }
-
       function proceed(resolvedHandlerInfo) {
-        var wasAlreadyResolved = currentState.handlerInfos[payload.resolveIndex].isResolved;
+        var wasAlreadyResolved = currentState.handlerInfos[payload.resolveIndex].isResolved,
+            handler;
 
         // Swap the previously unresolved handlerInfo with
         // the resolved handlerInfo
@@ -48213,7 +49291,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
           // vs. afterModel is so that redirects into child
           // routes don't re-run the model hooks for this
           // already-resolved route.
-          var handler = resolvedHandlerInfo.handler;
+          handler = resolvedHandlerInfo.handler;
+
           callHook(handler, 'redirect', resolvedHandlerInfo.context, payload);
         }
 
@@ -48279,7 +49358,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     @private
    */
   function Transition(router, intent, state, error, previousTransition) {
-    var transition = this;
+    var transition = this,
+        len,
+        i,
+        handlerInfo;
     this.state = state || router.state;
     this.intent = intent;
     this.router = router;
@@ -48314,15 +49396,17 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       this.queryParams = state.queryParams;
       this.handlerInfos = state.handlerInfos;
 
-      var len = state.handlerInfos.length;
+      len = state.handlerInfos.length;
+
       if (len) {
         this.targetName = state.handlerInfos[len - 1].name;
       }
 
-      for (var i = 0; i < len; ++i) {
-        var handlerInfo = state.handlerInfos[i];
+      for (i = 0; i < len; ++i) {
+        handlerInfo = state.handlerInfos[i];
 
         // TODO: this all seems hacky
+
         if (!handlerInfo.isResolved) {
           break;
         }
@@ -48368,9 +49452,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     isTransition: true,
 
     isExiting: function (handler) {
-      var handlerInfos = this.handlerInfos;
-      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-        var handlerInfo = handlerInfos[i];
+      var handlerInfos = this.handlerInfos,
+          i,
+          len,
+          handlerInfo;
+      for (i = 0, len = handlerInfos.length; i < len; ++i) {
+        handlerInfo = handlerInfos[i];
+
         if (handlerInfo.name === handler || handlerInfo.handler === handler) {
           return false;
         }
@@ -48588,15 +49676,17 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   var DEFAULT_HANDLER = Object.freeze({});
 
   function HandlerInfo(_props) {
-    var props = _props || {};
+    var props = _props || {},
+        name;
 
     // Set a default handler to ensure consistent object shape
     this._handler = DEFAULT_HANDLER;
 
     if (props.handler) {
-      var name = props.name;
+      name = props.name;
 
       // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
+
       this.handlerPromise = _rsvp.Promise.resolve(props.handler);
 
       // Wait until the 'handler' property has been updated when chaining to a handler
@@ -48960,7 +50050,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     applyToHandlers: function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
 
-      var i, len;
+      var i, len, result, name, oldHandlerInfo, newHandlerInfo, serializer, oldContext, handlerToUse;
       var newState = new TransitionState();
       var objects = this.contexts.slice(0);
 
@@ -48977,17 +50067,17 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
 
       for (i = handlers.length - 1; i >= 0; --i) {
-        var result = handlers[i];
-        var name = result.handler;
-
-        var oldHandlerInfo = oldState.handlerInfos[i];
-        var newHandlerInfo = null;
+        result = handlers[i];
+        name = result.handler;
+        oldHandlerInfo = oldState.handlerInfos[i];
+        newHandlerInfo = null;
 
         if (result.names.length > 0) {
           if (i >= invalidateIndex) {
             newHandlerInfo = this.createParamHandlerInfo(name, getHandler, result.names, objects, oldHandlerInfo);
           } else {
-            var serializer = getSerializer(name);
+            serializer = getSerializer(name);
+
             newHandlerInfo = this.getHandlerInfoForDynamicSegment(name, getHandler, result.names, objects, oldHandlerInfo, targetRouteName, i, serializer);
           }
         } else {
@@ -49003,7 +50093,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
           // serialize URL params with the provided context, but
           // ignore mismatches between old and new context.
           newHandlerInfo = newHandlerInfo.becomeResolved(null, newHandlerInfo.context);
-          var oldContext = oldHandlerInfo && oldHandlerInfo.context;
+          oldContext = oldHandlerInfo && oldHandlerInfo.context;
+
           if (result.names.length > 0 && newHandlerInfo.context === oldContext) {
             // If contexts match in isActive test, assume params also match.
             // This allows for flexibility in not requiring that every last
@@ -49013,7 +50104,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
           newHandlerInfo.context = oldContext;
         }
 
-        var handlerToUse = oldHandlerInfo;
+        handlerToUse = oldHandlerInfo;
+
         if (i >= invalidateIndex || newHandlerInfo.shouldSupercede(oldHandlerInfo)) {
           invalidateIndex = Math.min(i, invalidateIndex);
           handlerToUse = newHandlerInfo;
@@ -49040,14 +50132,17 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     },
 
     invalidateChildren: function (handlerInfos, invalidateIndex) {
-      for (var i = invalidateIndex, l = handlerInfos.length; i < l; ++i) {
-        var handlerInfo = handlerInfos[i];
+      var i, l, handlerInfo;
+
+      for (i = invalidateIndex, l = handlerInfos.length; i < l; ++i) {
+        handlerInfo = handlerInfos[i];
+
         handlerInfos[i] = handlerInfo.getUnresolved();
       }
     },
 
     getHandlerInfoForDynamicSegment: function (name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
-      var objectToUse;
+      var objectToUse, preTransitionHandlerInfo;
       if (objects.length > 0) {
 
         // Use the objects provided for this transition.
@@ -49062,7 +50157,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         return oldHandlerInfo;
       } else {
         if (this.preTransitionState) {
-          var preTransitionHandlerInfo = this.preTransitionState.handlerInfos[i];
+          preTransitionHandlerInfo = this.preTransitionState.handlerInfos[i];
+
           objectToUse = preTransitionHandlerInfo && preTransitionHandlerInfo.context;
         } else {
           // Ideally we should throw this error to provide maximal
@@ -49086,17 +50182,20 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     },
 
     createParamHandlerInfo: function (name, getHandler, names, objects, oldHandlerInfo) {
-      var params = {};
+      var params = {},
+          oldParams,
+          peek,
+          paramName;
 
       // Soak up all the provided string/numbers
       var numNames = names.length;
       while (numNames--) {
 
         // Only use old params if the names match with the new handler
-        var oldParams = oldHandlerInfo && name === oldHandlerInfo.name && oldHandlerInfo.params || {};
+        oldParams = oldHandlerInfo && name === oldHandlerInfo.name && oldHandlerInfo.params || {};
+        peek = objects[objects.length - 1];
+        paramName = names[numNames];
 
-        var peek = objects[objects.length - 1];
-        var paramName = names[numNames];
         if (isParam(peek)) {
           params[paramName] = "" + objects.pop();
         } else {
@@ -49151,7 +50250,12 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     },
 
     applyToState: function (oldState, recognizer, getHandler) {
-      var newState = new TransitionState();
+      var newState = new TransitionState(),
+          result,
+          name,
+          newHandlerInfo,
+          handler,
+          oldHandlerInfo;
 
       var results = recognizer.recognize(this.url),
           i,
@@ -49176,14 +50280,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
 
       for (i = 0, len = results.length; i < len; ++i) {
-        var result = results[i];
-        var name = result.handler;
-        var newHandlerInfo = handlerInfoFactory('param', {
+        result = results[i];
+        name = result.handler;
+        newHandlerInfo = handlerInfoFactory('param', {
           name: name,
           getHandler: getHandler,
           params: result.params
         });
-        var handler = newHandlerInfo.handler;
+        handler = newHandlerInfo.handler;
 
         if (handler) {
           checkHandlerAccessibility(handler);
@@ -49193,7 +50297,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
           newHandlerInfo.handlerPromise = newHandlerInfo.handlerPromise.then(checkHandlerAccessibility);
         }
 
-        var oldHandlerInfo = oldState.handlerInfos[i];
+        oldHandlerInfo = oldState.handlerInfos[i];
+
         if (statesDiffer || newHandlerInfo.shouldSupercede(oldHandlerInfo)) {
           statesDiffer = true;
           newState.handlerInfos[i] = newHandlerInfo;
@@ -49299,8 +50404,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       this.recognizer.delegate = this.delegate;
 
       this.recognizer.map(callback, function (recognizer, routes) {
-        for (var i = routes.length - 1, proceed = true; i >= 0 && proceed; --i) {
-          var route = routes[i];
+        var i, proceed, route;
+
+        for (i = routes.length - 1, proceed = true; i >= 0 && proceed; --i) {
+          route = routes[i];
+
           recognizer.add(routes, { as: route.handler });
           proceed = route.path === '/' || route.path === '' || route.handler.slice(-6) === '.index';
         }
@@ -49316,7 +50424,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     getSerializer: function () {},
 
     queryParamsTransition: function (changelist, wasTransitioning, oldState, newState) {
-      var router = this;
+      var router = this,
+          newTransition;
 
       fireQueryParamDidChange(this, newState, changelist);
 
@@ -49332,7 +50441,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         // perform a URL update at the end. This gives
         // the user the ability to set the url update
         // method (default is replaceState).
-        var newTransition = new Transition(this);
+        newTransition = new Transition(this);
+
         newTransition.queryParamsOnly = true;
 
         oldState.queryParams = finalizeQueryParamChange(this, newState.handlerInfos, newState.queryParams, newTransition);
@@ -49431,11 +50541,15 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     },
 
     refresh: function (pivotHandler) {
-      var state = this.activeTransition ? this.activeTransition.state : this.state;
+      var state = this.activeTransition ? this.activeTransition.state : this.state,
+          i,
+          len,
+          handlerInfo;
       var handlerInfos = state.handlerInfos;
       var params = {};
-      for (var i = 0, len = handlerInfos.length; i < len; ++i) {
-        var handlerInfo = handlerInfos[i];
+      for (i = 0, len = handlerInfos.length; i < len; ++i) {
+        handlerInfo = handlerInfos[i];
+
         params[handlerInfo.name] = handlerInfo.params || {};
       }
 
@@ -49472,7 +50586,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
       var partitionedArgs = extractQueryParams(slice.call(arguments, 1)),
           suppliedParams = partitionedArgs[0],
-          queryParams = partitionedArgs[1];
+          queryParams = partitionedArgs[1],
+          i,
+          len,
+          handlerInfo,
+          handlerParams;
 
       // Construct a TransitionIntent with the provided params
       // and apply it to the present state of the router.
@@ -49480,9 +50598,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var state = intent.applyToState(this.state, this.recognizer, this.getHandler, null, this.getSerializer);
       var params = {};
 
-      for (var i = 0, len = state.handlerInfos.length; i < len; ++i) {
-        var handlerInfo = state.handlerInfos[i];
-        var handlerParams = handlerInfo.serialize();
+      for (i = 0, len = state.handlerInfos.length; i < len; ++i) {
+        handlerInfo = state.handlerInfos[i];
+        handlerParams = handlerInfo.serialize();
+
         merge(params, handlerParams);
       }
       params.queryParams = queryParams;
@@ -49752,7 +50871,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     @return {Partition}
   */
   function partitionHandlers(oldState, newState) {
-    var oldHandlers = oldState.handlerInfos;
+    var oldHandlers = oldState.handlerInfos,
+        oldHandler,
+        newHandler;
     var newHandlers = newState.handlerInfos;
 
     var handlers = {
@@ -49769,8 +50890,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         l;
 
     for (i = 0, l = newHandlers.length; i < l; i++) {
-      var oldHandler = oldHandlers[i],
-          newHandler = newHandlers[i];
+      oldHandler = oldHandlers[i], newHandler = newHandlers[i];
 
       if (!oldHandler || oldHandler.handler !== newHandler.handler) {
         handlerChanged = true;
@@ -49800,7 +50920,12 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   function updateURL(transition, state /*, inputUrl*/) {
-    var urlMethod = transition.urlMethod;
+    var urlMethod = transition.urlMethod,
+        i,
+        handlerInfo,
+        url,
+        initial,
+        replaceAndNotAborting;
 
     if (!urlMethod) {
       return;
@@ -49811,8 +50936,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         handlerName = handlerInfos[handlerInfos.length - 1].name,
         params = {};
 
-    for (var i = handlerInfos.length - 1; i >= 0; --i) {
-      var handlerInfo = handlerInfos[i];
+    for (i = handlerInfos.length - 1; i >= 0; --i) {
+      handlerInfo = handlerInfos[i];
+
       merge(params, handlerInfo.params);
       if (handlerInfo.handler.inaccessibleByURL) {
         urlMethod = null;
@@ -49821,7 +50947,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     if (urlMethod) {
       params.queryParams = transition._visibleQueryParams || state.queryParams;
-      var url = router.recognizer.generate(handlerName, params);
+      url = router.recognizer.generate(handlerName, params);
 
       // transitions during the initial transition must always use replaceURL.
       // When the app boots, you are at a url, e.g. /foo. If some handler
@@ -49829,7 +50955,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // add a history entry for /foo. If you do, pressing back will immediately
       // hit the redirect again and take you back to /bar, thus killing the back
       // button
-      var initial = transition.isCausedByInitialTransition;
+
+      initial = transition.isCausedByInitialTransition;
 
       // say you are at / and you click a link to route /foo. In /foo's
       // handler, the transition is aborted using replacewith('/bar').
@@ -49838,7 +50965,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // you were on before /, which is often not even the app, thus killing
       // the back button. That's why updateURL is always correct for an
       // aborting transition that's not the initial transition
-      var replaceAndNotAborting = urlMethod === 'replace' && !transition.isCausedByAbortingTransition;
+
+      replaceAndNotAborting = urlMethod === 'replace' && !transition.isCausedByAbortingTransition;
 
       if (initial || replaceAndNotAborting) {
         router.replaceURL(url);
@@ -49855,14 +50983,15 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     to update the router's array of `currentHandlerInfos`.
    */
   function finalizeTransition(transition, newState) {
+    var router, handlerInfos, infos;
 
     try {
       log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
 
-      var router = transition.router,
-          handlerInfos = newState.handlerInfos;
+      router = transition.router, handlerInfos = newState.handlerInfos;
 
       // Run all the necessary enter/setup/exit hooks
+
       setupContexts(router, newState, transition);
 
       // Check if a redirect occurred in enter/setup
@@ -49890,7 +51019,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     } catch (e) {
       if (!(e instanceof TransitionAbortedError)) {
         //var erroneousHandler = handlerInfos.pop();
-        var infos = transition.state.handlerInfos;
+        infos = transition.state.handlerInfos;
+
         transition.trigger(true, 'error', e, transition, infos[infos.length - 1].handler);
         transition.abort();
       }
@@ -49912,7 +51042,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   */
   function doTransition(router, args, isIntermediate) {
     // Normalize blank transitions to root URL transitions.
-    var name = args[0] || '/';
+    var name = args[0] || '/',
+        handlerInfos;
 
     var lastArg = args[args.length - 1];
     var queryParams = {};
@@ -49927,7 +51058,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
       // A query param update is really just a transition
       // into the route you're already on.
-      var handlerInfos = router.state.handlerInfos;
+      handlerInfos = router.state.handlerInfos;
+
       intent = new NamedTransitionIntent({
         name: handlerInfos[handlerInfos.length - 1].name,
         contexts: [],
@@ -49951,11 +51083,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   function handlerInfosEqual(handlerInfos, otherHandlerInfos) {
+    var i, len;
+
     if (handlerInfos.length !== otherHandlerInfos.length) {
       return false;
     }
 
-    for (var i = 0, len = handlerInfos.length; i < len; ++i) {
+    for (i = 0, len = handlerInfos.length; i < len; ++i) {
       if (handlerInfos[i] !== otherHandlerInfos[i]) {
         return false;
       }
@@ -49978,7 +51112,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
     }
 
-    var finalQueryParamsArray = [];
+    var finalQueryParamsArray = [],
+        i,
+        len,
+        qp;
     trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
 
     if (transition) {
@@ -49986,8 +51123,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     }
 
     var finalQueryParams = {};
-    for (var i = 0, len = finalQueryParamsArray.length; i < len; ++i) {
-      var qp = finalQueryParamsArray[i];
+    for (i = 0, len = finalQueryParamsArray.length; i < len; ++i) {
+      qp = finalQueryParamsArray[i];
+
       finalQueryParams[qp.key] = qp.value;
       if (transition && qp.visible !== false) {
         transition._visibleQueryParams[qp.key] = qp.value;
@@ -50001,7 +51139,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         changing = [],
         leavingIndex = null,
         leaving,
-        leavingChecker,
         i,
         oldHandlerLen,
         oldHandler,
@@ -50024,14 +51161,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     if (leavingIndex !== null) {
       leaving = oldHandlers.slice(leavingIndex, oldHandlerLen);
-      leavingChecker = function (name) {
-        for (var h = 0, len = leaving.length; h < len; h++) {
-          if (leaving[h].name === name) {
-            return true;
-          }
-        }
-        return false;
-      };
     }
 
     trigger(router, oldHandlers, true, ['willTransition', newTransition]);
