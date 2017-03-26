@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ee8ab348
+ * @version   2.14.0-alpha.1-null+6edfda76
  */
 
 var enifed, requireModule, Ember;
@@ -32297,7 +32297,7 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
   }
 });
 
-enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-metal', 'ember-routing/system/dsl'], function (exports, _emberRuntime, _emberMetal, _dsl) {
+enifed('ember-routing/services/router', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
   'use strict';
 
   /**
@@ -32313,6 +32313,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-meta
     currentURL: (0, _emberRuntime.readOnly)('router.currentURL'),
     location: (0, _emberRuntime.readOnly)('router.location'),
     rootURL: (0, _emberRuntime.readOnly)('router.rootURL'),
+    router: null,
 
     /**
        Transition the application into another route. The route may
@@ -48237,7 +48238,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+ee8ab348";
+  exports.default = "2.14.0-alpha.1-null+6edfda76";
 });
 
 enifed('node-module', ['exports'], function(_exports) {
