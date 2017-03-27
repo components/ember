@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+566b83bf
+ * @version   2.14.0-alpha.1-null+cfaab38a
  */
 
 var enifed, requireModule, Ember;
@@ -46728,15 +46728,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
 
     this.renderer.appendTo(this, element);
     return element;
-  }, _Mixin$create.replaceIn = function (selector) {
-    var target = (0, _jquery.default)(selector);
-
-    false && (0, _emberDebug.assert)('You tried to replace in (' + selector + ') but that isn\'t in the DOM', target.length > 0);
-    false && (0, _emberDebug.assert)('You cannot replace an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
-
-    this.renderer.replaceIn(this, target[0]);
-
-    return this;
   }, _Mixin$create.append = function () {
     return this.appendTo(document.body);
   }, _Mixin$create.elementId = null, _Mixin$create.findElementInParentElement = function (parentElem) {
@@ -48238,7 +48229,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+566b83bf";
+  exports.default = "2.14.0-alpha.1-null+cfaab38a";
 });
 
 enifed('node-module', ['exports'], function(_exports) {
