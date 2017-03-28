@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+482fdf6f
+ * @version   2.14.0-alpha.1-null+eb3299a8
  */
 
 var enifed, requireModule, Ember;
@@ -26538,6 +26538,17 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
       });
 
       this.assertText('Click me');
+    };
+
+    _class2.prototype['@test it supports non-registered actions [GH#14888]'] = function testItSupportsNonRegisteredActionsGH14888() {
+      this.render('\n      {{#if show}}\n        <button id=\'ddButton\' {{action (mut show) false}}>\n          Show ({{show}})\n        </button>\n      {{/if}}\n    ', { show: true });
+
+      this.assert.equal(this.$('button').text().trim(), 'Show (true)');
+      // We need to focus in to simulate an actual click.
+      this.runTask(function () {
+        document.getElementById('ddButton').focus();
+        document.getElementById('ddButton').click();
+      });
     };
 
     return _class2;
