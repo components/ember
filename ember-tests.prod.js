@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+3f694b97
+ * @version   2.14.0-alpha.1-null+482fdf6f
  */
 
 var enifed, requireModule, Ember;
@@ -7519,61 +7519,62 @@ enifed('ember-dev/test-helper/warning', ['exports', 'ember-babel', 'ember-dev/te
   exports.default = WarningAssert;
 });
 
-enifed('ember-extension-support/tests/container_debug_adapter_test', ['ember-metal', 'ember-runtime', 'ember-application', 'ember-extension-support/index'], function (_emberMetal, _emberRuntime, _emberApplication) {
+enifed('ember-extension-support/tests/container_debug_adapter_test', ['ember-babel', 'internal-test-helpers', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-extension-support/index'], function (_emberBabel, _internalTestHelpers, _emberUtils, _emberMetal, _emberRuntime) {
   'use strict';
 
-  var adapter = void 0,
-      App = void 0,
-      appInstance = void 0; // Must be required to export Ember.ContainerDebugAdapter.
+  // Must be required to export Ember.ContainerDebugAdapter.
 
+  var adapter = void 0;
 
-  function boot() {
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-  }
+  (0, _internalTestHelpers.moduleFor)('Container Debug Adapter', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  QUnit.module('Container Debug Adapter', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create(); // ES6TODO: this comes from the ember-application package NOT ember-runtime.
-        App.toString = function () {
-          return 'App';
-        };
-        App.deferReadiness();
-      });
-      boot();
-      (0, _emberMetal.run)(function () {
-        appInstance = App.__deprecatedInstance__;
-        adapter = appInstance.lookup('container-debug-adapter:main');
-      });
-    },
-    teardown: function () {
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+
+      adapter = _this.application.__deprecatedInstance__.lookup('container-debug-adapter:main');
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
       (0, _emberMetal.run)(function () {
         adapter.destroy();
-        appInstance.destroy();
-        App.destroy();
-        App = appInstance = adapter = null;
       });
-    }
-  });
 
-  QUnit.test('the default ContainerDebugAdapter cannot catalog certain entries by type', function () {
-    equal(adapter.canCatalogEntriesByType('model'), false, 'canCatalogEntriesByType should return false for model');
-    equal(adapter.canCatalogEntriesByType('template'), false, 'canCatalogEntriesByType should return false for template');
-  });
+      _ApplicationTestCase.prototype.teardown.call(this);
+    };
 
-  QUnit.test('the default ContainerDebugAdapter can catalog typical entries by type', function () {
-    equal(adapter.canCatalogEntriesByType('controller'), true, 'canCatalogEntriesByType should return true for controller');
-    equal(adapter.canCatalogEntriesByType('route'), true, 'canCatalogEntriesByType should return true for route');
-    equal(adapter.canCatalogEntriesByType('view'), true, 'canCatalogEntriesByType should return true for view');
-  });
+    _class.prototype['@test default ContainerDebugAdapter cannot catalog certain entries by type'] = function testDefaultContainerDebugAdapterCannotCatalogCertainEntriesByType(assert) {
+      assert.equal(adapter.canCatalogEntriesByType('model'), false, 'canCatalogEntriesByType should return false for model');
+      assert.equal(adapter.canCatalogEntriesByType('template'), false, 'canCatalogEntriesByType should return false for template');
+    };
 
-  QUnit.test('the default ContainerDebugAdapter catalogs controller entries', function () {
-    App.PostController = _emberRuntime.Controller.extend();
-    var controllerClasses = adapter.catalogEntriesByType('controller');
+    _class.prototype['@test default ContainerDebugAdapter can catalog typical entries by type'] = function testDefaultContainerDebugAdapterCanCatalogTypicalEntriesByType(assert) {
+      assert.equal(adapter.canCatalogEntriesByType('controller'), true, 'canCatalogEntriesByType should return true for controller');
+      assert.equal(adapter.canCatalogEntriesByType('route'), true, 'canCatalogEntriesByType should return true for route');
+      assert.equal(adapter.canCatalogEntriesByType('view'), true, 'canCatalogEntriesByType should return true for view');
+    };
 
-    equal(controllerClasses.length, 1, 'found 1 class');
-    equal(controllerClasses[0], 'post', 'found the right class');
-  });
+    _class.prototype['@test default ContainerDebugAdapter catalogs controller entries'] = function testDefaultContainerDebugAdapterCatalogsControllerEntries(assert) {
+      this.application.PostController = _emberRuntime.Controller.extend();
+      var controllerClasses = adapter.catalogEntriesByType('controller');
+
+      assert.equal(controllerClasses.length, 1, 'found 1 class');
+      assert.equal(controllerClasses[0], 'post', 'found the right class');
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
+          autoboot: true
+        });
+      }
+    }]);
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember-extension-support/tests/container_debug_adapter_test.lint-test', [], function () {
