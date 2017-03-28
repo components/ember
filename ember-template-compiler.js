@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+cfaab38a
+ * @version   2.14.0-alpha.1-null+3f694b97
  */
 
 var enifed, requireModule, Ember;
@@ -24049,6 +24049,8 @@ enifed('ember-utils', ['exports'], function (exports) {
     return original;
   }
 
+  var assign$1 = Object.assign || assign;
+
   // the delete is meant to hint at runtimes that this object should remain in
   // dictionary mode. This is clearly a runtime specific hack, but currently it
   // appears worthwhile in some usecases. Please note, these deletes do increase
@@ -24358,7 +24360,8 @@ enifed('ember-utils', ['exports'], function (exports) {
   exports.getOwner = getOwner;
   exports.setOwner = setOwner;
   exports.OWNER = OWNER;
-  exports.assign = assign;
+  exports.assign = assign$1;
+  exports.assignPolyfill = assign;
   exports.dictionary = makeDictionary;
   exports.uuid = uuid;
   exports.GUID_KEY = GUID_KEY;
@@ -24407,7 +24410,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+cfaab38a";
+  exports.default = "2.14.0-alpha.1-null+3f694b97";
 });
 
 enifed("handlebars", ["exports"], function (exports) {

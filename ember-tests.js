@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+cfaab38a
+ * @version   2.14.0-alpha.1-null+3f694b97
  */
 
 var enifed, requireModule, Ember;
@@ -65725,18 +65725,39 @@ enifed('ember-utils/tests/assign_test', ['ember-utils'], function (_emberUtils) 
 
   QUnit.module('Ember.assign');
 
-  QUnit.test('Ember.assign', function () {
-    var a = { a: 1 };
-    var b = { b: 2 };
-    var c = { c: 3 };
-    var a2 = { a: 4 };
+  QUnit.test('merging objects', function () {
+    var trgt = { a: 1 };
+    var src1 = { b: 2 };
+    var src2 = { c: 3 };
 
-    (0, _emberUtils.assign)(a, b, c, a2);
+    (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
 
-    deepEqual(a, { a: 4, b: 2, c: 3 });
-    deepEqual(b, { b: 2 });
-    deepEqual(c, { c: 3 });
-    deepEqual(a2, { a: 4 });
+    deepEqual(trgt, { a: 1, b: 2, c: 3 }, 'assign copies values from one or more source objects to a target object');
+    deepEqual(src1, { b: 2 }, 'assign does not change source object 1');
+    deepEqual(src2, { c: 3 }, 'assign does not change source object 2');
+  });
+
+  QUnit.test('merging objects with same property', function () {
+    var trgt = { a: 1, b: 1 };
+    var src1 = { a: 2, b: 2 };
+    var src2 = { a: 3 };
+
+    (0, _emberUtils.assignPolyfill)(trgt, src1, src2);
+    deepEqual(trgt, { a: 3, b: 2 }, 'properties are overwritten by other objects that have the same properties later in the parameters order');
+  });
+
+  QUnit.test('null', function () {
+    var trgt = { a: 1 };
+
+    (0, _emberUtils.assignPolyfill)(trgt, null);
+    deepEqual(trgt, { a: 1 }, 'null as a source parameter is ignored');
+  });
+
+  QUnit.test('undefined', function () {
+    var trgt = { a: 1 };
+
+    (0, _emberUtils.assignPolyfill)(trgt, null);
+    deepEqual(trgt, { a: 1 }, 'undefined as a source parameter is ignored');
   });
 });
 
@@ -69373,9 +69394,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers', 'e
 
   [
   // ember-utils
-  ['getOwner', 'ember-utils', 'getOwner'], ['setOwner', 'ember-utils', 'setOwner'],
-  // ['assign', 'ember-metal'], TODO: fix this test, we use `Object.assign` if present
-  ['GUID_KEY', 'ember-utils'], ['uuid', 'ember-utils'], ['generateGuid', 'ember-utils'], ['guidFor', 'ember-utils'], ['inspect', 'ember-utils'], ['makeArray', 'ember-utils'], ['canInvoke', 'ember-utils'], ['tryInvoke', 'ember-utils'], ['wrap', 'ember-utils'], ['applyStr', 'ember-utils'],
+  ['getOwner', 'ember-utils', 'getOwner'], ['setOwner', 'ember-utils', 'setOwner'], ['assign', 'ember-utils'], ['GUID_KEY', 'ember-utils'], ['uuid', 'ember-utils'], ['generateGuid', 'ember-utils'], ['guidFor', 'ember-utils'], ['inspect', 'ember-utils'], ['makeArray', 'ember-utils'], ['canInvoke', 'ember-utils'], ['tryInvoke', 'ember-utils'], ['wrap', 'ember-utils'], ['applyStr', 'ember-utils'],
 
   // ember-environment
   // ['ENV', 'ember-environment', 'ENV'], TODO: fix this, its failing because we are hitting the getter
