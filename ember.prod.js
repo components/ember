@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+eb3299a8
+ * @version   2.14.0-alpha.1-null+92d58783
  */
 
 var enifed, requireModule, Ember;
@@ -45008,7 +45008,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     Ember.typeOf(new Number(101));        // 'number'
     Ember.typeOf(true);                   // 'boolean'
     Ember.typeOf(new Boolean(true));      // 'boolean'
-    Ember.typeOf(Ember.makeArray);        // 'function'
+    Ember.typeOf(Ember.A);                // 'function'
     Ember.typeOf([1, 2, 90]);             // 'array'
     Ember.typeOf(/abc/);                  // 'regexp'
     Ember.typeOf(new Date());             // 'date'
@@ -48232,7 +48232,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+eb3299a8";
+  exports.default = "2.14.0-alpha.1-null+92d58783";
 });
 
 enifed('node-module', ['exports'], function(_exports) {
