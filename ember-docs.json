@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.92d58783"
+        "version": "2.14.0-alpha.1.f8b5a9c7"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -8944,7 +8944,30 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 114,
+            "line": 113,
+            "description": "`{{yield}}` denotes an area of a template that will be rendered inside\nof another template.\n\n### Use with Ember.Component\n\nWhen designing components `{{yield}}` is used to denote where, inside the component's\ntemplate, an optional block passed to the component should render:\n\n```application.hbs\n{{#labeled-textfield value=someProperty}}\n  First name:\n{{/labeled-textfield}}\n```\n\n```components/labeled-textfield.hbs\n<label>\n  {{yield}} {{input value=value}}\n</label>\n```\n\nResult:\n\n```html\n<label>\n  First name: <input type=\"text\" />\n</label>\n```\n\nAdditionally you can `yield` properties into the context for use by the consumer:\n\n```application.hbs\n{{#labeled-textfield value=someProperty validator=(action 'firstNameValidator') as |validationError|}}\n  {{#if validationError}}\n    <p class=\"error\">{{ValidationError}}</p>\n  {{/if}}\n  First name:\n{{/labeled-textfield}}\n```\n\n```components/labeled-textfield.hbs\n<label>\n  {{yield validationError}} {{input value=value}}\n</label>\n```\n\nResult:\n\n```html\n<label>\n  <p class=\"error\">First Name must be at least 3 characters long.</p>\n  First name: <input type=\"text\" />\n</label>\n```",
+            "itemtype": "method",
+            "name": "yield",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "",
+                    "type": "Hash"
+                }
+            ],
+            "return": {
+                "description": "HTML string",
+                "type": "String"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Templates.helpers",
+            "module": "ember",
+            "submodule": "ember-glimmer"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/index.js",
+            "line": 174,
             "description": "Execute the `debugger` statement in the current template's context.\n\n```handlebars\n{{debugger}}\n```\n\nWhen using the debugger helper you will have access to a `get` function. This\nfunction retrieves values available in the context of the template.\nFor example, if you're wondering why a value `{{foo}}` isn't rendering as\nexpected within a template, you could place a `{{debugger}}` statement and,\nwhen the `debugger;` breakpoint is hit, you can attempt to retrieve this value:\n\n```\n> get('foo')\n```\n\n`get` is also aware of keywords. So in this situation\n\n```handlebars\n{{#each items as |item|}}\n  {{debugger}}\n{{/each}}\n```\n\nYou'll be able to get values from the current item:\n\n```\n> get('item.name')\n```\n\nYou can also access the context of the view to make sure it is the object that\nyou expect:\n\n```\n> context\n```",
             "itemtype": "method",
             "name": "debugger",
@@ -8956,7 +8979,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/index.js",
-            "line": 157,
+            "line": 217,
             "description": "The `partial` helper renders another template without\nchanging the template context:\n\n```handlebars\n{{foo}}\n{{partial \"nav\"}}\n```\n\nThe above example template will render a template named\n\"-nav\", which has the same context as the parent template\nit's rendered into, so if the \"-nav\" template also referenced\n`{{foo}}`, it would print the same thing as the `{{foo}}`\nin the above example.\n\nIf a \"-nav\" template isn't found, the `partial` helper will\nfall back to a template named \"nav\".\n\n### Bound template names\n\nThe parameter supplied to `partial` can also be a path\nto a property containing a template name, e.g.:\n\n```handlebars\n{{partial someTemplateName}}\n```\n\nThe above example will look up the value of `someTemplateName`\non the template context (e.g. a controller) and use that\nvalue as the name of the template to render. If the resolved\nvalue is falsy, nothing will be rendered. If `someTemplateName`\nchanges, the partial will be re-rendered using the new template\nname.",
             "itemtype": "method",
             "name": "partial",
