@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+f8b5a9c7
+ * @version   2.14.0-alpha.1-null+49d8e743
  */
 
 var enifed, requireModule, Ember;
@@ -14045,12 +14045,7 @@ enifed('ember-application/utils/validate-type', ['exports', 'ember-debug'], func
     var action = validationAttributes[0],
         factoryFlag = validationAttributes[1],
         expectedType = validationAttributes[2];
-
-    if (action === 'deprecate') {
-      false && !!!resolvedType[factoryFlag] && (0, _emberDebug.deprecate)('In Ember 2.0 ' + parsedName.type + ' factories must have an `' + factoryFlag + '` ' + ('property set to true. You registered ' + resolvedType + ' as a ' + parsedName.type + ' ') + ('factory. Either add the `' + factoryFlag + '` property to this factory or ') + ('extend from ' + expectedType + '.'), !!resolvedType[factoryFlag], { id: 'ember-application.validate-type', until: '3.0.0' });
-    } else {
-      false && (0, _emberDebug.assert)('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but ' + ('instead it was ' + resolvedType + '.'), !!resolvedType[factoryFlag]);
-    }
+    false && (0, _emberDebug.assert)('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but ' + ('instead it was ' + resolvedType + '.'), !!resolvedType[factoryFlag]);
   }
 });
 
@@ -19274,7 +19269,7 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-debug', 'ember-glimme
   };
 });
 
-enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _action, _root, _template, _checkbox, _text_field, _text_area, _linkTo, _component, _helper, _environment, _makeBoundHelper, _string, _renderer, _template_registry, _setupRegistry, _dom) {
+enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _action, _root, _template, _checkbox, _text_field, _text_area, _linkTo, _component, _helper, _environment, _string, _renderer, _template_registry, _setupRegistry, _dom) {
   'use strict';
 
   Object.defineProperty(exports, 'INVOKE', {
@@ -19341,12 +19336,6 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
     enumerable: true,
     get: function () {
       return _environment.default;
-    }
-  });
-  Object.defineProperty(exports, 'makeBoundHelper', {
-    enumerable: true,
-    get: function () {
-      return _makeBoundHelper.default;
     }
   });
   Object.defineProperty(exports, 'SafeString', {
@@ -19457,66 +19446,6 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
       return _dom.DOMTreeConstruction;
     }
   });
-});
-
-enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-debug', 'ember-glimmer/helper'], function (exports, _emberDebug, _helper) {
-  'use strict';
-
-  exports.default = makeBoundHelper;
-
-
-  /**
-    Create a bound helper. Accepts a function that receives the ordered and hash parameters
-    from the template. If a bound property was provided in the template, it will be resolved to its
-    value and any changes to the bound property cause the helper function to be re-run with the updated
-    values.
-  
-    * `params` - An array of resolved ordered parameters.
-    * `hash` - An object containing the hash parameters.
-  
-    For example:
-  
-    * With an unquoted ordered parameter:
-  
-      ```javascript
-      {{x-capitalize foo}}
-      ```
-  
-      Assuming `foo` was set to `"bar"`, the bound helper would receive `["bar"]` as its first argument, and
-      an empty hash as its second.
-  
-    * With a quoted ordered parameter:
-  
-      ```javascript
-      {{x-capitalize "foo"}}
-      ```
-  
-      The bound helper would receive `["foo"]` as its first argument, and an empty hash as its second.
-  
-    * With an unquoted hash parameter:
-  
-      ```javascript
-      {{x-repeat "foo" count=repeatCount}}
-      ```
-  
-      Assuming that `repeatCount` resolved to 2, the bound helper would receive `["foo"]` as its first argument,
-      and { count: 2 } as its second.
-  
-    @private
-    @method makeBoundHelper
-    @for Ember.HTMLBars
-    @param {Function} fn
-    @since 1.10.0
-  */
-  /**
-  @module ember
-  @submodule ember-glimmer
-  */
-  function makeBoundHelper(fn) {
-    false && !false && (0, _emberDebug.deprecate)('Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.', false, { id: 'ember-htmlbars.make-bound-helper', until: '3.0.0' });
-
-    return (0, _helper.helper)(fn);
-  }
 });
 
 enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberViews, _action) {
@@ -48112,7 +48041,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberRuntime.String.htmlSafe = _emberGlimmer.htmlSafe;
 
   _emberRuntime.String.isHTMLSafe = _emberGlimmer.isHTMLSafe;
-  EmberHTMLBars.makeBoundHelper = _emberGlimmer.makeBoundHelper;
 
   /**
    Global hash of shared templates. This will automatically be populated
@@ -48143,9 +48071,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.VERSION = _version.default;
 
   _emberMetal.libraries.registerCoreLibrary('Ember', _version.default);
-
-  _emberMetal.default.create = (0, _emberDebug.deprecateFunc)('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
-  _emberMetal.default.keys = (0, _emberDebug.deprecateFunc)('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
 
   // require the main entry points for each of these packages
   // this is so that the global exports occur properly
@@ -48232,7 +48157,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+f8b5a9c7";
+  exports.default = "2.14.0-alpha.1-null+49d8e743";
 });
 
 enifed('node-module', ['exports'], function(_exports) {

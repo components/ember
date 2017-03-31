@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.f8b5a9c7"
+        "version": "2.14.0-alpha.1.49d8e743"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -611,15 +611,6 @@
             "classes": {},
             "fors": {
                 "Ember.Templates.helpers": 1
-            },
-            "namespaces": {}
-        },
-        "packages/ember-glimmer/lib/make-bound-helper.js": {
-            "name": "packages/ember-glimmer/lib/make-bound-helper.js",
-            "modules": {},
-            "classes": {},
-            "fors": {
-                "Ember.HTMLBars": 1
             },
             "namespaces": {}
         },
@@ -1925,7 +1916,6 @@
                 "Ember.String": 1,
                 "Ember.Component": 1,
                 "Ember.Helper": 1,
-                "Ember.HTMLBars": 1,
                 "Ember.Binding": 1,
                 "Ember.ComputedProperty": 1,
                 "Ember.computed": 1,
@@ -1991,7 +1981,6 @@
                 "Ember.FEATURES": 1,
                 "Ember.Templates.helpers": 1,
                 "Ember.String": 1,
-                "Ember.HTMLBars": 1,
                 "Ember.ControllerMixin": 1,
                 "Ember.Route": 1,
                 "Ember.computed": 1,
@@ -2101,13 +2090,11 @@
                 "Ember.LinkComponent": 1,
                 "Ember.TextArea": 1,
                 "Ember.Component": 1,
-                "Ember.Helper": 1,
-                "Ember.HTMLBars": 1
+                "Ember.Helper": 1
             },
             "fors": {
                 "Ember.Templates.helpers": 1,
-                "Ember.String": 1,
-                "Ember.HTMLBars": 1
+                "Ember.String": 1
             },
             "is_submodule": 1,
             "namespaces": {
@@ -2735,18 +2722,6 @@
             "access": "public",
             "tagname": "",
             "since": "1.13.0"
-        },
-        "Ember.HTMLBars": {
-            "name": "Ember.HTMLBars",
-            "shortname": "Ember.HTMLBars",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "submodule": "ember-glimmer",
-            "namespace": ""
         },
         "Ember.Binding": {
             "name": "Ember.Binding",
@@ -8993,26 +8968,6 @@
             "access": "public",
             "tagname": "",
             "class": "Ember.Templates.helpers",
-            "module": "ember",
-            "submodule": "ember-glimmer"
-        },
-        {
-            "file": "packages/ember-glimmer/lib/make-bound-helper.js",
-            "line": 8,
-            "description": "Create a bound helper. Accepts a function that receives the ordered and hash parameters\nfrom the template. If a bound property was provided in the template, it will be resolved to its\nvalue and any changes to the bound property cause the helper function to be re-run with the updated\nvalues.\n\n* `params` - An array of resolved ordered parameters.\n* `hash` - An object containing the hash parameters.\n\nFor example:\n\n* With an unquoted ordered parameter:\n\n  ```javascript\n  {{x-capitalize foo}}\n  ```\n\n  Assuming `foo` was set to `\"bar\"`, the bound helper would receive `[\"bar\"]` as its first argument, and\n  an empty hash as its second.\n\n* With a quoted ordered parameter:\n\n  ```javascript\n  {{x-capitalize \"foo\"}}\n  ```\n\n  The bound helper would receive `[\"foo\"]` as its first argument, and an empty hash as its second.\n\n* With an unquoted hash parameter:\n\n  ```javascript\n  {{x-repeat \"foo\" count=repeatCount}}\n  ```\n\n  Assuming that `repeatCount` resolved to 2, the bound helper would receive `[\"foo\"]` as its first argument,\n  and { count: 2 } as its second.",
-            "access": "private",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "makeBoundHelper",
-            "params": [
-                {
-                    "name": "fn",
-                    "description": "",
-                    "type": "Function"
-                }
-            ],
-            "since": "1.10.0",
-            "class": "Ember.HTMLBars",
             "module": "ember",
             "submodule": "ember-glimmer"
         },
@@ -21060,7 +21015,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 523,
+            "line": 521,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -21072,7 +21027,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 543,
+            "line": 541,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -21084,7 +21039,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 559,
+            "line": 554,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
