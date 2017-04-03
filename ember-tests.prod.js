@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+99951521
+ * @version   2.14.0-alpha.1-null+77078afe
  */
 
 var enifed, requireModule, Ember;
@@ -22279,7 +22279,7 @@ enifed('ember-glimmer/tests/integration/content-test.lint-test', [], function ()
   });
 });
 
-enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember/features'], function (_emberBabel, _testCase, _helpers, _emberMetal, _features) {
+enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember/features', 'ember-views'], function (_emberBabel, _testCase, _helpers, _emberMetal, _features, _emberViews) {
   'use strict';
 
   var canDataTransfer = !!document.createEvent('HTMLEvents').dataTransfer;
@@ -22343,6 +22343,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
         template: '<input id="is-done" type="checkbox">'
       });
 
+      expectDeprecation(/`eventManager` has been deprecated/);
       this.render('{{x-foo}}');
 
       this.runTask(function () {
@@ -22381,6 +22382,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
         template: '<input id="is-done" type="checkbox">'
       });
 
+      expectDeprecation(/`eventManager` has been deprecated/);
       this.render('{{x-foo}}');
 
       this.runTask(function () {
@@ -22436,6 +22438,29 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       this.render('{{x-foo}}');
 
       this.$('div').trigger('myevent');
+    };
+
+    _class2.prototype['@test eventManager is deprecated'] = function testEventManagerIsDeprecated() {
+      this.registerComponent('x-foo', {
+        ComponentClass: _helpers.Component.extend({
+          eventManager: {
+            myEvent: function () {}
+          }
+        }),
+        template: '<p>Hello!</p>'
+      });
+
+      expectDeprecation(/`eventManager` has been deprecated/);
+      this.render('{{x-foo}}');
+    };
+
+    _class2.prototype['@test canDispatchToEventManager is deprecated in EventDispatcher'] = function testCanDispatchToEventManagerIsDeprecatedInEventDispatcher() {
+      var MyDispatcher = _emberViews.EventDispatcher.extend({
+        canDispatchToEventManager: null
+      });
+
+      expectDeprecation(/`canDispatchToEventManager` has been deprecated/);
+      MyDispatcher.create();
     };
 
     _class2.prototype['@test a rootElement can be specified'] = function testARootElementCanBeSpecified(assert) {

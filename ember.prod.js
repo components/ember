@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+99951521
+ * @version   2.14.0-alpha.1-null+77078afe
  */
 
 var enifed, requireModule, Ember;
@@ -46686,7 +46686,12 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
       var owner = (0, _emberUtils.getOwner)(this);
       var dispatcher = owner && owner.lookup('event_dispatcher:main');
 
-      if (dispatcher && dispatcher.canDispatchToEventManager === null) {
+      false && !false && (0, _emberDebug.deprecate)('`eventManager` has been deprecated in ' + this + '.', false, {
+        id: 'ember-views.event-dispatcher.canDispatchToEventManager',
+        until: '2.16.0'
+      });
+
+      if (dispatcher && !('canDispatchToEventManager' in dispatcher)) {
         dispatcher.canDispatchToEventManager = true;
       }
     }
@@ -46743,12 +46748,11 @@ enifed("ember-views/system/action_manager", ["exports"], function (exports) {
 enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-environment', 'ember-views/compat/fallback-view-registry'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _jquery, _action_manager, _emberEnvironment, _fallbackViewRegistry) {
   'use strict';
 
-  /**
-  @module ember
-  @submodule ember-views
-  */
+  var ROOT_ELEMENT_CLASS = 'ember-application'; /**
+                                                @module ember
+                                                @submodule ember-views
+                                                */
 
-  var ROOT_ELEMENT_CLASS = 'ember-application';
   var ROOT_ELEMENT_SELECTOR = '.' + ROOT_ELEMENT_CLASS;
 
   /**
@@ -46855,13 +46859,17 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       @type boolean
       @default false
       @since 1.7.0
+      @deprecated
       @private
     */
-    canDispatchToEventManager: null,
 
     init: function () {
       this._super();
       false && (0, _emberDebug.assert)('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', _emberEnvironment.environment.hasDOM);
+      false && !!('canDispatchToEventManager' in this) && (0, _emberDebug.deprecate)('`canDispatchToEventManager` has been deprecated in ' + this + '.', !('canDispatchToEventManager' in this), {
+        id: 'ember-views.event-dispatcher.canDispatchToEventManager',
+        until: '2.16.0'
+      });
     },
 
     /**
@@ -48161,7 +48169,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+99951521";
+  exports.default = "2.14.0-alpha.1-null+77078afe";
 });
 
 enifed('node-module', ['exports'], function(_exports) {
