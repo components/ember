@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+f55a91eb
+ * @version   2.14.0-alpha.1-null+4496286e
  */
 
 var enifed, requireModule, Ember;
@@ -66478,7 +66478,7 @@ enifed('ember/tests/component_registration_test.lint-test', [], function () {
   });
 });
 
-enifed('ember/tests/controller_test', ['ember-runtime', 'ember-routing', 'ember-metal', 'ember-template-compiler', 'ember-application', 'ember-glimmer', 'ember-views'], function (_emberRuntime, _emberRouting, _emberMetal, _emberTemplateCompiler, _emberApplication, _emberGlimmer, _emberViews) {
+enifed('ember/tests/controller_test', ['ember-babel', 'ember-runtime', 'internal-test-helpers', 'ember-glimmer'], function (_emberBabel, _emberRuntime, _internalTestHelpers, _emberGlimmer) {
   'use strict';
 
   /*
@@ -66489,66 +66489,45 @@ enifed('ember/tests/controller_test', ['ember-runtime', 'ember-routing', 'ember-
    from the runtime up to the templating layer.
   */
 
-  var App = void 0,
-      $fixture = void 0;
+  (0, _internalTestHelpers.moduleFor)('Template scoping examples', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  QUnit.module('Template scoping examples', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create({
-          name: 'App',
-          rootElement: '#qunit-fixture'
-        });
-        App.deferReadiness();
+    function _class() {
 
-        App.Router.reopen({
-          location: 'none'
-        });
-
-        App.LoadingRoute = _emberRouting.Route.extend();
-      });
-
-      $fixture = (0, _emberViews.jQuery)('#qunit-fixture');
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        return App.destroy();
-      });
-
-      App = null;
-
-      (0, _emberGlimmer.setTemplates)({});
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
-  });
 
-  QUnit.test('Actions inside an outlet go to the associated controller', function () {
-    expect(1);
+    _class.prototype['@test Actions inside an outlet go to the associated controller'] = function testActionsInsideAnOutletGoToTheAssociatedController(assert) {
+      var _this2 = this;
 
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{component-with-action action=\'componentAction\'}}'));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      actions: {
-        componentAction: function () {
-          ok(true, 'received the click');
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        actions: {
+          componentAction: function () {
+            assert.ok(true, 'controller recieved the action');
+          }
         }
-      }
-    });
+      }));
 
-    App.ComponentWithActionComponent = _emberGlimmer.Component.extend({
-      classNames: ['component-with-action'],
-      click: function () {
-        this.sendAction();
-      }
-    });
+      this.addComponent('component-with-action', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          classNames: ['component-with-action'],
+          click: function () {
+            this.sendAction();
+          }
+        })
+      });
 
-    bootApp();
+      this.addTemplate('index', '{{component-with-action action="componentAction"}}');
 
-    $fixture.find('.component-with-action').click();
-  });
+      return this.visit('/').then(function () {
+        _this2.runTask(function () {
+          return _this2.$('.component-with-action').click();
+        });
+      });
+    };
 
-  function bootApp() {
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-  }
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember/tests/controller_test.lint-test', [], function () {
