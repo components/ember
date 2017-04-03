@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+49d8e743
+ * @version   2.14.0-alpha.1-null+99951521
  */
 
 var enifed, requireModule, Ember;
@@ -6590,6 +6590,34 @@ enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'em
     });
 
     (0, _index.warn)('foo', false, {});
+  });
+
+  QUnit.test('warn without options.id nor test triggers a deprecation', function (assert) {
+    assert.expect(2);
+
+    (0, _deprecate.registerHandler)(function (message) {
+      assert.equal(message, _warn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
+    });
+
+    (0, _warn.registerHandler)(function (message) {
+      assert.equal(message, 'foo', 'original warning is triggered');
+    });
+
+    (0, _index.warn)('foo', {});
+  });
+
+  QUnit.test('warn without test but with options does not trigger a deprecation', function (assert) {
+    assert.expect(1);
+
+    (0, _deprecate.registerHandler)(function (message) {
+      assert.ok(false, 'there should be no deprecation ' + message);
+    });
+
+    (0, _warn.registerHandler)(function (message) {
+      assert.equal(message, 'foo', 'warning was triggered');
+    });
+
+    (0, _index.warn)('foo', { id: 'ember-debug.do-not-raise' });
   });
 });
 

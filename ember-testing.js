@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+49d8e743
+ * @version   2.14.0-alpha.1-null+99951521
  */
 
 var enifed, requireModule, Ember;
@@ -943,6 +943,10 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
     @since 1.0.0
   */
   function warn(message, test, options) {
+    if (arguments.length === 2 && typeof test === 'object') {
+      options = test;
+      test = false;
+    }
     if (!options) {
       (0, _deprecate.default)(missingOptionsDeprecation, false, {
         id: 'ember-debug.warn-options-missing',
@@ -959,7 +963,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
       });
     }
 
-    _handlers.invoke.apply(undefined, ['warn'].concat(Array.prototype.slice.call(arguments)));
+    (0, _handlers.invoke)('warn', message, test, options);
   }
 });
 
