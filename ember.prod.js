@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+77078afe
+ * @version   2.14.0-alpha.1-null+f55a91eb
  */
 
 var enifed, requireModule, Ember;
@@ -46950,6 +46950,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
       rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
         var attributes = evt.currentTarget.attributes;
+        var handledActions = [];
 
         for (var i = 0; i < attributes.length; i++) {
           var attr = attributes.item(i);
@@ -46961,8 +46962,12 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
             // We have to check for action here since in some cases, jQuery will trigger
             // an event on `removeChild` (i.e. focusout) after we've already torn down the
             // action handlers for the view.
-            if (action && action.eventName === eventName) {
+            if (action && action.eventName === eventName && handledActions.indexOf(action) === -1) {
               action.handler(evt);
+              // Action handlers can mutate state which in turn creates new attributes on the element.
+              // This effect could cause the `data-ember-action` attribute to shift down and be invoked twice.
+              // To avoid this, we keep track of which actions have been handled.
+              handledActions.push(action);
             }
           }
         }
@@ -48169,7 +48174,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+77078afe";
+  exports.default = "2.14.0-alpha.1-null+f55a91eb";
 });
 
 enifed('node-module', ['exports'], function(_exports) {

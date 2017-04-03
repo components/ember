@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+77078afe
+ * @version   2.14.0-alpha.1-null+f55a91eb
  */
 
 var enifed, requireModule, Ember;
@@ -26488,6 +26488,42 @@ enifed('ember-glimmer/tests/integration/helpers/element-action-test', ['ember-ba
         document.getElementById('ddButton').focus();
         document.getElementById('ddButton').click();
       });
+    };
+
+    _class2.prototype['@test action handler that shifts element attributes doesn\'t trigger multiple invocations'] = function testActionHandlerThatShiftsElementAttributesDoesnTTriggerMultipleInvocations() {
+      var _this36 = this;
+
+      var actionCount = 0;
+      var ExampleComponent = _helpers.Component.extend({
+        selected: false,
+        actions: {
+          toggleSelected: function () {
+            actionCount++;
+            this.toggleProperty('selected');
+          }
+        }
+      });
+
+      this.registerComponent('example-component', {
+        ComponentClass: ExampleComponent,
+        template: '<button class="{{if selected \'selected\'}}" {{action "toggleSelected"}}>Toggle Selected</button>'
+      });
+
+      this.render('{{example-component}}');
+
+      this.runTask(function () {
+        _this36.$('button').click();
+      });
+
+      this.assert.equal(actionCount, 1, 'Click action only fired once.');
+      this.assert.ok(this.$('button').hasClass('selected'), 'Element with action handler has properly updated it\'s conditional class');
+
+      this.runTask(function () {
+        _this36.$('button').click();
+      });
+
+      this.assert.equal(actionCount, 2, 'Second click action only fired once.');
+      this.assert.ok(!this.$('button').hasClass('selected'), 'Element with action handler has properly updated it\'s conditional class');
     };
 
     return _class2;
