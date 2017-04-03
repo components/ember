@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+4496286e
+ * @version   2.14.0-alpha.1-null+c9c7dbcd
  */
 
 var enifed, requireModule, Ember;
@@ -2353,35 +2353,43 @@ enifed('ember-application/tests/system/application_test.lint-test', [], function
   });
 });
 
-enifed('ember-application/tests/system/bootstrap-test', ['ember-metal', 'ember-application/system/application', 'ember-routing', 'ember-views', 'ember-glimmer'], function (_emberMetal, _application, _emberRouting, _emberViews, _emberGlimmer) {
+enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-routing', 'ember-utils', 'ember-views', 'internal-test-helpers', 'ember-glimmer', 'ember-application/system/resolver'], function (_emberBabel, _emberRouting, _emberUtils, _emberViews, _internalTestHelpers, _emberGlimmer, _resolver) {
   'use strict';
 
-  var app = void 0;
+  (0, _internalTestHelpers.moduleFor)('Ember.Application with default resolver and autoboot', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  QUnit.module('Ember.Application', {
-    teardown: function () {
-      if (app) {
-        (0, _emberMetal.run)(app, 'destroy');
-      }
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-      (0, _emberGlimmer.setTemplates)({});
+      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="app"></div>\n\n      <script type="text/x-handlebars">Hello {{outlet}}</script>\n      <script type="text/x-handlebars" id="index">World!</script>\n    ');
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
     }
-  });
 
-  QUnit.test('templates in script tags are extracted at application creation', function (assert) {
-    (0, _emberViews.jQuery)('#qunit-fixture').html('\n    <div id="app"></div>\n\n    <script type="text/x-handlebars">Hello {{outlet}}</script>\n    <script type="text/x-handlebars" id="index">World!</script>\n  ');
+    _class.prototype.teardown = function teardown() {
+      (0, _emberGlimmer.setTemplates)({});
+    };
 
-    var application = _application.default.extend();
-    application.Router = _emberRouting.Router.extend({
-      location: 'none'
-    });
+    _class.prototype['@test templates in script tags are extracted at application creation'] = function testTemplatesInScriptTagsAreExtractedAtApplicationCreation(assert) {
+      assert.equal((0, _emberViews.jQuery)('#app').text(), 'Hello World!');
+    };
 
-    app = (0, _emberMetal.run)(function () {
-      return application.create({ rootElement: '#app' });
-    });
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
+          autoboot: true,
+          rootElement: '#app',
+          Resolver: _resolver.default,
+          Router: _emberRouting.Router.extend({
+            location: 'none'
+          })
+        });
+      }
+    }]);
 
-    assert.equal((0, _emberViews.jQuery)('#app').text(), 'Hello World!');
-  });
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember-application/tests/system/bootstrap-test.lint-test', [], function () {
@@ -79213,7 +79221,9 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
 
       _this.resolver = applicationOptions.Resolver.lastInstance;
 
-      _this.add('router:main', _emberRouting.Router.extend(_this.routerOptions));
+      if (_this.resolver) {
+        _this.resolver.add('router:main', _emberRouting.Router.extend(_this.routerOptions));
+      }
 
       _this.applicationInstance = null;
       return _this;
