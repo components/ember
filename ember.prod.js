@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+4da3cd7e
+ * @version   2.14.0-alpha.1-null+2c45a3b2
  */
 
 var enifed, requireModule, Ember;
@@ -25251,7 +25251,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       // It is false for the root of a chain (because we have no parent)
       // and for global paths (because the parent node is the object with
       // the observer on it)
-      this._watching = value === undefined;
+      var isWatching = this._watching = value === undefined;
 
       this._chains = undefined;
       this._object = undefined;
@@ -25259,10 +25259,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
       this._value = value;
       this._paths = undefined;
-      if (this._watching) {
+      if (isWatching === true) {
         var obj = parent.value();
 
-        if (!isObject(obj)) {
+        if (!isObject(obj) === true) {
           return;
         }
 
@@ -25273,7 +25273,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     ChainNode.prototype.value = function value() {
-      if (this._value === undefined && this._watching) {
+      if (this._value === undefined && this._watching === true) {
         var obj = this._parent.value();
         this._value = lazyGet(obj, this._key);
       }
@@ -25281,7 +25281,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     ChainNode.prototype.destroy = function () {
-      if (this._watching) {
+      if (this._watching === true) {
         var obj = this._object;
         if (obj) {
           removeChainWatcher(obj, this._key, this);
@@ -25385,11 +25385,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     ChainNode.prototype.notify = function notify(revalidate, affected) {
-      if (revalidate && this._watching) {
+      if (revalidate && this._watching === true) {
         var parentValue = this._parent.value();
 
         if (parentValue !== this._object) {
-          if (this._object) {
+          if (this._object !== undefined) {
             removeChainWatcher(this._object, this._key, this);
           }
 
@@ -25406,7 +25406,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       // then notify chains...
       var chains = this._chains;
       var node = void 0;
-      if (chains) {
+      if (chains !== undefined) {
         for (var key in chains) {
           node = chains[key];
           if (node !== undefined) {
@@ -25445,12 +25445,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var meta$$1 = peekMeta(obj);
 
     // check if object meant only to be a prototype
-    if (meta$$1 && meta$$1.proto === obj) {
+    if (meta$$1 !== undefined && meta$$1.proto === obj) {
       return;
     }
 
     // Use `get` if the return value is an EachProxy or an uncacheable value.
-    if (isVolatile(obj[key])) {
+    if (isVolatile(obj[key]) === true) {
       return _get(obj, key);
       // Otherwise attempt to get the cached value of the computed property
     } else {
@@ -25464,17 +25464,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   function finishChains(obj) {
     // We only create meta if we really have to
     var m = peekMeta(obj);
-    if (m) {
+    if (m !== undefined) {
       m = meta(obj);
 
       // finish any current chains node watchers that reference obj
       var chainWatchers = m.readableChainWatchers();
-      if (chainWatchers) {
+      if (chainWatchers !== undefined) {
         chainWatchers.revalidateAll();
       }
       // ensure that if we have inherited any chains they have been
       // copied onto our own meta.
-      if (m.readableChains()) {
+      if (m.readableChains() !== undefined) {
         m.writableChains(makeChainNode);
       }
     }
@@ -26527,7 +26527,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     expansion, and is passed the expansion.
   */
   function expandProperties(pattern, callback) {
-    false && (0, _emberDebug.assert)('A computed property key must be a string', typeof pattern === 'string');
+    false && (0, _emberDebug.assert)('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
     false && (0, _emberDebug.assert)('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
 
     var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern;
@@ -48174,7 +48174,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+4da3cd7e";
+  exports.default = "2.14.0-alpha.1-null+2c45a3b2";
 });
 
 enifed('node-module', ['exports'], function(_exports) {

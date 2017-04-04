@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+4da3cd7e
+ * @version   2.14.0-alpha.1-null+2c45a3b2
  */
 
 var enifed, requireModule, Ember;
@@ -40421,7 +40421,7 @@ enifed('ember-metal/tests/expand_properties_test', ['ember-metal'], function (_e
     expect(1);
 
     expectAssertion(function () {
-      (0, _emberMetal.expandProperties)([], addProperty);
+      (0, _emberMetal.expandProperties)([1, 2], addProperty);
     }, /A computed property key must be a string/);
   });
 
