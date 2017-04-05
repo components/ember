@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+5e9ce4ac
+ * @version   2.14.0-alpha.1-null+92ff9b4a
  */
 
 var enifed, requireModule, Ember;
@@ -47221,114 +47221,85 @@ enifed('ember-routing/tests/system/cache_test.lint-test', [], function () {
   });
 });
 
-enifed('ember-routing/tests/system/controller_for_test', ['ember-metal', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers'], function (_emberMetal, _emberRuntime, _controller_for, _generate_controller, _internalTestHelpers) {
+enifed('ember-routing/tests/system/controller_for_test', ['ember-babel', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _controller_for, _generate_controller, _internalTestHelpers) {
   'use strict';
 
-  // A
-  function buildInstance(namespace) {
-    var owner = (0, _internalTestHelpers.buildOwner)();
+  (0, _internalTestHelpers.moduleFor)('Ember.controllerFor', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-    owner.__registry__.resolver = resolverFor(namespace);
-    owner.registerOptionsForType('view', { singleton: false });
+    function _class() {
 
-    owner.register('application:main', namespace, { instantiate: false });
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
+    }
 
-    owner.register('controller:basic', _emberRuntime.Controller, { instantiate: false });
+    _class.prototype['@test controllerFor should lookup for registered controllers'] = function testControllerForShouldLookupForRegisteredControllers(assert) {
+      var _this2 = this;
 
-    return owner;
-  }
+      this.add('controller:app', _emberRuntime.Controller.extend());
 
-  function resolverFor(namespace) {
-    return {
-      resolve: function (fullName) {
-        var nameParts = fullName.split(':');
-        var type = nameParts[0];
-        var name = nameParts[1];
-
-        if (name === 'basic') {
-          name = '';
-        }
-        var className = _emberRuntime.String.classify(name) + _emberRuntime.String.classify(type);
-        var factory = (0, _emberMetal.get)(namespace, className);
-
-        if (factory) {
-          return factory;
-        }
-      }
+      return this.visit('/').then(function () {
+        var appInstance = _this2.applicationInstance;
+        var appController = appInstance.lookup('controller:app');
+        var controller = (0, _controller_for.default)(appInstance, 'app');
+        assert.equal(appController, controller, 'should find app controller');
+      });
     };
-  }
 
-  var appInstance = void 0,
-      appController = void 0,
-      namespace = void 0;
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 
-  QUnit.module('Ember.controllerFor', {
-    setup: function () {
-      namespace = _emberRuntime.Namespace.create();
-      appInstance = buildInstance(namespace);
-      appInstance.register('controller:app', _emberRuntime.Controller.extend());
-      appController = appInstance.lookup('controller:app');
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        appInstance.destroy();
-        namespace.destroy();
-      });
+  (0, _internalTestHelpers.moduleFor)('Ember.generateController', function (_ApplicationTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _ApplicationTestCase2);
+
+    function _class2() {
+
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.apply(this, arguments));
     }
-  });
 
-  QUnit.test('controllerFor should lookup for registered controllers', function () {
-    var controller = (0, _controller_for.default)(appInstance, 'app');
+    _class2.prototype['@test generateController should return Ember.Controller'] = function testGenerateControllerShouldReturnEmberController(assert) {
+      var _this4 = this;
 
-    equal(appController, controller, 'should find app controller');
-  });
-
-  QUnit.module('Ember.generateController', {
-    setup: function () {
-      namespace = _emberRuntime.Namespace.create();
-      appInstance = buildInstance(namespace);
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        appInstance.destroy();
-        namespace.destroy();
+      return this.visit('/').then(function () {
+        var controller = (0, _generate_controller.default)(_this4.applicationInstance, 'home');
+        assert.ok(controller instanceof _emberRuntime.Controller, 'should return controller');
       });
-    }
-  });
+    };
 
-  QUnit.test('generateController should return Ember.Controller', function () {
-    var controller = (0, _generate_controller.default)(appInstance, 'home');
+    _class2.prototype['@test generateController should return controller:basic if resolved'] = function testGenerateControllerShouldReturnControllerBasicIfResolved(assert) {
+      var _this5 = this;
 
-    ok(controller instanceof _emberRuntime.Controller, 'should return controller');
-  });
+      var BasicController = _emberRuntime.Controller.extend();
+      this.add('controller:basic', BasicController);
 
-  QUnit.test('generateController should return App.Controller if provided', function () {
-    var controller = void 0;
-    namespace.Controller = _emberRuntime.Controller.extend();
-
-    controller = (0, _generate_controller.default)(appInstance, 'home');
-
-    ok(controller instanceof namespace.Controller, 'should return controller');
-  });
-
-  QUnit.test('generateController should return controller:basic if provided', function () {
-    var controller = void 0;
-
-    var BasicController = _emberRuntime.Controller.extend();
-    appInstance.register('controller:basic', BasicController);
-
-    controller = (0, _generate_controller.default)(appInstance, 'home');
-
-    if (true) {
-      ok(controller instanceof BasicController, 'should return base class of controller');
-    } else {
-      var doubleExtendedFactory = void 0;
-      ignoreDeprecation(function () {
-        doubleExtendedFactory = appInstance._lookupFactory('controller:basic');
+      return this.visit('/').then(function () {
+        var controller = (0, _generate_controller.default)(_this5.applicationInstance, 'home');
+        assert.ok(controller instanceof BasicController, 'should return controller');
       });
-      ok(controller instanceof doubleExtendedFactory, 'should return double-extended controller');
-    }
-  });
+    };
+
+    _class2.prototype['@test generateController should return controller:basic if registered'] = function testGenerateControllerShouldReturnControllerBasicIfRegistered(assert) {
+      var _this6 = this;
+
+      var BasicController = _emberRuntime.Controller.extend();
+      this.application.register('controller:basic', BasicController);
+
+      return this.visit('/').then(function () {
+        var controller = (0, _generate_controller.default)(_this6.applicationInstance, 'home');
+
+        if (true) {
+          assert.ok(controller instanceof BasicController, 'should return base class of controller');
+        } else {
+          var doubleExtendedFactory = void 0;
+          ignoreDeprecation(function () {
+            doubleExtendedFactory = _this6.applicationInstance._lookupFactory('controller:basic');
+          });
+          assert.ok(controller instanceof doubleExtendedFactory, 'should return double-extended controller');
+        }
+      });
+    };
+
+    return _class2;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember-routing/tests/system/controller_for_test.lint-test', [], function () {
