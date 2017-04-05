@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+92ff9b4a
+ * @version   2.14.0-alpha.1-null+e255d736
  */
 
 var enifed, requireModule, Ember;
@@ -17499,6 +17499,10 @@ enifed('ember-glimmer/dom', ['exports', '@glimmer/runtime', '@glimmer/node'], fu
 enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views', '@glimmer/runtime', 'ember-glimmer/syntax/curly-component', 'ember-glimmer/syntax', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'container', 'ember-glimmer/modifiers/action', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberDebug, _emberViews, _runtime, _curlyComponent, _syntax, _iterable, _references, _debugStack, _ifUnless, _action, _component, _concat, _get, _hash, _loc, _log, _mut, _readonly, _unbound, _class, _inputType, _queryParam, _eachIn, _normalizeClass, _htmlSafe, _protocolForUrl, _container, _action2) {
   'use strict';
 
+  function instrumentationPayload(name) {
+    return { object: 'component:' + name };
+  }
+
   var Environment = function (_GlimmerEnvironment) {
     (0, _emberBabel.inherits)(Environment, _GlimmerEnvironment);
 
@@ -17619,11 +17623,13 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
 
     Environment.prototype.getComponentDefinition = function getComponentDefinition(path, symbolTable) {
       var name = path[0];
+      var finalizer = (0, _emberMetal._instrumentStart)('render.getComponentDefinition', instrumentationPayload, name);
       var blockMeta = symbolTable.getMeta();
       var owner = blockMeta.owner;
       var source = blockMeta.moduleName && 'template:' + blockMeta.moduleName;
-
-      return this._definitionCache.get({ name: name, source: source, owner: owner });
+      var definition = this._definitionCache.get({ name: name, source: source, owner: owner });
+      finalizer();
+      return definition;
     };
 
     // normally templates should be exported at the proper module name
@@ -51539,7 +51545,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+92ff9b4a";
+  exports.default = "2.14.0-alpha.1-null+e255d736";
 });
 
 enifed("handlebars", ["exports"], function (exports) {

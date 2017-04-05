@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+92ff9b4a
+ * @version   2.14.0-alpha.1-null+e255d736
  */
 
 var enifed, requireModule, Ember;
@@ -17515,6 +17515,127 @@ enifed('ember-glimmer/tests/integration/components/fragment-components-test.lint
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-glimmer/tests/integration/components/fragment-components-test.js should pass ESLint\n\n');
+  });
+});
+
+enifed('ember-glimmer/tests/integration/components/instrumentation-compile-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal'], function (_emberBabel, _testCase, _helpers, _emberMetal) {
+  'use strict';
+
+  (0, _testCase.moduleFor)('Components compile instrumentation', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.resetEvents();
+
+      (0, _emberMetal.instrumentationSubscribe)('render.getComponentDefinition', {
+        before: function (name, timestamp, payload) {
+          if (payload.view !== _this.component) {
+            _this.actual.before.push(payload);
+          }
+        },
+        after: function (name, timestamp, payload) {
+          if (payload.view !== _this.component) {
+            _this.actual.after.push(payload);
+          }
+        }
+      });
+      return _this;
+    }
+
+    _class.prototype.resetEvents = function resetEvents() {
+      this.expected = {
+        before: [],
+        after: []
+      };
+
+      this.actual = {
+        before: [],
+        after: []
+      };
+    };
+
+    _class.prototype.teardown = function teardown() {
+      this.assert.deepEqual(this.actual.before, [], 'No unexpected events (before)');
+      this.assert.deepEqual(this.actual.after, [], 'No unexpected events (after)');
+      _RenderingTest.prototype.teardown.call(this);
+      (0, _emberMetal.instrumentationReset)();
+    };
+
+    _class.prototype['@test it should only receive an instrumentation event for initial render'] = function testItShouldOnlyReceiveAnInstrumentationEventForInitialRender(assert) {
+      var _this2 = this;
+
+      var testCase = this;
+
+      var BaseClass = _helpers.Component.extend({
+        tagName: '',
+
+        willRender: function () {
+          testCase.expected.before.push(this);
+          testCase.expected.after.unshift(this);
+        }
+      });
+
+      this.registerComponent('x-bar', {
+        template: '[x-bar: {{bar}}]',
+        ComponentClass: BaseClass.extend()
+      });
+
+      this.render('[-top-level: {{foo}}] {{x-bar bar=bar}}', {
+        foo: 'foo', bar: 'bar'
+      });
+
+      this.assertText('[-top-level: foo] [x-bar: bar]');
+
+      this.assertEvents('after initial render');
+
+      this.runTask(function () {
+        return _this2.rerender();
+      });
+
+      this.assertEvents('after no-op rerender');
+    };
+
+    _class.prototype.assertEvents = function assertEvents(label) {
+      var actual = this.actual,
+          expected = this.expected;
+
+      this.assert.strictEqual(actual.before.length, actual.after.length, label + ': before and after callbacks should be balanced');
+
+      this._assertEvents(label + ' (before):', actual.before, expected.before);
+      this._assertEvents(label + ' (after):', actual.before, expected.before);
+
+      this.resetEvents();
+    };
+
+    _class.prototype._assertEvents = function _assertEvents(label, actual, expected) {
+      var _this3 = this;
+
+      this.assert.equal(actual.length, expected.length, label + ': expected ' + expected.length + ' and got ' + actual.length);
+
+      actual.forEach(function (payload, i) {
+        return _this3.assertPayload(payload, expected[i]);
+      });
+    };
+
+    _class.prototype.assertPayload = function assertPayload(payload, component) {
+      this.assert.equal(payload.object, component._debugContainerKey, 'payload.object');
+    };
+
+    return _class;
+  }(_testCase.RenderingTest));
+});
+
+enifed('ember-glimmer/tests/integration/components/instrumentation-compile-test.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/tests/integration/components/instrumentation-compile-test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/tests/integration/components/instrumentation-compile-test.js should pass ESLint\n\n');
   });
 });
 
