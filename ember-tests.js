@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+e255d736
+ * @version   2.14.0-alpha.1-null+08a6719e
  */
 
 var enifed, requireModule, Ember;
@@ -47318,6 +47318,23 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
     createLocation();
 
     equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
+  });
+
+  QUnit.test('HistoryLocation.getURL() drops duplicate slashes', function () {
+    expect(1);
+
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        var location = mockBrowserLocation('//');
+        location.pathname = '//'; // mockBrowserLocation does not allow for `//`, so force it
+        (0, _emberMetal.set)(this, 'location', location);
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/');
   });
 });
 
