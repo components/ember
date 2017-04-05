@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+2c45a3b2
+ * @version   2.14.0-alpha.1-null+5e9ce4ac
  */
 
 var enifed, requireModule, Ember;
@@ -7616,217 +7616,242 @@ enifed('ember-extension-support/tests/container_debug_adapter_test.lint-test', [
   });
 });
 
-enifed('ember-extension-support/tests/data_adapter_test', ['ember-metal', 'ember-runtime', 'ember-extension-support/data_adapter', 'ember-application'], function (_emberMetal, _emberRuntime, _data_adapter, _emberApplication) {
+enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-extension-support/data_adapter', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _data_adapter, _internalTestHelpers) {
   'use strict';
 
   var adapter = void 0,
       App = void 0;
   var Model = _emberRuntime.Object.extend();
 
+  var PostClass = Model.extend();
+
   var DataAdapter = _data_adapter.default.extend({
     detect: function (klass) {
       return klass !== Model && Model.detect(klass);
-    }
-  });
-
-  QUnit.module('Data Adapter', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create();
-        App.toString = function () {
-          return 'App';
-        };
-        App.deferReadiness();
-        App.register('data-adapter:main', DataAdapter);
-      });
     },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        adapter.destroy();
-        App.destroy();
+    init: function () {
+      this._super.apply(this, arguments);
+      this.set('containerDebugAdapter', {
+        canCatalogEntriesByType: function () {
+          return true;
+        },
+        catalogEntriesByType: function () {
+          return (0, _emberRuntime.A)(['post']);
+        }
       });
     }
   });
 
-  QUnit.test('Model types added with DefaultResolver', function () {
-    App.Post = Model.extend();
+  (0, _internalTestHelpers.moduleFor)('Data Adapter', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-    adapter = App.__container__.lookup('data-adapter:main');
-    adapter.reopen({
-      getRecords: function () {
-        return (0, _emberRuntime.A)([1, 2, 3]);
-      },
-      columnsForType: function () {
-        return [{ name: 'title', desc: 'Title' }];
-      }
-    });
+    function _class() {
 
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
+    }
 
-    (0, _emberMetal.run)(adapter, 'watchModelTypes', function (types) {
-      equal(types.length, 1);
-      var postType = types[0];
-      equal(postType.name, 'post', 'Correctly sets the name');
-      equal(postType.count, 3, 'Correctly sets the record count');
-      strictEqual(postType.object, App.Post, 'Correctly sets the object');
-      deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
-    });
-  });
+    _class.prototype['@test Model types added'] = function testModelTypesAdded() {
+      var _this2 = this;
 
-  QUnit.test('getRecords gets a model name as second argument', function () {
-    App.Post = Model.extend();
-
-    adapter = App.__container__.lookup('data-adapter:main');
-    adapter.reopen({
-      getRecords: function (klass, name) {
-        equal(name, 'post');
-        return (0, _emberRuntime.A)();
-      }
-    });
-
-    adapter.watchModelTypes(function () {});
-  });
-
-  QUnit.test('Model types added with custom container-debug-adapter', function () {
-    var PostClass = Model.extend();
-    var StubContainerDebugAdapter = _emberApplication.Resolver.extend({
-      canCatalogEntriesByType: function () {
-        return true;
-      },
-      catalogEntriesByType: function () {
-        return [PostClass];
-      }
-    });
-    App.register('container-debug-adapter:main', StubContainerDebugAdapter);
-
-    adapter = App.__container__.lookup('data-adapter:main');
-    adapter.reopen({
-      getRecords: function () {
-        return (0, _emberRuntime.A)([1, 2, 3]);
-      },
-      columnsForType: function () {
-        return [{ name: 'title', desc: 'Title' }];
-      }
-    });
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    (0, _emberMetal.run)(adapter, 'watchModelTypes', function (types) {
-      equal(types.length, 1);
-      var postType = types[0];
-
-      equal(postType.name, PostClass.toString(), 'Correctly sets the name');
-      equal(postType.count, 3, 'Correctly sets the record count');
-      strictEqual(postType.object, PostClass, 'Correctly sets the object');
-      deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
-    });
-  });
-
-  QUnit.test('Model Types Updated', function () {
-    App.Post = Model.extend();
-
-    adapter = App.__container__.lookup('data-adapter:main');
-    var records = (0, _emberRuntime.A)([1, 2, 3]);
-    adapter.reopen({
-      getRecords: function () {
-        return records;
-      }
-    });
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    (0, _emberMetal.run)(adapter, 'watchModelTypes', function () {
-      (0, _emberMetal.run)(function () {
-        records.pushObject(4);
-      });
-    }, function (types) {
-      var postType = types[0];
-      equal(postType.count, 4, 'Correctly updates the count');
-    });
-  });
-
-  QUnit.test('Records Added', function () {
-    expect(8);
-    var countAdded = 1;
-
-    App.Post = Model.extend();
-
-    var post = App.Post.create();
-    var recordList = (0, _emberRuntime.A)([post]);
-
-    adapter = App.__container__.lookup('data-adapter:main');
-    adapter.reopen({
-      getRecords: function () {
-        return recordList;
-      },
-      getRecordColor: function () {
-        return 'blue';
-      },
-      getRecordColumnValues: function () {
-        return { title: 'Post ' + countAdded };
-      },
-      getRecordKeywords: function () {
-        return ['Post ' + countAdded];
-      }
-    });
-
-    adapter.watchRecords(App.Post, function (records) {
-      var record = records[0];
-      equal(record.color, 'blue', 'Sets the color correctly');
-      deepEqual(record.columnValues, { title: 'Post ' + countAdded }, 'Sets the column values correctly');
-      deepEqual(record.searchKeywords, ['Post ' + countAdded], 'Sets search keywords correctly');
-      strictEqual(record.object, post, 'Sets the object to the record instance');
-    });
-    countAdded++;
-    post = App.Post.create();
-    recordList.pushObject(post);
-  });
-
-  QUnit.test('Observes and releases a record correctly', function () {
-    var updatesCalled = 0;
-    App.Post = Model.extend();
-
-    var post = App.Post.create({ title: 'Post' });
-    var recordList = (0, _emberRuntime.A)([post]);
-
-    adapter = App.__container__.lookup('data-adapter:main');
-    adapter.reopen({
-      getRecords: function () {
-        return recordList;
-      },
-      observeRecord: function (record, recordUpdated) {
-        var self = this;
-        function callback() {
-          recordUpdated(self.wrapRecord(record));
+      this.add('data-adapter:main', DataAdapter.extend({
+        getRecords: function () {
+          return (0, _emberRuntime.A)([1, 2, 3]);
+        },
+        columnsForType: function () {
+          return [{ name: 'title', desc: 'Title' }];
         }
-        (0, _emberMetal.addObserver)(record, 'title', callback);
-        return function () {
-          (0, _emberMetal.removeObserver)(record, 'title', callback);
-        };
-      },
-      getRecordColumnValues: function (record) {
-        return { title: (0, _emberMetal.get)(record, 'title') };
-      }
-    });
+      }));
+      this.add('model:post', PostClass);
 
-    var release = adapter.watchRecords(App.Post, function () {
-      (0, _emberMetal.set)(post, 'title', 'Post Modified');
-    }, function (records) {
-      updatesCalled++;
-      equal(records[0].columnValues.title, 'Post Modified');
-    });
-    release();
-    (0, _emberMetal.set)(post, 'title', 'New Title');
-    equal(updatesCalled, 1, 'Release function removes observers');
-  });
+      return this.visit('/').then(function () {
+        var adapter = _this2.applicationInstance.lookup('data-adapter:main');
 
-  QUnit.test('_nameToClass does not error when not found', function (assert) {
-    adapter = App.__container__.lookup('data-adapter:main');
+        adapter.watchModelTypes(function (types) {
+          equal(types.length, 1);
+          var postType = types[0];
+          equal(postType.name, 'post', 'Correctly sets the name');
+          equal(postType.count, 3, 'Correctly sets the record count');
+          strictEqual(postType.object, PostClass, 'Correctly sets the object');
+          deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
+        });
+      });
+    };
 
-    var klass = adapter._nameToClass('App.Foo');
+    _class.prototype['@test getRecords gets a model name as second argument'] = function testGetRecordsGetsAModelNameAsSecondArgument() {
+      var _this3 = this;
 
-    assert.equal(klass, undefined, 'returns undefined');
-  });
+      this.add('data-adapter:main', DataAdapter.extend({
+        getRecords: function (klass, name) {
+          equal(name, 'post');
+          return (0, _emberRuntime.A)();
+        }
+      }));
+      this.add('model:post', PostClass);
+
+      return this.visit('/').then(function () {
+        adapter = _this3.applicationInstance.lookup('data-adapter:main');
+        adapter.watchModelTypes(function () {});
+      });
+    };
+
+    _class.prototype['@test Model types added with custom container-debug-adapter'] = function testModelTypesAddedWithCustomContainerDebugAdapter() {
+      var _this4 = this;
+
+      var StubContainerDebugAdapter = _emberRuntime.Object.extend({
+        canCatalogEntriesByType: function () {
+          return true;
+        },
+        catalogEntriesByType: function () {
+          return (0, _emberRuntime.A)(['post']);
+        }
+      });
+      this.add('container-debug-adapter:main', StubContainerDebugAdapter);
+      this.add('data-adapter:main', DataAdapter.extend({
+        getRecords: function () {
+          return (0, _emberRuntime.A)([1, 2, 3]);
+        },
+        columnsForType: function () {
+          return [{ name: 'title', desc: 'Title' }];
+        }
+      }));
+      this.add('model:post', PostClass);
+
+      return this.visit('/').then(function () {
+        var adapter = _this4.applicationInstance.lookup('data-adapter:main');
+
+        adapter.watchModelTypes(function (types) {
+          equal(types.length, 1);
+          var postType = types[0];
+          equal(postType.name, 'post', 'Correctly sets the name');
+          equal(postType.count, 3, 'Correctly sets the record count');
+          strictEqual(postType.object, PostClass, 'Correctly sets the object');
+          deepEqual(postType.columns, [{ name: 'title', desc: 'Title' }], 'Correctly sets the columns');
+        });
+      });
+    };
+
+    _class.prototype['@test Model Types Updated'] = function testModelTypesUpdated() {
+      var _this5 = this;
+
+      var records = (0, _emberRuntime.A)([1, 2, 3]);
+      this.add('data-adapter:main', DataAdapter.extend({
+        getRecords: function () {
+          return records;
+        }
+      }));
+      this.add('model:post', PostClass);
+
+      return this.visit('/').then(function () {
+        adapter = _this5.applicationInstance.lookup('data-adapter:main');
+
+        adapter.watchModelTypes(function () {
+          (0, _emberMetal.run)(function () {
+            records.pushObject(4);
+          });
+        }, function (types) {
+          var postType = types[0];
+          equal(postType.count, 4, 'Correctly updates the count');
+        });
+      });
+    };
+
+    _class.prototype['@test Records Added'] = function testRecordsAdded() {
+      var _this6 = this;
+
+      var countAdded = 1;
+      var post = PostClass.create();
+      var recordList = (0, _emberRuntime.A)([post]);
+
+      this.add('data-adapter:main', DataAdapter.extend({
+        getRecords: function () {
+          return recordList;
+        },
+        getRecordColor: function () {
+          return 'blue';
+        },
+        getRecordColumnValues: function () {
+          return { title: 'Post ' + countAdded };
+        },
+        getRecordKeywords: function () {
+          return ['Post ' + countAdded];
+        }
+      }));
+      this.add('model:post', PostClass);
+
+      return this.visit('/').then(function () {
+        adapter = _this6.applicationInstance.lookup('data-adapter:main');
+
+        adapter.watchRecords('post', function (records) {
+          var record = records[0];
+          equal(record.color, 'blue', 'Sets the color correctly');
+          deepEqual(record.columnValues, { title: 'Post ' + countAdded }, 'Sets the column values correctly');
+          deepEqual(record.searchKeywords, ['Post ' + countAdded], 'Sets search keywords correctly');
+          strictEqual(record.object, post, 'Sets the object to the record instance');
+        });
+        countAdded++;
+        post = PostClass.create();
+        recordList.pushObject(post);
+      });
+    };
+
+    _class.prototype['@test Observes and releases a record correctly'] = function testObservesAndReleasesARecordCorrectly() {
+      var _this7 = this;
+
+      var updatesCalled = 0;
+      var post = PostClass.create({ title: 'Post' });
+      var recordList = (0, _emberRuntime.A)([post]);
+
+      this.add('data-adapter:main', DataAdapter.extend({
+        getRecords: function () {
+          return recordList;
+        },
+        observeRecord: function (record, recordUpdated) {
+          var self = this;
+          function callback() {
+            recordUpdated(self.wrapRecord(record));
+          }
+          (0, _emberMetal.addObserver)(record, 'title', callback);
+          return function () {
+            (0, _emberMetal.removeObserver)(record, 'title', callback);
+          };
+        },
+        getRecordColumnValues: function (record) {
+          return { title: (0, _emberMetal.get)(record, 'title') };
+        }
+      }));
+      this.add('model:post', PostClass);
+
+      return this.visit('/').then(function () {
+        adapter = _this7.applicationInstance.lookup('data-adapter:main');
+
+        var release = adapter.watchRecords('post', function () {
+          (0, _emberMetal.set)(post, 'title', 'Post Modified');
+        }, function (records) {
+          updatesCalled++;
+          equal(records[0].columnValues.title, 'Post Modified');
+        });
+        release();
+        (0, _emberMetal.set)(post, 'title', 'New Title');
+        equal(updatesCalled, 1, 'Release function removes observers');
+      });
+    };
+
+    _class.prototype['@test _nameToClass does not error when not found'] = function test_nameToClassDoesNotErrorWhenNotFound() {
+      var _this8 = this;
+
+      this.add('data-adapter:main', DataAdapter);
+
+      return this.visit('/').then(function () {
+        adapter = _this8.applicationInstance.lookup('data-adapter:main');
+
+        var klass = adapter._nameToClass('foo');
+
+        equal(klass, undefined, 'returns undefined');
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember-extension-support/tests/data_adapter_test.lint-test', [], function () {
