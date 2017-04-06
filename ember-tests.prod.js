@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+08a6719e
+ * @version   2.14.0-alpha.1-null+b22a5574
  */
 
 var enifed, requireModule, Ember;
@@ -76000,91 +76000,56 @@ enifed('ember/tests/routing/query_params_test/shared_state_test.lint-test', [], 
   });
 });
 
-enifed('ember/tests/routing/router_map_test', ['ember-metal', 'ember-template-compiler', 'ember-application', 'ember-routing', 'ember-views', 'ember-glimmer'], function (_emberMetal, _emberTemplateCompiler, _emberApplication, _emberRouting, _emberViews, _emberGlimmer) {
+enifed('ember/tests/routing/router_map_test', ['ember-babel', 'internal-test-helpers', 'ember-metal', 'ember-routing'], function (_emberBabel, _internalTestHelpers, _emberMetal, _emberRouting) {
   'use strict';
 
-  var router = void 0,
-      App = void 0,
-      container = void 0;
+  (0, _internalTestHelpers.moduleFor)('Router.map', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  function bootApplication() {
-    router = container.lookup('router:main');
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-  }
+    function _class() {
 
-  function handleURL(path) {
-    return (0, _emberMetal.run)(function () {
-      return router.handleURL(path).then(function (value) {
-        ok(true, 'url: `' + path + '` was handled');
-        return value;
-      }, function (reason) {
-        ok(false, 'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));
-        throw reason;
-      });
-    });
-  }
-
-  QUnit.module('Router.map', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create({
-          name: 'App',
-          rootElement: '#qunit-fixture'
-        });
-
-        App.deferReadiness();
-
-        App.Router.reopen({
-          location: 'none'
-        });
-
-        container = App.__container__;
-      });
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        App.destroy();
-        App = null;
-
-        (0, _emberGlimmer.setTemplates)({});
-      });
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
-  });
 
-  QUnit.test('Router.map returns an Ember Router class', function () {
-    expect(1);
+    _class.prototype['@test Router.map returns an Ember Router class'] = function testRouterMapReturnsAnEmberRouterClass(assert) {
+      assert.expect(1);
 
-    var ret = App.Router.map(function () {
-      this.route('hello');
-    });
+      var ret = this.router.map(function () {
+        this.route('hello');
+      });
 
-    ok(_emberRouting.Router.detect(ret));
-  });
+      assert.ok(_emberRouting.Router.detect(ret));
+    };
 
-  QUnit.test('Router.map can be called multiple times', function () {
-    expect(4);
+    _class.prototype['@test Router.map can be called multiple times'] = function testRouterMapCanBeCalledMultipleTimes(assert) {
+      var _this2 = this;
 
-    (0, _emberGlimmer.setTemplate)('hello', (0, _emberTemplateCompiler.compile)('Hello!'));
-    (0, _emberGlimmer.setTemplate)('goodbye', (0, _emberTemplateCompiler.compile)('Goodbye!'));
+      assert.expect(2);
 
-    App.Router.map(function () {
-      this.route('hello');
-    });
+      this.addTemplate('hello', 'Hello!');
+      this.addTemplate('goodbye', 'Goodbye!');
 
-    App.Router.map(function () {
-      this.route('goodbye');
-    });
+      this.router.map(function () {
+        this.route('hello');
+      });
 
-    bootApplication();
+      this.router.map(function () {
+        this.route('goodbye');
+      });
 
-    handleURL('/hello');
+      return (0, _emberMetal.run)(function () {
+        return _this2.visit('/hello').then(function () {
+          _this2.assertText('Hello!');
+        }).then(function () {
+          return _this2.visit('/goodbye');
+        }).then(function () {
+          _this2.assertText('Goodbye!');
+        });
+      });
+    };
 
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'Hello!', 'The hello template was rendered');
-
-    handleURL('/goodbye');
-
-    equal((0, _emberViews.jQuery)('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
-  });
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 
 enifed('ember/tests/routing/router_map_test.lint-test', [], function () {
