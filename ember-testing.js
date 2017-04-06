@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.1
+ * @version   2.13.0-beta.1-beta+c0244c58
  */
 
 var enifed, requireModule, Ember;
@@ -1225,13 +1225,15 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-debug', 'ember-view
       _emberTestingTestAdapter.setAdapter(typeof self.QUnit === 'undefined' ? new _emberTestingAdaptersAdapter.default() : new _emberTestingAdaptersQunit.default());
     }
 
-    _emberViews.jQuery(document).off('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
-    _emberViews.jQuery(document).off('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
+    if (_emberViews.jQuery) {
+      _emberViews.jQuery(document).off('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
+      _emberViews.jQuery(document).off('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
 
-    _emberTestingTestPending_requests.clearPendingRequests();
+      _emberTestingTestPending_requests.clearPendingRequests();
 
-    _emberViews.jQuery(document).on('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
-    _emberViews.jQuery(document).on('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
+      _emberViews.jQuery(document).on('ajaxSend', _emberTestingTestPending_requests.incrementPendingRequests);
+      _emberViews.jQuery(document).on('ajaxComplete', _emberTestingTestPending_requests.decrementPendingRequests);
+    }
   }
 });
 enifed('ember-testing/support', ['exports', 'ember-debug', 'ember-views', 'ember-environment'], function (exports, _emberDebug, _emberViews, _emberEnvironment) {

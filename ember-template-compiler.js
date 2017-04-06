@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.1
+ * @version   2.13.0-beta.1-beta+c0244c58
  */
 
 var enifed, requireModule, Ember;
@@ -6020,6 +6020,10 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
   */
 
   function warn(message, test, options) {
+    if (arguments.length === 2 && typeof test === 'object') {
+      options = test;
+      test = false;
+    }
     if (!options) {
       _emberDebugDeprecate.default(missingOptionsDeprecation, false, {
         id: 'ember-debug.warn-options-missing',
@@ -6036,7 +6040,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
       });
     }
 
-    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(babelHelpers.slice.call(arguments)));
+    _emberDebugHandlers.invoke('warn', message, test, options);
   }
 });
 enifed('ember-environment/global', ['exports'], function (exports) {
@@ -7035,18 +7039,18 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       // It is false for the root of a chain (because we have no parent)
       // and for global paths (because the parent node is the object with
       // the observer on it)
-      this._watching = value === undefined;
+      var isWatching = this._watching = value === undefined;
 
       this._chains = undefined;
       this._object = undefined;
       this.count = 0;
 
       this._value = value;
-      this._paths = {};
-      if (this._watching) {
+      this._paths = undefined;
+      if (isWatching === true) {
         var obj = parent.value();
 
-        if (!isObject(obj)) {
+        if (!isObject(obj) === true) {
           return;
         }
 
@@ -7057,7 +7061,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     }
 
     ChainNode.prototype.value = function value() {
-      if (this._value === undefined && this._watching) {
+      if (this._value === undefined && this._watching === true) {
         var obj = this._parent.value();
         this._value = lazyGet(obj, this._key);
       }
@@ -7065,7 +7069,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     };
 
     ChainNode.prototype.destroy = function destroy() {
-      if (this._watching) {
+      if (this._watching === true) {
         var obj = this._object;
         if (obj) {
           removeChainWatcher(obj, this._key, this);
@@ -7080,13 +7084,14 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       var ret = new ChainNode(null, null, obj);
       var paths = this._paths;
       var path = undefined;
-
-      for (path in paths) {
-        // this check will also catch non-number vals.
-        if (paths[path] <= 0) {
-          continue;
+      if (paths !== undefined) {
+        for (path in paths) {
+          // this check will also catch non-number vals.
+          if (paths[path] <= 0) {
+            continue;
+          }
+          ret.add(path);
         }
-        ret.add(path);
       }
       return ret;
     };
@@ -7095,7 +7100,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     // path.
 
     ChainNode.prototype.add = function add(path) {
-      var paths = this._paths;
+      var paths = this._paths || (this._paths = {});
       paths[path] = (paths[path] || 0) + 1;
 
       var key = firstKey(path);
@@ -7109,6 +7114,9 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
 
     ChainNode.prototype.remove = function remove(path) {
       var paths = this._paths;
+      if (paths === undefined) {
+        return;
+      }
       if (paths[path] > 0) {
         paths[path]--;
       }
@@ -7162,11 +7170,11 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     };
 
     ChainNode.prototype.notify = function notify(revalidate, affected) {
-      if (revalidate && this._watching) {
+      if (revalidate && this._watching === true) {
         var parentValue = this._parent.value();
 
         if (parentValue !== this._object) {
-          if (this._object) {
+          if (this._object !== undefined) {
             removeChainWatcher(this._object, this._key, this);
           }
 
@@ -7183,7 +7191,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       // then notify chains...
       var chains = this._chains;
       var node = undefined;
-      if (chains) {
+      if (chains !== undefined) {
         for (var key in chains) {
           node = chains[key];
           if (node !== undefined) {
@@ -7222,12 +7230,12 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
     var meta = _emberMetalMeta.peekMeta(obj);
 
     // check if object meant only to be a prototype
-    if (meta && meta.proto === obj) {
+    if (meta !== undefined && meta.proto === obj) {
       return;
     }
 
     // Use `get` if the return value is an EachProxy or an uncacheable value.
-    if (isVolatile(obj[key])) {
+    if (isVolatile(obj[key]) === true) {
       return _emberMetalProperty_get.get(obj, key);
       // Otherwise attempt to get the cached value of the computed property
     } else {
@@ -7241,17 +7249,17 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
   function finishChains(obj) {
     // We only create meta if we really have to
     var m = _emberMetalMeta.peekMeta(obj);
-    if (m) {
+    if (m !== undefined) {
       m = _emberMetalMeta.meta(obj);
 
       // finish any current chains node watchers that reference obj
       var chainWatchers = m.readableChainWatchers();
-      if (chainWatchers) {
+      if (chainWatchers !== undefined) {
         chainWatchers.revalidateAll();
       }
       // ensure that if we have inherited any chains they have been
       // copied onto our own meta.
-      if (m.readableChains()) {
+      if (m.readableChains() !== undefined) {
         m.writableChains(_emberMetalWatch_path.makeChainNode);
       }
     }
@@ -8129,6 +8137,9 @@ enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/meta', 'emb
       return;
     }
     var actions = meta.matchingListeners(eventName);
+    if (actions === undefined) {
+      return;
+    }
     var newActions = [];
 
     for (var i = actions.length - 3; i >= 0; i -= 3) {
@@ -8346,7 +8357,8 @@ enifed('ember-metal/events', ['exports', 'ember-utils', 'ember-metal/meta', 'emb
     if (!meta) {
       return false;
     }
-    return meta.matchingListeners(eventName).length > 0;
+    var matched = meta.matchingListeners(eventName);
+    return matched !== undefined && matched.length > 0;
   }
 
   /**
@@ -10503,23 +10515,24 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
 
     matchingListeners: function (eventName) {
       var pointer = this;
-      var result = [];
-      while (pointer) {
+      var result = undefined;
+      while (pointer !== undefined) {
         var listeners = pointer._listeners;
-        if (listeners) {
+        if (listeners !== undefined) {
           for (var index = 0; index < listeners.length - 3; index += 4) {
             if (listeners[index] === eventName) {
+              result = result || [];
               pushUniqueListener(result, listeners, index);
             }
           }
         }
-        if (pointer._listenersFinalized) {
+        if (pointer._listenersFinalized === true) {
           break;
         }
         pointer = pointer.parent;
       }
       var sus = this._suspendedListeners;
-      if (sus) {
+      if (sus !== undefined && result !== undefined) {
         for (var susIndex = 0; susIndex < sus.length - 2; susIndex += 3) {
           if (eventName === sus[susIndex]) {
             for (var resultIndex = 0; resultIndex < result.length - 2; resultIndex += 3) {
@@ -16138,7 +16151,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-beta.1";
+  exports.default = "2.13.0-beta.1-beta+c0244c58";
 });
 enifed("handlebars", ["exports"], function (exports) {
   /* istanbul ignore next */

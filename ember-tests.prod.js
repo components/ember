@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.1
+ * @version   2.13.0-beta.1-beta+c0244c58
  */
 
 var enifed, requireModule, Ember;
@@ -6772,6 +6772,34 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-environment', 'ember-ru
     });
 
     _emberDebugIndex.warn('foo', false, {});
+  });
+
+  QUnit.test('warn without options.id nor test triggers a deprecation', function (assert) {
+    assert.expect(2);
+
+    _emberDebugDeprecate.registerHandler(function (message) {
+      assert.equal(message, _emberDebugWarn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
+    });
+
+    _emberDebugWarn.registerHandler(function (message) {
+      assert.equal(message, 'foo', 'original warning is triggered');
+    });
+
+    _emberDebugIndex.warn('foo', {});
+  });
+
+  QUnit.test('warn without test but with options does not trigger a deprecation', function (assert) {
+    assert.expect(1);
+
+    _emberDebugDeprecate.registerHandler(function (message) {
+      assert.ok(false, 'there should be no deprecation ' + message);
+    });
+
+    _emberDebugWarn.registerHandler(function (message) {
+      assert.equal(message, 'foo', 'warning was triggered');
+    });
+
+    _emberDebugIndex.warn('foo', { id: 'ember-debug.do-not-raise' });
   });
 });
 enifed('ember-debug/tests/main_test.lint-test', ['exports'], function (exports) {
@@ -42102,7 +42130,7 @@ enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function 
     assert.equal(matching[0], t);
     m.removeFromListeners('hello', t, 'm');
     matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 0);
+    assert.equal(matching, undefined);
   });
 
   QUnit.test('meta.listeners inheritance', function (assert) {
@@ -42121,7 +42149,7 @@ enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function 
     assert.equal(matching[2], 0);
     m.removeFromListeners('hello', target, 'm');
     matching = m.matchingListeners('hello');
-    assert.equal(matching.length, 0);
+    assert.equal(matching, undefined);
     matching = parentMeta.matchingListeners('hello');
     assert.equal(matching.length, 3);
   });
