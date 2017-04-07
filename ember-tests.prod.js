@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-release+69d2abe6
+ * @version   2.12.0-release+34ce2811
  */
 
 var enifed, requireModule, Ember;
@@ -27008,6 +27008,42 @@ babelHelpers.inherits(_class2, _RenderingTest2);
       this.assertText('Click me');
     };
 
+    _class2.prototype['@test action handler that shifts element attributes doesn\'t trigger multiple invocations'] = function testActionHandlerThatShiftsElementAttributesDoesnTTriggerMultipleInvocations() {
+      var _this34 = this;
+
+      var actionCount = 0;
+      var ExampleComponent = _emberGlimmerTestsUtilsHelpers.Component.extend({
+        selected: false,
+        actions: {
+          toggleSelected: function () {
+            actionCount++;
+            this.toggleProperty('selected');
+          }
+        }
+      });
+
+      this.registerComponent('example-component', {
+        ComponentClass: ExampleComponent,
+        template: '<button class="{{if selected \'selected\'}}" {{action "toggleSelected"}}>Toggle Selected</button>'
+      });
+
+      this.render('{{example-component}}');
+
+      this.runTask(function () {
+        _this34.$('button').click();
+      });
+
+      this.assert.equal(actionCount, 1, 'Click action only fired once.');
+      this.assert.ok(this.$('button').hasClass('selected'), 'Element with action handler has properly updated it\'s conditional class');
+
+      this.runTask(function () {
+        _this34.$('button').click();
+      });
+
+      this.assert.equal(actionCount, 2, 'Second click action only fired once.');
+      this.assert.ok(!this.$('button').hasClass('selected'), 'Element with action handler has properly updated it\'s conditional class');
+    };
+
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
@@ -40761,7 +40797,7 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
     expect(1);
 
     expectAssertion(function () {
-      _emberMetalExpand_properties.default([], addProperty);
+      _emberMetalExpand_properties.default([1, 2], addProperty);
     }, /A computed property key must be a string/);
   });
 
@@ -47371,6 +47407,23 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     createLocation();
 
     equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
+  });
+
+  QUnit.test('HistoryLocation.getURL() drops duplicate slashes', function () {
+    expect(1);
+
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
+        var location = mockBrowserLocation('//');
+        location.pathname = '//'; // mockBrowserLocation does not allow for `//`, so force it
+        _emberMetal.set(this, 'location', location);
+      }
+    });
+
+    createLocation();
+
+    equal(location.getURL(), '/');
   });
 });
 enifed('ember-routing/tests/location/history_location_test.lint-test', ['exports'], function (exports) {

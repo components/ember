@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-release+69d2abe6
+ * @version   2.12.0-release+34ce2811
  */
 
 var enifed, requireModule, Ember;
@@ -1836,6 +1836,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       this.fullName = fullName;
       this.normalizedName = normalizedName;
       this.madeToString = undefined;
+      this.injections = undefined;
     }
 
     FactoryManager.prototype.create = function create() {
@@ -1843,7 +1844,13 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
 
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-      var injections = injectionsFor(this.container, this.normalizedName);
+      var injections = this.injections;
+      if (injections === undefined) {
+        injections = injectionsFor(this.container, this.normalizedName);
+        if (areInjectionsDynamic(injections) === false) {
+          this.injections = injections;
+        }
+      }
       var props = _emberUtils.assign({}, injections, options);
 
       props[_emberUtils.NAME_KEY] = this.madeToString || (this.madeToString = this.container.registry.makeToString(this.class, this.fullName));
@@ -5400,7 +5407,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], functi
   */
 
   function expandProperties(pattern, callback) {
-    _emberMetalDebug.assert('A computed property key must be a string', typeof pattern === 'string');
+    _emberMetalDebug.assert('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
     _emberMetalDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
     _emberMetalDebug.assert('Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern, (function (str) {
       var inBrace = 0;
@@ -19802,7 +19809,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-release+69d2abe6";
+  exports.default = "2.12.0-release+34ce2811";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';

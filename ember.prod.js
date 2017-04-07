@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.0-release+69d2abe6
+ * @version   2.12.0-release+34ce2811
  */
 
 var enifed, requireModule, Ember;
@@ -1804,12 +1804,19 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
       this.fullName = fullName;
       this.normalizedName = normalizedName;
       this.madeToString = undefined;
+      this.injections = undefined;
     }
 
     FactoryManager.prototype.create = function create() {
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-      var injections = injectionsFor(this.container, this.normalizedName);
+      var injections = this.injections;
+      if (injections === undefined) {
+        injections = injectionsFor(this.container, this.normalizedName);
+        if (areInjectionsDynamic(injections) === false) {
+          this.injections = injections;
+        }
+      }
       var props = _emberUtils.assign({}, injections, options);
 
       props[_emberUtils.NAME_KEY] = this.madeToString || (this.madeToString = this.container.registry.makeToString(this.class, this.fullName));
@@ -23421,7 +23428,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
       baseURL = baseURL.replace(/\/$/, '');
 
       // remove baseURL and rootURL from start of path
-      var url = path.replace(new RegExp('^' + baseURL + '(?=/|$)'), '').replace(new RegExp('^' + rootURL + '(?=/|$)'), '');
+      var url = path.replace(new RegExp('^' + baseURL + '(?=/|$)'), '').replace(new RegExp('^' + rootURL + '(?=/|$)'), '').replace(/\/\/$/g, '/'); // remove extra slashes
 
       var search = location.search || '';
       url += search + this.getHash();
@@ -38997,6 +39004,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
       rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
         var attributes = evt.currentTarget.attributes;
+        var handledActions = [];
 
         for (var i = 0; i < attributes.length; i++) {
           var attr = attributes.item(i);
@@ -39008,8 +39016,12 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
             // We have to check for action here since in some cases, jQuery will trigger
             // an event on `removeChild` (i.e. focusout) after we've already torn down the
             // action handlers for the view.
-            if (action && action.eventName === eventName) {
+            if (action && action.eventName === eventName && handledActions.indexOf(action) === -1) {
               action.handler(evt);
+              // Action handlers can mutate state which in turn creates new attributes on the element.
+              // This effect could cause the `data-ember-action` attribute to shift down and be invoked twice.
+              // To avoid this, we keep track of which actions have been handled.
+              handledActions.push(action);
             }
           }
         }
@@ -40191,7 +40203,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.0-release+69d2abe6";
+  exports.default = "2.12.0-release+34ce2811";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
