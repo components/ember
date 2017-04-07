@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.1-beta+81242e9b
+ * @version   2.13.0-beta.1-beta+50ec5965
  */
 
 var enifed, requireModule, Ember;
@@ -20195,7 +20195,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-debug'], function (ex
   */
 
   function expandProperties(pattern, callback) {
-    _emberDebug.assert('A computed property key must be a string', typeof pattern === 'string');
+    _emberDebug.assert('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
     _emberDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
 
     var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern;
@@ -26581,7 +26581,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
       baseURL = baseURL.replace(/\/$/, '');
 
       // remove baseURL and rootURL from start of path
-      var url = path.replace(new RegExp('^' + baseURL + '(?=/|$)'), '').replace(new RegExp('^' + rootURL + '(?=/|$)'), '');
+      var url = path.replace(new RegExp('^' + baseURL + '(?=/|$)'), '').replace(new RegExp('^' + rootURL + '(?=/|$)'), '').replace(/\/\/$/g, '/'); // remove extra slashes
 
       var search = location.search || '';
       url += search + this.getHash();
@@ -44229,6 +44229,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
       rootElement.on(event + '.ember', '[data-ember-action]', function (evt) {
         var attributes = evt.currentTarget.attributes;
+        var handledActions = [];
 
         for (var i = 0; i < attributes.length; i++) {
           var attr = attributes.item(i);
@@ -44240,8 +44241,12 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
             // We have to check for action here since in some cases, jQuery will trigger
             // an event on `removeChild` (i.e. focusout) after we've already torn down the
             // action handlers for the view.
-            if (action && action.eventName === eventName) {
+            if (action && action.eventName === eventName && handledActions.indexOf(action) === -1) {
               action.handler(evt);
+              // Action handlers can mutate state which in turn creates new attributes on the element.
+              // This effect could cause the `data-ember-action` attribute to shift down and be invoked twice.
+              // To avoid this, we keep track of which actions have been handled.
+              handledActions.push(action);
             }
           }
         }
@@ -45448,7 +45453,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-beta.1-beta+81242e9b";
+  exports.default = "2.13.0-beta.1-beta+50ec5965";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.1-beta+81242e9b
+ * @version   2.13.0-beta.1-beta+50ec5965
  */
 
 var enifed, requireModule, Ember;
@@ -8464,7 +8464,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-debug'], function (ex
   */
 
   function expandProperties(pattern, callback) {
-    _emberDebug.assert('A computed property key must be a string', typeof pattern === 'string');
+    _emberDebug.assert('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
     _emberDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
 
     var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern;
@@ -16151,7 +16151,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-beta.1-beta+81242e9b";
+  exports.default = "2.13.0-beta.1-beta+50ec5965";
 });
 enifed("handlebars", ["exports"], function (exports) {
   /* istanbul ignore next */
