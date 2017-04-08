@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+921f9f65
+ * @version   2.14.0-alpha.1-null+919b6654
  */
 
 var enifed, requireModule, Ember;
@@ -31022,8 +31022,18 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
       Defines which query parameters the controller accepts.
       If you give the names `['category','page']` it will bind
       the values of these query parameters to the variables
-      `this.category` and `this.page`
-       @property queryParams
+      `this.category` and `this.page`.
+      By default, Ember coerces query parameter values using `toggleProperty`.
+      This behavior may lead to unexpected results.
+      To explicity configure a query parameter property so it coerces as expected, you must define a type property:
+      ```javascript
+        queryParams: [{
+          category: {
+            type: 'boolean'
+          }
+        }]
+      ```
+      @property queryParams
       @public
     */
     queryParams: null,
@@ -48180,7 +48190,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+921f9f65";
+  exports.default = "2.14.0-alpha.1-null+919b6654";
 });
 
 enifed('node-module', ['exports'], function(_exports) {

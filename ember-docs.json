@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.921f9f65"
+        "version": "2.14.0-alpha.1.919b6654"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -11428,7 +11428,7 @@
         {
             "file": "packages/ember-routing/lib/ext/controller.js",
             "line": 13,
-            "description": "Defines which query parameters the controller accepts.\nIf you give the names `['category','page']` it will bind\nthe values of these query parameters to the variables\n`this.category` and `this.page`",
+            "description": "Defines which query parameters the controller accepts.\nIf you give the names `['category','page']` it will bind\nthe values of these query parameters to the variables\n`this.category` and `this.page`.\nBy default, Ember coerces query parameter values using `toggleProperty`.\nThis behavior may lead to unexpected results.\nTo explicity configure a query parameter property so it coerces as expected, you must define a type property:\n```javascript\n  queryParams: [{\n    category: {\n      type: 'boolean'\n    }\n  }]\n```",
             "itemtype": "property",
             "name": "queryParams",
             "access": "public",
@@ -11439,7 +11439,7 @@
         },
         {
             "file": "packages/ember-routing/lib/ext/controller.js",
-            "line": 24,
+            "line": 33,
             "description": "This property is updated to various different callback functions depending on\nthe current \"state\" of the backing route. It is used by\n`Ember.Controller.prototype._qpChanged`.\n\nThe methods backing each state can be found in the `Ember.Route.prototype._qp` computed\nproperty return value (the `.states` property). The current values are listed here for\nthe sanity of future travelers:\n\n* `inactive` - This state is used when this controller instance is not part of the active\n  route heirarchy. Set in `Ember.Route.prototype._reset` (a `router.js` microlib hook) and\n  `Ember.Route.prototype.actions.finalizeQueryParamChange`.\n* `active` - This state is used when this controller instance is part of the active\n  route heirarchy. Set in `Ember.Route.prototype.actions.finalizeQueryParamChange`.\n* `allowOverrides` - This state is used in `Ember.Route.prototype.setup` (`route.js` microlib hook).",
             "itemtype": "method",
             "name": "_qpDelegate",
@@ -11451,7 +11451,7 @@
         },
         {
             "file": "packages/ember-routing/lib/ext/controller.js",
-            "line": 45,
+            "line": 54,
             "description": "During `Ember.Route#setup` observers are created to invoke this method\nwhen any of the query params declared in `Ember.Controller#queryParams` property\nare changed.\n\n\nWhen invoked this method uses the currently active query param update delegate\n(see `Ember.Controller.prototype._qpDelegate` for details) and invokes it with\nthe QP key/value being changed.",
             "itemtype": "method",
             "name": "_qpChanged",
@@ -11463,7 +11463,7 @@
         },
         {
             "file": "packages/ember-routing/lib/ext/controller.js",
-            "line": 66,
+            "line": 75,
             "description": "Transition the application into another route. The route may\nbe either a single route or route path:\n\n```javascript\naController.transitionToRoute('blogPosts');\naController.transitionToRoute('blogPosts.recentEntries');\n```\n\nOptionally supply a model for the route in question. The model\nwill be serialized into the URL using the `serialize` hook of\nthe route:\n\n```javascript\naController.transitionToRoute('blogPost', aPost);\n```\n\nIf a literal is passed (such as a number or a string), it will\nbe treated as an identifier instead. In this case, the `model`\nhook of the route will be triggered:\n\n```javascript\naController.transitionToRoute('blogPost', 1);\n```\n\nMultiple models will be applied last to first recursively up the\nroute tree.\n\n```javascript\nApp.Router.map(function() {\n  this.route('blogPost', { path: ':blogPostId' }, function() {\n    this.route('blogComment', { path: ':blogCommentId', resetNamespace: true });\n  });\n});\n\naController.transitionToRoute('blogComment', aPost, aComment);\naController.transitionToRoute('blogComment', 1, 13);\n```\n\nIt is also possible to pass a URL (a string that starts with a\n`/`). This is intended for testing and debugging purposes and\nshould rarely be used in production code.\n\n```javascript\naController.transitionToRoute('/');\naController.transitionToRoute('/blog/post/1/comment/13');\naController.transitionToRoute('/blog/posts?sort=title');\n```\n\nAn options hash with a `queryParams` property may be provided as\nthe final argument to add query parameters to the destination URL.\n\n```javascript\naController.transitionToRoute('blogPost', 1, {\n  queryParams: { showComments: 'true' }\n});\n\n// if you just want to transition the query parameters without changing the route\naController.transitionToRoute({ queryParams: { sort: 'date' } });\n```\n\nSee also [replaceRoute](/api/classes/Ember.ControllerMixin.html#method_replaceRoute).",
             "params": [
                 {
@@ -11493,7 +11493,7 @@
         },
         {
             "file": "packages/ember-routing/lib/ext/controller.js",
-            "line": 145,
+            "line": 154,
             "description": "Transition into another route while replacing the current URL, if possible.\nThis will replace the current history entry instead of adding a new one.\nBeside that, it is identical to `transitionToRoute` in all other respects.\n\n```javascript\naController.replaceRoute('blogPosts');\naController.replaceRoute('blogPosts.recentEntries');\n```\n\nOptionally supply a model for the route in question. The model\nwill be serialized into the URL using the `serialize` hook of\nthe route:\n\n```javascript\naController.replaceRoute('blogPost', aPost);\n```\n\nIf a literal is passed (such as a number or a string), it will\nbe treated as an identifier instead. In this case, the `model`\nhook of the route will be triggered:\n\n```javascript\naController.replaceRoute('blogPost', 1);\n```\n\nMultiple models will be applied last to first recursively up the\nroute tree.\n\n```javascript\nApp.Router.map(function() {\n  this.route('blogPost', { path: ':blogPostId' }, function() {\n    this.route('blogComment', { path: ':blogCommentId', resetNamespace: true });\n  });\n});\n\naController.replaceRoute('blogComment', aPost, aComment);\naController.replaceRoute('blogComment', 1, 13);\n```\n\nIt is also possible to pass a URL (a string that starts with a\n`/`). This is intended for testing and debugging purposes and\nshould rarely be used in production code.\n\n```javascript\naController.replaceRoute('/');\naController.replaceRoute('/blog/post/1/comment/13');\n```",
             "params": [
                 {
