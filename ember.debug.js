@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+57b9802e
+ * @version   2.14.0-alpha.1-null+8d4ec001
  */
 
 var enifed, requireModule, Ember;
@@ -12765,7 +12765,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       Boot a new instance of `Ember.ApplicationInstance` for the current
       application and navigate it to the given `url`. Returns a `Promise` that
       resolves with the instance when the initial routing and rendering is
-      complete, or rejects with any error that occured during the boot process.
+      complete, or rejects with any error that occurred during the boot process.
        When `autoboot` is disabled, calling `visit` would first cause the
       application to boot, which runs the application initializers.
        This method also takes a hash of boot-time configuration options for
@@ -12783,7 +12783,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       combinations of them are valid; certain incompatible combinations might
       result in unexpected behavior.
        For example, booting the instance in the full browser environment
-      while specifying a foriegn `document` object (e.g. `{ isBrowser: true,
+      while specifying a foreign `document` object (e.g. `{ isBrowser: true,
       document: iframe.contentDocument }`) does not work correctly today,
       largely due to Ember's jQuery dependency.
        Currently, there are three officially supported scenarios/configurations.
@@ -12860,13 +12860,13 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
        #### Server-Side Resource Discovery
        This setup allows you to run the routing layer of your Ember app in a server
       environment using Node.js and completely disable rendering. This allows you
-      to simulate and discover the resources (i.e. AJAX requests) needed to fufill
+      to simulate and discover the resources (i.e. AJAX requests) needed to fulfill
       a given request and eagerly "push" these resources to the client.
        ```app/initializers/network-service.js
       import BrowserNetworkService from 'app/services/network/browser';
       import NodeNetworkService from 'app/services/network/node';
        // Inject a (hypothetical) service for abstracting all AJAX calls and use
-      // the appropiate implementaion on the client/server. This also allows the
+      // the appropriate implementation on the client/server. This also allows the
       // server to log all the AJAX calls made during a particular request and use
       // that for resource-discovery purpose.
        export function initialize(application) {
@@ -21290,7 +21290,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     {{input value=searchWord}}
     ```
   
-    In this example, the inital value in the `<input />` will be set to the value of `searchWord`.
+    In this example, the initial value in the `<input />` will be set to the value of `searchWord`.
     If the user changes the text, the value of `searchWord` will also be updated.
   
     ### Actions
@@ -22228,7 +22228,7 @@ enifed("ember-glimmer/template_registry", ["exports"], function (exports) {
   exports.getTemplate = getTemplate;
   exports.hasTemplate = hasTemplate;
   exports.setTemplate = setTemplate;
-  // STATE within a module is frowned apon, this exists
+  // STATE within a module is frowned upon, this exists
   // to support Ember.TEMPLATES but shield ember internals from this legacy
   // global API.
   var TEMPLATES = {};
@@ -31290,10 +31290,10 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
      property return value (the `.states` property). The current values are listed here for
      the sanity of future travelers:
       * `inactive` - This state is used when this controller instance is not part of the active
-       route heirarchy. Set in `Ember.Route.prototype._reset` (a `router.js` microlib hook) and
+       route hierarchy. Set in `Ember.Route.prototype._reset` (a `router.js` microlib hook) and
        `Ember.Route.prototype.actions.finalizeQueryParamChange`.
      * `active` - This state is used when this controller instance is part of the active
-       route heirarchy. Set in `Ember.Route.prototype.actions.finalizeQueryParamChange`.
+       route hierarchy. Set in `Ember.Route.prototype.actions.finalizeQueryParamChange`.
      * `allowOverrides` - This state is used in `Ember.Route.prototype.setup` (`route.js` microlib hook).
        @method _qpDelegate
       @private
@@ -35914,7 +35914,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
 
       // We need to fully scope queryParams so that we can create one object
-      // that represents both pased in queryParams and ones that aren't changed
+      // that represents both passed-in queryParams and ones that aren't changed
       // from the active transition.
       this._fullyScopeQueryParams(targetRouteName, models, _queryParams);
       this._fullyScopeQueryParams(targetRouteName, models, unchangedQPs);
@@ -36781,7 +36781,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
   }
 
   function _calculateCacheValuePrefix(prefix, part) {
-    // calculates the dot seperated sections from prefix that are also
+    // calculates the dot separated sections from prefix that are also
     // at the start of part - which gives us the route name
 
     // given : prefix = site.article.comments, part = site.article.id
@@ -43379,7 +43379,7 @@ enifed("ember-runtime/string_registry", ["exports"], function (exports) {
   exports.setStrings = setStrings;
   exports.getStrings = getStrings;
   exports.get = get;
-  // STATE within a module is frowned apon, this exists
+  // STATE within a module is frowned upon, this exists
   // to support Ember.STRINGS but shield ember internals from this legacy global
   // API.
   var STRINGS = {};
@@ -51555,7 +51555,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+57b9802e";
+  exports.default = "2.14.0-alpha.1-null+8d4ec001";
 });
 
 enifed("handlebars", ["exports"], function (exports) {

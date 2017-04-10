@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+57b9802e
+ * @version   2.14.0-alpha.1-null+8d4ec001
  */
 
 var enifed, requireModule, Ember;
@@ -5682,7 +5682,7 @@ enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-met
     });
   });
 
-  QUnit.test('visit() rejects if an error occured during a transition', function (assert) {
+  QUnit.test('visit() rejects if an error occurred during a transition', function (assert) {
     (0, _emberMetal.run)(function () {
       createApplication();
 
@@ -22575,7 +22575,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       return _this5;
     }
 
-    _class2.prototype['@test additonal events can be specified'] = function testAdditonalEventsCanBeSpecified(assert) {
+    _class2.prototype['@test additional events can be specified'] = function testAdditionalEventsCanBeSpecified(assert) {
       this.dispatcher.setup({ myevent: 'myEvent' });
 
       this.registerComponent('x-foo', {
@@ -38839,7 +38839,7 @@ enifed('ember-metal/tests/chains_test', ['ember-metal'], function (_emberMetal) 
     ok((0, _emberMetal.peekMeta)(obj) !== (0, _emberMetal.peekMeta)(childObj).readableChains(), 'The chains object is copied');
   });
 
-  QUnit.test('does not observe primative values', function (assert) {
+  QUnit.test('does not observe primitive values', function (assert) {
     var obj = {
       foo: { bar: 'STRING' }
     };
@@ -41161,7 +41161,7 @@ enifed('ember-metal/tests/main_test', ['ember-metal'], function (_emberMetal) {
       equal(SEMVER_REGEX.test(versionString), expectedResult);
     }
 
-    // Postive test cases
+    // Positive test cases
     validateVersionString('1.11.3', true);
     validateVersionString('1.0.0-beta.16.1', true);
     validateVersionString('1.12.1+canary.aba1412', true);
@@ -66643,7 +66643,7 @@ enifed('ember/tests/controller_test', ['ember-babel', 'ember-runtime', 'internal
       this.add('controller:index', _emberRuntime.Controller.extend({
         actions: {
           componentAction: function () {
-            assert.ok(true, 'controller recieved the action');
+            assert.ok(true, 'controller received the action');
           }
         }
       }));
@@ -72935,7 +72935,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       (0, _emberMetal.run)(function () {
         return router.handleURL('/other');
       });
-    }, /boom/, 'expected an exception that didnt happen');
+    }, /boom/, 'expected an exception but none was thrown');
   });
 
   QUnit.test('Exception if outlet name is undefined in render and disconnectOutlet', function () {
@@ -73139,7 +73139,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
               promiseResolve = resolve;
             });
           } else if (indexModelCount === 3) {
-            assert.deepEqual(params, { omg: 'hello' }, 'Model hook reruns even if the previous one didnt finish');
+            assert.deepEqual(params, { omg: 'hello' }, 'Model hook reruns even if the previous one didn\'t finish');
           }
         }
       }));
@@ -77534,7 +77534,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
         error: function (err) {
           step(3, 'MomRoute#error');
 
-          equal(err, handledError, 'error handled and rebubbled is handleable at heigher route');
+          equal(err, handledError, 'error handled and rebubbled is handleable at higher route');
         }
       }
     });
