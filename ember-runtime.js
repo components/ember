@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+8d4ec001
+ * @version   2.14.0-alpha.1-null+8b3ec786
  */
 
 var enifed, requireModule, Ember;
@@ -117,7 +117,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
   exports.LOOKUP_FACTORY = exports.FACTORY_FOR = exports.buildFakeContainerWithDeprecations = exports.Container = exports.privatize = exports.Registry = undefined;
 
-
   var _Container$prototype;
 
   /* globals Proxy */
@@ -187,61 +186,20 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
      */
     validationCache: null,
 
-    /**
-     Given a fullName return a corresponding instance.
-      The default behaviour is for lookup to return a singleton instance.
-     The singleton is scoped to the container, allowing multiple containers
-     to all have their own locally scoped singletons.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('api:twitter', Twitter);
-      let twitter = container.lookup('api:twitter');
-      twitter instanceof Twitter; // => true
-      // by default the container will return singletons
-     let twitter2 = container.lookup('api:twitter');
-     twitter2 instanceof Twitter; // => true
-      twitter === twitter2; //=> true
-     ```
-      If singletons are not wanted, an optional flag can be provided at lookup.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('api:twitter', Twitter);
-      let twitter = container.lookup('api:twitter', { singleton: false });
-     let twitter2 = container.lookup('api:twitter', { singleton: false });
-      twitter === twitter2; //=> false
-     ```
-      @private
-     @method lookup
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] The fullname of the request source (used for local lookup)
-     @return {any}
-     */
     lookup: function (fullName, options) {
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName)));
 
       return lookup(this, this.registry.normalize(fullName), options);
     },
-
-    /**
-     Given a fullName, return the corresponding factory.
-      @private
-     @method lookupFactory
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] The fullname of the request source (used for local lookup)
-     @return {any}
-     */
     lookupFactory: function (fullName, options) {
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
-      true && !false && (0, _emberDebug.deprecate)('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', false, { id: 'container-lookupFactory', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_migrating-from-_lookupfactory-to-factoryfor' });
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName)));
+      (true && !(false) && (0, _emberDebug.deprecate)('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', false, { id: 'container-lookupFactory', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_migrating-from-_lookupfactory-to-factoryfor' }));
+
 
       return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
     }
   }, _Container$prototype[LOOKUP_FACTORY] = function (fullName, options) {
-    true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
+    (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName)));
 
     return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
   }, _Container$prototype[FACTORY_FOR] = function (fullName) {
@@ -279,7 +237,8 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     var normalizedName = this.registry.normalize(fullName);
 
-    true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName));
+    (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName)));
+
 
     if (options.source) {
       normalizedName = this.registry.expandLocalLookup(fullName, options);
@@ -618,12 +577,13 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       configurable: true,
       enumerable: false,
       get: function () {
-        true && !false && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+        (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
 
         return this[CONTAINER_OVERRIDE] || container;
       },
       set: function (value) {
-        true && !false && (0, _emberDebug.deprecate)('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+        (true && !(false) && (0, _emberDebug.deprecate)('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
+
 
         this[CONTAINER_OVERRIDE] = value;
 
@@ -681,11 +641,11 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
   function buildFakeContainerFunction(container, containerProperty, ownerProperty) {
     return function () {
-      true && !false && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
+      (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
         id: 'ember-application.injected-container',
         until: '3.0.0',
         url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
-      });
+      }));
 
       return container[containerProperty].apply(container, arguments);
     };
@@ -723,6 +683,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     FactoryManager.prototype.create = function create() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
 
       var injections = this.injections;
       if (injections === undefined) {
@@ -886,35 +847,13 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
      */
     _typeOptions: null,
 
-    /**
-     Creates a container based on this registry.
-      @private
-     @method container
-     @param {Object} options
-     @return {Container} created container
-     */
     container: function (options) {
       return new Container(this, options);
     },
-
-    /**
-     Registers a factory for later injection.
-      Example:
-      ```javascript
-     let registry = new Registry();
-      registry.register('model:user', Person, {singleton: false });
-     registry.register('fruit:favorite', Orange);
-     registry.register('communication:main', Email, {singleton: false});
-     ```
-      @private
-     @method register
-     @param {String} fullName
-     @param {Function} factory
-     @param {Object} options
-     */
     register: function (fullName, factory) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+
 
       if (factory === undefined) {
         throw new TypeError('Attempting to register an unknown factory: \'' + fullName + '\'');
@@ -930,22 +869,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       this.registrations[normalizedName] = factory;
       this._options[normalizedName] = options;
     },
-
-    /**
-     Unregister a fullName
-      ```javascript
-     let registry = new Registry();
-     registry.register('model:user', User);
-      registry.resolve('model:user').create() instanceof User //=> true
-      registry.unregister('model:user')
-     registry.resolve('model:user') === undefined //=> true
-     ```
-      @private
-     @method unregister
-     @param {String} fullName
-     */
     unregister: function (fullName) {
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+
 
       var normalizedName = this.normalize(fullName);
 
@@ -956,37 +882,8 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       delete this._failCache[normalizedName];
       delete this._options[normalizedName];
     },
-
-    /**
-     Given a fullName return the corresponding factory.
-      By default `resolve` will retrieve the factory from
-     the registry.
-      ```javascript
-     let registry = new Registry();
-     registry.register('api:twitter', Twitter);
-      registry.resolve('api:twitter') // => Twitter
-     ```
-      Optionally the registry can be provided with a custom resolver.
-     If provided, `resolve` will first provide the custom resolver
-     the opportunity to resolve the fullName, otherwise it will fallback
-     to the registry.
-      ```javascript
-     let registry = new Registry();
-     registry.resolver = function(fullName) {
-        // lookup via the module system of choice
-      };
-      // the twitter factory is added to the module system
-     registry.resolve('api:twitter') // => Twitter
-     ```
-      @private
-     @method resolve
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] the fullname of the request source (used for local lookups)
-     @return {Function} fullName's factory
-     */
     resolve: function (fullName, options) {
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
 
       var factory = resolve(this, this.normalize(fullName), options);
       if (factory === undefined && this.fallback) {
@@ -996,18 +893,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       }
       return factory;
     },
-
-    /**
-     A hook that can be used to describe how the resolver will
-     attempt to find the factory.
-      For example, the default Ember `.describe` returns the full
-     class name (including namespace) where Ember's resolver expects
-     to find the `fullName`.
-      @private
-     @method describe
-     @param {String} fullName
-     @return {string} described fullName
-     */
     describe: function (fullName) {
       if (this.resolver && this.resolver.lookupDescription) {
         return this.resolver.lookupDescription(fullName);
@@ -1017,14 +902,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         return fullName;
       }
     },
-
-    /**
-     A hook to enable custom fullName normalization behaviour
-      @private
-     @method normalizeFullName
-     @param {String} fullName
-     @return {string} normalized fullName
-     */
     normalizeFullName: function (fullName) {
       if (this.resolver && this.resolver.normalize) {
         return this.resolver.normalize(fullName);
@@ -1034,25 +911,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         return fullName;
       }
     },
-
-    /**
-     Normalize a fullName based on the application's conventions
-      @private
-     @method normalize
-     @param {String} fullName
-     @return {string} normalized fullName
-     */
     normalize: function (fullName) {
       return this._normalizeCache[fullName] || (this._normalizeCache[fullName] = this.normalizeFullName(fullName));
     },
-
-    /**
-     @method makeToString
-      @private
-     @param {any} factory
-     @param {string} fullName
-     @return {function} toString function
-     */
     makeToString: function (factory, fullName) {
       if (this.resolver && this.resolver.makeToString) {
         return this.resolver.makeToString(factory, fullName);
@@ -1062,17 +923,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         return factory.toString();
       }
     },
-
-    /**
-     Given a fullName check if the container is aware of its factory
-     or singleton instance.
-      @private
-     @method has
-     @param {String} fullName
-     @param {Object} [options]
-     @param {String} [options.source] the fullname of the request source (used for local lookups)
-     @return {Boolean}
-     */
     has: function (fullName, options) {
       if (!this.isValidFullName(fullName)) {
         return false;
@@ -1082,28 +932,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       return has(this, this.normalize(fullName), source);
     },
-
-    /**
-     Allow registering options for all factories of a type.
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      // if all of type `connection` must not be singletons
-     registry.optionsForType('connection', { singleton: false });
-      registry.register('connection:twitter', TwitterConnection);
-     registry.register('connection:facebook', FacebookConnection);
-      let twitter = container.lookup('connection:twitter');
-     let twitter2 = container.lookup('connection:twitter');
-      twitter === twitter2; // => false
-      let facebook = container.lookup('connection:facebook');
-     let facebook2 = container.lookup('connection:facebook');
-      facebook === facebook2; // => false
-     ```
-      @private
-     @method optionsForType
-     @param {String} type
-     @param {Object} options
-     */
     optionsForType: function (type, options) {
       this._typeOptions[type] = options;
     },
@@ -1114,13 +942,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       }
       return optionsForType;
     },
-
-    /**
-     @private
-     @method options
-     @param {String} fullName
-     @param {Object} options
-     */
     options: function (fullName) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -1152,36 +973,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         return this.fallback.getOption(fullName, optionName);
       }
     },
-
-    /**
-     Used only via `injection`.
-      Provides a specialized form of injection, specifically enabling
-     all objects of one type to be injected with a reference to another
-     object.
-      For example, provided each object of type `controller` needed a `router`.
-     one would do the following:
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('router:main', Router);
-     registry.register('controller:user', UserController);
-     registry.register('controller:post', PostController);
-      registry.typeInjection('controller', 'router', 'router:main');
-      let user = container.lookup('controller:user');
-     let post = container.lookup('controller:post');
-      user.router instanceof Router; //=> true
-     post.router instanceof Router; //=> true
-      // both controllers share the same router
-     user.router === post.router; //=> true
-     ```
-      @private
-     @method typeInjection
-     @param {String} type
-     @param {String} property
-     @param {String} fullName
-     */
     typeInjection: function (type, property, fullName) {
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+
 
       var fullNameType = fullName.split(':')[0];
       if (fullNameType === type) {
@@ -1195,40 +989,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         fullName: fullName
       });
     },
-
-    /**
-     Defines injection rules.
-      These rules are used to inject dependencies onto objects when they
-     are instantiated.
-      Two forms of injections are possible:
-      * Injecting one fullName on another fullName
-     * Injecting one fullName on a type
-      Example:
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('source:main', Source);
-     registry.register('model:user', User);
-     registry.register('model:post', Post);
-      // injecting one fullName on another fullName
-     // eg. each user model gets a post model
-     registry.injection('model:user', 'post', 'model:post');
-      // injecting one fullName on another type
-     registry.injection('model', 'source', 'source:main');
-      let user = container.lookup('model:user');
-     let post = container.lookup('model:post');
-      user.source instanceof Source; //=> true
-     post.source instanceof Source; //=> true
-      user.post instanceof Post; //=> true
-      // and both models share the same source
-     user.source === post.source; //=> true
-     ```
-      @private
-     @method injection
-     @param {String} factoryName
-     @param {String} property
-     @param {String} injectionName
-     */
     injection: function (fullName, property, injectionName) {
       this.validateFullName(injectionName);
       var normalizedInjectionName = this.normalize(injectionName);
@@ -1237,7 +997,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         return this.typeInjection(fullName, property, normalizedInjectionName);
       }
 
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
 
       var normalizedName = this.normalize(fullName);
 
@@ -1248,28 +1008,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         fullName: normalizedInjectionName
       });
     },
-
-    /**
-     Used only via `factoryInjection`.
-      Provides a specialized form of injection, specifically enabling
-     all factory of one type to be injected with a reference to another
-     object.
-      For example, provided each factory of type `model` needed a `store`.
-     one would do the following:
-      ```javascript
-     let registry = new Registry();
-      registry.register('store:main', SomeStore);
-      registry.factoryTypeInjection('model', 'store', 'store:main');
-      let store = registry.lookup('store:main');
-     let UserFactory = registry.lookupFactory('model:user');
-      UserFactory.store instanceof SomeStore; //=> true
-     ```
-      @private
-     @method factoryTypeInjection
-     @param {String} type
-     @param {String} property
-     @param {String} fullName
-     */
     factoryTypeInjection: function (type, property, fullName) {
       var injections = this._factoryTypeInjections[type] || (this._factoryTypeInjections[type] = []);
 
@@ -1278,44 +1016,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         fullName: this.normalize(fullName)
       });
     },
-
-    /**
-     Defines factory injection rules.
-      Similar to regular injection rules, but are run against factories, via
-     `Registry#lookupFactory`.
-      These rules are used to inject objects onto factories when they
-     are looked up.
-      Two forms of injections are possible:
-      * Injecting one fullName on another fullName
-     * Injecting one fullName on a type
-      Example:
-      ```javascript
-     let registry = new Registry();
-     let container = registry.container();
-      registry.register('store:main', Store);
-     registry.register('store:secondary', OtherStore);
-     registry.register('model:user', User);
-     registry.register('model:post', Post);
-      // injecting one fullName on another type
-     registry.factoryInjection('model', 'store', 'store:main');
-      // injecting one fullName on another fullName
-     registry.factoryInjection('model:post', 'secondaryStore', 'store:secondary');
-      let UserFactory = container.lookupFactory('model:user');
-     let PostFactory = container.lookupFactory('model:post');
-     let store = container.lookup('store:main');
-      UserFactory.store instanceof Store; //=> true
-     UserFactory.secondaryStore instanceof OtherStore; //=> false
-      PostFactory.store instanceof Store; //=> true
-     PostFactory.secondaryStore instanceof OtherStore; //=> true
-      // and both models share the same source instance
-     UserFactory.store === PostFactory.store; //=> true
-     ```
-      @private
-     @method factoryInjection
-     @param {String} factoryName
-     @param {String} property
-     @param {String} injectionName
-     */
     factoryInjection: function (fullName, property, injectionName) {
       var normalizedName = this.normalize(fullName);
       var normalizedInjectionName = this.normalize(injectionName);
@@ -1333,12 +1033,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         fullName: normalizedInjectionName
       });
     },
-
-    /**
-     @private
-     @method knownForType
-     @param {String} type the type to iterate over
-    */
     knownForType: function (type) {
       var fallbackKnown = void 0,
           resolverKnown = void 0;
@@ -1384,7 +1078,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       for (var i = 0; i < injections.length; i++) {
         fullName = injections[i].fullName;
 
-        true && (0, _emberDebug.assert)('Attempting to inject an unknown injection: \'' + fullName + '\'', this.has(fullName));
+        (true && (0, _emberDebug.assert)('Attempting to inject an unknown injection: \'' + fullName + '\'', this.has(fullName)));
       }
     },
     normalizeInjectionsHash: function (hash) {
@@ -1392,7 +1086,8 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       for (var key in hash) {
         if (hash.hasOwnProperty(key)) {
-          true && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
+          (true && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key])));
+
 
           injections.push({
             property: key,
@@ -1434,7 +1129,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   };
 
   function deprecateResolverFunction(registry) {
-    true && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
+    (true && !(false) && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' }));
 
     registry.resolver = {
       resolve: registry.resolver
@@ -1461,9 +1156,10 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
    */
   Registry.prototype.expandLocalLookup = function Registry_expandLocalLookup(fullName, options) {
     if (this.resolver && this.resolver.expandLocalLookup) {
-      true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
-      true && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
-      true && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+      (true && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source));
+      (true && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source)));
+
 
       var normalizedFullName = this.normalize(fullName);
       var normalizedSource = this.normalize(options.source);
@@ -1570,7 +1266,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   exports.FACTORY_FOR = FACTORY_FOR;
   exports.LOOKUP_FACTORY = LOOKUP_FACTORY;
 });
-
 enifed('ember-babel', ['exports'], function (exports) {
   'use strict';
 
@@ -1644,7 +1339,6 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var slice = exports.slice = Array.prototype.slice;
 });
-
 enifed('ember-console', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
   'use strict';
 
@@ -1787,7 +1481,6 @@ enifed('ember-console', ['exports', 'ember-environment'], function (exports, _em
 
   exports.default = index;
 });
-
 enifed('ember-environment', ['exports'], function (exports) {
   'use strict';
 
@@ -1951,13 +1644,12 @@ enifed('ember-environment', ['exports'], function (exports) {
   exports.context = context;
   exports.environment = environment;
 });
-
-enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-utils', 'ember-debug', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, _emberBabel, _emberEnvironment, _emberUtils, _emberDebug, _features, _reference, _require2, _emberConsole, _backburner) {
+enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, ember_features, _glimmer_reference, require, Logger, Backburner) {
   'use strict';
 
-  exports.descriptor = exports.isProxy = exports.assertNotRendered = exports.didRender = undefined;
-  exports.runInTransaction = exports.replace = exports.markObjectAsDirty = exports.tagFor = exports.tagForProperty = exports.setHasViews = exports.InjectedProperty = exports.isGlobalPath = exports.bind = exports.Binding = exports.detectBinding = exports.clearUnprocessedMixins = exports.hasUnprocessedMixins = exports.REQUIRED = exports.required = exports.observer = exports.mixin = exports._beforeObserver = exports._immediateObserver = exports.aliasMethod = exports.Mixin = exports._removeBeforeObserver = exports._addBeforeObserver = exports.removeObserver = exports.observersFor = exports.addObserver = exports._suspendObservers = exports._suspendObserver = exports.expandProperties = exports.setProperties = exports.getProperties = exports.OrderedSet = exports.MapWithDefault = exports.Map = exports.Libraries = exports.libraries = exports.watcherCount = exports.watch = exports.unwatch = exports.isWatching = exports.destroy = exports.unwatchPath = exports.watchPath = exports.removeChainWatcher = exports.finishChains = exports.ChainNode = exports.unwatchKey = exports.watchKey = exports.Descriptor = exports.defineProperty = exports.PROPERTY_DID_CHANGE = exports.propertyWillChange = exports.propertyDidChange = exports.overrideChains = exports.endPropertyChanges = exports.changeProperties = exports.beginPropertyChanges = exports.ObserverSet = exports.run = exports.isPresent = exports.isBlank = exports.isEmpty = exports.isNone = exports.watchedEvents = exports.suspendListeners = exports.suspendListener = exports.sendEvent = exports.removeListener = exports.on = exports.listenersFor = exports.hasListeners = exports.addListener = exports.accumulateListeners = exports.WeakMap = exports.trySet = exports.set = exports.getWithDefault = exports.get = exports._getPath = exports.Cache = exports.peekMeta = exports.meta = exports.META_DESC = exports.getDispatchOverride = exports.setDispatchOverride = exports.dispatchError = exports.setOnerror = exports.getOnerror = exports.instrumentationUnsubscribe = exports.instrumentationSubscribe = exports.instrumentationReset = exports._instrumentStart = exports.flaggedInstrument = exports.instrument = exports.deprecateProperty = exports.merge = exports.alias = exports.ComputedProperty = exports.cacheFor = exports.computed = undefined;
-
+  var require__default = 'default' in require ? require['default'] : require;
+  Logger = 'default' in Logger ? Logger['default'] : Logger;
+  Backburner = 'default' in Backburner ? Backburner['default'] : Backburner;
 
   /**
   @module ember
@@ -1979,7 +1671,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @static
     @public
   */
-  var Ember = typeof _emberEnvironment.context.imports.Ember === 'object' && _emberEnvironment.context.imports.Ember || {};
+  var Ember = typeof emberEnvironment.context.imports.Ember === 'object' && emberEnvironment.context.imports.Ember || {};
 
   // Make sure these are set whether Ember was already defined or not
   Ember.isNamespace = true;
@@ -2185,7 +1877,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }
 
   function accumulateListeners(obj, eventName, otherActions) {
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     if (!meta$$1) {
       return;
     }
@@ -2223,8 +1915,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function addListener(obj, eventName, target, method, once) {
-    true && (0, _emberDebug.assert)('You must pass at least an object and event name to Ember.addListener', !!obj && !!eventName);
-    true && !(eventName !== 'didInitAttrs') && (0, _emberDebug.deprecate)('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
+    true && emberDebug.assert('You must pass at least an object and event name to Ember.addListener', !!obj && !!eventName);
+    true && !(eventName !== 'didInitAttrs') && emberDebug.deprecate('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
       url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
@@ -2261,7 +1953,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function removeListener(obj, eventName, target, method) {
-    true && (0, _emberDebug.assert)('You must pass at least an object and event name to Ember.removeListener', !!obj && !!eventName);
+    true && emberDebug.assert('You must pass at least an object and event name to Ember.removeListener', !!obj && !!eventName);
 
     if (!method && 'function' === typeof target) {
       method = target;
@@ -2347,7 +2039,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   */
   function sendEvent(obj, eventName, params, actions) {
     if (!actions) {
-      var meta$$1 = peekMeta(obj);
+      var meta$$1 = exports.peekMeta(obj);
       actions = meta$$1 && meta$$1.matchingListeners(eventName);
     }
 
@@ -2375,7 +2067,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
       if ('string' === typeof method) {
         if (params) {
-          (0, _emberUtils.applyStr)(target, method, params);
+          emberUtils.applyStr(target, method, params);
         } else {
           target[method]();
         }
@@ -2398,7 +2090,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @param {String} eventName
   */
   function hasListeners(obj, eventName) {
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     if (!meta$$1) {
       return false;
     }
@@ -2415,7 +2107,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   */
   function listenersFor(obj, eventName) {
     var ret = [];
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     var actions = meta$$1 && meta$$1.matchingListeners(eventName);
 
     if (!actions) {
@@ -2468,7 +2160,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   function isProxy(value) {
     if (typeof value === 'object' && value) {
-      var meta$$1 = peekMeta(value);
+      var meta$$1 = exports.peekMeta(value);
       return meta$$1 && meta$$1.isProxy();
     }
 
@@ -2484,7 +2176,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }
 
   function makeTag() {
-    return new _reference.DirtyableTag();
+    return new _glimmer_reference.DirtyableTag();
   }
 
   function tagForProperty(object, propertyKey, _meta) {
@@ -2502,7 +2194,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
       return tags[propertyKey] = makeTag();
     } else {
-      return _reference.CONSTANT_TAG;
+      return _glimmer_reference.CONSTANT_TAG;
     }
   }
 
@@ -2511,7 +2203,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       var meta$$1 = _meta || meta(object);
       return meta$$1.writableTag(makeTag);
     } else {
-      return _reference.CONSTANT_TAG;
+      return _glimmer_reference.CONSTANT_TAG;
     }
   }
 
@@ -2540,7 +2232,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   function ensureRunloop() {
     if (!run) {
-      run = (0, _require2.default)('ember-metal').run;
+      run = require__default('ember-metal').run;
     }
 
     if (hasViews() && !run.backburner.currentInstance) {
@@ -2569,7 +2261,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var ObserverSet = function () {
     function ObserverSet() {
-      (0, _emberBabel.classCallCheck)(this, ObserverSet);
+      emberBabel.classCallCheck(this, ObserverSet);
 
       this.clear();
     }
@@ -2577,7 +2269,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     ObserverSet.prototype.add = function add(sender, keyName, eventName) {
       var observerSet = this.observerSet;
       var observers = this.observers;
-      var senderGuid = (0, _emberUtils.guidFor)(sender);
+      var senderGuid = emberUtils.guidFor(sender);
       var keySet = observerSet[senderGuid];
       var index = void 0;
 
@@ -2621,22 +2313,22 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     return ObserverSet;
   }();
 
-  var runInTransaction = void 0;
-  var didRender = void 0;
-  var assertNotRendered = void 0;
+  exports.runInTransaction = void 0;
+  exports.didRender = void 0;
+  exports.assertNotRendered = void 0;
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  if (true || false) {
+  {
     var counter = 0;
     var inTransaction = false;
     var shouldReflush = void 0;
     var debugStack = void 0;
 
-    exports.runInTransaction = runInTransaction = function (context$$1, methodName) {
+    exports.runInTransaction = function (context$$1, methodName) {
       shouldReflush = false;
       inTransaction = true;
-      if (true) {
+      {
         debugStack = context$$1.env.debugStack;
       }
       context$$1[methodName]();
@@ -2645,7 +2337,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return shouldReflush;
     };
 
-    exports.didRender = didRender = function (object, key, reference) {
+    exports.didRender = function (object, key, reference) {
       if (!inTransaction) {
         return;
       }
@@ -2653,7 +2345,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       var lastRendered = meta$$1.writableLastRendered();
       lastRendered[key] = counter;
 
-      if (true) {
+      {
         var referenceMap = meta$$1.writableLastRenderedReferenceMap();
         referenceMap[key] = reference;
 
@@ -2664,12 +2356,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
     };
 
-    exports.assertNotRendered = assertNotRendered = function (object, key, _meta) {
+    exports.assertNotRendered = function (object, key, _meta) {
       var meta$$1 = _meta || meta(object);
       var lastRendered = meta$$1.readableLastRendered();
 
       if (lastRendered && lastRendered[key] === counter) {
-        if (true) {
+        {
           var templateMap = meta$$1.readableLastRenderedTemplateMap();
           var lastRenderedIn = templateMap[key];
           var currentlyIn = debugStack.peek();
@@ -2692,25 +2384,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
           var message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
 
-          if (false) {
-            true && !false && (0, _emberDebug.deprecate)(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
-          } else {
-            true && (0, _emberDebug.assert)(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
+          {
+            true && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
           }
         }
 
         shouldReflush = true;
       }
     };
-  } else {
-    // in production do nothing to detect reflushes
-    exports.runInTransaction = runInTransaction = function (context$$1, methodName) {
-      context$$1[methodName]();
-      return false;
-    };
   }
 
-  var PROPERTY_DID_CHANGE = (0, _emberUtils.symbol)('PROPERTY_DID_CHANGE');
+  var PROPERTY_DID_CHANGE = emberUtils.symbol('PROPERTY_DID_CHANGE');
 
   var beforeObserverSet = new ObserverSet();
   var observerSet = new ObserverSet();
@@ -2737,7 +2421,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function propertyWillChange(obj, keyName, _meta) {
-    var meta$$1 = _meta || peekMeta(obj);
+    var meta$$1 = _meta || exports.peekMeta(obj);
 
     if (meta$$1 && !meta$$1.isInitialized(obj)) {
       return;
@@ -2776,7 +2460,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function propertyDidChange(obj, keyName, _meta) {
-    var meta$$1 = _meta || peekMeta(obj);
+    var meta$$1 = _meta || exports.peekMeta(obj);
 
     if (meta$$1 && !meta$$1.isInitialized(obj)) {
       return;
@@ -2810,8 +2494,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     markObjectAsDirty(meta$$1, keyName);
 
-    if (true || false) {
-      assertNotRendered(obj, keyName, meta$$1);
+    {
+      exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
 
@@ -2864,7 +2548,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   function iterDeps(method, obj, depKey, seen, meta$$1) {
     var possibleDesc = void 0,
         desc = void 0;
-    var guid = (0, _emberUtils.guidFor)(obj);
+    var guid = emberUtils.guidFor(obj);
     var current = seen[guid];
 
     if (!current) {
@@ -3033,11 +2717,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   function MANDATORY_SETTER_FUNCTION(name) {
     function SETTER_FUNCTION(value) {
-      var m = peekMeta(this);
+      var m = exports.peekMeta(this);
       if (!m.isInitialized(this)) {
         m.writeValues(name, value);
       } else {
-        true && (0, _emberDebug.assert)('You must use Ember.set() to set the `' + name + '` property (of ' + this + ') to `' + value + '`.', false);
+        true && emberDebug.assert('You must use Ember.set() to set the `' + name + '` property (of ' + this + ') to `' + value + '`.', false);
       }
     }
 
@@ -3047,14 +2731,14 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   function DEFAULT_GETTER_FUNCTION(name) {
     return function GETTER_FUNCTION() {
-      var meta$$1 = peekMeta(this);
+      var meta$$1 = exports.peekMeta(this);
       return meta$$1 && meta$$1.peekValues(name);
     };
   }
 
   function INHERITING_GETTER_FUNCTION(name) {
     function IGETTER_FUNCTION() {
-      var meta$$1 = peekMeta(this);
+      var meta$$1 = exports.peekMeta(this);
       var val = meta$$1 && meta$$1.readInheritedValue('values', name);
 
       if (val === UNDEFINED) {
@@ -3135,7 +2819,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     if (desc instanceof Descriptor) {
       value = desc;
-      if (true) {
+      {
         if (watching) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
@@ -3146,8 +2830,6 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         } else {
           obj[keyName] = value;
         }
-      } else {
-        obj[keyName] = value;
       }
       if (desc.setup) {
         desc.setup(obj, keyName);
@@ -3156,7 +2838,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       if (desc == null) {
         value = data;
 
-        if (true) {
+        {
           if (watching) {
             meta$$1.writeValues(keyName, data);
 
@@ -3175,8 +2857,6 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
           } else {
             obj[keyName] = data;
           }
-        } else {
-          obj[keyName] = data;
         }
       } else {
         value = desc;
@@ -3229,7 +2909,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         obj.willWatchProperty(keyName);
       }
 
-      if (true) {
+      {
         // NOTE: this is dropped for prod + minified builds
         handleMandatorySetter(m, obj, keyName);
       }
@@ -3238,7 +2918,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
   }
 
-  if (true) {
+  {
     var _hasOwnProperty = function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     };
@@ -3251,7 +2931,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     // development to aid in development asertions. Production builds of
     // ember strip this entire block out
     handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-      var descriptor = (0, _emberUtils.lookupDescriptor)(obj, keyName);
+      var descriptor = emberUtils.lookupDescriptor(obj, keyName);
       var configurable = descriptor ? descriptor.configurable : true;
       var isWritable = descriptor ? descriptor.writable : true;
       var hasValue = descriptor ? 'value' in descriptor : true;
@@ -3309,7 +2989,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         obj.didUnwatchProperty(keyName);
       }
 
-      if (true) {
+      {
         // It is true, the following code looks quite WAT. But have no fear, It
         // exists purely to improve development ergonomics and is removed from
         // ember.min.js and ember.prod.js builds.
@@ -3319,7 +2999,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         // that occurs, and attempt to provide more helpful feedback. The alternative
         // is tricky to debug partially observable properties.
         if (!desc && keyName in obj) {
-          var maybeMandatoryDescriptor = (0, _emberUtils.lookupDescriptor)(obj, keyName);
+          var maybeMandatoryDescriptor = emberUtils.lookupDescriptor(obj, keyName);
 
           if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {
             if (maybeMandatoryDescriptor.get && maybeMandatoryDescriptor.get.isInheritingGetter) {
@@ -3402,7 +3082,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var ChainWatchers = function () {
     function ChainWatchers() {
-      (0, _emberBabel.classCallCheck)(this, ChainWatchers);
+      emberBabel.classCallCheck(this, ChainWatchers);
 
       // chain nodes that reference a key in this obj by key
       // we only create ChainWatchers when we are going to add them
@@ -3431,7 +3111,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
     };
 
-    ChainWatchers.prototype.has = function has(key, node) {
+    ChainWatchers.prototype.has = function has$$1(key, node) {
       var nodes = this.chains[key];
       if (nodes) {
         for (var i = 0; i < nodes.length; i++) {
@@ -3481,9 +3161,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
 
       // we gather callbacks so we don't notify them during revalidation
-      for (var _i2 = 0; _i2 < affected.length; _i2 += 2) {
-        var obj = affected[_i2];
-        var path = affected[_i2 + 1];
+      for (var _i = 0; _i < affected.length; _i += 2) {
+        var obj = affected[_i];
+        var path = affected[_i + 1];
         callback(obj, path);
       }
     };
@@ -3506,7 +3186,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return;
     }
 
-    var meta$$1 = _meta || peekMeta(obj);
+    var meta$$1 = _meta || exports.peekMeta(obj);
 
     if (!meta$$1 || !meta$$1.readableChainWatchers()) {
       return;
@@ -3526,7 +3206,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var ChainNode = function () {
     function ChainNode(parent, key, value) {
-      (0, _emberBabel.classCallCheck)(this, ChainNode);
+      emberBabel.classCallCheck(this, ChainNode);
 
       this._parent = parent;
       this._key = key;
@@ -3728,7 +3408,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return;
     }
 
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
 
     // check if object meant only to be a prototype
     if (meta$$1 !== undefined && meta$$1.proto === obj) {
@@ -3737,19 +3417,19 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     // Use `get` if the return value is an EachProxy or an uncacheable value.
     if (isVolatile(obj[key]) === true) {
-      return _get(obj, key);
+      return get(obj, key);
       // Otherwise attempt to get the cached value of the computed property
     } else {
-      var _cache = meta$$1.readableCache();
-      if (_cache) {
-        return cacheFor.get(_cache, key);
+      var cache = meta$$1.readableCache();
+      if (cache) {
+        return cacheFor.get(cache, key);
       }
     }
   }
 
   function finishChains(obj) {
     // We only create meta if we really have to
-    var m = peekMeta(obj);
+    var m = exports.peekMeta(obj);
     if (m !== undefined) {
       m = meta(obj);
 
@@ -3820,9 +3500,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   var META_DESTROYED = 1 << 3;
   var IS_PROXY = 1 << 4;
 
-  if (true || false) {
+  {
     members.lastRendered = ownMap;
-    if ((0, _require2.has)('ember-debug')) {
+    if (require.has('ember-debug')) {
       //https://github.com/emberjs/ember.js/issues/14732
       members.lastRenderedReferenceMap = ownMap;
       members.lastRenderedTemplateMap = ownMap;
@@ -3834,9 +3514,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var Meta = function () {
     function Meta(obj, parentMeta) {
-      (0, _emberBabel.classCallCheck)(this, Meta);
+      emberBabel.classCallCheck(this, Meta);
 
-      if (true) {
+      {
         counters.metaInstantiated++;
       }
 
@@ -3869,9 +3549,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       // inherited, and we can optimize it much better than JS runtimes.
       this.parent = parentMeta;
 
-      if (true || false) {
+      {
         this._lastRendered = undefined;
-        if (true) {
+        {
           this._lastRenderedReferenceMap = undefined;
           this._lastRenderedTemplateMap = undefined;
         }
@@ -3913,7 +3593,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
           if (node._watching) {
             nodeObject = node._object;
             if (nodeObject) {
-              var foreignMeta = peekMeta(nodeObject);
+              var foreignMeta = exports.peekMeta(nodeObject);
               // avoid cleaning up chain watchers when both current and
               // foreign objects are being destroyed
               // if both are being destroyed manual cleanup is not needed
@@ -3996,7 +3676,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
 
     Meta.prototype.writeDeps = function writeDeps(subkey, itemkey, value) {
-      true && (0, _emberDebug.assert)('Cannot call writeDeps after the object is destroyed.', !this.isMetaDestroyed());
+      true && emberDebug.assert('Cannot call writeDeps after the object is destroyed.', !this.isMetaDestroyed());
 
       var outerMap = this._getOrCreateOwnMap('_deps');
       var innerMap = outerMap[subkey];
@@ -4090,7 +3770,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     Meta.prototype.writeValue = function writeValue(obj, key, value) {
-      var descriptor = (0, _emberUtils.lookupDescriptor)(obj, key);
+      var descriptor = emberUtils.lookupDescriptor(obj, key);
       var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
 
       if (isMandatorySetter) {
@@ -4132,7 +3812,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var capitalized = capitalize(name);
 
     Meta.prototype['write' + capitalized] = function (subkey, value) {
-      true && (0, _emberDebug.assert)('Cannot call write' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+      true && emberDebug.assert('Cannot call write' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap(key);
       map[subkey] = value;
@@ -4148,11 +3828,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       while (pointer !== undefined) {
         var map = pointer[key];
         if (map) {
-          for (var _key2 in map) {
+          for (var _key in map) {
             seen = seen || Object.create(null);
-            if (!seen[_key2]) {
-              seen[_key2] = true;
-              fn(_key2, map[_key2]);
+            if (!seen[_key]) {
+              seen[_key] = true;
+              fn(_key, map[_key]);
             }
           }
         }
@@ -4161,7 +3841,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     Meta.prototype['clear' + capitalized] = function () {
-      true && (0, _emberDebug.assert)('Cannot call clear' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+      true && emberDebug.assert('Cannot call clear' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       this[key] = undefined;
     };
@@ -4175,7 +3855,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
   }
 
-  var UNDEFINED = (0, _emberUtils.symbol)('undefined');
+  var UNDEFINED = emberUtils.symbol('undefined');
 
   // Implements a member that provides a non-heritable, lazily-created
   // object using the method you provide.
@@ -4183,7 +3863,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var key = memberProperty(name);
     var capitalized = capitalize(name);
     Meta.prototype['writable' + capitalized] = function (create) {
-      true && (0, _emberDebug.assert)('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+      true && emberDebug.assert('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
       if (!ret) {
@@ -4203,7 +3883,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var key = memberProperty(name);
     var capitalized = capitalize(name);
     Meta.prototype['writable' + capitalized] = function (create) {
-      true && (0, _emberDebug.assert)('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+      true && emberDebug.assert('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
       if (!ret) {
@@ -4244,7 +3924,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     descriptor: META_DESC
   };
 
-  if (true) {
+  {
     Meta.prototype.readInheritedValue = function (key, subkey) {
       var internalKey = '_' + key;
 
@@ -4265,7 +3945,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     Meta.prototype.writeValue = function (obj, key, value) {
-      var descriptor = (0, _emberUtils.lookupDescriptor)(obj, key);
+      var descriptor = emberUtils.lookupDescriptor(obj, key);
       var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
 
       if (isMandatorySetter) {
@@ -4277,35 +3957,35 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }
 
   var setMeta = void 0;
-  var peekMeta = void 0;
+  exports.peekMeta = void 0;
 
   // choose the one appropriate for given platform
-  if (_emberUtils.HAS_NATIVE_WEAKMAP) {
+  if (emberUtils.HAS_NATIVE_WEAKMAP) {
     var getPrototypeOf = Object.getPrototypeOf;
     var metaStore = new WeakMap();
 
     setMeta = function WeakMap_setMeta(obj, meta) {
-      if (true) {
+      {
         counters.setCalls++;
       }
       metaStore.set(obj, meta);
     };
 
-    exports.peekMeta = peekMeta = function WeakMap_peekMeta(obj) {
-      if (true) {
+    exports.peekMeta = function WeakMap_peekMeta(obj) {
+      {
         counters.peekCalls++;
       }
 
       return metaStore.get(obj);
     };
 
-    exports.peekMeta = peekMeta = function WeakMap_peekParentMeta(obj) {
+    exports.peekMeta = function WeakMap_peekParentMeta(obj) {
       var pointer = obj;
       var meta = void 0;
       while (pointer) {
         meta = metaStore.get(pointer);
         // jshint loopfunc:true
-        if (true) {
+        {
           counters.peekCalls++;
         }
         // stop if we find a `null` value, since
@@ -4316,7 +3996,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         }
 
         pointer = getPrototypeOf(pointer);
-        if (true) {
+        {
           counters.peakPrototypeWalks++;
         }
       }
@@ -4336,17 +4016,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       obj[META_FIELD] = meta;
     };
 
-    exports.peekMeta = peekMeta = function Fallback_peekMeta(obj) {
+    exports.peekMeta = function Fallback_peekMeta(obj) {
       return obj[META_FIELD];
     };
   }
 
   function deleteMeta(obj) {
-    if (true) {
+    {
       counters.deleteCalls++;
     }
 
-    var meta = peekMeta(obj);
+    var meta = exports.peekMeta(obj);
     if (meta) {
       meta.destroy();
     }
@@ -4371,11 +4051,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @return {Object} the meta hash for an object
   */
   function meta(obj) {
-    if (true) {
+    {
       counters.metaCalls++;
     }
 
-    var maybeMeta = peekMeta(obj);
+    var maybeMeta = exports.peekMeta(obj);
     var parent = void 0;
 
     // remove this code, in-favor of explicit parent
@@ -4393,7 +4073,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var Cache = function () {
     function Cache(limit, func, key, store) {
-      (0, _emberBabel.classCallCheck)(this, Cache);
+      emberBabel.classCallCheck(this, Cache);
 
       this.size = 0;
       this.misses = 0;
@@ -4451,7 +4131,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var DefaultStore = function () {
     function DefaultStore() {
-      (0, _emberBabel.classCallCheck)(this, DefaultStore);
+      emberBabel.classCallCheck(this, DefaultStore);
 
       this.data = Object.create(null);
     }
@@ -4570,12 +4250,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @return {Object} the property value or `null`.
     @public
   */
-  function _get(obj, keyName) {
-    true && (0, _emberDebug.assert)('Get must be called with two arguments; an object and a property key', arguments.length === 2);
-    true && (0, _emberDebug.assert)('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
-    true && (0, _emberDebug.assert)('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
-    true && (0, _emberDebug.assert)('\'this\' in paths is not supported', !hasThis(keyName));
-    true && (0, _emberDebug.assert)('Cannot call `Ember.get` with an empty string', keyName !== '');
+  function get(obj, keyName) {
+    true && emberDebug.assert('Get must be called with two arguments; an object and a property key', arguments.length === 2);
+    true && emberDebug.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
+    true && emberDebug.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
+    true && emberDebug.assert('\'this\' in paths is not supported', !hasThis(keyName));
+    true && emberDebug.assert('Cannot call `Ember.get` with an empty string', keyName !== '');
 
     var value = obj[keyName];
     var desc = value !== null && typeof value === 'object' && value.isDescriptor ? value : undefined;
@@ -4607,7 +4287,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         return undefined;
       }
 
-      obj = _get(obj, parts[i]);
+      obj = get(obj, parts[i]);
 
       if (obj && obj.isDestroyed) {
         return undefined;
@@ -4642,7 +4322,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function getWithDefault(root, key, defaultValue) {
-    var value = _get(root, key);
+    var value = get(root, key);
 
     if (value === undefined) {
       return defaultValue;
@@ -4668,18 +4348,18 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @return {Object} the passed value.
     @public
   */
-  function _set2(obj, keyName, value, tolerant) {
-    true && (0, _emberDebug.assert)('Set must be called with three or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
-    true && (0, _emberDebug.assert)('Cannot call set with \'' + keyName + '\' on an undefined object.', obj && typeof obj === 'object' || typeof obj === 'function');
-    true && (0, _emberDebug.assert)('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
-    true && (0, _emberDebug.assert)('\'this\' in paths is not supported', !hasThis(keyName));
-    true && (0, _emberDebug.assert)('calling set on destroyed object: ' + (0, _emberUtils.toString)(obj) + '.' + keyName + ' = ' + (0, _emberUtils.toString)(value), !obj.isDestroyed);
+  function set(obj, keyName, value, tolerant) {
+    true && emberDebug.assert('Set must be called with three or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
+    true && emberDebug.assert('Cannot call set with \'' + keyName + '\' on an undefined object.', obj && typeof obj === 'object' || typeof obj === 'function');
+    true && emberDebug.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
+    true && emberDebug.assert('\'this\' in paths is not supported', !hasThis(keyName));
+    true && emberDebug.assert('calling set on destroyed object: ' + emberUtils.toString(obj) + '.' + keyName + ' = ' + emberUtils.toString(value), !obj.isDestroyed);
 
     if (isPath(keyName)) {
       return setPath(obj, keyName, value, tolerant);
     }
 
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     var possibleDesc = obj[keyName];
 
     var desc = void 0,
@@ -4695,7 +4375,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       desc.set(obj, keyName, value);
     } else if (obj.setUnknownProperty && currentValue === undefined && !(keyName in obj)) {
       /* unknown property */
-      true && (0, _emberDebug.assert)('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
+      true && emberDebug.assert('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
 
       obj.setUnknownProperty(keyName, value);
     } else if (currentValue === value) {
@@ -4704,10 +4384,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     } else {
       propertyWillChange(obj, keyName);
 
-      if (true) {
+      {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
-      } else {
-        obj[keyName] = value;
       }
 
       propertyDidChange(obj, keyName);
@@ -4716,7 +4394,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     return value;
   }
 
-  if (true) {
+  {
     var setWithMandatorySetter = function (meta$$1, obj, keyName, value) {
       if (meta$$1 && meta$$1.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
@@ -4750,18 +4428,18 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     if (!keyName || keyName.length === 0) {
-      throw new _emberDebug.Error('Property set failed: You passed an empty path');
+      throw new emberDebug.Error('Property set failed: You passed an empty path');
     }
 
     if (!root) {
       if (tolerant) {
         return;
       } else {
-        throw new _emberDebug.Error('Property set failed: object in path "' + path + '" could not be found or was destroyed.');
+        throw new emberDebug.Error('Property set failed: object in path "' + path + '" could not be found or was destroyed.');
       }
     }
 
-    return _set2(root, keyName, value);
+    return set(root, keyName, value);
   }
 
   /**
@@ -4779,7 +4457,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function trySet(root, path, value) {
-    return _set2(root, path, value, true);
+    return set(root, path, value, true);
   }
 
   /**
@@ -4817,8 +4495,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     expansion, and is passed the expansion.
   */
   function expandProperties(pattern, callback) {
-    true && (0, _emberDebug.assert)('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
-    true && (0, _emberDebug.assert)('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
+    true && emberDebug.assert('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
+    true && emberDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
 
     var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern;
     var properties = [pattern];
@@ -4837,7 +4515,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
             bookmark = i - 1;
             inside = true;
           } else {
-            true && (0, _emberDebug.assert)(unbalancedNestedError, false);
+            true && emberDebug.assert(unbalancedNestedError, false);
           }
           break;
         // Opening curly brace will be the last character of the brace expansion we encounter.
@@ -4856,17 +4534,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
             }
             inside = false;
           } else {
-            true && (0, _emberDebug.assert)(unbalancedNestedError, false);
+            true && emberDebug.assert(unbalancedNestedError, false);
           }
           break;
       }
     }
     if (inside) {
-      true && (0, _emberDebug.assert)(unbalancedNestedError, false);
+      true && emberDebug.assert(unbalancedNestedError, false);
     }
 
-    for (var _i3 = 0; _i3 < properties.length; _i3++) {
-      callback(properties[_i3].replace(END_WITH_EACH_REGEX, '.[]'));
+    for (var _i = 0; _i < properties.length; _i++) {
+      callback(properties[_i].replace(END_WITH_EACH_REGEX, '.[]'));
     }
   }
 
@@ -4899,12 +4577,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     if (typeof obj !== 'object' || obj === null) {
       return false;
     }
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     return (meta$$1 && meta$$1.peekWatching(key)) > 0;
   }
 
   function watcherCount(obj, key) {
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     return meta$$1 && meta$$1.peekWatching(key) || 0;
   }
 
@@ -5091,8 +4769,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     if (typeof config === 'function') {
       this._getter = config;
     } else {
-      true && (0, _emberDebug.assert)('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
-      true && (0, _emberDebug.assert)('Config object passed to an Ember.computed can only contain `get` or `set` keys.', function () {
+      true && emberDebug.assert('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
+      true && emberDebug.assert('Config object passed to an Ember.computed can only contain `get` or `set` keys.', function () {
         var keys = Object.keys(config);
         for (var i = 0; i < keys.length; i++) {
           if (keys[i] !== 'get' && keys[i] !== 'set') {
@@ -5105,7 +4783,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       this._getter = config.get;
       this._setter = config.set;
     }
-    true && (0, _emberDebug.assert)('Computed properties must receive a getter or a setter, you passed none.', !!this._getter || !!this._setter);
+    true && emberDebug.assert('Computed properties must receive a getter or a setter, you passed none.', !!this._getter || !!this._setter);
 
     this._dependentKeys = undefined;
     this._suspended = undefined;
@@ -5171,7 +4849,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   */
   ComputedPropertyPrototype.readOnly = function () {
     this._readOnly = true;
-    true && (0, _emberDebug.assert)('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
+    true && emberDebug.assert('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
 
     return this;
   };
@@ -5208,7 +4886,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var args = [];
 
     function addArg(property) {
-      true && (0, _emberDebug.warn)('Dependent keys containing @each only work one level deep. ' + ('You used the key "' + property + '" which is invalid. ') + 'Please create an intermediary computed property.', DEEP_EACH_REGEX.test(property) === false, { id: 'ember-metal.computed-deep-each' });
+      true && emberDebug.warn('Dependent keys containing @each only work one level deep. ' + ('You used the key "' + property + '" which is invalid. ') + 'Please create an intermediary computed property.', DEEP_EACH_REGEX.test(property) === false, { id: 'ember-metal.computed-deep-each' });
 
       args.push(property);
     }
@@ -5264,7 +4942,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     // don't create objects just to invalidate
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     if (!meta$$1 || meta$$1.source !== obj) {
       return;
     }
@@ -5324,13 +5002,13 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   };
 
   ComputedPropertyPrototype._throwReadOnlyError = function computedPropertyThrowReadOnlyError(obj, keyName) {
-    throw new _emberDebug.Error('Cannot set read-only property "' + keyName + '" on object: ' + (0, _emberUtils.inspect)(obj));
+    throw new emberDebug.Error('Cannot set read-only property "' + keyName + '" on object: ' + emberUtils.inspect(obj));
   };
 
   ComputedPropertyPrototype.clobberSet = function computedPropertyClobberSet(obj, keyName, value) {
     var cachedValue = cacheFor(obj, keyName);
     defineProperty(obj, keyName, null, cachedValue);
-    _set2(obj, keyName, value);
+    set(obj, keyName, value);
     return value;
   };
 
@@ -5520,7 +5198,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function cacheFor(obj, key) {
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     var cache = meta$$1 && meta$$1.source === obj && meta$$1.readableCache();
     var ret = cache && cache[key];
 
@@ -5557,12 +5235,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }
 
   var AliasedProperty = function (_Descriptor) {
-    (0, _emberBabel.inherits)(AliasedProperty, _Descriptor);
+    emberBabel.inherits(AliasedProperty, _Descriptor);
 
     function AliasedProperty(altKey) {
-      (0, _emberBabel.classCallCheck)(this, AliasedProperty);
+      emberBabel.classCallCheck(this, AliasedProperty);
 
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _Descriptor.call(this));
+      var _this = emberBabel.possibleConstructorReturn(this, _Descriptor.call(this));
 
       _this.isDescriptor = true;
       _this.altKey = altKey;
@@ -5571,7 +5249,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     AliasedProperty.prototype.setup = function setup(obj, keyName) {
-      true && (0, _emberDebug.assert)('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
+      true && emberDebug.assert('Setting alias \'' + keyName + '\' on self', this.altKey !== keyName);
 
       var meta$$1 = meta(obj);
       if (meta$$1.peekWatching(keyName)) {
@@ -5594,8 +5272,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       removeDependentKeys(this, obj, keyName, meta(obj));
     };
 
-    AliasedProperty.prototype.get = function get(obj, keyName) {
-      var ret = _get(obj, this.altKey);
+    AliasedProperty.prototype.get = function get$$1(obj, keyName) {
+      var ret = get(obj, this.altKey);
       var meta$$1 = meta(obj);
       var cache = meta$$1.writableCache();
       if (cache[keyName] !== CONSUMED) {
@@ -5605,8 +5283,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return ret;
     };
 
-    AliasedProperty.prototype.set = function set(obj, keyName, value) {
-      return _set2(obj, this.altKey, value);
+    AliasedProperty.prototype.set = function set$$1(obj, keyName, value) {
+      return set(obj, this.altKey, value);
     };
 
     AliasedProperty.prototype.readOnly = function readOnly() {
@@ -5623,12 +5301,12 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }(Descriptor);
 
   function AliasedProperty_readOnlySet(obj, keyName, value) {
-    throw new _emberDebug.Error('Cannot set read-only property \'' + keyName + '\' on object: ' + (0, _emberUtils.inspect)(obj));
+    throw new emberDebug.Error('Cannot set read-only property \'' + keyName + '\' on object: ' + emberUtils.inspect(obj));
   }
 
   function AliasedProperty_oneWaySet(obj, keyName, value) {
     defineProperty(obj, keyName, null);
-    return _set2(obj, keyName, value);
+    return set(obj, keyName, value);
   }
 
   // Backwards compatibility with Ember Data.
@@ -5687,7 +5365,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   function deprecateProperty(object, deprecatedKey, newKey, options) {
     function _deprecate() {
-      true && !false && (0, _emberDebug.deprecate)('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.', false, options);
+      true && !false && emberDebug.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.', false, options);
     }
 
     Object.defineProperty(object, deprecatedKey, {
@@ -5695,11 +5373,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       enumerable: false,
       set: function (value) {
         _deprecate();
-        _set2(this, newKey, value);
+        set(this, newKey, value);
       },
       get: function () {
         _deprecate();
-        return _get(this, newKey);
+        return get(this, newKey);
       }
     });
   }
@@ -5814,11 +5492,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
   }
 
-  var flaggedInstrument = void 0;
-  if (_features.EMBER_IMPROVED_INSTRUMENTATION) {
-    exports.flaggedInstrument = flaggedInstrument = instrument;
+  exports.flaggedInstrument = void 0;
+  if (ember_features.EMBER_IMPROVED_INSTRUMENTATION) {
+    exports.flaggedInstrument = instrument;
   } else {
-    exports.flaggedInstrument = flaggedInstrument = function (name, payload, callback) {
+    exports.flaggedInstrument = function (name, payload, callback) {
       return callback();
     };
   }
@@ -5855,7 +5533,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     var payload = _payload(_payloadParam);
 
-    var STRUCTURED_PROFILE = _emberEnvironment.ENV.STRUCTURED_PROFILE;
+    var STRUCTURED_PROFILE = emberEnvironment.ENV.STRUCTURED_PROFILE;
     var timeName = void 0;
     if (STRUCTURED_PROFILE) {
       timeName = name + ': ' + payload.object;
@@ -6004,13 +5682,13 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   }
 
   function defaultDispatch(error) {
-    if ((0, _emberDebug.isTesting)()) {
+    if (emberDebug.isTesting()) {
       throw error;
     }
     if (onerror) {
       onerror(error);
     } else {
-      _emberConsole.default.error(getStack(error));
+      Logger.error(getStack(error));
     }
   }
 
@@ -6039,7 +5717,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       throw new TypeError('Constructor WeakMap requires \'new\'');
     }
 
-    this._id = _emberUtils.GUID_KEY + id++;
+    this._id = emberUtils.GUID_KEY + id++;
 
     if (iterable === null || iterable === undefined) {
       return;
@@ -6066,7 +5744,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return undefined;
     }
 
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     if (meta$$1) {
       var map = meta$$1.readableWeak();
       if (map) {
@@ -6109,7 +5787,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return false;
     }
 
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     if (meta$$1) {
       var map = meta$$1.readableWeak();
       if (map) {
@@ -6205,7 +5883,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var objectType = typeof obj;
 
     if (objectType === 'object') {
-      var size = _get(obj, 'size');
+      var size = get(obj, 'size');
       if (typeof size === 'number') {
         return !size;
       }
@@ -6216,7 +5894,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     if (objectType === 'object') {
-      var length = _get(obj, 'length');
+      var length = get(obj, 'length');
       if (typeof length === 'number') {
         return !length;
       }
@@ -6304,8 +5982,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
   };
 
-  var backburner = new _backburner.default(['sync', 'actions', 'destroy'], {
-    GUID_KEY: _emberUtils.GUID_KEY,
+  var backburner = new Backburner(['sync', 'actions', 'destroy'], {
+    GUID_KEY: emberUtils.GUID_KEY,
     sync: {
       before: beginPropertyChanges,
       after: endPropertyChanges
@@ -6446,13 +6124,13 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.bind = function () {
-    for (var _len2 = arguments.length, curried = Array(_len2), _key3 = 0; _key3 < _len2; _key3++) {
-      curried[_key3] = arguments[_key3];
+    for (var _len = arguments.length, curried = Array(_len), _key = 0; _key < _len; _key++) {
+      curried[_key] = arguments[_key];
     }
 
     return function () {
-      for (var _len3 = arguments.length, args = Array(_len3), _key4 = 0; _key4 < _len3; _key4++) {
-        args[_key4] = arguments[_key4];
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
       }
 
       return run$1.join.apply(run$1, curried.concat(args));
@@ -6552,7 +6230,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.schedule = function () /* queue, target, method */{
-    true && (0, _emberDebug.assert)('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !(0, _emberDebug.isTesting)());
+    true && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
 
     return backburner.schedule.apply(backburner, arguments);
   };
@@ -6634,10 +6312,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.once = function () {
-    true && (0, _emberDebug.assert)('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !(0, _emberDebug.isTesting)());
+    true && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
 
-    for (var _len4 = arguments.length, args = Array(_len4), _key5 = 0; _key5 < _len4; _key5++) {
-      args[_key5] = arguments[_key5];
+    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
     }
 
     args.unshift('actions');
@@ -6697,7 +6375,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.scheduleOnce = function () /*queue, target, method*/{
-    true && (0, _emberDebug.assert)('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !(0, _emberDebug.isTesting)());
+    true && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
 
     return backburner.scheduleOnce.apply(backburner, arguments);
   };
@@ -6766,8 +6444,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   run$1.next = function () {
-    for (var _len5 = arguments.length, args = Array(_len5), _key6 = 0; _key6 < _len5; _key6++) {
-      args[_key6] = arguments[_key6];
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
     }
 
     args.push(1);
@@ -6974,10 +6652,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @constructor
     @private
   */
-
   var Libraries = function () {
     function Libraries() {
-      (0, _emberBabel.classCallCheck)(this, Libraries);
+      emberBabel.classCallCheck(this, Libraries);
 
       this._registry = [];
       this._coreLibIndex = 0;
@@ -7012,7 +6689,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         }
         this._registry.splice(index, 0, { name: name, version: version });
       } else {
-        true && (0, _emberDebug.warn)('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
+        true && emberDebug.warn('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
       }
     },
     registerCoreLibrary: function (name, version) {
@@ -7029,7 +6706,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
   };
 
-  if (_features.EMBER_LIBRARIES_ISREGISTERED) {
+  if (ember_features.EMBER_LIBRARIES_ISREGISTERED) {
     Libraries.prototype.isRegistered = function (name) {
       return !!this._getLibraryByName(name);
     };
@@ -7140,7 +6817,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       @private
     */
     add: function (obj, _guid) {
-      var guid = _guid || (0, _emberUtils.guidFor)(obj);
+      var guid = _guid || emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
       var list = this.list;
 
@@ -7161,7 +6838,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       @private
     */
     delete: function (obj, _guid) {
-      var guid = _guid || (0, _emberUtils.guidFor)(obj);
+      var guid = _guid || emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
       var list = this.list;
 
@@ -7198,7 +6875,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         return false;
       }
 
-      var guid = (0, _emberUtils.guidFor)(obj);
+      var guid = emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
 
       return presenceSet[guid] === true;
@@ -7226,8 +6903,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
           fn.call(arguments[1], list[i]);
         }
       } else {
-        for (var _i4 = 0; _i4 < list.length; _i4++) {
-          fn(list[_i4]);
+        for (var _i = 0; _i < list.length; _i++) {
+          fn(list[_i]);
         }
       }
     },
@@ -7326,7 +7003,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
 
       var values = this._values;
-      var guid = (0, _emberUtils.guidFor)(key);
+      var guid = emberUtils.guidFor(key);
 
       return values[guid];
     },
@@ -7343,7 +7020,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     set: function (key, value) {
       var keys = this._keys;
       var values = this._values;
-      var guid = (0, _emberUtils.guidFor)(key);
+      var guid = emberUtils.guidFor(key);
 
       // ensure we don't store -0
       var k = key === -0 ? 0 : key;
@@ -7373,7 +7050,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       // to use in browsers that are not ES6 friendly;
       var keys = this._keys;
       var values = this._values;
-      var guid = (0, _emberUtils.guidFor)(key);
+      var guid = emberUtils.guidFor(key);
 
       if (keys.delete(key, guid)) {
         delete values[guid];
@@ -7554,7 +7231,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       propertyNames = arguments[1];
     }
     for (; i < propertyNames.length; i++) {
-      ret[propertyNames[i]] = _get(obj, propertyNames[i]);
+      ret[propertyNames[i]] = get(obj, propertyNames[i]);
     }
     return ret;
   }
@@ -7591,7 +7268,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       for (var i = 0; i < props.length; i++) {
         propertyName = props[i];
 
-        _set2(obj, propertyName, properties[propertyName]);
+        set(obj, propertyName, properties[propertyName]);
       }
     });
     return properties;
@@ -7706,7 +7383,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var Binding = function () {
     function Binding(toPath, fromPath) {
-      (0, _emberBabel.classCallCheck)(this, Binding);
+      emberBabel.classCallCheck(this, Binding);
 
       // Configuration
       this._from = fromPath;
@@ -7804,9 +7481,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       @public
     */
 
-    Binding.prototype.toString = function toString() {
+    Binding.prototype.toString = function toString$$1() {
       var oneWay = this._oneWay ? '[oneWay]' : '';
-      return 'Ember.Binding<' + (0, _emberUtils.guidFor)(this) + '>(' + this._from + ' -> ' + this._to + ')' + oneWay;
+      return 'Ember.Binding<' + emberUtils.guidFor(this) + '>(' + this._from + ' -> ' + this._to + ')' + oneWay;
     };
 
     // ..........................................................
@@ -7824,7 +7501,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     */
 
     Binding.prototype.connect = function connect(obj) {
-      true && (0, _emberDebug.assert)('Must pass a valid object to Ember.Binding.connect()', !!obj);
+      true && emberDebug.assert('Must pass a valid object to Ember.Binding.connect()', !!obj);
 
       var fromObj = void 0,
           fromPath = void 0,
@@ -7833,8 +7510,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       // If the binding's "from" path could be interpreted as a global, verify
       // whether the path refers to a global or not by consulting `Ember.lookup`.
       if (isGlobalPath(this._from)) {
-        var _name = getFirstKey(this._from);
-        possibleGlobal = _emberEnvironment.context.lookup[_name];
+        var name = getFirstKey(this._from);
+        possibleGlobal = emberEnvironment.context.lookup[name];
 
         if (possibleGlobal) {
           fromObj = possibleGlobal;
@@ -7847,7 +7524,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         fromPath = this._from;
       }
 
-      trySet(obj, this._to, _get(fromObj, fromPath));
+      trySet(obj, this._to, get(fromObj, fromPath));
 
       // Add an observer on the object to be notified when the binding should be updated.
       addObserver(fromObj, fromPath, this, 'fromDidChange');
@@ -7878,7 +7555,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     */
 
     Binding.prototype.disconnect = function disconnect() {
-      true && (0, _emberDebug.assert)('Must pass a valid object to Ember.Binding.disconnect()', !!this._toObj);
+      true && emberDebug.assert('Must pass a valid object to Ember.Binding.disconnect()', !!this._toObj);
 
       // Remove an observer on the object so we're no longer notified of
       // changes that should update bindings.
@@ -7927,7 +7604,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     };
 
     Binding.prototype._sync = function _sync() {
-      var log = _emberEnvironment.ENV.LOG_BINDINGS;
+      var log = emberEnvironment.ENV.LOG_BINDINGS;
 
       var toObj = this._toObj;
 
@@ -7947,9 +7624,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
       // If we're synchronizing from the remote object...
       if (direction === 'fwd') {
-        var fromValue = _get(fromObj, fromPath);
+        var fromValue = get(fromObj, fromPath);
         if (log) {
-          _emberConsole.default.log(' ', this.toString(), '->', fromValue, fromObj);
+          Logger.log(' ', this.toString(), '->', fromValue, fromObj);
         }
         if (this._oneWay) {
           trySet(toObj, this._to, fromValue);
@@ -7960,9 +7637,9 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         }
         // If we're synchronizing *to* the remote object.
       } else if (direction === 'back') {
-        var toValue = _get(toObj, this._to);
+        var toValue = get(toObj, this._to);
         if (log) {
-          _emberConsole.default.log(' ', this.toString(), '<-', toValue, toObj);
+          Logger.log(' ', this.toString(), '<-', toValue, toObj);
         }
         _suspendObserver(fromObj, fromPath, this, 'fromDidChange', function () {
           trySet(fromObj, fromPath, toValue);
@@ -7979,17 +7656,17 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var deprecateAliasMessage = '`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.';
 
     var objectInfo = 'The `' + toPath + '` property of `' + obj + '` is an `Ember.Binding` connected to `' + fromPath + '`, but ';
-    true && !!deprecateGlobal && (0, _emberDebug.deprecate)(objectInfo + deprecateGlobalMessage, !deprecateGlobal, {
+    true && !!deprecateGlobal && emberDebug.deprecate(objectInfo + deprecateGlobalMessage, !deprecateGlobal, {
       id: 'ember-metal.binding',
       until: '3.0.0',
       url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
-    true && !!deprecateOneWay && (0, _emberDebug.deprecate)(objectInfo + deprecateOneWayMessage, !deprecateOneWay, {
+    true && !!deprecateOneWay && emberDebug.deprecate(objectInfo + deprecateOneWayMessage, !deprecateOneWay, {
       id: 'ember-metal.binding',
       until: '3.0.0',
       url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
-    true && !!deprecateAlias && (0, _emberDebug.deprecate)(objectInfo + deprecateAliasMessage, !deprecateAlias, {
+    true && !!deprecateAlias && emberDebug.deprecate(objectInfo + deprecateAliasMessage, !deprecateAlias, {
       id: 'ember-metal.binding',
       until: '3.0.0',
       url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
@@ -8194,7 +7871,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var guid = void 0;
 
     if (mixin instanceof Mixin) {
-      guid = (0, _emberUtils.guidFor)(mixin);
+      guid = emberUtils.guidFor(mixin);
       if (mixinsMeta.peekMixins(guid)) {
         return CONTINUE;
       }
@@ -8240,10 +7917,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     // to clone the computed property so that other mixins do not receive
     // the wrapped version.
     property = Object.create(property);
-    property._getter = (0, _emberUtils.wrap)(property._getter, superProperty._getter);
+    property._getter = emberUtils.wrap(property._getter, superProperty._getter);
     if (superProperty._setter) {
       if (property._setter) {
-        property._setter = (0, _emberUtils.wrap)(property._setter, superProperty._setter);
+        property._setter = emberUtils.wrap(property._setter, superProperty._setter);
       } else {
         property._setter = superProperty._setter;
       }
@@ -8270,7 +7947,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return method;
     }
 
-    return (0, _emberUtils.wrap)(method, superMethod);
+    return emberUtils.wrap(method, superMethod);
   }
 
   function applyConcatenatedProperties(obj, key, value, values) {
@@ -8278,7 +7955,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     var ret = void 0;
 
     if (baseValue === null || baseValue === undefined) {
-      ret = (0, _emberUtils.makeArray)(value);
+      ret = emberUtils.makeArray(value);
     } else {
       if (isArray(baseValue)) {
         if (value === null || value === undefined) {
@@ -8287,11 +7964,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
           ret = a_concat.call(baseValue, value);
         }
       } else {
-        ret = a_concat.call((0, _emberUtils.makeArray)(baseValue), value);
+        ret = a_concat.call(emberUtils.makeArray(baseValue), value);
       }
     }
 
-    if (true) {
+    {
       // it is possible to use concatenatedProperties with strings (which cannot be frozen)
       // only freeze objects...
       if (typeof ret === 'object' && ret !== null) {
@@ -8306,10 +7983,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   function applyMergedProperties(obj, key, value, values) {
     var baseValue = values[key] || obj[key];
 
-    if (true) {
+    {
       if (isArray(value)) {
         // use conditional to avoid stringifying every time
-        true && (0, _emberDebug.assert)('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', false);
+        true && emberDebug.assert('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', false);
       }
     }
 
@@ -8317,7 +7994,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       return value;
     }
 
-    var newBase = (0, _emberUtils.assign)({}, baseValue);
+    var newBase = emberUtils.assign({}, baseValue);
     var hasFunction = false;
 
     for (var prop in value) {
@@ -8336,7 +8013,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     if (hasFunction) {
-      newBase._super = _emberUtils.ROOT;
+      newBase._super = emberUtils.ROOT;
     }
 
     return newBase;
@@ -8384,7 +8061,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     for (var i = 0; i < mixins.length; i++) {
       currentMixin = mixins[i];
-      true && (0, _emberDebug.assert)('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
+      true && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
 
       props = mixinProperties(meta$$1, currentMixin);
       if (props === CONTINUE) {
@@ -8506,7 +8183,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
         value = void 0,
         desc = void 0;
 
-    obj._super = _emberUtils.ROOT;
+    obj._super = emberUtils.ROOT;
 
     // Go through all mixins and hashes passed in, and:
     //
@@ -8566,8 +8243,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function mixin(obj) {
-    for (var _len6 = arguments.length, args = Array(_len6 > 1 ? _len6 - 1 : 0), _key7 = 1; _key7 < _len6; _key7++) {
-      args[_key7 - 1] = arguments[_key7];
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
     }
 
     applyMixin(obj, args, false);
@@ -8637,7 +8314,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   var Mixin = function () {
     function Mixin(mixins, properties) {
-      (0, _emberBabel.classCallCheck)(this, Mixin);
+      emberBabel.classCallCheck(this, Mixin);
 
       this.properties = properties;
 
@@ -8661,14 +8338,14 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       }
       this.ownerConstructor = undefined;
       this._without = undefined;
-      this[_emberUtils.GUID_KEY] = null;
-      this[_emberUtils.NAME_KEY] = null;
-      (0, _emberDebug.debugSeal)(this);
+      this[emberUtils.GUID_KEY] = null;
+      this[emberUtils.NAME_KEY] = null;
+      emberDebug.debugSeal(this);
     }
 
     Mixin.applyPartial = function applyPartial(obj) {
-      for (var _len7 = arguments.length, args = Array(_len7 > 1 ? _len7 - 1 : 0), _key8 = 1; _key8 < _len7; _key8++) {
-        args[_key8 - 1] = arguments[_key8];
+      for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
       }
 
       return applyMixin(obj, args, true);
@@ -8686,8 +8363,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
       unprocessedFlag = true;
       var M = this;
 
-      for (var _len8 = arguments.length, args = Array(_len8), _key9 = 0; _key9 < _len8; _key9++) {
-        args[_key9] = arguments[_key9];
+      for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
       }
 
       return new M(args, undefined);
@@ -8698,7 +8375,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
 
     Mixin.mixins = function mixins(obj) {
-      var meta$$1 = peekMeta(obj);
+      var meta$$1 = exports.peekMeta(obj);
       var ret = [];
       if (!meta$$1) {
         return ret;
@@ -8754,7 +8431,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     for (idx = 0; idx < arguments.length; idx++) {
       currentMixin = arguments[idx];
-      true && (0, _emberDebug.assert)('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
+      true && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
 
       if (currentMixin instanceof Mixin) {
         mixins.push(currentMixin);
@@ -8783,7 +8460,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   MixinPrototype.toString = Object.toString;
 
   function _detect(curMixin, targetMixin, seen) {
-    var guid = (0, _emberUtils.guidFor)(curMixin);
+    var guid = emberUtils.guidFor(curMixin);
 
     if (seen[guid]) {
       return false;
@@ -8816,18 +8493,18 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     if (obj instanceof Mixin) {
       return _detect(obj, this, {});
     }
-    var meta$$1 = peekMeta(obj);
+    var meta$$1 = exports.peekMeta(obj);
     if (!meta$$1) {
       return false;
     }
-    return !!meta$$1.peekMixins((0, _emberUtils.guidFor)(this));
+    return !!meta$$1.peekMixins(emberUtils.guidFor(this));
   };
 
   MixinPrototype.without = function () {
     var ret = new Mixin([this]);
 
-    for (var _len9 = arguments.length, args = Array(_len9), _key10 = 0; _key10 < _len9; _key10++) {
-      args[_key10] = arguments[_key10];
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
     }
 
     ret._without = args;
@@ -8835,10 +8512,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   };
 
   function _keys(ret, mixin, seen) {
-    if (seen[(0, _emberUtils.guidFor)(mixin)]) {
+    if (seen[emberUtils.guidFor(mixin)]) {
       return;
     }
-    seen[(0, _emberUtils.guidFor)(mixin)] = true;
+    seen[emberUtils.guidFor(mixin)] = true;
 
     if (mixin.properties) {
       var props = Object.keys(mixin.properties);
@@ -8862,7 +8539,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     return ret;
   };
 
-  (0, _emberDebug.debugSeal)(MixinPrototype);
+  emberDebug.debugSeal(MixinPrototype);
 
   var REQUIRED = new Descriptor();
   REQUIRED.toString = function () {
@@ -8877,7 +8554,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function required() {
-    true && !false && (0, _emberDebug.deprecate)('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false, { id: 'ember-metal.required', until: '3.0.0' });
+    true && !false && emberDebug.deprecate('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false, { id: 'ember-metal.required', until: '3.0.0' });
 
     return REQUIRED;
   }
@@ -8941,8 +8618,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @public
   */
   function observer() {
-    for (var _len10 = arguments.length, args = Array(_len10), _key11 = 0; _key11 < _len10; _key11++) {
-      args[_key11] = arguments[_key11];
+    for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
     }
 
     var func = args.slice(-1)[0];
@@ -8955,7 +8632,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
     if (typeof func !== 'function') {
       // revert to old, soft-deprecated argument ordering
-      true && !false && (0, _emberDebug.deprecate)('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
+      true && !false && emberDebug.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
 
       func = args[0];
       _paths = args.slice(1);
@@ -8968,7 +8645,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     if (typeof func !== 'function') {
-      throw new _emberDebug.EmberError('Ember.observer called without a function');
+      throw new emberDebug.EmberError('Ember.observer called without a function');
     }
 
     func.__ember_observes__ = paths;
@@ -9001,11 +8678,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function _immediateObserver() {
-    true && !false && (0, _emberDebug.deprecate)('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
+    true && !false && emberDebug.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
 
     for (var i = 0; i < arguments.length; i++) {
       var arg = arguments[i];
-      true && (0, _emberDebug.assert)('Immediate observers must observe internal properties only, not properties on other objects.', typeof arg !== 'string' || arg.indexOf('.') === -1);
+      true && emberDebug.assert('Immediate observers must observe internal properties only, not properties on other objects.', typeof arg !== 'string' || arg.indexOf('.') === -1);
     }
 
     return observer.apply(this, arguments);
@@ -9028,8 +8705,8 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
   function _beforeObserver() {
-    for (var _len11 = arguments.length, args = Array(_len11), _key12 = 0; _key12 < _len11; _key12++) {
-      args[_key12] = arguments[_key12];
+    for (var _len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+      args[_key6] = arguments[_key6];
     }
 
     var func = args.slice(-1)[0];
@@ -9055,7 +8732,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     }
 
     if (typeof func !== 'function') {
-      throw new _emberDebug.EmberError('_beforeObserver called without a function');
+      throw new emberDebug.EmberError('_beforeObserver called without a function');
     }
 
     func.__ember_observesBefore__ = paths;
@@ -9083,10 +8760,10 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
 
   function injectedPropertyGet(keyName) {
     var desc = this[keyName];
-    var owner = (0, _emberUtils.getOwner)(this) || this.container; // fallback to `container` for backwards compat
+    var owner = emberUtils.getOwner(this) || this.container; // fallback to `container` for backwards compat
 
-    true && (0, _emberDebug.assert)('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
-    true && (0, _emberDebug.assert)('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
+    true && emberDebug.assert('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
+    true && emberDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
 
     return owner.lookup(desc.type + ':' + (desc.name || keyName));
   }
@@ -9145,25 +8822,25 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
     @private
   */
 
-  var Descriptor$1 = function (_Descriptor2) {
-    (0, _emberBabel.inherits)(Descriptor$1, _Descriptor2);
+  var Descriptor$1 = function (_EmberDescriptor) {
+    emberBabel.inherits(Descriptor$$1, _EmberDescriptor);
 
-    function Descriptor$1(desc) {
-      (0, _emberBabel.classCallCheck)(this, Descriptor$1);
+    function Descriptor$$1(desc) {
+      emberBabel.classCallCheck(this, Descriptor$$1);
 
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _Descriptor2.call(this));
+      var _this = emberBabel.possibleConstructorReturn(this, _EmberDescriptor.call(this));
 
-      _this2.desc = desc;
-      return _this2;
+      _this.desc = desc;
+      return _this;
     }
 
-    Descriptor$1.prototype.setup = function setup(obj, key) {
+    Descriptor$$1.prototype.setup = function setup(obj, key) {
       Object.defineProperty(obj, key, this.desc);
     };
 
-    Descriptor$1.prototype.teardown = function teardown(obj, key) {};
+    Descriptor$$1.prototype.teardown = function teardown(obj, key) {};
 
-    return Descriptor$1;
+    return Descriptor$$1;
   }(Descriptor);
 
   /**
@@ -9171,6 +8848,7 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   @submodule ember-metal
   */
 
+  exports['default'] = Ember;
   exports.computed = computed;
   exports.cacheFor = cacheFor;
   exports.ComputedProperty = ComputedProperty;
@@ -9178,7 +8856,6 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   exports.merge = merge;
   exports.deprecateProperty = deprecateProperty;
   exports.instrument = instrument;
-  exports.flaggedInstrument = flaggedInstrument;
   exports._instrumentStart = _instrumentStart;
   exports.instrumentationReset = reset;
   exports.instrumentationSubscribe = subscribe;
@@ -9190,12 +8867,11 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   exports.getDispatchOverride = getDispatchOverride;
   exports.META_DESC = META_DESC;
   exports.meta = meta;
-  exports.peekMeta = peekMeta;
   exports.Cache = Cache;
   exports._getPath = _getPath;
-  exports.get = _get;
+  exports.get = get;
   exports.getWithDefault = getWithDefault;
-  exports.set = _set2;
+  exports.set = set;
   exports.trySet = trySet;
   exports.WeakMap = WeakMap$1;
   exports.accumulateListeners = accumulateListeners;
@@ -9270,31 +8946,15 @@ enifed('ember-metal', ['exports', 'ember-babel', 'ember-environment', 'ember-uti
   exports.tagFor = tagFor;
   exports.markObjectAsDirty = markObjectAsDirty;
   exports.replace = replace;
-  exports.runInTransaction = runInTransaction;
-  exports.didRender = didRender;
-  exports.assertNotRendered = assertNotRendered;
   exports.isProxy = isProxy;
   exports.descriptor = descriptor;
-  exports.default = Ember;
-});
 
-enifed('node-module', ['exports'], function(_exports) {
-  var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
-  if (IS_NODE) {
-    _exports.require = module.require;
-    _exports.module = module;
-    _exports.IS_NODE = IS_NODE
-  } else {
-    _exports.require = null;
-    _exports.module = null;
-    _exports.IS_NODE = IS_NODE
-  }
+  Object.defineProperty(exports, '__esModule', { value: true });
 });
-enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _nodeModule, _emberBabel) {
+enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _emberBabel, _nodeModule) {
   'use strict';
 
   exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = undefined;
-
 
   var _rsvp;
 
@@ -9322,38 +8982,6 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
     @class RSVP.EventTarget
   */
   var EventTarget = {
-
-    /**
-      `RSVP.EventTarget.mixin` extends an object with EventTarget methods. For
-      Example:
-       ```javascript
-      let object = {};
-       RSVP.EventTarget.mixin(object);
-       object.on('finished', function(event) {
-        // handle event
-      });
-       object.trigger('finished', { detail: value });
-      ```
-       `EventTarget.mixin` also works with prototypes:
-       ```javascript
-      let Person = function() {};
-      RSVP.EventTarget.mixin(Person.prototype);
-       let yehuda = new Person();
-      let tom = new Person();
-       yehuda.on('poke', function(event) {
-        console.log('Yehuda says OW');
-      });
-       tom.on('poke', function(event) {
-        console.log('Tom says OW');
-      });
-       yehuda.trigger('poke');
-      tom.trigger('poke');
-      ```
-       @method mixin
-      @for RSVP.EventTarget
-      @private
-      @param {Object} object object to extend with EventTarget methods
-    */
     mixin: function (object) {
       object['on'] = this['on'];
       object['off'] = this['off'];
@@ -9361,21 +8989,6 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
       object._promiseCallbacks = undefined;
       return object;
     },
-
-    /**
-      Registers a callback to be executed when `eventName` is triggered
-       ```javascript
-      object.on('event', function(eventInfo){
-        // handle the event
-      });
-       object.trigger('event');
-      ```
-       @method on
-      @for RSVP.EventTarget
-      @private
-      @param {String} eventName name of the event to listen for
-      @param {Function} callback function to be called when the event is triggered.
-    */
     on: function (eventName, callback) {
       if (typeof callback !== 'function') {
         throw new TypeError('Callback must be a function');
@@ -9394,37 +9007,6 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
         callbacks.push(callback);
       }
     },
-
-    /**
-      You can use `off` to stop firing a particular callback for an event:
-       ```javascript
-      function doStuff() { // do stuff! }
-      object.on('stuff', doStuff);
-       object.trigger('stuff'); // doStuff will be called
-       // Unregister ONLY the doStuff callback
-      object.off('stuff', doStuff);
-      object.trigger('stuff'); // doStuff will NOT be called
-      ```
-       If you don't pass a `callback` argument to `off`, ALL callbacks for the
-      event will not be executed when the event fires. For example:
-       ```javascript
-      let callback1 = function(){};
-      let callback2 = function(){};
-       object.on('stuff', callback1);
-      object.on('stuff', callback2);
-       object.trigger('stuff'); // callback1 and callback2 will be executed.
-       object.off('stuff');
-      object.trigger('stuff'); // callback1 and callback2 will not be executed!
-      ```
-       @method off
-      @for RSVP.EventTarget
-      @private
-      @param {String} eventName event to stop listening to
-      @param {Function} callback optional argument. If given, only the function
-      given will be removed from the event's callback queue. If no `callback`
-      argument is given, all callbacks will be removed from the event's callback
-      queue.
-    */
     off: function (eventName, callback) {
       var allCallbacks = callbacksFor(this),
           callbacks = void 0,
@@ -9443,32 +9025,6 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
         callbacks.splice(index, 1);
       }
     },
-
-    /**
-      Use `trigger` to fire custom events. For example:
-       ```javascript
-      object.on('foo', function(){
-        console.log('foo event happened!');
-      });
-      object.trigger('foo');
-      // 'foo event happened!' logged to the console
-      ```
-       You can also pass a value as a second argument to `trigger` that will be
-      passed as an argument to all event listeners for the event:
-       ```javascript
-      object.on('foo', function(value){
-        console.log(value.name);
-      });
-       object.trigger('foo', { name: 'bar' });
-      // 'bar' logged to the console
-      ```
-       @method trigger
-      @for RSVP.EventTarget
-      @private
-      @param {String} eventName name of the event to be triggered
-      @param {*} options optional value to be passed to any event handlers for
-      the given `eventName`
-    */
     trigger: function (eventName, options, label) {
       var allCallbacks = callbacksFor(this),
           callbacks = void 0,
@@ -10381,6 +9937,7 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
       });
     },
 
+
     /**
       The primary way of interacting with a promise is through its `then` method,
       which registers callbacks to receive either a promise's eventual value or the
@@ -10577,78 +10134,9 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
     */
     then: then,
 
-    /**
-      `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-      as the catch block of a try/catch statement.
-    
-      ```js
-      function findAuthor(){
-        throw new Error('couldn\'t find that author');
-      }
-    
-      // synchronous
-      try {
-        findAuthor();
-      } catch(reason) {
-        // something went wrong
-      }
-    
-      // async with promises
-      findAuthor().catch(function(reason){
-        // something went wrong
-      });
-      ```
-    
-      @method catch
-      @param {Function} onRejection
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-    */
     catch: function (onRejection, label) {
       return this.then(undefined, onRejection, label);
     },
-
-    /**
-      `finally` will be invoked regardless of the promise's fate just as native
-      try/catch/finally behaves
-    
-      Synchronous example:
-    
-      ```js
-      findAuthor() {
-        if (Math.random() > 0.5) {
-          throw new Error();
-        }
-        return new Author();
-      }
-    
-      try {
-        return findAuthor(); // succeed or fail
-      } catch(error) {
-        return findOtherAuthor();
-      } finally {
-        // always runs
-        // doesn't affect the return value
-      }
-      ```
-    
-      Asynchronous example:
-    
-      ```js
-      findAuthor().catch(function(reason){
-        return findOtherAuthor();
-      }).finally(function(){
-        // author was either found, or not
-      });
-      ```
-    
-      @method finally
-      @param {Function} callback
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-    */
     finally: function (callback, label) {
       var promise = this;
       var constructor = promise.constructor;
@@ -10892,6 +10380,7 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
     };
 
     (0, _emberBabel.defaults)(fn, nodeFunc);
+
 
     return fn;
   }
@@ -11817,7 +11306,6 @@ enifed('rsvp', ['exports', 'node-module', 'ember-babel'], function (exports, _no
   exports.filter = filter;
   exports.default = rsvp;
 });
-
 (function (m) { if (typeof module === "object" && module.exports) { module.exports = m } }(requireModule('ember-runtime').default));
 
 
