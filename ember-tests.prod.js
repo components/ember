@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+64afb55d
+ * @version   2.14.0-alpha.1-null+58a2f554
  */
 
 var enifed, requireModule, Ember;
@@ -63084,6 +63084,13 @@ enifed('ember-utils/tests/to-string-test', ['ember-utils'], function (_emberUtil
     var obj = Object.create(null);
 
     strictEqual((0, _emberUtils.toString)(obj), {}.toString());
+  });
+
+  QUnit.test('toString does not fail when called on Arrays with objects without toString method', function () {
+    var obj = Object.create(null);
+
+
+    strictEqual((0, _emberUtils.toString)([obj, 2]), {}.toString() + ',2');
   });
 });
 enifed('ember-utils/tests/try_invoke_test', ['ember-utils'], function (_emberUtils) {

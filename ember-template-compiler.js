@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+64afb55d
+ * @version   2.14.0-alpha.1-null+58a2f554
  */
 
 var enifed, requireModule, Ember;
@@ -16449,11 +16449,45 @@ enifed('ember-utils', ['exports'], function (exports) {
 
   var objectToString$1 = Object.prototype.toString;
 
+  function isNone(obj) {
+    return obj === null || obj === undefined;
+  }
+
   /*
    A `toString` util function that supports objects without a `toString`
    method, e.g. an object created with `Object.create(null)`.
   */
+  function toString(obj) {
+    var len, r, k;
 
+    if (typeof obj === "string") {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      // Reimplement Array.prototype.join according to spec (22.1.3.13)
+      // Changing ToString(element) with this safe version of ToString.
+      len = obj.length;
+      r = '';
+
+
+      for (k = 0; k < len; k++) {
+        if (k > 0) {
+          r += ',';
+        }
+
+        if (!isNone(obj[k])) {
+          r += toString(obj[k]);
+        }
+      }
+
+      return r;
+    } else if (obj != null && typeof obj.toString === 'function') {
+      return obj.toString();
+    } else {
+      return objectToString$1.call(obj);
+    }
+  }
 
   var HAS_NATIVE_WEAKMAP = function () {
     // detect if `WeakMap` is even present
@@ -16673,13 +16707,7 @@ enifed('ember-utils', ['exports'], function (exports) {
   };
   exports.applyStr = applyStr;
   exports.NAME_KEY = name;
-  exports.toString = function (obj) {
-    if (obj && typeof obj.toString === 'function') {
-      return obj.toString();
-    } else {
-      return objectToString$1.call(obj);
-    }
-  };
+  exports.toString = toString;
   exports.HAS_NATIVE_WEAKMAP = HAS_NATIVE_WEAKMAP;
   exports.HAS_NATIVE_PROXY = HAS_NATIVE_PROXY;
 });
@@ -16699,7 +16727,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+64afb55d";
+  exports.default = "2.14.0-alpha.1-null+58a2f554";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
