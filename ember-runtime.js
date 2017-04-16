@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+b3c03773
+ * @version   2.14.0-alpha.1-null+cb2e2785
  */
 
 var enifed, requireModule, Ember;
@@ -2799,24 +2799,20 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       become the explicit value of this property.
   */
   function defineProperty(obj, keyName, desc, data, meta$$1) {
-    var possibleDesc = void 0,
-        existingDesc = void 0,
-        watching = void 0,
-        value = void 0;
-
     if (!meta$$1) {
       meta$$1 = meta(obj);
     }
     var watchEntry = meta$$1.peekWatching(keyName);
-    possibleDesc = obj[keyName];
-    existingDesc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var possibleDesc = obj[keyName];
+    var existingDesc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
-    watching = watchEntry !== undefined && watchEntry > 0;
+    var watching = watchEntry !== undefined && watchEntry > 0;
 
     if (existingDesc) {
       existingDesc.teardown(obj, keyName);
     }
 
+    var value = void 0;
     if (desc instanceof Descriptor) {
       value = desc;
       {
@@ -2831,7 +2827,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           obj[keyName] = value;
         }
       }
-      if (desc.setup) {
+
+      didDefineComputedProperty(obj.constructor);
+
+      if (typeof desc.setup === 'function') {
         desc.setup(obj, keyName);
       }
     } else {
@@ -2874,11 +2873,27 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     // The `value` passed to the `didDefineProperty` hook is
     // either the descriptor or data, whichever was passed.
-    if (obj.didDefineProperty) {
+    if (typeof obj.didDefineProperty === 'function') {
       obj.didDefineProperty(obj, keyName, value);
     }
 
     return this;
+  }
+
+  var hasCachedComputedProperties = false;
+  function _hasCachedComputedProperties() {
+    hasCachedComputedProperties = true;
+  }
+
+  function didDefineComputedProperty(constructor) {
+    if (hasCachedComputedProperties === false) {
+      return;
+    }
+    var cache = meta(constructor).readableCache();
+
+    if (cache && cache._computedProperties !== undefined) {
+      cache._computedProperties = undefined;
+    }
   }
 
   function handleBrokenPhantomDefineProperty(obj, keyName, desc) {
@@ -8890,6 +8905,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.PROPERTY_DID_CHANGE = PROPERTY_DID_CHANGE;
   exports.defineProperty = defineProperty;
   exports.Descriptor = Descriptor;
+  exports._hasCachedComputedProperties = _hasCachedComputedProperties;
   exports.watchKey = watchKey;
   exports.unwatchKey = unwatchKey;
   exports.ChainNode = ChainNode;
