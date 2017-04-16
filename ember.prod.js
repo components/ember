@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+c1d8f4e7
+ * @version   2.14.0-alpha.1-null+b3c03773
  */
 
 var enifed, requireModule, Ember;
@@ -28860,24 +28860,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.watchKey = watchKey;
   exports.unwatchKey = unwatchKey;
   exports.ChainNode = ChainNode;
-  exports.finishChains = function (obj) {
-    // We only create meta if we really have to
-    var m = exports.peekMeta(obj),
-        chainWatchers;
-    if (m !== undefined) {
-      m = meta(obj);
-
-      // finish any current chains node watchers that reference obj
-      chainWatchers = m.readableChainWatchers();
-
-      if (chainWatchers !== undefined) {
-        chainWatchers.revalidateAll();
-      }
-      // ensure that if we have inherited any chains they have been
-      // copied onto our own meta.
-      if (m.readableChains() !== undefined) {
-        m.writableChains(makeChainNode);
-      }
+  exports.finishChains = function (meta$$1) {
+    // finish any current chains node watchers that reference obj
+    var chainWatchers = meta$$1.readableChainWatchers();
+    if (chainWatchers !== undefined) {
+      chainWatchers.revalidateAll();
+    }
+    // ensure that if we have inherited any chains they have been
+    // copied onto our own meta.
+    if (meta$$1.readableChains() !== undefined) {
+      meta$$1.writableChains(makeChainNode);
     }
   };
   exports.removeChainWatcher = removeChainWatcher;
@@ -40025,7 +40017,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
         this[POST_INIT]();
 
         m.proto = proto;
-        (0, _emberMetal.finishChains)(this);
+        (0, _emberMetal.finishChains)(m);
         (0, _emberMetal.sendEvent)(this, 'init');
       }
 
@@ -44426,7 +44418,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+c1d8f4e7";
+  exports.default = "2.14.0-alpha.1-null+b3c03773";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

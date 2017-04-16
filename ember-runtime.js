@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+c1d8f4e7
+ * @version   2.14.0-alpha.1-null+b3c03773
  */
 
 var enifed, requireModule, Ember;
@@ -3427,22 +3427,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  function finishChains(obj) {
-    // We only create meta if we really have to
-    var m = exports.peekMeta(obj);
-    if (m !== undefined) {
-      m = meta(obj);
-
-      // finish any current chains node watchers that reference obj
-      var chainWatchers = m.readableChainWatchers();
-      if (chainWatchers !== undefined) {
-        chainWatchers.revalidateAll();
-      }
-      // ensure that if we have inherited any chains they have been
-      // copied onto our own meta.
-      if (m.readableChains() !== undefined) {
-        m.writableChains(makeChainNode);
-      }
+  function finishChains(meta$$1) {
+    // finish any current chains node watchers that reference obj
+    var chainWatchers = meta$$1.readableChainWatchers();
+    if (chainWatchers !== undefined) {
+      chainWatchers.revalidateAll();
+    }
+    // ensure that if we have inherited any chains they have been
+    // copied onto our own meta.
+    if (meta$$1.readableChains() !== undefined) {
+      meta$$1.writableChains(makeChainNode);
     }
   }
 
