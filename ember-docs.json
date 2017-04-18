@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.32da9605"
+        "version": "2.14.0-alpha.1.13a77442"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -18952,7 +18952,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/utils.js",
-            "line": 56,
+            "line": 57,
             "description": "Returns a consistent type for the passed object.\n\nUse this instead of the built-in `typeof` to get the type of an item.\nIt will return the same result across all browsers and includes a bit\nmore detail. Here is what will be returned:\n\n    | Return Value  | Meaning                                              |\n    |---------------|------------------------------------------------------|\n    | 'string'      | String primitive or String object.                   |\n    | 'number'      | Number primitive or Number object.                   |\n    | 'boolean'     | Boolean primitive or Boolean object.                 |\n    | 'null'        | Null value                                           |\n    | 'undefined'   | Undefined value                                      |\n    | 'function'    | A function                                           |\n    | 'array'       | An instance of Array                                 |\n    | 'regexp'      | An instance of RegExp                                |\n    | 'date'        | An instance of Date                                  |\n    | 'filelist'    | An instance of FileList                              |\n    | 'class'       | An Ember class (created using Ember.Object.extend()) |\n    | 'instance'    | An Ember object instance                             |\n    | 'error'       | An instance of the Error object                      |\n    | 'object'      | A JavaScript object not inheriting from Ember.Object |\n\nExamples:\n\n```javascript\nEmber.typeOf();                       // 'undefined'\nEmber.typeOf(null);                   // 'null'\nEmber.typeOf(undefined);              // 'undefined'\nEmber.typeOf('michael');              // 'string'\nEmber.typeOf(new String('michael'));  // 'string'\nEmber.typeOf(101);                    // 'number'\nEmber.typeOf(new Number(101));        // 'number'\nEmber.typeOf(true);                   // 'boolean'\nEmber.typeOf(new Boolean(true));      // 'boolean'\nEmber.typeOf(Ember.A);                // 'function'\nEmber.typeOf([1, 2, 90]);             // 'array'\nEmber.typeOf(/abc/);                  // 'regexp'\nEmber.typeOf(new Date());             // 'date'\nEmber.typeOf(event.target.files);     // 'filelist'\nEmber.typeOf(Ember.Object.extend());  // 'class'\nEmber.typeOf(Ember.Object.create());  // 'instance'\nEmber.typeOf(new Error('teamocil'));  // 'error'\n\n// 'normal' JavaScript object\nEmber.typeOf({ a: 'b' });             // 'object'\n```",
             "itemtype": "method",
             "name": "typeOf",

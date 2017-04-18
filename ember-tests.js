@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+32da9605
+ * @version   2.14.0-alpha.1-null+13a77442
  */
 
 var enifed, requireModule, Ember;
@@ -51170,6 +51170,7 @@ enifed('ember-runtime/tests/core/is_array_test', ['ember-runtime/utils', 'ember-
     var string = 'Hello';
     var object = {};
     var length = { length: 12 };
+    var strangeLength = { length: 'yes' };
     var fn = function () {};
     var arrayProxy = _array_proxy.default.create({ content: (0, _native_array.A)() });
 
@@ -51179,6 +51180,7 @@ enifed('ember-runtime/tests/core/is_array_test', ['ember-runtime/utils', 'ember-
     equal((0, _utils.isArray)(string), false, '"Hello"');
     equal((0, _utils.isArray)(object), false, '{}');
     equal((0, _utils.isArray)(length), true, '{ length: 12 }');
+    equal((0, _utils.isArray)(strangeLength), false, '{ length: "yes" }');
     equal((0, _utils.isArray)(global), false, 'global');
     equal((0, _utils.isArray)(fn), false, 'function() {}');
     equal((0, _utils.isArray)(arrayProxy), true, '[]');
