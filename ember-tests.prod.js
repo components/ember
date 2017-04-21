@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+98e01ceb
+ * @version   2.14.0-alpha.1-null+21c22ef4
  */
 
 var enifed, requireModule, Ember;
@@ -75102,9 +75102,8 @@ enifed('internal-test-helpers/equal-inner-html', ['exports'], function (exports)
     if (ieSVGInnerHTML) {
       // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
       // drop namespace attribute
-      actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
       // replace self-closing elements
-      actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function (tag, tagName) {
+      actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '').replace(/<([^ >]+) [^\/>]*\/>/gi, function (tag, tagName) {
         return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
       });
     }
