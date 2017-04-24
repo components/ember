@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+e36d849d
+ * @version   2.14.0-alpha.1-null+adcc0e03
  */
 
 var enifed, requireModule, Ember;
@@ -28680,6 +28680,17 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       });
 
       this.assertCheckboxIsChecked();
+    };
+
+    _class3.prototype['@test native click changes check property'] = function testNativeClickChangesCheckProperty(assert) {
+      this.render('{{input type="checkbox"}}');
+
+      this.assertSingleCheckbox();
+      this.assertCheckboxIsNotChecked();
+      this.$input()[0].click();
+      this.assertCheckboxIsChecked();
+      this.$input()[0].click();
+      this.assertCheckboxIsNotChecked();
     };
 
     _class3.prototype['@test with static values'] = function testWithStaticValues(assert) {
