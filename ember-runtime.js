@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.1
+ * @version   2.12.1-release+8930b15c
  */
 
 var enifed, requireModule, Ember;
@@ -1562,28 +1562,34 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
   }
 
   function buildInjections() /* container, ...injections */{
+    var _arguments = arguments;
+
     var hash = {};
 
     if (arguments.length > 1) {
-      var container = arguments[0];
-      var injections = [];
-      var injection = undefined;
+      (function () {
+        var container = _arguments[0];
+        var injections = [];
+        var injection = undefined;
 
-      for (var i = 1; i < arguments.length; i++) {
-        if (arguments[i]) {
-          injections = injections.concat(arguments[i]);
+        for (var i = 1; i < _arguments.length; i++) {
+          if (_arguments[i]) {
+            injections = injections.concat(_arguments[i]);
+          }
         }
-      }
 
-      container.registry.validateInjections(injections);
+        _emberMetal.runInDebug(function () {
+          return container.registry.validateInjections(injections);
+        });
 
-      for (var i = 0; i < injections.length; i++) {
-        injection = injections[i];
-        hash[injection.property] = lookup(container, injection.fullName);
-        if (!isSingleton(container, injection.fullName)) {
-          markInjectionsAsDynamic(hash);
+        for (var i = 0; i < injections.length; i++) {
+          injection = injections[i];
+          hash[injection.property] = lookup(container, injection.fullName);
+          if (!isSingleton(container, injection.fullName)) {
+            markInjectionsAsDynamic(hash);
+          }
         }
-      }
+      })();
     }
 
     return hash;
@@ -19809,7 +19815,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.1";
+  exports.default = "2.12.1-release+8930b15c";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
