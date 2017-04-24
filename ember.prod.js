@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+b80407b5
+ * @version   2.14.0-alpha.1-null+e36d849d
  */
 
 var enifed, requireModule, Ember;
@@ -22479,18 +22479,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
 
 
-  function isProxy(value) {
-    var meta$$1;
-
-    if (typeof value === 'object' && value) {
-      meta$$1 = exports.peekMeta(value);
-
-      return meta$$1 && meta$$1.isProxy();
-    }
-
-    return false;
-  }
-
   var hasViews = function () {
     return false;
   };
@@ -22512,17 +22500,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function markObjectAsDirty(meta$$1, propertyKey) {
-    var objectTag = meta$$1 && meta$$1.readableTag();
+    var objectTag = meta$$1.readableTag();
 
     if (objectTag) {
       objectTag.dirty();
     }
 
-    var tags = meta$$1 && meta$$1.readableTags();
+    var tags = meta$$1.readableTags();
     var propertyTag = tags && tags[propertyKey];
 
     if (propertyTag) {
       propertyTag.dirty();
+    }
+
+    if (propertyKey === 'content' && meta$$1.isProxy()) {
+      meta$$1.getTag().contentDidChange();
     }
 
     if (objectTag || propertyTag) {
@@ -22696,12 +22688,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function propertyDidChange(obj, keyName, _meta) {
     var meta$$1 = _meta || exports.peekMeta(obj);
+    var hasMeta = !!meta$$1;
 
-    if (meta$$1 && !meta$$1.isInitialized(obj)) {
+    if (hasMeta && !meta$$1.isInitialized(obj)) {
       return;
     }
 
-    var watching = meta$$1 && meta$$1.peekWatching(keyName) > 0;
     var possibleDesc = obj[keyName];
     var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
@@ -22710,8 +22702,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       desc.didChange(obj, keyName);
     }
 
-    if (watching) {
-      if (meta$$1.hasDeps(keyName)) {
+    if (hasMeta && meta$$1.peekWatching(keyName) > 0) {
+      if (meta$$1.hasDeps(keyName) && !meta$$1.isSourceDestroying()) {
         dependentKeysDidChange(obj, keyName, meta$$1);
       }
 
@@ -22723,11 +22715,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       obj[PROPERTY_DID_CHANGE](keyName);
     }
 
-    if (meta$$1 && meta$$1.isSourceDestroying()) {
-      return;
+    if (hasMeta) {
+      if (meta$$1.isSourceDestroying()) {
+        return;
+      }
+      markObjectAsDirty(meta$$1, keyName);
     }
-
-    markObjectAsDirty(meta$$1, keyName);
   }
 
   var WILL_SEEN = void 0;
@@ -22736,11 +22729,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function dependentKeysWillChange(obj, depKey, meta$$1) {
     var seen, top;
 
-    if (meta$$1 && meta$$1.isSourceDestroying()) {
+    if (meta$$1.isSourceDestroying()) {
       return;
     }
-
-    if (meta$$1 && meta$$1.hasDeps(depKey)) {
+    if (meta$$1.hasDeps(depKey)) {
       seen = WILL_SEEN;
       top = !seen;
 
@@ -22759,26 +22751,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // called whenever a property has just changed to update dependent keys
   function dependentKeysDidChange(obj, depKey, meta$$1) {
-    var seen, top;
+    var seen = DID_SEEN;
+    var top = !seen;
 
-    if (meta$$1 && meta$$1.isSourceDestroying()) {
-      return;
+    if (top) {
+      seen = DID_SEEN = {};
     }
 
-    if (meta$$1 && meta$$1.hasDeps(depKey)) {
-      seen = DID_SEEN;
-      top = !seen;
+    iterDeps(propertyDidChange, obj, depKey, seen, meta$$1);
 
-
-      if (top) {
-        seen = DID_SEEN = {};
-      }
-
-      iterDeps(propertyDidChange, obj, depKey, seen, meta$$1);
-
-      if (top) {
-        DID_SEEN = null;
-      }
+    if (top) {
+      DID_SEEN = null;
     }
   }
 
@@ -22882,7 +22865,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function notifyBeforeObservers(obj, keyName, meta$$1) {
-    if (meta$$1 && meta$$1.isSourceDestroying()) {
+    if (meta$$1.isSourceDestroying()) {
       return;
     }
 
@@ -22899,7 +22882,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function notifyObservers(obj, keyName, meta$$1) {
-    if (meta$$1 && meta$$1.isSourceDestroying()) {
+    if (meta$$1.isSourceDestroying()) {
       return;
     }
 
@@ -23660,6 +23643,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     Meta.prototype.isInitialized = function (obj) {
       return this.proto !== obj;
+    };
+
+    Meta.prototype.setTag = function (tag) {
+      this._tag = tag;
+    };
+
+    Meta.prototype.getTag = function () {
+      return this._tag;
     };
 
     Meta.prototype.destroy = function () {
@@ -29011,25 +29002,22 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     hasViews = fn;
   };
   exports.tagForProperty = function (object, propertyKey, _meta) {
-    var meta$$1, tags, tag;
-
-    if (isProxy(object)) {
-      return tagFor(object, _meta);
-    }
-
-    if (typeof object === 'object' && object) {
-      meta$$1 = _meta || meta(object);
-      tags = meta$$1.writableTags();
-      tag = tags[propertyKey];
-
-      if (tag) {
-        return tag;
-      }
-
-      return tags[propertyKey] = makeTag();
-    } else {
+    if (typeof object !== 'object' || object === null) {
       return _glimmer_reference.CONSTANT_TAG;
     }
+
+    var meta$$1 = _meta || meta(object);
+    if (meta$$1.isProxy()) {
+      return tagFor(object, meta$$1);
+    }
+
+    var tags = meta$$1.writableTags();
+    var tag = tags[propertyKey];
+    if (tag) {
+      return tag;
+    }
+
+    return tags[propertyKey] = makeTag();
   };
   exports.tagFor = tagFor;
   exports.markObjectAsDirty = markObjectAsDirty;
@@ -29061,7 +29049,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
   exports.didRender = void 0;
   exports.assertNotRendered = void 0;
-  exports.isProxy = isProxy;
+  exports.isProxy = function (value) {
+    var meta$$1;
+
+    if (typeof value === 'object' && value) {
+      meta$$1 = exports.peekMeta(value);
+
+      return meta$$1 && meta$$1.isProxy();
+    }
+
+    return false;
+  };
   exports.descriptor = function (desc) {
     return new Descriptor$1(desc);
   };
@@ -36525,22 +36523,12 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-babel', '@glimmer/refer
 
     init: function () {
       this._super.apply(this, arguments);
-      (0, _emberMetal.meta)(this).setProxy();
+      var m = (0, _emberMetal.meta)(this);
+      m.setProxy();
+      m.setTag(new ProxyTag(this));
     },
 
-    _initializeTag: (0, _emberMetal.on)('init', function () {
-      (0, _emberMetal.meta)(this)._tag = new ProxyTag(this);
-    }),
-
-    _contentDidChange: (0, _emberMetal.observer)('content', function () {
-      false && (0, _emberDebug.assert)('Can\'t set Proxy\'s content to itself', (0, _emberMetal.get)(this, 'content') !== this);
-
-      (0, _emberMetal.tagFor)(this).contentDidChange();
-    }),
-
     isTruthy: (0, _computed_macros.bool)('content'),
-
-    _debugContainerKey: null,
 
     willWatchProperty: function (key) {
       var contentKey = 'content.' + key;
@@ -36562,6 +36550,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-babel', '@glimmer/refer
     },
     setUnknownProperty: function (key, value) {
       var m = (0, _emberMetal.meta)(this);
+
       if (m.proto === this) {
         // if marked as prototype then just defineProperty
         // rather than delegate
@@ -44381,7 +44370,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+b80407b5";
+  exports.default = "2.14.0-alpha.1-null+e36d849d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
