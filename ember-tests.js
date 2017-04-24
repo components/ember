@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+f44f1d54
+ * @version   2.14.0-alpha.1-null+b80407b5
  */
 
 var enifed, requireModule, Ember;
@@ -703,8 +703,9 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
+    var owner = {};
     var registry = new _container.Registry();
-    var container = registry.container();
+    var container = owner.__container__ = registry.container({ owner: owner });
     var PostController = (0, _internalTestHelpers.factory)();
     registry.register('controller:post', PostController);
     var postController = container.lookup('controller:post');

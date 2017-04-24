@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+f44f1d54
+ * @version   2.14.0-alpha.1-null+b80407b5
  */
 
 var enifed, requireModule, Ember;
@@ -538,7 +538,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     get: function () {
       (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
 
-      return this[CONTAINER_OVERRIDE];
+      return this[CONTAINER_OVERRIDE] || (0, _emberUtils.getOwner)(this).__container__;
     },
     set: function (value) {
       (true && !(false) && (0, _emberDebug.deprecate)('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
@@ -556,7 +556,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       return;
     }
     Object.defineProperty(object, 'container', INJECTED_DEPRECATED_CONTAINER_DESC);
-    object[CONTAINER_OVERRIDE] = container;
   }
 
   function destroyDestroyables(container) {
