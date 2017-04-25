@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.0f1d5f5d"
+        "version": "2.14.0-alpha.1.aa1d66e0"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -3954,7 +3954,7 @@
     "classitems": [
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 90,
+            "line": 97,
             "description": "The main entry point into the router. The API is essentially\nthe same as the `map` method in `route-recognizer`.\n\nThis method extracts the String handler at the last `.to()`\ncall and uses it as the name of the whole route.",
             "params": [
                 {
@@ -3967,13 +3967,13 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 163,
+            "line": 170,
             "description": "Clears the current and target route handlers and triggers exit\non each of them starting at the leaf and traversing up through\nits ancestors.",
             "class": "Transition"
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 183,
+            "line": 190,
             "description": "var handler = handlerInfo.handler;\nThe entry point for handling a change to the URL (usually\nvia the back and forward button).\n\nReturns an Array of handlers and the parameters associated\nwith those parameters.",
             "params": [
                 {
@@ -3990,7 +3990,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 204,
+            "line": 211,
             "description": "Hook point for updating the URL.",
             "params": [
                 {
@@ -4003,7 +4003,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 213,
+            "line": 220,
             "description": "Hook point for replacing the current URL, i.e. with replaceState\n\nBy default this behaves the same as `updateURL`",
             "params": [
                 {
@@ -4016,7 +4016,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 224,
+            "line": 231,
             "description": "Transition into the specified named route.\n\nIf necessary, trigger the exit callback on any handlers\nthat are no longer represented by the target route.",
             "params": [
                 {
@@ -4029,7 +4029,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 260,
+            "line": 275,
             "description": "Identical to `transitionTo` except that the current URL will be replaced\nif possible.\n\nThis method is intended primarily for use with `replaceState`.",
             "params": [
                 {
@@ -4042,7 +4042,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 272,
+            "line": 287,
             "description": "Take a named route and context objects and generate a\nURL.",
             "params": [
                 {
@@ -4064,7 +4064,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 376,
+            "line": 391,
             "description": "Hook point for logging transition status updates.",
             "params": [
                 {
@@ -4077,14 +4077,14 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 384,
+            "line": 399,
             "access": "private",
             "tagname": "Fires queryParamsDidChange event",
             "class": "Transition"
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 402,
+            "line": 417,
             "access": "private",
             "tagname": "Takes an Array of `HandlerInfo`s, figures out which ones are\nexiting, entering, or changing contexts, and calls the\nproper handler hooks.\n\nFor example, consider the following tree of handlers. Each handler is\nfollowed by the URL segment it handles.\n\n```\n|~index (\"/\")\n| |~posts (\"/posts\")\n| | |-showPost (\"/:id\")\n| | |-newPost (\"/new\")\n| | |-editPost (\"/edit\")\n| |~about (\"/about/:id\")\n```\n\nConsider the following transitions:\n\n1. A URL transition to `/posts/1`.\n   1. Triggers the `*model` callbacks on the\n      `index`, `posts`, and `showPost` handlers\n   2. Triggers the `enter` callback on the same\n   3. Triggers the `setup` callback on the same\n2. A direct transition to `newPost`\n   1. Triggers the `exit` callback on `showPost`\n   2. Triggers the `enter` callback on `newPost`\n   3. Triggers the `setup` callback on `newPost`\n3. A direct transition to `about` with a specified\n   context object\n   1. Triggers the `exit` callback on `newPost`\n      and `posts`\n   2. Triggers the `serialize` callback on `about`\n   3. Triggers the `enter` callback on `about`\n   4. Triggers the `setup` callback on `about`",
             "params": [
@@ -4103,14 +4103,14 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 482,
+            "line": 497,
             "access": "private",
             "tagname": "Helper method used by setupContexts. Handles errors or redirects\nthat may happen in enter/setup.",
             "class": "Transition"
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 523,
+            "line": 538,
             "access": "private",
             "tagname": "This function is called when transitioning from one URL to\nanother to determine which handlers are no longer active,\nwhich handlers are newly active, and which handlers remain\nactive but have their context changed.\n\nTake a list of old handlers and new handlers and partition\nthem into four buckets:\n\n* unchanged: the handler was active in both the old and\n  new URL, and its context remains the same\n* updated context: the handler was active in both the\n  old and new URL, but its context changed. The handler's\n  `setup` method, if any, will be called with the new\n  context.\n* exited: the handler was active in the old URL, but is\n  no longer active.\n* entered: the handler was not active in the old URL, but\n  is now active.\n\nThe PartitionedHandlers structure has four fields:\n\n* `updatedContext`: a list of `HandlerInfo` objects that\n  represent handlers that remain active but have a changed\n  context\n* `entered`: a list of `HandlerInfo` objects that represent\n  handlers that are newly active\n* `exited`: a list of `HandlerInfo` objects that are no\n  longer active.\n* `unchanged`: a list of `HanderInfo` objects that remain active.",
             "params": [
@@ -4133,14 +4133,14 @@
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 658,
+            "line": 681,
             "access": "private",
             "tagname": "Updates the URL (if necessary) and calls `setupContexts`\nto update the router's array of `currentHandlerInfos`.",
             "class": "Transition"
         },
         {
             "file": "node_modules/router_js/lib/router/router.js",
-            "line": 709,
+            "line": 732,
             "access": "private",
             "tagname": "Begins and returns a Transition based on the provided\narguments. Accepts arguments in the form of both URL\ntransitions and named transitions.",
             "params": [
@@ -4292,7 +4292,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 240,
+            "line": 242,
             "description": "Sets the URL-changing method to be employed at the end of a\n    successful transition. By default, a new Transition will just\n    use `updateURL`, but passing 'replace' to this method will\n    cause the URL to update using 'replaceWith' instead. Omitting\n    a parameter will disable the URL change, allowing for transitions\n    that don't update the URL at completion (this is also used for\n    handleURL, since the URL has already changed before the\n    transition took place).",
             "itemtype": "method",
             "name": "method",
@@ -4313,7 +4313,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 265,
+            "line": 267,
             "description": "Fires an event on the current list of resolved/resolving\n    handlers within this transition. Useful for firing events\n    on route hierarchies that haven't fully been entered yet.\nNote: This method is also aliased as `send`",
             "itemtype": "method",
             "name": "trigger",
@@ -4337,7 +4337,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 289,
+            "line": 291,
             "description": "Transitions are aborted and their promises rejected\nwhen redirects occur; this method returns a promise\nthat will follow any redirects that occur and fulfill\nwith the value fulfilled by any redirecting transitions\nthat occur.",
             "itemtype": "method",
             "name": "followRedirects",
@@ -4351,14 +4351,14 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 315,
+            "line": 317,
             "access": "private",
             "tagname": "",
             "class": "Transition"
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 326,
+            "line": 328,
             "access": "private",
             "tagname": "Logs and returns an instance of TransitionAbortedError.",
             "class": "Transition"
@@ -21051,71 +21051,71 @@
         },
         {
             "message": "Missing item type\nThe main entry point into the router. The API is essentially\nthe same as the `map` method in `route-recognizer`.\n\nThis method extracts the String handler at the last `.to()`\ncall and uses it as the name of the whole route.",
-            "line": " node_modules/router_js/lib/router/router.js:90"
+            "line": " node_modules/router_js/lib/router/router.js:97"
         },
         {
             "message": "Missing item type\nClears the current and target route handlers and triggers exit\non each of them starting at the leaf and traversing up through\nits ancestors.",
-            "line": " node_modules/router_js/lib/router/router.js:163"
+            "line": " node_modules/router_js/lib/router/router.js:170"
         },
         {
             "message": "Missing item type\nvar handler = handlerInfo.handler;\nThe entry point for handling a change to the URL (usually\nvia the back and forward button).\n\nReturns an Array of handlers and the parameters associated\nwith those parameters.",
-            "line": " node_modules/router_js/lib/router/router.js:183"
+            "line": " node_modules/router_js/lib/router/router.js:190"
         },
         {
             "message": "Missing item type\nHook point for updating the URL.",
-            "line": " node_modules/router_js/lib/router/router.js:204"
+            "line": " node_modules/router_js/lib/router/router.js:211"
         },
         {
             "message": "Missing item type\nHook point for replacing the current URL, i.e. with replaceState\n\nBy default this behaves the same as `updateURL`",
-            "line": " node_modules/router_js/lib/router/router.js:213"
+            "line": " node_modules/router_js/lib/router/router.js:220"
         },
         {
             "message": "Missing item type\nTransition into the specified named route.\n\nIf necessary, trigger the exit callback on any handlers\nthat are no longer represented by the target route.",
-            "line": " node_modules/router_js/lib/router/router.js:224"
+            "line": " node_modules/router_js/lib/router/router.js:231"
         },
         {
             "message": "Missing item type\nIdentical to `transitionTo` except that the current URL will be replaced\nif possible.\n\nThis method is intended primarily for use with `replaceState`.",
-            "line": " node_modules/router_js/lib/router/router.js:260"
+            "line": " node_modules/router_js/lib/router/router.js:275"
         },
         {
             "message": "Missing item type\nTake a named route and context objects and generate a\nURL.",
-            "line": " node_modules/router_js/lib/router/router.js:272"
+            "line": " node_modules/router_js/lib/router/router.js:287"
         },
         {
             "message": "Missing item type\nHook point for logging transition status updates.",
-            "line": " node_modules/router_js/lib/router/router.js:376"
+            "line": " node_modules/router_js/lib/router/router.js:391"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/router.js:384"
+            "line": " node_modules/router_js/lib/router/router.js:399"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/router.js:402"
+            "line": " node_modules/router_js/lib/router/router.js:417"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/router.js:482"
+            "line": " node_modules/router_js/lib/router/router.js:497"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/router.js:523"
+            "line": " node_modules/router_js/lib/router/router.js:538"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/router.js:658"
+            "line": " node_modules/router_js/lib/router/router.js:681"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/router.js:709"
+            "line": " node_modules/router_js/lib/router/router.js:732"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/transition.js:315"
+            "line": " node_modules/router_js/lib/router/transition.js:317"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/transition.js:326"
+            "line": " node_modules/router_js/lib/router/transition.js:328"
         },
         {
             "message": "Missing item type\nDetermines if an object is Promise by checking if it is \"thenable\".",

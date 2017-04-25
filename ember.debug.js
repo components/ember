@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+0f1d5f5d
+ * @version   2.14.0-alpha.1-null+aa1d66e0
  */
 
 var enifed, requireModule, Ember;
@@ -48071,7 +48071,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+0f1d5f5d";
+  exports.default = "2.14.0-alpha.1-null+aa1d66e0";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -50710,7 +50710,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     retry: function () {
       // TODO: add tests for merged state retry()s
       this.abort();
-      return this.router.transitionByIntent(this.intent, false);
+      var newTransition = this.router.transitionByIntent(this.intent, false);
+      newTransition.method(this.urlMethod);
+      return newTransition;
     },
 
     /**
@@ -51477,6 +51479,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       if (queryParamChangelist) {
         newTransition = this.queryParamsTransition(queryParamChangelist, wasTransitioning, oldState, newState);
         if (newTransition) {
+          newTransition.queryParamsOnly = true;
           return newTransition;
         }
       }
@@ -51492,6 +51495,12 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     // Create a new transition to the destination route.
     newTransition = new Transition(this, intent, newState, undefined, this.activeTransition);
+
+    // transition is to same route with same params, only query params differ.
+    // not caught above probably because refresh() has been used
+    if (handlerInfosSameExceptQueryParams(newState.handlerInfos, oldState.handlerInfos)) {
+      newTransition.queryParamsOnly = true;
+    }
 
     // Abort and usurp any previously active transition.
     if (this.activeTransition) {
@@ -51660,7 +51669,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     },
 
     refresh: function (pivotHandler) {
-      var state = this.activeTransition ? this.activeTransition.state : this.state;
+      var previousTransition = this.activeTransition;
+      var state = previousTransition ? previousTransition.state : this.state;
       var handlerInfos = state.handlerInfos;
       var params = {};
       for (var i = 0, len = handlerInfos.length; i < len; ++i) {
@@ -51676,7 +51686,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         queryParams: this._changedQueryParams || state.queryParams || {}
       });
 
-      return this.transitionByIntent(intent, false);
+      var newTransition = this.transitionByIntent(intent, false);
+
+      // if the previous transition is a replace transition, that needs to be preserved
+      if (previousTransition && previousTransition.urlMethod === 'replace') {
+        newTransition.method(previousTransition.urlMethod);
+      }
+
+      return newTransition;
     },
 
     /**
@@ -52069,7 +52086,12 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // aborting transition that's not the initial transition
       var replaceAndNotAborting = urlMethod === 'replace' && !transition.isCausedByAbortingTransition;
 
-      if (initial || replaceAndNotAborting) {
+      // because calling refresh causes an aborted transition, this needs to be
+      // special cased - if the initial transition is a replace transition, the
+      // urlMethod should be honored here.
+      var isQueryParamsRefreshTransition = transition.queryParamsOnly && urlMethod === 'replace';
+
+      if (initial || replaceAndNotAborting || isQueryParamsRefreshTransition) {
         router.replaceURL(url);
       } else {
         router.updateURL(url);
@@ -52189,6 +52211,48 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         return false;
       }
     }
+    return true;
+  }
+
+  function handlerInfosSameExceptQueryParams(handlerInfos, otherHandlerInfos) {
+    if (handlerInfos.length !== otherHandlerInfos.length) {
+      return false;
+    }
+
+    for (var i = 0, len = handlerInfos.length; i < len; ++i) {
+      if (handlerInfos[i].name !== otherHandlerInfos[i].name) {
+        return false;
+      }
+
+      if (!paramsEqual(handlerInfos[i].params, otherHandlerInfos[i].params)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function paramsEqual(params, otherParams) {
+    if (!params && !otherParams) {
+      return true;
+    } else if (!params && !!otherParams || !!params && !otherParams) {
+      // one is falsy but other is not;
+      return false;
+    }
+    var keys = Object.keys(params);
+    var otherKeys = Object.keys(otherParams);
+
+    if (keys.length !== otherKeys.length) {
+      return false;
+    }
+
+    for (var i = 0, len = keys.length; i < len; ++i) {
+      var key = keys[i];
+
+      if (params[key] !== otherParams[key]) {
+        return false;
+      }
+    }
+
     return true;
   }
 
