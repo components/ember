@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.7932a8d5"
+        "version": "2.14.0-alpha.1.ebdc828d"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -9464,6 +9464,11 @@
                     "name": "actions",
                     "description": "Optional array of actions (listeners).",
                     "type": "Array"
+                },
+                {
+                    "name": "meta",
+                    "description": "Optional meta to lookup listeners",
+                    "type": "Meta"
                 }
             ],
             "return": {
@@ -9477,7 +9482,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 240,
+            "line": 243,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -9499,7 +9504,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 254,
+            "line": 257,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -9521,7 +9526,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 277,
+            "line": 280,
             "description": "Define a property as a function that should be executed when\na specified event or events are triggered.\n\n\n``` javascript\nlet Job = Ember.Object.extend({\n  logCompleted: Ember.on('completed', function() {\n    console.log('Job completed!');\n  })\n});\n\nlet job = Job.create();\n\nEmber.sendEvent(job, 'completed'); // Logs 'Job completed!'\n ```",
             "itemtype": "method",
             "name": "on",

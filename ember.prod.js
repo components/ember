@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+7932a8d5
+ * @version   2.14.0-alpha.1-null+ebdc828d
  */
 
 var enifed, requireModule, Ember;
@@ -22362,19 +22362,20 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {String} eventName
     @param {Array} params Optional parameters for each listener.
     @param {Array} actions Optional array of actions (listeners).
+    @param {Meta}  meta Optional meta to lookup listeners
     @return true
     @public
   */
-  function sendEvent(obj, eventName, params, actions) {
+  function sendEvent(obj, eventName, params, actions, _meta) {
     var meta$$1, i, target, method, flags;
 
-    if (!actions) {
-      meta$$1 = exports.peekMeta(obj);
+    if (actions === undefined) {
+      meta$$1 = _meta || exports.peekMeta(obj);
 
-      actions = meta$$1 && meta$$1.matchingListeners(eventName);
+      actions = typeof meta$$1 === 'object' && meta$$1 !== null && meta$$1.matchingListeners(eventName);
     }
 
-    if (!actions || actions.length === 0) {
+    if (actions === undefined || actions.length === 0) {
       return;
     }
 
@@ -39987,7 +39988,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
         m.proto = proto;
         (0, _emberMetal.finishChains)(m);
-        (0, _emberMetal.sendEvent)(this, 'init');
+        (0, _emberMetal.sendEvent)(this, 'init', undefined, undefined, undefined, m);
       }
 
       Class.willReopen = function () {
@@ -44369,7 +44370,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+7932a8d5";
+  exports.default = "2.14.0-alpha.1-null+ebdc828d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
