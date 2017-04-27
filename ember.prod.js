@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.2-beta+9ac663e0
+ * @version   2.13.0-beta.2-beta+d3394ed4
  */
 
 var enifed, requireModule, Ember;
@@ -3455,6 +3455,8 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
       var cacheable = !areInjectionsDynamic(injections) && !areInjectionsDynamic(factoryInjections);
 
       factoryInjections[_emberUtils.NAME_KEY] = registry.makeToString(factory, fullName);
+      injections._debugContainerKey = fullName;
+      _emberUtils.setOwner(injections, container.owner);
 
       var injectedFactory = factory.extend(injections);
 
@@ -3480,9 +3482,6 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
     var type = splitName[0];
 
     var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
-    injections._debugContainerKey = fullName;
-
-    _emberUtils.setOwner(injections, container.owner);
 
     return injections;
   }
@@ -3516,6 +3515,7 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
         // to create time injections
         // TODO: support new'ing for instantiation and merge injections for pure JS Functions
         var injections = injectionsFor(container, fullName);
+        injections._debugContainerKey = fullName;
 
         // Ensure that a container is available to an object during instantiation.
         // TODO - remove when Ember reaches v3.0.0
@@ -3545,25 +3545,27 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
     return factoryInjections;
   }
 
+  var INJECTED_DEPRECATED_CONTAINER_DESC = {
+    configurable: true,
+    enumerable: false,
+    get: function () {
+      return this[CONTAINER_OVERRIDE] || _emberUtils.getOwner(this).__container__;
+    },
+
+    set: function (value) {
+
+      this[CONTAINER_OVERRIDE] = value;
+
+      return value;
+    }
+  };
+
   // TODO - remove when Ember reaches v3.0.0
   function injectDeprecatedContainer(object, container) {
     if ('container' in object) {
       return;
     }
-    Object.defineProperty(object, 'container', {
-      configurable: true,
-      enumerable: false,
-      get: function () {
-        return this[CONTAINER_OVERRIDE] || container;
-      },
-
-      set: function (value) {
-
-        this[CONTAINER_OVERRIDE] = value;
-
-        return value;
-      }
-    });
+    Object.defineProperty(object, 'container', INJECTED_DEPRECATED_CONTAINER_DESC);
   }
 
   function destroyDestroyables(container) {
@@ -3638,12 +3640,21 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
   var FactoryManager = (function () {
     function FactoryManager(container, factory, fullName, normalizedName) {
       this.container = container;
+      this.owner = container.owner;
       this.class = factory;
       this.fullName = fullName;
       this.normalizedName = normalizedName;
       this.madeToString = undefined;
       this.injections = undefined;
     }
+
+    FactoryManager.prototype.toString = function toString() {
+      if (!this.madeToString) {
+        this.madeToString = this.container.registry.makeToString(this.class, this.fullName);
+      }
+
+      return this.madeToString;
+    };
 
     FactoryManager.prototype.create = function create() {
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -3657,8 +3668,6 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
       }
       var props = _emberUtils.assign({}, injections, options);
 
-      props[_emberUtils.NAME_KEY] = this.madeToString || (this.madeToString = this.container.registry.makeToString(this.class, this.fullName));
-
       if (!this.class.create) {
         throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
       }
@@ -3666,6 +3675,21 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
       var prototype = this.class.prototype;
       if (prototype) {
         injectDeprecatedContainer(prototype, this.container);
+      }
+
+      // required to allow access to things like
+      // the customized toString, _debugContainerKey,
+      // owner, etc. without a double extend and without
+      // modifying the objects properties
+      if (typeof this.class._initFactory === 'function') {
+        this.class._initFactory(this);
+      } else {
+        // in the non-Ember.Object case we need to still setOwner
+        // this is required for supporting glimmer environment and
+        // template instantiation which rely heavily on
+        // `options[OWNER]` being passed into `create`
+        // TODO: clean this up, and remove in future versions
+        _emberUtils.setOwner(props, this.owner);
       }
 
       return this.class.create(props);
@@ -18252,22 +18276,16 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       }
   }
 
-  function finishChains(obj) {
-    // We only create meta if we really have to
-    var m = _emberMetalMeta.peekMeta(obj);
-    if (m !== undefined) {
-      m = _emberMetalMeta.meta(obj);
-
-      // finish any current chains node watchers that reference obj
-      var chainWatchers = m.readableChainWatchers();
-      if (chainWatchers !== undefined) {
-        chainWatchers.revalidateAll();
-      }
-      // ensure that if we have inherited any chains they have been
-      // copied onto our own meta.
-      if (m.readableChains() !== undefined) {
-        m.writableChains(_emberMetalWatch_path.makeChainNode);
-      }
+  function finishChains(meta) {
+    // finish any current chains node watchers that reference obj
+    var chainWatchers = meta.readableChainWatchers();
+    if (chainWatchers !== undefined) {
+      chainWatchers.revalidateAll();
+    }
+    // ensure that if we have inherited any chains they have been
+    // copied onto our own meta.
+    if (meta.readableChains() !== undefined) {
+      meta.writableChains(_emberMetalWatch_path.makeChainNode);
     }
   }
 
@@ -19020,7 +19038,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-debug'],
     var stack = error.stack;
     var message = error.message;
 
-    if (stack && !stack.includes(message)) {
+    if (stack && stack.indexOf(message) === -1) {
       stack = message + '\n' + stack;
     }
 
@@ -19597,6 +19615,7 @@ enifed('ember-metal/index', ['exports', 'ember-metal/core', 'ember-metal/compute
   exports.PROPERTY_DID_CHANGE = _emberMetalProperty_events.PROPERTY_DID_CHANGE;
   exports.defineProperty = _emberMetalProperties.defineProperty;
   exports.Descriptor = _emberMetalProperties.Descriptor;
+  exports._hasCachedComputedProperties = _emberMetalProperties._hasCachedComputedProperties;
   exports.watchKey = _emberMetalWatch_key.watchKey;
   exports.unwatchKey = _emberMetalWatch_key.unwatchKey;
   exports.ChainNode = _emberMetalChains.ChainNode;
@@ -20843,6 +20862,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/meta_listener
       this._chains = undefined;
       this._tag = undefined;
       this._tags = undefined;
+      this._factory = undefined;
 
       // initial value for all flags right now is false
       // see FLAGS const for detailed list of flags used
@@ -21086,6 +21106,15 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/meta_listener
       }
     };
 
+    babelHelpers.createClass(Meta, [{
+      key: 'factory',
+      set: function (factory) {
+        this._factory = factory;
+      },
+      get: function () {
+        return this._factory;
+      }
+    }]);
     return Meta;
   })();
 
@@ -22710,6 +22739,7 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
   exports.DEFAULT_GETTER_FUNCTION = DEFAULT_GETTER_FUNCTION;
   exports.INHERITING_GETTER_FUNCTION = INHERITING_GETTER_FUNCTION;
   exports.defineProperty = defineProperty;
+  exports._hasCachedComputedProperties = _hasCachedComputedProperties;
 
   // ..........................................................
   // DESCRIPTOR
@@ -22830,24 +22860,20 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
   */
 
   function defineProperty(obj, keyName, desc, data, meta) {
-    var possibleDesc = undefined,
-        existingDesc = undefined,
-        watching = undefined,
-        value = undefined;
-
     if (!meta) {
       meta = _emberMetalMeta.meta(obj);
     }
     var watchEntry = meta.peekWatching(keyName);
-    possibleDesc = obj[keyName];
-    existingDesc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var possibleDesc = obj[keyName];
+    var existingDesc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
-    watching = watchEntry !== undefined && watchEntry > 0;
+    var watching = watchEntry !== undefined && watchEntry > 0;
 
     if (existingDesc) {
       existingDesc.teardown(obj, keyName);
     }
 
+    var value = undefined;
     if (desc instanceof Descriptor) {
       value = desc;
       if (false) {
@@ -22864,7 +22890,10 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
       } else {
         obj[keyName] = value;
       }
-      if (desc.setup) {
+
+      didDefineComputedProperty(obj.constructor);
+
+      if (typeof desc.setup === 'function') {
         desc.setup(obj, keyName);
       }
     } else {
@@ -22909,11 +22938,28 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
 
     // The `value` passed to the `didDefineProperty` hook is
     // either the descriptor or data, whichever was passed.
-    if (obj.didDefineProperty) {
+    if (typeof obj.didDefineProperty === 'function') {
       obj.didDefineProperty(obj, keyName, value);
     }
 
     return this;
+  }
+
+  var hasCachedComputedProperties = false;
+
+  function _hasCachedComputedProperties() {
+    hasCachedComputedProperties = true;
+  }
+
+  function didDefineComputedProperty(constructor) {
+    if (hasCachedComputedProperties === false) {
+      return;
+    }
+    var cache = _emberMetalMeta.meta(constructor).readableCache();
+
+    if (cache && cache._computedProperties !== undefined) {
+      cache._computedProperties = undefined;
+    }
   }
 
   function handleBrokenPhantomDefineProperty(obj, keyName, desc) {
@@ -24788,8 +24834,18 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
       Defines which query parameters the controller accepts.
       If you give the names `['category','page']` it will bind
       the values of these query parameters to the variables
-      `this.category` and `this.page`
-       @property queryParams
+      `this.category` and `this.page`.
+      By default, Ember coerces query parameter values using `toggleProperty`.
+      This behavior may lead to unexpected results.
+      To explicity configure a query parameter property so it coerces as expected, you must define a type property:
+      ```javascript
+        queryParams: [{
+          category: {
+            type: 'boolean'
+          }
+        }]
+      ```
+      @property queryParams
       @public
     */
     queryParams: null,
@@ -37327,7 +37383,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   var applyMixin = _emberMetal.Mixin._apply;
   var finishPartial = _emberMetal.Mixin.finishPartial;
   var reopen = _emberMetal.Mixin.prototype.reopen;
-  var hasCachedComputedProperties = false;
 
   var POST_INIT = _emberUtils.symbol('POST_INIT');
 
@@ -37338,7 +37393,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     // possible.
 
     var wasApplied = false;
-    var initProperties = undefined;
+    var initProperties = undefined,
+        initFactory = undefined;
 
     var Class = (function () {
       function Class() {
@@ -37354,6 +37410,11 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
         var m = _emberMetal.meta(this);
         var proto = m.proto;
         m.proto = this;
+
+        if (initFactory) {
+          m.factory = initFactory;
+          initFactory = null;
+        }
         if (initProperties) {
           // capture locally so we can clear the closed over variable
           var props = initProperties;
@@ -37430,7 +37491,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
         this[POST_INIT]();
 
         m.proto = proto;
-        _emberMetal.finishChains(this);
+        _emberMetal.finishChains(m);
         _emberMetal.sendEvent(this, 'init');
       }
 
@@ -37444,6 +37505,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
       Class._initProperties = function _initProperties(args) {
         initProperties = args;
+      };
+
+      Class._initFactory = function _initFactory(factory) {
+        initFactory = factory;
       };
 
       Class.proto = function proto() {
@@ -37564,7 +37629,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   }, _Mixin$create.toString = function () {
     var hasToStringExtension = typeof this.toStringExtension === 'function';
     var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-    var ret = '<' + (this[_emberUtils.NAME_KEY] || this.constructor.toString()) + ':' + _emberUtils.guidFor(this) + extension + '>';
+
+    var ret = '<' + (this[_emberUtils.NAME_KEY] || _emberMetal.meta(this).factory || this.constructor.toString()) + ':' + _emberUtils.guidFor(this) + extension + '>';
 
     return ret;
   }, _Mixin$create));
@@ -37642,7 +37708,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
     return desc._meta || {};
   }, _ClassMixinProps._computedProperties = _emberMetal.computed(function () {
-    hasCachedComputedProperties = true;
+    _emberMetal._hasCachedComputedProperties();
     var proto = this.proto();
     var property = undefined;
     var properties = [];
@@ -37703,22 +37769,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
   CoreObject.ClassMixin = ClassMixin;
 
   ClassMixin.apply(CoreObject);
-
-  CoreObject.reopen({
-    didDefineProperty: function (proto, key, value) {
-      if (hasCachedComputedProperties === false) {
-        return;
-      }
-      if (value instanceof _emberMetal.ComputedProperty) {
-        var cache = _emberMetal.meta(this.constructor).readableCache();
-
-        if (cache && cache._computedProperties !== undefined) {
-          cache._computedProperties = undefined;
-        }
-      }
-    }
-  });
-
   exports.default = CoreObject;
 });
 // Private, and only for didInitAttrs willRecieveAttrs
@@ -38716,6 +38766,11 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
 
   'use strict';
 
+  var _CoreObject$extend;
+
+  var OVERRIDE_CONTAINER_KEY = _emberUtils.symbol('OVERRIDE_CONTAINER_KEY');
+  var OVERRIDE_OWNER = _emberUtils.symbol('OVERRIDE_OWNER');
+
   /**
     `Ember.Object` is the main base class for all Ember objects. It is a subclass
     of `Ember.CoreObject` with the `Ember.Observable` mixin applied. For details,
@@ -38727,7 +38782,47 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
     @uses Ember.Observable
     @public
   */
-  var EmberObject = _emberRuntimeSystemCore_object.default.extend(_emberRuntimeMixinsObservable.default);
+  var EmberObject = _emberRuntimeSystemCore_object.default.extend(_emberRuntimeMixinsObservable.default, (_CoreObject$extend = {
+    _debugContainerKey: _emberMetal.descriptor({
+      enumerable: false,
+      get: function () {
+        if (this[OVERRIDE_CONTAINER_KEY]) {
+          return this[OVERRIDE_CONTAINER_KEY];
+        }
+
+        var meta = _emberMetal.meta(this);
+        var factory = meta.factory;
+
+        return factory && factory.fullName;
+      },
+
+      // we need a setter here largely to support the legacy
+      // `owner._lookupFactory` and its double extend
+      set: function (value) {
+        this[OVERRIDE_CONTAINER_KEY] = value;
+      }
+    })
+
+  }, _CoreObject$extend[_emberUtils.OWNER] = _emberMetal.descriptor({
+    enumerable: false,
+    get: function () {
+      if (this[OVERRIDE_OWNER]) {
+        return this[OVERRIDE_OWNER];
+      }
+
+      var meta = _emberMetal.meta(this);
+      var factory = meta.factory;
+
+      return factory && factory.owner;
+    },
+
+    // we need a setter here largely to support the legacy
+    // `owner._lookupFactory` and its double extend
+    set: function (value) {
+      this[OVERRIDE_OWNER] = value;
+    }
+  }), _CoreObject$extend));
+
   EmberObject.toString = function () {
     return 'Ember.Object';
   };
@@ -40064,13 +40159,40 @@ enifed('ember-utils/to-string', ['exports'], function (exports) {
   exports.default = toString;
   var objectToString = Object.prototype.toString;
 
+  function isNone(obj) {
+    return obj === null || obj === undefined;
+  }
+
   /*
    A `toString` util function that supports objects without a `toString`
    method, e.g. an object created with `Object.create(null)`.
   */
 
   function toString(obj) {
-    if (obj && typeof obj.toString === 'function') {
+    var type = typeof obj;
+    if (type === "string") {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      // Reimplement Array.prototype.join according to spec (22.1.3.13)
+      // Changing ToString(element) with this safe version of ToString.
+      var len = obj.length;
+      var sep = ',';
+      var r = '';
+
+      for (var k = 0; k < len; k++) {
+        if (k > 0) {
+          r += ',';
+        }
+
+        if (!isNone(obj[k])) {
+          r += toString(obj[k]);
+        }
+      }
+
+      return r;
+    } else if (obj != null && typeof obj.toString === 'function') {
       return obj.toString();
     } else {
       return objectToString.call(obj);
@@ -42596,7 +42718,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-beta.2-beta+9ac663e0";
+  exports.default = "2.13.0-beta.2-beta+d3394ed4";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

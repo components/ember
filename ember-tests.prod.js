@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.2-beta+9ac663e0
+ * @version   2.13.0-beta.2-beta+d3394ed4
  */
 
 var enifed, requireModule, Ember;
@@ -268,7 +268,7 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     equal(PostFactory._debugContainerKey, 'controller:post', 'factory instance receives _debugContainerKey');
   });
 
-  QUnit.test('fallback for to create time injections if factory has no extend', function () {
+  QUnit.test('uses create time injections if factory has no extend', function () {
     var registry = new _containerIndex.Registry();
     var container = registry.container();
     var AppleController = _internalTestHelpers.factory();
@@ -282,7 +282,6 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
 
     var postController = container.lookup('controller:post');
 
-    equal(postController._debugContainerKey, 'controller:post', 'instance receives _debugContainerKey');
     ok(postController.apple instanceof AppleController, 'instance receives an apple of instance AppleController');
   });
 
@@ -354,9 +353,6 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
     var postController = container.lookup('controller:post');
     var store = container.lookup('store:main');
 
-    equal(store._debugContainerKey, 'store:main');
-
-    equal(postController._debugContainerKey, 'controller:post');
     equal(postController.store, store, 'has the correct store injected');
   });
 
@@ -755,8 +751,9 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
   });
 
   QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
+    var owner = {};
     var registry = new _containerIndex.Registry();
-    var container = registry.container();
+    var container = owner.__container__ = registry.container({ owner: owner });
     var PostController = _internalTestHelpers.factory();
     registry.register('controller:post', PostController);
     var postController = container.lookup('controller:post');
@@ -999,10 +996,73 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
       registry.injection('component:foo-bar', 'ajax', 'util:ajax');
 
       var componentFactory = container.factoryFor('component:foo-bar');
-
       var instrance = componentFactory.create({ ajax: 'fetch' });
 
       assert.equal(instrance.ajax, 'fetch');
+    });
+
+    QUnit.test('#factoryFor does not add properties to the object being instantiated when _initFactory is present', function (assert) {
+      var owner = {};
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var factory = undefined;
+
+      var Component = (function () {
+        function Component() {}
+
+        Component._initFactory = function _initFactory(_factory) {
+          factory = _factory;
+        };
+
+        Component.create = function create(options) {
+          var instance = new this();
+          _emberUtils.assign(instance, options);
+          return instance;
+        };
+
+        return Component;
+      })();
+
+      registry.register('component:foo-bar', Component);
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var instance = componentFactory.create();
+
+      // note: _guid and isDestroyed are being set in the `factory` constructor
+      // not via registry/container shenanigans
+      assert.deepEqual(Object.keys(instance), []);
+    });
+
+    // this is skipped until templates and the glimmer environment do not require `OWNER` to be
+    // passed in as constructor args
+    QUnit.skip('#factoryFor does not add properties to the object being instantiated', function (assert) {
+      var owner = {};
+      var registry = new _containerIndex.Registry();
+      var container = registry.container();
+
+      var factory = undefined;
+
+      var Component = (function () {
+        function Component() {}
+
+        Component.create = function create(options) {
+          var instance = new this();
+          _emberUtils.assign(instance, options);
+          return instance;
+        };
+
+        return Component;
+      })();
+
+      registry.register('component:foo-bar', Component);
+
+      var componentFactory = container.factoryFor('component:foo-bar');
+      var instance = componentFactory.create();
+
+      // note: _guid and isDestroyed are being set in the `factory` constructor
+      // not via registry/container shenanigans
+      assert.deepEqual(Object.keys(instance), []);
     });
   }
 });
@@ -39261,8 +39321,13 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
     _emberMetalObserver.addObserver(obj, 'foo.bar', null, didChange);
 
     var childObj = Object.create(obj);
-    _emberMetalChains.finishChains(childObj);
-    ok(_emberMetalMeta.peekMeta(obj) !== _emberMetalMeta.peekMeta(childObj).readableChains(), 'The chains object is copied');
+
+    var parentMeta = _emberMetalMeta.meta(obj);
+    var childMeta = _emberMetalMeta.meta(childObj);
+
+    _emberMetalChains.finishChains(childMeta);
+
+    ok(parentMeta.readableChains() !== childMeta.readableChains(), 'The chains object is copied');
   });
 
   QUnit.test('does not observe primative values', function (assert) {
@@ -67387,6 +67452,13 @@ enifed('ember-utils/tests/to-string-test', ['exports', 'ember-utils/index'], fun
     var obj = Object.create(null);
 
     strictEqual(_emberUtilsIndex.toString(obj), ({}).toString());
+  });
+
+  QUnit.test('toString does not fail when called on Arrays with objects without toString method', function () {
+    var obj = Object.create(null);
+    var arr = [obj, 2];
+
+    strictEqual(_emberUtilsIndex.toString(arr), ({}).toString() + ',2');
   });
 });
 enifed('ember-utils/tests/to-string-test.lint-test', ['exports'], function (exports) {

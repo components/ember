@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-beta.2-beta+9ac663e0
+ * @version   2.13.0-beta.2-beta+d3394ed4
  */
 
 var enifed, requireModule, Ember;
@@ -7246,22 +7246,16 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/property_get', 'ember-meta
       }
   }
 
-  function finishChains(obj) {
-    // We only create meta if we really have to
-    var m = _emberMetalMeta.peekMeta(obj);
-    if (m !== undefined) {
-      m = _emberMetalMeta.meta(obj);
-
-      // finish any current chains node watchers that reference obj
-      var chainWatchers = m.readableChainWatchers();
-      if (chainWatchers !== undefined) {
-        chainWatchers.revalidateAll();
-      }
-      // ensure that if we have inherited any chains they have been
-      // copied onto our own meta.
-      if (m.readableChains() !== undefined) {
-        m.writableChains(_emberMetalWatch_path.makeChainNode);
-      }
+  function finishChains(meta) {
+    // finish any current chains node watchers that reference obj
+    var chainWatchers = meta.readableChainWatchers();
+    if (chainWatchers !== undefined) {
+      chainWatchers.revalidateAll();
+    }
+    // ensure that if we have inherited any chains they have been
+    // copied onto our own meta.
+    if (meta.readableChains() !== undefined) {
+      meta.writableChains(_emberMetalWatch_path.makeChainNode);
     }
   }
 
@@ -8029,7 +8023,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-debug'],
     var stack = error.stack;
     var message = error.message;
 
-    if (stack && !stack.includes(message)) {
+    if (stack && stack.indexOf(message) === -1) {
       stack = message + '\n' + stack;
     }
 
@@ -8622,6 +8616,7 @@ enifed('ember-metal/index', ['exports', 'ember-metal/core', 'ember-metal/compute
   exports.PROPERTY_DID_CHANGE = _emberMetalProperty_events.PROPERTY_DID_CHANGE;
   exports.defineProperty = _emberMetalProperties.defineProperty;
   exports.Descriptor = _emberMetalProperties.Descriptor;
+  exports._hasCachedComputedProperties = _emberMetalProperties._hasCachedComputedProperties;
   exports.watchKey = _emberMetalWatch_key.watchKey;
   exports.unwatchKey = _emberMetalWatch_key.unwatchKey;
   exports.ChainNode = _emberMetalChains.ChainNode;
@@ -9882,6 +9877,7 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/meta_listener
       this._chains = undefined;
       this._tag = undefined;
       this._tags = undefined;
+      this._factory = undefined;
 
       // initial value for all flags right now is false
       // see FLAGS const for detailed list of flags used
@@ -10130,6 +10126,15 @@ enifed('ember-metal/meta', ['exports', 'ember-utils', 'ember-metal/meta_listener
       }
     };
 
+    babelHelpers.createClass(Meta, [{
+      key: 'factory',
+      set: function (factory) {
+        this._factory = factory;
+      },
+      get: function () {
+        return this._factory;
+      }
+    }]);
     return Meta;
   })();
 
@@ -11797,6 +11802,7 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
   exports.DEFAULT_GETTER_FUNCTION = DEFAULT_GETTER_FUNCTION;
   exports.INHERITING_GETTER_FUNCTION = INHERITING_GETTER_FUNCTION;
   exports.defineProperty = defineProperty;
+  exports._hasCachedComputedProperties = _hasCachedComputedProperties;
 
   // ..........................................................
   // DESCRIPTOR
@@ -11919,24 +11925,20 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
   */
 
   function defineProperty(obj, keyName, desc, data, meta) {
-    var possibleDesc = undefined,
-        existingDesc = undefined,
-        watching = undefined,
-        value = undefined;
-
     if (!meta) {
       meta = _emberMetalMeta.meta(obj);
     }
     var watchEntry = meta.peekWatching(keyName);
-    possibleDesc = obj[keyName];
-    existingDesc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var possibleDesc = obj[keyName];
+    var existingDesc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
-    watching = watchEntry !== undefined && watchEntry > 0;
+    var watching = watchEntry !== undefined && watchEntry > 0;
 
     if (existingDesc) {
       existingDesc.teardown(obj, keyName);
     }
 
+    var value = undefined;
     if (desc instanceof Descriptor) {
       value = desc;
       if (true) {
@@ -11953,7 +11955,10 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
       } else {
         obj[keyName] = value;
       }
-      if (desc.setup) {
+
+      didDefineComputedProperty(obj.constructor);
+
+      if (typeof desc.setup === 'function') {
         desc.setup(obj, keyName);
       }
     } else {
@@ -11998,11 +12003,28 @@ enifed('ember-metal/properties', ['exports', 'ember-debug', 'ember-metal/meta', 
 
     // The `value` passed to the `didDefineProperty` hook is
     // either the descriptor or data, whichever was passed.
-    if (obj.didDefineProperty) {
+    if (typeof obj.didDefineProperty === 'function') {
       obj.didDefineProperty(obj, keyName, value);
     }
 
     return this;
+  }
+
+  var hasCachedComputedProperties = false;
+
+  function _hasCachedComputedProperties() {
+    hasCachedComputedProperties = true;
+  }
+
+  function didDefineComputedProperty(constructor) {
+    if (hasCachedComputedProperties === false) {
+      return;
+    }
+    var cache = _emberMetalMeta.meta(constructor).readableCache();
+
+    if (cache && cache._computedProperties !== undefined) {
+      cache._computedProperties = undefined;
+    }
   }
 
   function handleBrokenPhantomDefineProperty(obj, keyName, desc) {
@@ -16113,13 +16135,40 @@ enifed('ember-utils/to-string', ['exports'], function (exports) {
   exports.default = toString;
   var objectToString = Object.prototype.toString;
 
+  function isNone(obj) {
+    return obj === null || obj === undefined;
+  }
+
   /*
    A `toString` util function that supports objects without a `toString`
    method, e.g. an object created with `Object.create(null)`.
   */
 
   function toString(obj) {
-    if (obj && typeof obj.toString === 'function') {
+    var type = typeof obj;
+    if (type === "string") {
+      return obj;
+    }
+
+    if (Array.isArray(obj)) {
+      // Reimplement Array.prototype.join according to spec (22.1.3.13)
+      // Changing ToString(element) with this safe version of ToString.
+      var len = obj.length;
+      var sep = ',';
+      var r = '';
+
+      for (var k = 0; k < len; k++) {
+        if (k > 0) {
+          r += ',';
+        }
+
+        if (!isNone(obj[k])) {
+          r += toString(obj[k]);
+        }
+      }
+
+      return r;
+    } else if (obj != null && typeof obj.toString === 'function') {
       return obj.toString();
     } else {
       return objectToString.call(obj);
@@ -16151,7 +16200,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-beta.2-beta+9ac663e0";
+  exports.default = "2.13.0-beta.2-beta+d3394ed4";
 });
 enifed("handlebars", ["exports"], function (exports) {
   /* istanbul ignore next */
