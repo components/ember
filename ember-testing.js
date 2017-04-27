@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.1-release+8930b15c
+ * @version   2.12.2
  */
 
 var enifed, requireModule, Ember;
@@ -2402,6 +2402,9 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-metal'], function (expor
     return array;
   }
 });
-requireModule("ember-testing");
-
+var testing = requireModule('ember-testing');
+Ember.Test = testing.Test;
+Ember.Test.Adapter = testing.Adapter;
+Ember.Test.QUnitAdapter = testing.QUnitAdapter;
+Ember.setupForTesting = testing.setupForTesting;
 }());
