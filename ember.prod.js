@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ebdc828d
+ * @version   2.14.0-alpha.1-null+c016eca3
  */
 
 var enifed, requireModule, Ember;
@@ -30767,7 +30767,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var _this = this,
           controllerDefinedQueryParameterConfiguration,
           normalizedControllerQueryParameterConfiguration,
-          generatedControllerClass,
           desc,
           scope,
           parts,
@@ -30778,32 +30777,28 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           scopedPropertyName,
           qp;
 
-      var controllerProto = void 0,
-          combinedQueryParameterConfiguration = void 0;
+      var combinedQueryParameterConfiguration = void 0;
 
       var controllerName = this.controllerName || this.routeName;
       var owner = (0, _emberUtils.getOwner)(this);
-      var definedControllerClass = owner[_container.LOOKUP_FACTORY]('controller:' + controllerName);
+      var controller = owner.lookup('controller:' + controllerName);
       var queryParameterConfiguraton = (0, _emberMetal.get)(this, 'queryParams');
       var hasRouterDefinedQueryParams = !!Object.keys(queryParameterConfiguraton).length;
 
-      if (definedControllerClass) {
+      if (controller) {
         // the developer has authored a controller class in their application for this route
         // access the prototype, find its query params and normalize their object shape
         // them merge in the query params for the route. As a mergedProperty, Route#queryParams is always
         // at least `{}`
-        controllerProto = definedControllerClass.proto();
 
-        controllerDefinedQueryParameterConfiguration = (0, _emberMetal.get)(controllerProto, 'queryParams');
+        controllerDefinedQueryParameterConfiguration = (0, _emberMetal.get)(controller, 'queryParams');
         normalizedControllerQueryParameterConfiguration = (0, _utils.normalizeControllerQueryParams)(controllerDefinedQueryParameterConfiguration);
 
         combinedQueryParameterConfiguration = mergeEachQueryParams(normalizedControllerQueryParameterConfiguration, queryParameterConfiguraton);
       } else if (hasRouterDefinedQueryParams) {
         // the developer has not defined a controller but *has* supplied route query params.
         // Generate a class for them so we can later insert default values
-        generatedControllerClass = (0, _generate_controller.generateControllerFactory)((0, _emberUtils.getOwner)(this), controllerName);
-
-        controllerProto = generatedControllerClass.proto();
+        controller = (0, _generate_controller.default)((0, _emberUtils.getOwner)(this), controllerName);
         combinedQueryParameterConfiguration = queryParameterConfiguraton;
       }
 
@@ -30833,7 +30828,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         }
 
         urlKey = desc.as || this.serializeQueryParamKey(propName);
-        defaultValue = (0, _emberMetal.get)(controllerProto, propName);
+        defaultValue = (0, _emberMetal.get)(controller, propName);
 
 
         if (Array.isArray(defaultValue)) {
@@ -30844,7 +30839,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         defaultValueSerialized = this.serializeQueryParam(defaultValue, urlKey, type);
         scopedPropertyName = controllerName + ':' + propName;
         qp = {
-          undecoratedDefaultValue: (0, _emberMetal.get)(controllerProto, propName),
+          undecoratedDefaultValue: (0, _emberMetal.get)(controller, propName),
           defaultValue: defaultValue,
           serializedDefaultValue: defaultValueSerialized,
           serializedValue: defaultValueSerialized,
@@ -44370,7 +44365,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+ebdc828d";
+  exports.default = "2.14.0-alpha.1-null+c016eca3";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

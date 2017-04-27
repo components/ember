@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ebdc828d
+ * @version   2.14.0-alpha.1-null+c016eca3
  */
 
 var enifed, requireModule, Ember;
@@ -31442,30 +31442,27 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     _qp: (0, _emberMetal.computed)(function () {
       var _this = this;
 
-      var controllerProto = void 0,
-          combinedQueryParameterConfiguration = void 0;
+      var combinedQueryParameterConfiguration = void 0;
 
       var controllerName = this.controllerName || this.routeName;
       var owner = (0, _emberUtils.getOwner)(this);
-      var definedControllerClass = owner[_container.LOOKUP_FACTORY]('controller:' + controllerName);
+      var controller = owner.lookup('controller:' + controllerName);
       var queryParameterConfiguraton = (0, _emberMetal.get)(this, 'queryParams');
       var hasRouterDefinedQueryParams = !!Object.keys(queryParameterConfiguraton).length;
 
-      if (definedControllerClass) {
+      if (controller) {
         // the developer has authored a controller class in their application for this route
         // access the prototype, find its query params and normalize their object shape
         // them merge in the query params for the route. As a mergedProperty, Route#queryParams is always
         // at least `{}`
-        controllerProto = definedControllerClass.proto();
 
-        var controllerDefinedQueryParameterConfiguration = (0, _emberMetal.get)(controllerProto, 'queryParams');
+        var controllerDefinedQueryParameterConfiguration = (0, _emberMetal.get)(controller, 'queryParams');
         var normalizedControllerQueryParameterConfiguration = (0, _utils.normalizeControllerQueryParams)(controllerDefinedQueryParameterConfiguration);
         combinedQueryParameterConfiguration = mergeEachQueryParams(normalizedControllerQueryParameterConfiguration, queryParameterConfiguraton);
       } else if (hasRouterDefinedQueryParams) {
         // the developer has not defined a controller but *has* supplied route query params.
         // Generate a class for them so we can later insert default values
-        var generatedControllerClass = (0, _generate_controller.generateControllerFactory)((0, _emberUtils.getOwner)(this), controllerName);
-        controllerProto = generatedControllerClass.proto();
+        controller = (0, _generate_controller.default)((0, _emberUtils.getOwner)(this), controllerName);
         combinedQueryParameterConfiguration = queryParameterConfiguraton;
       }
 
@@ -31494,7 +31491,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         }
 
         var urlKey = desc.as || this.serializeQueryParamKey(propName);
-        var defaultValue = (0, _emberMetal.get)(controllerProto, propName);
+        var defaultValue = (0, _emberMetal.get)(controller, propName);
 
         if (Array.isArray(defaultValue)) {
           defaultValue = (0, _emberRuntime.A)(defaultValue.slice());
@@ -31505,7 +31502,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         var defaultValueSerialized = this.serializeQueryParam(defaultValue, urlKey, type);
         var scopedPropertyName = controllerName + ':' + propName;
         var qp = {
-          undecoratedDefaultValue: (0, _emberMetal.get)(controllerProto, propName),
+          undecoratedDefaultValue: (0, _emberMetal.get)(controller, propName),
           defaultValue: defaultValue,
           serializedDefaultValue: defaultValueSerialized,
           serializedValue: defaultValueSerialized,
@@ -48072,7 +48069,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+ebdc828d";
+  exports.default = "2.14.0-alpha.1-null+c016eca3";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
