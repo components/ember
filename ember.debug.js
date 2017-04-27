@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+d2220816
+ * @version   2.14.0-alpha.1-null+cc2450cf
  */
 
 var enifed, requireModule, Ember;
@@ -10049,12 +10049,12 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     configurable: true,
     enumerable: false,
     get: function () {
-      (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
+      (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
 
       return this[CONTAINER_OVERRIDE] || (0, _emberUtils.getOwner)(this).__container__;
     },
     set: function (value) {
-      (true && !(false) && (0, _emberDebug.deprecate)('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
+      (true && !(false) && (0, _emberDebug.deprecate)('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
 
 
       this[CONTAINER_OVERRIDE] = value;
@@ -10122,7 +10122,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     return function () {
       (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
         id: 'ember-application.injected-container',
-        until: '3.0.0',
+        until: '2.13.0',
         url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
       }));
 
@@ -11443,7 +11443,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
         lookup: function () {
           (true && !(false) && (0, _emberDebug.deprecate)('Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead.', false, {
             id: 'ember-application.app-instance-container',
-            until: '3.0.0',
+            until: '2.13.0',
             url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-applicationinstance-container'
           }));
 
@@ -48149,7 +48149,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+d2220816";
+  exports.default = "2.14.0-alpha.1-null+cc2450cf";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
