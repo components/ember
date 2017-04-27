@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+d504a576
+ * @version   2.14.0-alpha.1-null+5d39f76c
  */
 
 var enifed, requireModule, Ember;
@@ -7590,7 +7590,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
     counter = 0;
     inTransaction = false;
     shouldReflush = void 0;
@@ -7669,13 +7669,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
 
 
-          {
+          if (ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+            true && !false && emberDebug.deprecate(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+          } else {
             true && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
           }
         }
 
         shouldReflush = true;
       }
+    };
+  } else {
+    // in production do nothing to detect reflushes
+    exports.runInTransaction = function (context$$1, methodName) {
+      context$$1[methodName]();
+      return false;
     };
   }
 
@@ -7780,7 +7788,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       markObjectAsDirty(meta$$1, keyName);
     }
 
-    {
+    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
       exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
@@ -8100,7 +8108,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var value = void 0;
     if (desc instanceof Descriptor) {
       value = desc;
-      {
+      if (ember_features.MANDATORY_SETTER) {
         if (watching) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
@@ -8111,6 +8119,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         } else {
           obj[keyName] = value;
         }
+      } else {
+        obj[keyName] = value;
       }
 
       didDefineComputedProperty(obj.constructor);
@@ -8122,7 +8132,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (desc == null) {
         value = data;
 
-        {
+        if (ember_features.MANDATORY_SETTER) {
           if (watching) {
             meta$$1.writeValues(keyName, data);
 
@@ -8142,6 +8152,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           } else {
             obj[keyName] = data;
           }
+        } else {
+          obj[keyName] = data;
         }
       } else {
         value = desc;
@@ -8211,7 +8223,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.willWatchProperty(keyName);
       }
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         // NOTE: this is dropped for prod + minified builds
         handleMandatorySetter(m, obj, keyName);
       }
@@ -8220,7 +8232,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     _hasOwnProperty = function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     };
@@ -8298,7 +8310,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.didUnwatchProperty(keyName);
       }
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         // It is true, the following code looks quite WAT. But have no fear, It
         // exists purely to improve development ergonomics and is removed from
         // ember.min.js and ember.prod.js builds.
@@ -8836,7 +8848,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var META_DESTROYED = 1 << 3;
   var IS_PROXY = 1 << 4;
 
-  {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
     members.lastRendered = ownMap;
     if (require.has('ember-debug')) {
       //https://github.com/emberjs/ember.js/issues/14732
@@ -8885,7 +8897,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       // inherited, and we can optimize it much better than JS runtimes.
       this.parent = parentMeta;
 
-      {
+      if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
         this._lastRendered = undefined;
         {
           this._lastRenderedReferenceMap = undefined;
@@ -9280,7 +9292,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     descriptor: META_DESC
   };
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
 
       var pointer = this,
@@ -9735,8 +9747,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else {
       propertyWillChange(obj, keyName);
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
+      } else {
+        obj[keyName] = value;
       }
 
       propertyDidChange(obj, keyName);
@@ -9745,7 +9759,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return value;
   }
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     setWithMandatorySetter = function (meta$$1, obj, keyName, value) {
       if (meta$$1 && meta$$1.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
@@ -16625,7 +16639,7 @@ enifed('ember-utils', ['exports'], function (exports) {
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
     var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
@@ -16633,12 +16647,15 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
+    exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-allow-backtracking-rerender"];
     exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
+    exports.MANDATORY_SETTER = FEATURES["mandatory-setter"];
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-detect-backtracking-rerender"];
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+d504a576";
+  exports.default = "2.14.0-alpha.1-null+5d39f76c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -18085,20 +18102,310 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
         return input.replace(CRLF, "\n");
     }
 
-    function EventedTokenizer(delegate, entityParser) {
-        this.delegate = delegate;
-        this.entityParser = entityParser;
-        this.state = null;
-        this.input = null;
-        this.index = -1;
-        this.line = -1;
-        this.column = -1;
-        this.tagLine = -1;
-        this.tagColumn = -1;
-        this.reset();
-    }
-    EventedTokenizer.prototype = {
-        reset: function () {
+    var EventedTokenizer = function () {
+        function EventedTokenizer(delegate, entityParser) {
+            this.delegate = delegate;
+            this.entityParser = entityParser;
+            this.state = null;
+            this.input = null;
+            this.index = -1;
+            this.tagLine = -1;
+            this.tagColumn = -1;
+            this.line = -1;
+            this.column = -1;
+            this.states = {
+                beforeData: function () {
+                    var char = this.peek();
+                    if (char === "<") {
+                        this.state = 'tagOpen';
+                        this.markTagStart();
+                        this.consume();
+                    } else {
+                        this.state = 'data';
+                        this.delegate.beginData();
+                    }
+                },
+                data: function () {
+                    var char = this.peek();
+                    if (char === "<") {
+                        this.delegate.finishData();
+                        this.state = 'tagOpen';
+                        this.markTagStart();
+                        this.consume();
+                    } else if (char === "&") {
+                        this.consume();
+                        this.delegate.appendToData(this.consumeCharRef() || "&");
+                    } else {
+                        this.consume();
+                        this.delegate.appendToData(char);
+                    }
+                },
+                tagOpen: function () {
+                    var char = this.consume();
+                    if (char === "!") {
+                        this.state = 'markupDeclaration';
+                    } else if (char === "/") {
+                        this.state = 'endTagOpen';
+                    } else if (isAlpha(char)) {
+                        this.state = 'tagName';
+                        this.delegate.beginStartTag();
+                        this.delegate.appendToTagName(char.toLowerCase());
+                    }
+                },
+                markupDeclaration: function () {
+                    var char = this.consume();
+                    if (char === "-" && this.input.charAt(this.index) === "-") {
+                        this.consume();
+                        this.state = 'commentStart';
+                        this.delegate.beginComment();
+                    }
+                },
+                commentStart: function () {
+                    var char = this.consume();
+                    if (char === "-") {
+                        this.state = 'commentStartDash';
+                    } else if (char === ">") {
+                        this.delegate.finishComment();
+                        this.state = 'beforeData';
+                    } else {
+                        this.delegate.appendToCommentData(char);
+                        this.state = 'comment';
+                    }
+                },
+                commentStartDash: function () {
+                    var char = this.consume();
+                    if (char === "-") {
+                        this.state = 'commentEnd';
+                    } else if (char === ">") {
+                        this.delegate.finishComment();
+                        this.state = 'beforeData';
+                    } else {
+                        this.delegate.appendToCommentData("-");
+                        this.state = 'comment';
+                    }
+                },
+                comment: function () {
+                    var char = this.consume();
+                    if (char === "-") {
+                        this.state = 'commentEndDash';
+                    } else {
+                        this.delegate.appendToCommentData(char);
+                    }
+                },
+                commentEndDash: function () {
+                    var char = this.consume();
+                    if (char === "-") {
+                        this.state = 'commentEnd';
+                    } else {
+                        this.delegate.appendToCommentData("-" + char);
+                        this.state = 'comment';
+                    }
+                },
+                commentEnd: function () {
+                    var char = this.consume();
+                    if (char === ">") {
+                        this.delegate.finishComment();
+                        this.state = 'beforeData';
+                    } else {
+                        this.delegate.appendToCommentData("--" + char);
+                        this.state = 'comment';
+                    }
+                },
+                tagName: function () {
+                    var char = this.consume();
+                    if (isSpace(char)) {
+                        this.state = 'beforeAttributeName';
+                    } else if (char === "/") {
+                        this.state = 'selfClosingStartTag';
+                    } else if (char === ">") {
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else {
+                        this.delegate.appendToTagName(char);
+                    }
+                },
+                beforeAttributeName: function () {
+                    var char = this.peek();
+                    if (isSpace(char)) {
+                        this.consume();
+                    } else if (char === "/") {
+                        this.state = 'selfClosingStartTag';
+                        this.consume();
+                    } else if (char === ">") {
+                        this.consume();
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else if (char === '=') {
+                        this.delegate.reportSyntaxError("attribute name cannot start with equals sign");
+                        this.state = 'attributeName';
+                        this.delegate.beginAttribute();
+                        this.consume();
+                        this.delegate.appendToAttributeName(char);
+                    } else {
+                        this.state = 'attributeName';
+                        this.delegate.beginAttribute();
+                    }
+                },
+                attributeName: function () {
+                    var char = this.peek();
+                    if (isSpace(char)) {
+                        this.state = 'afterAttributeName';
+                        this.consume();
+                    } else if (char === "/") {
+                        this.delegate.beginAttributeValue(false);
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.state = 'selfClosingStartTag';
+                    } else if (char === "=") {
+                        this.state = 'beforeAttributeValue';
+                        this.consume();
+                    } else if (char === ">") {
+                        this.delegate.beginAttributeValue(false);
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else if (char === '"' || char === "'" || char === '<') {
+                        this.delegate.reportSyntaxError(char + " is not a valid character within attribute names");
+                        this.consume();
+                        this.delegate.appendToAttributeName(char);
+                    } else {
+                        this.consume();
+                        this.delegate.appendToAttributeName(char);
+                    }
+                },
+                afterAttributeName: function () {
+                    var char = this.peek();
+                    if (isSpace(char)) {
+                        this.consume();
+                    } else if (char === "/") {
+                        this.delegate.beginAttributeValue(false);
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.state = 'selfClosingStartTag';
+                    } else if (char === "=") {
+                        this.consume();
+                        this.state = 'beforeAttributeValue';
+                    } else if (char === ">") {
+                        this.delegate.beginAttributeValue(false);
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else {
+                        this.delegate.beginAttributeValue(false);
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.state = 'attributeName';
+                        this.delegate.beginAttribute();
+                        this.delegate.appendToAttributeName(char);
+                    }
+                },
+                beforeAttributeValue: function () {
+                    var char = this.peek();
+                    if (isSpace(char)) {
+                        this.consume();
+                    } else if (char === '"') {
+                        this.state = 'attributeValueDoubleQuoted';
+                        this.delegate.beginAttributeValue(true);
+                        this.consume();
+                    } else if (char === "'") {
+                        this.state = 'attributeValueSingleQuoted';
+                        this.delegate.beginAttributeValue(true);
+                        this.consume();
+                    } else if (char === ">") {
+                        this.delegate.beginAttributeValue(false);
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else {
+                        this.state = 'attributeValueUnquoted';
+                        this.delegate.beginAttributeValue(false);
+                        this.consume();
+                        this.delegate.appendToAttributeValue(char);
+                    }
+                },
+                attributeValueDoubleQuoted: function () {
+                    var char = this.consume();
+                    if (char === '"') {
+                        this.delegate.finishAttributeValue();
+                        this.state = 'afterAttributeValueQuoted';
+                    } else if (char === "&") {
+                        this.delegate.appendToAttributeValue(this.consumeCharRef('"') || "&");
+                    } else {
+                        this.delegate.appendToAttributeValue(char);
+                    }
+                },
+                attributeValueSingleQuoted: function () {
+                    var char = this.consume();
+                    if (char === "'") {
+                        this.delegate.finishAttributeValue();
+                        this.state = 'afterAttributeValueQuoted';
+                    } else if (char === "&") {
+                        this.delegate.appendToAttributeValue(this.consumeCharRef("'") || "&");
+                    } else {
+                        this.delegate.appendToAttributeValue(char);
+                    }
+                },
+                attributeValueUnquoted: function () {
+                    var char = this.peek();
+                    if (isSpace(char)) {
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.state = 'beforeAttributeName';
+                    } else if (char === "&") {
+                        this.consume();
+                        this.delegate.appendToAttributeValue(this.consumeCharRef(">") || "&");
+                    } else if (char === ">") {
+                        this.delegate.finishAttributeValue();
+                        this.consume();
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else {
+                        this.consume();
+                        this.delegate.appendToAttributeValue(char);
+                    }
+                },
+                afterAttributeValueQuoted: function () {
+                    var char = this.peek();
+                    if (isSpace(char)) {
+                        this.consume();
+                        this.state = 'beforeAttributeName';
+                    } else if (char === "/") {
+                        this.consume();
+                        this.state = 'selfClosingStartTag';
+                    } else if (char === ">") {
+                        this.consume();
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else {
+                        this.state = 'beforeAttributeName';
+                    }
+                },
+                selfClosingStartTag: function () {
+                    var char = this.peek();
+                    if (char === ">") {
+                        this.consume();
+                        this.delegate.markTagAsSelfClosing();
+                        this.delegate.finishTag();
+                        this.state = 'beforeData';
+                    } else {
+                        this.state = 'beforeAttributeName';
+                    }
+                },
+                endTagOpen: function () {
+                    var char = this.consume();
+                    if (isAlpha(char)) {
+                        this.state = 'tagName';
+                        this.delegate.beginEndTag();
+                        this.delegate.appendToTagName(char.toLowerCase());
+                    }
+                }
+            };
+            this.reset();
+        }
+        EventedTokenizer.prototype.reset = function () {
             this.state = 'beforeData';
             this.input = '';
             this.index = 0;
@@ -18107,31 +18414,31 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
             this.tagLine = -1;
             this.tagColumn = -1;
             this.delegate.reset();
-        },
-        tokenize: function (input) {
+        };
+        EventedTokenizer.prototype.tokenize = function (input) {
             this.reset();
             this.tokenizePart(input);
             this.tokenizeEOF();
-        },
-        tokenizePart: function (input) {
+        };
+        EventedTokenizer.prototype.tokenizePart = function (input) {
             this.input += preprocessInput(input);
             while (this.index < this.input.length) {
                 this.states[this.state].call(this);
             }
-        },
-        tokenizeEOF: function () {
+        };
+        EventedTokenizer.prototype.tokenizeEOF = function () {
             this.flushData();
-        },
-        flushData: function () {
+        };
+        EventedTokenizer.prototype.flushData = function () {
             if (this.state === 'data') {
                 this.delegate.finishData();
                 this.state = 'beforeData';
             }
-        },
-        peek: function () {
+        };
+        EventedTokenizer.prototype.peek = function () {
             return this.input.charAt(this.index);
-        },
-        consume: function () {
+        };
+        EventedTokenizer.prototype.consume = function () {
             var char = this.peek();
             this.index++;
             if (char === "\n") {
@@ -18141,8 +18448,8 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
                 this.column++;
             }
             return char;
-        },
-        consumeCharRef: function () {
+        };
+        EventedTokenizer.prototype.consumeCharRef = function () {
             var endIndex = this.input.indexOf(';', this.index),
                 count;
             if (endIndex === -1) {
@@ -18162,336 +18469,52 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
                 this.consume();
                 return chars;
             }
-        },
-        markTagStart: function () {
+        };
+        EventedTokenizer.prototype.markTagStart = function () {
             // these properties to be removed in next major bump
             this.tagLine = this.line;
             this.tagColumn = this.column;
             if (this.delegate.tagOpen) {
                 this.delegate.tagOpen();
             }
-        },
-        states: {
-            beforeData: function () {
-                var char = this.peek();
-                if (char === "<") {
-                    this.state = 'tagOpen';
-                    this.markTagStart();
-                    this.consume();
-                } else {
-                    this.state = 'data';
-                    this.delegate.beginData();
-                }
-            },
-            data: function () {
-                var char = this.peek();
-                if (char === "<") {
-                    this.delegate.finishData();
-                    this.state = 'tagOpen';
-                    this.markTagStart();
-                    this.consume();
-                } else if (char === "&") {
-                    this.consume();
-                    this.delegate.appendToData(this.consumeCharRef() || "&");
-                } else {
-                    this.consume();
-                    this.delegate.appendToData(char);
-                }
-            },
-            tagOpen: function () {
-                var char = this.consume();
-                if (char === "!") {
-                    this.state = 'markupDeclaration';
-                } else if (char === "/") {
-                    this.state = 'endTagOpen';
-                } else if (isAlpha(char)) {
-                    this.state = 'tagName';
-                    this.delegate.beginStartTag();
-                    this.delegate.appendToTagName(char.toLowerCase());
-                }
-            },
-            markupDeclaration: function () {
-                var char = this.consume();
-                if (char === "-" && this.input.charAt(this.index) === "-") {
-                    this.consume();
-                    this.state = 'commentStart';
-                    this.delegate.beginComment();
-                }
-            },
-            commentStart: function () {
-                var char = this.consume();
-                if (char === "-") {
-                    this.state = 'commentStartDash';
-                } else if (char === ">") {
-                    this.delegate.finishComment();
-                    this.state = 'beforeData';
-                } else {
-                    this.delegate.appendToCommentData(char);
-                    this.state = 'comment';
-                }
-            },
-            commentStartDash: function () {
-                var char = this.consume();
-                if (char === "-") {
-                    this.state = 'commentEnd';
-                } else if (char === ">") {
-                    this.delegate.finishComment();
-                    this.state = 'beforeData';
-                } else {
-                    this.delegate.appendToCommentData("-");
-                    this.state = 'comment';
-                }
-            },
-            comment: function () {
-                var char = this.consume();
-                if (char === "-") {
-                    this.state = 'commentEndDash';
-                } else {
-                    this.delegate.appendToCommentData(char);
-                }
-            },
-            commentEndDash: function () {
-                var char = this.consume();
-                if (char === "-") {
-                    this.state = 'commentEnd';
-                } else {
-                    this.delegate.appendToCommentData("-" + char);
-                    this.state = 'comment';
-                }
-            },
-            commentEnd: function () {
-                var char = this.consume();
-                if (char === ">") {
-                    this.delegate.finishComment();
-                    this.state = 'beforeData';
-                } else {
-                    this.delegate.appendToCommentData("--" + char);
-                    this.state = 'comment';
-                }
-            },
-            tagName: function () {
-                var char = this.consume();
-                if (isSpace(char)) {
-                    this.state = 'beforeAttributeName';
-                } else if (char === "/") {
-                    this.state = 'selfClosingStartTag';
-                } else if (char === ">") {
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else {
-                    this.delegate.appendToTagName(char);
-                }
-            },
-            beforeAttributeName: function () {
-                var char = this.peek();
-                if (isSpace(char)) {
-                    this.consume();
-                } else if (char === "/") {
-                    this.state = 'selfClosingStartTag';
-                    this.consume();
-                } else if (char === ">") {
-                    this.consume();
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else if (char === '=') {
-                    this.delegate.reportSyntaxError("attribute name cannot start with equals sign");
-                    this.state = 'attributeName';
-                    this.delegate.beginAttribute();
-                    this.consume();
-                    this.delegate.appendToAttributeName(char);
-                } else {
-                    this.state = 'attributeName';
-                    this.delegate.beginAttribute();
-                }
-            },
-            attributeName: function () {
-                var char = this.peek();
-                if (isSpace(char)) {
-                    this.state = 'afterAttributeName';
-                    this.consume();
-                } else if (char === "/") {
-                    this.delegate.beginAttributeValue(false);
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.state = 'selfClosingStartTag';
-                } else if (char === "=") {
-                    this.state = 'beforeAttributeValue';
-                    this.consume();
-                } else if (char === ">") {
-                    this.delegate.beginAttributeValue(false);
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else if (char === '"' || char === "'" || char === '<') {
-                    this.delegate.reportSyntaxError(char + " is not a valid character within attribute names");
-                    this.consume();
-                    this.delegate.appendToAttributeName(char);
-                } else {
-                    this.consume();
-                    this.delegate.appendToAttributeName(char);
-                }
-            },
-            afterAttributeName: function () {
-                var char = this.peek();
-                if (isSpace(char)) {
-                    this.consume();
-                } else if (char === "/") {
-                    this.delegate.beginAttributeValue(false);
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.state = 'selfClosingStartTag';
-                } else if (char === "=") {
-                    this.consume();
-                    this.state = 'beforeAttributeValue';
-                } else if (char === ">") {
-                    this.delegate.beginAttributeValue(false);
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else {
-                    this.delegate.beginAttributeValue(false);
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.state = 'attributeName';
-                    this.delegate.beginAttribute();
-                    this.delegate.appendToAttributeName(char);
-                }
-            },
-            beforeAttributeValue: function () {
-                var char = this.peek();
-                if (isSpace(char)) {
-                    this.consume();
-                } else if (char === '"') {
-                    this.state = 'attributeValueDoubleQuoted';
-                    this.delegate.beginAttributeValue(true);
-                    this.consume();
-                } else if (char === "'") {
-                    this.state = 'attributeValueSingleQuoted';
-                    this.delegate.beginAttributeValue(true);
-                    this.consume();
-                } else if (char === ">") {
-                    this.delegate.beginAttributeValue(false);
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else {
-                    this.state = 'attributeValueUnquoted';
-                    this.delegate.beginAttributeValue(false);
-                    this.consume();
-                    this.delegate.appendToAttributeValue(char);
-                }
-            },
-            attributeValueDoubleQuoted: function () {
-                var char = this.consume();
-                if (char === '"') {
-                    this.delegate.finishAttributeValue();
-                    this.state = 'afterAttributeValueQuoted';
-                } else if (char === "&") {
-                    this.delegate.appendToAttributeValue(this.consumeCharRef('"') || "&");
-                } else {
-                    this.delegate.appendToAttributeValue(char);
-                }
-            },
-            attributeValueSingleQuoted: function () {
-                var char = this.consume();
-                if (char === "'") {
-                    this.delegate.finishAttributeValue();
-                    this.state = 'afterAttributeValueQuoted';
-                } else if (char === "&") {
-                    this.delegate.appendToAttributeValue(this.consumeCharRef("'") || "&");
-                } else {
-                    this.delegate.appendToAttributeValue(char);
-                }
-            },
-            attributeValueUnquoted: function () {
-                var char = this.peek();
-                if (isSpace(char)) {
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.state = 'beforeAttributeName';
-                } else if (char === "&") {
-                    this.consume();
-                    this.delegate.appendToAttributeValue(this.consumeCharRef(">") || "&");
-                } else if (char === ">") {
-                    this.delegate.finishAttributeValue();
-                    this.consume();
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else {
-                    this.consume();
-                    this.delegate.appendToAttributeValue(char);
-                }
-            },
-            afterAttributeValueQuoted: function () {
-                var char = this.peek();
-                if (isSpace(char)) {
-                    this.consume();
-                    this.state = 'beforeAttributeName';
-                } else if (char === "/") {
-                    this.consume();
-                    this.state = 'selfClosingStartTag';
-                } else if (char === ">") {
-                    this.consume();
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else {
-                    this.state = 'beforeAttributeName';
-                }
-            },
-            selfClosingStartTag: function () {
-                var char = this.peek();
-                if (char === ">") {
-                    this.consume();
-                    this.delegate.markTagAsSelfClosing();
-                    this.delegate.finishTag();
-                    this.state = 'beforeData';
-                } else {
-                    this.state = 'beforeAttributeName';
-                }
-            },
-            endTagOpen: function () {
-                var char = this.consume();
-                if (isAlpha(char)) {
-                    this.state = 'tagName';
-                    this.delegate.beginEndTag();
-                    this.delegate.appendToTagName(char.toLowerCase());
-                }
-            }
-        }
-    };
+        };
+        return EventedTokenizer;
+    }();
 
-    function Tokenizer(entityParser, options) {
-        this.token = null;
-        this.startLine = 1;
-        this.startColumn = 0;
-        this.options = options || {};
-        this.tokenizer = new EventedTokenizer(this, entityParser);
-    }
-    Tokenizer.prototype = {
-        tokenize: function (input) {
-            this.tokens = [];
-            this.tokenizer.tokenize(input);
-            return this.tokens;
-        },
-        tokenizePart: function (input) {
-            this.tokens = [];
-            this.tokenizer.tokenizePart(input);
-            return this.tokens;
-        },
-        tokenizeEOF: function () {
-            this.tokens = [];
-            this.tokenizer.tokenizeEOF();
-            return this.tokens[0];
-        },
-        reset: function () {
+    var Tokenizer = function () {
+        function Tokenizer(entityParser, options) {
+            if (options === void 0) {
+                options = {};
+            }
+            this.options = options;
             this.token = null;
             this.startLine = 1;
             this.startColumn = 0;
-        },
-        addLocInfo: function () {
+            this.tokens = [];
+            this.currentAttribute = null;
+            this.tokenizer = new EventedTokenizer(this, entityParser);
+        }
+        Tokenizer.prototype.tokenize = function (input) {
+            this.tokens = [];
+            this.tokenizer.tokenize(input);
+            return this.tokens;
+        };
+        Tokenizer.prototype.tokenizePart = function (input) {
+            this.tokens = [];
+            this.tokenizer.tokenizePart(input);
+            return this.tokens;
+        };
+        Tokenizer.prototype.tokenizeEOF = function () {
+            this.tokens = [];
+            this.tokenizer.tokenizeEOF();
+            return this.tokens[0];
+        };
+        Tokenizer.prototype.reset = function () {
+            this.token = null;
+            this.startLine = 1;
+            this.startColumn = 0;
+        };
+        Tokenizer.prototype.addLocInfo = function () {
             if (this.options.loc) {
                 this.token.loc = {
                     start: {
@@ -18506,37 +18529,37 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
             }
             this.startLine = this.tokenizer.line;
             this.startColumn = this.tokenizer.column;
-        },
+        };
         // Data
-        beginData: function () {
+        Tokenizer.prototype.beginData = function () {
             this.token = {
                 type: 'Chars',
                 chars: ''
             };
             this.tokens.push(this.token);
-        },
-        appendToData: function (char) {
+        };
+        Tokenizer.prototype.appendToData = function (char) {
             this.token.chars += char;
-        },
-        finishData: function () {
+        };
+        Tokenizer.prototype.finishData = function () {
             this.addLocInfo();
-        },
+        };
         // Comment
-        beginComment: function () {
+        Tokenizer.prototype.beginComment = function () {
             this.token = {
                 type: 'Comment',
                 chars: ''
             };
             this.tokens.push(this.token);
-        },
-        appendToCommentData: function (char) {
+        };
+        Tokenizer.prototype.appendToCommentData = function (char) {
             this.token.chars += char;
-        },
-        finishComment: function () {
+        };
+        Tokenizer.prototype.finishComment = function () {
             this.addLocInfo();
-        },
+        };
         // Tags - basic
-        beginStartTag: function () {
+        Tokenizer.prototype.beginStartTag = function () {
             this.token = {
                 type: 'StartTag',
                 tagName: '',
@@ -18544,44 +18567,45 @@ enifed("simple-html-tokenizer", ["exports"], function (exports) {
                 selfClosing: false
             };
             this.tokens.push(this.token);
-        },
-        beginEndTag: function () {
+        };
+        Tokenizer.prototype.beginEndTag = function () {
             this.token = {
                 type: 'EndTag',
                 tagName: ''
             };
             this.tokens.push(this.token);
-        },
-        finishTag: function () {
+        };
+        Tokenizer.prototype.finishTag = function () {
             this.addLocInfo();
-        },
-        markTagAsSelfClosing: function () {
+        };
+        Tokenizer.prototype.markTagAsSelfClosing = function () {
             this.token.selfClosing = true;
-        },
+        };
         // Tags - name
-        appendToTagName: function (char) {
+        Tokenizer.prototype.appendToTagName = function (char) {
             this.token.tagName += char;
-        },
+        };
         // Tags - attributes
-        beginAttribute: function () {
-            this._currentAttribute = ["", "", null];
-            this.token.attributes.push(this._currentAttribute);
-        },
-        appendToAttributeName: function (char) {
-            this._currentAttribute[0] += char;
-        },
-        beginAttributeValue: function (isQuoted) {
-            this._currentAttribute[2] = isQuoted;
-        },
-        appendToAttributeValue: function (char) {
-            this._currentAttribute[1] = this._currentAttribute[1] || "";
-            this._currentAttribute[1] += char;
-        },
-        finishAttributeValue: function () {},
-        reportSyntaxError: function (message) {
+        Tokenizer.prototype.beginAttribute = function () {
+            this.currentAttribute = ["", "", null];
+            this.token.attributes.push(this.currentAttribute);
+        };
+        Tokenizer.prototype.appendToAttributeName = function (char) {
+            this.currentAttribute[0] += char;
+        };
+        Tokenizer.prototype.beginAttributeValue = function (isQuoted) {
+            this.currentAttribute[2] = isQuoted;
+        };
+        Tokenizer.prototype.appendToAttributeValue = function (char) {
+            this.currentAttribute[1] = this.currentAttribute[1] || "";
+            this.currentAttribute[1] += char;
+        };
+        Tokenizer.prototype.finishAttributeValue = function () {};
+        Tokenizer.prototype.reportSyntaxError = function (message) {
             this.token.syntaxError = message;
-        }
-    };
+        };
+        return Tokenizer;
+    }();
 
     exports.HTML5NamedCharRefs = namedCharRefs;
     exports.EntityParser = EntityParser;

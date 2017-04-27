@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+d504a576
+ * @version   2.14.0-alpha.1-null+5d39f76c
  */
 
 var enifed, requireModule, Ember;
@@ -2214,7 +2214,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
     var counter = 0;
     var inTransaction = false;
     var shouldReflush = void 0;
@@ -2279,13 +2279,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
           var message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
 
-          {
+          if (ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+            true && !false && emberDebug.deprecate(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+          } else {
             true && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
           }
         }
 
         shouldReflush = true;
       }
+    };
+  } else {
+    // in production do nothing to detect reflushes
+    exports.runInTransaction = function (context$$1, methodName) {
+      context$$1[methodName]();
+      return false;
     };
   }
 
@@ -2390,7 +2398,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       markObjectAsDirty(meta$$1, keyName);
     }
 
-    {
+    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
       exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
@@ -2704,7 +2712,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var value = void 0;
     if (desc instanceof Descriptor) {
       value = desc;
-      {
+      if (ember_features.MANDATORY_SETTER) {
         if (watching) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
@@ -2715,6 +2723,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         } else {
           obj[keyName] = value;
         }
+      } else {
+        obj[keyName] = value;
       }
 
       didDefineComputedProperty(obj.constructor);
@@ -2726,7 +2736,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (desc == null) {
         value = data;
 
-        {
+        if (ember_features.MANDATORY_SETTER) {
           if (watching) {
             meta$$1.writeValues(keyName, data);
 
@@ -2745,6 +2755,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           } else {
             obj[keyName] = data;
           }
+        } else {
+          obj[keyName] = data;
         }
       } else {
         value = desc;
@@ -2813,7 +2825,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.willWatchProperty(keyName);
       }
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         // NOTE: this is dropped for prod + minified builds
         handleMandatorySetter(m, obj, keyName);
       }
@@ -2822,7 +2834,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     var _hasOwnProperty = function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     };
@@ -2893,7 +2905,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.didUnwatchProperty(keyName);
       }
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         // It is true, the following code looks quite WAT. But have no fear, It
         // exists purely to improve development ergonomics and is removed from
         // ember.min.js and ember.prod.js builds.
@@ -3398,7 +3410,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var META_DESTROYED = 1 << 3;
   var IS_PROXY = 1 << 4;
 
-  {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
     members.lastRendered = ownMap;
     if (require.has('ember-debug')) {
       //https://github.com/emberjs/ember.js/issues/14732
@@ -3448,7 +3460,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       // inherited, and we can optimize it much better than JS runtimes.
       this.parent = parentMeta;
 
-      {
+      if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
         this._lastRendered = undefined;
         {
           this._lastRenderedReferenceMap = undefined;
@@ -3841,7 +3853,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     descriptor: META_DESC
   };
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
       var internalKey = '_' + key;
 
@@ -4301,8 +4313,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else {
       propertyWillChange(obj, keyName);
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
+      } else {
+        obj[keyName] = value;
       }
 
       propertyDidChange(obj, keyName);
@@ -4311,7 +4325,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return value;
   }
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     var setWithMandatorySetter = function (meta$$1, obj, keyName, value) {
       if (meta$$1 && meta$$1.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
@@ -8869,7 +8883,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _emberBabel, _nodeModule) {
   'use strict';
 
-  exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = undefined;
+  exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = exports.asap = undefined;
 
   var _rsvp;
 
@@ -11181,6 +11195,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   // the default export here is for backwards compat:
   //   https://github.com/tildeio/rsvp.js/issues/434
   var rsvp = (_rsvp = {
+    asap: asap,
     cast: cast,
     Promise: Promise,
     EventTarget: EventTarget,
@@ -11200,6 +11215,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     map: map
   }, _rsvp['async'] = async, _rsvp.filter = filter, _rsvp);
 
+  exports.asap = asap;
   exports.cast = cast;
   exports.Promise = Promise;
   exports.EventTarget = EventTarget;

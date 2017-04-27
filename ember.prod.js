@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+d504a576
+ * @version   2.14.0-alpha.1-null+5d39f76c
  */
 
 var enifed, requireModule, Ember;
@@ -10716,11 +10716,10 @@ enifed("dag-map", ["exports"], function (exports) {
     "use strict";
 
     /**
-     * A map of key/value pairs with dependencies contraints that can be traversed
-     * in topological order and is checked for cycles.
+     * A topologically ordered map of key/value pairs with a simple API for adding constraints.
      *
-     * @class DAG
-     * @constructor
+     * Edges can forward reference keys that have not been added yet (the forward reference will
+     * map the key to undefined).
      */
 
     var DAG = function () {
@@ -10731,15 +10730,15 @@ enifed("dag-map", ["exports"], function (exports) {
          * Adds a key/value pair with dependencies on other key/value pairs.
          *
          * @public
-         * @method addEdges
-         * @param {string[]}   key The key of the vertex to be added.
-         * @param {any}      value The value of that vertex.
-         * @param {string[]|string|undefined}  before A key or array of keys of the vertices that must
-         *                                            be visited before this vertex.
-         * @param {string[]|string|undefined}   after An string or array of strings with the keys of the
-         *                                            vertices that must be after this vertex is visited.
+         * @param key    The key of the vertex to be added.
+         * @param value  The value of that vertex.
+         * @param before A key or array of keys of the vertices that must
+         *               be visited before this vertex.
+         * @param after  An string or array of strings with the keys of the
+         *               vertices that must be after this vertex is visited.
          */
         DAG.prototype.add = function (key, value, before, after) {
+            if (!key) throw new Error('argument `key` is required');
             var vertices = this._vertices,
                 i;
             var v = vertices.add(key);
@@ -10764,86 +10763,91 @@ enifed("dag-map", ["exports"], function (exports) {
             }
         };
         /**
+         * @deprecated please use add.
+         */
+        DAG.prototype.addEdges = function (key, value, before, after) {
+            this.add(key, value, before, after);
+        };
+        /**
          * Visits key/value pairs in topological order.
          *
          * @public
-         * @method  topsort
-         * @param {Function} fn The function to be invoked with each key/value.
+         * @param callback The function to be invoked with each key/value.
+         */
+        DAG.prototype.each = function (callback) {
+            this._vertices.walk(callback);
+        };
+        /**
+         * @deprecated please use each.
          */
         DAG.prototype.topsort = function (callback) {
-            this._vertices.topsort(callback);
+            this.each(callback);
         };
         return DAG;
     }();
     exports.default = DAG;
 
+    /** @private */
     var Vertices = function () {
         function Vertices() {
+            this.length = 0;
             this.stack = new IntStack();
+            this.path = new IntStack();
             this.result = new IntStack();
-            this.vertices = [];
         }
         Vertices.prototype.add = function (key) {
             if (!key) throw new Error("missing key");
-            var vertices = this.vertices;
-            var i = 0;
+            var l = this.length | 0,
+                i;
             var vertex;
-            for (; i < vertices.length; i++) {
-                vertex = vertices[i];
+            for (i = 0; i < l; i++) {
+                vertex = this[i];
                 if (vertex.key === key) return vertex;
             }
-            return vertices[i] = {
-                id: i,
+            this.length = l + 1;
+            return this[l] = {
+                idx: l,
                 key: key,
-                val: null,
-                inc: null,
+                val: undefined,
                 out: false,
-                mark: false
+                flag: false,
+                length: 0
             };
         };
         Vertices.prototype.addEdge = function (v, w) {
             this.check(v, w.key);
-            var inc = w.inc,
+            var l = w.length | 0,
                 i;
-            if (!inc) {
-                w.inc = [v.id];
-            } else {
-                i = 0;
-
-                for (; i < inc.length; i++) {
-                    if (inc[i] === v.id) return;
-                }
-                inc[i] = v.id;
+            for (i = 0; i < l; i++) {
+                if (w[i] === v.idx) return;
             }
+            w.length = l + 1;
+            w[l] = v.idx;
             v.out = true;
         };
-        Vertices.prototype.topsort = function (cb) {
+        Vertices.prototype.walk = function (cb) {
+            var i, vertex;
+
             this.reset();
-            var vertices = this.vertices,
-                i,
-                vertex;
-            for (i = 0; i < vertices.length; i++) {
-                vertex = vertices[i];
+            for (i = 0; i < this.length; i++) {
+                vertex = this[i];
 
                 if (vertex.out) continue;
-                this.visit(vertex, undefined);
+                this.visit(vertex, "");
             }
-            this.each(cb);
+            this.each(this.result, cb);
         };
         Vertices.prototype.check = function (v, w) {
+            var i, key, msg_1;
+
             if (v.key === w) {
                 throw new Error("cycle detected: " + w + " <- " + w);
             }
-            var inc = v.inc,
-                i,
-                key,
-                msg_1;
             // quick check
-            if (!inc || inc.length === 0) return;
-            var vertices = this.vertices;
+            if (v.length === 0) return;
             // shallow check
-            for (i = 0; i < inc.length; i++) {
-                key = vertices[inc[i]].key;
+            for (i = 0; i < v.length; i++) {
+                key = this[v[i]].key;
 
                 if (key === w) {
                     throw new Error("cycle detected: " + w + " <- " + v.key + " <- " + w);
@@ -10852,98 +10856,87 @@ enifed("dag-map", ["exports"], function (exports) {
             // deep check
             this.reset();
             this.visit(v, w);
-            if (this.result.len > 0) {
+            if (this.path.length > 0) {
                 msg_1 = "cycle detected: " + w;
 
-                this.each(function (key) {
+                this.each(this.path, function (key) {
                     msg_1 += " <- " + key;
                 });
                 throw new Error(msg_1);
             }
         };
-        Vertices.prototype.each = function (cb) {
-            var _a = this,
-                result = _a.result,
-                vertices = _a.vertices,
-                i,
-                vertex;
-            for (i = 0; i < result.len; i++) {
-                vertex = vertices[result.stack[i]];
-
-                cb(vertex.key, vertex.val);
-            }
-        };
-        // reuse between cycle check and topsort
         Vertices.prototype.reset = function () {
-            this.stack.len = 0;
-            this.result.len = 0;
-            var vertices = this.vertices,
-                i;
-            for (i = 0; i < vertices.length; i++) {
-                vertices[i].mark = false;
+            var i, l;
+
+            this.stack.length = 0;
+            this.path.length = 0;
+            this.result.length = 0;
+            for (i = 0, l = this.length; i < l; i++) {
+                this[i].flag = false;
             }
         };
         Vertices.prototype.visit = function (start, search) {
             var _a = this,
                 stack = _a.stack,
+                path = _a.path,
                 result = _a.result,
-                vertices = _a.vertices,
                 index,
-                vertex,
-                incoming,
-                i;
-            stack.push(start.id);
-            while (stack.len) {
-                index = stack.pop();
+                vertex;
+            stack.push(start.idx);
+            while (stack.length) {
+                index = stack.pop() | 0;
 
-                if (index < 0) {
-                    index = ~index;
-                    if (search) {
-                        result.pop();
-                    } else {
-                        result.push(index);
-                    }
-                } else {
-                    vertex = vertices[index];
+                if (index >= 0) {
+                    // enter
+                    vertex = this[index];
 
-                    if (vertex.mark) {
-                        continue;
-                    }
-                    if (search) {
-                        result.push(index);
-                        if (search === vertex.key) {
-                            return;
-                        }
-                    }
-                    vertex.mark = true;
+                    if (vertex.flag) continue;
+                    vertex.flag = true;
+                    path.push(index);
+                    if (search === vertex.key) break;
+                    // push exit
                     stack.push(~index);
-                    incoming = vertex.inc;
-
-                    if (incoming) {
-                        i = incoming.length;
-
-                        while (i--) {
-                            index = incoming[i];
-                            if (!vertices[index].mark) {
-                                stack.push(index);
-                            }
-                        }
-                    }
+                    this.pushIncoming(vertex);
+                } else {
+                    // exit
+                    path.pop();
+                    result.push(~index);
                 }
+            }
+        };
+        Vertices.prototype.pushIncoming = function (incomming) {
+            var stack = this.stack,
+                i,
+                index;
+            for (i = incomming.length - 1; i >= 0; i--) {
+                index = incomming[i];
+
+                if (!this[index].flag) {
+                    stack.push(index);
+                }
+            }
+        };
+        Vertices.prototype.each = function (indices, cb) {
+            var i, l, vertex;
+
+            for (i = 0, l = indices.length; i < l; i++) {
+                vertex = this[indices[i]];
+
+                cb(vertex.key, vertex.val);
             }
         };
         return Vertices;
     }();
+    /** @private */
     var IntStack = function () {
         function IntStack() {
-            this.stack = [0, 0, 0, 0, 0, 0];
-            this.len = 0;
+            this.length = 0;
         }
         IntStack.prototype.push = function (n) {
-            this.stack[this.len++] = n;
+            this[this.length++] = n | 0;
         };
         IntStack.prototype.pop = function () {
-            return this.stack[--this.len];
+            return this[--this.length] | 0;
         };
         return IntStack;
     }();
@@ -43780,7 +43773,7 @@ enifed("ember-views/views/view", [], function () {
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
     var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
@@ -43788,10 +43781,10 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     var EMBER_METAL_WEAKMAP = exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
-    false;
+    var EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-allow-backtracking-rerender"];
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
-    false;
-    false;
+    var MANDATORY_SETTER = exports.MANDATORY_SETTER = FEATURES["mandatory-setter"];
+    var EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-detect-backtracking-rerender"];
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module', 'ember-utils', 'container', 'ember-metal', 'ember/features', 'ember-debug', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require2, _emberEnvironment, _nodeModule, _emberUtils, _container, _emberMetal, _features, _emberDebug, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _version, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -44342,7 +44335,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+d504a576";
+  exports.default = "2.14.0-alpha.1-null+5d39f76c";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
@@ -44403,6 +44396,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
         callback(match);
     };
     function generateMatch(startingPath, matcher, delegate) {
+
         return function (path, callback) {
             var fullPath = startingPath + path;
             if (callback) {
@@ -45046,7 +45040,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         return results;
     };
-    RouteRecognizer.VERSION = "0.3.0";
+    RouteRecognizer.VERSION = "0.3.2";
     // Set to false to opt-out of encoding and decoding path segments.
     // See https://github.com/tildeio/route-recognizer/pull/55
     RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
@@ -47355,7 +47349,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _emberBabel, _nodeModule) {
   'use strict';
 
-  exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = undefined;
+  exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = exports.asap = undefined;
 
   var _rsvp;
 
@@ -49667,6 +49661,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   // the default export here is for backwards compat:
   //   https://github.com/tildeio/rsvp.js/issues/434
   var rsvp = (_rsvp = {
+    asap: asap,
     cast: cast,
     Promise: Promise,
     EventTarget: EventTarget,
@@ -49686,6 +49681,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     map: map
   }, _rsvp['async'] = async, _rsvp.filter = filter, _rsvp);
 
+  exports.asap = asap;
   exports.cast = cast;
   exports.Promise = Promise;
   exports.EventTarget = EventTarget;

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+d504a576
+ * @version   2.14.0-alpha.1-null+5d39f76c
  */
 
 var enifed, requireModule, Ember;
@@ -10673,11 +10673,10 @@ enifed("dag-map", ["exports"], function (exports) {
     "use strict";
 
     /**
-     * A map of key/value pairs with dependencies contraints that can be traversed
-     * in topological order and is checked for cycles.
+     * A topologically ordered map of key/value pairs with a simple API for adding constraints.
      *
-     * @class DAG
-     * @constructor
+     * Edges can forward reference keys that have not been added yet (the forward reference will
+     * map the key to undefined).
      */
     var DAG = function () {
         function DAG() {
@@ -10687,15 +10686,15 @@ enifed("dag-map", ["exports"], function (exports) {
          * Adds a key/value pair with dependencies on other key/value pairs.
          *
          * @public
-         * @method addEdges
-         * @param {string[]}   key The key of the vertex to be added.
-         * @param {any}      value The value of that vertex.
-         * @param {string[]|string|undefined}  before A key or array of keys of the vertices that must
-         *                                            be visited before this vertex.
-         * @param {string[]|string|undefined}   after An string or array of strings with the keys of the
-         *                                            vertices that must be after this vertex is visited.
+         * @param key    The key of the vertex to be added.
+         * @param value  The value of that vertex.
+         * @param before A key or array of keys of the vertices that must
+         *               be visited before this vertex.
+         * @param after  An string or array of strings with the keys of the
+         *               vertices that must be after this vertex is visited.
          */
         DAG.prototype.add = function (key, value, before, after) {
+            if (!key) throw new Error('argument `key` is required');
             var vertices = this._vertices;
             var v = vertices.add(key);
             v.val = value;
@@ -10719,78 +10718,84 @@ enifed("dag-map", ["exports"], function (exports) {
             }
         };
         /**
+         * @deprecated please use add.
+         */
+        DAG.prototype.addEdges = function (key, value, before, after) {
+            this.add(key, value, before, after);
+        };
+        /**
          * Visits key/value pairs in topological order.
          *
          * @public
-         * @method  topsort
-         * @param {Function} fn The function to be invoked with each key/value.
+         * @param callback The function to be invoked with each key/value.
+         */
+        DAG.prototype.each = function (callback) {
+            this._vertices.walk(callback);
+        };
+        /**
+         * @deprecated please use each.
          */
         DAG.prototype.topsort = function (callback) {
-            this._vertices.topsort(callback);
+            this.each(callback);
         };
         return DAG;
     }();
     exports.default = DAG;
 
+    /** @private */
     var Vertices = function () {
         function Vertices() {
+            this.length = 0;
             this.stack = new IntStack();
+            this.path = new IntStack();
             this.result = new IntStack();
-            this.vertices = [];
         }
         Vertices.prototype.add = function (key) {
             if (!key) throw new Error("missing key");
-            var vertices = this.vertices;
-            var i = 0;
+            var l = this.length | 0;
             var vertex;
-            for (; i < vertices.length; i++) {
-                vertex = vertices[i];
+            for (var i = 0; i < l; i++) {
+                vertex = this[i];
                 if (vertex.key === key) return vertex;
             }
-            return vertices[i] = {
-                id: i,
+            this.length = l + 1;
+            return this[l] = {
+                idx: l,
                 key: key,
-                val: null,
-                inc: null,
+                val: undefined,
                 out: false,
-                mark: false
+                flag: false,
+                length: 0
             };
         };
         Vertices.prototype.addEdge = function (v, w) {
             this.check(v, w.key);
-            var inc = w.inc;
-            if (!inc) {
-                w.inc = [v.id];
-            } else {
-                var i = 0;
-                for (; i < inc.length; i++) {
-                    if (inc[i] === v.id) return;
-                }
-                inc[i] = v.id;
+            var l = w.length | 0;
+            for (var i = 0; i < l; i++) {
+                if (w[i] === v.idx) return;
             }
+            w.length = l + 1;
+            w[l] = v.idx;
             v.out = true;
         };
-        Vertices.prototype.topsort = function (cb) {
+        Vertices.prototype.walk = function (cb) {
             this.reset();
-            var vertices = this.vertices;
-            for (var i = 0; i < vertices.length; i++) {
-                var vertex = vertices[i];
+            for (var i = 0; i < this.length; i++) {
+                var vertex = this[i];
                 if (vertex.out) continue;
-                this.visit(vertex, undefined);
+                this.visit(vertex, "");
             }
-            this.each(cb);
+            this.each(this.result, cb);
         };
         Vertices.prototype.check = function (v, w) {
             if (v.key === w) {
                 throw new Error("cycle detected: " + w + " <- " + w);
             }
-            var inc = v.inc;
             // quick check
-            if (!inc || inc.length === 0) return;
-            var vertices = this.vertices;
+            if (v.length === 0) return;
             // shallow check
-            for (var i = 0; i < inc.length; i++) {
-                var key = vertices[inc[i]].key;
+            for (var i = 0; i < v.length; i++) {
+                var key = this[v[i]].key;
                 if (key === w) {
                     throw new Error("cycle detected: " + w + " <- " + v.key + " <- " + w);
                 }
@@ -10798,85 +10803,74 @@ enifed("dag-map", ["exports"], function (exports) {
             // deep check
             this.reset();
             this.visit(v, w);
-            if (this.result.len > 0) {
+            if (this.path.length > 0) {
                 var msg_1 = "cycle detected: " + w;
-                this.each(function (key) {
+                this.each(this.path, function (key) {
                     msg_1 += " <- " + key;
                 });
                 throw new Error(msg_1);
             }
         };
-        Vertices.prototype.each = function (cb) {
-            var _a = this,
-                result = _a.result,
-                vertices = _a.vertices;
-            for (var i = 0; i < result.len; i++) {
-                var vertex = vertices[result.stack[i]];
-                cb(vertex.key, vertex.val);
-            }
-        };
-        // reuse between cycle check and topsort
         Vertices.prototype.reset = function () {
-            this.stack.len = 0;
-            this.result.len = 0;
-            var vertices = this.vertices;
-            for (var i = 0; i < vertices.length; i++) {
-                vertices[i].mark = false;
+            this.stack.length = 0;
+            this.path.length = 0;
+            this.result.length = 0;
+            for (var i = 0, l = this.length; i < l; i++) {
+                this[i].flag = false;
             }
         };
         Vertices.prototype.visit = function (start, search) {
             var _a = this,
                 stack = _a.stack,
-                result = _a.result,
-                vertices = _a.vertices;
-            stack.push(start.id);
-            while (stack.len) {
-                var index = stack.pop();
-                if (index < 0) {
-                    index = ~index;
-                    if (search) {
-                        result.pop();
-                    } else {
-                        result.push(index);
-                    }
-                } else {
-                    var vertex = vertices[index];
-                    if (vertex.mark) {
-                        continue;
-                    }
-                    if (search) {
-                        result.push(index);
-                        if (search === vertex.key) {
-                            return;
-                        }
-                    }
-                    vertex.mark = true;
+                path = _a.path,
+                result = _a.result;
+            stack.push(start.idx);
+            while (stack.length) {
+                var index = stack.pop() | 0;
+                if (index >= 0) {
+                    // enter
+                    var vertex = this[index];
+                    if (vertex.flag) continue;
+                    vertex.flag = true;
+                    path.push(index);
+                    if (search === vertex.key) break;
+                    // push exit
                     stack.push(~index);
-                    var incoming = vertex.inc;
-                    if (incoming) {
-                        var i = incoming.length;
-                        while (i--) {
-                            index = incoming[i];
-                            if (!vertices[index].mark) {
-                                stack.push(index);
-                            }
-                        }
-                    }
+                    this.pushIncoming(vertex);
+                } else {
+                    // exit
+                    path.pop();
+                    result.push(~index);
                 }
+            }
+        };
+        Vertices.prototype.pushIncoming = function (incomming) {
+            var stack = this.stack;
+            for (var i = incomming.length - 1; i >= 0; i--) {
+                var index = incomming[i];
+                if (!this[index].flag) {
+                    stack.push(index);
+                }
+            }
+        };
+        Vertices.prototype.each = function (indices, cb) {
+            for (var i = 0, l = indices.length; i < l; i++) {
+                var vertex = this[indices[i]];
+                cb(vertex.key, vertex.val);
             }
         };
         return Vertices;
     }();
+    /** @private */
     var IntStack = function () {
         function IntStack() {
-            this.stack = [0, 0, 0, 0, 0, 0];
-            this.len = 0;
+            this.length = 0;
         }
         IntStack.prototype.push = function (n) {
-            this.stack[this.len++] = n;
+            this[this.length++] = n | 0;
         };
         IntStack.prototype.pop = function () {
-            return this.stack[--this.len];
+            return this[--this.length] | 0;
         };
         return IntStack;
     }();
@@ -21501,7 +21495,7 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-babel', 'ember-uti
     return MutableCell;
   }();
 });
-enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-babel', 'ember-utils', 'ember-metal', '@glimmer/reference', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember/features'], function (exports, _runtime, _emberBabel, _emberUtils, _emberMetal, _reference, _toBool, _helper) {
+enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-babel', 'ember-utils', 'ember-metal', '@glimmer/reference', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember/features'], function (exports, _runtime, _emberBabel, _emberUtils, _emberMetal, _reference, _toBool, _helper, _features) {
   'use strict';
 
   exports.UnboundReference = exports.InternalHelperReference = exports.ClassBasedHelperReference = exports.SimpleHelperReference = exports.ConditionalReference = exports.UpdatablePrimitiveReference = exports.UpdatableReference = exports.NestedPropertyReference = exports.RootPropertyReference = exports.PropertyReference = exports.RootReference = exports.CachedReference = exports.UNDEFINED_REFERENCE = exports.NULL_REFERENCE = exports.UPDATE = undefined;
@@ -21591,7 +21585,7 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
 
   var TwoWayFlushDetectionTag = void 0;
 
-  if (true || false) {
+  if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
     TwoWayFlushDetectionTag = function () {
       function TwoWayFlushDetectionTag(tag, key, ref) {
         (0, _emberBabel.classCallCheck)(this, TwoWayFlushDetectionTag);
@@ -21663,13 +21657,13 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
       _this4._parentValue = parentValue;
       _this4._propertyKey = propertyKey;
 
-      if (true || false) {
+      if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
         _this4.tag = new TwoWayFlushDetectionTag((0, _emberMetal.tagForProperty)(parentValue, propertyKey), propertyKey, _this4);
       } else {
         _this4.tag = (0, _emberMetal.tagForProperty)(parentValue, propertyKey);
       }
 
-      if (true) {
+      if (_features.MANDATORY_SETTER) {
         (0, _emberMetal.watchKey)(parentValue, propertyKey);
       }
       return _this4;
@@ -21680,7 +21674,7 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
           _propertyKey = this._propertyKey;
 
 
-      if (true || false) {
+      if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
         this.tag.didCompute(_parentValue);
       }
 
@@ -21709,7 +21703,7 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
       _this5._parentObjectTag = parentObjectTag;
       _this5._propertyKey = propertyKey;
 
-      if (true || false) {
+      if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
         var tag = (0, _reference.combine)([parentReferenceTag, parentObjectTag]);
         _this5.tag = new TwoWayFlushDetectionTag(tag, propertyKey, _this5);
       } else {
@@ -21733,11 +21727,11 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
       }
 
       if (typeof parentValue === 'object' && parentValue) {
-        if (true) {
+        if (_features.MANDATORY_SETTER) {
           (0, _emberMetal.watchKey)(parentValue, _propertyKey);
         }
 
-        if (true || false) {
+        if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
           this.tag.didCompute(parentValue);
         }
 
@@ -23005,7 +22999,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
     var counter = 0;
     var inTransaction = false;
     var shouldReflush = void 0;
@@ -23070,13 +23064,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
           var message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
 
-          {
+          if (ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+            true && !false && emberDebug.deprecate(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+          } else {
             true && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
           }
         }
 
         shouldReflush = true;
       }
+    };
+  } else {
+    // in production do nothing to detect reflushes
+    exports.runInTransaction = function (context$$1, methodName) {
+      context$$1[methodName]();
+      return false;
     };
   }
 
@@ -23181,7 +23183,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       markObjectAsDirty(meta$$1, keyName);
     }
 
-    {
+    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
       exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
@@ -23495,7 +23497,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var value = void 0;
     if (desc instanceof Descriptor) {
       value = desc;
-      {
+      if (ember_features.MANDATORY_SETTER) {
         if (watching) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
@@ -23506,6 +23508,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         } else {
           obj[keyName] = value;
         }
+      } else {
+        obj[keyName] = value;
       }
 
       didDefineComputedProperty(obj.constructor);
@@ -23517,7 +23521,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (desc == null) {
         value = data;
 
-        {
+        if (ember_features.MANDATORY_SETTER) {
           if (watching) {
             meta$$1.writeValues(keyName, data);
 
@@ -23536,6 +23540,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           } else {
             obj[keyName] = data;
           }
+        } else {
+          obj[keyName] = data;
         }
       } else {
         value = desc;
@@ -23604,7 +23610,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.willWatchProperty(keyName);
       }
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         // NOTE: this is dropped for prod + minified builds
         handleMandatorySetter(m, obj, keyName);
       }
@@ -23613,7 +23619,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     var _hasOwnProperty = function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     };
@@ -23684,7 +23690,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj.didUnwatchProperty(keyName);
       }
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         // It is true, the following code looks quite WAT. But have no fear, It
         // exists purely to improve development ergonomics and is removed from
         // ember.min.js and ember.prod.js builds.
@@ -24189,7 +24195,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var META_DESTROYED = 1 << 3;
   var IS_PROXY = 1 << 4;
 
-  {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
     members.lastRendered = ownMap;
     if (require.has('ember-debug')) {
       //https://github.com/emberjs/ember.js/issues/14732
@@ -24239,7 +24245,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       // inherited, and we can optimize it much better than JS runtimes.
       this.parent = parentMeta;
 
-      {
+      if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
         this._lastRendered = undefined;
         {
           this._lastRenderedReferenceMap = undefined;
@@ -24632,7 +24638,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     descriptor: META_DESC
   };
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
       var internalKey = '_' + key;
 
@@ -25092,8 +25098,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else {
       propertyWillChange(obj, keyName);
 
-      {
+      if (ember_features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
+      } else {
+        obj[keyName] = value;
       }
 
       propertyDidChange(obj, keyName);
@@ -25102,7 +25110,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return value;
   }
 
-  {
+  if (ember_features.MANDATORY_SETTER) {
     var setWithMandatorySetter = function (meta$$1, obj, keyName, value) {
       if (meta$$1 && meta$$1.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
@@ -40319,7 +40327,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     }
   });
 });
-enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject', 'ember-debug', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberMetal, _action_handler, _inject, _emberDebug) {
+enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject', 'ember-debug', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberMetal, _action_handler, _inject, _emberDebug, _features) {
   'use strict';
 
   exports.POST_INIT = undefined;
@@ -40430,7 +40438,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
                 if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                   this.setUnknownProperty(keyName, value);
                 } else {
-                  if (true) {
+                  if (_features.MANDATORY_SETTER) {
                     (0, _emberMetal.defineProperty)(this, keyName, null, value); // setup mandatory setter
                   } else {
                     this[keyName] = value;
@@ -47454,7 +47462,7 @@ enifed("ember-views/views/view", [], function () {
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
     var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
@@ -47462,10 +47470,10 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     var EMBER_METAL_WEAKMAP = exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
-    false;
+    var EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-allow-backtracking-rerender"];
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
-    true;
-    true;
+    var MANDATORY_SETTER = exports.MANDATORY_SETTER = FEATURES["mandatory-setter"];
+    var EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-detect-backtracking-rerender"];
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module', 'ember-utils', 'container', 'ember-metal', 'ember/features', 'ember-debug', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require2, _emberEnvironment, _nodeModule, _emberUtils, _container, _emberMetal, _features, _emberDebug, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _version, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -48022,7 +48030,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+d504a576";
+  exports.default = "2.14.0-alpha.1-null+5d39f76c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -49480,7 +49488,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
                 return new Target(fullPath, matcher, delegate);
             }
         }
-        ;
+
         return match;
     }
     function addRoute(routeArray, path, handler) {
@@ -49507,7 +49515,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
             }
         }
     }
-    function map(callback, addRouteCallback) {
+    var map = function (callback, addRouteCallback) {
         var matcher = new Matcher();
         callback(generateMatch("", matcher, this.delegate));
         eachRoute([], matcher, function (routes) {
@@ -49517,7 +49525,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
                 this.add(routes);
             }
         }, this);
-    }
+    };
 
     // Normalizes percent-encoded values in `path` to upper-case and decodes percent-encoded
     // values that are not reserved (i.e., unicode characters, emoji, etc). The reserved
@@ -49812,7 +49820,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
         this.length = 0;
         this.queryParams = queryParams || {};
     };
-    ;
+
     RecognizeResults.prototype.splice = Array.prototype.splice;
     RecognizeResults.prototype.slice = Array.prototype.slice;
     RecognizeResults.prototype.push = Array.prototype.push;
@@ -50062,7 +50070,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         return results;
     };
-    RouteRecognizer.VERSION = "0.3.0";
+    RouteRecognizer.VERSION = "0.3.2";
     // Set to false to opt-out of encoding and decoding path segments.
     // See https://github.com/tildeio/route-recognizer/pull/55
     RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
@@ -52291,7 +52299,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _emberBabel, _nodeModule) {
   'use strict';
 
-  exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = undefined;
+  exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = exports.asap = undefined;
 
   var _rsvp;
 
@@ -54603,6 +54611,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   // the default export here is for backwards compat:
   //   https://github.com/tildeio/rsvp.js/issues/434
   var rsvp = (_rsvp = {
+    asap: asap,
     cast: cast,
     Promise: Promise,
     EventTarget: EventTarget,
@@ -54622,6 +54631,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     map: map
   }, _rsvp['async'] = async, _rsvp.filter = filter, _rsvp);
 
+  exports.asap = asap;
   exports.cast = cast;
   exports.Promise = Promise;
   exports.EventTarget = EventTarget;
