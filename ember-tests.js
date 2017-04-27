@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+c016eca3
+ * @version   2.14.0-alpha.1-null+d2220816
  */
 
 var enifed, requireModule, Ember;
@@ -148,7 +148,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'container.js should pass ESLint\n\n');
 });
 
-enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'ember-metal', 'container', 'internal-test-helpers', 'ember/features'], function (_emberUtils, _emberEnvironment, _emberMetal, _container, _internalTestHelpers) {
+enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-environment', 'ember-metal', 'container', 'internal-test-helpers', 'ember/features'], function (_emberBabel, _emberUtils, _emberEnvironment, _emberMetal, _container, _internalTestHelpers) {
   'use strict';
 
   var originalModelInjections = void 0;
@@ -216,7 +216,7 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     equal(PostFactory._debugContainerKey, 'controller:post', 'factory instance receives _debugContainerKey');
   });
 
-  QUnit.test('fallback for to create time injections if factory has no extend', function () {
+  QUnit.test('uses create time injections if factory has no extend', function () {
     var registry = new _container.Registry();
     var container = registry.container();
     var AppleController = (0, _internalTestHelpers.factory)();
@@ -230,7 +230,6 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
 
     var postController = container.lookup('controller:post');
 
-    equal(postController._debugContainerKey, 'controller:post', 'instance receives _debugContainerKey');
     ok(postController.apple instanceof AppleController, 'instance receives an apple of instance AppleController');
   });
 
@@ -302,9 +301,6 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     var postController = container.lookup('controller:post');
     var store = container.lookup('store:main');
 
-    equal(store._debugContainerKey, 'store:main');
-
-    equal(postController._debugContainerKey, 'controller:post');
     equal(postController.store, store, 'has the correct store injected');
   });
 
@@ -890,6 +886,74 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
     var instrance = componentFactory.create({ ajax: 'fetch' });
 
     assert.equal(instrance.ajax, 'fetch');
+  });
+
+  QUnit.test('#factoryFor does not add properties to the object being instantiated when _initFactory is present', function (assert) {
+    var owner = {};
+    var registry = new _container.Registry();
+    var container = registry.container();
+
+    var factory = void 0;
+
+    var Component = function () {
+      function Component() {
+        (0, _emberBabel.classCallCheck)(this, Component);
+      }
+
+      Component._initFactory = function _initFactory(_factory) {
+        factory = _factory;
+      };
+
+      Component.create = function create(options) {
+        var instance = new this();
+        (0, _emberUtils.assign)(instance, options);
+        return instance;
+      };
+
+      return Component;
+    }();
+
+    registry.register('component:foo-bar', Component);
+
+    var componentFactory = container.factoryFor('component:foo-bar');
+    var instance = componentFactory.create();
+
+    // note: _guid and isDestroyed are being set in the `factory` constructor
+    // not via registry/container shenanigans
+    assert.deepEqual(Object.keys(instance), []);
+  });
+
+  // this is skipped until templates and the glimmer environment do not require `OWNER` to be
+  // passed in as constructor args
+  QUnit.skip('#factoryFor does not add properties to the object being instantiated', function (assert) {
+    var owner = {};
+    var registry = new _container.Registry();
+    var container = registry.container();
+
+    var factory = void 0;
+
+    var Component = function () {
+      function Component() {
+        (0, _emberBabel.classCallCheck)(this, Component);
+      }
+
+      Component.create = function create(options) {
+        var instance = new this();
+        (0, _emberUtils.assign)(instance, options);
+        return instance;
+      };
+
+      return Component;
+    }();
+
+    registry.register('component:foo-bar', Component);
+
+    var componentFactory = container.factoryFor('component:foo-bar');
+    var instance = componentFactory.create();
+
+    // note: _guid and isDestroyed are being set in the `factory` constructor
+    // not via registry/container shenanigans
+    assert.deepEqual(Object.keys(instance), []);
   });
 });
 QUnit.module('ESLint | container/tests/container_test.js');

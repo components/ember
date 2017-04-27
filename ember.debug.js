@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+c016eca3
+ * @version   2.14.0-alpha.1-null+d2220816
  */
 
 var enifed, requireModule, Ember;
@@ -9945,6 +9945,8 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       var cacheable = !areInjectionsDynamic(injections) && !areInjectionsDynamic(factoryInjections);
 
       factoryInjections[_emberUtils.NAME_KEY] = registry.makeToString(factory, fullName);
+      injections._debugContainerKey = fullName;
+      (0, _emberUtils.setOwner)(injections, container.owner);
 
       var injectedFactory = factory.extend(injections);
 
@@ -9970,9 +9972,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     var type = splitName[0];
 
     var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
-    injections._debugContainerKey = fullName;
-
-    (0, _emberUtils.setOwner)(injections, container.owner);
 
     return injections;
   }
@@ -10016,6 +10015,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         // to create time injections
         // TODO: support new'ing for instantiation and merge injections for pure JS Functions
         var injections = injectionsFor(container, fullName);
+        injections._debugContainerKey = fullName;
 
         // Ensure that a container is available to an object during instantiation.
         // TODO - remove when Ember reaches v3.0.0
@@ -10153,12 +10153,21 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       (0, _emberBabel.classCallCheck)(this, FactoryManager);
 
       this.container = container;
+      this.owner = container.owner;
       this.class = factory;
       this.fullName = fullName;
       this.normalizedName = normalizedName;
       this.madeToString = undefined;
       this.injections = undefined;
     }
+
+    FactoryManager.prototype.toString = function toString() {
+      if (!this.madeToString) {
+        this.madeToString = this.container.registry.makeToString(this.class, this.fullName);
+      }
+
+      return this.madeToString;
+    };
 
     FactoryManager.prototype.create = function create() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -10172,8 +10181,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         }
       }
       var props = (0, _emberUtils.assign)({}, injections, options);
-
-      props[_emberUtils.NAME_KEY] = this.madeToString || (this.madeToString = this.container.registry.makeToString(this.class, this.fullName));
 
       if (true) {
         var lazyInjections = void 0;
@@ -10196,6 +10203,21 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       var prototype = this.class.prototype;
       if (prototype) {
         injectDeprecatedContainer(prototype, this.container);
+      }
+
+      // required to allow access to things like
+      // the customized toString, _debugContainerKey,
+      // owner, etc. without a double extend and without
+      // modifying the objects properties
+      if (typeof this.class._initFactory === 'function') {
+        this.class._initFactory(this);
+      } else {
+        // in the non-Ember.Object case we need to still setOwner
+        // this is required for supporting glimmer environment and
+        // template instantiation which rely heavily on
+        // `options[OWNER]` being passed into `create`
+        // TODO: clean this up, and remove in future versions
+        (0, _emberUtils.setOwner)(props, this.owner);
       }
 
       return this.class.create(props);
@@ -24301,6 +24323,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       this._chains = undefined;
       this._tag = undefined;
       this._tags = undefined;
+      this._factory = undefined;
 
       // initial value for all flags right now is false
       // see FLAGS const for detailed list of flags used
@@ -24557,6 +24580,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj[key] = value;
       }
     };
+
+    emberBabel.createClass(Meta, [{
+      key: 'factory',
+      set: function (factory) {
+        this._factory = factory;
+      },
+      get: function () {
+        return this._factory;
+      }
+    }]);
 
     return Meta;
   }();
@@ -40426,7 +40459,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     // possible.
 
     var wasApplied = false;
-    var initProperties = void 0;
+    var initProperties = void 0,
+        initFactory = void 0;
 
     var Class = function () {
       function Class() {
@@ -40444,6 +40478,11 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
         var m = (0, _emberMetal.meta)(this);
         var proto = m.proto;
         m.proto = this;
+
+        if (initFactory) {
+          m.factory = initFactory;
+          initFactory = null;
+        }
         if (initProperties) {
           // capture locally so we can clear the closed over variable
           var props = initProperties;
@@ -40543,6 +40582,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
         initProperties = args;
       };
 
+      Class._initFactory = function _initFactory(factory) {
+        initFactory = factory;
+      };
+
       Class.proto = function proto() {
         var superclass = Class.superclass;
         if (superclass) {
@@ -40638,7 +40681,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
   }, _Mixin$create.toString = function () {
     var hasToStringExtension = typeof this.toStringExtension === 'function';
     var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-    var ret = '<' + (this[_emberUtils.NAME_KEY] || this.constructor.toString()) + ':' + (0, _emberUtils.guidFor)(this) + extension + '>';
+
+    var ret = '<' + (this[_emberUtils.NAME_KEY] || (0, _emberMetal.meta)(this).factory || this.constructor.toString()) + ':' + (0, _emberUtils.guidFor)(this) + extension + '>';
 
     return ret;
   }, _Mixin$create));
@@ -41241,6 +41285,10 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
 
   exports.FrameworkObject = undefined;
 
+  var _CoreObject$extend;
+
+  var OVERRIDE_CONTAINER_KEY = (0, _emberUtils.symbol)('OVERRIDE_CONTAINER_KEY');
+  var OVERRIDE_OWNER = (0, _emberUtils.symbol)('OVERRIDE_OWNER');
 
   /**
     `Ember.Object` is the main base class for all Ember objects. It is a subclass
@@ -41253,10 +41301,42 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
     @uses Ember.Observable
     @public
   */
-  var EmberObject = _core_object.default.extend(_observable.default); /**
-                                                                      @module ember
-                                                                      @submodule ember-runtime
-                                                                      */
+  var EmberObject = _core_object.default.extend(_observable.default, (_CoreObject$extend = {
+    _debugContainerKey: (0, _emberMetal.descriptor)({
+      enumerable: false,
+      get: function () {
+        if (this[OVERRIDE_CONTAINER_KEY]) {
+          return this[OVERRIDE_CONTAINER_KEY];
+        }
+
+        var meta = (0, _emberMetal.meta)(this);
+        var factory = meta.factory;
+
+
+        return factory && factory.fullName;
+      },
+      set: function (value) {
+        this[OVERRIDE_CONTAINER_KEY] = value;
+      }
+    })
+
+  }, _CoreObject$extend[_emberUtils.OWNER] = (0, _emberMetal.descriptor)({
+    enumerable: false,
+    get: function () {
+      if (this[OVERRIDE_OWNER]) {
+        return this[OVERRIDE_OWNER];
+      }
+
+      var meta = (0, _emberMetal.meta)(this);
+      var factory = meta.factory;
+
+
+      return factory && factory.owner;
+    },
+    set: function (value) {
+      this[OVERRIDE_OWNER] = value;
+    }
+  }), _CoreObject$extend));
 
   EmberObject.toString = function () {
     return 'Ember.Object';
@@ -48069,7 +48149,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+c016eca3";
+  exports.default = "2.14.0-alpha.1-null+d2220816";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
