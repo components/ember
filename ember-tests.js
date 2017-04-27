@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+cc2450cf
+ * @version   2.14.0-alpha.1-null+ece5069e
  */
 
 var enifed, requireModule, Ember;
@@ -148,7 +148,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'container.js should pass ESLint\n\n');
 });
 
-enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-environment', 'ember-metal', 'container', 'internal-test-helpers', 'ember/features'], function (_emberBabel, _emberUtils, _emberEnvironment, _emberMetal, _container, _internalTestHelpers) {
+enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-environment', 'ember-metal', 'container', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberEnvironment, _emberMetal, _container, _internalTestHelpers) {
   'use strict';
 
   var originalModelInjections = void 0;
@@ -163,7 +163,12 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
   });
 
   function lookupFactory(name, container, options) {
-    return container[_container.LOOKUP_FACTORY](name, options);
+    var factory = void 0;
+    expectDeprecation(function () {
+      factory = container.lookupFactory(name, options);
+    }, 'Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.');
+
+    return factory;
   }
 
   QUnit.test('A registered factory returns the same instance each time', function () {
@@ -627,7 +632,7 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
   });
 
   QUnit.test('The `_onLookup` hook is called on factories when looked up the first time', function () {
-    expect(2);
+    expect(4); // 2 are from expectDeprecation in `lookupFactory`
 
     var registry = new _container.Registry();
     var container = registry.container();
@@ -777,19 +782,15 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     assert.ok(PostControllerLookupResult instanceof PostController);
   });
 
-  QUnit.test('#[FACTORY_FOR] class is the injected factory', function (assert) {
+  QUnit.test('#factoryFor class is registered class', function (assert) {
     var registry = new _container.Registry();
     var container = registry.container();
 
     var Component = (0, _internalTestHelpers.factory)();
     registry.register('component:foo-bar', Component);
 
-    var factoryManager = container[_container.FACTORY_FOR]('component:foo-bar');
-    if (true) {
-      assert.deepEqual(factoryManager.class, Component, 'No double extend');
-    } else {
-      assert.deepEqual(factoryManager.class, lookupFactory('component:foo-bar', container), 'Double extended class');
-    }
+    var factoryManager = container.factoryFor('component:foo-bar');
+    assert.deepEqual(factoryManager.class, Component, 'No double extend');
   });
 
   QUnit.test('#factoryFor must supply a fullname', function (assert) {
@@ -47398,7 +47399,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/system/cache_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/system/controller_for_test', ['ember-babel', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers', 'ember/features'], function (_emberBabel, _emberRuntime, _controller_for, _generate_controller, _internalTestHelpers) {
+enifed('ember-routing/tests/system/controller_for_test', ['ember-babel', 'ember-runtime', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _controller_for, _generate_controller, _internalTestHelpers) {
   'use strict';
 
   (0, _internalTestHelpers.moduleFor)('Ember.controllerFor', function (_ApplicationTestCase) {
@@ -47463,15 +47464,7 @@ enifed('ember-routing/tests/system/controller_for_test', ['ember-babel', 'ember-
       return this.visit('/').then(function () {
         var controller = (0, _generate_controller.default)(_this6.applicationInstance, 'home');
 
-        if (true) {
-          assert.ok(controller instanceof BasicController, 'should return base class of controller');
-        } else {
-          var doubleExtendedFactory = void 0;
-          ignoreDeprecation(function () {
-            doubleExtendedFactory = _this6.applicationInstance._lookupFactory('controller:basic');
-          });
-          assert.ok(controller instanceof doubleExtendedFactory, 'should return double-extended controller');
-        }
+        assert.ok(controller instanceof BasicController, 'should return base class of controller');
       });
     };
 
@@ -47819,7 +47812,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/system/dsl_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route', 'container'], function (_emberUtils, _internalTestHelpers, _emberRuntime, _route, _container) {
+enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-helpers', 'ember-runtime', 'ember-routing/system/route'], function (_emberUtils, _internalTestHelpers, _emberRuntime, _route) {
   'use strict';
 
   var route = void 0,
@@ -47841,8 +47834,6 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
   });
 
   QUnit.test('default store utilizes the container to acquire the model factory', function () {
-    var _ownerOptions;
-
     expect(4);
 
     var Post = _emberRuntime.Object.extend();
@@ -47855,20 +47846,21 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
     });
 
     var ownerOptions = {
-      ownerOptions: (_ownerOptions = {
+      ownerOptions: {
         hasRegistration: function () {
           return true;
-        }
-      }, _ownerOptions[_container.FACTORY_FOR] = function (fullName) {
-        equal(fullName, 'model:post', 'correct factory was looked up');
+        },
+        factoryFor: function (fullName) {
+          equal(fullName, 'model:post', 'correct factory was looked up');
 
-        return {
-          class: Post,
-          create: function () {
-            return Post.create();
-          }
-        };
-      }, _ownerOptions)
+          return {
+            class: Post,
+            create: function () {
+              return Post.create();
+            }
+          };
+        }
+      }
     };
 
     (0, _emberUtils.setOwner)(route, (0, _internalTestHelpers.buildOwner)(ownerOptions));
@@ -78099,31 +78091,13 @@ enifed('internal-test-helpers/build-owner', ['exports', 'container', 'ember-rout
 
   exports.default = buildOwner;
   function buildOwner() {
-    var _EmberObject$extend;
-
     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     var ownerOptions = options.ownerOptions || {};
     var resolver = options.resolver;
     var bootOptions = options.bootOptions || {};
 
-    var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin, (_EmberObject$extend = {}, _EmberObject$extend[_container.FACTORY_FOR] = function () {
-      var _container__;
-
-      return (_container__ = this.__container__)[_container.FACTORY_FOR].apply(_container__, arguments);
-    }, _EmberObject$extend[_container.LOOKUP_FACTORY] = function () {
-      var _container__2;
-
-      return (_container__2 = this.__container__)[_container.LOOKUP_FACTORY].apply(_container__2, arguments);
-    }, _EmberObject$extend));
-
-    Owner.reopen({
-      factoryFor: function () {
-        var _container__3;
-
-        return (_container__3 = this.__container__).factoryFor.apply(_container__3, arguments);
-      }
-    });
+    var Owner = _emberRuntime.Object.extend(_emberRuntime.RegistryProxyMixin, _emberRuntime.ContainerProxyMixin);
 
     var namespace = _emberRuntime.Object.create({
       Resolver: {

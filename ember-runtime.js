@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+cc2450cf
+ * @version   2.14.0-alpha.1-null+ece5069e
  */
 
 var enifed, requireModule, Ember;
@@ -112,17 +112,14 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember-environment', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberDebug, _emberEnvironment) {
+enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug, _emberEnvironment) {
   'use strict';
 
-  exports.LOOKUP_FACTORY = exports.FACTORY_FOR = exports.buildFakeContainerWithDeprecations = exports.Container = exports.privatize = exports.Registry = undefined;
+  exports.buildFakeContainerWithDeprecations = exports.Container = exports.privatize = exports.Registry = undefined;
 
-  var _Container$prototype;
 
   /* globals Proxy */
   var CONTAINER_OVERRIDE = (0, _emberUtils.symbol)('CONTAINER_OVERRIDE');
-  var FACTORY_FOR = (0, _emberUtils.symbol)('FACTORY_FOR');
-  var LOOKUP_FACTORY = (0, _emberUtils.symbol)('LOOKUP_FACTORY');
 
   /**
    A container used to instantiate and cache objects.
@@ -149,7 +146,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     this.isDestroyed = false;
   }
 
-  Container.prototype = (_Container$prototype = {
+  Container.prototype = {
     lookup: function (fullName, options) {
       (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName)));
 
@@ -161,78 +158,61 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
 
       return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
-    }
-  }, _Container$prototype[LOOKUP_FACTORY] = function (fullName, options) {
-    (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName)));
+    },
+    destroy: function () {
+      destroyDestroyables(this);
+      this.isDestroyed = true;
+    },
+    reset: function (fullName) {
+      if (arguments.length > 0) {
+        resetMember(this, this.registry.normalize(fullName));
+      } else {
+        resetCache(this);
+      }
+    },
+    ownerInjection: function () {
+      var _ref;
 
-    return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
-  }, _Container$prototype[FACTORY_FOR] = function (fullName) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
+    },
+    factoryFor: function (fullName) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    if (true) {
-      return this.factoryFor(fullName, options);
-    }
-    var factory = this[LOOKUP_FACTORY](fullName, options);
-    if (factory === undefined) {
-      return;
-    }
-    var manager = new DeprecatedFactoryManager(this, factory, fullName);
+      var normalizedName = this.registry.normalize(fullName);
 
-    if (true) {
-      manager = wrapManagerInDeprecationProxy(manager);
-    }
-
-    return manager;
-  }, _Container$prototype.destroy = function () {
-    destroyDestroyables(this);
-    this.isDestroyed = true;
-  }, _Container$prototype.reset = function (fullName) {
-    if (arguments.length > 0) {
-      resetMember(this, this.registry.normalize(fullName));
-    } else {
-      resetCache(this);
-    }
-  }, _Container$prototype.ownerInjection = function () {
-    var _ref;
-
-    return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
-  }, _Container$prototype.factoryFor = function (fullName) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    var normalizedName = this.registry.normalize(fullName);
-
-    (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName)));
+      (true && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName)));
 
 
-    if (options.source) {
-      normalizedName = this.registry.expandLocalLookup(fullName, options);
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!normalizedName) {
+      if (options.source) {
+        normalizedName = this.registry.expandLocalLookup(fullName, options);
+        // if expandLocalLookup returns falsey, we do not support local lookup
+        if (!normalizedName) {
+          return;
+        }
+      }
+
+      var cached = this.factoryManagerCache[normalizedName];
+
+      if (cached) {
+        return cached;
+      }
+
+      var factory = this.registry.resolve(normalizedName);
+
+      if (factory === undefined) {
         return;
       }
+
+      var manager = new FactoryManager(this, factory, fullName, normalizedName);
+
+      if (true) {
+        manager = wrapManagerInDeprecationProxy(manager);
+      }
+
+      this.factoryManagerCache[normalizedName] = manager;
+      return manager;
     }
-
-    var cached = this.factoryManagerCache[normalizedName];
-
-    if (cached) {
-      return cached;
-    }
-
-    var factory = this.registry.resolve(normalizedName);
-
-    if (factory === undefined) {
-      return;
-    }
-
-    var manager = new FactoryManager(this, factory, fullName, normalizedName);
-
-    if (true) {
-      manager = wrapManagerInDeprecationProxy(manager);
-    }
-
-    this.factoryManagerCache[normalizedName] = manager;
-    return manager;
-  }, _Container$prototype);
+  };
 
   /*
    * Wrap a factory manager in a proxy which will not permit properties to be
@@ -326,7 +306,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }
 
   function instantiateFactory(container, fullName, options) {
-    var factoryManager = container[FACTORY_FOR](fullName);
+    var factoryManager = container.factoryFor(fullName);
 
     if (factoryManager === undefined) {
       return;
@@ -463,64 +443,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     return injections;
   }
 
-  function instantiate(factory, props, container, fullName) {
-    var lazyInjections = void 0,
-        validationCache = void 0;
-
-    props = props || {};
-
-    if (container.registry.getOption(fullName, 'instantiate') === false) {
-      return factory;
-    }
-
-    if (factory) {
-      if (typeof factory.create !== 'function') {
-        throw new Error('Failed to create an instance of \'' + fullName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
-      }
-
-      validationCache = container.validationCache;
-
-      if (true) {
-        // Ensure that all lazy injections are valid at instantiation time
-        if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
-          lazyInjections = factory._lazyInjections();
-          lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
-
-          container.registry.validateInjections(lazyInjections);
-        }
-      }
-
-      validationCache[fullName] = true;
-
-      var obj = void 0;
-
-      if (typeof factory.extend === 'function') {
-        // assume the factory was extendable and is already injected
-        obj = factory.create(props);
-      } else {
-        // assume the factory was extendable
-        // to create time injections
-        // TODO: support new'ing for instantiation and merge injections for pure JS Functions
-        var injections = injectionsFor(container, fullName);
-        injections._debugContainerKey = fullName;
-
-        // Ensure that a container is available to an object during instantiation.
-        // TODO - remove when Ember reaches v3.0.0
-        // This "fake" container will be replaced after instantiation with a
-        // property that raises deprecations every time it is accessed.
-        injections.container = container._fakeContainerToInject;
-        obj = factory.create((0, _emberUtils.assign)({}, injections, props));
-
-        // TODO - remove when Ember reaches v3.0.0
-        if (!Object.isFrozen(obj)) {
-          injectDeprecatedContainer(obj, container);
-        }
-      }
-
-      return obj;
-    }
-  }
-
   function factoryInjectionsFor(container, fullName) {
     var registry = container.registry;
     var splitName = fullName.split(':');
@@ -616,24 +538,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       return container[containerProperty].apply(container, arguments);
     };
   }
-
-  var DeprecatedFactoryManager = function () {
-    function DeprecatedFactoryManager(container, factory, fullName) {
-      (0, _emberBabel.classCallCheck)(this, DeprecatedFactoryManager);
-
-      this.container = container;
-      this.class = factory;
-      this.fullName = fullName;
-    }
-
-    DeprecatedFactoryManager.prototype.create = function create() {
-      var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-      return instantiate(this.class, props, this.container, this.fullName);
-    };
-
-    return DeprecatedFactoryManager;
-  }();
 
   var FactoryManager = function () {
     function FactoryManager(container, factory, fullName, normalizedName) {
@@ -1251,8 +1155,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   exports.privatize = privatize;
   exports.Container = Container;
   exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
-  exports.FACTORY_FOR = FACTORY_FOR;
-  exports.LOOKUP_FACTORY = LOOKUP_FACTORY;
 });
 enifed('ember-babel', ['exports'], function (exports) {
   'use strict';
