@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-alpha.1.ece5069e"
+        "version": "2.14.0-alpha.1.d504a576"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -3089,7 +3089,7 @@
             "submodule": "ember-routing",
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 30,
+            "line": 26,
             "description": "Ember.HistoryLocation implements the location API using the browser's\nhistory.pushState API.",
             "extends": "Ember.Object",
             "access": "private",
@@ -11787,7 +11787,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 57,
+            "line": 53,
             "description": "Used to set state on first call to setURL",
             "access": "private",
             "tagname": "",
@@ -11800,7 +11800,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 74,
+            "line": 70,
             "description": "Will be pre-pended to path upon state change",
             "itemtype": "property",
             "name": "rootURL",
@@ -11814,7 +11814,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 83,
+            "line": 79,
             "description": "Returns the current `location.pathname` without `rootURL` or `baseURL`",
             "access": "private",
             "tagname": "",
@@ -11831,7 +11831,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 113,
+            "line": 109,
             "description": "Uses `history.pushState` to update the url without a page reload.",
             "access": "private",
             "tagname": "",
@@ -11851,7 +11851,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 129,
+            "line": 125,
             "description": "Uses `history.replaceState` to update the url without a page reload\nor history modification.",
             "access": "private",
             "tagname": "",
@@ -11871,7 +11871,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 146,
+            "line": 142,
             "description": "Get the current `history.state`. Checks for if a polyfill is\nrequired and if so fetches this._historyState. The state returned\nfrom getState may be null if an iframe has changed a window's\nhistory.\n\nThe object returned will contain a `path` for the given state as well\nas a unique state `id`. The state index will allow the app to distinguish\nbetween two states with similar paths but should be unique from one another.",
             "access": "private",
             "tagname": "",
@@ -11888,7 +11888,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 168,
+            "line": 164,
             "description": "Pushes a new state.",
             "access": "private",
             "tagname": "",
@@ -11908,7 +11908,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 189,
+            "line": 182,
             "description": "Replaces the current state.",
             "access": "private",
             "tagname": "",
@@ -11928,7 +11928,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 210,
+            "line": 200,
             "description": "Register a callback to be invoked whenever the browser\nhistory changes, including using forward and back buttons.",
             "access": "private",
             "tagname": "",
@@ -11948,7 +11948,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 233,
+            "line": 223,
             "description": "Used when using `{{action}}` helper.  The url is always appended to the rootURL.",
             "access": "private",
             "tagname": "",
@@ -11972,7 +11972,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 258,
+            "line": 248,
             "description": "Cleans up the HistoryLocation event listener.",
             "access": "private",
             "tagname": "",
@@ -11985,7 +11985,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 268,
+            "line": 258,
             "access": "private",
             "tagname": "Returns normalized location.hash",
             "itemtype": "method",
@@ -19323,7 +19323,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers/pause_test.js",
-            "line": 12,
+            "line": 11,
             "description": "Resumes a test paused by `pauseTest`.",
             "itemtype": "method",
             "name": "resumeTest",
@@ -19339,7 +19339,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers/pause_test.js",
-            "line": 25,
+            "line": 24,
             "description": "Pauses the current test - this is useful for debugging while testing or for test-driving.\nIt allows you to inspect the state of your application at any point.\nExample (The test will pause before clicking the button):\n\n```javascript\nvisit('/')\nreturn pauseTest();\nclick('.btn');\n```",
             "since": "1.9.0",
             "itemtype": "method",

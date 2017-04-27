@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ece5069e
+ * @version   2.14.0-alpha.1-null+d504a576
  */
 
 var enifed, requireModule, Ember;
@@ -44504,7 +44504,6 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
     ok(location._historyState.uuid);
   });
 
-
   QUnit.test('HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL', function () {
     expect(1);
 
@@ -62298,7 +62297,6 @@ enifed('ember-testing/tests/helpers_test', ['ember-routing', 'ember-runtime', 'e
       return App.testHelpers.resumeTest();
     }, /Testing has not been paused. There is nothing to resume./);
   });
-
 
   QUnit.module('ember-testing routing helpers', {
     setup: function () {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ece5069e
+ * @version   2.14.0-alpha.1-null+d504a576
  */
 
 var enifed, requireModule, Ember;
@@ -29661,16 +29661,14 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
 
   var popstateFired = false;
 
-  var _uuid = void 0;
-
-  _uuid = function () {
+  function _uuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
       var r, v;
       r = Math.random() * 16 | 0;
       v = c === 'x' ? r : r & 3 | 8;
       return v.toString(16);
     });
-  };
+  }
 
   /**
     Ember.HistoryLocation implements the location API using the browser's
@@ -29807,10 +29805,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
      @param path {String}
     */
     pushState: function (path) {
-      var state = { path: path };
-
-      state.uuid = _uuid();
-
+      var state = { path: path, uuid: _uuid() };
 
       (0, _emberMetal.get)(this, 'history').pushState(state, null, path);
 
@@ -29827,10 +29822,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
      @param path {String}
     */
     replaceState: function (path) {
-      var state = { path: path };
-
-      state.uuid = _uuid();
-
+      var state = { path: path, uuid: _uuid() };
 
       (0, _emberMetal.get)(this, 'history').replaceState(state, null, path);
 
@@ -43789,7 +43781,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     'use strict';
 
     exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": true, "ember-factory-for": true, "ember-routing-router-service": null, "ember-unique-location-history-state": true, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
@@ -43797,10 +43789,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     var EMBER_METAL_WEAKMAP = exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
     false;
-    true;
-    true;
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
-    true;
     false;
     false;
 });
@@ -44353,7 +44342,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+ece5069e";
+  exports.default = "2.14.0-alpha.1-null+d504a576";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

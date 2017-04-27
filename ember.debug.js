@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ece5069e
+ * @version   2.14.0-alpha.1-null+d504a576
  */
 
 var enifed, requireModule, Ember;
@@ -30295,7 +30295,7 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal', 'ember
     }
   });
 });
-enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/location/api', 'ember/features'], function (exports, _emberMetal, _emberRuntime, _api) {
+enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'ember-runtime', 'ember-routing/location/api'], function (exports, _emberMetal, _emberRuntime, _api) {
   'use strict';
 
   /**
@@ -30305,17 +30305,13 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
 
   var popstateFired = false;
 
-  var _uuid = void 0;
-
-  if (true) {
-    _uuid = function _uuid() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r, v;
-        r = Math.random() * 16 | 0;
-        v = c === 'x' ? r : r & 3 | 8;
-        return v.toString(16);
-      });
-    };
+  function _uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r, v;
+      r = Math.random() * 16 | 0;
+      v = c === 'x' ? r : r & 3 | 8;
+      return v.toString(16);
+    });
   }
 
   /**
@@ -30459,10 +30455,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
      @param path {String}
     */
     pushState: function (path) {
-      var state = { path: path };
-      if (true) {
-        state.uuid = _uuid();
-      }
+      var state = { path: path, uuid: _uuid() };
 
       (0, _emberMetal.get)(this, 'history').pushState(state, null, path);
 
@@ -30480,10 +30473,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
      @param path {String}
     */
     replaceState: function (path) {
-      var state = { path: path };
-      if (true) {
-        state.uuid = _uuid();
-      }
+      var state = { path: path, uuid: _uuid() };
 
       (0, _emberMetal.get)(this, 'history').replaceState(state, null, path);
 
@@ -43576,7 +43566,7 @@ enifed('ember-testing/ext/rsvp', ['exports', 'ember-runtime', 'ember-metal', 'em
 
   exports.default = _emberRuntime.RSVP;
 });
-enifed('ember-testing/helpers', ['ember-testing/test/helpers', 'ember-testing/helpers/and_then', 'ember-testing/helpers/click', 'ember-testing/helpers/current_path', 'ember-testing/helpers/current_route_name', 'ember-testing/helpers/current_url', 'ember-testing/helpers/fill_in', 'ember-testing/helpers/find', 'ember-testing/helpers/find_with_assert', 'ember-testing/helpers/key_event', 'ember-testing/helpers/pause_test', 'ember-testing/helpers/trigger_event', 'ember-testing/helpers/visit', 'ember-testing/helpers/wait', 'ember/features'], function (_helpers, _and_then, _click, _current_path, _current_route_name, _current_url, _fill_in, _find, _find_with_assert, _key_event, _pause_test, _trigger_event, _visit, _wait) {
+enifed('ember-testing/helpers', ['ember-testing/test/helpers', 'ember-testing/helpers/and_then', 'ember-testing/helpers/click', 'ember-testing/helpers/current_path', 'ember-testing/helpers/current_route_name', 'ember-testing/helpers/current_url', 'ember-testing/helpers/fill_in', 'ember-testing/helpers/find', 'ember-testing/helpers/find_with_assert', 'ember-testing/helpers/key_event', 'ember-testing/helpers/pause_test', 'ember-testing/helpers/trigger_event', 'ember-testing/helpers/visit', 'ember-testing/helpers/wait'], function (_helpers, _and_then, _click, _current_path, _current_route_name, _current_url, _fill_in, _find, _find_with_assert, _key_event, _pause_test, _trigger_event, _visit, _wait) {
   'use strict';
 
   (0, _helpers.registerAsyncHelper)('visit', _visit.default);
@@ -43593,10 +43583,7 @@ enifed('ember-testing/helpers', ['ember-testing/test/helpers', 'ember-testing/he
   (0, _helpers.registerHelper)('currentRouteName', _current_route_name.default);
   (0, _helpers.registerHelper)('currentPath', _current_path.default);
   (0, _helpers.registerHelper)('currentURL', _current_url.default);
-
-  if (true) {
-    (0, _helpers.registerHelper)('resumeTest', _pause_test.resumeTest);
-  }
+  (0, _helpers.registerHelper)('resumeTest', _pause_test.resumeTest);
 });
 enifed("ember-testing/helpers/and_then", ["exports"], function (exports) {
   "use strict";
@@ -43908,15 +43895,13 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     return app.testHelpers.triggerEvent(selector, context, type, { keyCode: keyCode, which: keyCode });
   }
 });
-enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-console', 'ember-debug', 'ember/features'], function (exports, _emberRuntime, _emberConsole, _emberDebug) {
+enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-console', 'ember-debug'], function (exports, _emberRuntime, _emberConsole, _emberDebug) {
   'use strict';
 
   exports.resumeTest = resumeTest;
   exports.pauseTest = pauseTest;
-  /**
-  @module ember
-  @submodule ember-testing
-  */
+
+
   var resume = void 0;
 
   /**
@@ -43925,6 +43910,10 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
    @method resumeTest
    @return {void}
    @public
+  */
+  /**
+  @module ember
+  @submodule ember-testing
   */
   function resumeTest() {
     (true && (0, _emberDebug.assert)('Testing has not been paused. There is nothing to resume.', resume));
@@ -43949,14 +43938,10 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
    @public
   */
   function pauseTest() {
-    if (true) {
-      _emberConsole.default.info('Testing paused. Use `resumeTest()` to continue.');
-    }
+    _emberConsole.default.info('Testing paused. Use `resumeTest()` to continue.');
 
     return new _emberRuntime.RSVP.Promise(function (resolve) {
-      if (true) {
-        resume = resolve;
-      }
+      resume = resolve;
     }, 'TestAdapter paused promise');
   }
 });
@@ -47470,7 +47455,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     'use strict';
 
     exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-testing-resume-test": true, "ember-factory-for": true, "ember-routing-router-service": null, "ember-unique-location-history-state": true, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
@@ -47478,10 +47463,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     var EMBER_METAL_WEAKMAP = exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
     false;
-    true;
-    true;
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
-    true;
     true;
     true;
 });
@@ -48040,7 +48022,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-alpha.1-null+ece5069e";
+  exports.default = "2.14.0-alpha.1-null+d504a576";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

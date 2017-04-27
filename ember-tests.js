@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+ece5069e
+ * @version   2.14.0-alpha.1-null+d504a576
  */
 
 var enifed, requireModule, Ember;
@@ -46785,7 +46785,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-routing/tests/location/hash_location_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'ember-routing/location/history_location', 'ember/features'], function (_emberMetal, _history_location) {
+enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'ember-routing/location/history_location'], function (_emberMetal, _history_location) {
   'use strict';
 
   var FakeHistory = void 0,
@@ -46901,96 +46901,51 @@ enifed('ember-routing/tests/location/history_location_test', ['ember-metal', 'em
     location.initState();
   });
 
-  if (true) {
-    QUnit.test('base URL is preserved when moving around', function () {
-      expect(2);
+  QUnit.test('base URL is preserved when moving around', function () {
+    expect(2);
 
-      HistoryTestLocation.reopen({
-        init: function () {
-          this._super.apply(this, arguments);
+    HistoryTestLocation.reopen({
+      init: function () {
+        this._super.apply(this, arguments);
 
-          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-          (0, _emberMetal.set)(this, 'baseURL', '/base/');
-        }
-      });
-
-      createLocation();
-      location.initState();
-      location.setURL('/one/two');
-
-      equal(location._historyState.path, '/base/one/two');
-      ok(location._historyState.uuid);
+        (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
+        (0, _emberMetal.set)(this, 'baseURL', '/base/');
+      }
     });
 
-    QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
-      expect(2);
+    createLocation();
+    location.initState();
+    location.setURL('/one/two');
 
-      createLocation();
-      location.initState();
+    equal(location._historyState.path, '/base/one/two');
+    ok(location._historyState.uuid);
+  });
 
-      FakeHistory.pushState(null);
-      location.setURL('/three/four');
+  QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
+    expect(2);
 
-      equal(location._historyState.path, '/three/four');
-      ok(location._historyState.uuid);
-    });
+    createLocation();
+    location.initState();
 
-    QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
-      expect(2);
+    FakeHistory.pushState(null);
+    location.setURL('/three/four');
 
-      createLocation();
-      location.initState();
+    equal(location._historyState.path, '/three/four');
+    ok(location._historyState.uuid);
+  });
 
-      FakeHistory.pushState(null);
-      location.replaceURL('/three/four');
+  QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
+    expect(2);
 
-      equal(location._historyState.path, '/three/four');
-      ok(location._historyState.uuid);
-    });
-  } else {
-    QUnit.test('base URL is preserved when moving around', function () {
-      expect(1);
+    createLocation();
+    location.initState();
 
-      HistoryTestLocation.reopen({
-        init: function () {
-          this._super.apply(this, arguments);
+    FakeHistory.pushState(null);
+    location.replaceURL('/three/four');
 
-          (0, _emberMetal.set)(this, 'location', mockBrowserLocation('/base/foo/bar'));
-          (0, _emberMetal.set)(this, 'baseURL', '/base/');
-        }
-      });
-
-      createLocation();
-      location.initState();
-      location.setURL('/one/two');
-
-      equal(location._historyState.path, '/base/one/two');
-    });
-
-    QUnit.test('setURL continues to set even with a null state (iframes may set this)', function () {
-      expect(1);
-
-      createLocation();
-      location.initState();
-
-      FakeHistory.pushState(null);
-      location.setURL('/three/four');
-
-      equal(location._historyState.path, '/three/four');
-    });
-
-    QUnit.test('replaceURL continues to set even with a null state (iframes may set this)', function () {
-      expect(1);
-
-      createLocation();
-      location.initState();
-
-      FakeHistory.pushState(null);
-      location.replaceURL('/three/four');
-
-      equal(location._historyState.path, '/three/four');
-    });
-  }
+    equal(location._historyState.path, '/three/four');
+    ok(location._historyState.uuid);
+  });
 
   QUnit.test('HistoryLocation.getURL() returns the current url, excluding both rootURL and baseURL', function () {
     expect(1);
@@ -64076,7 +64031,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-testing/tests/helper_registration_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-testing/tests/helpers_test', ['ember-routing', 'ember-runtime', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/setup_for_testing', 'ember-application', 'ember-template-compiler', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters', 'ember/features', 'ember-testing/helpers', 'ember-testing/initializers'], function (_emberRouting, _emberRuntime, _emberMetal, _emberViews, _emberGlimmer, _test, _setup_for_testing, _emberApplication, _emberTemplateCompiler, _pending_requests, _adapter, _waiters) {
+enifed('ember-testing/tests/helpers_test', ['ember-routing', 'ember-runtime', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/setup_for_testing', 'ember-application', 'ember-template-compiler', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters', 'ember-testing/helpers', 'ember-testing/initializers'], function (_emberRouting, _emberRuntime, _emberMetal, _emberViews, _emberGlimmer, _test, _setup_for_testing, _emberApplication, _emberTemplateCompiler, _pending_requests, _adapter, _waiters) {
   'use strict';
 
   // ensure the initializer is setup
@@ -64854,28 +64809,26 @@ enifed('ember-testing/tests/helpers_test', ['ember-routing', 'ember-runtime', 'e
     App.testHelpers.pauseTest();
   });
 
-  if (true) {
-    QUnit.test('resumeTest resumes paused tests', function () {
-      expect(1);
+  QUnit.test('resumeTest resumes paused tests', function () {
+    expect(1);
 
-      var pausePromise = App.testHelpers.pauseTest();
-      setTimeout(function () {
-        return App.testHelpers.resumeTest();
-      }, 0);
+    var pausePromise = App.testHelpers.pauseTest();
+    setTimeout(function () {
+      return App.testHelpers.resumeTest();
+    }, 0);
 
-      return pausePromise.then(function () {
-        return ok(true, 'pauseTest promise was resolved');
-      });
+    return pausePromise.then(function () {
+      return ok(true, 'pauseTest promise was resolved');
     });
+  });
 
-    QUnit.test('resumeTest throws if nothing to resume', function () {
-      expect(1);
+  QUnit.test('resumeTest throws if nothing to resume', function () {
+    expect(1);
 
-      throws(function () {
-        return App.testHelpers.resumeTest();
-      }, /Testing has not been paused. There is nothing to resume./);
-    });
-  }
+    throws(function () {
+      return App.testHelpers.resumeTest();
+    }, /Testing has not been paused. There is nothing to resume./);
+  });
 
   QUnit.module('ember-testing routing helpers', {
     setup: function () {
