@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-alpha.1-null+5d39f76c
+ * @version   2.14.0-alpha.1-null+837d17c3
  */
 
 var enifed, requireModule, Ember;
@@ -1798,7 +1798,7 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
   });
 
   QUnit.test('can build and boot a registered engine', function (assert) {
-    assert.expect(10);
+    assert.expect(11);
 
     var ChatEngine = _engine.default.extend();
     var chatEngineInstance = void 0;
@@ -1818,7 +1818,7 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
         assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
       });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main'];
+      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main', 'service:-document'];
 
       var env = appInstance.lookup('-environment:main');
       singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
