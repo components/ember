@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.1-release+8930b15c
+ * @version   2.12.2
  */
 
 var enifed, requireModule, Ember;
@@ -766,8 +766,9 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
   });
 
   QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
+    var owner = {};
     var registry = new _containerIndex.Registry();
-    var container = registry.container();
+    var container = owner.__container__ = registry.container({ owner: owner });
     var PostController = _internalTestHelpers.factory();
     registry.register('controller:post', PostController);
     var postController = container.lookup('controller:post');
@@ -6850,11 +6851,11 @@ enifed('ember-debug/warn.lint-test', ['exports'], function (exports) {
   });
 });
 enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperUtils) {
-  /* globals QUnit */
-
   'use strict';
 
   exports.default = AssertionAssert;
+
+  /* globals QUnit */
 
   var BREAK = {};
 
@@ -6875,19 +6876,18 @@ enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/uti
     In particular, this prevents `Ember.assert` from throw errors that would
     disrupt the control flow.
   */
-
   function AssertionAssert(env) {
     this.env = env;
   }
 
   AssertionAssert.prototype = {
-    reset: function () {},
-    assert: function () {},
+    reset: function reset() {},
+    assert: function assert() {},
 
-    inject: function () {
+    inject: function inject() {
       var _this = this;
 
-      var expectAssertion = function (func, expectedMessage) {
+      var expectAssertion = function expectAssertion(func, expectedMessage) {
         if (_this.env.runningProdBuild) {
           QUnit.ok(true, 'Assertions disabled in production builds.');
           return;
@@ -6916,7 +6916,7 @@ enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/uti
         assert(sawCall, actualMessage, expectedMessage);
       };
 
-      var ignoreAssertion = function (func) {
+      var ignoreAssertion = function ignoreAssertion(func) {
         _emberDevTestHelperUtils.callWithStub(_this.env, 'assert', func);
       };
 
@@ -6924,7 +6924,7 @@ enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/uti
       window.ignoreAssertion = ignoreAssertion;
     },
 
-    restore: function () {
+    restore: function restore() {
       window.expectAssertion = null;
       window.ignoreAssertion = null;
     }
@@ -6953,63 +6953,86 @@ enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/uti
 enifed('ember-dev/test-helper/debug', ['exports', 'ember-dev/test-helper/method-call-tracker'], function (exports, _emberDevTestHelperMethodCallTracker) {
   'use strict';
 
+  var _createClass = (function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+  })();
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError('Cannot call a class as a function');
+    }
+  }
+
   var DebugAssert = (function () {
     function DebugAssert(methodName, env) {
-      babelHelpers.classCallCheck(this, DebugAssert);
+      _classCallCheck(this, DebugAssert);
 
       this.methodName = methodName;
       this.env = env;
     }
 
-    DebugAssert.prototype.inject = function inject() {};
-
-    DebugAssert.prototype.restore = function restore() {
-      this.reset();
-    };
-
-    DebugAssert.prototype.reset = function reset() {
-      if (this.tracker) {
-        this.tracker.restoreMethod();
+    _createClass(DebugAssert, [{
+      key: 'inject',
+      value: function inject() {}
+    }, {
+      key: 'restore',
+      value: function restore() {
+        this.reset();
       }
+    }, {
+      key: 'reset',
+      value: function reset() {
+        if (this.tracker) {
+          this.tracker.restoreMethod();
+        }
 
-      this.tracker = null;
-    };
-
-    DebugAssert.prototype.assert = function assert() {
-      if (this.tracker) {
-        this.tracker.assert();
-      }
-    };
-
-    // Run an expectation callback within the context of a new tracker, optionally
-    // accepting a function to run, which asserts immediately
-
-    DebugAssert.prototype.runExpectation = function runExpectation(func, callback) {
-      var originalTracker = undefined;
-
-      // When helpers are passed a callback, they get a new tracker context
-      if (func) {
-        originalTracker = this.tracker;
         this.tracker = null;
       }
-
-      if (!this.tracker) {
-        this.tracker = new _emberDevTestHelperMethodCallTracker.default(this.env, this.methodName);
+    }, {
+      key: 'assert',
+      value: function assert() {
+        if (this.tracker) {
+          this.tracker.assert();
+        }
       }
 
-      // Yield to caller with tracker instance
-      callback(this.tracker);
+      // Run an expectation callback within the context of a new tracker, optionally
+      // accepting a function to run, which asserts immediately
+    }, {
+      key: 'runExpectation',
+      value: function runExpectation(func, callback) {
+        var originalTracker = undefined;
 
-      // Once the given callback is invoked, the pending assertions should be
-      // flushed immediately
-      if (func) {
-        func();
-        this.assert();
-        this.reset();
+        // When helpers are passed a callback, they get a new tracker context
+        if (func) {
+          originalTracker = this.tracker;
+          this.tracker = null;
+        }
 
-        this.tracker = originalTracker;
+        if (!this.tracker) {
+          this.tracker = new _emberDevTestHelperMethodCallTracker.default(this.env, this.methodName);
+        }
+
+        // Yield to caller with tracker instance
+        callback(this.tracker);
+
+        // Once the given callback is invoked, the pending assertions should be
+        // flushed immediately
+        if (func) {
+          func();
+          this.assert();
+          this.reset();
+
+          this.tracker = originalTracker;
+        }
       }
-    };
+    }]);
 
     return DebugAssert;
   })();
@@ -7019,84 +7042,130 @@ enifed('ember-dev/test-helper/debug', ['exports', 'ember-dev/test-helper/method-
 enifed('ember-dev/test-helper/deprecation', ['exports', 'ember-dev/test-helper/debug', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperDebug, _emberDevTestHelperUtils) {
   'use strict';
 
+  var _createClass = (function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+  })();
+
+  var _get = function get(_x, _x2, _x3) {
+    var _again = true;_function: while (_again) {
+      var object = _x,
+          property = _x2,
+          receiver = _x3;_again = false;if (object === null) object = Function.prototype;var desc = Object.getOwnPropertyDescriptor(object, property);if (desc === undefined) {
+        var parent = Object.getPrototypeOf(object);if (parent === null) {
+          return undefined;
+        } else {
+          _x = parent;_x2 = property;_x3 = receiver;_again = true;desc = parent = undefined;continue _function;
+        }
+      } else if ('value' in desc) {
+        return desc.value;
+      } else {
+        var getter = desc.get;if (getter === undefined) {
+          return undefined;
+        }return getter.call(receiver);
+      }
+    }
+  };
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError('Cannot call a class as a function');
+    }
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== 'function' && superClass !== null) {
+      throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : babelHelpers.defaults(subClass, superClass);
+  }
+
   var DeprecationAssert = (function (_DebugAssert) {
-    babelHelpers.inherits(DeprecationAssert, _DebugAssert);
+    _inherits(DeprecationAssert, _DebugAssert);
 
     function DeprecationAssert(env) {
-      babelHelpers.classCallCheck(this, DeprecationAssert);
+      _classCallCheck(this, DeprecationAssert);
 
-      _DebugAssert.call(this, 'deprecate', env);
+      _get(Object.getPrototypeOf(DeprecationAssert.prototype), 'constructor', this).call(this, 'deprecate', env);
     }
 
-    DeprecationAssert.prototype.inject = function inject() {
-      var _this = this;
+    _createClass(DeprecationAssert, [{
+      key: 'inject',
+      value: function inject() {
+        var _this = this;
 
-      // Expects no deprecation to happen within a function, or if no function is
-      // passed, from the time of calling until the end of the test.
-      //
-      // expectNoDeprecation(function() {
-      //   fancyNewThing();
-      // });
-      //
-      // expectNoDeprecation();
-      // Ember.deprecate("Old And Busted");
-      //
-      var expectNoDeprecation = function (func) {
-        if (typeof func !== 'function') {
-          func = null;
-        }
-
-        _this.runExpectation(func, function (tracker) {
-          if (tracker.isExpectingCalls()) {
-            throw new Error("expectNoDeprecation was called after expectDeprecation was called!");
+        // Expects no deprecation to happen within a function, or if no function is
+        // passed, from the time of calling until the end of the test.
+        //
+        // expectNoDeprecation(function() {
+        //   fancyNewThing();
+        // });
+        //
+        // expectNoDeprecation();
+        // Ember.deprecate("Old And Busted");
+        //
+        var expectNoDeprecation = function expectNoDeprecation(func) {
+          if (typeof func !== 'function') {
+            func = null;
           }
 
-          tracker.expectNoCalls();
-        });
-      };
+          _this.runExpectation(func, function (tracker) {
+            if (tracker.isExpectingCalls()) {
+              throw new Error("expectNoDeprecation was called after expectDeprecation was called!");
+            }
 
-      // Expect a deprecation to happen within a function, or if no function
-      // is pass, from the time of calling until the end of the test. Can be called
-      // multiple times to assert deprecations with different specific messages
-      // were fired.
-      //
-      // expectDeprecation(function() {
-      //   Ember.deprecate("Old And Busted");
-      // }, /* optionalStringOrRegex */);
-      //
-      // expectDeprecation(/* optionalStringOrRegex */);
-      // Ember.deprecate("Old And Busted");
-      //
-      var expectDeprecation = function (func, message) {
-        if (typeof func !== 'function') {
-          message = func;
-          func = null;
-        }
+            tracker.expectNoCalls();
+          });
+        };
 
-        _this.runExpectation(func, function (tracker) {
-          if (tracker.isExpectingNoCalls()) {
-            throw new Error("expectDeprecation was called after expectNoDeprecation was called!");
+        // Expect a deprecation to happen within a function, or if no function
+        // is pass, from the time of calling until the end of the test. Can be called
+        // multiple times to assert deprecations with different specific messages
+        // were fired.
+        //
+        // expectDeprecation(function() {
+        //   Ember.deprecate("Old And Busted");
+        // }, /* optionalStringOrRegex */);
+        //
+        // expectDeprecation(/* optionalStringOrRegex */);
+        // Ember.deprecate("Old And Busted");
+        //
+        var expectDeprecation = function expectDeprecation(func, message) {
+          if (typeof func !== 'function') {
+            message = func;
+            func = null;
           }
 
-          tracker.expectCall(message);
-        });
-      };
+          _this.runExpectation(func, function (tracker) {
+            if (tracker.isExpectingNoCalls()) {
+              throw new Error("expectDeprecation was called after expectNoDeprecation was called!");
+            }
 
-      var ignoreDeprecation = function (func) {
-        _emberDevTestHelperUtils.callWithStub(_this.env, 'deprecate', func);
-      };
+            tracker.expectCall(message);
+          });
+        };
 
-      window.expectNoDeprecation = expectNoDeprecation;
-      window.expectDeprecation = expectDeprecation;
-      window.ignoreDeprecation = ignoreDeprecation;
-    };
+        var ignoreDeprecation = function ignoreDeprecation(func) {
+          _emberDevTestHelperUtils.callWithStub(_this.env, 'deprecate', func);
+        };
 
-    DeprecationAssert.prototype.restore = function restore() {
-      _DebugAssert.prototype.restore.call(this);
-      window.expectDeprecation = null;
-      window.expectNoDeprecation = null;
-      window.ignoreDeprecation = null;
-    };
+        window.expectNoDeprecation = expectNoDeprecation;
+        window.expectDeprecation = expectDeprecation;
+        window.ignoreDeprecation = ignoreDeprecation;
+      }
+    }, {
+      key: 'restore',
+      value: function restore() {
+        _get(Object.getPrototypeOf(DeprecationAssert.prototype), 'restore', this).call(this);
+        window.expectDeprecation = null;
+        window.expectNoDeprecation = null;
+        window.ignoreDeprecation = null;
+      }
+    }]);
 
     return DeprecationAssert;
   })(_emberDevTestHelperDebug.default);
@@ -7115,7 +7184,7 @@ enifed('ember-dev/test-helper/method-call-tracker', ['exports', 'ember-dev/test-
 
   'use strict';
 
-  var MethodCallTracker = function (env, methodName) {
+  var MethodCallTracker = function MethodCallTracker(env, methodName) {
     this._env = env;
     this._methodName = methodName;
     this._isExpectingNoCalls = false;
@@ -7124,7 +7193,7 @@ enifed('ember-dev/test-helper/method-call-tracker', ['exports', 'ember-dev/test-
   };
 
   MethodCallTracker.prototype = {
-    stubMethod: function () {
+    stubMethod: function stubMethod() {
       var _this = this;
 
       if (this._originalMethod) {
@@ -7144,31 +7213,31 @@ enifed('ember-dev/test-helper/method-call-tracker', ['exports', 'ember-dev/test-
       });
     },
 
-    restoreMethod: function () {
+    restoreMethod: function restoreMethod() {
       if (this._originalMethod) {
         this._env.setDebugFunction(this._methodName, this._originalMethod);
       }
     },
 
-    expectCall: function (message) {
+    expectCall: function expectCall(message) {
       this.stubMethod();
       this._expecteds.push(message || /.*/);
     },
 
-    expectNoCalls: function () {
+    expectNoCalls: function expectNoCalls() {
       this.stubMethod();
       this._isExpectingNoCalls = true;
     },
 
-    isExpectingNoCalls: function () {
+    isExpectingNoCalls: function isExpectingNoCalls() {
       return this._isExpectingNoCalls;
     },
 
-    isExpectingCalls: function () {
+    isExpectingCalls: function isExpectingCalls() {
       return !this._isExpectingNoCalls && this._expecteds.length;
     },
 
-    assert: function () {
+    assert: function assert() {
       var env = this._env;
       var methodName = this._methodName;
       var isExpectingNoCalls = this._isExpectingNoCalls;
@@ -7242,14 +7311,14 @@ enifed("ember-dev/test-helper/remaining-template", ["exports"], function (export
 
   "use strict";
 
-  var RemainingTemplateAssert = function (env) {
+  var RemainingTemplateAssert = function RemainingTemplateAssert(env) {
     this.env = env;
   };
 
   RemainingTemplateAssert.prototype = {
-    reset: function () {},
-    inject: function () {},
-    assert: function () {
+    reset: function reset() {},
+    inject: function inject() {},
+    assert: function assert() {
       if (this.env.Ember && this.env.Ember.TEMPLATES) {
         var templateNames = [],
             name;
@@ -7265,7 +7334,7 @@ enifed("ember-dev/test-helper/remaining-template", ["exports"], function (export
         }
       }
     },
-    restore: function () {}
+    restore: function restore() {}
   };
 
   exports.default = RemainingTemplateAssert;
@@ -7275,14 +7344,14 @@ enifed("ember-dev/test-helper/remaining-view", ["exports"], function (exports) {
 
   "use strict";
 
-  var RemainingViewAssert = function (env) {
+  var RemainingViewAssert = function RemainingViewAssert(env) {
     this.env = env;
   };
 
   RemainingViewAssert.prototype = {
-    reset: function () {},
-    inject: function () {},
-    assert: function () {
+    reset: function reset() {},
+    inject: function inject() {},
+    assert: function assert() {
       if (this.env.Ember && this.env.Ember.View) {
         var viewIds = [],
             id;
@@ -7298,7 +7367,7 @@ enifed("ember-dev/test-helper/remaining-view", ["exports"], function (exports) {
         }
       }
     },
-    restore: function () {}
+    restore: function restore() {}
   };
 
   exports.default = RemainingViewAssert;
@@ -7313,9 +7382,9 @@ enifed("ember-dev/test-helper/run-loop", ["exports"], function (exports) {
   }
 
   RunLoopAssertion.prototype = {
-    reset: function () {},
-    inject: function () {},
-    assert: function () {
+    reset: function reset() {},
+    inject: function inject() {},
+    assert: function assert() {
       var run = this.env.Ember.run;
 
       if (run.currentRunLoop) {
@@ -7330,18 +7399,17 @@ enifed("ember-dev/test-helper/run-loop", ["exports"], function (exports) {
         run.cancelTimers();
       }
     },
-    restore: function () {}
+    restore: function restore() {}
   };
 
   exports.default = RunLoopAssertion;
 });
 enifed("ember-dev/test-helper/setup-qunit", ["exports"], function (exports) {
-  /* globals QUnit */
-
   "use strict";
 
   exports.default = setupQUnit;
 
+  /* globals QUnit */
   function setupQUnit(assertion, _qunitGlobal) {
     var qunitGlobal = QUnit;
 
@@ -7380,6 +7448,7 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
   exports.buildCompositeAssert = buildCompositeAssert;
   exports.callWithStub = callWithStub;
   exports.checkTest = checkTest;
+
   function callForEach(prop, func) {
     return function () {
       for (var i = 0, l = this[prop].length; i < l; i++) {
@@ -7426,84 +7495,130 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
 enifed('ember-dev/test-helper/warning', ['exports', 'ember-dev/test-helper/debug', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperDebug, _emberDevTestHelperUtils) {
   'use strict';
 
+  var _createClass = (function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+  })();
+
+  var _get = function get(_x, _x2, _x3) {
+    var _again = true;_function: while (_again) {
+      var object = _x,
+          property = _x2,
+          receiver = _x3;_again = false;if (object === null) object = Function.prototype;var desc = Object.getOwnPropertyDescriptor(object, property);if (desc === undefined) {
+        var parent = Object.getPrototypeOf(object);if (parent === null) {
+          return undefined;
+        } else {
+          _x = parent;_x2 = property;_x3 = receiver;_again = true;desc = parent = undefined;continue _function;
+        }
+      } else if ('value' in desc) {
+        return desc.value;
+      } else {
+        var getter = desc.get;if (getter === undefined) {
+          return undefined;
+        }return getter.call(receiver);
+      }
+    }
+  };
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError('Cannot call a class as a function');
+    }
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== 'function' && superClass !== null) {
+      throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);
+    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : babelHelpers.defaults(subClass, superClass);
+  }
+
   var WarningAssert = (function (_DebugAssert) {
-    babelHelpers.inherits(WarningAssert, _DebugAssert);
+    _inherits(WarningAssert, _DebugAssert);
 
     function WarningAssert(env) {
-      babelHelpers.classCallCheck(this, WarningAssert);
+      _classCallCheck(this, WarningAssert);
 
-      _DebugAssert.call(this, 'warn', env);
+      _get(Object.getPrototypeOf(WarningAssert.prototype), 'constructor', this).call(this, 'warn', env);
     }
 
-    WarningAssert.prototype.inject = function inject() {
-      var _this = this;
+    _createClass(WarningAssert, [{
+      key: 'inject',
+      value: function inject() {
+        var _this = this;
 
-      // Expects no warning to happen within a function, or if no function is
-      // passed, from the time of calling until the end of the test.
-      //
-      // expectNoWarning(function() {
-      //   fancyNewThing();
-      // });
-      //
-      // expectNoWarning();
-      // Ember.warn("Oh snap, didn't expect that");
-      //
-      var expectNoWarning = function (func) {
-        if (typeof func !== 'function') {
-          func = null;
-        }
-
-        _this.runExpectation(func, function (tracker) {
-          if (tracker.isExpectingCalls()) {
-            throw new Error("expectNoWarning was called after expectWarning was called!");
+        // Expects no warning to happen within a function, or if no function is
+        // passed, from the time of calling until the end of the test.
+        //
+        // expectNoWarning(function() {
+        //   fancyNewThing();
+        // });
+        //
+        // expectNoWarning();
+        // Ember.warn("Oh snap, didn't expect that");
+        //
+        var expectNoWarning = function expectNoWarning(func) {
+          if (typeof func !== 'function') {
+            func = null;
           }
 
-          tracker.expectNoCalls();
-        });
-      };
+          _this.runExpectation(func, function (tracker) {
+            if (tracker.isExpectingCalls()) {
+              throw new Error("expectNoWarning was called after expectWarning was called!");
+            }
 
-      // Expect a warning to happen within a function, or if no function is
-      // passed, from the time of calling until the end of the test. Can be called
-      // multiple times to assert warnings with different specific messages
-      // happened.
-      //
-      // expectWarning(function() {
-      //   Ember.warn("Times they are a-changin'");
-      // }, /* optionalStringOrRegex */);
-      //
-      // expectWarning(/* optionalStringOrRegex */);
-      // Ember.warn("Times definitely be changin'");
-      //
-      var expectWarning = function (fn, message) {
-        if (typeof fn !== 'function') {
-          message = fn;
-          fn = null;
-        }
+            tracker.expectNoCalls();
+          });
+        };
 
-        _this.runExpectation(fn, function (tracker) {
-          if (tracker.isExpectingNoCalls()) {
-            throw new Error("expectWarning was called after expectNoWarning was called!");
+        // Expect a warning to happen within a function, or if no function is
+        // passed, from the time of calling until the end of the test. Can be called
+        // multiple times to assert warnings with different specific messages
+        // happened.
+        //
+        // expectWarning(function() {
+        //   Ember.warn("Times they are a-changin'");
+        // }, /* optionalStringOrRegex */);
+        //
+        // expectWarning(/* optionalStringOrRegex */);
+        // Ember.warn("Times definitely be changin'");
+        //
+        var expectWarning = function expectWarning(fn, message) {
+          if (typeof fn !== 'function') {
+            message = fn;
+            fn = null;
           }
 
-          tracker.expectCall(message);
-        });
-      };
+          _this.runExpectation(fn, function (tracker) {
+            if (tracker.isExpectingNoCalls()) {
+              throw new Error("expectWarning was called after expectNoWarning was called!");
+            }
 
-      var ignoreWarning = function (func) {
-        _emberDevTestHelperUtils.callWithStub(_this.env, 'warn', func);
-      };
+            tracker.expectCall(message);
+          });
+        };
 
-      window.expectNoWarning = expectNoWarning;
-      window.expectWarning = expectWarning;
-      window.ignoreWarning = ignoreWarning;
-    };
+        var ignoreWarning = function ignoreWarning(func) {
+          _emberDevTestHelperUtils.callWithStub(_this.env, 'warn', func);
+        };
 
-    WarningAssert.prototype.restore = function restore() {
-      _DebugAssert.prototype.restore.call(this);
-      window.expectWarning = null;
-      window.expectNoWarning = null;
-      window.ignoreWarning = null;
-    };
+        window.expectNoWarning = expectNoWarning;
+        window.expectWarning = expectWarning;
+        window.ignoreWarning = ignoreWarning;
+      }
+    }, {
+      key: 'restore',
+      value: function restore() {
+        _get(Object.getPrototypeOf(WarningAssert.prototype), 'restore', this).call(this);
+        window.expectWarning = null;
+        window.expectNoWarning = null;
+        window.ignoreWarning = null;
+      }
+    }]);
 
     return WarningAssert;
   })(_emberDevTestHelperDebug.default);

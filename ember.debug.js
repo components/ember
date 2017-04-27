@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.12.1-release+8930b15c
+ * @version   2.12.2
  */
 
 var enifed, requireModule, Ember;
@@ -1744,27 +1744,29 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     return factoryInjections;
   }
 
+  var INJECTED_DEPRECATED_CONTAINER_DESC = {
+    configurable: true,
+    enumerable: false,
+    get: function () {
+      _emberMetal.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+      return this[CONTAINER_OVERRIDE] || _emberUtils.getOwner(this).__container__;
+    },
+
+    set: function (value) {
+      _emberMetal.deprecate('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+
+      this[CONTAINER_OVERRIDE] = value;
+
+      return value;
+    }
+  };
+
   // TODO - remove when Ember reaches v3.0.0
   function injectDeprecatedContainer(object, container) {
     if ('container' in object) {
       return;
     }
-    Object.defineProperty(object, 'container', {
-      configurable: true,
-      enumerable: false,
-      get: function () {
-        _emberMetal.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
-        return this[CONTAINER_OVERRIDE] || container;
-      },
-
-      set: function (value) {
-        _emberMetal.deprecate('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
-
-        this[CONTAINER_OVERRIDE] = value;
-
-        return value;
-      }
-    });
+    Object.defineProperty(object, 'container', INJECTED_DEPRECATED_CONTAINER_DESC);
   }
 
   function eachDestroyable(container, callback) {
@@ -1823,7 +1825,7 @@ enifed('container/container', ['exports', 'ember-utils', 'ember-environment', 'e
     return function () {
       _emberMetal.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
         id: 'ember-application.injected-container',
-        until: '3.0.0',
+        until: '2.13.0',
         url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
       });
       return container[containerProperty].apply(container, arguments);
@@ -3491,7 +3493,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
         lookup: function () {
           _emberMetal.deprecate('Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead.', false, {
             id: 'ember-application.app-instance-container',
-            until: '3.0.0',
+            until: '2.13.0',
             url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-applicationinstance-container'
           });
           return instance.lookup.apply(instance, arguments);
@@ -17970,7 +17972,7 @@ enifed('ember-metal/error_handler', ['exports', 'ember-console', 'ember-metal/te
     var stack = error.stack;
     var message = error.message;
 
-    if (stack && !stack.includes(message)) {
+    if (stack && stack.indexOf(message) === -1) {
       stack = message + '\n' + stack;
     }
 
@@ -43578,7 +43580,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.12.1-release+8930b15c";
+  exports.default = "2.12.2";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
