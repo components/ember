@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a75a4834
+ * @version   2.15.0-alpha.1-null+2b32d2be
  */
 
 var enifed, requireModule, Ember;
@@ -1711,11 +1711,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         pointer = pointer.parent;
       }
       return Object.keys(names);
-    },
-    _initializeListeners: function () {
-      this._listeners = undefined;
-      this._listenersFinalized = undefined;
-      this._suspendedListeners = undefined;
     }
   };
 
@@ -3468,7 +3463,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         }
       }
 
-      this._initializeListeners();
+      this._listeners = undefined;
+      this._listenersFinalized = undefined;
+      this._suspendedListeners = undefined;
     }
 
     Meta.prototype.isInitialized = function isInitialized(obj) {
