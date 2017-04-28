@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+33b789f5
+ * @version   2.15.0-alpha.1-null+b8a1015e
  */
 
 var enifed, requireModule, Ember;
@@ -31376,12 +31376,12 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var hasRouterDefinedQueryParams = !!Object.keys(queryParameterConfiguraton).length;
 
       if (controller) {
-        // the developer has authored a controller class in their application for this route
-        // access the prototype, find its query params and normalize their object shape
-        // them merge in the query params for the route. As a mergedProperty, Route#queryParams is always
-        // at least `{}`
+        // the developer has authored a controller class in their application for
+        // this route find its query params and normalize their object shape them
+        // merge in the query params for the route. As a mergedProperty,
+        // Route#queryParams is always at least `{}`
 
-        var controllerDefinedQueryParameterConfiguration = (0, _emberMetal.get)(controller, 'queryParams');
+        var controllerDefinedQueryParameterConfiguration = (0, _emberMetal.get)(controller, 'queryParams') || {};
         var normalizedControllerQueryParameterConfiguration = (0, _utils.normalizeControllerQueryParams)(controllerDefinedQueryParameterConfiguration);
         combinedQueryParameterConfiguration = mergeEachQueryParams(normalizedControllerQueryParameterConfiguration, queryParameterConfiguraton);
       } else if (hasRouterDefinedQueryParams) {
@@ -32053,7 +32053,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
       if (transition) {
         var qpValues = getQueryParamsFor(this, transition.state);
-        controller.setProperties(qpValues);
+        (0, _emberMetal.setProperties)(controller, qpValues);
       }
 
       this.setupController(controller, context, transition);
@@ -48027,7 +48027,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+33b789f5";
+  exports.default = "2.15.0-alpha.1-null+b8a1015e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

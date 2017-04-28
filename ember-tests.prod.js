@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+33b789f5
+ * @version   2.15.0-alpha.1-null+b8a1015e
  */
 
 var enifed, requireModule, Ember;
@@ -45577,6 +45577,17 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
       (0, _internalTestHelpers.runDestroy)(routeOne);
       (0, _internalTestHelpers.runDestroy)(routeTwo);
     }
+  });
+
+  QUnit.test('route._qp does not crash if the controller has no QP, or setProperties', function () {
+    lookupHash['controller:test'] = {};
+
+    routeOne.controllerName = 'test';
+    var qp = routeOne.get('_qp');
+
+    deepEqual(qp.map, {}, 'map should be empty');
+    deepEqual(qp.propertyNames, [], 'property names should be empty');
+    deepEqual(qp.qps, [], 'qps is should be empty');
   });
 
   QUnit.test('controllerFor uses route\'s controllerName if specified', function () {
