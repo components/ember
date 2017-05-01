@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a66b67c1
+ * @version   2.15.0-alpha.1-null+85cd2208
  */
 
 var enifed, requireModule, Ember;
@@ -9707,7 +9707,7 @@ enifed('backburner', ['exports'], function (exports) {
 
     exports.default = Backburner;
 });
-enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberUtils, _emberDebug, _emberEnvironment) {
+enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberUtils, _emberDebug) {
   'use strict';
 
   exports.Container = exports.privatize = exports.Registry = undefined;
@@ -9732,7 +9732,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     this.registry = registry;
     this.owner = options && options.owner ? options.owner : null;
     this.cache = (0, _emberUtils.dictionary)(options && options.cache ? options.cache : null);
-    this.factoryCache = (0, _emberUtils.dictionary)(options && options.factoryCache ? options.factoryCache : null);
     this.factoryManagerCache = (0, _emberUtils.dictionary)(options && options.factoryManagerCache ? options.factoryManagerCache : null);
     this.validationCache = (0, _emberUtils.dictionary)(options && options.validationCache ? options.validationCache : null);
     this[CONTAINER_OVERRIDE] = undefined;
@@ -9744,12 +9743,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       false && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
 
       return lookup(this, this.registry.normalize(fullName), options);
-    },
-    lookupFactory: function (fullName, options) {
-      false && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
-      false && !false && (0, _emberDebug.deprecate)('Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.', false, { id: 'container-lookupFactory', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x/#toc_migrating-from-_lookupfactory-to-factoryfor' });
-
-      return deprecatedFactoryFor(this, this.registry.normalize(fullName), options);
     },
     destroy: function () {
       destroyDestroyables(this);
@@ -9935,69 +9928,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     return hash;
   }
 
-  function deprecatedFactoryFor(container, fullName) {
-    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-        injections,
-        factoryInjections,
-        cacheable,
-        injectedFactory;
-
-    var registry = container.registry;
-
-    if (options.source) {
-      fullName = registry.expandLocalLookup(fullName, options);
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!fullName) {
-        return;
-      }
-    }
-
-    var cache = container.factoryCache;
-    if (cache[fullName]) {
-      return cache[fullName];
-    }
-    var factory = registry.resolve(fullName);
-    if (factory === undefined) {
-      return;
-    }
-
-    var type = fullName.split(':')[0];
-    if (!factory || typeof factory.extend !== 'function' || !_emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS && type === 'model') {
-      if (factory && typeof factory._onLookup === 'function') {
-        factory._onLookup(fullName);
-      }
-
-      // TODO: think about a 'safe' merge style extension
-      // for now just fallback to create time injection
-      cache[fullName] = factory;
-      return factory;
-    } else {
-      injections = injectionsFor(container, fullName);
-      factoryInjections = factoryInjectionsFor(container, fullName);
-      cacheable = !areInjectionsDynamic(injections) && !areInjectionsDynamic(factoryInjections);
-
-
-      factoryInjections[_emberUtils.NAME_KEY] = registry.makeToString(factory, fullName);
-      injections._debugContainerKey = fullName;
-      (0, _emberUtils.setOwner)(injections, container.owner);
-
-      injectedFactory = factory.extend(injections);
-
-
-      injectedFactory.reopenClass(factoryInjections);
-
-      if (factory && typeof factory._onLookup === 'function') {
-        factory._onLookup(fullName);
-      }
-
-      if (cacheable) {
-        cache[fullName] = injectedFactory;
-      }
-
-      return injectedFactory;
-    }
-  }
-
   function injectionsFor(container, fullName) {
     var registry = container.registry;
     var splitName = fullName.split(':');
@@ -10006,17 +9936,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
 
     return injections;
-  }
-
-  function factoryInjectionsFor(container, fullName) {
-    var registry = container.registry;
-    var splitName = fullName.split(':');
-    var type = splitName[0];
-
-    var factoryInjections = buildInjections(container, registry.getFactoryTypeInjections(type), registry.getFactoryInjections(fullName));
-    factoryInjections._debugContainerKey = fullName;
-
-    return factoryInjections;
   }
 
   function destroyDestroyables(container) {
@@ -10045,7 +9964,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
   function resetMember(container, fullName) {
     var member = container.cache[fullName];
 
-    delete container.factoryCache[fullName];
+    delete container.factoryManagerCache[fullName];
 
     if (member) {
       delete container.cache[fullName];
@@ -10143,8 +10062,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
     this._typeInjections = (0, _emberUtils.dictionary)(null);
     this._injections = (0, _emberUtils.dictionary)(null);
-    this._factoryTypeInjections = (0, _emberUtils.dictionary)(null);
-    this._factoryInjections = (0, _emberUtils.dictionary)(null);
 
     this._localLookupCache = Object.create(null);
     this._normalizeCache = (0, _emberUtils.dictionary)(null);
@@ -10192,20 +10109,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
      @type InheritingDict
      */
     _injections: null,
-
-    /**
-     @private
-      @property _factoryTypeInjections
-     @type InheritingDict
-     */
-    _factoryTypeInjections: null,
-
-    /**
-     @private
-      @property _factoryInjections
-     @type InheritingDict
-     */
-    _factoryInjections: null,
 
     /**
      @private
@@ -10393,31 +10296,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
         fullName: normalizedInjectionName
       });
     },
-    factoryTypeInjection: function (type, property, fullName) {
-      var injections = this._factoryTypeInjections[type] || (this._factoryTypeInjections[type] = []);
-
-      injections.push({
-        property: property,
-        fullName: this.normalize(fullName)
-      });
-    },
-    factoryInjection: function (fullName, property, injectionName) {
-      var normalizedName = this.normalize(fullName);
-      var normalizedInjectionName = this.normalize(injectionName);
-
-      this.validateFullName(injectionName);
-
-      if (fullName.indexOf(':') === -1) {
-        return this.factoryTypeInjection(normalizedName, property, normalizedInjectionName);
-      }
-
-      var injections = this._factoryInjections[normalizedName] || (this._factoryInjections[normalizedName] = []);
-
-      injections.push({
-        property: property,
-        fullName: normalizedInjectionName
-      });
-    },
     knownForType: function (type) {
       var fallbackKnown = void 0,
           resolverKnown = void 0,
@@ -10498,20 +10376,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       var injections = this._typeInjections[type] || [];
       if (this.fallback) {
         injections = injections.concat(this.fallback.getTypeInjections(type));
-      }
-      return injections;
-    },
-    getFactoryInjections: function (fullName) {
-      var injections = this._factoryInjections[fullName] || [];
-      if (this.fallback) {
-        injections = injections.concat(this.fallback.getFactoryInjections(fullName));
-      }
-      return injections;
-    },
-    getFactoryTypeInjections: function (type) {
-      var injections = this._factoryTypeInjections[type] || [];
-      if (this.fallback) {
-        injections = injections.concat(this.fallback.getFactoryTypeInjections(type));
       }
       return injections;
     }
@@ -40604,9 +40468,6 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
         var factory = meta.factory;
 
         return factory && factory.fullName;
-      },
-      set: function (value) {
-        this[OVERRIDE_CONTAINER_KEY] = value;
       }
     })
 
@@ -44272,7 +44133,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+a66b67c1";
+  exports.default = "2.15.0-alpha.1-null+85cd2208";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

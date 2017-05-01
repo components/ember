@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a66b67c1
+ * @version   2.15.0-alpha.1-null+85cd2208
  */
 
 var enifed, requireModule, Ember;
@@ -162,15 +162,6 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     }
   });
 
-  function lookupFactory(name, container, options) {
-    var factory = void 0;
-    expectDeprecation(function () {
-      factory = container.lookupFactory(name, options);
-    }, 'Using "_lookupFactory" is deprecated. Please use container.factoryFor instead.');
-
-    return factory;
-  }
-
   QUnit.test('A registered factory returns the same instance each time', function () {
     var registry = new _container.Registry();
     var container = registry.container();
@@ -183,42 +174,6 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     ok(postController instanceof PostController, 'The lookup is an instance of the factory');
 
     equal(postController, container.lookup('controller:post'));
-  });
-
-  QUnit.test('A registered factory is returned from lookupFactory', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    var PostControllerFactory = lookupFactory('controller:post', container);
-
-    ok(PostControllerFactory, 'factory is returned');
-    ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
-  });
-
-  QUnit.test('A registered factory is returned from lookupFactory is the same factory each time', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    var Post1 = lookupFactory('controller:post', container);
-    var Post2 = lookupFactory('controller:post', container);
-
-    deepEqual(Post1, Post2, 'The return of lookupFactory is always the same');
-  });
-
-  QUnit.test('A factory returned from lookupFactory has a debugkey', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-    var PostFactory = lookupFactory('controller:post', container);
-    equal(PostFactory._debugContainerKey, 'controller:post', 'factory instance receives _debugContainerKey');
   });
 
   QUnit.test('uses create time injections if factory has no extend', function () {
@@ -236,20 +191,6 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     var postController = container.lookup('controller:post');
 
     ok(postController.apple instanceof AppleController, 'instance receives an apple of instance AppleController');
-  });
-
-  QUnit.test('The descendants of a factory returned from lookupFactory have a container and debugkey', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var instance = void 0;
-
-    registry.register('controller:post', PostController);
-    instance = lookupFactory('controller:post', container).create();
-
-    equal(instance._debugContainerKey, 'controller:post', 'factory instance receives _debugContainerKey');
-
-    ok(instance instanceof PostController, 'factory instance is instance of factory');
   });
 
   QUnit.test('A registered factory returns a fresh instance if singleton: false is passed as an option', function () {
@@ -329,28 +270,6 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
 
     equal(postController.store, store);
     equal(postController.router, router);
-  });
-
-  QUnit.test('A factory with both type and individual factoryInjections', function () {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-    var Store = (0, _internalTestHelpers.factory)();
-    var Router = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-    registry.register('store:main', Store);
-    registry.register('router:main', Router);
-
-    registry.factoryInjection('controller:post', 'store', 'store:main');
-    registry.factoryTypeInjection('controller', 'router', 'router:main');
-
-    var PostControllerFactory = lookupFactory('controller:post', container);
-    var store = container.lookup('store:main');
-    var router = container.lookup('router:main');
-
-    equal(PostControllerFactory.store, store, 'PostControllerFactory has the instance of store');
-    equal(PostControllerFactory.router, router, 'PostControllerFactory has the route instance');
   });
 
   QUnit.test('A non-singleton instance is never cached', function () {
@@ -507,9 +426,10 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     };
 
     registry.register('controller:post', PostController);
-    var fact = lookupFactory('controller:normalized', container);
+    var fact = container.factoryFor('controller:normalized');
 
-    equal(fact.toString() === PostController.extend().toString(), true, 'Normalizes the name when looking factory up');
+    var factInstance = fact.create();
+    ok(factInstance instanceof PostController, 'Normalizes the name');
   });
 
   QUnit.test('Options can be registered that should be applied to a given factory', function () {
@@ -587,10 +507,10 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     };
 
     deepEqual(resolveWasCalled, []);
-    lookupFactory('controller:post', container);
+    container.factoryFor('controller:post');
     deepEqual(resolveWasCalled, ['controller:post']);
 
-    lookupFactory('controller:post', container);
+    container.factoryFor('controller:post');
     deepEqual(resolveWasCalled, ['controller:post']);
   });
 
@@ -605,10 +525,10 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     };
 
     deepEqual(resolveWasCalled, []);
-    lookupFactory('model:post', container);
+    container.factoryFor('model:post');
     deepEqual(resolveWasCalled, ['model:post']);
 
-    lookupFactory('model:post', container);
+    container.factoryFor('model:post');
     deepEqual(resolveWasCalled, ['model:post']);
   });
 
@@ -624,31 +544,11 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     };
 
     deepEqual(resolveWasCalled, []);
-    lookupFactory('foo:post', container);
+    container.factoryFor('foo:post');
     deepEqual(resolveWasCalled, ['foo:post']);
 
-    lookupFactory('foo:post', container);
+    container.factoryFor('foo:post');
     deepEqual(resolveWasCalled, ['foo:post']);
-  });
-
-  QUnit.test('The `_onLookup` hook is called on factories when looked up the first time', function () {
-    expect(4); // 2 are from expectDeprecation in `lookupFactory`
-
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var Apple = (0, _internalTestHelpers.factory)();
-
-    Apple.reopenClass({
-      _onLookup: function (fullName) {
-        equal(fullName, 'apple:main', 'calls lazy injection method with the lookup full name');
-        equal(this, Apple, 'calls lazy injection method in the factory context');
-      }
-    });
-
-    registry.register('apple:main', Apple);
-
-    lookupFactory('apple:main', container);
-    lookupFactory('apple:main', container);
   });
 
   QUnit.test('A factory\'s lazy injections are validated when first instantiated', function () {
@@ -701,26 +601,6 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     var result = container.ownerInjection();
 
     equal(result[_emberUtils.OWNER], owner, 'owner is properly included');
-  });
-
-  QUnit.test('lookupFactory passes options through to expandlocallookup', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.register('controller:post', PostController);
-
-    registry.expandLocalLookup = function (fullName, options) {
-      assert.ok(true, 'expandLocalLookup was called');
-      assert.equal(fullName, 'foo:bar');
-      assert.deepEqual(options, { source: 'baz:qux' });
-
-      return 'controller:post';
-    };
-
-    var PostControllerFactory = lookupFactory('foo:bar', container, { source: 'baz:qux' });
-
-    assert.ok(PostControllerFactory.create() instanceof PostController, 'The return of factory.create is an instance of PostController');
   });
 
   QUnit.test('lookup passes options through to expandlocallookup', function (assert) {
@@ -1383,28 +1263,6 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers'], 
     fallback.injection('model', 'source', 'source:main');
 
     equal(registry.getTypeInjections('model').length, 1, 'Injections from the fallback registry are merged');
-  });
-
-  QUnit.test('`getFactoryInjections` includes factory injections from a fallback registry', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    equal(registry.getFactoryInjections('model:user').length, 0, 'No factory injections in the primary registry');
-
-    fallback.factoryInjection('model:user', 'store', 'store:main');
-
-    equal(registry.getFactoryInjections('model:user').length, 1, 'Factory injections from the fallback registry are merged');
-  });
-
-  QUnit.test('`getFactoryTypeInjections` includes factory type injections from a fallback registry', function () {
-    var fallback = new _container.Registry();
-    var registry = new _container.Registry({ fallback: fallback });
-
-    equal(registry.getFactoryTypeInjections('model').length, 0, 'No factory type injections in the primary registry');
-
-    fallback.factoryInjection('model', 'store', 'store:main');
-
-    equal(registry.getFactoryTypeInjections('model').length, 1, 'Factory type injections from the fallback registry are merged');
   });
 
   QUnit.test('`knownForType` contains keys for each item of a given type', function () {
@@ -2594,12 +2452,6 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     (0, _emberGlimmer.setTemplate)('fooBar', fooBarTemplate);
     (0, _emberGlimmer.setTemplate)('fooBar/baz', fooBarBazTemplate);
 
-    ignoreDeprecation(function () {
-      equal(locator.lookupFactory('template:foo'), fooTemplate, 'resolves template:foo');
-      equal(locator.lookupFactory('template:fooBar'), fooBarTemplate, 'resolves template:foo_bar');
-      equal(locator.lookupFactory('template:fooBar.baz'), fooBarBazTemplate, 'resolves template:foo_bar.baz');
-    });
-
     equal(locator.factoryFor('template:foo').class, fooTemplate, 'resolves template:foo');
     equal(locator.factoryFor('template:fooBar').class, fooBarTemplate, 'resolves template:foo_bar');
     equal(locator.factoryFor('template:fooBar.baz').class, fooBarBazTemplate, 'resolves template:foo_bar.baz');
@@ -2622,19 +2474,11 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   QUnit.test('the default resolver resolves models on the namespace', function () {
     application.Post = _emberRuntime.Object.extend({});
 
-    ignoreDeprecation(function () {
-      detectEqual(application.Post, locator.lookupFactory('model:post'), 'looks up Post model on application');
-    });
-
     detectEqual(application.Post, locator.factoryFor('model:post').class, 'looks up Post model on application');
   });
 
   QUnit.test('the default resolver resolves *:main on the namespace', function () {
     application.FooBar = _emberRuntime.Object.extend({});
-
-    ignoreDeprecation(function () {
-      detectEqual(application.FooBar, locator.lookupFactory('foo-bar:main'), 'looks up FooBar type without name on application');
-    });
 
     detectEqual(application.FooBar, locator.factoryFor('foo-bar:main').class, 'looks up FooBar type without name on application');
   });
@@ -2663,16 +2507,14 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     application.register('helper:shorthand', shorthandHelper);
     application.register('helper:complete', helper);
 
-    ignoreDeprecation(function () {
-      var lookedUpShorthandHelper = locator.lookupFactory('helper:shorthand');
+    var lookedUpShorthandHelper = locator.factoryFor('helper:shorthand').class;
 
-      ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+    ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
 
-      var lookedUpHelper = locator.lookupFactory('helper:complete');
+    var lookedUpHelper = locator.factoryFor('helper:complete').class;
 
-      ok(lookedUpHelper.isHelperFactory, 'complete helper is factory');
-      ok(helper.detect(lookedUpHelper), 'looked up complete helper');
-    });
+    ok(lookedUpHelper.isHelperFactory, 'complete helper is factory');
+    ok(helper.detect(lookedUpHelper), 'looked up complete helper');
   });
 
   QUnit.test('the default resolver resolves helpers on the namespace', function () {
@@ -50927,11 +50769,10 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
           foo: _inject.default.controller('bar')
         });
 
+        owner.register('controller:bar', _object.default.extend());
         owner.register('foo:main', AnObject);
 
-        expectDeprecation(function () {
-          owner._lookupFactory('foo:main');
-        }, /Using "_lookupFactory" is deprecated. Please use container.factoryFor instead./);
+        owner.lookup('foo:main');
       }, /Defining an injected controller property on a non-controller is not allowed./);
     });
   }
@@ -51725,11 +51566,11 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
       });
 
       owner.register('foo:main', AnObject);
+      owner.register('foo:bar', _object.default.extend());
+      owner.register('foo:baz', _object.default.extend());
 
-      expect(2);
-      expectDeprecation(function () {
-        owner._lookupFactory('foo:main');
-      }, /Using "_lookupFactory" is deprecated. Please use container.factoryFor instead./);
+      expect(1);
+      owner.lookup('foo:main');
     });
 
     QUnit.test('attempting to inject a nonexistent container key should error', function () {
