@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b8a1015e
+ * @version   2.15.0-alpha.1-null+a66b67c1
  */
 
 var enifed, requireModule, Ember;
@@ -701,46 +701,6 @@ enifed('container/tests/container_test', ['ember-babel', 'ember-utils', 'ember-e
     var result = container.ownerInjection();
 
     equal(result[_emberUtils.OWNER], owner, 'owner is properly included');
-  });
-
-  QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
-    var owner = {};
-    var registry = new _container.Registry();
-    var container = owner.__container__ = registry.container({ owner: owner });
-    var PostController = (0, _internalTestHelpers.factory)();
-    registry.register('controller:post', PostController);
-    var postController = container.lookup('controller:post');
-
-    expectDeprecation(function () {
-      (0, _emberMetal.get)(postController, 'container');
-    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
-
-    expectDeprecation(function () {
-      var c = postController.container;
-      strictEqual(c, container);
-    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
-  });
-
-  QUnit.test('An extendable factory can provide `container` upon create, with a deprecation', function (assert) {
-    var registry = new _container.Registry();
-    var container = registry.container();
-
-    registry.register('controller:post', (0, _internalTestHelpers.factory)());
-
-    var PostController = lookupFactory('controller:post', container);
-
-    var postController = void 0;
-
-    expectDeprecation(function () {
-      postController = PostController.create({
-        container: 'foo'
-      });
-    }, /Providing the \`container\` property to .+ is deprecated. Please use \`Ember.setOwner\` or \`owner.ownerInjection\(\)\` instead to provide an owner to the instance being created/);
-
-    expectDeprecation(function () {
-      var c = postController.container;
-      assert.equal(c, 'foo', 'the `container` provided to `.create`was used');
-    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
   });
 
   QUnit.test('lookupFactory passes options through to expandlocallookup', function (assert) {

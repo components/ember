@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b8a1015e
+ * @version   2.15.0-alpha.1-null+a66b67c1
  */
 
 var enifed, requireModule, Ember;
@@ -9628,7 +9628,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug, _emberEnvironment) {
   'use strict';
 
-  exports.buildFakeContainerWithDeprecations = exports.Container = exports.privatize = exports.Registry = undefined;
+  exports.Container = exports.privatize = exports.Registry = undefined;
 
 
   /* globals Proxy */
@@ -9654,7 +9654,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     this.factoryCache = (0, _emberUtils.dictionary)(options && options.factoryCache ? options.factoryCache : null);
     this.factoryManagerCache = (0, _emberUtils.dictionary)(options && options.factoryManagerCache ? options.factoryManagerCache : null);
     this.validationCache = (0, _emberUtils.dictionary)(options && options.validationCache ? options.validationCache : null);
-    this._fakeContainerToInject = buildFakeContainerWithDeprecations(this);
     this[CONTAINER_OVERRIDE] = undefined;
     this.isDestroyed = false;
   }
@@ -9930,8 +9929,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       var injectedFactory = factory.extend(injections);
 
-      // TODO - remove all `container` injections when Ember reaches v3.0.0
-      injectDeprecatedContainer(injectedFactory.prototype, container);
       injectedFactory.reopenClass(factoryInjections);
 
       if (factory && typeof factory._onLookup === 'function') {
@@ -9967,32 +9964,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     return factoryInjections;
   }
 
-  var INJECTED_DEPRECATED_CONTAINER_DESC = {
-    configurable: true,
-    enumerable: false,
-    get: function () {
-      (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
-
-      return this[CONTAINER_OVERRIDE] || (0, _emberUtils.getOwner)(this).__container__;
-    },
-    set: function (value) {
-      (true && !(false) && (0, _emberDebug.deprecate)('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '2.13.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' }));
-
-
-      this[CONTAINER_OVERRIDE] = value;
-
-      return value;
-    }
-  };
-
-  // TODO - remove when Ember reaches v3.0.0
-  function injectDeprecatedContainer(object, container) {
-    if ('container' in object) {
-      return;
-    }
-    Object.defineProperty(object, 'container', INJECTED_DEPRECATED_CONTAINER_DESC);
-  }
-
   function destroyDestroyables(container) {
     var cache = container.cache;
     var keys = Object.keys(cache);
@@ -10024,32 +9995,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         member.destroy();
       }
     }
-  }
-
-  function buildFakeContainerWithDeprecations(container) {
-    var fakeContainer = {};
-    var propertyMappings = {
-      lookup: 'lookup',
-      lookupFactory: '_lookupFactory'
-    };
-
-    for (var containerProperty in propertyMappings) {
-      fakeContainer[containerProperty] = buildFakeContainerFunction(container, containerProperty, propertyMappings[containerProperty]);
-    }
-
-    return fakeContainer;
-  }
-
-  function buildFakeContainerFunction(container, containerProperty, ownerProperty) {
-    return function () {
-      (true && !(false) && (0, _emberDebug.deprecate)('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
-        id: 'ember-application.injected-container',
-        until: '2.13.0',
-        url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
-      }));
-
-      return container[containerProperty].apply(container, arguments);
-    };
   }
 
   var FactoryManager = function () {
@@ -10102,11 +10047,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       if (!this.class.create) {
         throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
-      }
-
-      var prototype = this.class.prototype;
-      if (prototype) {
-        injectDeprecatedContainer(prototype, this.container);
       }
 
       // required to allow access to things like
@@ -10667,7 +10607,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   exports.Registry = Registry;
   exports.privatize = privatize;
   exports.Container = Container;
-  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
 });
 enifed("dag-map", ["exports"], function (exports) {
     "use strict";
@@ -48027,7 +47966,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+b8a1015e";
+  exports.default = "2.15.0-alpha.1-null+a66b67c1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
