@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+85cd2208
+ * @version   2.15.0-alpha.1-null+69c9f1e3
  */
 
 var enifed, requireModule, Ember;
@@ -2070,10 +2070,6 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
     set: _adapter.setAdapter
   });
 
-  Object.defineProperty(Test, 'waiters', {
-    get: _waiters.generateDeprecatedWaitersArray
-  });
-
   exports.default = Test;
 });
 enifed('ember-testing/test/adapter', ['exports', 'ember-console', 'ember-metal'], function (exports, _emberConsole, _emberMetal) {
@@ -2425,7 +2421,6 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (expor
   exports.registerWaiter = registerWaiter;
   exports.unregisterWaiter = unregisterWaiter;
   exports.checkWaiters = checkWaiters;
-  exports.generateDeprecatedWaitersArray = generateDeprecatedWaitersArray;
 
 
   var contexts = [];
@@ -2535,21 +2530,6 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (expor
       }
     }
     return -1;
-  }
-
-  function generateDeprecatedWaitersArray() {
-    (true && !(false) && (0, _emberDebug.deprecate)('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', false, { until: '2.8.0', id: 'ember-testing.test-waiters' }));
-
-
-    var array = new Array(callbacks.length);
-    for (var i = 0; i < callbacks.length; i++) {
-      var context = contexts[i];
-      var callback = callbacks[i];
-
-      array[i] = [context, callback];
-    }
-
-    return array;
   }
 });
 enifed('node-module', ['exports'], function(_exports) {

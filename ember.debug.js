@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+85cd2208
+ * @version   2.15.0-alpha.1-null+69c9f1e3
  */
 
 var enifed, requireModule, Ember;
@@ -11141,25 +11141,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     env.options = this;
     return env;
   };
-
-  Object.defineProperty(ApplicationInstance.prototype, 'container', {
-    configurable: true,
-    enumerable: false,
-    get: function () {
-      var instance = this;
-      return {
-        lookup: function () {
-          (true && !(false) && (0, _emberDebug.deprecate)('Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead.', false, {
-            id: 'ember-application.app-instance-container',
-            until: '2.13.0',
-            url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-applicationinstance-container'
-          }));
-
-          return instance.lookup.apply(instance, arguments);
-        }
-      };
-    }
-  });
 
   Object.defineProperty(ApplicationInstance.prototype, 'registry', {
     configurable: true,
@@ -44155,10 +44136,6 @@ enifed('ember-testing/test', ['exports', 'ember-testing/test/helpers', 'ember-te
     set: _adapter.setAdapter
   });
 
-  Object.defineProperty(Test, 'waiters', {
-    get: _waiters.generateDeprecatedWaitersArray
-  });
-
   exports.default = Test;
 });
 enifed('ember-testing/test/adapter', ['exports', 'ember-console', 'ember-metal'], function (exports, _emberConsole, _emberMetal) {
@@ -44510,7 +44487,6 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (expor
   exports.registerWaiter = registerWaiter;
   exports.unregisterWaiter = unregisterWaiter;
   exports.checkWaiters = checkWaiters;
-  exports.generateDeprecatedWaitersArray = generateDeprecatedWaitersArray;
 
 
   var contexts = [];
@@ -44620,21 +44596,6 @@ enifed('ember-testing/test/waiters', ['exports', 'ember-debug'], function (expor
       }
     }
     return -1;
-  }
-
-  function generateDeprecatedWaitersArray() {
-    (true && !(false) && (0, _emberDebug.deprecate)('Usage of `Ember.Test.waiters` is deprecated. Please refactor to `Ember.Test.checkWaiters`.', false, { until: '2.8.0', id: 'ember-testing.test-waiters' }));
-
-
-    var array = new Array(callbacks.length);
-    for (var i = 0; i < callbacks.length; i++) {
-      var context = contexts[i];
-      var callback = callbacks[i];
-
-      array[i] = [context, callback];
-    }
-
-    return array;
   }
 });
 enifed('ember-utils', ['exports'], function (exports) {
@@ -46147,10 +46108,10 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal'], func
     }
   });
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-environment', 'ember-views/system/utils', 'ember-runtime/system/core_object', 'ember-views/system/jquery'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberDebug, _emberEnvironment, _utils, _core_object, _jquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-environment', 'ember-views/system/utils', 'ember-runtime/system/core_object', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberEnvironment, _utils, _core_object, _jquery) {
   'use strict';
 
-  exports.dispatchLifeCycleHook = undefined;
+  exports.dispatchLifeCycleHook = dispatchLifeCycleHook;
 
   var _Mixin$create;
 
@@ -46158,61 +46119,8 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
     return this;
   }
 
-  var dispatchLifeCycleHook = exports.dispatchLifeCycleHook = function (component, hook, oldAttrs, newAttrs) {
-    component.trigger(hook, { attrs: newAttrs, oldAttrs: oldAttrs, newAttrs: newAttrs });
-  };
-
-  if (true) {
-    var Attrs = function () {
-      function Attrs(oldAttrs, newAttrs, message) {
-        (0, _emberBabel.classCallCheck)(this, Attrs);
-
-        this._oldAttrs = oldAttrs;
-        this._newAttrs = newAttrs;
-        this._message = message;
-      }
-
-      (0, _emberBabel.createClass)(Attrs, [{
-        key: 'attrs',
-        get: function () {
-          return this.newAttrs;
-        }
-      }, {
-        key: 'oldAttrs',
-        get: function () {
-          (true && !(false) && (0, _emberDebug.deprecate)(this._message, false, {
-            id: 'ember-views.lifecycle-hook-arguments',
-            until: '2.13.0',
-            url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
-          }));
-
-
-          return this._oldAttrs;
-        }
-      }, {
-        key: 'newAttrs',
-        get: function () {
-          (true && !(false) && (0, _emberDebug.deprecate)(this._message, false, {
-            id: 'ember-views.lifecycle-hook-arguments',
-            until: '2.13.0',
-            url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
-          }));
-
-
-          return this._newAttrs;
-        }
-      }]);
-      return Attrs;
-    }();
-
-    exports.dispatchLifeCycleHook = dispatchLifeCycleHook = function (component, hook, oldAttrs, newAttrs) {
-      if (typeof component[hook] === 'function' && component[hook].length !== 0) {
-        // Already warned in init
-        component.trigger(hook, { attrs: newAttrs, oldAttrs: oldAttrs, newAttrs: newAttrs });
-      } else {
-        component.trigger(hook, new Attrs(oldAttrs, newAttrs, '[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + component.toString() + '#' + hook + '` to stop taking arguments.'));
-      }
-    };
+  function dispatchLifeCycleHook(component, hook, oldAttrs, newAttrs) {
+    component.trigger(hook);
   }
 
   /**
@@ -46330,19 +46238,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
     this.renderer.appendTo(this, target);
 
     return this;
-  }, _Mixin$create.renderToElement = function () {
-    var tagName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-    (true && !(false) && (0, _emberDebug.deprecate)('Using the `renderToElement` is deprecated in favor of `appendTo`. Called in ' + this.toString(), false, {
-      id: 'ember-views.render-to-element',
-      until: '2.12.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_code-rendertoelement-code'
-    }));
-
-
-    var element = this.renderer.createElement(tagName);
-
-    this.renderer.appendTo(this, element);
-    return element;
   }, _Mixin$create.append = function () {
     return this.appendTo(document.body);
   }, _Mixin$create.elementId = null, _Mixin$create.findElementInParentElement = function (parentElem) {
@@ -46380,21 +46275,6 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
       url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
-    }));
-    (true && !(typeof this.didInitAttrs !== 'function' || this.didInitAttrs.length === 0) && (0, _emberDebug.deprecate)('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didInitAttrs` to stop taking arguments.', typeof this.didInitAttrs !== 'function' || this.didInitAttrs.length === 0, {
-      id: 'ember-views.lifecycle-hook-arguments',
-      until: '2.13.0',
-      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
-    }));
-    (true && !(typeof this.didReceiveAttrs !== 'function' || this.didReceiveAttrs.length === 0) && (0, _emberDebug.deprecate)('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didReceiveAttrs` to stop taking arguments.', typeof this.didReceiveAttrs !== 'function' || this.didReceiveAttrs.length === 0, {
-      id: 'ember-views.lifecycle-hook-arguments',
-      until: '2.13.0',
-      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
-    }));
-    (true && !(typeof this.didUpdateAttrs !== 'function' || this.didUpdateAttrs.length === 0) && (0, _emberDebug.deprecate)('[DEPRECATED] Ember will stop passing arguments to component lifecycle hooks. Please change `' + this.toString() + '#didUpdateAttrs` to stop taking arguments.', typeof this.didUpdateAttrs !== 'function' || this.didUpdateAttrs.length === 0, {
-      id: 'ember-views.lifecycle-hook-arguments',
-      until: '2.13.0',
-      url: 'http://emberjs.com/deprecations/v2.x/#toc_arguments-in-component-lifecycle-hooks'
     }));
     (true && (0, _emberDebug.assert)('Using a custom `.render` function is no longer supported.', !this.render));
   }, _Mixin$create.__defineNonEnumerable = function (property) {
@@ -47836,7 +47716,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+85cd2208";
+  exports.default = "2.15.0-alpha.1-null+69c9f1e3";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

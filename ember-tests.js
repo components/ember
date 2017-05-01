@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+85cd2208
+ * @version   2.15.0-alpha.1-null+69c9f1e3
  */
 
 var enifed, requireModule, Ember;
@@ -1670,7 +1670,7 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
   });
 
   QUnit.test('properties (and aliases) are correctly assigned for accessing the container and registry', function () {
-    expect(9);
+    expect(6);
 
     appInstance = (0, _emberMetal.run)(function () {
       return _applicationInstance.default.create({ application: application });
@@ -1680,16 +1680,10 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     ok(appInstance.__container__, '#__container__ is accessible');
     ok(appInstance.__registry__, '#__registry__ is accessible');
 
-    ok(typeof appInstance.container.lookup === 'function', '#container.lookup is available as a function');
-
     // stub with a no-op to keep deprecation test simple
     appInstance.__container__.lookup = function () {
       ok(true, '#loookup alias is called correctly');
     };
-
-    expectDeprecation(function () {
-      appInstance.container.lookup();
-    }, /Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead./);
 
     ok(typeof appInstance.registry.register === 'function', '#registry.register is available as a function');
     appInstance.__registry__.register = function () {
@@ -9964,59 +9958,6 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
 
     return _class4;
   }(AbstractAppendTest));
-
-  (0, _testCase.moduleFor)('renderToElement: no arguments (defaults to a body context)', function (_AbstractAppendTest5) {
-    (0, _emberBabel.inherits)(_class5, _AbstractAppendTest5);
-
-    function _class5() {
-      (0, _emberBabel.classCallCheck)(this, _class5);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractAppendTest5.apply(this, arguments));
-    }
-
-    _class5.prototype.append = function append(component) {
-      expectDeprecation(/Using the `renderToElement` is deprecated in favor of `appendTo`. Called in/);
-      var wrapper = void 0;
-
-      this.runTask(function () {
-        return wrapper = component.renderToElement();
-      });
-      this.didAppend(component);
-
-      this.assert.equal(wrapper.tagName, 'BODY', 'wrapper is a body element');
-      this.assert.notEqual(wrapper, document.body, 'wrapper is not document.body');
-      this.assert.ok(!wrapper.parentNode, 'wrapper is detached');
-
-      return wrapper;
-    };
-
-    return _class5;
-  }(AbstractAppendTest));
-
-  (0, _testCase.moduleFor)('renderToElement: a div', function (_AbstractAppendTest6) {
-    (0, _emberBabel.inherits)(_class6, _AbstractAppendTest6);
-
-    function _class6() {
-      (0, _emberBabel.classCallCheck)(this, _class6);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractAppendTest6.apply(this, arguments));
-    }
-
-    _class6.prototype.append = function append(component) {
-      expectDeprecation(/Using the `renderToElement` is deprecated in favor of `appendTo`. Called in/);
-      var wrapper = void 0;
-
-      this.runTask(function () {
-        return wrapper = component.renderToElement('div');
-      });
-      this.didAppend(component);
-
-      this.assert.equal(wrapper.tagName, 'DIV', 'wrapper is a body element');
-      this.assert.ok(!wrapper.parentNode, 'wrapper is detached');
-
-      return wrapper;
-    };
-
-    return _class6;
-  }(AbstractAppendTest));
 });
 QUnit.module('ESLint | ember-glimmer/tests/integration/components/append-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -16181,17 +16122,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
             this._super.apply(this, arguments);
             this.didInit = true;
           },
-          didInitAttrs: function (_ref2) {
-            var attrs = _ref2.attrs;
-
+          didInitAttrs: function () {
             assert.ok(this.didInit, 'expected init to have run before didInitAttrs');
-            this.set('fooCopy', attrs.foo.value + 1);
+            this.set('fooCopy', this.attrs.foo.value + 1);
           },
-          didReceiveAttrs: function (_ref3) {
-            var newAttrs = _ref3.newAttrs;
-
+          didReceiveAttrs: function () {
             assert.ok(this.didInit, 'expected init to have run before didReceiveAttrs');
-            this.set('barCopy', newAttrs.bar.value + 1);
+            this.set('barCopy', this.attrs.bar.value + 1);
           },
 
 
@@ -16246,50 +16183,8 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
     };
 
-    _class.prototype['@test can access didReceiveAttrs arguments [DEPRECATED]'] = function testCanAccessDidReceiveAttrsArgumentsDEPRECATED(assert) {
-      expectDeprecation(/didReceiveAttrs.*stop taking arguments/);
-
-      this.registerComponent('foo-bar', {
-        ComponentClass: _helpers.Component.extend({
-          didReceiveAttrs: function (_ref4) {
-            var attrs = _ref4.attrs;
-
-            assert.equal(1, attrs.foo.value, 'expected attrs to have correct value');
-          }
-        }),
-
-        template: '{{foo}}-{{fooCopy}}-{{bar}}-{{barCopy}}'
-      });
-
-      this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
-    };
-
-    _class.prototype['@test can access didUpdateAttrs arguments [DEPRECATED]'] = function testCanAccessDidUpdateAttrsArgumentsDEPRECATED(assert) {
-      var _this81 = this;
-
-      expectDeprecation(/didUpdateAttrs.*stop taking arguments/);
-
-      this.registerComponent('foo-bar', {
-        ComponentClass: _helpers.Component.extend({
-          didUpdateAttrs: function (_ref5) {
-            var newAttrs = _ref5.newAttrs;
-
-            assert.equal(5, newAttrs.foo.value, "expected newAttrs to have new value");
-          }
-        }),
-
-        template: '{{foo}}-{{fooCopy}}-{{bar}}-{{barCopy}}'
-      });
-
-      this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this81.context, 'foo', 5);
-      });
-    };
-
     _class.prototype['@test overriding didUpdateAttrs does not trigger deprecation'] = function testOverridingDidUpdateAttrsDoesNotTriggerDeprecation(assert) {
-      var _this82 = this;
+      var _this81 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -16304,12 +16199,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.render('{{foo-bar foo=foo bar=bar}}', { foo: 1, bar: 3 });
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this82.context, 'foo', 5);
+        return (0, _emberMetal.set)(_this81.context, 'foo', 5);
       });
     };
 
     _class.prototype['@test returning `true` from an action does not bubble if `target` is not specified (GH#14275)'] = function testReturningTrueFromAnActionDoesNotBubbleIfTargetIsNotSpecifiedGH14275(assert) {
-      var _this83 = this;
+      var _this82 = this;
 
       this.registerComponent('display-toggle', {
         ComponentClass: _helpers.Component.extend({
@@ -16333,12 +16228,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this83.$('button').click();
+        return _this82.$('button').click();
       });
     };
 
     _class.prototype['@test returning `true` from an action bubbles to the `target` if specified'] = function testReturningTrueFromAnActionBubblesToTheTargetIfSpecified(assert) {
-      var _this84 = this;
+      var _this83 = this;
 
       assert.expect(4);
 
@@ -16365,12 +16260,12 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Show');
 
       this.runTask(function () {
-        return _this84.$('button').click();
+        return _this83.$('button').click();
       });
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function testComponentYieldingInAnEachHasCorrectBlockValuesAfterRerenderingGH14284() {
-      var _this85 = this;
+      var _this84 = this;
 
       this.registerComponent('list-items', {
         template: '{{#each items as |item|}}{{yield item}}{{/each}}'
@@ -16386,13 +16281,13 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertStableRerender();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this85.context, 'editMode', true);
+        return (0, _emberMetal.set)(_this84.context, 'editMode', true);
       });
 
       this.assertText('|foo|Remove foo|bar|Remove bar|qux|Remove qux|baz|Remove baz');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this85.context, 'editMode', false);
+        return (0, _emberMetal.set)(_this84.context, 'editMode', false);
       });
 
       this.assertText('|foo||bar||qux||baz|');
@@ -18261,7 +18156,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'didReceiveAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -18269,7 +18164,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
 
         nonInteractive: [
         // Sync hooks
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'didReceiveAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'on(init)']]
+        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -18346,15 +18241,13 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       // the new attribute to rerender itself imperatively, that would result
       // in lifecycle hooks being invoked for the child.
 
-      topAttrs = { attrs: { twitter: '@horsetomdale' }, oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
-
       this.assertHooks({
         label: 'after update',
 
         interactive: [
         // Sync hooks
 
-        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'],
+        ['the-top', 'didUpdateAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'willUpdate'], ['the-top', 'willRender'],
 
         // Async hooks
 
@@ -18362,7 +18255,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
 
         nonInteractive: [
         // Sync hooks
-        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs]]
+        ['the-top', 'didUpdateAttrs'], ['the-top', 'didReceiveAttrs']]
       });
 
       this.teardownAssertions.push(function () {
@@ -18408,18 +18301,13 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertText('Twitter: @tomdale|Name: Tom Dale|Website: tomdale.net');
       this.assertRegisteredViews('intial render');
 
-      var parentAttrs = { twitter: '@tomdale', name: 'Tom Dale', website: 'tomdale.net' };
-      var firstAttrs = { twitter: '@tomdale' };
-      var secondAttrs = { name: 'Tom Dale' };
-      var lastAttrs = { website: 'tomdale.net' };
-
       this.assertHooks({
         label: 'after initial render',
 
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs, newAttrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { attrs: parentAttrs, newAttrs: parentAttrs }], ['the-parent', 'on(init)'], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs, newAttrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { attrs: firstAttrs, newAttrs: firstAttrs }], ['the-first-child', 'on(init)'], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs, newAttrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { attrs: secondAttrs, newAttrs: secondAttrs }], ['the-second-child', 'on(init)'], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs, newAttrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { attrs: lastAttrs, newAttrs: lastAttrs }], ['the-last-child', 'on(init)'], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-parent', 'willRender'], ['the-parent', 'willInsertElement'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-first-child', 'willRender'], ['the-first-child', 'willInsertElement'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-second-child', 'willRender'], ['the-second-child', 'willInsertElement'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)'], ['the-last-child', 'willRender'], ['the-last-child', 'willInsertElement'],
 
         // Async hooks
 
@@ -18428,7 +18316,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-parent', 'init'], ['the-parent', 'didInitAttrs', { attrs: parentAttrs, newAttrs: parentAttrs }], ['the-parent', 'didReceiveAttrs', { attrs: parentAttrs, newAttrs: parentAttrs }], ['the-parent', 'on(init)'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs', { attrs: firstAttrs, newAttrs: firstAttrs }], ['the-first-child', 'didReceiveAttrs', { attrs: firstAttrs, newAttrs: firstAttrs }], ['the-first-child', 'on(init)'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs', { attrs: secondAttrs, newAttrs: secondAttrs }], ['the-second-child', 'didReceiveAttrs', { attrs: secondAttrs, newAttrs: secondAttrs }], ['the-second-child', 'on(init)'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs', { attrs: lastAttrs, newAttrs: lastAttrs }], ['the-last-child', 'didReceiveAttrs', { attrs: lastAttrs, newAttrs: lastAttrs }], ['the-last-child', 'on(init)']]
+        ['the-parent', 'init'], ['the-parent', 'didInitAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'on(init)'], ['the-first-child', 'init'], ['the-first-child', 'didInitAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'on(init)'], ['the-second-child', 'init'], ['the-second-child', 'didInitAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'on(init)'], ['the-last-child', 'init'], ['the-last-child', 'didInitAttrs'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -18525,22 +18413,13 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
 
       this.assertText('Twitter: @horsetomdale|Name: Horse Tom Dale|Website: horsetomdale.net');
 
-      parentAttrs = {
-        attrs: { twitter: '@horsetomdale', name: 'Horse Tom Dale', website: 'horsetomdale.net' },
-        oldAttrs: { twitter: '@tomdale', name: 'Tom Dale', website: 'tomdale.net' },
-        newAttrs: { twitter: '@horsetomdale', name: 'Horse Tom Dale', website: 'horsetomdale.net' }
-      };
-      firstAttrs = { attrs: { twitter: '@horsetomdale' }, oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
-      secondAttrs = { attrs: { name: 'Horse Tom Dale' }, oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Horse Tom Dale' } };
-      lastAttrs = { attrs: { website: 'horsetomdale.net' }, oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'horsetomdale.net' } };
-
       this.assertHooks({
         label: 'after update',
 
         interactive: [
         // Sync hooks
 
-        ['the-parent', 'didUpdateAttrs', parentAttrs], ['the-parent', 'didReceiveAttrs', parentAttrs], ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'didUpdateAttrs', firstAttrs], ['the-first-child', 'didReceiveAttrs', firstAttrs], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'], ['the-second-child', 'didUpdateAttrs', secondAttrs], ['the-second-child', 'didReceiveAttrs', secondAttrs], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'], ['the-last-child', 'didUpdateAttrs', lastAttrs], ['the-last-child', 'didReceiveAttrs', lastAttrs], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
+        ['the-parent', 'didUpdateAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-parent', 'willUpdate'], ['the-parent', 'willRender'], ['the-first-child', 'didUpdateAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-first-child', 'willUpdate'], ['the-first-child', 'willRender'], ['the-second-child', 'didUpdateAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-second-child', 'willUpdate'], ['the-second-child', 'willRender'], ['the-last-child', 'didUpdateAttrs'], ['the-last-child', 'didReceiveAttrs'], ['the-last-child', 'willUpdate'], ['the-last-child', 'willRender'],
 
         // Async hooks
 
@@ -18549,7 +18428,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-parent', 'didUpdateAttrs', parentAttrs], ['the-parent', 'didReceiveAttrs', parentAttrs], ['the-first-child', 'didUpdateAttrs', firstAttrs], ['the-first-child', 'didReceiveAttrs', firstAttrs], ['the-second-child', 'didUpdateAttrs', secondAttrs], ['the-second-child', 'didReceiveAttrs', secondAttrs], ['the-last-child', 'didUpdateAttrs', lastAttrs], ['the-last-child', 'didReceiveAttrs', lastAttrs]]
+        ['the-parent', 'didUpdateAttrs'], ['the-parent', 'didReceiveAttrs'], ['the-first-child', 'didUpdateAttrs'], ['the-first-child', 'didReceiveAttrs'], ['the-second-child', 'didUpdateAttrs'], ['the-second-child', 'didReceiveAttrs'], ['the-last-child', 'didUpdateAttrs'], ['the-last-child', 'didReceiveAttrs']]
       });
 
       this.teardownAssertions.push(function () {
@@ -18587,17 +18466,13 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertText('Top: Middle: Bottom: @tomdale');
       this.assertRegisteredViews('intial render');
 
-      var topAttrs = { twitter: '@tomdale' };
-      var middleAttrs = { twitterTop: '@tomdale' };
-      var bottomAttrs = { twitterMiddle: '@tomdale' };
-
       this.assertHooks({
         label: 'after initial render',
 
         interactive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'didReceiveAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
+        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-top', 'willRender'], ['the-top', 'willInsertElement'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-middle', 'willRender'], ['the-middle', 'willInsertElement'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)'], ['the-bottom', 'willRender'], ['the-bottom', 'willInsertElement'],
 
         // Async hooks
 
@@ -18606,7 +18481,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-top', 'init'], ['the-top', 'didInitAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'didReceiveAttrs', { attrs: topAttrs, newAttrs: topAttrs }], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'didReceiveAttrs', { attrs: middleAttrs, newAttrs: middleAttrs }], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'didReceiveAttrs', { attrs: bottomAttrs, newAttrs: bottomAttrs }], ['the-bottom', 'on(init)']]
+        ['the-top', 'init'], ['the-top', 'didInitAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'on(init)'], ['the-middle', 'init'], ['the-middle', 'didInitAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'on(init)'], ['the-bottom', 'init'], ['the-bottom', 'didInitAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'on(init)']]
       });
 
       this.runTask(function () {
@@ -18618,17 +18493,13 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       // Because the `twitter` attr is used by the all of the components,
       // the lifecycle hooks are invoked for all components.
 
-      topAttrs = { attrs: { twitter: '@horsetomdale' }, oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@horsetomdale' } };
-      middleAttrs = { attrs: { twitterTop: '@horsetomdale' }, oldAttrs: { twitterTop: '@tomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
-      bottomAttrs = { attrs: { twitterMiddle: '@horsetomdale' }, oldAttrs: { twitterMiddle: '@tomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
-
       this.assertHooks({
         label: 'after updating (root)',
 
         interactive: [
         // Sync hooks
 
-        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
+        ['the-top', 'didUpdateAttrs'], ['the-top', 'didReceiveAttrs'], ['the-top', 'willUpdate'], ['the-top', 'willRender'], ['the-middle', 'didUpdateAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-middle', 'willUpdate'], ['the-middle', 'willRender'], ['the-bottom', 'didUpdateAttrs'], ['the-bottom', 'didReceiveAttrs'], ['the-bottom', 'willUpdate'], ['the-bottom', 'willRender'],
 
         // Async hooks
 
@@ -18637,7 +18508,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         nonInteractive: [
         // Sync hooks
 
-        ['the-top', 'didUpdateAttrs', topAttrs], ['the-top', 'didReceiveAttrs', topAttrs], ['the-middle', 'didUpdateAttrs', middleAttrs], ['the-middle', 'didReceiveAttrs', middleAttrs], ['the-bottom', 'didUpdateAttrs', bottomAttrs], ['the-bottom', 'didReceiveAttrs', bottomAttrs]]
+        ['the-top', 'didUpdateAttrs'], ['the-top', 'didReceiveAttrs'], ['the-middle', 'didUpdateAttrs'], ['the-middle', 'didReceiveAttrs'], ['the-bottom', 'didUpdateAttrs'], ['the-bottom', 'didReceiveAttrs']]
       });
 
       this.runTask(function () {
@@ -18647,10 +18518,6 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertText('Top: Middle: Bottom: @horsetomdale');
 
       // In this case, because the attrs are passed down, all child components are invoked.
-
-      topAttrs = { attrs: { twitter: '@horsetomdale' }, oldAttrs: { twitter: '@horsetomdale' }, newAttrs: { twitter: '@horsetomdale' } };
-      middleAttrs = { attrs: { twitterTop: '@horsetomdale' }, oldAttrs: { twitterTop: '@horsetomdale' }, newAttrs: { twitterTop: '@horsetomdale' } };
-      bottomAttrs = { attrs: { twitterMiddle: '@horsetomdale' }, oldAttrs: { twitterMiddle: '@horsetomdale' }, newAttrs: { twitterMiddle: '@horsetomdale' } };
 
       this.assertHooks({
         label: 'after no-op rernder (root)',
@@ -18691,11 +18558,11 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertRegisteredViews('intial render');
 
       var initialHooks = function (count) {
-        var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs', { attrs: { count: count }, newAttrs: { count: count } }], ['an-item', 'didReceiveAttrs', { attrs: { count: count }, newAttrs: { count: count } }], ['an-item', 'on(init)']];
+        var ret = [['an-item', 'init'], ['an-item', 'didInitAttrs'], ['an-item', 'didReceiveAttrs'], ['an-item', 'on(init)']];
         if (_this7.isInteractive) {
           ret.push(['an-item', 'willRender'], ['an-item', 'willInsertElement']);
         }
-        ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {}, newAttrs: {} }], ['nested-item', 'didReceiveAttrs', { attrs: {}, newAttrs: {} }], ['nested-item', 'on(init)']);
+        ret.push(['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)']);
         if (_this7.isInteractive) {
           ret.push(['nested-item', 'willRender'], ['nested-item', 'willInsertElement']);
         }
@@ -18737,9 +18604,9 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
       this.assertHooks({
         label: 'reset to empty array',
 
-        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {}, newAttrs: {} }], ['no-items', 'didReceiveAttrs', { attrs: {}, newAttrs: {} }], ['no-items', 'on(init)'], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {}, newAttrs: {} }], ['nested-item', 'didReceiveAttrs', { attrs: {}, newAttrs: {} }], ['nested-item', 'on(init)'], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
+        interactive: [['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['an-item', 'willDestroyElement'], ['an-item', 'willClearRender'], ['nested-item', 'willDestroyElement'], ['nested-item', 'willClearRender'], ['no-items', 'init'], ['no-items', 'didInitAttrs'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['no-items', 'willRender'], ['no-items', 'willInsertElement'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['nested-item', 'willRender'], ['nested-item', 'willInsertElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['an-item', 'didDestroyElement'], ['nested-item', 'didDestroyElement'], ['nested-item', 'didInsertElement'], ['nested-item', 'didRender'], ['no-items', 'didInsertElement'], ['no-items', 'didRender'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']],
 
-        nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs', { attrs: {}, newAttrs: {} }], ['no-items', 'didReceiveAttrs', { attrs: {}, newAttrs: {} }], ['no-items', 'on(init)'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs', { attrs: {}, newAttrs: {} }], ['nested-item', 'didReceiveAttrs', { attrs: {}, newAttrs: {} }], ['nested-item', 'on(init)'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
+        nonInteractive: [['no-items', 'init'], ['no-items', 'didInitAttrs'], ['no-items', 'didReceiveAttrs'], ['no-items', 'on(init)'], ['nested-item', 'init'], ['nested-item', 'didInitAttrs'], ['nested-item', 'didReceiveAttrs'], ['nested-item', 'on(init)'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy'], ['an-item', 'willDestroy'], ['nested-item', 'willDestroy']]
       });
 
       this.teardownAssertions.push(function () {
@@ -65196,23 +65063,6 @@ enifed('ember-testing/tests/test/waiters-test', ['ember-babel', 'ember-testing/t
     });
 
     assert.ok(this.waiters.check(), 'checkWaiters returns false if any waiters return false');
-  });
-
-  QUnit.test('generateDeprecatedWaitersArray provides deprecated access to waiters array', function (assert) {
-    var waiter1 = function () {};
-    var waiter2 = function () {};
-
-    this.waiters.add(waiter1);
-    this.waiters.add(waiter2);
-
-    this.waiters.register();
-
-    var waiters = void 0;
-    expectDeprecation(function () {
-      waiters = (0, _waiters.generateDeprecatedWaitersArray)();
-    }, /Usage of `Ember.Test.waiters` is deprecated/);
-
-    assert.deepEqual(waiters, [[null, waiter1], [null, waiter2]]);
   });
 });
 QUnit.module('ESLint | ember-testing/tests/test/waiters-test.js');

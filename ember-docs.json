@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.15.0-alpha.1.85cd2208"
+        "version": "2.15.0-alpha.1.69c9f1e3"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2239,7 +2239,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-testing/lib/test.js",
-            "line": 28,
+            "line": 27,
             "description": "The primary purpose of this class is to create hooks that can be implemented\nby an adapter for various test frameworks."
         }
     },
@@ -3772,7 +3772,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-testing/lib/test.js",
-            "line": 28,
+            "line": 27,
             "description": "This is a container for an assortment of testing related functionality:\n\n* Choose your default test adapter (for your framework of choice).\n* Register/Unregister additional test helpers.\n* Setup callbacks to be fired when the test helpers are injected into\n  your application.",
             "submodule": "ember-testing",
             "access": "public",
@@ -3852,7 +3852,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 59,
+            "line": 16,
             "access": "private",
             "tagname": ""
         },
@@ -19540,7 +19540,7 @@
         },
         {
             "file": "packages/ember-testing/lib/test.js",
-            "line": 41,
+            "line": 40,
             "description": "Hash containing all known test helpers.",
             "itemtype": "property",
             "name": "_helpers",
@@ -19554,7 +19554,7 @@
         },
         {
             "file": "packages/ember-testing/lib/test.js",
-            "line": 62,
+            "line": 61,
             "description": "Used to allow ember-testing to communicate with a specific testing\nframework.\n\nYou can manually set it before calling `App.setupForTesting()`.\n\nExample:\n\n```javascript\nEmber.Test.adapter = MyCustomAdapter.create()\n```\n\nIf you do not set it, ember-testing will default to `Ember.Test.QUnitAdapter`.",
             "access": "public",
             "tagname": "",
@@ -20176,7 +20176,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 65,
+            "line": 22,
             "description": "A list of properties of the view to apply as attributes. If the property\nis a string value, the value of that string will be applied as the value\nfor an attribute of the property's name.\n\nThe following example creates a tag like `<div priority=\"high\" />`.\n\n```javascript\nEmber.Component.extend({\n  attributeBindings: ['priority'],\n  priority: 'high'\n});\n```\n\nIf the value of the property is a Boolean, the attribute is treated as\nan HTML Boolean attribute. It will be present if the property is `true`\nand omitted if the property is `false`.\n\nThe following example creates markup like `<div visible />`.\n\n```javascript\nEmber.Component.extend({\n  attributeBindings: ['visible'],\n  visible: true\n});\n```\n\nIf you would prefer to use a custom value instead of the property name,\nyou can create the same markup as the last example with a binding like\nthis:\n\n```javascript\nEmber.Component.extend({\n  attributeBindings: ['isVisible:visible'],\n  isVisible: true\n});\n```\n\nThis list of attributes is inherited from the component's superclasses,\nas well.",
             "itemtype": "property",
             "name": "attributeBindings",
@@ -20190,7 +20190,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 121,
+            "line": 78,
             "description": "Return the nearest ancestor that is an instance of the provided\nclass or mixin.",
             "itemtype": "method",
             "name": "nearestOfType",
@@ -20214,7 +20214,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 144,
+            "line": 101,
             "description": "Return the nearest ancestor that has a given property.",
             "itemtype": "method",
             "name": "nearestWithProperty",
@@ -20238,7 +20238,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 162,
+            "line": 119,
             "description": "Renders the view again. This will work regardless of whether the\nview is already in the DOM or not. If the view is in the DOM, the\nrendering process will be deferred to give bindings a chance\nto synchronize.\n\nIf children were added during the rendering process using `appendChild`,\n`rerender` will remove them, because they will be added again\nif needed by the next `render`.\n\nIn general, if the display of your view changes, you should modify\nthe DOM element directly instead of manually calling `rerender`, which can\nbe slow.",
             "itemtype": "method",
             "name": "rerender",
@@ -20250,7 +20250,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 187,
+            "line": 144,
             "description": "Returns the current DOM element for the view.",
             "itemtype": "property",
             "name": "element",
@@ -20263,7 +20263,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 202,
+            "line": 159,
             "description": "Returns a jQuery object for this view's element. If you pass in a selector\nstring, this method will return a jQuery object, using the current element\nas its buffer.\n\nFor example, calling `view.$('li')` will return a jQuery object containing\nall of the `li` elements inside the DOM element of this view.",
             "itemtype": "method",
             "name": "$",
@@ -20287,7 +20287,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 222,
+            "line": 179,
             "description": "Appends the view's element to the specified parent element.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the given element until all bindings have\nfinished synchronizing.\n\nThis is not typically a function that you will need to call directly when\nbuilding your application. If you do need to use `appendTo`, be sure that\nthe target element you are providing is associated with an `Ember.Application`\nand does not have an ancestor element that is associated with an Ember view.",
             "itemtype": "method",
             "name": "appendTo",
@@ -20310,32 +20310,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 272,
-            "description": "Creates a new DOM element, renders the view into it, then returns the\nelement.\n\nBy default, the element created and rendered into will be a `BODY` element,\nsince this is the default context that views are rendered into when being\ninserted directly into the DOM.\n\n```js\nlet element = view.renderToElement();\nelement.tagName; // => \"BODY\"\n```\n\nYou can override the kind of element rendered into and returned by\nspecifying an optional tag name as the first argument.\n\n```js\nlet element = view.renderToElement('table');\nelement.tagName; // => \"TABLE\"\n```\n\nThis method is useful if you want to render the view into an element that\nis not in the document's body. Instead, a new `body` element, detached from\nthe DOM is returned. FastBoot uses this to serialize the rendered view into\na string for transmission over the network.\n\n```js\napp.visit('/').then(function(instance) {\n  let element;\n  Ember.run(function() {\n    element = renderToElement(instance);\n  });\n\n  res.send(serialize(element));\n});\n```",
-            "itemtype": "method",
-            "name": "renderToElement",
-            "params": [
-                {
-                    "name": "tagName",
-                    "description": "The tag of the element to create and render into. Defaults to \"body\".",
-                    "type": "String"
-                }
-            ],
-            "return": {
-                "description": "element",
-                "type": "HTMLBodyElement"
-            },
-            "deprecated": true,
-            "deprecationMessage": "Use appendTo instead.",
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.ViewMixin",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 332,
+            "line": 229,
             "description": "Appends the view's element to the document body. If the view does\nnot have an HTML representation yet\nthe element will be generated automatically.\n\nIf your application uses the `rootElement` property, you must append\nthe view within that element. Rendering views outside of the `rootElement`\nis not supported.\n\nNote that this method just schedules the view to be appended; the DOM\nelement will not be appended to the document body until all bindings have\nfinished synchronizing.",
             "itemtype": "method",
             "name": "append",
@@ -20351,7 +20326,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 353,
+            "line": 250,
             "description": "The HTML `id` of the view's element in the DOM. You can provide this\nvalue yourself but it must be unique (just as in HTML):\n\n```handlebars\n  {{my-component elementId=\"a-really-cool-id\"}}\n```\n\nIf not manually set a default value will be provided by the framework.\n\nOnce rendered an element's `elementId` is considered immutable and you\nshould never change it. If you need to compute a dynamic value for the\n`elementId`, you should do this when the component or element is being\ninstantiated:\n\n```javascript\n  export default Ember.Component.extend({\n    init() {\n      this._super(...arguments);\n      let index = this.get('index');\n      this.set('elementId', 'component-id' + index);\n    }\n  });\n```",
             "itemtype": "property",
             "name": "elementId",
@@ -20364,7 +20339,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 384,
+            "line": 281,
             "description": "Attempts to discover the element in the parent element. The default\nimplementation looks for an element with an ID of `elementId` (or the\nview's guid if `elementId` is null). You can override this method to\nprovide your own form of lookup. For example, if you want to discover your\nelement using a CSS class name instead of an ID.",
             "itemtype": "method",
             "name": "findElementInParentElement",
@@ -20387,7 +20362,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 401,
+            "line": 298,
             "description": "Called when a view is going to insert an element into the DOM.",
             "itemtype": "event",
             "name": "willInsertElement",
@@ -20399,7 +20374,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 409,
+            "line": 306,
             "description": "Called when the element of the view has been inserted into the DOM.\nOverride this function to do any set up that requires an element\nin the document body.\n\nWhen a view has children, didInsertElement will be called on the\nchild view(s) first and on itself afterwards.",
             "itemtype": "event",
             "name": "didInsertElement",
@@ -20411,7 +20386,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 422,
+            "line": 319,
             "description": "Called when the view is about to rerender, but before anything has\nbeen torn down. This is a good opportunity to tear down any manual\nobservers you have installed based on the DOM state",
             "itemtype": "event",
             "name": "willClearRender",
@@ -20423,7 +20398,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 432,
+            "line": 329,
             "description": "You must call `destroy` on a view to destroy the view (and all of its\nchild views). This will remove the view from any parent node, then make\nsure that the DOM element managed by the view can be released by the\nmemory manager.",
             "itemtype": "method",
             "name": "destroy",
@@ -20435,7 +20410,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 446,
+            "line": 343,
             "description": "Called when the element of the view is going to be destroyed. Override\nthis function to do any teardown that requires an element, like removing\nevent listeners.\n\nPlease note: any property changes made during this event will have no\neffect on object observers.",
             "itemtype": "event",
             "name": "willDestroyElement",
@@ -20447,7 +20422,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 459,
+            "line": 356,
             "description": "Called when the parentView property has changed.",
             "itemtype": "event",
             "name": "parentViewDidChange",
@@ -20459,7 +20434,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 471,
+            "line": 368,
             "description": "Tag name for the view's outer element. The tag name is only used when an\nelement is first created. If you change the `tagName` for an element, you\nmust destroy and recreate the view element.\n\nBy default, the render buffer will use a `<div>` tag for views.",
             "itemtype": "property",
             "name": "tagName",
@@ -20473,7 +20448,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 492,
+            "line": 389,
             "description": "Setup a view, but do not finish waking it up.\n\n* configure `childViews`\n* register the view with the global views hash, which is used for event\n  dispatch",
             "itemtype": "method",
             "name": "init",
@@ -20485,7 +20460,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/view_support.js",
-            "line": 584,
+            "line": 451,
             "description": "Handle events from `Ember.EventDispatcher`",
             "itemtype": "method",
             "name": "handleEvent",
