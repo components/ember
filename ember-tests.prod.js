@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+28892b83
+ * @version   2.15.0-alpha.1-null+72b1cf93
  */
 
 var enifed, requireModule, Ember;
@@ -33058,6 +33058,58 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
       return _class12;
     }(_testCase.RenderingTest));
   }
+});
+enifed('ember-glimmer/tests/integration/syntax/experimental-syntax-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer', '@glimmer/runtime'], function (_emberBabel, _testCase, _abstractTestCase, _emberGlimmer, _runtime) {
+  'use strict';
+
+  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#-let obj as |bar|}}\n        {{bar}}\n      {{/-let}}\n    '], ['\n      {{#-let obj as |bar|}}\n        {{bar}}\n      {{/-let}}\n    ']);
+
+  (0, _testCase.moduleFor)('registerMacros', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+    function _class() {
+
+      var originalMacros = _emberGlimmer._experimentalMacros.slice();
+
+      (0, _emberGlimmer._registerMacros)(function (blocks) {
+        blocks.add('-let', function (sexp, builder) {
+          var params = sexp[2],
+              hash = sexp[3],
+              _default = sexp[4];
+
+          var args = (0, _runtime.compileArgs)(params, hash, builder);
+
+          builder.putArgs(args);
+
+          builder.labelled(null, function (b) {
+            b.evaluate(_default);
+          });
+        });
+      });
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.originalMacros = originalMacros;
+      return _this;
+    }
+
+    _class.prototype.teardown = function () {
+      _emberGlimmer._experimentalMacros.length = 0;
+      this.originalMacros.forEach(function (macro) {
+        return _emberGlimmer._experimentalMacros.push(macro);
+      });
+
+      _RenderingTest.prototype.teardown.call(this);
+    };
+
+    _class.prototype['@test allows registering custom syntax via private API'] = function () {
+      this.render((0, _abstractTestCase.strip)(_templateObject), { obj: 'hello world!' });
+
+      this.assertText('hello world!');
+    };
+
+    return _class;
+  }(_testCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['ember-babel', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (_emberBabel, _helpers, _emberRuntime, _emberMetal, _abstractTestCase, _testCase, _sharedConditionalTests) {
   'use strict';

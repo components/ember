@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+28892b83
+ * @version   2.15.0-alpha.1-null+72b1cf93
  */
 
 var enifed, requireModule, Ember;
@@ -17693,7 +17693,7 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-debug', 'ember-glimme
     return _references.UnboundReference.create(args.positional.at(0).value());
   };
 });
-enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _action, _root, _template, _checkbox, _text_field, _text_area, _linkTo, _component, _helper, _environment, _string, _renderer, _template_registry, _setupRegistry, _dom) {
+enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom', 'ember-glimmer/syntax'], function (exports, _action, _root, _template, _checkbox, _text_field, _text_area, _linkTo, _component, _helper, _environment, _string, _renderer, _template_registry, _setupRegistry, _dom, _syntax) {
   'use strict';
 
   Object.defineProperty(exports, 'INVOKE', {
@@ -17868,6 +17868,18 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
     enumerable: true,
     get: function () {
       return _dom.DOMTreeConstruction;
+    }
+  });
+  Object.defineProperty(exports, '_registerMacros', {
+    enumerable: true,
+    get: function () {
+      return _syntax.registerMacros;
+    }
+  });
+  Object.defineProperty(exports, '_experimentalMacros', {
+    enumerable: true,
+    get: function () {
+      return _syntax.experimentalMacros;
     }
   });
 });
@@ -18684,6 +18696,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'ember-environ
 enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/-with-dynamic-vars', 'ember-glimmer/syntax/-in-element', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/-text-area', 'ember-debug'], function (exports, _render, _outlet, _mount, _dynamicComponent, _bindings, _withDynamicVars, _inElement, _input, _textArea, _emberDebug) {
   'use strict';
 
+  exports.experimentalMacros = undefined;
   exports.registerMacros = registerMacros;
   exports.populateMacros = populateMacros;
 
@@ -18751,7 +18764,7 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
     return false;
   }
 
-  var experimentalMacros = [];
+  var experimentalMacros = exports.experimentalMacros = [];
 
   // This is a private API to allow for expiremental macros
   // to be created in user space. Registering a macro should
@@ -18777,8 +18790,6 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
       var macro = experimentalMacros[i];
       macro(blocks, inlines);
     }
-
-    experimentalMacros = [];
 
     return { blocks: blocks, inlines: inlines };
   }
@@ -47712,7 +47723,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+28892b83";
+  exports.default = "2.15.0-alpha.1-null+72b1cf93";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
