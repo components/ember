@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+21d8d286
+ * @version   2.15.0-alpha.1-null+6408ce96
  */
 
 var enifed, requireModule, Ember;
@@ -38330,7 +38330,7 @@ enifed('ember-metal/tests/expand_properties_test', ['ember-metal'], function (_e
 
   QUnit.test('Nested brace expansions are not allowed', function () {
 
-    ['a.{b.{c,d}}', 'a.{{b}.c}', 'a.{b,c}.{d.{e,f}.g', 'a.{b.{c}', 'a.{b,c}}'].forEach(function (invalidProperties) {
+    ['a.{b.{c,d}}', 'a.{{b}.c}', 'a.{b,c}.{d.{e,f}.g', 'a.{b.{c}', 'a.{b,c}}', 'model.{bar,baz'].forEach(function (invalidProperties) {
       expectAssertion(function () {
         return (0, _emberMetal.expandProperties)(invalidProperties, addProperty);
       });
