@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+72b1cf93
+ * @version   2.15.0-alpha.1-null+fe136c83
  */
 
 var enifed, requireModule, Ember;
@@ -24893,7 +24893,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       /* no change */
       return value;
     } else {
-      propertyWillChange(obj, keyName);
+      propertyWillChange(obj, keyName, meta$$1);
 
       if (ember_features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
@@ -24901,7 +24901,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj[keyName] = value;
       }
 
-      propertyDidChange(obj, keyName);
+      propertyDidChange(obj, keyName, meta$$1);
     }
 
     return value;
@@ -25560,7 +25560,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return ret;
     }
 
-    propertyWillChange(obj, keyName);
+    propertyWillChange(obj, keyName, meta$$1);
 
     if (hadCachedValue) {
       cache[keyName] = undefined;
@@ -25576,7 +25576,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       cache[keyName] = ret;
     }
 
-    propertyDidChange(obj, keyName);
+    propertyDidChange(obj, keyName, meta$$1);
 
     return ret;
   };
@@ -37029,12 +37029,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     if (cache) {
       if (cache.firstObject !== undefined && objectAt(array, 0) !== _emberMetal.cacheFor.get(cache, 'firstObject')) {
-        (0, _emberMetal.propertyWillChange)(array, 'firstObject');
-        (0, _emberMetal.propertyDidChange)(array, 'firstObject');
+        (0, _emberMetal.propertyWillChange)(array, 'firstObject', meta);
+        (0, _emberMetal.propertyDidChange)(array, 'firstObject', meta);
       }
       if (cache.lastObject !== undefined && objectAt(array, (0, _emberMetal.get)(array, 'length') - 1) !== _emberMetal.cacheFor.get(cache, 'lastObject')) {
-        (0, _emberMetal.propertyWillChange)(array, 'lastObject');
-        (0, _emberMetal.propertyDidChange)(array, 'lastObject');
+        (0, _emberMetal.propertyWillChange)(array, 'lastObject', meta);
+        (0, _emberMetal.propertyDidChange)(array, 'lastObject', meta);
       }
     }
     return array;
@@ -37238,21 +37238,25 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     arrayWillChange: function (content, idx, removedCnt, addedCnt) {
       var keys = this._keys;
       var lim = removedCnt > 0 ? idx + removedCnt : -1;
+      var meta = void 0;
       for (var key in keys) {
+        meta = meta || (0, _emberMetal.peekMeta)(this);
         if (lim > 0) {
           removeObserverForContentKey(content, key, this, idx, lim);
         }
-        (0, _emberMetal.propertyWillChange)(this, key);
+        (0, _emberMetal.propertyWillChange)(this, key, meta);
       }
     },
     arrayDidChange: function (content, idx, removedCnt, addedCnt) {
       var keys = this._keys;
       var lim = addedCnt > 0 ? idx + addedCnt : -1;
+      var meta = void 0;
       for (var key in keys) {
+        meta = meta || (0, _emberMetal.peekMeta)(this);
         if (lim > 0) {
           addObserverForContentKey(content, key, this, idx, lim);
         }
-        (0, _emberMetal.propertyDidChange)(this, key);
+        (0, _emberMetal.propertyDidChange)(this, key, meta);
       }
     },
     willWatchProperty: function (property) {
@@ -47723,7 +47727,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+72b1cf93";
+  exports.default = "2.15.0-alpha.1-null+fe136c83";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

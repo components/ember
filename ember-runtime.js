@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+72b1cf93
+ * @version   2.15.0-alpha.1-null+fe136c83
  */
 
 var enifed, requireModule, Ember;
@@ -4120,7 +4120,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       /* no change */
       return value;
     } else {
-      propertyWillChange(obj, keyName);
+      propertyWillChange(obj, keyName, meta$$1);
 
       if (ember_features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
@@ -4128,7 +4128,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj[keyName] = value;
       }
 
-      propertyDidChange(obj, keyName);
+      propertyDidChange(obj, keyName, meta$$1);
     }
 
     return value;
@@ -4787,7 +4787,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return ret;
     }
 
-    propertyWillChange(obj, keyName);
+    propertyWillChange(obj, keyName, meta$$1);
 
     if (hadCachedValue) {
       cache[keyName] = undefined;
@@ -4803,7 +4803,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       cache[keyName] = ret;
     }
 
-    propertyDidChange(obj, keyName);
+    propertyDidChange(obj, keyName, meta$$1);
 
     return ret;
   };
