@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+cca4f893
+ * @version   2.15.0-alpha.1-null+229f92a9
  */
 
 var enifed, requireModule, Ember;
@@ -74088,8 +74088,8 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.add('route:other', _emberRouting.Route.extend({
         model: function (p, trans) {
-          var m = (0, _emberMetal.meta)(trans.params.application);
-          assert.ok(!m.peekWatching('woot'), 'A meta object isn\'t constructed for this params POJO');
+          var m = (0, _emberMetal.peekMeta)(trans.params.application);
+          assert.ok(m === undefined, 'A meta object isn\'t constructed for this params POJO');
         }
       }));
 

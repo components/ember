@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+cca4f893
+ * @version   2.15.0-alpha.1-null+229f92a9
  */
 
 var enifed, requireModule, Ember;
@@ -44135,7 +44135,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+cca4f893";
+  exports.default = "2.15.0-alpha.1-null+229f92a9";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
@@ -44342,10 +44342,12 @@ enifed("route-recognizer", ["exports"], function (exports) {
     generate[4 /* Epsilon */] = function () {
         return "";
     };
+    var EmptyObject = Object.freeze({});
+    var EmptyArray = Object.freeze([]);
     // The `names` will be populated with the paramter name for each dynamic/star
     // segment. `shouldDecodes` will be populated with a boolean for each dyanamic/star
     // segment, indicating whether it should be decoded during recognition.
-    function parse(segments, route, names, types, shouldDecodes) {
+    function parse(segments, route, types) {
         // normalize route as not starting with a "/". Recognition will
         // also normalize.
         if (route.length > 0 && route.charCodeAt(0) === 47 /* SLASH */) {
@@ -44356,6 +44358,8 @@ enifed("route-recognizer", ["exports"], function (exports) {
             part,
             flags,
             type;
+        var names = undefined;
+        var shouldDecodes = undefined;
         for (i = 0; i < parts.length; i++) {
             part = parts[i];
             flags = 0;
@@ -44373,14 +44377,23 @@ enifed("route-recognizer", ["exports"], function (exports) {
             flags = 2 << type;
             if (flags & 12 /* Named */) {
                     part = part.slice(1);
+                    names = names || [];
                     names.push(part);
+                    shouldDecodes = shouldDecodes || [];
                     shouldDecodes.push((flags & 4 /* Decoded */) !== 0);
                 }
             if (flags & 14 /* Counted */) {
                     types[type]++;
                 }
-            segments.push({ type: type, value: normalizeSegment(part) });
+            segments.push({
+                type: type,
+                value: normalizeSegment(part)
+            });
         }
+        return {
+            names: names || EmptyArray,
+            shouldDecodes: shouldDecodes || EmptyArray
+        };
     }
     function isEqualCharSpec(spec, char, negate) {
         return spec.char === char && spec.negate === negate;
@@ -44565,6 +44578,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
             names,
             shouldDecodes,
             params,
+            isDynamic,
             j,
             name,
             capture;
@@ -44580,19 +44594,30 @@ enifed("route-recognizer", ["exports"], function (exports) {
             handler = handlers[i];
             names = handler.names;
             shouldDecodes = handler.shouldDecodes;
-            params = {};
+            params = EmptyObject;
+            isDynamic = false;
 
-            for (j = 0; j < names.length; j++) {
-                name = names[j];
-                capture = captures && captures[currentCapture++];
+            if (names !== EmptyArray && shouldDecodes !== EmptyArray) {
+                for (j = 0; j < names.length; j++) {
+                    isDynamic = true;
+                    name = names[j];
+                    capture = captures && captures[currentCapture++];
 
-                if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS && shouldDecodes[j]) {
-                    params[name] = capture && decodeURIComponent(capture);
-                } else {
-                    params[name] = capture;
+                    if (params === EmptyObject) {
+                        params = {};
+                    }
+                    if (RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS && shouldDecodes[j]) {
+                        params[name] = capture && decodeURIComponent(capture);
+                    } else {
+                        params[name] = capture;
+                    }
                 }
             }
-            result[i] = { handler: handler.handler, params: params, isDynamic: !!names.length };
+            result[i] = {
+                handler: handler.handler,
+                params: params,
+                isDynamic: isDynamic
+            };
         }
         return result;
     }
@@ -44619,10 +44644,10 @@ enifed("route-recognizer", ["exports"], function (exports) {
         var currentState = this.rootState,
             i,
             route,
+            ref,
             names,
             shouldDecodes,
-            segment,
-            handler;
+            segment;
         var pattern = "^";
         var types = [0, 0, 0];
         var handlers = new Array(routes.length);
@@ -44631,11 +44656,11 @@ enifed("route-recognizer", ["exports"], function (exports) {
         var j = 0;
         for (i = 0; i < routes.length; i++) {
             route = routes[i];
-            names = [];
-            shouldDecodes = [];
-
-            parse(allSegments, route.path, names, types, shouldDecodes);
+            ref = parse(allSegments, route.path, types);
+            names = ref.names;
+            shouldDecodes = ref.shouldDecodes;
             // preserve j so it points to the start of newly added segments
+
             for (; j < allSegments.length; j++) {
                 segment = allSegments[j];
 
@@ -44650,9 +44675,11 @@ enifed("route-recognizer", ["exports"], function (exports) {
                 currentState = eachChar[segment.type](segment, currentState);
                 pattern += regex[segment.type](segment);
             }
-            handler = { handler: route.handler, names: names, shouldDecodes: shouldDecodes };
-
-            handlers[i] = handler;
+            handlers[i] = {
+                handler: route.handler,
+                names: names,
+                shouldDecodes: shouldDecodes
+            };
         }
         if (isEmpty) {
             currentState = currentState.put(47 /* SLASH */, false, false);
@@ -44677,13 +44704,16 @@ enifed("route-recognizer", ["exports"], function (exports) {
     };
     RouteRecognizer.prototype.handlersFor = function (name) {
         var route = this.names[name],
-            i;
+            i,
+            handler;
         if (!route) {
             throw new Error("There is no route named " + name);
         }
         var result = new Array(route.handlers.length);
         for (i = 0; i < route.handlers.length; i++) {
-            result[i] = route.handlers[i];
+            handler = route.handlers[i];
+
+            result[i] = handler;
         }
         return result;
     };
@@ -44840,7 +44870,7 @@ enifed("route-recognizer", ["exports"], function (exports) {
         }
         return results;
     };
-    RouteRecognizer.VERSION = "0.3.2";
+    RouteRecognizer.VERSION = "0.3.3";
     // Set to false to opt-out of encoding and decoding path segments.
     // See https://github.com/tildeio/route-recognizer/pull/55
     RouteRecognizer.ENCODE_AND_DECODE_PATH_SEGMENTS = true;
