@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0
+ * @version   2.13.0-release+d8c16416
  */
 
 var enifed, requireModule, Ember;
@@ -2099,7 +2099,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
   });
 
   QUnit.test('can build and boot a registered engine', function (assert) {
-    assert.expect(10);
+    assert.expect(11);
 
     var ChatEngine = _emberApplicationSystemEngine.default.extend();
     var chatEngineInstance = undefined;
@@ -2121,7 +2121,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
         assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
       });
 
-      var singletons = ['router:main', _container.privatize(_templateObject), '-view-registry:main', '-environment:main'];
+      var singletons = ['router:main', _container.privatize(_templateObject), '-view-registry:main', '-environment:main', 'service:-document'];
 
       var env = appInstance.lookup('-environment:main');
       singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
@@ -35020,6 +35020,66 @@ enifed('ember-glimmer/tests/integration/syntax/each-test.lint-test', ['exports']
   QUnit.test('should pass ESLint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'ember-glimmer/tests/integration/syntax/each-test.js should pass ESLint\n\n');
+  });
+});
+enifed('ember-glimmer/tests/integration/syntax/experimental-syntax-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer', '@glimmer/runtime'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmer, _glimmerRuntime) {
+  'use strict';
+
+  var _templateObject = babelHelpers.taggedTemplateLiteralLoose(['\n      {{#-let obj as |bar|}}\n        {{bar}}\n      {{/-let}}\n    '], ['\n      {{#-let obj as |bar|}}\n        {{bar}}\n      {{/-let}}\n    ']);
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('registerMacros', (function (_RenderingTest) {
+babelHelpers.inherits(_class, _RenderingTest);
+
+    function _class() {
+babelHelpers.classCallCheck(this, _class);
+
+      var originalMacros = _emberGlimmer._experimentalMacros.slice();
+
+      _emberGlimmer._registerMacros(function (blocks, inlines) {
+        blocks.add('-let', function (sexp, builder) {
+          var params = sexp[2];
+          var hash = sexp[3];
+          var _default = sexp[4];
+
+          var args = _glimmerRuntime.compileArgs(params, hash, builder);
+
+          builder.putArgs(args);
+
+          builder.labelled(null, function (b) {
+            b.evaluate(_default);
+          });
+        });
+      });
+
+      _RenderingTest.call(this);
+      this.originalMacros = originalMacros;
+    }
+
+    _class.prototype.teardown = function teardown() {
+      _emberGlimmer._experimentalMacros.length = 0;
+      this.originalMacros.forEach(function (macro) {
+        return _emberGlimmer._experimentalMacros.push(macro);
+      });
+
+      _RenderingTest.prototype.teardown.call(this);
+    };
+
+    _class.prototype['@test allows registering custom syntax via private API'] = function testAllowsRegisteringCustomSyntaxViaPrivateAPI(assert) {
+      this.render(_emberGlimmerTestsUtilsAbstractTestCase.strip(_templateObject), { obj: 'hello world!' });
+
+      this.assertText('hello world!');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/syntax/experimental-syntax-test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember-glimmer/tests/integration/syntax/experimental-syntax-test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember-glimmer/tests/integration/syntax/experimental-syntax-test.js should pass ESLint\n\n');
   });
 });
 enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (exports, _emberGlimmerTestsUtilsHelpers, _emberRuntime, _emberMetal, _emberGlimmerTestsUtilsAbstractTestCase, _emberGlimmerTestsUtilsTestCase, _emberGlimmerTestsUtilsSharedConditionalTests) {

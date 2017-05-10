@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.13.0"
+        "version": "2.13.0.d8c16416"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -6329,15 +6329,6 @@
         {
             "file": "packages/ember-application/lib/system/engine-instance.js",
             "line": 132,
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.EngineInstance",
-            "module": "ember",
-            "submodule": "ember-application"
-        },
-        {
-            "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 140,
             "description": "Build a new `Ember.EngineInstance` that's a child of this instance.\n\nEngines must be registered by name with their parent engine\n(or application).",
             "access": "private",
             "tagname": "",
@@ -6365,7 +6356,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 166,
+            "line": 158,
             "description": "Clone dependencies shared between an engine instance and its parent.",
             "access": "private",
             "tagname": "",
@@ -6377,7 +6368,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 210,
+            "line": 203,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -21226,10 +21217,6 @@
         {
             "message": "Missing item type\nUnfortunately, a lot of existing code assumes booting an instance is\nsynchronous – specifically, a lot of tests assume the last call to\n`app.advanceReadiness()` or `app.reset()` will result in a new instance\nbeing fully-booted when the current runloop completes.\n\nWe would like new code (like the `visit` API) to stop making this\nassumption, so we created the asynchronous version above that returns a\npromise. But until we have migrated all the code, we would have to expose\nthis method for use *internally* in places where we need to boot an instance\nsynchronously.",
             "line": " packages/ember-application/lib/system/engine-instance.js:83"
-        },
-        {
-            "message": "Missing item type",
-            "line": " packages/ember-application/lib/system/engine-instance.js:132"
         },
         {
             "message": "Missing item type\nCalled by the router to instruct the location to do any feature detection\nnecessary. In the case of AutoLocation, we detect whether to use history\nor hash concrete implementations.",

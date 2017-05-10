@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0
+ * @version   2.13.0-release+d8c16416
  */
 
 var enifed, requireModule, Ember;
@@ -6457,14 +6457,6 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'e
     },
 
     /**
-      @private
-    */
-    willDestroy: function () {
-      this._super.apply(this, arguments);
-      _emberMetal.run(this.__container__, 'destroy');
-    },
-
-    /**
       Build a new `Ember.EngineInstance` that's a child of this instance.
        Engines must be registered by name with their parent engine
       (or application).
@@ -6509,7 +6501,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-utils', 'e
       var env = parent.lookup('-environment:main');
       this.register('-environment:main', env, { instantiate: false });
 
-      var singletons = ['router:main', _container.privatize(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert')];
+      var singletons = ['router:main', _container.privatize(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document'];
 
       singletons.forEach(function (key) {
         return _this2.register(key, parent.lookup(key), { instantiate: false });
@@ -13386,7 +13378,7 @@ enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-debug', 'ember-glimme
     return _emberGlimmerUtilsReferences.UnboundReference.create(args.positional.at(0).value());
   };
 });
-enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom'], function (exports, _emberGlimmerHelpersAction, _emberGlimmerTemplatesRoot, _emberGlimmerTemplate, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_field, _emberGlimmerComponentsText_area, _emberGlimmerComponentsLinkTo, _emberGlimmerComponent, _emberGlimmerHelper, _emberGlimmerEnvironment, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString, _emberGlimmerRenderer, _emberGlimmerTemplate_registry, _emberGlimmerSetupRegistry, _emberGlimmerDom) {
+enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember-glimmer/templates/root', 'ember-glimmer/template', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/helper', 'ember-glimmer/environment', 'ember-glimmer/make-bound-helper', 'ember-glimmer/utils/string', 'ember-glimmer/renderer', 'ember-glimmer/template_registry', 'ember-glimmer/setup-registry', 'ember-glimmer/dom', 'ember-glimmer/syntax'], function (exports, _emberGlimmerHelpersAction, _emberGlimmerTemplatesRoot, _emberGlimmerTemplate, _emberGlimmerComponentsCheckbox, _emberGlimmerComponentsText_field, _emberGlimmerComponentsText_area, _emberGlimmerComponentsLinkTo, _emberGlimmerComponent, _emberGlimmerHelper, _emberGlimmerEnvironment, _emberGlimmerMakeBoundHelper, _emberGlimmerUtilsString, _emberGlimmerRenderer, _emberGlimmerTemplate_registry, _emberGlimmerSetupRegistry, _emberGlimmerDom, _emberGlimmerSyntax) {
   /**
     [Glimmer](https://github.com/tildeio/glimmer) is a templating engine used by Ember.js that is compatible with a subset of the [Handlebars](http://handlebarsjs.com/) syntax.
   
@@ -13614,6 +13606,8 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
   exports.DOMChanges = _emberGlimmerDom.DOMChanges;
   exports.NodeDOMTreeConstruction = _emberGlimmerDom.NodeDOMTreeConstruction;
   exports.DOMTreeConstruction = _emberGlimmerDom.DOMTreeConstruction;
+  exports._registerMacros = _emberGlimmerSyntax.registerMacros;
+  exports._experimentalMacros = _emberGlimmerSyntax.experimentalMacros;
 });
 enifed('ember-glimmer/make-bound-helper', ['exports', 'ember-debug', 'ember-glimmer/helper'], function (exports, _emberDebug, _emberGlimmerHelper) {
   /**
@@ -14550,6 +14544,7 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
 
   var experimentalMacros = [];
 
+  exports.experimentalMacros = experimentalMacros;
   // This is a private API to allow for expiremental macros
   // to be created in user space. Registering a macro should
   // should be done in an initializer.
@@ -14575,8 +14570,6 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
       var macro = experimentalMacros[i];
       macro(blocks, inlines);
     }
-
-    experimentalMacros = [];
 
     return { blocks: blocks, inlines: inlines };
   }
@@ -31284,7 +31277,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   _emberMetal.deprecateProperty(EmberRouter.prototype, 'router', '_routerMicrolib', {
     id: 'ember-router.router',
     until: '2.16',
-    url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-router-router-renamed-to-ember-router-_routerMicrolib'
+    url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-router-router-renamed-to-ember-router-_routermicrolib'
   });
 
   exports.default = EmberRouter;
@@ -45575,7 +45568,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0";
+  exports.default = "2.13.0-release+d8c16416";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
