@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.1
+ * @version   2.14.0-beta.1-null+87fba1f3
  */
 
 var enifed, requireModule, Ember;
@@ -34690,6 +34690,65 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/syntax/each-test.js should pass ESLint\n\n');
 });
 
+enifed('ember-glimmer/tests/integration/syntax/experimental-syntax-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer', '@glimmer/runtime'], function (_emberBabel, _testCase, _abstractTestCase, _emberGlimmer, _runtime) {
+  'use strict';
+
+  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#-let obj as |bar|}}\n        {{bar}}\n      {{/-let}}\n    '], ['\n      {{#-let obj as |bar|}}\n        {{bar}}\n      {{/-let}}\n    ']);
+
+  (0, _testCase.moduleFor)('registerMacros', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+
+      var originalMacros = _emberGlimmer._experimentalMacros.slice();
+
+      (0, _emberGlimmer._registerMacros)(function (blocks, inlines) {
+        blocks.add('-let', function (sexp, builder) {
+          var params = sexp[2],
+              hash = sexp[3],
+              _default = sexp[4];
+
+          var args = (0, _runtime.compileArgs)(params, hash, builder);
+
+          builder.putArgs(args);
+
+          builder.labelled(null, function (b) {
+            b.evaluate(_default);
+          });
+        });
+      });
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.call(this));
+
+      _this.originalMacros = originalMacros;
+      return _this;
+    }
+
+    _class.prototype.teardown = function teardown() {
+      _emberGlimmer._experimentalMacros.length = 0;
+      this.originalMacros.forEach(function (macro) {
+        return _emberGlimmer._experimentalMacros.push(macro);
+      });
+
+      _RenderingTest.prototype.teardown.call(this);
+    };
+
+    _class.prototype['@test allows registering custom syntax via private API'] = function testAllowsRegisteringCustomSyntaxViaPrivateAPI(assert) {
+      this.render((0, _abstractTestCase.strip)(_templateObject), { obj: 'hello world!' });
+
+      this.assertText('hello world!');
+    };
+
+    return _class;
+  }(_testCase.RenderingTest));
+});
+QUnit.module('ESLint | ember-glimmer/tests/integration/syntax/experimental-syntax-test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/tests/integration/syntax/experimental-syntax-test.js should pass ESLint\n\n');
+});
+
 enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['ember-babel', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/shared-conditional-tests'], function (_emberBabel, _helpers, _emberRuntime, _emberMetal, _abstractTestCase, _testCase, _sharedConditionalTests) {
   'use strict';
 
@@ -48068,6 +48127,17 @@ enifed('ember-routing/tests/system/route_test', ['ember-utils', 'internal-test-h
     }
   });
 
+  QUnit.test('route._qp does not crash if the controller has no QP, or setProperties', function () {
+    lookupHash['controller:test'] = {};
+
+    routeOne.controllerName = 'test';
+    var qp = routeOne.get('_qp');
+
+    deepEqual(qp.map, {}, 'map should be empty');
+    deepEqual(qp.propertyNames, [], 'property names should be empty');
+    deepEqual(qp.qps, [], 'qps is should be empty');
+  });
+
   QUnit.test('controllerFor uses route\'s controllerName if specified', function () {
     var testController = {};
     lookupHash['controller:test'] = testController;
@@ -50956,11 +51026,10 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
           foo: _inject.default.controller('bar')
         });
 
+        owner.register('controller:bar', _object.default.extend());
         owner.register('foo:main', AnObject);
 
-        expectDeprecation(function () {
-          owner._lookupFactory('foo:main');
-        }, /Using "_lookupFactory" is deprecated. Please use container.factoryFor instead./);
+        owner.lookup('foo:main');
       }, /Defining an injected controller property on a non-controller is not allowed./);
     });
   }
@@ -51754,11 +51823,11 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
       });
 
       owner.register('foo:main', AnObject);
+      owner.register('foo:bar', _object.default.extend());
+      owner.register('foo:baz', _object.default.extend());
 
-      expect(2);
-      expectDeprecation(function () {
-        owner._lookupFactory('foo:main');
-      }, /Using "_lookupFactory" is deprecated. Please use container.factoryFor instead./);
+      expect(1);
+      owner.lookup('foo:main');
     });
 
     QUnit.test('attempting to inject a nonexistent container key should error', function () {
@@ -74214,8 +74283,8 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
 
       this.add('route:other', _emberRouting.Route.extend({
         model: function (p, trans) {
-          var m = (0, _emberMetal.meta)(trans.params.application);
-          assert.ok(!m.peekWatching('woot'), 'A meta object isn\'t constructed for this params POJO');
+          var m = (0, _emberMetal.peekMeta)(trans.params.application);
+          assert.ok(m === undefined, 'A meta object isn\'t constructed for this params POJO');
         }
       }));
 

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.1
+ * @version   2.14.0-beta.1-null+87fba1f3
  */
 
 var enifed, requireModule, Ember;
@@ -201,6 +201,10 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       if (factory === undefined) {
         return;
+      }
+
+      if (true && factory && typeof factory._onLookup === 'function') {
+        factory._onLookup(fullName);
       }
 
       var manager = new FactoryManager(this, factory, fullName, normalizedName);
@@ -3569,7 +3573,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var pointer = this;
       while (pointer !== undefined) {
         var map = pointer[key];
-        if (map) {
+        if (map !== undefined) {
           return map;
         }
         pointer = pointer.parent;
@@ -3580,7 +3584,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var pointer = this;
       while (pointer !== undefined) {
         var map = pointer[key];
-        if (map) {
+        if (map !== undefined) {
           var value = map[subkey];
           if (value !== undefined) {
             return value;
@@ -3599,7 +3603,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       var outerMap = this._getOrCreateOwnMap('_deps');
       var innerMap = outerMap[subkey];
-      if (!innerMap) {
+      if (innerMap === undefined) {
         innerMap = outerMap[subkey] = Object.create(null);
       }
       innerMap[itemkey] = value;
@@ -3609,9 +3613,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var pointer = this;
       while (pointer !== undefined) {
         var map = pointer._deps;
-        if (map) {
+        if (map !== undefined) {
           var value = map[subkey];
-          if (value) {
+          if (value !== undefined) {
             var itemvalue = value[itemkey];
             if (itemvalue !== undefined) {
               return itemvalue;
@@ -3625,7 +3629,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Meta.prototype.hasDeps = function hasDeps(subkey) {
       var pointer = this;
       while (pointer !== undefined) {
-        if (pointer._deps && pointer._deps[subkey]) {
+        var deps = pointer._deps;
+        if (deps !== undefined && deps[subkey] !== undefined) {
           return true;
         }
         pointer = pointer.parent;
@@ -3643,12 +3648,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var calls = void 0;
       while (pointer !== undefined) {
         var map = pointer[key];
-        if (map) {
+        if (map !== undefined) {
           var innerMap = map[subkey];
-          if (innerMap) {
+          if (innerMap !== undefined) {
             for (var innerKey in innerMap) {
               seen = seen || Object.create(null);
-              if (!seen[innerKey]) {
+              if (seen[innerKey] === undefined) {
                 seen[innerKey] = true;
                 calls = calls || [];
                 calls.push([innerKey, innerMap[innerKey]]);
@@ -3658,7 +3663,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         }
         pointer = pointer.parent;
       }
-      if (calls) {
+      if (calls !== undefined) {
         for (var i = 0; i < calls.length; i++) {
           var _calls$i = calls[i],
               _innerKey = _calls$i[0],
@@ -3676,7 +3681,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       while (pointer !== undefined) {
         var map = pointer[internalKey];
-        if (map) {
+        if (map !== undefined) {
           var value = map[subkey];
           if (value !== undefined || subkey in map) {
             return value;
@@ -3690,7 +3695,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     Meta.prototype.writeValue = function writeValue(obj, key, value) {
       var descriptor = emberUtils.lookupDescriptor(obj, key);
-      var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
+      var isMandatorySetter = descriptor !== undefined && descriptor.set && descriptor.set.isMandatorySetter;
 
       if (isMandatorySetter) {
         this.writeValues(key, value);
@@ -3756,10 +3761,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var seen = void 0;
       while (pointer !== undefined) {
         var map = pointer[key];
-        if (map) {
+        if (map !== undefined) {
           for (var _key in map) {
             seen = seen || Object.create(null);
-            if (!seen[_key]) {
+            if (seen[_key] === undefined) {
               seen[_key] = true;
               fn(_key, map[_key]);
             }
@@ -3795,7 +3800,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       true && emberDebug.assert('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
-      if (!ret) {
+      if (ret === undefined) {
         ret = this[key] = create(this.source);
       }
       return ret;
@@ -3815,7 +3820,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       true && emberDebug.assert('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
-      if (!ret) {
+      if (ret === undefined) {
         if (this.parent) {
           ret = this[key] = this.parent['writable' + capitalized](create).copy(this.source);
         } else {
@@ -3861,7 +3866,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       while (pointer !== undefined) {
         var map = pointer[internalKey];
-        if (map) {
+        if (map !== undefined) {
           var value = map[subkey];
           if (value !== undefined || subkey in map) {
             return value;
@@ -3875,7 +3880,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     Meta.prototype.writeValue = function (obj, key, value) {
       var descriptor = emberUtils.lookupDescriptor(obj, key);
-      var isMandatorySetter = descriptor && descriptor.set && descriptor.set.isMandatorySetter;
+      var isMandatorySetter = descriptor !== undefined && descriptor !== null && descriptor.set && descriptor.set.isMandatorySetter;
 
       if (isMandatorySetter) {
         this.writeValues(key, value);
@@ -3911,7 +3916,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     exports.peekMeta = function WeakMap_peekParentMeta(obj) {
       var pointer = obj;
       var meta = void 0;
-      while (pointer) {
+      while (pointer !== undefined && pointer !== null) {
         meta = metaStore.get(pointer);
         // jshint loopfunc:true
         {
@@ -3920,7 +3925,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         // stop if we find a `null` value, since
         // that means the meta was deleted
         // any other truthy value is a "real" meta
-        if (meta === null || meta) {
+        if (meta === null || meta !== undefined) {
           return meta;
         }
 
@@ -3956,7 +3961,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var meta = exports.peekMeta(obj);
-    if (meta) {
+    if (meta !== undefined) {
       meta.destroy();
     }
   }
@@ -3988,7 +3993,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var parent = void 0;
 
     // remove this code, in-favor of explicit parent
-    if (maybeMeta) {
+    if (maybeMeta !== undefined && maybeMeta !== null) {
       if (maybeMeta.source === obj) {
         return maybeMeta;
       }
@@ -4311,7 +4316,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       /* no change */
       return value;
     } else {
-      propertyWillChange(obj, keyName);
+      propertyWillChange(obj, keyName, meta$$1);
 
       if (ember_features.MANDATORY_SETTER) {
         setWithMandatorySetter(meta$$1, obj, keyName, value);
@@ -4319,7 +4324,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         obj[keyName] = value;
       }
 
-      propertyDidChange(obj, keyName);
+      propertyDidChange(obj, keyName, meta$$1);
     }
 
     return value;
@@ -4978,7 +4983,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return ret;
     }
 
-    propertyWillChange(obj, keyName);
+    propertyWillChange(obj, keyName, meta$$1);
 
     if (hadCachedValue) {
       cache[keyName] = undefined;
@@ -4994,7 +4999,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       cache[keyName] = ret;
     }
 
-    propertyDidChange(obj, keyName);
+    propertyDidChange(obj, keyName, meta$$1);
 
     return ret;
   };
