@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+5a35da5d
+ * @version   2.15.0-alpha.1-null+bb700381
  */
 
 var enifed, requireModule, Ember;
@@ -16256,6 +16256,50 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.runTask(function () {
         return _this83.$('button').click();
       });
+    };
+
+    _class.prototype['@test triggering an event only attempts to invoke an identically named method, if it actually is a function (GH#15228)'] = function testTriggeringAnEventOnlyAttemptsToInvokeAnIdenticallyNamedMethodIfItActuallyIsAFunctionGH15228(assert) {
+      assert.expect(3);
+
+      var payload = ['arbitrary', 'event', 'data'];
+
+      this.registerComponent('evented-component', {
+        ComponentClass: _helpers.Component.extend({
+          someTruthyProperty: true,
+
+          init: function () {
+            this._super.apply(this, arguments);
+            this.trigger.apply(this, ['someMethod'].concat(payload));
+            this.trigger.apply(this, ['someTruthyProperty'].concat(payload));
+          },
+          someMethod: function () {
+            for (var _len = arguments.length, data = Array(_len), _key = 0; _key < _len; _key++) {
+              data[_key] = arguments[_key];
+            }
+
+            assert.deepEqual(data, payload, 'the method `someMethod` should be called, when `someMethod` is triggered');
+          },
+
+
+          listenerForSomeMethod: (0, _emberMetal.on)('someMethod', function () {
+            for (var _len2 = arguments.length, data = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+              data[_key2] = arguments[_key2];
+            }
+
+            assert.deepEqual(data, payload, 'the listener `listenerForSomeMethod` should be called, when `someMethod` is triggered');
+          }),
+
+          listenerForSomeTruthyProperty: (0, _emberMetal.on)('someTruthyProperty', function () {
+            for (var _len3 = arguments.length, data = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+              data[_key3] = arguments[_key3];
+            }
+
+            assert.deepEqual(data, payload, 'the listener `listenerForSomeTruthyProperty` should be called, when `someTruthyProperty` is triggered');
+          })
+        })
+      });
+
+      this.render('{{evented-component}}');
     };
 
     _class.prototype['@test component yielding in an {{#each}} has correct block values after rerendering (GH#14284)'] = function testComponentYieldingInAnEachHasCorrectBlockValuesAfterRerenderingGH14284() {
