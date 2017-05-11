@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2
+ * @version   2.14.0-beta.2-null+3a8a9841
  */
 
 var enifed, requireModule, Ember;
@@ -65958,6 +65958,32 @@ enifed('ember/tests/integration/multiple-app-test', ['ember-metal', 'ember-templ
     (0, _emberViews.jQuery)('#app-1 .do-stuff').click();
 
     assert.deepEqual(actions, ['#app-2', '#app-1']);
+  });
+});
+enifed('ember/tests/production_build_test', ['ember-debug'], function (_emberDebug) {
+  'use strict';
+
+  QUnit.module('production builds');
+
+  QUnit.test('assert does not throw in production builds', function (assert) {
+    assert.expect(1);
+
+    try {
+      false && (0, _emberDebug.assert)('Should not throw');
+
+      assert.ok(true, 'Ember.assert did not throw');
+    } catch (e) {
+      assert.ok(false, 'Expected assert not to throw but it did: ' + e.message);
+    }
+  });
+
+  QUnit.test('runInDebug does not run the callback in production builds', function (assert) {
+    var fired = false;
+    (0, _emberDebug.runInDebug)(function () {
+      return fired = true;
+    });
+
+    assert.equal(fired, false, 'runInDebug callback should not be ran');
   });
 });
 enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], function (_index, _internalTestHelpers) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2
+ * @version   2.14.0-beta.2-null+3a8a9841
  */
 
 var enifed, requireModule, Ember;
@@ -4433,54 +4433,35 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function expandProperties(pattern, callback) {
     true && emberDebug.assert('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
     true && emberDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
+    // regex to look for double open, double close, or unclosed braces
 
-    var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern;
-    var properties = [pattern];
+    true && emberDebug.assert('Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern, pattern.match(/\{[^}{]*\{|\}[^}{]*\}|\{[^}]*$/g) === null);
 
-    // Iterating backward over the pattern makes dealing with indices easier.
-    var bookmark = void 0;
-    var inside = false;
-    for (var i = pattern.length; i > 0; --i) {
-      var current = pattern[i - 1];
+    var start = pattern.indexOf('{');
+    if (start < 0) {
+      callback(pattern.replace(END_WITH_EACH_REGEX, '.[]'));
+    } else {
+      dive('', pattern, start, callback);
+    }
+  }
 
-      switch (current) {
-        // Closing curly brace will be the first character of the brace expansion we encounter.
-        // Bookmark its index so long as we're not already inside a brace expansion.
-        case '}':
-          if (!inside) {
-            bookmark = i - 1;
-            inside = true;
-          } else {
-            true && emberDebug.assert(unbalancedNestedError, false);
-          }
-          break;
-        // Opening curly brace will be the last character of the brace expansion we encounter.
-        // Apply the brace expansion so long as we've already seen a closing curly brace.
-        case '{':
-          if (inside) {
-            var expansion = pattern.slice(i, bookmark).split(',');
-            // Iterating backward allows us to push new properties w/out affecting our "cursor".
-            for (var j = properties.length; j > 0; --j) {
-              // Extract the unexpanded property from the array.
-              var property = properties.splice(j - 1, 1)[0];
-              // Iterate over the expansion, pushing the newly formed properties onto the array.
-              for (var k = 0; k < expansion.length; ++k) {
-                properties.push(property.slice(0, i - 1) + expansion[k] + property.slice(bookmark + 1));
-              }
-            }
-            inside = false;
-          } else {
-            true && emberDebug.assert(unbalancedNestedError, false);
-          }
-          break;
+  function dive(prefix, pattern, start, callback) {
+    var end = pattern.indexOf('}'),
+        i = 0,
+        newStart = void 0,
+        arrayLength = void 0;
+    var tempArr = pattern.substring(start + 1, end).split(',');
+    var after = pattern.substring(end + 1);
+    prefix = prefix + pattern.substring(0, start);
+
+    arrayLength = tempArr.length;
+    while (i < arrayLength) {
+      newStart = after.indexOf('{');
+      if (newStart < 0) {
+        callback((prefix + tempArr[i++] + after).replace(END_WITH_EACH_REGEX, '.[]'));
+      } else {
+        dive(prefix + tempArr[i++], after, newStart, callback);
       }
-    }
-    if (inside) {
-      true && emberDebug.assert(unbalancedNestedError, false);
-    }
-
-    for (var _i = 0; _i < properties.length; _i++) {
-      callback(properties[_i].replace(END_WITH_EACH_REGEX, '.[]'));
     }
   }
 

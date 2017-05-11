@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2
+ * @version   2.14.0-beta.2-null+3a8a9841
  */
 
 var enifed, requireModule, Ember;
@@ -6000,9 +6000,12 @@ enifed('ember-console', ['exports', 'ember-environment'], function (exports, _em
 enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _error, _emberConsole, _emberEnvironment, _handlers) {
   'use strict';
 
-  exports.missingOptionsUntilDeprecation = exports.missingOptionsIdDeprecation = exports.missingOptionsDeprecation = undefined;
-  exports.registerHandler = registerHandler;
-  exports.default = deprecate;
+  exports.missingOptionsUntilDeprecation = exports.missingOptionsIdDeprecation = exports.missingOptionsDeprecation = exports.registerHandler = undefined;
+
+  /**
+  @module ember
+  @submodule ember-debug
+  */
 
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
@@ -6039,13 +6042,18 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
-  /*global __fail__*/
+  var registerHandler = function () {}; /*global __fail__*/
 
-  function registerHandler(handler) {
+  var missingOptionsDeprecation = void 0,
+      missingOptionsIdDeprecation = void 0,
+      missingOptionsUntilDeprecation = void 0,
+      deprecate = void 0;
+
+  exports.registerHandler = registerHandler = function (handler) {
     (0, _handlers.registerHandler)('deprecate', handler);
-  }
+  };
 
-  function formatMessage(_message, options) {
+  var formatMessage = function (_message, options) {
     var message = _message;
 
     if (options && options.id) {
@@ -6057,7 +6065,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     }
 
     return message;
-  }
+  };
 
   registerHandler(function (message, options) {
     var updatedMessage = formatMessage(message, options);
@@ -6125,23 +6133,16 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     }
   });
 
-  var missingOptionsDeprecation = exports.missingOptionsDeprecation = 'When calling `Ember.deprecate` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include `id` and `until` properties.';
-  var missingOptionsIdDeprecation = exports.missingOptionsIdDeprecation = 'When calling `Ember.deprecate` you must provide `id` in options.';
-  var missingOptionsUntilDeprecation = exports.missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
-
-  /**
-  @module ember
-  @submodule ember-debug
-  */
+  exports.missingOptionsDeprecation = missingOptionsDeprecation = 'When calling `Ember.deprecate` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include `id` and `until` properties.';
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation = 'When calling `Ember.deprecate` you must provide `id` in options.';
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
 
   /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only).
-  
-    * In a production build, this method is defined as an empty function (NOP).
+     * In a production build, this method is defined as an empty function (NOP).
     Uses of this method in Ember itself are stripped from the ember.prod.js build.
-  
-    @method deprecate
+     @method deprecate
     @param {String} message A description of the deprecation.
     @param {Boolean} test A boolean. If falsy, the deprecation will be displayed.
     @param {Object} options
@@ -6157,7 +6158,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @public
     @since 1.0.0
   */
-  function deprecate(message, test, options) {
+  deprecate = function deprecate(message, test, options) {
     if (!options || !options.id && !options.until) {
       deprecate(missingOptionsDeprecation, false, {
         id: 'ember-debug.deprecate-options-missing',
@@ -6183,7 +6184,14 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     }
 
     _handlers.invoke.apply(undefined, ['deprecate'].concat(Array.prototype.slice.call(arguments)));
-  }
+  };
+
+
+  exports.default = deprecate;
+  exports.registerHandler = registerHandler;
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
 });
 enifed("ember-debug/error", ["exports", "ember-babel"], function (exports, _emberBabel) {
   "use strict";
@@ -6292,17 +6300,23 @@ enifed('ember-debug/features', ['exports', 'ember-environment', 'ember/features'
   };
   var FEATURES = _features.FEATURES;
 });
-enifed("ember-debug/handlers", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-debug/handlers', ['exports'], function (exports) {
+  'use strict';
 
-  exports.registerHandler = function (type, callback) {
+  var HANDLERS = exports.HANDLERS = {};
+
+  var registerHandler = function () {};
+  var invoke = function () {};
+
+  exports.registerHandler = registerHandler = function (type, callback) {
     var nextHandler = HANDLERS[type] || function () {};
 
     HANDLERS[type] = function (message, options) {
       callback(message, options, nextHandler);
     };
   };
-  exports.invoke = function (type, message, test, options) {
+
+  exports.invoke = invoke = function (type, message, test, options) {
     if (test) {
       return;
     }
@@ -6313,12 +6327,15 @@ enifed("ember-debug/handlers", ["exports"], function (exports) {
       handlerForType(message, options);
     }
   };
-  var HANDLERS = exports.HANDLERS = {};
+
+
+  exports.registerHandler = registerHandler;
+  exports.invoke = invoke;
 });
 enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/deprecate', 'ember-debug/features', 'ember-debug/error', 'ember-debug/testing', 'ember-environment', 'ember-console', 'ember/features'], function (exports, _warn2, _deprecate2, _features, _error, _testing, _emberEnvironment, _emberConsole, _features2) {
   'use strict';
 
-  exports.runningNonEmberDebugJS = exports.debugFunctions = exports.setTesting = exports.isTesting = exports.Error = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
+  exports._warnIfUsingStrippedFeatureFlags = exports.getDebugFunction = exports.setDebugFunction = exports.deprecateFunc = exports.runInDebug = exports.debugFreeze = exports.debugSeal = exports.deprecate = exports.debug = exports.warn = exports.info = exports.assert = exports.runningNonEmberDebugJS = exports.setTesting = exports.isTesting = exports.Error = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
   Object.defineProperty(exports, 'registerWarnHandler', {
     enumerable: true,
     get: function () {
@@ -6355,50 +6372,73 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
       return _testing.setTesting;
     }
   });
-  exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
-  exports.getDebugFunction = function (name) {
-    return debugFunctions[name];
-  };
-  exports.setDebugFunction = setDebugFunction;
-  exports.assert = function () {
-    return debugFunctions.assert.apply(undefined, arguments);
-  };
-  exports.info = function () {
-    return debugFunctions.info.apply(undefined, arguments);
-  };
-  exports.warn = warn;
-  exports.debug = debug;
-  exports.deprecate = deprecate;
-  exports.deprecateFunc = function () {
-    return debugFunctions.deprecateFunc.apply(undefined, arguments);
-  };
-  exports.runInDebug = function () {
-    return debugFunctions.runInDebug.apply(undefined, arguments);
-  };
-  exports.debugSeal = function () {
-    return debugFunctions.debugSeal.apply(undefined, arguments);
-  };
-  exports.debugFreeze = function () {
-    return debugFunctions.debugFreeze.apply(undefined, arguments);
-  };
   var DEFAULT_FEATURES = _features2.DEFAULT_FEATURES,
       FEATURES = _features2.FEATURES,
       featuresWereStripped,
       isFirefox,
       isChrome;
-  var debugFunctions = exports.debugFunctions = {
-    assert: function () {},
-    info: function () {},
-    warn: function () {},
-    debug: function () {},
-    deprecate: function () {},
-    deprecateFunc: function () {
-      var _ref;
 
-      return _ref = arguments.length - 1, arguments.length <= _ref ? undefined : arguments[_ref];
-    },
-    debugSeal: function () {},
-    debugFreeze: function () {}
+  // These are the default production build versions:
+  var assert = function () {};
+  var info = function () {};
+  var warn = function () {};
+  var debug = function () {};
+  var deprecate = function () {};
+  var debugSeal = function () {};
+  var debugFreeze = function () {};
+  var runInDebug = function () {};
+
+  var deprecateFunc = function () {
+    return arguments[arguments.length - 1];
+  };
+
+  var setDebugFunction = function () {};
+  var getDebugFunction = function () {};
+
+  exports.setDebugFunction = setDebugFunction = function (type, callback) {
+    switch (type) {
+      case 'assert':
+        return exports.assert = assert = callback;
+      case 'info':
+        return exports.info = info = callback;
+      case 'warn':
+        return exports.warn = warn = callback;
+      case 'debug':
+        return exports.debug = debug = callback;
+      case 'deprecate':
+        return exports.deprecate = deprecate = callback;
+      case 'debugSeal':
+        return exports.debugSeal = debugSeal = callback;
+      case 'debugFreeze':
+        return exports.debugFreeze = debugFreeze = callback;
+      case 'runInDebug':
+        return exports.runInDebug = runInDebug = callback;
+      case 'deprecateFunc':
+        return exports.deprecateFunc = deprecateFunc = callback;
+    }
+  };
+
+  exports.getDebugFunction = getDebugFunction = function (type) {
+    switch (type) {
+      case 'assert':
+        return assert;
+      case 'info':
+        return info;
+      case 'warn':
+        return warn;
+      case 'debug':
+        return debug;
+      case 'deprecate':
+        return deprecate;
+      case 'debugSeal':
+        return debugSeal;
+      case 'debugFreeze':
+        return debugFreeze;
+      case 'runInDebug':
+        return runInDebug;
+      case 'deprecateFunc':
+        return deprecateFunc;
+    }
   };
 
   /**
@@ -6413,19 +6453,15 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   /**
     Define an assertion that will throw an exception if the condition is not met.
-  
-    * In a production build, this method is defined as an empty function (NOP).
+     * In a production build, this method is defined as an empty function (NOP).
     Uses of this method in Ember itself are stripped from the ember.prod.js build.
-  
-    ```javascript
+     ```javascript
     // Test for truthiness
     Ember.assert('Must pass a valid object', obj);
-  
-    // Fail unconditionally
+     // Fail unconditionally
     Ember.assert('This code path should never be run');
     ```
-  
-    @method assert
+     @method assert
     @param {String} desc A description of the assertion. This will become
       the text of the Error thrown if the assertion fails.
     @param {Boolean} test Must be truthy for the assertion to pass. If
@@ -6441,15 +6477,12 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   /**
     Display a debug notice.
-  
-    * In a production build, this method is defined as an empty function (NOP).
+     * In a production build, this method is defined as an empty function (NOP).
     Uses of this method in Ember itself are stripped from the ember.prod.js build.
-  
-    ```javascript
+     ```javascript
     Ember.debug('I\'m a debug notice!');
     ```
-  
-    @method debug
+     @method debug
     @param {String} message A debug message to display.
     @public
   */
@@ -6459,11 +6492,9 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   /**
     Display an info notice.
-  
-    * In a production build, this method is defined as an empty function (NOP).
+     * In a production build, this method is defined as an empty function (NOP).
     Uses of this method in Ember itself are stripped from the ember.prod.js build.
-  
-    @method info
+     @method info
     @private
   */
   setDebugFunction('info', function () {
@@ -6472,17 +6503,13 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   /**
     Alias an old, deprecated method with its new counterpart.
-  
-    Display a deprecation warning with the provided message and a stack trace
+     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only) when the assigned method is called.
-  
-    * In a production build, this method is defined as an empty function (NOP).
-  
-    ```javascript
+     * In a production build, this method is defined as an empty function (NOP).
+     ```javascript
     Ember.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);
     ```
-  
-    @method deprecateFunc
+     @method deprecateFunc
     @param {String} message A description of the deprecation.
     @param {Object} [options] The options object for Ember.deprecate.
     @param {Function} func The new function called to replace its deprecated counterpart.
@@ -6517,11 +6544,9 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   /**
     Run a function meant for debugging.
-  
-    * In a production build, this method is defined as an empty function (NOP).
+     * In a production build, this method is defined as an empty function (NOP).
     Uses of this method in Ember itself are stripped from the ember.prod.js build.
-  
-    ```javascript
+     ```javascript
     Ember.runInDebug(() => {
       Ember.Component.reopen({
         didInsertElement() {
@@ -6530,8 +6555,7 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
       });
     });
     ```
-  
-    @method runInDebug
+     @method runInDebug
     @param {Function} func The function to be executed.
     @since 1.5.0
     @public
@@ -6552,37 +6576,38 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   setDebugFunction('warn', _warn2.default);
 
-  /**
-    Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or
-    any specific FEATURES flag is truthy.
-  
-    This method is called automatically in debug canary builds.
-  
-    @private
-    @method _warnIfUsingStrippedFeatureFlags
-    @return {void}
-  */
-  function _warnIfUsingStrippedFeatureFlags(FEATURES, knownFeatures, featuresWereStripped) {
-    var keys, i, key;
 
-    if (featuresWereStripped) {
-      warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+  var _warnIfUsingStrippedFeatureFlags = void 0;
 
-      keys = Object.keys(FEATURES || {});
+  if (true && !(0, _testing.isTesting)()) {
+    /**
+       Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or
+       any specific FEATURES flag is truthy.
+        This method is called automatically in debug canary builds.
+        @private
+       @method _warnIfUsingStrippedFeatureFlags
+       @return {void}
+    */
+    exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags = function (FEATURES, knownFeatures, featuresWereStripped) {
+      var keys, i, key;
 
-      for (i = 0; i < keys.length; i++) {
-        key = keys[i];
+      if (featuresWereStripped) {
+        warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberEnvironment.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
-        if (key === 'isEnabled' || !(key in knownFeatures)) {
-          continue;
+        keys = Object.keys(FEATURES || {});
+
+        for (i = 0; i < keys.length; i++) {
+          key = keys[i];
+
+          if (key === 'isEnabled' || !(key in knownFeatures)) {
+            continue;
+          }
+
+          warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
         }
-
-        warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
       }
-    }
-  }
+    };
 
-  if (!(0, _testing.isTesting)()) {
     // Complain if they're using FEATURE flags in builds other than canary
     FEATURES['features-stripped-test'] = true;
     featuresWereStripped = true;
@@ -6633,24 +6658,18 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
     warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 
-  function setDebugFunction(name, fn) {
-    debugFunctions[name] = fn;
-  }
-
-  function warn() {
-    return debugFunctions.warn.apply(undefined, arguments);
-  }
-
-  function debug() {
-    return debugFunctions.debug.apply(undefined, arguments);
-  }
-
-  function deprecate() {
-    return debugFunctions.deprecate.apply(undefined, arguments);
-  }
-});
-enifed("ember-debug/run-in-debug", [], function () {
-  "use strict";
+  exports.assert = assert;
+  exports.info = info;
+  exports.warn = warn;
+  exports.debug = debug;
+  exports.deprecate = deprecate;
+  exports.debugSeal = debugSeal;
+  exports.debugFreeze = debugFreeze;
+  exports.runInDebug = runInDebug;
+  exports.deprecateFunc = deprecateFunc;
+  exports.setDebugFunction = setDebugFunction;
+  exports.getDebugFunction = getDebugFunction;
+  exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 });
 enifed("ember-debug/testing", ["exports"], function (exports) {
   "use strict";
@@ -6666,9 +6685,12 @@ enifed("ember-debug/testing", ["exports"], function (exports) {
 enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate', 'ember-debug/handlers'], function (exports, _emberConsole, _deprecate, _handlers) {
   'use strict';
 
-  exports.missingOptionsIdDeprecation = exports.missingOptionsDeprecation = undefined;
-  exports.registerHandler = registerHandler;
-  exports.default =
+  exports.missingOptionsDeprecation = exports.missingOptionsIdDeprecation = exports.registerHandler = undefined;
+
+  var registerHandler = function () {};
+  var warn = function () {};
+  var missingOptionsDeprecation = void 0,
+      missingOptionsIdDeprecation = void 0;
 
   /**
   @module ember
@@ -6676,12 +6698,48 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
   */
 
   /**
+    Allows for runtime registration of handler functions that override the default warning behavior.
+    Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
+    The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
+    default warning behavior.
+     ```javascript
+    // next is not called, so no warnings get the default behavior
+    Ember.Debug.registerWarnHandler(() => {});
+    ```
+     The handler function takes the following arguments:
+     <ul>
+      <li> <code>message</code> - The message received from the warn call. </li>
+      <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
+        <ul>
+          <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
+        </ul>
+      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
+    </ul>
+     @public
+    @static
+    @method registerWarnHandler
+    @param handler {Function} A function to handle warnings.
+    @since 2.1.0
+  */
+  exports.registerHandler = registerHandler = function (handler) {
+    (0, _handlers.registerHandler)('warn', handler);
+  };
+
+  registerHandler(function (message) {
+    _emberConsole.default.warn('WARNING: ' + message);
+    if ('trace' in _emberConsole.default) {
+      _emberConsole.default.trace();
+    }
+  });
+
+  exports.missingOptionsDeprecation = missingOptionsDeprecation = 'When calling `Ember.warn` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include an `id` property.';
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
+
+  /**
     Display a warning with the provided message.
-  
-    * In a production build, this method is defined as an empty function (NOP).
+     * In a production build, this method is defined as an empty function (NOP).
     Uses of this method in Ember itself are stripped from the ember.prod.js build.
-  
-    @method warn
+     @method warn
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
       will be displayed.
@@ -6693,7 +6751,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
     @public
     @since 1.0.0
   */
-  function (message, test, options) {
+  warn = function (message, test, options) {
     if (arguments.length === 2 && typeof test === 'object') {
       options = test;
       test = false;
@@ -6717,47 +6775,11 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
     (0, _handlers.invoke)('warn', message, test, options);
   };
 
-  /**
-    Allows for runtime registration of handler functions that override the default warning behavior.
-    Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
-    The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
-    default warning behavior.
-  
-    ```javascript
-    // next is not called, so no warnings get the default behavior
-    Ember.Debug.registerWarnHandler(() => {});
-    ```
-  
-    The handler function takes the following arguments:
-  
-    <ul>
-      <li> <code>message</code> - The message received from the warn call. </li>
-      <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
-        <ul>
-          <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
-        </ul>
-      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
-    </ul>
-  
-    @public
-    @static
-    @method registerWarnHandler
-    @param handler {Function} A function to handle warnings.
-    @since 2.1.0
-  */
-  function registerHandler(handler) {
-    (0, _handlers.registerHandler)('warn', handler);
-  }
 
-  registerHandler(function (message) {
-    _emberConsole.default.warn('WARNING: ' + message);
-    if ('trace' in _emberConsole.default) {
-      _emberConsole.default.trace();
-    }
-  });
-
-  var missingOptionsDeprecation = exports.missingOptionsDeprecation = 'When calling `Ember.warn` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include an `id` property.';
-  var missingOptionsIdDeprecation = exports.missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
+  exports.default = warn;
+  exports.registerHandler = registerHandler;
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
 });
 enifed('ember-environment', ['exports'], function (exports) {
   'use strict';
@@ -9868,64 +9890,35 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function expandProperties(pattern, callback) {
     true && emberDebug.assert('A computed property key must be a string, you passed ' + typeof pattern + ' ' + pattern, typeof pattern === 'string');
     true && emberDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
+    // regex to look for double open, double close, or unclosed braces
 
-    var unbalancedNestedError = 'Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern,
-        i,
-        current,
-        expansion,
-        j,
-        property,
-        k,
-        _i;
-    var properties = [pattern];
+    true && emberDebug.assert('Brace expanded properties have to be balanced and cannot be nested, pattern: ' + pattern, pattern.match(/\{[^}{]*\{|\}[^}{]*\}|\{[^}]*$/g) === null);
 
-    // Iterating backward over the pattern makes dealing with indices easier.
-    var bookmark = void 0;
-    var inside = false;
-    for (i = pattern.length; i > 0; --i) {
-      current = pattern[i - 1];
+    var start = pattern.indexOf('{');
+    if (start < 0) {
+      callback(pattern.replace(END_WITH_EACH_REGEX, '.[]'));
+    } else {
+      dive('', pattern, start, callback);
+    }
+  }
 
+  function dive(prefix, pattern, start, callback) {
+    var end = pattern.indexOf('}'),
+        i = 0,
+        newStart = void 0,
+        arrayLength = void 0;
+    var tempArr = pattern.substring(start + 1, end).split(',');
+    var after = pattern.substring(end + 1);
+    prefix = prefix + pattern.substring(0, start);
 
-      switch (current) {
-        // Closing curly brace will be the first character of the brace expansion we encounter.
-        // Bookmark its index so long as we're not already inside a brace expansion.
-        case '}':
-          if (!inside) {
-            bookmark = i - 1;
-            inside = true;
-          } else {
-            true && emberDebug.assert(unbalancedNestedError, false);
-          }
-          break;
-        // Opening curly brace will be the last character of the brace expansion we encounter.
-        // Apply the brace expansion so long as we've already seen a closing curly brace.
-        case '{':
-          if (inside) {
-            expansion = pattern.slice(i, bookmark).split(',');
-            // Iterating backward allows us to push new properties w/out affecting our "cursor".
-
-            for (j = properties.length; j > 0; --j) {
-              // Extract the unexpanded property from the array.
-              property = properties.splice(j - 1, 1)[0];
-              // Iterate over the expansion, pushing the newly formed properties onto the array.
-
-              for (k = 0; k < expansion.length; ++k) {
-                properties.push(property.slice(0, i - 1) + expansion[k] + property.slice(bookmark + 1));
-              }
-            }
-            inside = false;
-          } else {
-            true && emberDebug.assert(unbalancedNestedError, false);
-          }
-          break;
+    arrayLength = tempArr.length;
+    while (i < arrayLength) {
+      newStart = after.indexOf('{');
+      if (newStart < 0) {
+        callback((prefix + tempArr[i++] + after).replace(END_WITH_EACH_REGEX, '.[]'));
+      } else {
+        dive(prefix + tempArr[i++], after, newStart, callback);
       }
-    }
-    if (inside) {
-      true && emberDebug.assert(unbalancedNestedError, false);
-    }
-
-    for (_i = 0; _i < properties.length; _i++) {
-      callback(properties[_i].replace(END_WITH_EACH_REGEX, '.[]'));
     }
   }
 
@@ -16662,7 +16655,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.2";
+  exports.default = "2.14.0-beta.2-null+3a8a9841";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

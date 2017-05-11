@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.14.0-beta.2"
+        "version": "2.14.0-beta.2.3a8a9841"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -1997,7 +1997,7 @@
             },
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 255
+            "line": 248
         },
         "ember-application": {
             "name": "ember-application",
@@ -2036,7 +2036,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 125
+            "line": 11
         },
         "ember-extension-support": {
             "name": "ember-extension-support",
@@ -3930,7 +3930,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 57,
+            "line": 50,
             "access": "public",
             "tagname": ""
         },
@@ -3945,7 +3945,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 255,
+            "line": 248,
             "access": "private",
             "tagname": ""
         }
@@ -6926,7 +6926,7 @@
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 10,
+            "line": 16,
             "description": "Allows for runtime registration of handler functions that override the default deprecation behavior.\nDeprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).\nThe following example demonstrates its usage by registering a handler that throws an error if the\nmessage contains the word \"should\", otherwise defers to the default handler.\n\n```javascript\nEmber.Debug.registerDeprecationHandler((message, options, next) => {\n  if (message.indexOf('should') !== -1) {\n    throw new Error(`Deprecation message with should: ${message}`);\n  } else {\n    // defer to whatever handler was registered before this one\n    next(message, options);\n  }\n});\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the deprecation call.</li>\n  <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>\n      <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -6942,11 +6942,12 @@
             ],
             "since": "2.1.0",
             "class": "Ember",
-            "module": "ember"
+            "module": "ember",
+            "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 130,
+            "line": 135,
             "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only).\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "deprecate",
@@ -7018,7 +7019,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 39,
+            "line": 74,
             "description": "Define an assertion that will throw an exception if the condition is not met.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\n// Test for truthiness\nEmber.assert('Must pass a valid object', obj);\n\n// Fail unconditionally\nEmber.assert('This code path should never be run');\n```",
             "itemtype": "method",
             "name": "assert",
@@ -7043,7 +7044,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 67,
+            "line": 102,
             "description": "Display a debug notice.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\nEmber.debug('I\\'m a debug notice!');\n```",
             "itemtype": "method",
             "name": "debug",
@@ -7062,7 +7063,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 85,
+            "line": 120,
             "description": "Display an info notice.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "info",
@@ -7074,7 +7075,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 98,
+            "line": 133,
             "description": "Alias an old, deprecated method with its new counterpart.\n\nDisplay a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only) when the assigned method is called.\n\n* In a production build, this method is defined as an empty function (NOP).\n\n```javascript\nEmber.oldMethod = Ember.deprecateFunc('Please use the new, updated method', Ember.newMethod);\n```",
             "itemtype": "method",
             "name": "deprecateFunc",
@@ -7108,7 +7109,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 134,
+            "line": 169,
             "description": "Run a function meant for debugging.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.\n\n```javascript\nEmber.runInDebug(() => {\n  Ember.Component.reopen({\n    didInsertElement() {\n      console.log(\"I'm happy\");\n    }\n  });\n});\n```",
             "itemtype": "method",
             "name": "runInDebug",
@@ -7128,7 +7129,7 @@
         },
         {
             "file": "packages/ember-debug/lib/index.js",
-            "line": 171,
+            "line": 210,
             "description": "Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or\nany specific FEATURES flag is truthy.\n\nThis method is called automatically in debug canary builds.",
             "access": "private",
             "tagname": "",
@@ -7144,7 +7145,7 @@
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 5,
+            "line": 17,
             "description": "Allows for runtime registration of handler functions that override the default warning behavior.\nWarnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).\nThe following example demonstrates its usage by registering a handler that does nothing overriding Ember's\ndefault warning behavior.\n\n```javascript\n// next is not called, so no warnings get the default behavior\nEmber.Debug.registerWarnHandler(() => {});\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the warn call. </li>\n  <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -7160,11 +7161,12 @@
             ],
             "since": "2.1.0",
             "class": "Ember",
-            "module": "ember"
+            "module": "ember",
+            "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 54,
+            "line": 61,
             "description": "Display a warning with the provided message.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "warn",
@@ -20936,7 +20938,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 157,
+            "line": 150,
             "description": "The context that Ember searches for namespace instances on.",
             "access": "private",
             "tagname": "",
@@ -20945,7 +20947,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 195,
+            "line": 188,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -20963,7 +20965,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 222,
+            "line": 215,
             "description": "An empty function useful for some operations. Always returns `this`.",
             "itemtype": "method",
             "name": "K",
@@ -20978,7 +20980,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 439,
+            "line": 432,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -20990,7 +20992,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 455,
+            "line": 448,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -21002,7 +21004,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 521,
+            "line": 514,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -21014,7 +21016,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 541,
+            "line": 534,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -21026,7 +21028,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 554,
+            "line": 547,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
@@ -21231,7 +21233,7 @@
         },
         {
             "message": "Missing item type\nThe context that Ember searches for namespace instances on.",
-            "line": " packages/ember/lib/index.js:157"
+            "line": " packages/ember/lib/index.js:150"
         }
     ]
 }
