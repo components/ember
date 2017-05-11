@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+73d6f46c
+ * @version   2.15.0-alpha.1-null+5a35da5d
  */
 
 var enifed, requireModule, Ember;
@@ -6106,12 +6106,6 @@ QUnit.module('ESLint | ember-debug/index.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-debug/index.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-debug/run-in-debug.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-debug/run-in-debug.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-debug/testing.js');
@@ -69001,6 +68995,40 @@ QUnit.module('ESLint | ember/tests/integration/multiple-app-test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember/tests/integration/multiple-app-test.js should pass ESLint\n\n');
+});
+
+enifed('ember/tests/production_build_test', ['ember-debug'], function (_emberDebug) {
+  'use strict';
+
+  QUnit.module('production builds');
+
+  if (!true) {
+    QUnit.test('assert does not throw in production builds', function (assert) {
+      assert.expect(1);
+
+      try {
+        (true && (0, _emberDebug.assert)('Should not throw'));
+
+        assert.ok(true, 'Ember.assert did not throw');
+      } catch (e) {
+        assert.ok(false, 'Expected assert not to throw but it did: ' + e.message);
+      }
+    });
+
+    QUnit.test('runInDebug does not run the callback in production builds', function (assert) {
+      var fired = false;
+      (0, _emberDebug.runInDebug)(function () {
+        return fired = true;
+      });
+
+      assert.equal(fired, false, 'runInDebug callback should not be ran');
+    });
+  }
+});
+QUnit.module('ESLint | ember/tests/production_build_test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember/tests/production_build_test.js should pass ESLint\n\n');
 });
 
 enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers', 'ember/features'], function (_index, _internalTestHelpers, _features) {
