@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.15.0-alpha.1.00e51255"
+        "version": "2.15.0-alpha.1.6e8e474c"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -3885,7 +3885,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/views/core_view.js",
-            "line": 11,
+            "line": 10,
             "description": "`Ember.CoreView` is an abstract class that exists to give view-like behavior\nto both Ember's main view class `Ember.Component` and other classes that don't need\nthe full functionality of `Ember.Component`.\n\nUnless you have specific needs for `CoreView`, you will use `Ember.Component`\nin your applications.",
             "extends": "Ember.Object",
             "deprecated": true,
@@ -20761,7 +20761,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/core_view.js",
-            "line": 44,
+            "line": 43,
             "description": "If the view is currently inserted into the DOM of a parent view, this\nproperty will point to the parent of the view.",
             "itemtype": "property",
             "name": "parentView",
@@ -20775,7 +20775,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/core_view.js",
-            "line": 62,
+            "line": 61,
             "description": "Override the default event firing from `Ember.Evented` to\nalso call methods with the given name.",
             "itemtype": "method",
             "name": "trigger",
