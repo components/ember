@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+f36a3ebf
+ * @version   2.15.0-alpha.1-null+80066280
  */
 
 var enifed, requireModule, Ember;
@@ -9777,7 +9777,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
       var cached = this.factoryManagerCache[normalizedName];
 
-      if (cached) {
+      if (cached !== undefined) {
         return cached;
       }
 
@@ -9820,8 +9820,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       }
     }
 
-    if (container.cache[fullName] !== undefined && options.singleton !== false) {
-      return container.cache[fullName];
+    var cached = container.cache[fullName];
+    if (cached !== undefined && options.singleton !== false) {
+      return cached;
     }
 
     return instantiateFactory(container, fullName, options);
@@ -9831,28 +9832,28 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     var instantiate = _ref2.instantiate,
         singleton = _ref2.singleton;
 
-    return singleton !== false && isSingleton(container, fullName) && !instantiate && !isInstantiatable(container, fullName);
+    return singleton !== false && !instantiate && isSingleton(container, fullName) && !isInstantiatable(container, fullName);
   }
 
   function isSingletonInstance(container, fullName, _ref3) {
     var instantiate = _ref3.instantiate,
         singleton = _ref3.singleton;
 
-    return singleton !== false && isSingleton(container, fullName) && instantiate !== false && isInstantiatable(container, fullName);
+    return singleton !== false && instantiate !== false && isSingleton(container, fullName) && isInstantiatable(container, fullName);
   }
 
   function isFactoryClass(container, fullname, _ref4) {
     var instantiate = _ref4.instantiate,
         singleton = _ref4.singleton;
 
-    return (singleton === false || !isSingleton(container, fullname)) && instantiate === false && !isInstantiatable(container, fullname);
+    return instantiate === false && (singleton === false || !isSingleton(container, fullname)) && !isInstantiatable(container, fullname);
   }
 
   function isFactoryInstance(container, fullName, _ref5) {
     var instantiate = _ref5.instantiate,
         singleton = _ref5.singleton;
 
-    return (singleton !== false || isSingleton(container, fullName)) && instantiate !== false && isInstantiatable(container, fullName);
+    return instantiate !== false && (singleton !== false || isSingleton(container, fullName)) && isInstantiatable(container, fullName);
   }
 
   function instantiateFactory(container, fullName, options) {
@@ -9885,8 +9886,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     injections._dynamic = true;
   }
 
-  function areInjectionsDynamic(injections) {
-    return !!injections._dynamic;
+  function areInjectionsNotDynamic(injections) {
+    return injections._dynamic !== true;
   }
 
   function buildInjections() /* container, ...injections */{
@@ -10001,7 +10002,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       var injections = this.injections;
       if (injections === undefined) {
         injections = injectionsFor(this.container, this.normalizedName);
-        if (areInjectionsDynamic(injections) === false) {
+        if (areInjectionsNotDynamic(injections)) {
           this.injections = injections;
         }
       }
@@ -44132,7 +44133,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+f36a3ebf";
+  exports.default = "2.15.0-alpha.1-null+80066280";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
