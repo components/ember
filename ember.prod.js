@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2-null+3a8a9841
+ * @version   2.14.0-beta.2-null+32f9318b
  */
 
 var enifed, requireModule, Ember;
@@ -13382,7 +13382,7 @@ enifed('ember-debug/handlers', ['exports'], function (exports) {
 enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/deprecate', 'ember-debug/features', 'ember-debug/error', 'ember-debug/testing', 'ember-environment', 'ember-console', 'ember/features'], function (exports, _warn2, _deprecate2, _features, _error, _testing, _emberEnvironment, _emberConsole, _features2) {
   'use strict';
 
-  exports._warnIfUsingStrippedFeatureFlags = exports.getDebugFunction = exports.setDebugFunction = exports.deprecateFunc = exports.runInDebug = exports.debugFreeze = exports.debugSeal = exports.deprecate = exports.debug = exports.warn = exports.info = exports.assert = exports.runningNonEmberDebugJS = exports.setTesting = exports.isTesting = exports.Error = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
+  exports._warnIfUsingStrippedFeatureFlags = exports.getDebugFunction = exports.setDebugFunction = exports.deprecateFunc = exports.runInDebug = exports.debugFreeze = exports.debugSeal = exports.deprecate = exports.debug = exports.warn = exports.info = exports.assert = exports.setTesting = exports.isTesting = exports.Error = exports.isFeatureEnabled = exports.registerDeprecationHandler = exports.registerWarnHandler = undefined;
   Object.defineProperty(exports, 'registerWarnHandler', {
     enumerable: true,
     get: function () {
@@ -13424,25 +13424,10 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
   // These are the default production build versions:
 
-  var warn = function () {};
-
-
-  /*
-    We are transitioning away from `ember.js` to `ember.debug.js` to make
-    it much clearer that it is only for local development purposes.
-  
-    This flag value is changed by the tooling (by a simple string replacement)
-    so that if `ember.js` (which must be output for backwards compat reasons) is
-    used a nice helpful warning message will be printed out.
-  */
-  var runningNonEmberDebugJS = exports.runningNonEmberDebugJS = false;
-  if (runningNonEmberDebugJS) {
-    warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
-  }
 
   exports.assert = function () {};
   exports.info = function () {};
-  exports.warn = warn;
+  exports.warn = function () {};
   exports.debug = function () {};
   exports.deprecate = function () {};
   exports.debugSeal = function () {};
@@ -43072,7 +43057,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/
           args,
           i;
       var method = this[name];
-      if (method) {
+      if (typeof method === 'function') {
         args = new Array(arguments.length - 1);
 
         for (i = 1; i < arguments.length; i++) {
@@ -43082,7 +43067,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-runtime', 'ember-views/
       }
     },
     has: function (name) {
-      return (0, _emberRuntime.typeOf)(this[name]) === 'function' || this._super(name);
+      return typeof this[name] === 'function' || this._super(name);
     }
   });
 
@@ -43310,6 +43295,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.assert = _emberDebug.assert;
   _emberMetal.default.warn = _emberDebug.warn;
   _emberMetal.default.debug = _emberDebug.debug;
+  _emberMetal.default.deprecate = _emberDebug.deprecate;
   _emberMetal.default.deprecateFunc = _emberDebug.deprecateFunc;
   _emberMetal.default.runInDebug = _emberDebug.runInDebug;
   /**
@@ -43808,7 +43794,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.2-null+3a8a9841";
+  exports.default = "2.14.0-beta.2-null+32f9318b";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
