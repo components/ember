@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b02f99dd
+ * @version   2.15.0-alpha.1-null+d4393508
  */
 
 var enifed, requireModule, Ember;
@@ -33420,7 +33420,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       if (ignoreFailure) {
         return;
       }
-      throw new _emberDebug.EmberError('Can\'t trigger action \'' + name + '\' because your app hasn\'t finished transitioning into its first route. To trigger an action on destination routes during a transition, you can call `.send()` on the `Transition` object passed to the `model/beforeModel/afterModel` hooks.');
+      throw new _emberDebug.Error('Can\'t trigger action \'' + name + '\' because your app hasn\'t finished transitioning into its first route. To trigger an action on destination routes during a transition, you can call `.send()` on the `Transition` object passed to the `model/beforeModel/afterModel` hooks.');
     }
 
     var eventWasHandled = false;
@@ -33451,7 +33451,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     }
 
     if (!eventWasHandled && !ignoreFailure) {
-      throw new _emberDebug.EmberError('Nothing handled the action \'' + name + '\'. If you did handle the action, this error can be caused by returning true from an action handler in a controller, causing the action to bubble.');
+      throw new _emberDebug.Error('Nothing handled the action \'' + name + '\'. If you did handle the action, this error can be caused by returning true from an action handler in a controller, causing the action to bubble.');
     }
   }
 
@@ -47731,7 +47731,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+b02f99dd";
+  exports.default = "2.15.0-alpha.1-null+d4393508";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

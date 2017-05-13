@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b02f99dd
+ * @version   2.15.0-alpha.1-null+d4393508
  */
 
 var enifed, requireModule, Ember;
@@ -45757,6 +45757,13 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
     createRouter(null, { disableSetup: true, skipOwner: true });
 
     ok(true, 'no errors were thrown when creating without a container');
+  });
+
+  QUnit.test('[GH#15237] EmberError is imported correctly', function () {
+    // If we get the right message it means Error is being imported correctly.
+    throws(function () {
+      (0, _router.triggerEvent)(null, false, []);
+    }, /because your app hasn't finished transitioning/);
   });
 
   QUnit.test('should not create a router.js instance upon init', function () {
