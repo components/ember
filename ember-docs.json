@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.15.0-alpha.1.d4393508"
+        "version": "2.15.0-alpha.1.73aef497"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -1997,7 +1997,7 @@
             },
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 249
+            "line": 262
         },
         "ember-application": {
             "name": "ember-application",
@@ -3930,7 +3930,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 51,
+            "line": 52,
             "access": "public",
             "tagname": ""
         },
@@ -3945,7 +3945,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 249,
+            "line": 262,
             "access": "private",
             "tagname": ""
         }
@@ -7433,7 +7433,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 398,
+            "line": 397,
             "description": "Fetches all loaded records for a given type.",
             "access": "private",
             "tagname": "",
@@ -7450,7 +7450,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 411,
+            "line": 410,
             "description": "Wraps a record and observers changes to it.",
             "access": "private",
             "tagname": "",
@@ -7474,7 +7474,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 432,
+            "line": 431,
             "description": "Gets the values for each column.",
             "access": "private",
             "tagname": "",
@@ -7491,7 +7491,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 444,
+            "line": 443,
             "description": "Returns keywords to match when searching records.",
             "access": "private",
             "tagname": "",
@@ -7508,7 +7508,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 455,
+            "line": 454,
             "description": "Returns the values of filters defined by `getFilters`.",
             "access": "private",
             "tagname": "",
@@ -7532,7 +7532,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 467,
+            "line": 466,
             "description": "Each record can have a color that represents its state.",
             "access": "private",
             "tagname": "",
@@ -7556,7 +7556,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 480,
+            "line": 479,
             "description": "Observes all relevant properties and re-sends the wrapped record\nwhen a change occurs.",
             "access": "private",
             "tagname": "",
@@ -17848,7 +17848,7 @@
         {
             "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
             "line": 205,
-            "description": "Define a dependency injection onto a specific factory or all factories\nof a type.\n\nWhen Ember instantiates a controller, view, or other framework component\nit can attach a dependency to that component. This is often used to\nprovide services to a set of framework components.\n\nAn example of providing a session object to all controllers:\n\n```javascript\nlet App = Ember.Application.create();\nlet Session = Ember.Object.extend({ isAuthenticated: false });\n\n// A factory must be registered before it can be injected\nApp.register('session:main', Session);\n\n// Inject 'session:main' onto all factories of the type 'controller'\n// with the name 'session'\nApp.inject('controller', 'session', 'session:main');\n\nApp.IndexController = Ember.Controller.extend({\n  isLoggedIn: Ember.computed.alias('session.isAuthenticated')\n});\n```\n\nInjections can also be performed on specific factories.\n\n```javascript\nApp.inject(<full_name or type>, <property name>, <full_name>)\nApp.inject('route', 'source', 'source:main')\nApp.inject('route:application', 'email', 'model:email')\n```\n\nIt is important to note that injections can only be performed on\nclasses that are instantiated by Ember itself. Instantiating a class\ndirectly (via `create` or `new`) bypasses the dependency injection\nsystem.\n\n**Note:** Ember-Data instantiates its models in a unique manner, and consequently\ninjections onto models (or all models) will not work as expected. Injections\non models can be enabled by setting `EmberENV.MODEL_FACTORY_INJECTIONS`\nto `true`.",
+            "description": "Define a dependency injection onto a specific factory or all factories\nof a type.\n\nWhen Ember instantiates a controller, view, or other framework component\nit can attach a dependency to that component. This is often used to\nprovide services to a set of framework components.\n\nAn example of providing a session object to all controllers:\n\n```javascript\nlet App = Ember.Application.create();\nlet Session = Ember.Object.extend({ isAuthenticated: false });\n\n// A factory must be registered before it can be injected\nApp.register('session:main', Session);\n\n// Inject 'session:main' onto all factories of the type 'controller'\n// with the name 'session'\nApp.inject('controller', 'session', 'session:main');\n\nApp.IndexController = Ember.Controller.extend({\n  isLoggedIn: Ember.computed.alias('session.isAuthenticated')\n});\n```\n\nInjections can also be performed on specific factories.\n\n```javascript\nApp.inject(<full_name or type>, <property name>, <full_name>)\nApp.inject('route', 'source', 'source:main')\nApp.inject('route:application', 'email', 'model:email')\n```\n\nIt is important to note that injections can only be performed on\nclasses that are instantiated by Ember itself. Instantiating a class\ndirectly (via `create` or `new`) bypasses the dependency injection\nsystem.",
             "access": "public",
             "tagname": "",
             "itemtype": "method",
@@ -20794,7 +20794,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 151,
+            "line": 152,
             "description": "The context that Ember searches for namespace instances on.",
             "access": "private",
             "tagname": "",
@@ -20803,7 +20803,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 189,
+            "line": 202,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -20821,7 +20821,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 216,
+            "line": 229,
             "description": "An empty function useful for some operations. Always returns `this`.",
             "itemtype": "method",
             "name": "K",
@@ -20836,7 +20836,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 433,
+            "line": 446,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -20848,7 +20848,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 449,
+            "line": 462,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -20860,7 +20860,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 515,
+            "line": 528,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -20872,7 +20872,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 535,
+            "line": 548,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -20884,7 +20884,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 548,
+            "line": 561,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
@@ -21089,7 +21089,7 @@
         },
         {
             "message": "Missing item type\nThe context that Ember searches for namespace instances on.",
-            "line": " packages/ember/lib/index.js:151"
+            "line": " packages/ember/lib/index.js:152"
         }
     ]
 }

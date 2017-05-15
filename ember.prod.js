@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d4393508
+ * @version   2.15.0-alpha.1-null+73aef497
  */
 
 var enifed, requireModule, Ember;
@@ -13361,9 +13361,6 @@ enifed('ember-environment', ['exports'], function (exports) {
   */
   ENV.LOG_VERSION = defaultTrue(ENV.LOG_VERSION);
 
-  // default false
-  ENV.MODEL_FACTORY_INJECTIONS = defaultFalse(ENV.MODEL_FACTORY_INJECTIONS);
-
   /**
     Debug parameter you can turn on. This will log all bindings that fire to
     the console. This should be disabled in production code. Note that you
@@ -13820,7 +13817,6 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
           }
           // Even though we will filter again in `getModelTypes`,
           // we should not call `lookupFactory` on non-models
-          // (especially when `EmberENV.MODEL_FACTORY_INJECTIONS` is `true`)
           if (!_this5.detect(namespace[key])) {
             continue;
           }
@@ -38503,10 +38499,6 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal', 'ember-
       classes that are instantiated by Ember itself. Instantiating a class
       directly (via `create` or `new`) bypasses the dependency injection
       system.
-       **Note:** Ember-Data instantiates its models in a unique manner, and consequently
-      injections onto models (or all models) will not work as expected. Injections
-      on models can be enabled by setting `EmberENV.MODEL_FACTORY_INJECTIONS`
-      to `true`.
        @public
       @method inject
       @param  factoryNameOrType {String}
@@ -43240,17 +43232,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
     enumerable: false
   });
 
-  Object.defineProperty(_emberMetal.default, 'MODEL_FACTORY_INJECTIONS', {
-    get: function () {
-      return _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-    },
-    set: function (value) {
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = !!value;
-    },
-
-    enumerable: false
-  });
-
   Object.defineProperty(_emberMetal.default, 'LOG_BINDINGS', {
     get: function () {
       return _emberEnvironment.ENV.LOG_BINDINGS;
@@ -43596,7 +43577,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+d4393508";
+  exports.default = "2.15.0-alpha.1-null+73aef497";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
