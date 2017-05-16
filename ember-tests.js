@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+73aef497
+ * @version   2.15.0-alpha.1-null+5b42a548
  */
 
 var enifed, requireModule, Ember;
@@ -18021,7 +18021,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
             return pushHook('on(init)');
           });
 
-          _emberMetal.run.scheduleOnce('afterRender', function () {
+          _emberMetal.run.schedule('afterRender', function () {
             _this3.isInitialRender = false;
           });
         },
@@ -18797,7 +18797,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         didInsertElement: function () {
           var _this15 = this;
 
-          _emberMetal.run.scheduleOnce('afterRender', function () {
+          _emberMetal.run.schedule('afterRender', function () {
             _this15.set('width', '10');
           });
         }
@@ -18824,7 +18824,7 @@ enifed('ember-glimmer/tests/integration/components/life-cycle-test', ['ember-bab
         didInsertElement: function () {
           var _this17 = this;
 
-          _emberMetal.run.scheduleOnce('afterRender', function () {
+          _emberMetal.run.schedule('afterRender', function () {
             var parent = _this17.get('parent');
             parent.set('foo', 'wat');
           });
