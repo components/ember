@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+5b42a548
+ * @version   2.15.0-alpha.1-null+c01b64bd
  */
 
 var enifed, requireModule, Ember;
@@ -15507,6 +15507,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       this.assertText('huzzah!');
+    };
+
+    _class.prototype['@test can use custom element in component layout'] = function () {
+      this.registerComponent('foo-bar', {
+        template: '<blah-zorz>Hi!</blah-zorz>'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Hi!');
+    };
+
+    _class.prototype['@test can use nested custom element in component layout'] = function () {
+      this.registerComponent('foo-bar', {
+        template: '<blah-zorz><hows-it-going>Hi!</hows-it-going></blah-zorz>'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Hi!');
     };
 
     return _class;

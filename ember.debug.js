@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+5b42a548
+ * @version   2.15.0-alpha.1-null+c01b64bd
  */
 
 var enifed, requireModule, Ember;
@@ -4828,6 +4828,26 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
 
         blocks.compile([Ops$1.NestedBlock, path, params, hash, templateBlock, inverseBlock], builder);
     });
+    // this fixes an issue with Ember versions using glimmer-vm@0.22 when attempting
+    // to use nested web components.  This is obviously not correct for angle bracket components
+    // but since no consumers are currently using them with glimmer@0.22.x we are hard coding
+    // support to just use the fallback case.
+    STATEMENTS.add(Ops$1.Component, function (sexp, builder) {
+        var tag = sexp[1],
+            component = sexp[2];
+        var attrs = component.attrs,
+            statements = component.statements;
+
+        builder.openPrimitiveElement(tag);
+        for (var i = 0; i < attrs.length; i++) {
+            STATEMENTS.compile(attrs[i], builder);
+        }
+        builder.flushElement();
+        for (var _i2 = 0; _i2 < statements.length; _i2++) {
+            STATEMENTS.compile(statements[_i2], builder);
+        }
+        builder.closeElement();
+    });
     STATEMENTS.add(Ops$1.ScannedComponent, function (sexp, builder) {
         var tag = sexp[1],
             attrs = sexp[2],
@@ -6246,30 +6266,30 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             var updatedComponents = this.updatedComponents,
                 updatedManagers = this.updatedManagers;
 
-            for (var _i2 = 0; _i2 < updatedComponents.length; _i2++) {
-                var _component2 = updatedComponents[_i2];
-                var _manager2 = updatedManagers[_i2];
+            for (var _i3 = 0; _i3 < updatedComponents.length; _i3++) {
+                var _component2 = updatedComponents[_i3];
+                var _manager2 = updatedManagers[_i3];
                 _manager2.didUpdate(_component2);
             }
             var destructors = this.destructors;
 
-            for (var _i3 = 0; _i3 < destructors.length; _i3++) {
-                destructors[_i3].destroy();
+            for (var _i4 = 0; _i4 < destructors.length; _i4++) {
+                destructors[_i4].destroy();
             }
             var scheduledInstallManagers = this.scheduledInstallManagers,
                 scheduledInstallModifiers = this.scheduledInstallModifiers;
 
-            for (var _i4 = 0; _i4 < scheduledInstallManagers.length; _i4++) {
-                var _manager3 = scheduledInstallManagers[_i4];
-                var modifier = scheduledInstallModifiers[_i4];
+            for (var _i5 = 0; _i5 < scheduledInstallManagers.length; _i5++) {
+                var _manager3 = scheduledInstallManagers[_i5];
+                var modifier = scheduledInstallModifiers[_i5];
                 _manager3.install(modifier);
             }
             var scheduledUpdateModifierManagers = this.scheduledUpdateModifierManagers,
                 scheduledUpdateModifiers = this.scheduledUpdateModifiers;
 
-            for (var _i5 = 0; _i5 < scheduledUpdateModifierManagers.length; _i5++) {
-                var _manager4 = scheduledUpdateModifierManagers[_i5];
-                var _modifier = scheduledUpdateModifiers[_i5];
+            for (var _i6 = 0; _i6 < scheduledUpdateModifierManagers.length; _i6++) {
+                var _manager4 = scheduledUpdateModifierManagers[_i6];
+                var _modifier = scheduledUpdateModifiers[_i6];
                 _manager4.update(_modifier);
             }
         };
@@ -47729,7 +47749,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+5b42a548";
+  exports.default = "2.15.0-alpha.1-null+c01b64bd";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
