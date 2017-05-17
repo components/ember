@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2-null+32f9318b
+ * @version   2.14.0-beta.2-null+740a8bdd
  */
 
 var enifed, requireModule, Ember;
@@ -4830,6 +4830,28 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
 
         blocks.compile([Ops$1.NestedBlock, path, params, hash, templateBlock, inverseBlock], builder);
     });
+    // this fixes an issue with Ember versions using glimmer-vm@0.22 when attempting
+    // to use nested web components.  This is obviously not correct for angle bracket components
+    // but since no consumers are currently using them with glimmer@0.22.x we are hard coding
+    // support to just use the fallback case.
+    STATEMENTS.add(Ops$1.Component, function (sexp, builder) {
+        var tag = sexp[1],
+            component = sexp[2],
+            i,
+            _i2;
+        var attrs = component.attrs,
+            statements = component.statements;
+
+        builder.openPrimitiveElement(tag);
+        for (i = 0; i < attrs.length; i++) {
+            STATEMENTS.compile(attrs[i], builder);
+        }
+        builder.flushElement();
+        for (_i2 = 0; _i2 < statements.length; _i2++) {
+            STATEMENTS.compile(statements[_i2], builder);
+        }
+        builder.closeElement();
+    });
     STATEMENTS.add(Ops$1.ScannedComponent, function (sexp, builder) {
         var tag = sexp[1],
             attrs = sexp[2],
@@ -6248,14 +6270,14 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
                 i,
                 component,
                 manager,
-                _i2,
+                _i3,
                 _component2,
                 _manager2,
-                _i3,
                 _i4,
+                _i5,
                 _manager3,
                 modifier,
-                _i5,
+                _i6,
                 _manager4,
                 _modifier;
 
@@ -6268,32 +6290,32 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             var updatedComponents = this.updatedComponents,
                 updatedManagers = this.updatedManagers;
 
-            for (_i2 = 0; _i2 < updatedComponents.length; _i2++) {
-                _component2 = updatedComponents[_i2];
-                _manager2 = updatedManagers[_i2];
+            for (_i3 = 0; _i3 < updatedComponents.length; _i3++) {
+                _component2 = updatedComponents[_i3];
+                _manager2 = updatedManagers[_i3];
 
                 _manager2.didUpdate(_component2);
             }
             var destructors = this.destructors;
 
-            for (_i3 = 0; _i3 < destructors.length; _i3++) {
-                destructors[_i3].destroy();
+            for (_i4 = 0; _i4 < destructors.length; _i4++) {
+                destructors[_i4].destroy();
             }
             var scheduledInstallManagers = this.scheduledInstallManagers,
                 scheduledInstallModifiers = this.scheduledInstallModifiers;
 
-            for (_i4 = 0; _i4 < scheduledInstallManagers.length; _i4++) {
-                _manager3 = scheduledInstallManagers[_i4];
-                modifier = scheduledInstallModifiers[_i4];
+            for (_i5 = 0; _i5 < scheduledInstallManagers.length; _i5++) {
+                _manager3 = scheduledInstallManagers[_i5];
+                modifier = scheduledInstallModifiers[_i5];
 
                 _manager3.install(modifier);
             }
             var scheduledUpdateModifierManagers = this.scheduledUpdateModifierManagers,
                 scheduledUpdateModifiers = this.scheduledUpdateModifiers;
 
-            for (_i5 = 0; _i5 < scheduledUpdateModifierManagers.length; _i5++) {
-                _manager4 = scheduledUpdateModifierManagers[_i5];
-                _modifier = scheduledUpdateModifiers[_i5];
+            for (_i6 = 0; _i6 < scheduledUpdateModifierManagers.length; _i6++) {
+                _manager4 = scheduledUpdateModifierManagers[_i6];
+                _modifier = scheduledUpdateModifiers[_i6];
 
                 _manager4.update(_modifier);
             }
@@ -13570,9 +13592,6 @@ enifed('ember-environment', ['exports'], function (exports) {
   */
   ENV.LOG_VERSION = defaultTrue(ENV.LOG_VERSION);
 
-  // default false
-  ENV.MODEL_FACTORY_INJECTIONS = defaultFalse(ENV.MODEL_FACTORY_INJECTIONS);
-
   /**
     Debug parameter you can turn on. This will log all bindings that fire to
     the console. This should be disabled in production code. Note that you
@@ -14029,7 +14048,6 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
           }
           // Even though we will filter again in `getModelTypes`,
           // we should not call `lookupFactory` on non-models
-          // (especially when `EmberENV.MODEL_FACTORY_INJECTIONS` is `true`)
           if (!_this5.detect(namespace[key])) {
             continue;
           }
@@ -32487,7 +32505,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       if (ignoreFailure) {
         return;
       }
-      throw new _emberDebug.EmberError('Can\'t trigger action \'' + name + '\' because your app hasn\'t finished transitioning into its first route. To trigger an action on destination routes during a transition, you can call `.send()` on the `Transition` object passed to the `model/beforeModel/afterModel` hooks.');
+      throw new _emberDebug.Error('Can\'t trigger action \'' + name + '\' because your app hasn\'t finished transitioning into its first route. To trigger an action on destination routes during a transition, you can call `.send()` on the `Transition` object passed to the `model/beforeModel/afterModel` hooks.');
     }
 
     var eventWasHandled = false;
@@ -32519,7 +32537,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     }
 
     if (!eventWasHandled && !ignoreFailure) {
-      throw new _emberDebug.EmberError('Nothing handled the action \'' + name + '\'. If you did handle the action, this error can be caused by returning true from an action handler in a controller, causing the action to bubble.');
+      throw new _emberDebug.Error('Nothing handled the action \'' + name + '\'. If you did handle the action, this error can be caused by returning true from an action handler in a controller, causing the action to bubble.');
     }
   }
 
@@ -38676,10 +38694,6 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal', 'ember-
       classes that are instantiated by Ember itself. Instantiating a class
       directly (via `create` or `new`) bypasses the dependency injection
       system.
-       **Note:** Ember-Data instantiates its models in a unique manner, and consequently
-      injections onto models (or all models) will not work as expected. Injections
-      on models can be enabled by setting `EmberENV.MODEL_FACTORY_INJECTIONS`
-      to `true`.
        @public
       @method inject
       @param  factoryNameOrType {String}
@@ -43438,17 +43452,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
     enumerable: false
   });
 
-  Object.defineProperty(_emberMetal.default, 'MODEL_FACTORY_INJECTIONS', {
-    get: function () {
-      return _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-    },
-    set: function (value) {
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = !!value;
-    },
-
-    enumerable: false
-  });
-
   Object.defineProperty(_emberMetal.default, 'LOG_BINDINGS', {
     get: function () {
       return _emberEnvironment.ENV.LOG_BINDINGS;
@@ -43794,7 +43797,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.2-null+32f9318b";
+  exports.default = "2.14.0-beta.2-null+740a8bdd";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2-null+32f9318b
+ * @version   2.14.0-beta.2-null+740a8bdd
  */
 
 var enifed, requireModule, Ember;
@@ -115,16 +115,7 @@ var mainContext = this; // Used in ember-environment/lib/global.js
 enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'ember-metal', 'container', 'internal-test-helpers'], function (_emberUtils, _emberEnvironment, _emberMetal, _container, _internalTestHelpers) {
   'use strict';
 
-  var originalModelInjections = void 0;
-
-  QUnit.module('Container', {
-    setup: function () {
-      originalModelInjections = _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-    },
-    teardown: function () {
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = originalModelInjections;
-    }
-  });
+  QUnit.module('Container');
 
   function lookupFactory(name, container, options) {
     var factory = void 0;
@@ -358,8 +349,6 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'e
   });
 
   QUnit.test('Injecting a failed lookup raises an error', function () {
-    _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
-
     var registry = new _container.Registry();
     var container = registry.container();
 
@@ -2753,14 +2742,10 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
   // lookup, etc
 
   var originalLookup = void 0,
-      App = void 0,
-      originalModelInjections = void 0;
+      App = void 0;
 
   QUnit.module('Ember.Application Dependency Injection – toString', {
     setup: function () {
-      originalModelInjections = _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
-
       originalLookup = _emberEnvironment.context.lookup;
 
       (0, _emberMetal.run)(function () {
@@ -2775,7 +2760,6 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
     teardown: function () {
       _emberEnvironment.context.lookup = originalLookup;
       (0, _emberMetal.run)(App, 'destroy');
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
 
@@ -2821,14 +2805,10 @@ enifed('ember-application/tests/system/dependency_injection_test', ['ember-envir
   var originalLookup = _emberEnvironment.context.lookup;
   var registry = void 0,
       locator = void 0,
-      application = void 0,
-      originalModelInjections = void 0;
+      application = void 0;
 
   QUnit.module('Ember.Application Dependency Injection', {
     setup: function () {
-      originalModelInjections = _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
-
       application = (0, _emberMetal.run)(EmberApplication, 'create');
 
       application.Person = _emberRuntime.Object.extend({});
@@ -2852,7 +2832,6 @@ enifed('ember-application/tests/system/dependency_injection_test', ['ember-envir
       (0, _emberMetal.run)(application, 'destroy');
       application = locator = null;
       _emberEnvironment.context.lookup = originalLookup;
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
 
@@ -15829,6 +15808,26 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       });
 
       this.assertText('huzzah!');
+    };
+
+    _class.prototype['@test can use custom element in component layout'] = function () {
+      this.registerComponent('foo-bar', {
+        template: '<blah-zorz>Hi!</blah-zorz>'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Hi!');
+    };
+
+    _class.prototype['@test can use nested custom element in component layout'] = function () {
+      this.registerComponent('foo-bar', {
+        template: '<blah-zorz><hows-it-going>Hi!</hows-it-going></blah-zorz>'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Hi!');
     };
 
     return _class;
@@ -45636,6 +45635,13 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
     createRouter(null, { disableSetup: true, skipOwner: true });
 
     ok(true, 'no errors were thrown when creating without a container');
+  });
+
+  QUnit.test('[GH#15237] EmberError is imported correctly', function () {
+    // If we get the right message it means Error is being imported correctly.
+    throws(function () {
+      (0, _router.triggerEvent)(null, false, []);
+    }, /because your app hasn't finished transitioning/);
   });
 
   QUnit.test('should not create a router.js instance upon init', function () {

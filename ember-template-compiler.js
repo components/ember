@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2-null+32f9318b
+ * @version   2.14.0-beta.2-null+740a8bdd
  */
 
 var enifed, requireModule, Ember;
@@ -6871,9 +6871,6 @@ enifed('ember-environment', ['exports'], function (exports) {
     @public
   */
   ENV.LOG_VERSION = defaultTrue(ENV.LOG_VERSION);
-
-  // default false
-  ENV.MODEL_FACTORY_INJECTIONS = defaultFalse(ENV.MODEL_FACTORY_INJECTIONS);
 
   /**
     Debug parameter you can turn on. This will log all bindings that fire to
@@ -16642,7 +16639,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.2-null+32f9318b";
+  exports.default = "2.14.0-beta.2-null+740a8bdd";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
