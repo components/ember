@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-release+d8c16416
+ * @version   2.13.0-release+0e51ff39
  */
 
 var enifed, requireModule, Ember;
@@ -214,16 +214,7 @@ enifed('container/registry.lint-test', ['exports'], function (exports) {
 enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-environment', 'ember-metal', 'container/index', 'internal-test-helpers', 'ember-debug', 'container'], function (exports, _emberUtils, _emberEnvironment, _emberMetal, _containerIndex, _internalTestHelpers, _emberDebug, _container) {
   'use strict';
 
-  var originalModelInjections = undefined;
-
-  QUnit.module('Container', {
-    setup: function () {
-      originalModelInjections = _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-    },
-    teardown: function () {
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = originalModelInjections;
-    }
-  });
+  QUnit.module('Container');
 
   function lookupFactory(name, container, options) {
     return container[_container.LOOKUP_FACTORY](name, options);
@@ -452,8 +443,6 @@ enifed('container/tests/container_test', ['exports', 'ember-utils', 'ember-envir
   });
 
   QUnit.test('Injecting a failed lookup raises an error', function () {
-    _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
-
     var registry = new _containerIndex.Registry();
     var container = registry.container();
 
@@ -3053,14 +3042,10 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
   'use strict';
 
   var originalLookup = undefined,
-      App = undefined,
-      originalModelInjections = undefined;
+      App = undefined;
 
   QUnit.module('Ember.Application Dependency Injection – toString', {
     setup: function () {
-      originalModelInjections = _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
-
       originalLookup = _emberEnvironment.context.lookup;
 
       _emberMetal.run(function () {
@@ -3076,7 +3061,6 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
     teardown: function () {
       _emberEnvironment.context.lookup = originalLookup;
       _emberMetal.run(App, 'destroy');
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
 
@@ -3136,14 +3120,10 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
   var originalLookup = _emberEnvironment.context.lookup;
   var registry = undefined,
       locator = undefined,
-      application = undefined,
-      originalModelInjections = undefined;
+      application = undefined;
 
   QUnit.module('Ember.Application Dependency Injection', {
     setup: function () {
-      originalModelInjections = _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS;
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = true;
-
       application = _emberMetal.run(EmberApplication, 'create');
 
       application.Person = _emberRuntime.Object.extend({});
@@ -3167,7 +3147,6 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
       _emberMetal.run(application, 'destroy');
       application = locator = null;
       _emberEnvironment.context.lookup = originalLookup;
-      _emberEnvironment.ENV.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
 
@@ -16990,6 +16969,26 @@ babelHelpers.classCallCheck(this, _class);
       });
 
       this.assertText('huzzah!');
+    };
+
+    _class.prototype['@test can use custom element in component layout'] = function testCanUseCustomElementInComponentLayout(assert) {
+      this.registerComponent('foo-bar', {
+        template: '<blah-zorz>Hi!</blah-zorz>'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Hi!');
+    };
+
+    _class.prototype['@test can use nested custom element in component layout'] = function testCanUseNestedCustomElementInComponentLayout(assert) {
+      this.registerComponent('foo-bar', {
+        template: '<blah-zorz><hows-it-going>Hi!</hows-it-going></blah-zorz>'
+      });
+
+      this.render('{{foo-bar}}');
+
+      this.assertText('Hi!');
     };
 
     return _class;
@@ -49465,6 +49464,13 @@ enifed('ember-routing/tests/system/router_test', ['exports', 'ember-utils', 'emb
     ok(true, 'no errors were thrown when creating without a container');
   });
 
+  QUnit.test('[GH#15237] EmberError is imported correctly', function () {
+    // If we get the right message it means Error is being imported correctly.
+    throws(function () {
+      _emberRoutingSystemRouter.triggerEvent(null, false, []);
+    }, /because your app hasn't finished transitioning/);
+  });
+
   QUnit.test('should not create a router.js instance upon init', function () {
     var router = createRouter(null, { disableSetup: true });
 
@@ -71484,7 +71490,47 @@ enifed('ember/tests/integration/multiple-app-test.lint-test', ['exports'], funct
     assert.ok(true, 'ember/tests/integration/multiple-app-test.js should pass ESLint\n\n');
   });
 });
+enifed('ember/tests/production_build_test', ['exports', 'ember'], function (exports, _ember) {
+  /* globals EmberDev */
+
+  'use strict';
+
+  QUnit.module('production builds');
+
+  if (EmberDev && EmberDev.runningProdBuild) {
+    QUnit.test('assert does not throw in production builds', function (assert) {
+      assert.expect(1);
+
+      try {
+        _ember.default.assert('Should not throw');
+        assert.ok(true, 'Ember.assert did not throw');
+      } catch (e) {
+        assert.ok(false, 'Expected assert not to throw but it did: ' + e.message);
+      }
+    });
+
+    QUnit.test('runInDebug does not run the callback in production builds', function (assert) {
+      var fired = false;
+      _ember.default.runInDebug(function () {
+        return fired = true;
+      });
+
+      assert.equal(fired, false, 'runInDebug callback should not be ran');
+    });
+  }
+});
+enifed('ember/tests/production_build_test.lint-test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ESLint | ember/tests/production_build_test.js');
+  QUnit.test('should pass ESLint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'ember/tests/production_build_test.js should pass ESLint\n\n');
+  });
+});
 enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-helpers', 'ember-debug'], function (exports, _emberIndex, _internalTestHelpers, _emberDebug) {
+  /* globals EmberDev */
+
   'use strict';
 
   QUnit.module('ember reexports');
@@ -71502,7 +71548,13 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
   ['Registry', 'container', 'Registry'], ['Container', 'container', 'Container'],
 
   // ember-metal
-  ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['deprecateFunc', 'ember-debug'], ['assert', 'ember-debug'], ['warn', 'ember-debug'], ['debug', 'ember-debug'], ['runInDebug', 'ember-debug'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
+  ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'],
+  // ['deprecateFunc', 'ember-debug'],
+  // ['assert', 'ember-debug'],
+  // ['warn', 'ember-debug'],
+  // ['debug', 'ember-debug'],
+  // ['runInDebug', 'ember-debug'],
+  ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
   ['FEATURES', 'ember-debug'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['accumulateListeners', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
@@ -71545,6 +71597,21 @@ enifed('ember/tests/reexports_test', ['exports', 'ember/index', 'internal-test-h
   if (false) {
     QUnit.test('Ember.WeakMap exports correctly', function (assert) {
       _internalTestHelpers.confirmExport(_emberIndex.default, assert, 'WeakMap', 'ember-metal', 'WeakMap');
+    });
+  }
+
+  if (EmberDev && !EmberDev.runningProdBuild) {
+    QUnit.test('Ember.MODEL_FACTORY_INJECTIONS', function (assert) {
+      var descriptor = Object.getOwnPropertyDescriptor(_emberIndex.default, 'MODEL_FACTORY_INJECTIONS');
+      assert.equal(descriptor.enumerable, false, 'descriptor is not enumerable');
+      assert.equal(descriptor.configurable, false, 'descriptor is not configurable');
+
+      assert.equal(_emberIndex.default.MODEL_FACTORY_INJECTIONS, false);
+
+      expectDeprecation(function () {
+        _emberIndex.default.MODEL_FACTORY_INJECTIONS = true;
+      }, 'Ember.MODEL_FACTORY_INJECTIONS is no longer required');
+      assert.equal(_emberIndex.default.MODEL_FACTORY_INJECTIONS, false, 'writing to the property has no affect');
     });
   }
 });
