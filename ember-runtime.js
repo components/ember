@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.0-release+566f5a8c
+ * @version   2.13.1-release+1ffd47e8
  */
 
 var enifed, requireModule, Ember;
@@ -173,7 +173,7 @@ var babelHelpers = {
   defaults: defaults
 };
 
-enifed('@glimmer/di', ['exports'], function (exports) {
+enifed('@glimmer/di', ['exports', '@glimmer/util'], function (exports, _glimmerUtil) {
     'use strict';
 
     var Container = (function () {
@@ -182,27 +182,24 @@ enifed('@glimmer/di', ['exports'], function (exports) {
 
             this._registry = registry;
             this._resolver = resolver;
-            this._lookups = {};
-            this._factoryDefinitionLookups = {};
+            this._lookups = _glimmerUtil.dict();
+            this._factoryLookups = _glimmerUtil.dict();
         }
 
         Container.prototype.factoryFor = function factoryFor(specifier) {
-            var factoryDefinition = this._factoryDefinitionLookups[specifier];
-            if (!factoryDefinition) {
+            var factory = this._factoryLookups[specifier];
+            if (!factory) {
                 if (this._resolver) {
-                    factoryDefinition = this._resolver.retrieve(specifier);
+                    factory = this._resolver.retrieve(specifier);
                 }
-                if (!factoryDefinition) {
-                    factoryDefinition = this._registry.registration(specifier);
+                if (!factory) {
+                    factory = this._registry.registration(specifier);
                 }
-                if (factoryDefinition) {
-                    this._factoryDefinitionLookups[specifier] = factoryDefinition;
+                if (factory) {
+                    this._factoryLookups[specifier] = factory;
                 }
             }
-            if (!factoryDefinition) {
-                return;
-            }
-            return this.buildFactory(specifier, factoryDefinition);
+            return factory;
         };
 
         Container.prototype.lookup = function lookup(specifier) {
@@ -215,9 +212,10 @@ enifed('@glimmer/di', ['exports'], function (exports) {
                 return;
             }
             if (this._registry.registeredOption(specifier, 'instantiate') === false) {
-                return factory.class;
+                return factory;
             }
-            var object = factory.create();
+            var injections = this.buildInjections(specifier);
+            var object = factory.create(injections);
             if (singleton && object) {
                 this._lookups[specifier] = object;
             }
@@ -239,45 +237,27 @@ enifed('@glimmer/di', ['exports'], function (exports) {
             return hash;
         };
 
-        Container.prototype.buildFactory = function buildFactory(specifier, factoryDefinition) {
-            var injections = this.buildInjections(specifier);
-            return {
-                class: factoryDefinition,
-                create: function (options) {
-                    var mergedOptions = Object.assign({}, injections, options);
-                    return factoryDefinition.create(mergedOptions);
-                }
-            };
-        };
-
         return Container;
     })();
 
     var Registry = (function () {
-        function Registry(options) {
-            this._registrations = {};
-            this._registeredOptions = {};
-            this._registeredInjections = {};
-            if (options && options.fallback) {
-                this._fallback = options.fallback;
-            }
+        function Registry() {
+            this._registrations = _glimmerUtil.dict();
+            this._registeredOptions = _glimmerUtil.dict();
+            this._registeredInjections = _glimmerUtil.dict();
         }
 
         // TODO - use symbol
 
-        Registry.prototype.register = function register(specifier, factoryDefinition, options) {
-            this._registrations[specifier] = factoryDefinition;
+        Registry.prototype.register = function register(specifier, factory, options) {
+            this._registrations[specifier] = factory;
             if (options) {
                 this._registeredOptions[specifier] = options;
             }
         };
 
         Registry.prototype.registration = function registration(specifier) {
-            var registration = this._registrations[specifier];
-            if (registration === undefined && this._fallback) {
-                registration = this._fallback.registration(specifier);
-            }
-            return registration;
+            return this._registrations[specifier];
         };
 
         Registry.prototype.unregister = function unregister(specifier) {
@@ -296,15 +276,10 @@ enifed('@glimmer/di', ['exports'], function (exports) {
         };
 
         Registry.prototype.registeredOption = function registeredOption(specifier, option) {
-            var result = undefined;
             var options = this.registeredOptions(specifier);
             if (options) {
-                result = options[option];
+                return options[option];
             }
-            if (result === undefined && this._fallback !== undefined) {
-                result = this._fallback.registeredOption(specifier, option);
-            }
-            return result;
         };
 
         Registry.prototype.registeredOptions = function registeredOptions(specifier) {
@@ -342,7 +317,7 @@ enifed('@glimmer/di', ['exports'], function (exports) {
 
             var type = _specifier$split2[0];
 
-            var injections = this._fallback ? this._fallback.registeredInjections(specifier) : [];
+            var injections = [];
             Array.prototype.push.apply(injections, this._registeredInjections[type]);
             Array.prototype.push.apply(injections, this._registeredInjections[specifier]);
             return injections;
@@ -1454,7 +1429,6 @@ exports['default'] = Backburner;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 });
-
 enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-environment'], function (exports, _emberDebug, _emberUtils, _emberEnvironment) {
   'use strict';
 
@@ -19969,7 +19943,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.0-release+566f5a8c";
+  exports.default = "2.13.1-release+1ffd47e8";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
@@ -20331,18 +20305,18 @@ enifed('rsvp', ['exports'], function (exports) {
     }
   }
 
-  function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
+  function tryThen(then, value, fulfillmentHandler, rejectionHandler) {
     try {
-      then$$1.call(value, fulfillmentHandler, rejectionHandler);
+      then.call(value, fulfillmentHandler, rejectionHandler);
     } catch (e) {
       return e;
     }
   }
 
-  function handleForeignThenable(promise, thenable, then$$1) {
+  function handleForeignThenable(promise, thenable, then) {
     config.async(function (promise) {
       var sealed = false;
-      var error = tryThen(then$$1, thenable, function (value) {
+      var error = tryThen(then, thenable, function (value) {
         if (sealed) {
           return;
         }
@@ -20387,17 +20361,17 @@ enifed('rsvp', ['exports'], function (exports) {
     }
   }
 
-  function handleMaybeThenable(promise, maybeThenable, then$$1) {
-    if (maybeThenable.constructor === promise.constructor && then$$1 === then && promise.constructor.resolve === resolve$1) {
+  function handleMaybeThenable(promise, maybeThenable, then$$) {
+    if (maybeThenable.constructor === promise.constructor && then$$ === then && promise.constructor.resolve === resolve$1) {
       handleOwnThenable(promise, maybeThenable);
     } else {
-      if (then$$1 === GET_THEN_ERROR) {
+      if (then$$ === GET_THEN_ERROR) {
         reject(promise, GET_THEN_ERROR.error);
         GET_THEN_ERROR.error = null;
-      } else if (then$$1 === undefined) {
+      } else if (then$$ === undefined) {
         fulfill(promise, maybeThenable);
-      } else if (isFunction(then$$1)) {
-        handleForeignThenable(promise, maybeThenable, then$$1);
+      } else if (isFunction(then$$)) {
+        handleForeignThenable(promise, maybeThenable, then$$);
       } else {
         fulfill(promise, maybeThenable);
       }
@@ -20665,28 +20639,28 @@ enifed('rsvp', ['exports'], function (exports) {
 
   Enumerator.prototype._settleMaybeThenable = function (entry, i) {
     var c = this._instanceConstructor;
-    var resolve$$1 = c.resolve;
+    var resolve = c.resolve;
 
-    if (resolve$$1 === resolve$1) {
-      var then$$1 = getThen(entry);
+    if (resolve === resolve$1) {
+      var then$$ = getThen(entry);
 
-      if (then$$1 === then && entry._state !== PENDING) {
+      if (then$$ === then && entry._state !== PENDING) {
         entry._onError = null;
         this._settledAt(entry._state, i, entry._result);
-      } else if (typeof then$$1 !== 'function') {
+      } else if (typeof then$$ !== 'function') {
         this._remaining--;
         this._result[i] = this._makeResult(FULFILLED, i, entry);
       } else if (c === Promise) {
         var promise = new c(noop);
-        handleMaybeThenable(promise, entry, then$$1);
+        handleMaybeThenable(promise, entry, then$$);
         this._willSettleAt(promise, i);
       } else {
-        this._willSettleAt(new c(function (resolve$$1) {
-          return resolve$$1(entry);
+        this._willSettleAt(new c(function (resolve) {
+          return resolve(entry);
         }), i);
       }
     } else {
-      this._willSettleAt(resolve$$1(entry), i);
+      this._willSettleAt(resolve(entry), i);
     }
   };
 
@@ -22459,7 +22433,6 @@ enifed('rsvp', ['exports'], function (exports) {
   // the default export here is for backwards compat:
   //   https://github.com/tildeio/rsvp.js/issues/434
   var rsvp = (_rsvp = {
-    asap: asap,
     cast: cast,
     Promise: Promise,
     EventTarget: EventTarget,
@@ -22480,7 +22453,6 @@ enifed('rsvp', ['exports'], function (exports) {
   }, _rsvp['async'] = async, _rsvp.filter = // babel seems to error if async isn't a computed prop here...
   filter, _rsvp);
 
-  exports.asap = asap;
   exports.cast = cast;
   exports.Promise = Promise;
   exports.EventTarget = EventTarget;
