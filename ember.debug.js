@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+c01b64bd
+ * @version   2.15.0-alpha.1-null+322f79e5
  */
 
 var enifed, requireModule, Ember;
@@ -32718,8 +32718,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     handleURL: function (url) {
       // Until we have an ember-idiomatic way of accessing #hashes, we need to
       // remove it because router.js doesn't know how to handle it.
-      url = url.split(/#(.+)?/)[0];
-      return this._doURLTransition('handleURL', url);
+      var _url = url.split(/#(.+)?/)[0];
+      return this._doURLTransition('handleURL', _url);
     },
     _doURLTransition: function (routerJsMethod, url) {
       var transition = this._routerMicrolib[routerJsMethod](url || '/');
@@ -32733,8 +32733,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         args[_key] = arguments[_key];
       }
 
-      if (resemblesURL(args[0])) {
-        return this._doURLTransition('transitionTo', args[0]);
+      var arg = args[0];
+      if (resemblesURL(arg)) {
+        return this._doURLTransition('transitionTo', arg);
       }
 
       var possibleQueryParams = args[args.length - 1];
@@ -32770,7 +32771,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       var url = (_routerMicrolib2 = this._routerMicrolib).generate.apply(_routerMicrolib2, arguments);
       return this.location.formatURL(url);
     },
-    isActive: function (routeName) {
+    isActive: function () {
       var _routerMicrolib3;
 
       return (_routerMicrolib3 = this._routerMicrolib).isActive.apply(_routerMicrolib3, arguments);
@@ -32778,9 +32779,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     isActiveIntent: function (routeName, models, queryParams) {
       return this.currentState.isActiveIntent(routeName, models, queryParams);
     },
-    send: function (name, context) {
+    send: function () {
       var _routerMicrolib4;
 
+      /*name, context*/
       (_routerMicrolib4 = this._routerMicrolib).trigger.apply(_routerMicrolib4, arguments);
     },
     hasRoute: function (route) {
@@ -32925,8 +32927,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       };
     },
     _setupRouter: function (location) {
+      var _this4 = this;
+
       var lastURL = void 0;
-      var emberRouter = this;
       var routerMicrolib = this._routerMicrolib;
 
       routerMicrolib.getHandler = this._getHandlerFunction();
@@ -32934,7 +32937,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       var doUpdateURL = function () {
         location.setURL(lastURL);
-        (0, _emberMetal.set)(emberRouter, 'currentURL', lastURL);
+        (0, _emberMetal.set)(_this4, 'currentURL', lastURL);
       };
 
       routerMicrolib.updateURL = function (path) {
@@ -32945,7 +32948,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       if (location.replaceURL) {
         var doReplaceURL = function () {
           location.replaceURL(lastURL);
-          (0, _emberMetal.set)(emberRouter, 'currentURL', lastURL);
+          (0, _emberMetal.set)(_this4, 'currentURL', lastURL);
         };
 
         routerMicrolib.replaceURL = function (path) {
@@ -32955,15 +32958,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
 
       routerMicrolib.didTransition = function (infos) {
-        emberRouter.didTransition(infos);
+        _this4.didTransition(infos);
       };
 
       routerMicrolib.willTransition = function (oldInfos, newInfos, transition) {
-        emberRouter.willTransition(oldInfos, newInfos, transition);
+        _this4.willTransition(oldInfos, newInfos, transition);
       };
     },
     _serializeQueryParams: function (handlerInfos, queryParams) {
-      var _this4 = this;
+      var _this5 = this;
 
       forEachQueryParam(this, handlerInfos, queryParams, function (key, value, qp) {
         if (qp) {
@@ -32972,7 +32975,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         } else if (value === undefined) {
           return; // We don't serialize undefined values
         } else {
-          queryParams[key] = _this4._serializeQueryParam(value, (0, _emberRuntime.typeOf)(value));
+          queryParams[key] = _this5._serializeQueryParam(value, (0, _emberRuntime.typeOf)(value));
         }
       });
     },
@@ -32995,13 +32998,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     },
     _deserializeQueryParam: function (value, defaultType) {
       if (defaultType === 'boolean') {
-        return value === 'true' ? true : false;
+        return value === 'true';
       } else if (defaultType === 'number') {
         return Number(value).valueOf();
       } else if (defaultType === 'array') {
         return (0, _emberRuntime.A)(JSON.parse(value));
       }
-
       return value;
     },
     _pruneDefaultQueryParamValues: function (handlerInfos, queryParams) {
@@ -33043,9 +33045,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       var unchangedQPs = {};
       var qpUpdates = this._qpUpdates || {};
-      for (var key in this._routerMicrolib.activeTransition.queryParams) {
+      var params = this._routerMicrolib.activeTransition.queryParams;
+      for (var key in params) {
         if (!qpUpdates[key]) {
-          unchangedQPs[key] = this._routerMicrolib.activeTransition.queryParams[key];
+          unchangedQPs[key] = params[key];
         }
       }
 
@@ -33067,9 +33070,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       return route && (0, _emberMetal.get)(route, '_qp');
     },
     _queryParamsFor: function (handlerInfos) {
-      var leafRouteName = handlerInfos[handlerInfos.length - 1].name;
-      if (this._qpCache[leafRouteName]) {
-        return this._qpCache[leafRouteName];
+      var handlerInfoLength = handlerInfos.length;
+      var leafRouteName = handlerInfos[handlerInfoLength - 1].name;
+      var cached = this._qpCache[leafRouteName];
+      if (cached) {
+        return cached;
       }
 
       var shouldCache = true;
@@ -33077,7 +33082,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       var map = {};
       var qps = [];
 
-      for (var i = 0; i < handlerInfos.length; ++i) {
+      for (var i = 0; i < handlerInfoLength; ++i) {
         var qpMeta = this._getQPMeta(handlerInfos[i]);
 
         if (!qpMeta) {
@@ -33103,10 +33108,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         (0, _emberUtils.assign)(map, qpMeta.map);
       }
 
-      var finalQPMeta = {
-        qps: qps,
-        map: map
-      };
+      var finalQPMeta = { qps: qps, map: map };
 
       if (shouldCache) {
         this._qpCache[leafRouteName] = finalQPMeta;
@@ -33377,14 +33379,14 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     @return {String}
   */
   function findRouteSubstateName(route, state) {
-    var router = route.router;
     var owner = (0, _emberUtils.getOwner)(route);
+    var routeName = route.routeName,
+        fullRouteName = route.fullRouteName,
+        router = route.router;
 
-    var routeName = route.routeName;
+
     var substateName = routeName + '_' + state;
-
-    var routeNameFull = route.fullRouteName;
-    var substateNameFull = routeNameFull + '_' + state;
+    var substateNameFull = fullRouteName + '_' + state;
 
     return routeHasBeenDefined(owner, router, substateName, substateNameFull) ? substateNameFull : '';
   }
@@ -33400,14 +33402,14 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     @return {String}
   */
   function findRouteStateName(route, state) {
-    var router = route.router;
     var owner = (0, _emberUtils.getOwner)(route);
+    var routeName = route.routeName,
+        fullRouteName = route.fullRouteName,
+        router = route.router;
 
-    var routeName = route.routeName;
+
     var stateName = routeName === 'application' ? state : routeName + '.' + state;
-
-    var routeNameFull = route.fullRouteName;
-    var stateNameFull = routeNameFull === 'application' ? state : routeNameFull + '.' + state;
+    var stateNameFull = fullRouteName === 'application' ? state : fullRouteName + '.' + state;
 
     return routeHasBeenDefined(owner, router, stateName, stateNameFull) ? stateNameFull : '';
   }
@@ -33441,14 +33443,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     var eventWasHandled = false;
     var handlerInfo = void 0,
-        handler = void 0;
+        handler = void 0,
+        actionHandler = void 0;
 
     for (var i = handlerInfos.length - 1; i >= 0; i--) {
       handlerInfo = handlerInfos[i];
       handler = handlerInfo.handler;
-
-      if (handler && handler.actions && handler.actions[name]) {
-        if (handler.actions[name].apply(handler, args) === true) {
+      actionHandler = handler && handler.actions && handler.actions[name];
+      if (actionHandler) {
+        if (actionHandler.apply(handler, args) === true) {
           eventWasHandled = true;
         } else {
           // Should only hit here if a non-bubbling error action is triggered on a route.
@@ -33461,8 +33464,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
     }
 
-    if (defaultActionHandlers[name]) {
-      defaultActionHandlers[name].apply(null, args);
+    var defaultHandler = defaultActionHandlers[name];
+    if (defaultHandler) {
+      defaultHandler.apply(null, args);
       return;
     }
 
@@ -33472,10 +33476,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   }
 
   function calculatePostTransitionState(emberRouter, leafRouteName, contexts) {
-    var routerMicrolib = emberRouter._routerMicrolib;
-    var state = routerMicrolib.applyIntent(leafRouteName, contexts);
-    var handlerInfos = state.handlerInfos;
-    var params = state.params;
+    var state = emberRouter._routerMicrolib.applyIntent(leafRouteName, contexts);
+    var handlerInfos = state.handlerInfos,
+        params = state.params;
+
 
     for (var i = 0; i < handlerInfos.length; ++i) {
       var handlerInfo = handlerInfos[i];
@@ -47749,7 +47753,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+c01b64bd";
+  exports.default = "2.15.0-alpha.1-null+322f79e5";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
