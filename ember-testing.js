@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+93dd4709
+ * @version   2.15.0-alpha.1-null+0a0959be
  */
 
 var enifed, requireModule, Ember;
@@ -198,7 +198,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
 
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
-    Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
+    Deprecations are invoked by calls to [Ember.deprecate](https://emberjs.com/api/classes/Ember.html#method_deprecate).
     The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
   
@@ -346,7 +346,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
         deprecate(missingOptionsDeprecation, false, {
           id: 'ember-debug.deprecate-options-missing',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
         });
       }
 
@@ -354,7 +354,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
         deprecate(missingOptionsIdDeprecation, false, {
           id: 'ember-debug.deprecate-id-missing',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
         });
       }
 
@@ -362,7 +362,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
         deprecate(missingOptionsUntilDeprecation, options && options.until, {
           id: 'ember-debug.deprecate-until-missing',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
         });
       }
 
@@ -871,7 +871,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
   if (true) {
     /**
       Allows for runtime registration of handler functions that override the default warning behavior.
-      Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
+      Warnings are invoked by calls made to [Ember.warn](https://emberjs.com/api/classes/Ember.html#method_warn).
       The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
       default warning behavior.
        ```javascript
@@ -932,7 +932,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
         (0, _deprecate.default)(missingOptionsDeprecation, false, {
           id: 'ember-debug.warn-options-missing',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
         });
       }
 
@@ -940,7 +940,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
         (0, _deprecate.default)(missingOptionsIdDeprecation, false, {
           id: 'ember-debug.warn-id-missing',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
         });
       }
 

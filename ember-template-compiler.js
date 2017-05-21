@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+93dd4709
+ * @version   2.15.0-alpha.1-null+0a0959be
  */
 
 var enifed, requireModule, Ember;
@@ -5466,7 +5466,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
   };
 
   function deprecateResolverFunction(registry) {
-    true && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
+    true && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
 
     registry.resolver = {
       resolve: registry.resolver
@@ -5814,7 +5814,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
 
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
-    Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
+    Deprecations are invoked by calls to [Ember.deprecate](https://emberjs.com/api/classes/Ember.html#method_deprecate).
     The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
   
@@ -5968,7 +5968,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
       deprecate(missingOptionsDeprecation, false, {
         id: 'ember-debug.deprecate-options-missing',
         until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+        url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
       });
     }
 
@@ -5976,7 +5976,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
       deprecate(missingOptionsIdDeprecation, false, {
         id: 'ember-debug.deprecate-id-missing',
         until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+        url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
       });
     }
 
@@ -5984,7 +5984,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
       deprecate(missingOptionsUntilDeprecation, options && options.until, {
         id: 'ember-debug.deprecate-until-missing',
         until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+        url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
       });
     }
 
@@ -6491,7 +6491,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
 
   /**
     Allows for runtime registration of handler functions that override the default warning behavior.
-    Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
+    Warnings are invoked by calls made to [Ember.warn](https://emberjs.com/api/classes/Ember.html#method_warn).
     The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
     default warning behavior.
      ```javascript
@@ -6552,7 +6552,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
       (0, _deprecate.default)(missingOptionsDeprecation, false, {
         id: 'ember-debug.warn-options-missing',
         until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+        url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
       });
     }
 
@@ -6560,7 +6560,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
       (0, _deprecate.default)(missingOptionsIdDeprecation, false, {
         id: 'ember-debug.warn-id-missing',
         until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
+        url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-debug-function-options'
       });
     }
 
@@ -6763,7 +6763,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     cross-platform compatibility and object property observing.  Ember-Runtime is
     small and performance-focused so you can use it alongside other
     cross-platform libraries such as jQuery. For more details, see
-    [Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).
+    [Ember-Runtime](https://emberjs.com/api/modules/ember-runtime.html).
   
     @class Ember
     @static
@@ -7035,7 +7035,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     true && !(eventName !== 'didInitAttrs') && emberDebug.deprecate('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
     });
 
     if (!method && 'function' === typeof target) {
@@ -9906,7 +9906,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     Additional resources:
     - [New CP syntax RFC](https://github.com/emberjs/rfcs/blob/master/text/0011-improved-cp-syntax.md)
-    - [New computed syntax explained in "Ember 1.12 released" ](http://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
+    - [New computed syntax explained in "Ember 1.12 released" ](https://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
   
     @class ComputedProperty
     @namespace Ember
@@ -10297,7 +10297,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     _Note: This is the preferred way to define computed properties when writing third-party
     libraries that depend on or use Ember, since there is no guarantee that the user
-    will have [prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._
+    will have [prototype Extensions](https://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._
   
     The alternative syntax, with prototype extensions, might look like:
   
@@ -12422,7 +12422,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     /**
       @class Binding
       @namespace Ember
-      @deprecated See http://emberjs.com/deprecations/v2.x#toc_ember-binding
+      @deprecated See https://emberjs.com/deprecations/v2.x#toc_ember-binding
       @public
     */
 
@@ -12683,17 +12683,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     true && !!deprecateGlobal && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.'), !deprecateGlobal, {
       id: 'ember-metal.binding',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
     true && !!deprecateOneWay && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.'), !deprecateOneWay, {
       id: 'ember-metal.binding',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
     true && !!deprecateAlias && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.'), !deprecateAlias, {
       id: 'ember-metal.binding',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
   }
 
@@ -14337,7 +14337,7 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
         true && !false && (0, _emberDebug.deprecate)(deprecationMessage(moduleName, node, param), false, {
           id: 'ember-template-compiler.deprecate-render-model',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x#toc_model-param-in-code-render-code-helper'
+          url: 'https://emberjs.com/deprecations/v2.x#toc_model-param-in-code-render-code-helper'
         });
       });
     });
@@ -14392,7 +14392,7 @@ enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-de
         true && !false && (0, _emberDebug.deprecate)(deprecationMessage(moduleName, node), false, {
           id: 'ember-template-compiler.deprecate-render',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x#toc_code-render-code-helper'
+          url: 'https://emberjs.com/deprecations/v2.x#toc_code-render-code-helper'
         });
       });
     });
@@ -16442,7 +16442,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+93dd4709";
+  exports.default = "2.15.0-alpha.1-null+0a0959be";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

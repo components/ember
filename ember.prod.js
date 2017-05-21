@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+93dd4709
+ * @version   2.15.0-alpha.1-null+0a0959be
  */
 
 var enifed, requireModule, Ember;
@@ -10405,7 +10405,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
   };
 
   function deprecateResolverFunction(registry) {
-    false && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
+    false && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
 
     registry.resolver = {
       resolve: registry.resolver
@@ -12052,7 +12052,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
           false && !false && (0, _emberDebug.deprecate)('The `initialize` method for Application initializer \'' + name + '\' should take only one argument - `App`, an instance of an `Application`.', false, {
             id: 'ember-application.app-initializer-initialize-arguments',
             until: '3.0.0',
-            url: 'http://emberjs.com/deprecations/v2.x/#toc_initializer-arity'
+            url: 'https://emberjs.com/deprecations/v2.x/#toc_initializer-arity'
           });
 
           initializer.initialize(_this.__registry__, _this);
@@ -13035,7 +13035,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
 
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
-    Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
+    Deprecations are invoked by calls to [Ember.deprecate](https://emberjs.com/api/classes/Ember.html#method_deprecate).
     The following example demonstrates its usage by registering a handler that throws an error if the
     message contains the word "should", otherwise defers to the default handler.
   
@@ -14486,7 +14486,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
         false && !false && (0, _emberDebug.deprecate)('Specifying `defaultLayout` to ' + this + ' is deprecated. Please use `layout` instead.', false, {
           id: 'ember-views.component.defaultLayout',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-component-defaultlayout'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-component-defaultlayout'
         });
 
         this.layout = this.defaultLayout;
@@ -18791,7 +18791,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     The `{{input}}` helper lets you create an HTML `<input />` component.
     It causes an `Ember.TextField` component to be rendered.  For more info,
     see the [Ember.TextField](/api/classes/Ember.TextField.html) docs and
-    the [templates guide](http://emberjs.com/guides/templates/input-helpers/).
+    the [templates guide](https://emberjs.com/guides/templates/input-helpers/).
   
     ```handlebars
     {{input value="987"}}
@@ -19192,7 +19192,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
     {{my-footer}}
     ```
   
-    See [templates guide](http://emberjs.com/guides/templates/the-application-template/) for
+    See [templates guide](https://emberjs.com/guides/templates/the-application-template/) for
     additional information on using `{{outlet}}` in `application.hbs`.
     You may also specify a name for the `{{outlet}}`, which is useful when using more than one
     `{{outlet}}` in a template:
@@ -19215,7 +19215,7 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', 'ember-utils', 
     });
     ```
   
-    See the [routing guide](http://emberjs.com/guides/routing/rendering-a-template/) for more
+    See the [routing guide](https://emberjs.com/guides/routing/rendering-a-template/) for more
     information on how your `route` interacts with the `{{outlet}}` helper.
     Note: Your content __will not render__ if there isn't an `{{outlet}}` for it.
   
@@ -20915,7 +20915,7 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (expor
     false && !false && (0, _emberDebug.deprecate)('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
       id: 'ember-htmlbars.ember-handlebars-safestring',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
     });
 
     return SafeString;
@@ -21240,7 +21240,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     cross-platform compatibility and object property observing.  Ember-Runtime is
     small and performance-focused so you can use it alongside other
     cross-platform libraries such as jQuery. For more details, see
-    [Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).
+    [Ember-Runtime](https://emberjs.com/api/modules/ember-runtime.html).
   
     @class Ember
     @static
@@ -21512,7 +21512,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     false && !(eventName !== 'didInitAttrs') && emberDebug.deprecate('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
     });
 
     if (!method && 'function' === typeof target) {
@@ -24013,7 +24013,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     Additional resources:
     - [New CP syntax RFC](https://github.com/emberjs/rfcs/blob/master/text/0011-improved-cp-syntax.md)
-    - [New computed syntax explained in "Ember 1.12 released" ](http://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
+    - [New computed syntax explained in "Ember 1.12 released" ](https://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
   
     @class ComputedProperty
     @namespace Ember
@@ -24404,7 +24404,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     _Note: This is the preferred way to define computed properties when writing third-party
     libraries that depend on or use Ember, since there is no guarantee that the user
-    will have [prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._
+    will have [prototype Extensions](https://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._
   
     The alternative syntax, with prototype extensions, might look like:
   
@@ -26529,7 +26529,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     /**
       @class Binding
       @namespace Ember
-      @deprecated See http://emberjs.com/deprecations/v2.x#toc_ember-binding
+      @deprecated See https://emberjs.com/deprecations/v2.x#toc_ember-binding
       @public
     */
 
@@ -26790,17 +26790,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     false && !!deprecateGlobal && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are binding to a global consider using a service instead.'), !deprecateGlobal, {
       id: 'ember-metal.binding',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
     false && !!deprecateOneWay && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Since you' + ' are using a `oneWay` binding consider using a `readOnly` computed' + ' property instead.'), !deprecateOneWay, {
       id: 'ember-metal.binding',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
     false && !!deprecateAlias && emberDebug.deprecate(objectInfo + ('`Ember.Binding` is deprecated. Consider' + ' using an `alias` computed property instead.'), !deprecateAlias, {
       id: 'ember-metal.binding',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-binding'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-binding'
     });
   }
 
@@ -29908,7 +29908,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
   /**
     The `Ember.Route` class is used to define individual routes. Refer to
-    the [routing guide](http://emberjs.com/guides/routing/) for documentation.
+    the [routing guide](https://emberjs.com/guides/routing/) for documentation.
   
     @class Route
     @namespace Ember
@@ -31340,7 +31340,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
   /**
     The `Ember.Router` class manages the application state and URLs. Refer to
-    the [routing guide](http://emberjs.com/guides/routing/) for documentation.
+    the [routing guide](https://emberjs.com/guides/routing/) for documentation.
   
     @class Router
     @namespace Ember
@@ -32564,7 +32564,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         false && !false && (0, _emberDebug.deprecate)('Rendering into a {{render}} helper that resolves to an {{outlet}} is deprecated.', false, {
           id: 'ember-routing.top-level-render-helper',
           until: '3.0.0',
-          url: 'http://emberjs.com/deprecations/v2.x/#toc_rendering-into-a-render-helper-that-resolves-to-an-outlet'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_rendering-into-a-render-helper-that-resolves-to-an-outlet'
         });
 
         // Megahax time. Post-3.0-breaking-changes, we will just assert
@@ -32625,7 +32625,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   (0, _emberMetal.deprecateProperty)(EmberRouter.prototype, 'router', '_routerMicrolib', {
     id: 'ember-router.router',
     until: '2.16',
-    url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-router-router-renamed-to-ember-router-_routermicrolib'
+    url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-router-router-renamed-to-ember-router-_routermicrolib'
   });
 
   exports.default = EmberRouter;
@@ -36089,7 +36089,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }).readOnly(), _Mixin$create.lastObject = (0, _emberMetal.computed)(function () {
     return objectAt(this, (0, _emberMetal.get)(this, 'length') - 1);
   }).readOnly(), _Mixin$create.contains = function (obj) {
-    false && !false && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
+    false && !false && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
 
     return this.indexOf(obj) >= 0;
   }, _Mixin$create.slice = function (beginIndex, endIndex) {
@@ -36672,7 +36672,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
     }).readOnly(),
 
     contains: function (obj) {
-      false && !false && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
+      false && !false && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
 
       var found = this.find(function (item) {
         return item === obj;
@@ -38543,7 +38543,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal', 'ember-
       false && !false && (0, _emberDebug.deprecate)('Using `' + typeForMessage + '.registry.' + deprecatedProperty + '` is deprecated. Please use `' + typeForMessage + '.' + nonDeprecatedProperty + '` instead.', false, {
         id: 'ember-application.app-instance-registry',
         until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-application-registry-ember-applicationinstance-registry'
+        url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-application-registry-ember-applicationinstance-registry'
       });
 
       return instance[nonDeprecatedProperty].apply(instance, arguments);
@@ -42193,7 +42193,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
     false && !(typeof this.didInitAttrs !== 'function') && (0, _emberDebug.deprecate)('[DEPRECATED] didInitAttrs called in ' + this.toString() + '.', typeof this.didInitAttrs !== 'function', {
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
-      url: 'http://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
+      url: 'https://emberjs.com/deprecations/v2.x#toc_ember-component-didinitattrs'
     });
     false && (0, _emberDebug.assert)('Using a custom `.render` function is no longer supported.', !this.render);
   }, _Mixin$create.__defineNonEnumerable = function (property) {
@@ -42604,7 +42604,7 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
   } /* globals Element */
   ;
   exports.constructStyleDeprecationMessage = function (affectedStyle) {
-    return '' + 'Binding style attributes may introduce cross-site scripting vulnerabilities; ' + 'please ensure that values being bound are properly escaped. For more information, ' + 'including how to disable this warning, see ' + 'http://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes. ' + 'Style affected: "' + affectedStyle + '"';
+    return '' + 'Binding style attributes may introduce cross-site scripting vulnerabilities; ' + 'please ensure that values being bound are properly escaped. For more information, ' + 'including how to disable this warning, see ' + 'https://emberjs.com/deprecations/v1.x/#toc_binding-style-attributes. ' + 'Style affected: "' + affectedStyle + '"';
   }
 
   /**
@@ -43039,7 +43039,7 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
   @class View
   @namespace Ember
   @extends Ember.CoreView
-  @deprecated See http://emberjs.com/deprecations/v1.x/#toc_ember-view
+  @deprecated See https://emberjs.com/deprecations/v1.x/#toc_ember-view
   @uses Ember.ClassNamesSupport
   @private
 */
@@ -43308,7 +43308,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
       false && !false && (0, _emberDebug.deprecate)('Ember.K is deprecated in favor of defining a function inline.', false, {
         id: 'ember-metal.ember-k',
         until: '3.0.0',
-        url: 'http://emberjs.com/deprecations/v2.x#toc_code-ember-k-code'
+        url: 'https://emberjs.com/deprecations/v2.x#toc_code-ember-k-code'
       });
 
       return deprecatedEmberK;
@@ -43330,7 +43330,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
     false && !false && (0, _emberDebug.deprecate)('Usage of Ember.Backburner is deprecated.', false, {
       id: 'ember-metal.ember-backburner',
       until: '2.8.0',
-      url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-backburner'
+      url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-backburner'
     });
 
     function BackburnerAlias(args) {
@@ -43599,7 +43599,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+93dd4709";
+  exports.default = "2.15.0-alpha.1-null+0a0959be";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+93dd4709
+ * @version   2.15.0-alpha.1-null+0a0959be
  */
 
 var enifed, requireModule, Ember;
@@ -8839,8 +8839,8 @@ enifed('ember-glimmer/tests/integration/application/rendering-test', ['ember-bab
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    '], ['\n      <ul>\n        {{#each model as |item|}}\n          <li>{{item}}</li>\n        {{/each}}\n      </ul>\n    ']),
       _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        '], ['\n          <ul>\n            <li>red</li>\n            <li>yellow</li>\n            <li>blue</li>\n          </ul>\n        ']),
       _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    '], ['\n      <nav>{{outlet "nav"}}</nav>\n      <main>{{outlet}}</main>\n    ']),
-      _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <a href="http://emberjs.com/">Ember</a>\n    '], ['\n      <a href="http://emberjs.com/">Ember</a>\n    ']),
-      _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="http://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
+      _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <a href="https://emberjs.com/">Ember</a>\n    '], ['\n      <a href="https://emberjs.com/">Ember</a>\n    ']),
+      _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n          <nav>\n            <a href="https://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        '], ['\n          <nav>\n            <a href="https://emberjs.com/">Ember</a>\n          </nav>\n          <main>\n            <ul>\n              <li>red</li>\n              <li>yellow</li>\n              <li>blue</li>\n            </ul>\n          </main>\n        ']);
 
   (0, _testCase.moduleFor)('Application test: rendering', function (_ApplicationTest) {
     (0, _emberBabel.inherits)(_class, _ApplicationTest);
