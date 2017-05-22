@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+68e73c3a
+ * @version   2.15.0-alpha.1-null+dc4fc0d6
  */
 
 var enifed, requireModule, Ember;
@@ -28905,22 +28905,18 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal', 'ember
       @param callback {Function}
     */
     onUpdateURL: function (callback) {
-      var _this = this;
-
       this._removeEventListener();
 
-      this._hashchangeHandler = function () {
-        (0, _emberMetal.run)(function () {
-          var path = _this.getURL();
-          if ((0, _emberMetal.get)(_this, 'lastSetURL') === path) {
-            return;
-          }
+      this._hashchangeHandler = _emberMetal.run.bind(this, function () {
+        var path = this.getURL();
+        if ((0, _emberMetal.get)(this, 'lastSetURL') === path) {
+          return;
+        }
 
-          (0, _emberMetal.set)(_this, 'lastSetURL', null);
+        (0, _emberMetal.set)(this, 'lastSetURL', null);
 
-          callback(path);
-        });
-      };
+        callback(path);
+      });
 
       window.addEventListener('hashchange', this._hashchangeHandler);
     },
@@ -43599,7 +43595,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+68e73c3a";
+  exports.default = "2.15.0-alpha.1-null+dc4fc0d6";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

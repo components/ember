@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.68e73c3a"
+        "version": "2.15.0-alpha.1.dc4fc0d6"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -11628,7 +11628,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 127,
+            "line": 125,
             "description": "Given a URL, formats it to be placed into the page as part\nof an element's `href` attribute.\n\nThis is used, for example, when using the {{action}} helper\nto generate a URL based on an event.",
             "access": "private",
             "tagname": "",
@@ -11648,7 +11648,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 142,
+            "line": 140,
             "description": "Cleans up the HashLocation event listener.",
             "access": "private",
             "tagname": "",
