@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.dc4fc0d6"
+        "version": "2.15.0-alpha.1.d8e5b242"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -531,6 +531,15 @@
             "fors": {
                 "Ember.Templates.helpers": 1
             },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/syntax/component-state-bucket.js": {
+            "name": "packages/ember-glimmer/lib/syntax/component-state-bucket.js",
+            "modules": {},
+            "classes": {
+                "ComponentStateBucket": 1
+            },
+            "fors": {},
             "namespaces": {}
         },
         "packages/ember-glimmer/lib/syntax/input.js": {
@@ -1913,6 +1922,7 @@
                 "Ember.LinkComponent": 1,
                 "Ember.TextArea": 1,
                 "Ember.TextField": 1,
+                "ComponentStateBucket": 1,
                 "Ember.String": 1,
                 "Ember.Component": 1,
                 "Ember.Helper": 1,
@@ -2089,6 +2099,7 @@
                 "Ember.Templates.helpers": 1,
                 "Ember.LinkComponent": 1,
                 "Ember.TextArea": 1,
+                "ComponentStateBucket": 1,
                 "Ember.Component": 1,
                 "Ember.Helper": 1
             },
@@ -2660,6 +2671,23 @@
                 "Ember.TextSupport"
             ],
             "access": "public",
+            "tagname": ""
+        },
+        "ComponentStateBucket": {
+            "name": "ComponentStateBucket",
+            "shortname": "ComponentStateBucket",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "submodule": "ember-glimmer",
+            "namespace": "",
+            "file": "packages/ember-glimmer/lib/syntax/component-state-bucket.js",
+            "line": 8,
+            "description": "Represents the internal state of the component.",
+            "access": "private",
             "tagname": ""
         },
         "Ember.String": {

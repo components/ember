@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+dc4fc0d6
+ * @version   2.15.0-alpha.1-null+d8e5b242
  */
 
 var enifed, requireModule, Ember;
@@ -7784,6 +7784,12 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-extension-support/tests/data_adapter_test.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | ember-glimmer/component-managers/curly.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/component-managers/curly.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | ember-glimmer/component.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -7992,6 +7998,12 @@ QUnit.module('ESLint | ember-glimmer/syntax/abstract-manager.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/syntax/abstract-manager.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-glimmer/syntax/component-state-bucket.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/syntax/component-state-bucket.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-glimmer/syntax/curly-component.js');
@@ -22466,6 +22478,106 @@ QUnit.module('ESLint | ember-glimmer/tests/integration/content-test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/tests/integration/content-test.js should pass ESLint\n\n');
+});
+
+enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-babel', '@glimmer/runtime', 'ember-glimmer/tests/utils/test-case', 'ember/features', 'ember-glimmer/component-managers/curly'], function (_emberBabel, _runtime, _testCase, _features, _curly) {
+  'use strict';
+
+  if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
+    var TestLayoutCompiler = function () {
+      function TestLayoutCompiler(template) {
+        (0, _emberBabel.classCallCheck)(this, TestLayoutCompiler);
+
+        this.template = template;
+      }
+
+      TestLayoutCompiler.prototype.compile = function compile(builder) {
+        builder.wrapLayout(this.template.asLayout());
+        builder.tag.dynamic(function () {
+          return _runtime.PrimitiveReference.create('p');
+        });
+        builder.attrs.static('class', 'hey-oh-lets-go');
+        builder.attrs.static('manager-id', 'test');
+      };
+
+      return TestLayoutCompiler;
+    }();
+
+    var TestComponentManager = function () {
+      function TestComponentManager() {
+        (0, _emberBabel.classCallCheck)(this, TestComponentManager);
+      }
+
+      TestComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
+        return args;
+      };
+
+      TestComponentManager.prototype.create = function create(env, definition, args, dynamicScope, caller, hasBlock) {
+        return definition.ComponentClass.create();
+      };
+
+      TestComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
+        return env.getCompiledBlock(TestLayoutCompiler, definition.template);
+      };
+
+      TestComponentManager.prototype.getSelf = function getSelf(_ref) {
+        var component = _ref.component;
+        return component;
+      };
+
+      TestComponentManager.prototype.didCreateElement = function didCreateElement(component, element, operations) {};
+
+      TestComponentManager.prototype.didRenderLayout = function didRenderLayout(component, bounds) {};
+
+      TestComponentManager.prototype.didCreate = function didCreate(component) {};
+
+      TestComponentManager.prototype.getTag = function getTag(_ref2) {
+        var component = _ref2.component;
+        return null;
+      };
+
+      TestComponentManager.prototype.update = function update(component, dynamicScope) {};
+
+      TestComponentManager.prototype.didUpdateLayout = function didUpdateLayout(component, bounds) {};
+
+      TestComponentManager.prototype.didUpdate = function didUpdate(component) {};
+
+      TestComponentManager.prototype.getDestructor = function getDestructor(component) {};
+
+      return TestComponentManager;
+    }();
+
+    (0, _testCase.moduleFor)('Components test: curly components with custom manager', function (_RenderingTest) {
+      (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+      function _class() {
+        (0, _emberBabel.classCallCheck)(this, _class);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+      }
+
+      _class.prototype['@test it can render a basic component with custom component manager'] = function testItCanRenderABasicComponentWithCustomComponentManager(assert) {
+        var managerId = 'test';
+        this.owner.register('component-manager:' + managerId, new TestComponentManager());
+        this.registerComponent('foo-bar', {
+          template: '{{use-component-manager "' + managerId + '"}}hello',
+          managerId: managerId
+        });
+
+        this.render('{{foo-bar}}');
+
+        assert.equal(this.firstChild.className, 'hey-oh-lets-go', 'class name was set correctly');
+        assert.equal(this.firstChild.tagName, 'P', 'tag name was set correctly');
+        assert.equal(this.firstChild.getAttribute('manager-id'), managerId, 'custom attribute was set correctly');
+      };
+
+      return _class;
+    }(_testCase.RenderingTest));
+  }
+});
+QUnit.module('ESLint | ember-glimmer/tests/integration/custom-component-manager-test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/tests/integration/custom-component-manager-test.js should pass ESLint\n\n');
 });
 
 enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember/features', 'ember-views'], function (_emberBabel, _testCase, _helpers, _emberMetal, _features, _emberViews) {
@@ -62535,6 +62647,12 @@ QUnit.module('ESLint | ember-template-compiler/plugins/deprecate-render.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-template-compiler/plugins/deprecate-render.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-template-compiler/plugins/extract-pragma-tag.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/plugins/extract-pragma-tag.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-template-compiler/plugins/index.js');

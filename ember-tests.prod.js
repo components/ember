@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+dc4fc0d6
+ * @version   2.15.0-alpha.1-null+d8e5b242
  */
 
 var enifed, requireModule, Ember;
@@ -21432,6 +21432,98 @@ enifed('ember-glimmer/tests/integration/content-test', ['ember-babel', 'ember-gl
 
       return _class9;
     }(StyleTest));
+  }
+});
+enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-babel', '@glimmer/runtime', 'ember-glimmer/tests/utils/test-case', 'ember/features', 'ember-glimmer/component-managers/curly'], function (_emberBabel, _runtime, _testCase, _features) {
+  'use strict';
+
+  var TestLayoutCompiler, TestComponentManager;
+  if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
+    TestLayoutCompiler = function () {
+      function TestLayoutCompiler(template) {
+
+        this.template = template;
+      }
+
+      TestLayoutCompiler.prototype.compile = function (builder) {
+        builder.wrapLayout(this.template.asLayout());
+        builder.tag.dynamic(function () {
+          return _runtime.PrimitiveReference.create('p');
+        });
+        builder.attrs.static('class', 'hey-oh-lets-go');
+        builder.attrs.static('manager-id', 'test');
+      };
+
+      return TestLayoutCompiler;
+    }();
+    TestComponentManager = function () {
+      function TestComponentManager() {}
+
+      TestComponentManager.prototype.prepareArgs = function (definition, args) {
+        return args;
+      };
+
+      TestComponentManager.prototype.create = function (env, definition) {
+        return definition.ComponentClass.create();
+      };
+
+      TestComponentManager.prototype.layoutFor = function (definition, bucket, env) {
+        return env.getCompiledBlock(TestLayoutCompiler, definition.template);
+      };
+
+      TestComponentManager.prototype.getSelf = function (_ref) {
+        var component = _ref.component;
+        return component;
+      };
+
+      TestComponentManager.prototype.didCreateElement = function () {};
+
+      TestComponentManager.prototype.didRenderLayout = function () {};
+
+      TestComponentManager.prototype.didCreate = function () {};
+
+      TestComponentManager.prototype.getTag = function (_ref2) {
+        _ref2.component;
+
+        return null;
+      };
+
+      TestComponentManager.prototype.update = function () {};
+
+      TestComponentManager.prototype.didUpdateLayout = function () {};
+
+      TestComponentManager.prototype.didUpdate = function () {};
+
+      TestComponentManager.prototype.getDestructor = function () {};
+
+      return TestComponentManager;
+    }();
+
+
+    (0, _testCase.moduleFor)('Components test: curly components with custom manager', function (_RenderingTest) {
+      (0, _emberBabel.inherits)(_class, _RenderingTest);
+
+      function _class() {
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+      }
+
+      _class.prototype['@test it can render a basic component with custom component manager'] = function (assert) {
+        var managerId = 'test';
+        this.owner.register('component-manager:' + managerId, new TestComponentManager());
+        this.registerComponent('foo-bar', {
+          template: '{{use-component-manager "' + managerId + '"}}hello',
+          managerId: managerId
+        });
+
+        this.render('{{foo-bar}}');
+
+        assert.equal(this.firstChild.className, 'hey-oh-lets-go', 'class name was set correctly');
+        assert.equal(this.firstChild.tagName, 'P', 'tag name was set correctly');
+        assert.equal(this.firstChild.getAttribute('manager-id'), managerId, 'custom attribute was set correctly');
+      };
+
+      return _class;
+    }(_testCase.RenderingTest));
   }
 });
 enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-metal', 'ember/features', 'ember-views'], function (_emberBabel, _testCase, _helpers, _emberMetal, _features, _emberViews) {
@@ -59140,10 +59232,53 @@ enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-de
     return 'Please refactor `' + original + '` to a component and invoke via' + (' `' + preferred + '`. ' + sourceInformation);
   }
 });
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation'], function (exports, _transformOldBindingSyntax, _transformItemClass, _transformAngleBracketComponents, _transformInputOnToOnEvent, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation) {
+enifed('ember-template-compiler/plugins/extract-pragma-tag', ['exports', 'ember-babel'], function (exports, _emberBabel) {
   'use strict';
 
-  exports.default = Object.freeze([_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformItemClass.default, _transformAngleBracketComponents.default, _transformInputOnToOnEvent.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default]);
+  var PRAGMA_TAG = 'use-component-manager';
+
+  // Custom Glimmer AST transform to extract custom component
+  // manager id from the template
+
+  var ExtractPragmaPlugin = function () {
+    function ExtractPragmaPlugin(options) {
+      (0, _emberBabel.classCallCheck)(this, ExtractPragmaPlugin);
+
+      this.options = options;
+    }
+
+    ExtractPragmaPlugin.prototype.transform = function transform(ast) {
+      var options = this.options;
+
+      this.syntax.traverse(ast, {
+        MustacheStatement: {
+          enter: function (node) {
+            if (node.path.type === 'PathExpression' && node.path.original === PRAGMA_TAG) {
+              options.meta.managerId = node.params[0].value;
+              return null;
+            }
+          }
+        }
+      });
+
+      return ast;
+    };
+
+    return ExtractPragmaPlugin;
+  }();
+
+  exports.default = ExtractPragmaPlugin;
+});
+enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformItemClass, _transformAngleBracketComponents, _transformInputOnToOnEvent, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _features) {
+  'use strict';
+
+  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformItemClass.default, _transformAngleBracketComponents.default, _transformInputOnToOnEvent.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default];
+
+  if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
+    transforms.push(_extractPragmaTag.default);
+  }
+
+  exports.default = Object.freeze(transforms);
 });
 enifed('ember-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
   'use strict';
