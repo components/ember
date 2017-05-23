@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d8e5b242
+ * @version   2.15.0-alpha.1-null+e9e2f2b6
  */
 
 var enifed, requireModule, Ember;
@@ -31057,21 +31057,20 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var name = void 0,
           modelLookupName;
       var owner = (0, _emberUtils.getOwner)(this);
+      var transition = this.router ? this.router._routerMicrolib.activeTransition : null;
 
       // Only change the route name when there is an active transition.
       // Otherwise, use the passed in route name.
-      if (owner.routable && this.router && this.router._routerMicrolib.activeTransition) {
+      if (owner.routable && transition !== null) {
         name = getEngineRouteName(owner, _name);
       } else {
         name = _name;
       }
 
-      var route = (0, _emberUtils.getOwner)(this).lookup('route:' + name);
-      var transition = this.router ? this.router._routerMicrolib.activeTransition : null;
-
+      var route = owner.lookup('route:' + name);
       // If we are mid-transition, we want to try and look up
       // resolved parent contexts on the current transitionEvent.
-      if (transition) {
+      if (transition !== null) {
         modelLookupName = route && route.routeName || name;
 
         if (transition.resolvedModels.hasOwnProperty(modelLookupName)) {
@@ -43662,7 +43661,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+d8e5b242";
+  exports.default = "2.15.0-alpha.1-null+e9e2f2b6";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

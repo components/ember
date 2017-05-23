@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.d8e5b242"
+        "version": "2.15.0-alpha.1.e9e2f2b6"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -13192,7 +13192,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1896,
+            "line": 1895,
             "description": "A hook you can use to render the template for the current route.\n\nThis method is called with the controller for the current route and the\nmodel supplied by the `model` hook. By default, it renders the route's\ntemplate, configured with the controller for the route.\n\nThis method can be overridden to set up and render additional or\nalternative templates.\n\n```app/routes/posts.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate(controller, model) {\n    let favController = this.controllerFor('favoritePost');\n\n    // Render the `favoritePost` template into\n    // the outlet `posts`, and display the `favoritePost`\n    // controller.\n    this.render('favoritePost', {\n      outlet: 'posts',\n      controller: favController\n    });\n  }\n});\n```",
             "itemtype": "method",
             "name": "renderTemplate",
@@ -13218,7 +13218,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1934,
+            "line": 1933,
             "description": "`render` is used to render a template into a region of another template\n(indicated by an `{{outlet}}`). `render` is used both during the entry\nphase of routing (via the `renderTemplate` hook) and later in response to\nuser interaction.\n\nFor example, given the following minimal router and templates:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('photos');\n});\n\nexport default Router;\n```\n\n```handlebars\n<!-- application.hbs -->\n<div class='something-in-the-app-hbs'>\n  {{outlet \"anOutletName\"}}\n</div>\n```\n\n```handlebars\n<!-- photos.hbs -->\n<h1>Photos</h1>\n```\n\nYou can render `photos.hbs` into the `\"anOutletName\"` outlet of\n`application.hbs` by calling `render`:\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render('photos', {\n      into: 'application',\n      outlet: 'anOutletName'\n    })\n  }\n});\n```\n\n`render` additionally allows you to supply which `controller` and\n`model` objects should be loaded and associated with the rendered template.\n\n\n```app/routes/posts.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate(controller, model){\n    this.render('posts', {    // the template to render, referenced by name\n      into: 'application',    // the template to render into, referenced by name\n      outlet: 'anOutletName', // the outlet inside `options.template` to render into.\n      controller: 'someControllerName', // the controller to use for this template, referenced by name\n      model: model            // the model to set on `options.controller`.\n    })\n  }\n});\n```\n\nThe string values provided for the template name, and controller\nwill eventually pass through to the resolver for lookup. See\nEmber.Resolver for how these are mapped to JavaScript objects in your\napplication. The template to render into needs to be related to  either the\ncurrent route or one of its ancestors.\n\nNot all options need to be passed to `render`. Default values will be used\nbased on the name of the route specified in the router or the Route's\n`controllerName` and `templateName` properties.\n\nFor example:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n  this.route('post', { path: '/posts/:post_id' });\n});\n\nexport default Router;\n```\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render(); // all defaults apply\n  }\n});\n```\n\nThe name of the route, defined by the router, is `post`.\n\nThe following equivalent default options will be applied when\nthe Route calls `render`:\n\n```javascript\nthis.render('post', {  // the template name associated with 'post' Route\n  into: 'application', // the parent route to 'post' Route\n  outlet: 'main',      // {{outlet}} and {{outlet 'main'}} are synonymous,\n  controller: 'post',  // the controller associated with the 'post' Route\n})\n```\n\nBy default the controller's `model` will be the route's model, so it does not\nneed to be passed unless you wish to change which model is being used.",
             "itemtype": "method",
             "name": "render",
@@ -13271,7 +13271,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 2081,
+            "line": 2080,
             "description": "Disconnects a view that has been rendered into an outlet.\n\nYou may pass any or all of the following options to `disconnectOutlet`:\n\n* `outlet`: the name of the outlet to clear (default: 'main')\n* `parentView`: the name of the view containing the outlet to clear\n   (default: the view rendered by the parent route)\n\nExample:\n\n```app/routes/application.js\nimport Ember from 'ember';\n\nexport default App.Route.extend({\n  actions: {\n    showModal(evt) {\n      this.render(evt.modalName, {\n        outlet: 'modal',\n        into: 'application'\n      });\n    },\n    hideModal(evt) {\n      this.disconnectOutlet({\n        outlet: 'modal',\n        parentView: 'application'\n      });\n    }\n  }\n});\n```\n\nAlternatively, you can pass the `outlet` name directly as a string.\n\nExample:\n\n```app/routes/application.js\nimport Ember from 'ember';\n\nexport default App.Route.extend({\n  actions: {\n    showModal(evt) {\n      // ...\n    },\n    hideModal(evt) {\n      this.disconnectOutlet('modal');\n    }\n  }\n});",
             "itemtype": "method",
             "name": "disconnectOutlet",
@@ -13292,7 +13292,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 2195,
+            "line": 2194,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
