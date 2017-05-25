@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+151e7020
+ * @version   2.15.0-alpha.1-null+03b64ddf
  */
 
 var enifed, requireModule, Ember;
@@ -8797,7 +8797,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         return typeof suspect === 'number';
     }
     function isCoercableNumber(suspect) {
-        return isNumber(suspect) || NUMBER.test(suspect);
+        return isNumber(suspect) && suspect === suspect || NUMBER.test(suspect);
     }
     function noSuchQueue(name) {
         throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
@@ -8849,20 +8849,23 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
     }
 
     var Queue = function () {
-        function Queue(name, options, globalOptions) {
+        function Queue(name) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+            var globalOptions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
             (0, _emberBabel.classCallCheck)(this, Queue);
 
+            this._queue = []; // TODO: should be private
+            this._queueBeingFlushed = [];
+            this.targetQueues = Object.create(null);
+            this.index = 0;
             this.name = name;
-            this.globalOptions = globalOptions || {};
             this.options = options;
-            this._queue = [];
-            this.targetQueues = {};
-            this._queueBeingFlushed = undefined;
+            this.globalOptions = globalOptions;
+            this.globalOptions.onError = getOnError(globalOptions);
         }
 
         Queue.prototype.push = function push(target, method, args, stack) {
-            var queue = this._queue;
-            queue.push(target, method, args, stack);
+            this._queue.push(target, method, args, stack);
             return {
                 queue: this,
                 target: target,
@@ -8871,14 +8874,12 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Queue.prototype.pushUnique = function pushUnique(target, method, args, stack) {
-            var KEY = this.globalOptions.GUID_KEY;
-            if (target && KEY) {
-                var guid = target[KEY];
-                if (guid) {
-                    return this.pushUniqueWithGuid(guid, target, method, args, stack);
-                }
+            var guid = this.guidForTarget(target);
+            if (guid) {
+                this.pushUniqueWithGuid(guid, target, method, args, stack);
+            } else {
+                this.pushUniqueWithoutGuid(target, method, args, stack);
             }
-            this.pushUniqueWithoutGuid(target, method, args, stack);
             return {
                 queue: this,
                 target: target,
@@ -8887,37 +8888,35 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Queue.prototype.flush = function flush(sync) {
-            var queue = this._queue;
-            var length = queue.length;
-            if (length === 0) {
-                return;
-            }
-            var globalOptions = this.globalOptions;
-            var options = this.options;
-            var before = options && options.before;
-            var after = options && options.after;
-            var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
+            var _options = this.options,
+                before = _options.before,
+                after = _options.after;
+
             var target = void 0;
             var method = void 0;
             var args = void 0;
             var errorRecordedForStack = void 0;
+            var onError = this.globalOptions.onError;
             var invoke = onError ? this.invokeWithOnError : this.invoke;
             this.targetQueues = Object.create(null);
-            var queueItems = this._queueBeingFlushed = this._queue;
-            this._queue = [];
+            var queueItems = void 0;
+            if (this._queueBeingFlushed.length > 0) {
+                queueItems = this._queueBeingFlushed;
+            } else {
+                queueItems = this._queueBeingFlushed = this._queue;
+                this._queue = [];
+            }
             if (before) {
                 before();
             }
-            for (var i = 0; i < length; i += 4) {
+            for (var i = this.index; i < queueItems.length; i += 4) {
+                this.index += 4;
                 target = queueItems[i];
                 method = queueItems[i + 1];
                 args = queueItems[i + 2];
                 errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
-                if (isString(method)) {
-                    method = target[method];
-                }
                 // method could have been nullified / canceled during flush
-                if (method) {
+                if (method !== null) {
                     //
                     //    ** Attention intrepid developer **
                     //
@@ -8935,34 +8934,40 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                     //
                     invoke(target, method, args, onError, errorRecordedForStack);
                 }
+                if (this.index !== this._queueBeingFlushed.length && this.globalOptions.mustYield && this.globalOptions.mustYield()) {
+                    return 1 /* Pause */;
+                }
             }
             if (after) {
                 after();
             }
-            this._queueBeingFlushed = undefined;
+            this._queueBeingFlushed.length = 0;
+            this.index = 0;
             if (sync !== false && this._queue.length > 0) {
                 // check if new items have been added
                 this.flush(true);
             }
         };
 
-        Queue.prototype.cancel = function cancel(actionToCancel) {
+        Queue.prototype.hasWork = function hasWork() {
+            return this._queueBeingFlushed.length > 0 || this._queue.length > 0;
+        };
+
+        Queue.prototype.cancel = function cancel(_ref) {
+            var target = _ref.target,
+                method = _ref.method;
+
             var queue = this._queue;
             var currentTarget = void 0;
             var currentMethod = void 0;
             var i = void 0;
             var l = void 0;
-            var target = actionToCancel.target,
-                method = actionToCancel.method;
-
-            var GUID_KEY = this.globalOptions.GUID_KEY;
-            if (GUID_KEY && this.targetQueues && target) {
-                var targetQueue = this.targetQueues[target[GUID_KEY]];
-                if (targetQueue) {
-                    for (i = 0, l = targetQueue.length; i < l; i++) {
-                        if (targetQueue[i] === method) {
-                            targetQueue.splice(i, 1);
-                        }
+            var guid = this.guidForTarget(target);
+            var targetQueue = this.targetQueues[guid];
+            if (targetQueue) {
+                for (i = 0, l = targetQueue.length; i < l; i++) {
+                    if (targetQueue[i] === method) {
+                        targetQueue.splice(i, 1);
                     }
                 }
             }
@@ -8977,9 +8982,6 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             // if not found in current queue
             // could be in the queue that is being flushed
             queue = this._queueBeingFlushed;
-            if (!queue) {
-                return;
-            }
             for (i = 0, l = queue.length; i < l; i += 4) {
                 currentTarget = queue[i];
                 currentMethod = queue[i + 1];
@@ -8989,6 +8991,21 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                     queue[i + 1] = null;
                     return true;
                 }
+            }
+            return false;
+        };
+
+        Queue.prototype.guidForTarget = function guidForTarget(target) {
+            if (!target) {
+                return;
+            }
+            var peekGuid = this.globalOptions.peekGuid;
+            if (peekGuid) {
+                return peekGuid(target);
+            }
+            var KEY = this.globalOptions.GUID_KEY;
+            if (KEY) {
+                return target[KEY];
             }
         };
 
@@ -9010,8 +9027,8 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             var queue = this._queue;
             for (var i = 0, l = _targetQueue.length; i < l; i += 2) {
                 var currentMethod = _targetQueue[i];
-                var currentIndex = _targetQueue[i + 1];
                 if (currentMethod === method) {
+                    var currentIndex = _targetQueue[i + 1];
                     queue[currentIndex + 2] = args; // replace args
                     queue[currentIndex + 3] = stack; // replace stack
                     return;
@@ -9021,17 +9038,12 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Queue.prototype.pushUniqueWithGuid = function pushUniqueWithGuid(guid, target, method, args, stack) {
-            var hasLocalQueue = this.targetQueues[guid];
-            if (hasLocalQueue) {
-                this.targetQueue(hasLocalQueue, target, method, args, stack);
+            var localQueue = this.targetQueues[guid];
+            if (localQueue !== undefined) {
+                this.targetQueue(localQueue, target, method, args, stack);
             } else {
                 this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
             }
-            return {
-                queue: this,
-                target: target,
-                method: method
-            };
         };
 
         Queue.prototype.invoke = function invoke(target, method, args /*, onError, errorRecordedForStack */) {
@@ -9058,25 +9070,40 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
     }();
 
     var DeferredActionQueues = function () {
-        function DeferredActionQueues(queueNames, options) {
+        function DeferredActionQueues() {
+            var queueNames = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+            var options = arguments[1];
             (0, _emberBabel.classCallCheck)(this, DeferredActionQueues);
 
-            var queues = this.queues = {};
-            this.queueNames = queueNames = queueNames || [];
+            this.queues = {};
+            this.queueNameIndex = 0;
             this.options = options;
+            this.queueNames = queueNames;
+            var queues = this.queues;
             each(queueNames, function (queueName) {
                 queues[queueName] = new Queue(queueName, options[queueName], options);
             });
         }
+        /*
+          @method schedule
+          @param {String} queueName
+          @param {Any} target
+          @param {Any} method
+          @param {Any} args
+          @param {Boolean} onceFlag
+          @param {Any} stack
+          @return queue
+        */
 
-        DeferredActionQueues.prototype.schedule = function schedule(name, target, method, args, onceFlag, stack) {
+
+        DeferredActionQueues.prototype.schedule = function schedule(queueName, target, method, args, onceFlag, stack) {
             var queues = this.queues;
-            var queue = queues[name];
+            var queue = queues[queueName];
             if (!queue) {
-                noSuchQueue(name);
+                noSuchQueue(queueName);
             }
             if (!method) {
-                noSuchMethod(name);
+                noSuchMethod(queueName);
             }
             if (onceFlag) {
                 return queue.pushUnique(target, method, args, stack);
@@ -9088,16 +9115,17 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         DeferredActionQueues.prototype.flush = function flush() {
             var queue = void 0;
             var queueName = void 0;
-            var queueNameIndex = 0;
             var numberOfQueues = this.queueNames.length;
-            while (queueNameIndex < numberOfQueues) {
-                queueName = this.queueNames[queueNameIndex];
+            while (this.queueNameIndex < numberOfQueues) {
+                queueName = this.queueNames[this.queueNameIndex];
                 queue = this.queues[queueName];
-                if (queue._queue.length === 0) {
-                    queueNameIndex++;
+                if (queue.hasWork() === false) {
+                    this.queueNameIndex++;
                 } else {
-                    queue.flush(false /* async */);
-                    queueNameIndex = 0;
+                    if (queue.flush(false /* async */) === 1 /* Pause */) {
+                            return 1 /* Pause */;
+                        }
+                    this.queueNameIndex = 0; // only reset to first queue if non-pause break
                 }
             }
         };
@@ -9105,16 +9133,29 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         return DeferredActionQueues;
     }();
 
+    // accepts a function that when invoked will return an iterator
+    // iterator will drain until completion
+    // accepts a function that when invoked will return an iterator
+    var iteratorDrain = function (fn) {
+        var iterator = fn();
+        var result = iterator.next();
+        while (result.done === false) {
+            result.value();
+            result = iterator.next();
+        }
+    };
+
     var Backburner = function () {
-        function Backburner(queueNames, options) {
+        function Backburner(queueNames) {
             var _this = this;
 
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
             (0, _emberBabel.classCallCheck)(this, Backburner);
 
             this.DEBUG = false;
             this._autorun = null;
             this.queueNames = queueNames;
-            this.options = options || {};
+            this.options = options;
             if (!this.options.defaultQueue) {
                 this.options.defaultQueue = queueNames[0];
             }
@@ -9137,6 +9178,13 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 },
                 clearTimeout: function (id) {
                     clearTimeout(id);
+                },
+                next: function (fn) {
+                    // TODO: asap
+                    return setTimeout(fn, 0);
+                },
+                clearNext: function (fn) {
+                    clearTimeout(fn);
                 }
             };
             this._boundRunExpiredTimers = function () {
@@ -9147,16 +9195,28 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 _this.end();
             };
         }
+        /*
+          @method begin
+          @return instantiated class DeferredActionQueues
+        */
+
 
         Backburner.prototype.begin = function begin() {
             var options = this.options;
-            var onBegin = options && options.onBegin;
+            var onBegin = options.onBegin;
+
             var previousInstance = this.currentInstance;
-            if (previousInstance) {
-                this.instanceStack.push(previousInstance);
+            var current = void 0;
+            if (this._autorun !== null) {
+                current = previousInstance;
+                this._cancelAutorun();
+            } else {
+                if (previousInstance) {
+                    this.instanceStack.push(previousInstance);
+                }
+                current = this.currentInstance = new DeferredActionQueues(this.queueNames, options);
+                this._trigger('begin', current, previousInstance);
             }
-            var current = this.currentInstance = new DeferredActionQueues(this.queueNames, options);
-            this._trigger('begin', current, previousInstance);
             if (onBegin) {
                 onBegin(current, previousInstance);
             }
@@ -9164,8 +9224,8 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype.end = function end() {
-            var options = this.options;
-            var onEnd = options && options.onEnd;
+            var onEnd = this.options.onEnd;
+
             var currentInstance = this.currentInstance;
             var nextInstance = null;
             if (!currentInstance) {
@@ -9174,19 +9234,25 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             // Prevent double-finally bug in Safari 6.0.2 and iOS 6
             // This bug appears to be resolved in Safari 6.0.5 and iOS 7
             var finallyAlreadyCalled = false;
+            var result = void 0;
             try {
-                currentInstance.flush();
+                result = currentInstance.flush();
             } finally {
                 if (!finallyAlreadyCalled) {
                     finallyAlreadyCalled = true;
-                    this.currentInstance = null;
-                    if (this.instanceStack.length) {
-                        nextInstance = this.instanceStack.pop();
-                        this.currentInstance = nextInstance;
-                    }
-                    this._trigger('end', currentInstance, nextInstance);
-                    if (onEnd) {
-                        onEnd(currentInstance, nextInstance);
+                    if (result === 1 /* Pause */) {
+                            var next = this._platform.next;
+                            this._autorun = next(this._boundAutorunEnd);
+                        } else {
+                        this.currentInstance = null;
+                        if (this.instanceStack.length > 0) {
+                            nextInstance = this.instanceStack.pop();
+                            this.currentInstance = nextInstance;
+                        }
+                        this._trigger('end', currentInstance, nextInstance);
+                        if (onEnd) {
+                            onEnd(currentInstance, nextInstance);
+                        }
                     }
                 }
             }
@@ -9197,7 +9263,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 throw new TypeError('Callback must be a function');
             }
             var callbacks = this._eventCallbacks[eventName];
-            if (callbacks) {
+            if (callbacks !== undefined) {
                 callbacks.push(callback);
             } else {
                 throw new TypeError('Cannot on() event ' + eventName + ' because it does not exist');
@@ -9205,26 +9271,22 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype.off = function off(eventName, callback) {
-            if (eventName) {
-                var callbacks = this._eventCallbacks[eventName];
-                var callbackFound = false;
-                if (!callbacks) {
-                    return;
-                }
-                if (callback) {
-                    for (var i = 0; i < callbacks.length; i++) {
-                        if (callbacks[i] === callback) {
-                            callbackFound = true;
-                            callbacks.splice(i, 1);
-                            i--;
-                        }
+            var callbacks = this._eventCallbacks[eventName];
+            if (!eventName || callbacks === undefined) {
+                throw new TypeError('Cannot off() event ' + eventName + ' because it does not exist');
+            }
+            var callbackFound = false;
+            if (callback) {
+                for (var i = 0; i < callbacks.length; i++) {
+                    if (callbacks[i] === callback) {
+                        callbackFound = true;
+                        callbacks.splice(i, 1);
+                        i--;
                     }
                 }
-                if (!callbackFound) {
-                    throw new TypeError('Cannot off() callback that does not exist');
-                }
-            } else {
-                throw new TypeError('Cannot off() event ' + eventName + ' because it does not exist');
+            }
+            if (!callbackFound) {
+                throw new TypeError('Cannot off() callback that does not exist');
             }
         };
 
@@ -9240,11 +9302,11 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 _method = target;
                 _target = null;
             } else {
-                _target = target;
                 _method = method;
-            }
-            if (isString(_method)) {
-                _method = _target[_method];
+                _target = target;
+                if (isString(_method)) {
+                    _method = _target[_method];
+                }
             }
             var onError = getOnError(this.options);
             this.begin();
@@ -9266,36 +9328,43 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype.join = function join() {
-            if (!this.currentInstance) {
+            if (this.currentInstance === null || this.currentInstance === undefined) {
                 return this.run.apply(this, arguments);
             }
             var length = arguments.length;
             var method = void 0;
             var target = void 0;
+            var args = void 0;
             if (length === 1) {
                 method = arguments[0];
                 target = null;
             } else {
                 target = arguments[0];
                 method = arguments[1];
-            }
-            if (isString(method)) {
-                method = target[method];
+                if (isString(method)) {
+                    method = target[method];
+                }
+                if (length > 2) {
+                    args = new Array(length - 2);
+                    for (var i = 0, l = length - 2; i < l; i++) {
+                        args[i] = arguments[i + 2];
+                    }
+                }
             }
             if (length === 1) {
                 return method();
             } else if (length === 2) {
                 return method.call(target);
             } else {
-                var args = new Array(length - 2);
-                for (var i = 0, l = length - 2; i < l; i++) {
-                    args[i] = arguments[i + 2];
-                }
                 return method.apply(target, args);
             }
         };
 
-        Backburner.prototype.defer = function defer(queueName /* , target, method, args */) {
+        Backburner.prototype.defer = function defer() {
+            return this.schedule.apply(this, arguments);
+        };
+
+        Backburner.prototype.schedule = function schedule(queueName) {
             var length = arguments.length;
             var method = void 0;
             var target = void 0;
@@ -9306,23 +9375,30 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             } else {
                 target = arguments[1];
                 method = arguments[2];
-            }
-            if (isString(method)) {
-                method = target[method];
+                if (isString(method)) {
+                    method = target[method];
+                }
+                if (length > 3) {
+                    args = new Array(length - 3);
+                    for (var i = 3; i < length; i++) {
+                        args[i - 3] = arguments[i];
+                    }
+                }
             }
             var stack = this.DEBUG ? new Error() : undefined;
-            if (length > 3) {
-                args = new Array(length - 3);
-                for (var i = 3; i < length; i++) {
-                    args[i - 3] = arguments[i];
-                }
-            } else {
-                args = undefined;
-            }
             return this._ensureInstance().schedule(queueName, target, method, args, false, stack);
         };
 
-        Backburner.prototype.deferOnce = function deferOnce(queueName /* , target, method, args */) {
+        Backburner.prototype.scheduleIterable = function scheduleIterable(queueName, iterable) {
+            var stack = this.DEBUG ? new Error() : undefined;
+            return this._ensureInstance().schedule(queueName, null, iteratorDrain, [iterable], false, stack);
+        };
+
+        Backburner.prototype.deferOnce = function deferOnce() {
+            return this.scheduleOnce.apply(this, arguments);
+        };
+
+        Backburner.prototype.scheduleOnce = function scheduleOnce(queueName /* , target, method, args */) {
             var length = arguments.length;
             var method = void 0;
             var target = void 0;
@@ -9333,32 +9409,32 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             } else {
                 target = arguments[1];
                 method = arguments[2];
-            }
-            if (isString(method)) {
-                method = target[method];
+                if (isString(method)) {
+                    method = target[method];
+                }
+                if (length > 3) {
+                    args = new Array(length - 3);
+                    for (var i = 3; i < length; i++) {
+                        args[i - 3] = arguments[i];
+                    }
+                }
             }
             var stack = this.DEBUG ? new Error() : undefined;
-            if (length > 3) {
-                args = new Array(length - 3);
-                for (var i = 3; i < length; i++) {
-                    args[i - 3] = arguments[i];
-                }
-            } else {
-                args = undefined;
-            }
-            var currentInstance = this._ensureInstance();
-            return currentInstance.schedule(queueName, target, method, args, true, stack);
+            return this._ensureInstance().schedule(queueName, target, method, args, true, stack);
         };
 
         Backburner.prototype.setTimeout = function setTimeout() {
-            var l = arguments.length;
-            var args = new Array(l);
-            for (var x = 0; x < l; x++) {
-                args[x] = arguments[x];
+            return this.later.apply(this, arguments);
+        };
+
+        Backburner.prototype.later = function later() {
+            for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                args[_key2] = arguments[_key2];
             }
+
             var length = args.length;
+            var wait = 0;
             var method = void 0;
-            var wait = void 0;
             var target = void 0;
             var methodOrTarget = void 0;
             var methodOrWait = void 0;
@@ -9367,72 +9443,76 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 return;
             } else if (length === 1) {
                 method = args.shift();
-                wait = 0;
             } else if (length === 2) {
                 methodOrTarget = args[0];
                 methodOrWait = args[1];
-                if (isFunction(methodOrWait) || isFunction(methodOrTarget[methodOrWait])) {
+                if (isFunction(methodOrWait)) {
                     target = args.shift();
                     method = args.shift();
-                    wait = 0;
+                } else if (methodOrTarget !== null && isString(methodOrWait) && methodOrWait in methodOrTarget) {
+                    target = args.shift();
+                    method = target[args.shift()];
                 } else if (isCoercableNumber(methodOrWait)) {
                     method = args.shift();
-                    wait = args.shift();
+                    wait = parseInt(args.shift(), 10);
                 } else {
                     method = args.shift();
-                    wait = 0;
                 }
             } else {
                 var last = args[args.length - 1];
                 if (isCoercableNumber(last)) {
-                    wait = args.pop();
-                } else {
-                    wait = 0;
+                    wait = parseInt(args.pop(), 10);
                 }
                 methodOrTarget = args[0];
                 methodOrArgs = args[1];
-                if (isFunction(methodOrArgs) || isString(methodOrArgs) && methodOrTarget !== null && methodOrArgs in methodOrTarget) {
+                if (isFunction(methodOrArgs)) {
                     target = args.shift();
                     method = args.shift();
+                } else if (methodOrTarget !== null && isString(methodOrArgs) && methodOrArgs in methodOrTarget) {
+                    target = args.shift();
+                    method = target[args.shift()];
                 } else {
                     method = args.shift();
                 }
             }
-            var executeAt = now() + parseInt(wait !== wait ? 0 : wait, 10);
-            if (isString(method)) {
-                method = target[method];
-            }
+            var executeAt = now() + wait;
             var onError = getOnError(this.options);
-            function fn() {
-                if (onError) {
+            var fn = void 0;
+            if (onError) {
+                fn = function () {
                     try {
                         method.apply(target, args);
                     } catch (e) {
                         onError(e);
                     }
-                } else {
+                };
+            } else {
+                fn = function () {
                     method.apply(target, args);
-                }
+                };
             }
             return this._setTimeout(fn, executeAt);
         };
 
-        Backburner.prototype.throttle = function throttle(target, method /* , args, wait, [immediate] */) {
-            var backburner = this;
+        Backburner.prototype.throttle = function throttle(target, method /*, ...args, wait, [immediate] */) {
+            var _this2 = this;
+
             var args = new Array(arguments.length);
             for (var i = 0; i < arguments.length; i++) {
                 args[i] = arguments[i];
             }
             var immediate = args.pop();
+            var isImmediate = void 0;
             var wait = void 0;
             var throttler = void 0;
             var index = void 0;
             var timer = void 0;
-            if (isNumber(immediate) || isString(immediate)) {
+            if (isCoercableNumber(immediate)) {
                 wait = immediate;
-                immediate = true;
+                isImmediate = true;
             } else {
                 wait = args.pop();
+                isImmediate = immediate === true;
             }
             wait = parseInt(wait, 10);
             index = findThrottler(target, method, this._throttlers);
@@ -9440,15 +9520,15 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 return this._throttlers[index];
             } // throttled
             timer = this._platform.setTimeout(function () {
-                if (!immediate) {
-                    backburner.run.apply(backburner, args);
+                if (isImmediate === false) {
+                    _this2.run.apply(_this2, args);
                 }
-                index = findThrottler(target, method, backburner._throttlers);
+                index = findThrottler(target, method, _this2._throttlers);
                 if (index > -1) {
-                    backburner._throttlers.splice(index, 1);
+                    _this2._throttlers.splice(index, 1);
                 }
             }, wait);
-            if (immediate) {
+            if (isImmediate) {
                 this.join.apply(this, args);
             }
             throttler = [target, method, timer];
@@ -9457,21 +9537,24 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype.debounce = function debounce(target, method /* , args, wait, [immediate] */) {
-            var backburner = this;
+            var _this3 = this;
+
             var args = new Array(arguments.length);
             for (var i = 0; i < arguments.length; i++) {
                 args[i] = arguments[i];
             }
             var immediate = args.pop();
+            var isImmediate = void 0;
             var wait = void 0;
             var index = void 0;
             var debouncee = void 0;
             var timer = void 0;
-            if (isNumber(immediate) || isString(immediate)) {
+            if (isCoercableNumber(immediate)) {
                 wait = immediate;
-                immediate = false;
+                isImmediate = false;
             } else {
                 wait = args.pop();
+                isImmediate = immediate === true;
             }
             wait = parseInt(wait, 10);
             // Remove debouncee
@@ -9482,19 +9565,19 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 this._platform.clearTimeout(debouncee[2]);
             }
             timer = this._platform.setTimeout(function () {
-                if (!immediate) {
-                    backburner.run.apply(backburner, args);
+                if (isImmediate === false) {
+                    _this3.run.apply(_this3, args);
                 }
-                index = findDebouncee(target, method, backburner._debouncees);
+                index = findDebouncee(target, method, _this3._debouncees);
                 if (index > -1) {
-                    backburner._debouncees.splice(index, 1);
+                    _this3._debouncees.splice(index, 1);
                 }
             }, wait);
-            if (immediate && index === -1) {
-                backburner.run.apply(backburner, args);
+            if (isImmediate && index === -1) {
+                this.run.apply(this, args);
             }
             debouncee = [target, method, timer];
-            backburner._debouncees.push(debouncee);
+            this._debouncees.push(debouncee);
             return debouncee;
         };
 
@@ -9505,20 +9588,28 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             this._debouncees = [];
             this._clearTimerTimeout();
             this._timers = [];
-            if (this._autorun) {
-                this._platform.clearTimeout(this._autorun);
+            if (this._autorun !== null) {
+                this._platform.clearNext(this._autorun);
                 this._autorun = null;
             }
+            this._cancelAutorun();
         };
 
         Backburner.prototype.hasTimers = function hasTimers() {
-            return !!this._timers.length || !!this._debouncees.length || !!this._throttlers.length || this._autorun;
+            return this._timers.length > 0 || this._debouncees.length > 0 || this._throttlers.length > 0 || this._autorun !== null;
         };
 
         Backburner.prototype.cancel = function cancel(timer) {
+            if (!timer) {
+                return false;
+            }
             var timerType = typeof timer;
-            if (timer && timerType === 'object' && timer.queue && timer.method) {
-                return timer.queue.cancel(timer);
+            if (timerType === 'object') {
+                if (timer.queue && timer.method) {
+                    return timer.queue.cancel(timer);
+                } else if (Array.isArray(timer)) {
+                    return this._cancelItem(findThrottler, this._throttlers, timer) || this._cancelItem(findDebouncee, this._debouncees, timer);
+                }
             } else if (timerType === 'function') {
                 for (var i = 0, l = this._timers.length; i < l; i += 2) {
                     if (this._timers[i + 1] === timer) {
@@ -9529,10 +9620,14 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                         return true;
                     }
                 }
-            } else if (Object.prototype.toString.call(timer) === '[object Array]') {
-                return this._cancelItem(findThrottler, this._throttlers, timer) || this._cancelItem(findDebouncee, this._debouncees, timer);
-            } else {
-                return; // timer was null or not a timer
+            }
+            return false;
+        };
+
+        Backburner.prototype._cancelAutorun = function _cancelAutorun() {
+            if (this._autorun !== null) {
+                this._platform.clearTimeout(this._autorun);
+                this._autorun = null;
             }
         };
 
@@ -9572,7 +9667,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
         Backburner.prototype._trigger = function _trigger(eventName, arg1, arg2) {
             var callbacks = this._eventCallbacks[eventName];
-            if (callbacks) {
+            if (callbacks !== undefined) {
                 for (var i = 0; i < callbacks.length; i++) {
                     callbacks[i](arg1, arg2);
                 }
@@ -9593,7 +9688,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 var executeAt = timers[i];
                 var fn = timers[i + 1];
                 if (executeAt <= n) {
-                    this.defer(this.options.defaultQueue, null, fn);
+                    this.schedule(this.options.defaultQueue, null, fn);
                 } else {
                     break;
                 }
@@ -9608,7 +9703,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype._clearTimerTimeout = function _clearTimerTimeout() {
-            if (!this._timerTimeoutId) {
+            if (this._timerTimeoutId === undefined) {
                 return;
             }
             this._platform.clearTimeout(this._timerTimeoutId);
@@ -9616,7 +9711,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype._installTimerTimeout = function _installTimerTimeout() {
-            if (!this._timers.length) {
+            if (this._timers.length === 0) {
                 return;
             }
             var minExpiresAt = this._timers[0];
@@ -9627,10 +9722,10 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
         Backburner.prototype._ensureInstance = function _ensureInstance() {
             var currentInstance = this.currentInstance;
-            if (!currentInstance) {
-                var _setTimeout2 = this._platform.setTimeout;
+            if (currentInstance === undefined || currentInstance === null) {
+                var next = this._platform.next || this._platform.setTimeout; // TODO: remove the fallback
                 currentInstance = this.begin();
-                this._autorun = _setTimeout2(this._boundAutorunEnd, 0);
+                this._autorun = next(this._boundAutorunEnd);
             }
             return currentInstance;
         };
@@ -9639,9 +9734,6 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
     }();
 
     Backburner.Queue = Queue;
-    Backburner.prototype.schedule = Backburner.prototype.defer;
-    Backburner.prototype.scheduleOnce = Backburner.prototype.deferOnce;
-    Backburner.prototype.later = Backburner.prototype.setTimeout;
 
     exports.default = Backburner;
 });
@@ -47819,7 +47911,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+151e7020";
+  exports.default = "2.15.0-alpha.1-null+03b64ddf";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
