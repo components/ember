@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a2bb741e
+ * @version   2.15.0-alpha.1-null+151e7020
  */
 
 var enifed, requireModule, Ember;
@@ -32189,20 +32189,21 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       this.render();
     },
     render: function (_name, options) {
-      (true && (0, _emberDebug.assert)('The name in the given arguments is undefined', arguments.length > 0 ? !(0, _emberMetal.isNone)(arguments[0]) : true));
-
-
-      var namePassed = typeof _name === 'string' && !!_name;
-      var isDefaultRender = arguments.length === 0 || (0, _emberMetal.isEmpty)(arguments[0]);
       var name = void 0;
+      var namePassed = false;
+      var isDefaultRender = true;
+      if (arguments.length > 0) {
+        (true && (0, _emberDebug.assert)('The name in the given arguments is undefined', !(0, _emberMetal.isNone)(_name)));
 
-      if (typeof _name === 'object' && !options) {
-        name = this.templateName || this.routeName;
-        options = _name;
-      } else {
-        name = _name;
+        namePassed = typeof _name === 'string' && !!_name;
+        isDefaultRender = (0, _emberMetal.isEmpty)(_name);
+        if (typeof _name === 'object' && !options) {
+          name = this.templateName || this.routeName;
+          options = _name;
+        } else {
+          name = _name;
+        }
       }
-
       var renderOptions = buildRenderOptions(this, namePassed, isDefaultRender, name, options);
       this.connections.push(renderOptions);
       _emberMetal.run.once(this.router, '_setOutlets');
@@ -32627,7 +32628,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       var initialURL = (0, _emberMetal.get)(this, 'initialURL');
 
       if (this.setupRouter()) {
-        if (typeof initialURL === 'undefined') {
+        if (initialURL === undefined) {
           initialURL = (0, _emberMetal.get)(this, 'location').getURL();
         }
         var initialTransition = this.handleURL(initialURL);
@@ -32856,7 +32857,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       if ('string' === typeof location && owner) {
         var resolvedLocation = owner.lookup('location:' + location);
 
-        if ('undefined' !== typeof resolvedLocation) {
+        if (resolvedLocation !== undefined) {
           location = (0, _emberMetal.set)(this, 'location', resolvedLocation);
         } else {
           // Allow for deprecated registration of custom location API's
@@ -37419,9 +37420,6 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], funct
     },
     lookup: function (fullName, options) {
       return this.__container__.lookup(fullName, options);
-    },
-    _lookupFactory: function (fullName, options) {
-      return this.__container__.lookupFactory(fullName, options);
     },
     _resolveLocalLookupName: function (name, source) {
       return this.__container__.registry.expandLocalLookup('component:' + name, {
@@ -47821,7 +47819,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+a2bb741e";
+  exports.default = "2.15.0-alpha.1-null+151e7020";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -50489,7 +50487,18 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // TODO: add tests for merged state retry()s
       this.abort();
       var newTransition = this.router.transitionByIntent(this.intent, false);
-      newTransition.method(this.urlMethod);
+
+      // inheriting a `null` urlMethod is not valid
+      // the urlMethod is only set to `null` when
+      // the transition is initiated *after* the url
+      // has been updated (i.e. `router.handleURL`)
+      //
+      // in that scenario, the url method cannot be
+      // inherited for a new transition because then
+      // the url would not update even though it should
+      if (this.urlMethod !== null) {
+        newTransition.method(this.urlMethod);
+      }
       return newTransition;
     },
 
