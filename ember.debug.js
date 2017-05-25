@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+e9e2f2b6
+ * @version   2.15.0-alpha.1-null+a2bb741e
  */
 
 var enifed, requireModule, Ember;
@@ -31323,7 +31323,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           active: function (prop, value) {
             var qp = map[prop];
             _this._qpChanged(prop, value, qp);
-            return _this._activeQPChanged(map[prop], value);
+            return _this._activeQPChanged(qp, value);
           },
           /*
             Called when a value of a query parameter this route handles changes in a controller
@@ -31332,7 +31332,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           allowOverrides: function (prop, value) {
             var qp = map[prop];
             _this._qpChanged(prop, value, qp);
-            return _this._updatingQPChanged(map[prop]);
+            return _this._updatingQPChanged(qp);
           }
         }
       };
@@ -31370,12 +31370,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       }
     },
     _activeQPChanged: function (qp, value) {
-      var router = this.router;
-      router._activeQPChanged(qp.scopedPropertyName, value);
+      this.router._activeQPChanged(qp.scopedPropertyName, value);
     },
     _updatingQPChanged: function (qp) {
-      var router = this.router;
-      router._updatingQPChanged(qp.urlKey);
+      this.router._updatingQPChanged(qp.urlKey);
     },
 
 
@@ -31863,10 +31861,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var controllerName = this.controllerName || this.routeName;
       var definedController = this.controllerFor(controllerName, true);
 
-      if (!definedController) {
-        controller = this.generateController(controllerName);
-      } else {
+      if (definedController) {
         controller = definedController;
+      } else {
+        controller = this.generateController(controllerName);
       }
 
       // Assign the route's controller so that it can more easily be
@@ -31902,9 +31900,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
             (0, _emberMetal.set)(controller, prop, value);
           }
         });
-      }
 
-      if (transition) {
         var qpValues = getQueryParamsFor(this, transition.state);
         (0, _emberMetal.setProperties)(controller, qpValues);
       }
@@ -47825,7 +47821,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+e9e2f2b6";
+  exports.default = "2.15.0-alpha.1-null+a2bb741e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
