@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2-null+740a8bdd
+ * @version   2.14.0-beta.2-null+d59e02a8
  */
 
 var enifed, requireModule, Ember;
@@ -6437,7 +6437,7 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         Environment.prototype.begin = function () {
-            (0, _util.assert)(!this._transaction, 'Cannot start a nested transaction');
+
             this._transaction = new Transaction();
         };
 
@@ -43797,7 +43797,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.2-null+740a8bdd";
+  exports.default = "2.14.0-beta.2-null+d59e02a8";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
