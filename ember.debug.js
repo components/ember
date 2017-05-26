@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+03b64ddf
+ * @version   2.15.0-alpha.1-null+53df92d1
  */
 
 var enifed, requireModule, Ember;
@@ -32282,13 +32282,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     },
     render: function (_name, options) {
       var name = void 0;
-      var namePassed = false;
+      var isNamePassed = false;
       var isDefaultRender = true;
       if (arguments.length > 0) {
         (true && (0, _emberDebug.assert)('The name in the given arguments is undefined', !(0, _emberMetal.isNone)(_name)));
 
-        namePassed = typeof _name === 'string' && !!_name;
         isDefaultRender = (0, _emberMetal.isEmpty)(_name);
+        isNamePassed = !isDefaultRender && typeof _name === 'string';
         if (typeof _name === 'object' && !options) {
           name = this.templateName || this.routeName;
           options = _name;
@@ -32296,7 +32296,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           name = _name;
         }
       }
-      var renderOptions = buildRenderOptions(this, namePassed, isDefaultRender, name, options);
+
+      var renderOptions = buildRenderOptions(this, isNamePassed, isDefaultRender, name, options);
       this.connections.push(renderOptions);
       _emberMetal.run.once(this.router, '_setOutlets');
     },
@@ -32309,9 +32310,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         outletName = options.outlet;
         parentView = options.parentView;
 
-        if (options && Object.keys(options).indexOf('outlet') !== -1 && typeof options.outlet === 'undefined') {
-          throw new _emberDebug.Error('You passed undefined as the outlet name.');
-        }
+        (true && (0, _emberDebug.assert)('You passed undefined as the outlet name.', !('outlet' in options && options.outlet === undefined)));
       }
       parentView = parentView && parentView.replace(/\//g, '.');
       outletName = outletName || 'main';
@@ -32389,13 +32388,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     }
   }
 
-  function buildRenderOptions(route, namePassed, isDefaultRender, _name, options) {
+  function buildRenderOptions(route, isNamePassed, isDefaultRender, _name, options) {
     var into = options && options.into && options.into.replace(/\//g, '.');
     var outlet = options && options.outlet || 'main';
 
     var name = void 0,
         templateName = void 0;
-    if (_name) {
+    if (isNamePassed) {
       name = _name.replace(/\//g, '.');
       templateName = name;
     } else {
@@ -32406,7 +32405,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     var owner = (0, _emberUtils.getOwner)(route);
     var controller = options && options.controller;
     if (!controller) {
-      if (namePassed) {
+      if (isNamePassed) {
         controller = owner.lookup('controller:' + name) || route.controllerName || route.routeName;
       } else {
         controller = route.controllerName || owner.lookup('controller:' + name);
@@ -32421,9 +32420,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       }
     }
 
-    if (options && Object.keys(options).indexOf('outlet') !== -1 && typeof options.outlet === 'undefined') {
-      throw new _emberDebug.Error('You passed undefined as the outlet name.');
-    }
+    (true && (0, _emberDebug.assert)('You passed undefined as the outlet name.', isDefaultRender || !(options && 'outlet' in options && options.outlet === undefined)));
+
 
     if (options && options.model) {
       controller.set('model', options.model);
@@ -47911,7 +47909,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+03b64ddf";
+  exports.default = "2.15.0-alpha.1-null+53df92d1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
