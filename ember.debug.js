@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2-null+d59e02a8
+ * @version   2.14.0-beta.2-null+a2679c00
  */
 
 var enifed, requireModule, Ember;
@@ -48038,7 +48038,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.2-null+d59e02a8";
+  exports.default = "2.14.0-beta.2-null+a2679c00";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -50706,7 +50706,18 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // TODO: add tests for merged state retry()s
       this.abort();
       var newTransition = this.router.transitionByIntent(this.intent, false);
-      newTransition.method(this.urlMethod);
+
+      // inheriting a `null` urlMethod is not valid
+      // the urlMethod is only set to `null` when
+      // the transition is initiated *after* the url
+      // has been updated (i.e. `router.handleURL`)
+      //
+      // in that scenario, the url method cannot be
+      // inherited for a new transition because then
+      // the url would not update even though it should
+      if (this.urlMethod !== null) {
+        newTransition.method(this.urlMethod);
+      }
       return newTransition;
     },
 

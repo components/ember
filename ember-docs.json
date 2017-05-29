@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0-beta.2.d59e02a8"
+        "version": "2.14.0-beta.2.a2679c00"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -4292,7 +4292,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 242,
+            "line": 253,
             "description": "Sets the URL-changing method to be employed at the end of a\n    successful transition. By default, a new Transition will just\n    use `updateURL`, but passing 'replace' to this method will\n    cause the URL to update using 'replaceWith' instead. Omitting\n    a parameter will disable the URL change, allowing for transitions\n    that don't update the URL at completion (this is also used for\n    handleURL, since the URL has already changed before the\n    transition took place).",
             "itemtype": "method",
             "name": "method",
@@ -4313,7 +4313,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 267,
+            "line": 278,
             "description": "Fires an event on the current list of resolved/resolving\n    handlers within this transition. Useful for firing events\n    on route hierarchies that haven't fully been entered yet.\nNote: This method is also aliased as `send`",
             "itemtype": "method",
             "name": "trigger",
@@ -4337,7 +4337,7 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 291,
+            "line": 302,
             "description": "Transitions are aborted and their promises rejected\nwhen redirects occur; this method returns a promise\nthat will follow any redirects that occur and fulfill\nwith the value fulfilled by any redirecting transitions\nthat occur.",
             "itemtype": "method",
             "name": "followRedirects",
@@ -4351,14 +4351,14 @@
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 317,
+            "line": 328,
             "access": "private",
             "tagname": "",
             "class": "Transition"
         },
         {
             "file": "node_modules/router_js/lib/router/transition.js",
-            "line": 328,
+            "line": 339,
             "access": "private",
             "tagname": "Logs and returns an instance of TransitionAbortedError.",
             "class": "Transition"
@@ -21109,11 +21109,11 @@
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/transition.js:317"
+            "line": " node_modules/router_js/lib/router/transition.js:328"
         },
         {
             "message": "Missing item type",
-            "line": " node_modules/router_js/lib/router/transition.js:328"
+            "line": " node_modules/router_js/lib/router/transition.js:339"
         },
         {
             "message": "Missing item type\nDetermines if an object is Promise by checking if it is \"thenable\".",
