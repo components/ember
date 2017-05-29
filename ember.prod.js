@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+e90763da
+ * @version   2.15.0-alpha.1-null+603796b5
  */
 
 var enifed, requireModule, Ember;
@@ -30176,7 +30176,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       var owner = (0, _emberUtils.getOwner)(this);
       var controller = owner.lookup('controller:' + controllerName);
       var queryParameterConfiguraton = (0, _emberMetal.get)(this, 'queryParams');
-      var hasRouterDefinedQueryParams = !!Object.keys(queryParameterConfiguraton).length;
+      var hasRouterDefinedQueryParams = Object.keys(queryParameterConfiguraton).length > 0;
 
       if (controller) {
         // the developer has authored a controller class in their application for
@@ -30191,7 +30191,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       } else if (hasRouterDefinedQueryParams) {
         // the developer has not defined a controller but *has* supplied route query params.
         // Generate a class for them so we can later insert default values
-        controller = (0, _generate_controller.default)((0, _emberUtils.getOwner)(this), controllerName);
+        controller = (0, _generate_controller.default)(owner, controllerName);
         combinedQueryParameterConfiguration = queryParameterConfiguraton;
       }
 
@@ -43747,7 +43747,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+e90763da";
+  exports.default = "2.15.0-alpha.1-null+603796b5";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
