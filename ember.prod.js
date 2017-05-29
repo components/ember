@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d5f21b52
+ * @version   2.15.0-alpha.1-null+d42a2a6c
  */
 
 var enifed, requireModule, Ember;
@@ -39292,11 +39292,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
           for (i = 0; i < props.length; i++) {
             properties = props[i];
 
-            false && (0, _emberDebug.assert)('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create separately instead.', !(properties instanceof _emberMetal.Mixin));
 
-            if (typeof properties !== 'object' && properties !== undefined) {
-              throw new _emberDebug.Error('Ember.Object.create only accepts objects.');
-            }
+            false && (0, _emberDebug.assert)('Ember.Object.create only accepts objects.', typeof properties === 'object' || properties === undefined);
+            false && (0, _emberDebug.assert)('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create separately instead.', !(properties instanceof _emberMetal.Mixin));
 
             if (!properties) {
               continue;
@@ -43742,7 +43740,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+d5f21b52";
+  exports.default = "2.15.0-alpha.1-null+d42a2a6c";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
