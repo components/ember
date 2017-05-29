@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+603796b5
+ * @version   2.15.0-alpha.1-null+28cda590
  */
 
 var enifed, requireModule, Ember;
@@ -31401,12 +31401,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     the existing objects.
   */
   function mergeEachQueryParams(controllerQP, routeQP) {
-    var keysAlreadyMergedOrSkippable = void 0,
+    var qps = {},
         newControllerParameterConfiguration,
         newRouteParameterConfiguration;
-    var qps = {};
-
-    keysAlreadyMergedOrSkippable = {
+    var keysAlreadyMergedOrSkippable = {
       defaultValue: true,
       type: true,
       scope: true,
@@ -31422,8 +31420,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
       newControllerParameterConfiguration = {};
 
-      (0, _emberUtils.assign)(newControllerParameterConfiguration, controllerQP[cqpName]);
-      (0, _emberUtils.assign)(newControllerParameterConfiguration, routeQP[cqpName]);
+      (0, _emberUtils.assign)(newControllerParameterConfiguration, controllerQP[cqpName], routeQP[cqpName]);
 
       qps[cqpName] = newControllerParameterConfiguration;
 
@@ -43747,7 +43744,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+603796b5";
+  exports.default = "2.15.0-alpha.1-null+28cda590";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
