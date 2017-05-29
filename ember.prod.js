@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+28cda590
+ * @version   2.15.0-alpha.1-null+d5f21b52
  */
 
 var enifed, requireModule, Ember;
@@ -31174,13 +31174,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     },
     render: function (_name, options) {
       var name = void 0;
-      var isNamePassed = false;
       var isDefaultRender = true;
       if (arguments.length > 0) {
         false && (0, _emberDebug.assert)('The name in the given arguments is undefined', !(0, _emberMetal.isNone)(_name));
 
         isDefaultRender = (0, _emberMetal.isEmpty)(_name);
-        isNamePassed = !isDefaultRender && typeof _name === 'string';
         if (typeof _name === 'object' && !options) {
           name = this.templateName || this.routeName;
           options = _name;
@@ -31189,7 +31187,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         }
       }
 
-      var renderOptions = buildRenderOptions(this, isNamePassed, isDefaultRender, name, options);
+      var renderOptions = buildRenderOptions(this, isDefaultRender, name, options);
       this.connections.push(renderOptions);
       _emberMetal.run.once(this.router, '_setOutlets');
     },
@@ -31285,28 +31283,28 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     }
   }
 
-  function buildRenderOptions(route, isNamePassed, isDefaultRender, _name, options) {
+  function buildRenderOptions(route, isDefaultRender, _name, options) {
     var into = options && options.into && options.into.replace(/\//g, '.'),
         controllerName;
     var outlet = options && options.outlet || 'main';
 
     var name = void 0,
         templateName = void 0;
-    if (isNamePassed) {
-      name = _name.replace(/\//g, '.');
-      templateName = name;
-    } else {
+    if (isDefaultRender) {
       name = route.routeName;
       templateName = route.templateName || name;
+    } else {
+      name = _name.replace(/\//g, '.');
+      templateName = name;
     }
 
     var owner = (0, _emberUtils.getOwner)(route);
     var controller = options && options.controller;
     if (!controller) {
-      if (isNamePassed) {
-        controller = owner.lookup('controller:' + name) || route.controllerName || route.routeName;
-      } else {
+      if (isDefaultRender) {
         controller = route.controllerName || owner.lookup('controller:' + name);
+      } else {
+        controller = owner.lookup('controller:' + name) || route.controllerName || route.routeName;
       }
     }
 
@@ -39324,7 +39322,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
               false && (0, _emberDebug.assert)('Ember.Object.create no longer supports defining methods that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
               false && (0, _emberDebug.assert)('`actions` must be provided at extend time, not at create time, ' + 'when Ember.ActionHandler is used (i.e. views, controllers & routes).', !(keyName === 'actions' && _action_handler.default.detect(this)));
 
-              if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) >= 0) {
+              if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) > -1) {
                 baseValue = this[keyName];
 
 
@@ -39339,7 +39337,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
                 }
               }
 
-              if (mergedProperties && mergedProperties.length && mergedProperties.indexOf(keyName) >= 0) {
+              if (mergedProperties && mergedProperties.length > 0 && mergedProperties.indexOf(keyName) > -1) {
                 originalValue = this[keyName];
 
 
@@ -39438,7 +39436,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     },
     set: function (value) {
       // prevent setting while applying mixins
-      if (typeof value === 'object' && value !== null && value.isDescriptor) {
+      if (value !== null && typeof value === 'object' && value.isDescriptor) {
         return;
       }
 
@@ -39450,7 +39448,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     },
     set: function (value) {
       // prevent setting while applying mixins
-      if (typeof value === 'object' && value !== null && value.isDescriptor) {
+      if (value !== null && typeof value === 'object' && value.isDescriptor) {
         return;
       }
 
@@ -43744,7 +43742,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+28cda590";
+  exports.default = "2.15.0-alpha.1-null+d5f21b52";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
