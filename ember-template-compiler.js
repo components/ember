@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d42a2a6c
+ * @version   2.15.0-alpha.1-null+91d8f08d
  */
 
 var enifed, requireModule, Ember;
@@ -112,45 +112,183 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/syntax', '@glimmer/util', '@glimmer/wire-format'], function (exports, _emberBabel, _nodeModule, _syntax, _util, _wireFormat) {
+enifed('@glimmer/compiler', ['exports', 'node-module', '@glimmer/syntax', '@glimmer/util', '@glimmer/wire-format'], function (exports, _nodeModule, _syntax, _util, _wireFormat) {
     'use strict';
 
     exports.TemplateVisitor = exports.precompile = undefined;
 
-    var push = Array.prototype.push;
+    var _createClass$1 = function () {
+        function defineProperties(target, props) {
+            var i, descriptor;
 
-    var Frame = function () {
+            for (i = 0; i < props.length; i++) {
+                descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+        };
+    }();
 
-        this.parentNode = null;
-        this.children = null;
-        this.childIndex = null;
-        this.childCount = null;
-        this.childTemplateCount = 0;
-        this.mustacheCount = 0;
-        this.actions = [];
-        this.blankChildTextNodes = null;
-        this.symbols = null;
-    };
+    function _defaults(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults),
+            i,
+            key,
+            value;for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = Object.getOwnPropertyDescriptor(defaults, key);
+            if (value && value.configurable && obj[key] === undefined) {
+                Object.defineProperty(obj, key, value);
+            }
+        }return obj;
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass);
+    }
+
+    function _classCallCheck$1(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
 
     var SymbolTable = function () {
-        function SymbolTable(symbols) {
-            var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-
-            this.symbols = symbols;
-            this.parent = parent;
+        function SymbolTable() {
+            _classCallCheck$1(this, SymbolTable);
         }
 
-        SymbolTable.prototype.hasLocalVariable = function (name) {
-            var symbols = this.symbols,
-                parent = this.parent;
+        SymbolTable.top = function () {
+            return new ProgramSymbolTable();
+        };
 
-            return symbols.indexOf(name) >= 0 || parent && parent.hasLocalVariable(name);
+        SymbolTable.prototype.child = function (locals) {
+            var _this = this;
+
+            var symbols = locals.map(function (name) {
+                return _this.allocate(name);
+            });
+            return new BlockSymbolTable(this, locals, symbols);
         };
 
         return SymbolTable;
     }();
+    var ProgramSymbolTable = function (_SymbolTable) {
+        _inherits(ProgramSymbolTable, _SymbolTable);
 
+        function ProgramSymbolTable() {
+            _classCallCheck$1(this, ProgramSymbolTable);
+
+            var _this2 = _possibleConstructorReturn(this, _SymbolTable.apply(this, arguments));
+
+            _this2.symbols = [];
+            _this2.size = 1;
+            _this2.named = (0, _util.dict)();
+            _this2.blocks = (0, _util.dict)();
+            return _this2;
+        }
+
+        ProgramSymbolTable.prototype.has = function () {
+            return false;
+        };
+
+        ProgramSymbolTable.prototype.get = function () {
+            throw (0, _util.unreachable)();
+        };
+
+        ProgramSymbolTable.prototype.getLocalsMap = function () {
+            return {};
+        };
+
+        ProgramSymbolTable.prototype.getEvalInfo = function () {
+            return [];
+        };
+
+        ProgramSymbolTable.prototype.allocateNamed = function (name) {
+            var named = this.named[name];
+            if (!named) {
+                named = this.named[name] = this.allocate('@' + name);
+            }
+            return named;
+        };
+
+        ProgramSymbolTable.prototype.allocateBlock = function (name) {
+            var block = this.blocks[name];
+            if (!block) {
+                block = this.blocks[name] = this.allocate('&' + name);
+            }
+            return block;
+        };
+
+        ProgramSymbolTable.prototype.allocate = function (identifier) {
+            this.symbols.push(identifier);
+            return this.size++;
+        };
+
+        return ProgramSymbolTable;
+    }(SymbolTable);
+    var BlockSymbolTable = function (_SymbolTable2) {
+        _inherits(BlockSymbolTable, _SymbolTable2);
+
+        function BlockSymbolTable(parent, symbols, slots) {
+            _classCallCheck$1(this, BlockSymbolTable);
+
+            var _this3 = _possibleConstructorReturn(this, _SymbolTable2.call(this));
+
+            _this3.parent = parent;
+            _this3.symbols = symbols;
+            _this3.slots = slots;
+            return _this3;
+        }
+
+        BlockSymbolTable.prototype.has = function (name) {
+            return this.symbols.indexOf(name) !== -1 || this.parent.has(name);
+        };
+
+        BlockSymbolTable.prototype.get = function (name) {
+            var slot = this.symbols.indexOf(name);
+            return slot === -1 ? this.parent.get(name) : this.slots[slot];
+        };
+
+        BlockSymbolTable.prototype.getLocalsMap = function () {
+            var _this4 = this;
+
+            var dict$$1 = this.parent.getLocalsMap();
+            this.symbols.forEach(function (symbol) {
+                return dict$$1[symbol] = _this4.get(symbol);
+            });
+            return dict$$1;
+        };
+
+        BlockSymbolTable.prototype.getEvalInfo = function () {
+            var locals = this.getLocalsMap();
+            return Object.keys(locals).map(function (symbol) {
+                return locals[symbol];
+            });
+        };
+
+        BlockSymbolTable.prototype.allocateNamed = function (name) {
+            return this.parent.allocateNamed(name);
+        };
+
+        BlockSymbolTable.prototype.allocateBlock = function (name) {
+            return this.parent.allocateBlock(name);
+        };
+
+        BlockSymbolTable.prototype.allocate = function (identifier) {
+            return this.parent.allocate(identifier);
+        };
+
+        return BlockSymbolTable;
+    }(SymbolTable);
     /**
      * Takes in an AST and outputs a list of actions to be consumed
      * by a compiler. For example, the template
@@ -200,136 +338,180 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
      *   - the number of mustaches contained within its child nodes
      *   - the list of actions generated by its child nodes
      */
-    function TemplateVisitor() {
-        this.frameStack = [];
+
+    var Frame = function Frame() {
+        _classCallCheck$1(this, Frame);
+
+        this.parentNode = null;
+        this.children = null;
+        this.childIndex = null;
+        this.childCount = null;
+        this.childTemplateCount = 0;
+        this.mustacheCount = 0;
         this.actions = [];
-        this.programDepth = -1;
-    }
-    // Traversal methods
-    TemplateVisitor.prototype.visit = function (node) {
-        this[node.type](node);
+        this.blankChildTextNodes = null;
+        this.symbols = null;
     };
-    TemplateVisitor.prototype.Program = function (program) {
-        this.programDepth++;
-        var parentFrame = this.getCurrentFrame(),
-            i;
-        var programFrame = this.pushFrame();
-        if (parentFrame) {
-            program.symbols = new SymbolTable(program.blockParams, parentFrame.symbols);
-        } else {
-            program.symbols = new SymbolTable(program.blockParams);
+
+    var TemplateVisitor = function () {
+        function TemplateVisitor() {
+            _classCallCheck$1(this, TemplateVisitor);
+
+            this.frameStack = [];
+            this.actions = [];
+            this.programDepth = -1;
         }
-        var startType = void 0,
-            endType = void 0;
-        if (this.programDepth === 0) {
-            startType = 'startProgram';
-            endType = 'endProgram';
-        } else {
-            startType = 'startBlock';
-            endType = 'endBlock';
-        }
-        programFrame.parentNode = program;
-        programFrame.children = program.body;
-        programFrame.childCount = program.body.length;
-        programFrame.blankChildTextNodes = [];
-        programFrame.actions.push([endType, [program, this.programDepth]]);
-        programFrame.symbols = program.symbols;
-        for (i = program.body.length - 1; i >= 0; i--) {
-            programFrame.childIndex = i;
-            this.visit(program.body[i]);
-        }
-        programFrame.actions.push([startType, [program, programFrame.childTemplateCount, programFrame.blankChildTextNodes.reverse()]]);
-        this.popFrame();
-        this.programDepth--;
-        // Push the completed template into the global actions list
-        if (parentFrame) {
-            parentFrame.childTemplateCount++;
-        }
-        push.apply(this.actions, programFrame.actions.reverse());
-    };
-    TemplateVisitor.prototype.ElementNode = function (element) {
-        var parentFrame = this.getCurrentFrame(),
-            i,
-            _i;
-        var elementFrame = this.pushFrame();
-        elementFrame.parentNode = element;
-        elementFrame.children = element.children;
-        elementFrame.childCount = element.children.length;
-        elementFrame.mustacheCount += element.modifiers.length;
-        elementFrame.blankChildTextNodes = [];
-        elementFrame.symbols = parentFrame.symbols;
-        var actionArgs = [element, parentFrame.childIndex, parentFrame.childCount];
-        elementFrame.actions.push(['closeElement', actionArgs]);
-        for (i = element.attributes.length - 1; i >= 0; i--) {
-            this.visit(element.attributes[i]);
-        }
-        for (_i = element.children.length - 1; _i >= 0; _i--) {
-            elementFrame.childIndex = _i;
-            this.visit(element.children[_i]);
-        }
-        elementFrame.actions.push(['openElement', actionArgs.concat([elementFrame.mustacheCount, elementFrame.blankChildTextNodes.reverse()])]);
-        this.popFrame();
-        // Propagate the element's frame state to the parent frame
-        if (elementFrame.mustacheCount > 0) {
-            parentFrame.mustacheCount++;
-        }
-        parentFrame.childTemplateCount += elementFrame.childTemplateCount;
-        push.apply(parentFrame.actions, elementFrame.actions);
-    };
-    TemplateVisitor.prototype.AttrNode = function (attr) {
-        if (attr.value.type !== 'TextNode') {
-            this.getCurrentFrame().mustacheCount++;
-        }
-    };
-    TemplateVisitor.prototype.TextNode = function (text) {
-        var frame = this.getCurrentFrame();
-        if (text.chars === '') {
-            frame.blankChildTextNodes.push(domIndexOf(frame.children, text));
-        }
-        frame.actions.push(['text', [text, frame.childIndex, frame.childCount]]);
-    };
-    TemplateVisitor.prototype.BlockStatement = function (node) {
-        var frame = this.getCurrentFrame();
-        frame.mustacheCount++;
-        frame.actions.push(['block', [node, frame.childIndex, frame.childCount]]);
-        if (node.inverse) {
-            this.visit(node.inverse);
-        }
-        if (node.program) {
-            this.visit(node.program);
-        }
-    };
-    TemplateVisitor.prototype.PartialStatement = function (node) {
-        var frame = this.getCurrentFrame();
-        frame.mustacheCount++;
-        frame.actions.push(['mustache', [node, frame.childIndex, frame.childCount]]);
-    };
-    TemplateVisitor.prototype.CommentStatement = function (text) {
-        var frame = this.getCurrentFrame();
-        frame.actions.push(['comment', [text, frame.childIndex, frame.childCount]]);
-    };
-    TemplateVisitor.prototype.MustacheCommentStatement = function () {
-        // Intentional empty: Handlebars comments should not affect output.
-    };
-    TemplateVisitor.prototype.MustacheStatement = function (mustache) {
-        var frame = this.getCurrentFrame();
-        frame.mustacheCount++;
-        frame.actions.push(['mustache', [mustache, frame.childIndex, frame.childCount]]);
-    };
-    // Frame helpers
-    TemplateVisitor.prototype.getCurrentFrame = function () {
-        return this.frameStack[this.frameStack.length - 1];
-    };
-    TemplateVisitor.prototype.pushFrame = function () {
-        var frame = new Frame();
-        this.frameStack.push(frame);
-        return frame;
-    };
-    TemplateVisitor.prototype.popFrame = function () {
-        return this.frameStack.pop();
-    };
-    // Returns the index of `domNode` in the `nodes` array, skipping
-    // over any nodes which do not represent DOM nodes.
+
+        TemplateVisitor.prototype.visit = function (node) {
+            this[node.type](node);
+        };
+        // Traversal methods
+
+
+        TemplateVisitor.prototype.Program = function (program) {
+            var _actions, i;
+
+            this.programDepth++;
+            var parentFrame = this.getCurrentFrame();
+            var programFrame = this.pushFrame();
+            if (!parentFrame) {
+                program['symbols'] = SymbolTable.top();
+            } else {
+                program['symbols'] = parentFrame.symbols.child(program.blockParams);
+            }
+            var startType = void 0,
+                endType = void 0;
+            if (this.programDepth === 0) {
+                startType = 'startProgram';
+                endType = 'endProgram';
+            } else {
+                startType = 'startBlock';
+                endType = 'endBlock';
+            }
+            programFrame.parentNode = program;
+            programFrame.children = program.body;
+            programFrame.childCount = program.body.length;
+            programFrame.blankChildTextNodes = [];
+            programFrame.actions.push([endType, [program, this.programDepth]]);
+            programFrame.symbols = program['symbols'];
+            for (i = program.body.length - 1; i >= 0; i--) {
+                programFrame.childIndex = i;
+                this.visit(program.body[i]);
+            }
+            programFrame.actions.push([startType, [program, programFrame.childTemplateCount, programFrame.blankChildTextNodes.reverse()]]);
+            this.popFrame();
+            this.programDepth--;
+            // Push the completed template into the global actions list
+            if (parentFrame) {
+                parentFrame.childTemplateCount++;
+            }
+            (_actions = this.actions).push.apply(_actions, programFrame.actions.reverse());
+        };
+
+        TemplateVisitor.prototype.ElementNode = function (element) {
+            var _parentFrame$actions, i, _i;
+
+            var parentFrame = this.currentFrame;
+            var elementFrame = this.pushFrame();
+            elementFrame.parentNode = element;
+            elementFrame.children = element.children;
+            elementFrame.childCount = element.children.length;
+            elementFrame.mustacheCount += element.modifiers.length;
+            elementFrame.blankChildTextNodes = [];
+            elementFrame.symbols = element['symbols'] = parentFrame.symbols.child(element.blockParams);
+            var actionArgs = [element, parentFrame.childIndex, parentFrame.childCount];
+            elementFrame.actions.push(['closeElement', actionArgs]);
+            for (i = element.attributes.length - 1; i >= 0; i--) {
+                this.visit(element.attributes[i]);
+            }
+            for (_i = element.children.length - 1; _i >= 0; _i--) {
+                elementFrame.childIndex = _i;
+                this.visit(element.children[_i]);
+            }
+            var open = ['openElement', [].concat(actionArgs, [elementFrame.mustacheCount, elementFrame.blankChildTextNodes.reverse()])];
+            elementFrame.actions.push(open);
+            this.popFrame();
+            // Propagate the element's frame state to the parent frame
+            if (elementFrame.mustacheCount > 0) {
+                parentFrame.mustacheCount++;
+            }
+            parentFrame.childTemplateCount += elementFrame.childTemplateCount;
+            (_parentFrame$actions = parentFrame.actions).push.apply(_parentFrame$actions, elementFrame.actions);
+        };
+
+        TemplateVisitor.prototype.AttrNode = function (attr) {
+            if (attr.value.type !== 'TextNode') {
+                this.currentFrame.mustacheCount++;
+            }
+        };
+
+        TemplateVisitor.prototype.TextNode = function (text) {
+            var frame = this.currentFrame;
+            if (text.chars === '') {
+                frame.blankChildTextNodes.push(domIndexOf(frame.children, text));
+            }
+            frame.actions.push(['text', [text, frame.childIndex, frame.childCount]]);
+        };
+
+        TemplateVisitor.prototype.BlockStatement = function (node) {
+            var frame = this.currentFrame;
+            frame.mustacheCount++;
+            frame.actions.push(['block', [node, frame.childIndex, frame.childCount]]);
+            if (node.inverse) {
+                this.visit(node.inverse);
+            }
+            if (node.program) {
+                this.visit(node.program);
+            }
+        };
+
+        TemplateVisitor.prototype.PartialStatement = function (node) {
+            var frame = this.currentFrame;
+            frame.mustacheCount++;
+            frame.actions.push(['mustache', [node, frame.childIndex, frame.childCount]]);
+        };
+
+        TemplateVisitor.prototype.CommentStatement = function (text) {
+            var frame = this.currentFrame;
+            frame.actions.push(['comment', [text, frame.childIndex, frame.childCount]]);
+        };
+
+        TemplateVisitor.prototype.MustacheCommentStatement = function () {
+            // Intentional empty: Handlebars comments should not affect output.
+        };
+
+        TemplateVisitor.prototype.MustacheStatement = function (mustache) {
+            var frame = this.currentFrame;
+            frame.mustacheCount++;
+            frame.actions.push(['mustache', [mustache, frame.childIndex, frame.childCount]]);
+        };
+
+        // Frame helpers
+
+
+        TemplateVisitor.prototype.getCurrentFrame = function () {
+            return this.frameStack[this.frameStack.length - 1];
+        };
+
+        TemplateVisitor.prototype.pushFrame = function () {
+            var frame = new Frame();
+            this.frameStack.push(frame);
+            return frame;
+        };
+
+        TemplateVisitor.prototype.popFrame = function () {
+            return this.frameStack.pop();
+        };
+
+        _createClass$1(TemplateVisitor, [{
+            key: 'currentFrame',
+            get: function () {
+                return this.getCurrentFrame();
+            }
+        }]);
+
+        return TemplateVisitor;
+    }();
     function domIndexOf(nodes, domNode) {
         var index = -1,
             i,
@@ -349,20 +531,56 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
         return -1;
     }
 
+    var _createClass$2 = function () {
+        function defineProperties(target, props) {
+            var i, descriptor;
+
+            for (i = 0; i < props.length; i++) {
+                descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+        };
+    }();
+
+    function _defaults$1(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults),
+            i,
+            key,
+            value;for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = Object.getOwnPropertyDescriptor(defaults, key);
+            if (value && value.configurable && obj[key] === undefined) {
+                Object.defineProperty(obj, key, value);
+            }
+        }return obj;
+    }
+
+    function _possibleConstructorReturn$1(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits$1(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults$1(subClass, superClass);
+    }
+
+    function _classCallCheck$2(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
     var Block = function () {
         function Block() {
+            _classCallCheck$2(this, Block);
 
-            this.type = "block";
             this.statements = [];
-            this.positionals = [];
         }
-
-        Block.prototype.toJSON = function () {
-            return {
-                statements: this.statements,
-                locals: this.positionals
-            };
-        };
 
         Block.prototype.push = function (statement) {
             this.statements.push(statement);
@@ -370,47 +588,72 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
 
         return Block;
     }();
+    var InlineBlock = function (_Block) {
+        _inherits$1(InlineBlock, _Block);
 
-    var TemplateBlock = function (_Block) {
-        (0, _emberBabel.inherits)(TemplateBlock, _Block);
+        function InlineBlock(table) {
+            _classCallCheck$2(this, InlineBlock);
 
-        function TemplateBlock() {
+            var _this = _possibleConstructorReturn$1(this, _Block.call(this));
 
-            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _Block.apply(this, arguments));
-
-            _this.type = "template";
-            _this.yields = new _util.DictSet();
-            _this.named = new _util.DictSet();
-            _this.blocks = [];
-            _this.hasPartials = false;
+            _this.table = table;
             return _this;
         }
 
-        TemplateBlock.prototype.toJSON = function () {
+        InlineBlock.prototype.toJSON = function () {
             return {
                 statements: this.statements,
-                locals: this.positionals,
-                named: this.named.toArray(),
-                yields: this.yields.toArray(),
-                hasPartials: this.hasPartials
+                parameters: this.table.slots
+            };
+        };
+
+        return InlineBlock;
+    }(Block);
+    var TemplateBlock = function (_Block2) {
+        _inherits$1(TemplateBlock, _Block2);
+
+        function TemplateBlock(symbolTable) {
+            _classCallCheck$2(this, TemplateBlock);
+
+            var _this2 = _possibleConstructorReturn$1(this, _Block2.call(this));
+
+            _this2.symbolTable = symbolTable;
+            _this2.type = "template";
+            _this2.yields = new _util.DictSet();
+            _this2.named = new _util.DictSet();
+            _this2.blocks = [];
+            _this2.hasEval = false;
+            return _this2;
+        }
+
+        TemplateBlock.prototype.push = function (statement) {
+            this.statements.push(statement);
+        };
+
+        TemplateBlock.prototype.toJSON = function () {
+            return {
+                symbols: this.symbolTable.symbols,
+                statements: this.statements,
+                hasEval: this.hasEval
             };
         };
 
         return TemplateBlock;
     }(Block);
+    var ComponentBlock = function (_Block3) {
+        _inherits$1(ComponentBlock, _Block3);
 
-    var ComponentBlock = function (_Block2) {
-        (0, _emberBabel.inherits)(ComponentBlock, _Block2);
+        function ComponentBlock(table) {
+            _classCallCheck$2(this, ComponentBlock);
 
-        function ComponentBlock() {
+            var _this3 = _possibleConstructorReturn$1(this, _Block3.call(this));
 
-            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _Block2.apply(this, arguments));
-
-            _this2.type = "component";
-            _this2.attributes = [];
-            _this2.arguments = [];
-            _this2.inParams = true;
-            return _this2;
+            _this3.table = table;
+            _this3.attributes = [];
+            _this3.arguments = [];
+            _this3.inParams = true;
+            _this3.positionals = [];
+            return _this3;
         }
 
         ComponentBlock.prototype.push = function (statement) {
@@ -439,22 +682,20 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             var values = args.map(function (arg) {
                 return arg[2];
             });
-            return {
-                attrs: this.attributes,
-                args: [keys, values],
-                locals: this.positionals,
-                statements: this.statements
-            };
+            return [this.attributes, [keys, values], {
+                statements: this.statements,
+                parameters: this.table.slots
+            }];
         };
 
         return ComponentBlock;
     }(Block);
-
     var Template = function () {
-        function Template(meta) {
+        function Template(symbols, meta) {
+            _classCallCheck$2(this, Template);
 
             this.meta = meta;
-            this.block = new TemplateBlock();
+            this.block = new TemplateBlock(symbols);
         }
 
         Template.prototype.toJSON = function () {
@@ -468,39 +709,41 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
     }();
 
     var JavaScriptCompiler = function () {
-        function JavaScriptCompiler(opcodes, meta) {
+        function JavaScriptCompiler(opcodes, symbols, meta) {
+            _classCallCheck$2(this, JavaScriptCompiler);
 
             this.blocks = new _util.Stack();
             this.values = [];
             this.opcodes = opcodes;
-            this.template = new Template(meta);
+            this.template = new Template(symbols, meta);
         }
 
-        JavaScriptCompiler.process = function (opcodes, meta) {
-            var compiler = new JavaScriptCompiler(opcodes, meta);
+        JavaScriptCompiler.process = function (opcodes, symbols, meta) {
+            var compiler = new JavaScriptCompiler(opcodes, symbols, meta);
             return compiler.process();
         };
 
         JavaScriptCompiler.prototype.process = function () {
-            var _this3 = this;
+            var _this4 = this;
 
             this.opcodes.forEach(function (_ref) {
                 var opcode = _ref[0],
                     args = _ref.slice(1);
 
-                if (!_this3[opcode]) {
-                    throw new Error('unimplemented ' + opcode + ' on JavaScriptCompiler');
+                if (!_this4[opcode]) {
+                    throw new Error("unimplemented " + opcode + " on JavaScriptCompiler");
                 }
-                _this3[opcode].apply(_this3, args);
+                _this4[opcode].apply(_this4, args);
             });
             return this.template;
         };
+        /// Nesting
+
 
         JavaScriptCompiler.prototype.startBlock = function (_ref2) {
             var program = _ref2[0];
 
-            var block = new Block();
-            block.positionals = program.blockParams;
+            var block = new InlineBlock(program['symbols']);
             this.blocks.push(block);
         };
 
@@ -508,7 +751,8 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             var template = this.template,
                 blocks = this.blocks;
 
-            template.block.blocks.push(blocks.pop().toJSON());
+            var block = blocks.pop();
+            template.block.blocks.push(block.toJSON());
         };
 
         JavaScriptCompiler.prototype.startProgram = function () {
@@ -516,6 +760,8 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
         };
 
         JavaScriptCompiler.prototype.endProgram = function () {};
+        /// Statements
+
 
         JavaScriptCompiler.prototype.text = function (content) {
             this.push([_wireFormat.Ops.Text, content]);
@@ -529,26 +775,29 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             this.push([_wireFormat.Ops.Comment, value]);
         };
 
-        JavaScriptCompiler.prototype.modifier = function (path) {
+        JavaScriptCompiler.prototype.modifier = function (name) {
             var params = this.popValue();
             var hash = this.popValue();
-            this.push([_wireFormat.Ops.Modifier, path, params, hash]);
+            this.push([_wireFormat.Ops.Modifier, name, params, hash]);
         };
 
-        JavaScriptCompiler.prototype.block = function (path, template, inverse) {
+        JavaScriptCompiler.prototype.block = function (name, template, inverse) {
             var params = this.popValue();
             var hash = this.popValue();
             var blocks = this.template.block.blocks;
             (0, _util.assert)(typeof template !== 'number' || blocks[template] !== null, 'missing block in the compiler');
             (0, _util.assert)(typeof inverse !== 'number' || blocks[inverse] !== null, 'missing block in the compiler');
-            this.push([_wireFormat.Ops.Block, path, params, hash, blocks[template], blocks[inverse]]);
+            this.push([_wireFormat.Ops.Block, name, params, hash, blocks[template], blocks[inverse]]);
         };
 
-        JavaScriptCompiler.prototype.openElement = function (tag, blockParams) {
+        JavaScriptCompiler.prototype.openElement = function (element) {
+            var tag = element.tag;
             if (tag.indexOf('-') !== -1) {
-                this.startComponent(blockParams);
+                this.startComponent(element);
+            } else if (element.blockParams.length > 0) {
+                throw new Error("Compile Error: <" + element.tag + "> is not a component and doesn't support block parameters");
             } else {
-                this.push([_wireFormat.Ops.OpenElement, tag, blockParams]);
+                this.push([_wireFormat.Ops.OpenElement, tag]);
             }
         };
 
@@ -556,13 +805,17 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             this.push([_wireFormat.Ops.FlushElement]);
         };
 
-        JavaScriptCompiler.prototype.closeElement = function (tag) {
-            var component;
-
+        JavaScriptCompiler.prototype.closeElement = function (element) {
+            var tag = element.tag,
+                _endComponent,
+                attrs,
+                args,
+                block;
             if (tag.indexOf('-') !== -1) {
-                component = this.endComponent();
+                _endComponent = this.endComponent(), attrs = _endComponent[0], args = _endComponent[1], block = _endComponent[2];
 
-                this.push([_wireFormat.Ops.Component, tag, component]);
+
+                this.push([_wireFormat.Ops.Component, tag, attrs, args, block]);
             } else {
                 this.push([_wireFormat.Ops.CloseElement]);
             }
@@ -585,39 +838,39 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
 
         JavaScriptCompiler.prototype.staticArg = function (name) {
             var value = this.popValue();
-            this.push([_wireFormat.Ops.StaticArg, name.slice(1), value]);
+            this.push([_wireFormat.Ops.StaticArg, name, value]);
         };
 
         JavaScriptCompiler.prototype.dynamicArg = function (name) {
             var value = this.popValue();
-            this.push([_wireFormat.Ops.DynamicArg, name.slice(1), value]);
+            this.push([_wireFormat.Ops.DynamicArg, name, value]);
         };
 
         JavaScriptCompiler.prototype.yield = function (to) {
             var params = this.popValue();
             this.push([_wireFormat.Ops.Yield, to, params]);
-            this.template.block.yields.add(to);
         };
 
-        JavaScriptCompiler.prototype.debugger = function () {
-            this.push([_wireFormat.Ops.Debugger, null, null]);
+        JavaScriptCompiler.prototype.debugger = function (evalInfo) {
+            this.push([_wireFormat.Ops.Debugger, evalInfo]);
+            this.template.block.hasEval = true;
         };
 
         JavaScriptCompiler.prototype.hasBlock = function (name) {
             this.pushValue([_wireFormat.Ops.HasBlock, name]);
-            this.template.block.yields.add(name);
         };
 
         JavaScriptCompiler.prototype.hasBlockParams = function (name) {
             this.pushValue([_wireFormat.Ops.HasBlockParams, name]);
-            this.template.block.yields.add(name);
         };
 
-        JavaScriptCompiler.prototype.partial = function () {
+        JavaScriptCompiler.prototype.partial = function (evalInfo) {
             var params = this.popValue();
-            this.push([_wireFormat.Ops.Partial, params[0]]);
-            this.template.block.hasPartials = true;
+            this.push([_wireFormat.Ops.Partial, params[0], evalInfo]);
+            this.template.block.hasEval = true;
         };
+        /// Expressions
+
 
         JavaScriptCompiler.prototype.literal = function (value) {
             if (value === undefined) {
@@ -627,38 +880,38 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             }
         };
 
-        JavaScriptCompiler.prototype.unknown = function (path) {
-            this.pushValue([_wireFormat.Ops.Unknown, path]);
+        JavaScriptCompiler.prototype.unknown = function (name) {
+            this.pushValue([_wireFormat.Ops.Unknown, name]);
         };
 
-        JavaScriptCompiler.prototype.arg = function (path) {
-            this.template.block.named.add(path[0]);
-            this.pushValue([_wireFormat.Ops.Arg, path]);
+        JavaScriptCompiler.prototype.get = function (head, path) {
+            this.pushValue([_wireFormat.Ops.Get, head, path]);
         };
 
-        JavaScriptCompiler.prototype.get = function (path) {
-            this.pushValue([_wireFormat.Ops.Get, path]);
+        JavaScriptCompiler.prototype.maybeLocal = function (path) {
+            this.pushValue([_wireFormat.Ops.MaybeLocal, path]);
         };
 
         JavaScriptCompiler.prototype.concat = function () {
             this.pushValue([_wireFormat.Ops.Concat, this.popValue()]);
         };
 
-        JavaScriptCompiler.prototype.helper = function (path) {
+        JavaScriptCompiler.prototype.helper = function (name) {
             var params = this.popValue();
             var hash = this.popValue();
-            this.pushValue([_wireFormat.Ops.Helper, path, params, hash]);
+            this.pushValue([_wireFormat.Ops.Helper, name, params, hash]);
         };
+        /// Stack Management Opcodes
 
-        JavaScriptCompiler.prototype.startComponent = function (blockParams) {
-            var component = new ComponentBlock();
-            component.positionals = blockParams;
+
+        JavaScriptCompiler.prototype.startComponent = function (element) {
+            var component = new ComponentBlock(element['symbols']);
             this.blocks.push(component);
         };
 
         JavaScriptCompiler.prototype.endComponent = function () {
             var component = this.blocks.pop();
-            (0, _util.assert)(component.type === 'component', "Compiler bug: endComponent() should end a component");
+            (0, _util.assert)(component instanceof ComponentBlock, "Compiler bug: endComponent() should end a component");
             return component.toJSON();
         };
 
@@ -672,7 +925,7 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
         };
 
         JavaScriptCompiler.prototype.prepareObject = function (size) {
-            (0, _util.assert)(this.values.length >= size, 'Expected ' + size + ' values on the stack, found ' + this.values.length);
+            (0, _util.assert)(this.values.length >= size, "Expected " + size + " values on the stack, found " + this.values.length);
             var keys = new Array(size),
                 i;
             var values = new Array(size);
@@ -682,12 +935,14 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             }
             this.pushValue([keys, values]);
         };
+        /// Utilities
+
 
         JavaScriptCompiler.prototype.push = function (args) {
             while (args[args.length - 1] === null) {
                 args.pop();
             }
-            this.blocks.current.push(args);
+            this.currentBlock.push(args);
         };
 
         JavaScriptCompiler.prototype.pushValue = function (val) {
@@ -699,8 +954,34 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             return this.values.pop();
         };
 
+        _createClass$2(JavaScriptCompiler, [{
+            key: "currentBlock",
+            get: function () {
+                return this.blocks.current;
+            }
+        }]);
+
         return JavaScriptCompiler;
     }();
+
+    var _createClass = function () {
+        function defineProperties(target, props) {
+            var i, descriptor;
+
+            for (i = 0; i < props.length; i++) {
+                descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+        };
+    }();
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
 
     function isTrustedValue(value) {
         return value.escaped !== undefined && !value.escaped;
@@ -708,10 +989,11 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
 
     var TemplateCompiler = function () {
         function TemplateCompiler(options) {
+            _classCallCheck(this, TemplateCompiler);
 
             this.templateId = 0;
             this.templateIds = [];
-            this.symbols = null;
+            this.symbolStack = new _util.Stack();
             this.opcodes = [];
             this.includeMeta = false;
             this.options = options || {};
@@ -722,79 +1004,83 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             templateVisitor.visit(ast);
             var compiler = new TemplateCompiler(options);
             var opcodes = compiler.process(templateVisitor.actions);
-            return JavaScriptCompiler.process(opcodes, options.meta);
+            return JavaScriptCompiler.process(opcodes, ast['symbols'], options.meta);
         };
 
         TemplateCompiler.prototype.process = function (actions) {
-            var _this4 = this;
+            var _this = this;
 
-            actions.forEach(function (_ref3) {
-                var name = _ref3[0],
-                    args = _ref3.slice(1);
+            actions.forEach(function (_ref) {
+                var name = _ref[0],
+                    args = _ref.slice(1);
 
-                if (!_this4[name]) {
-                    throw new Error('Unimplemented ' + name + ' on TemplateCompiler');
+                if (!_this[name]) {
+                    throw new Error("Unimplemented " + name + " on TemplateCompiler");
                 }
-                _this4[name].apply(_this4, args);
+                _this[name].apply(_this, args);
             });
             return this.opcodes;
         };
 
         TemplateCompiler.prototype.startProgram = function (program) {
+            this.symbolStack.push(program[0]['symbols']);
             this.opcode('startProgram', program, program);
         };
 
         TemplateCompiler.prototype.endProgram = function () {
+            this.symbolStack.pop();
             this.opcode('endProgram', null);
         };
 
         TemplateCompiler.prototype.startBlock = function (program) {
-            this.symbols = program[0].symbols;
+            this.symbolStack.push(program[0]['symbols']);
             this.templateId++;
             this.opcode('startBlock', program, program);
         };
 
         TemplateCompiler.prototype.endBlock = function () {
-            this.symbols = null;
+            this.symbolStack.pop();
             this.templateIds.push(this.templateId - 1);
             this.opcode('endBlock', null);
         };
 
-        TemplateCompiler.prototype.text = function (_ref4) {
-            var action = _ref4[0];
+        TemplateCompiler.prototype.text = function (_ref2) {
+            var action = _ref2[0];
 
             this.opcode('text', action, action.chars);
         };
 
-        TemplateCompiler.prototype.comment = function (_ref5) {
-            var action = _ref5[0];
+        TemplateCompiler.prototype.comment = function (_ref3) {
+            var action = _ref3[0];
 
             this.opcode('comment', action, action.value);
         };
 
-        TemplateCompiler.prototype.openElement = function (_ref6) {
-            var action = _ref6[0],
+        TemplateCompiler.prototype.openElement = function (_ref4) {
+            var action = _ref4[0],
                 i,
-                _i2;
+                _i;
 
-            this.opcode('openElement', action, action.tag, action.blockParams);
+            this.opcode('openElement', action, action);
             for (i = 0; i < action.attributes.length; i++) {
                 this.attribute([action.attributes[i]]);
             }
-            for (_i2 = 0; _i2 < action.modifiers.length; _i2++) {
-                this.modifier([action.modifiers[_i2]]);
+            for (_i = 0; _i < action.modifiers.length; _i++) {
+                this.modifier([action.modifiers[_i]]);
             }
             this.opcode('flushElement', null);
+            this.symbolStack.push(action['symbols']);
         };
 
-        TemplateCompiler.prototype.closeElement = function (_ref7) {
-            var action = _ref7[0];
+        TemplateCompiler.prototype.closeElement = function (_ref5) {
+            var action = _ref5[0];
 
-            this.opcode('closeElement', null, action.tag);
+            this.symbolStack.pop();
+            this.opcode('closeElement', null, action);
         };
 
-        TemplateCompiler.prototype.attribute = function (_ref8) {
-            var action = _ref8[0],
+        TemplateCompiler.prototype.attribute = function (_ref6) {
+            var action = _ref6[0],
                 isTrusting;
             var name = action.name,
                 value = action.value;
@@ -825,30 +1111,34 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             }
         };
 
-        TemplateCompiler.prototype.modifier = function (_ref9) {
-            var action = _ref9[0];
+        TemplateCompiler.prototype.modifier = function (_ref7) {
+            var action = _ref7[0];
 
-            assertIsSimplePath(action, 'modifier');
+            assertIsSimplePath(action.path, action.loc, 'modifier');
             var parts = action.path.parts;
 
             this.prepareHelper(action);
-            this.opcode('modifier', action, parts);
+            this.opcode('modifier', action, parts[0]);
         };
 
-        TemplateCompiler.prototype.mustache = function (_ref10) {
-            var action = _ref10[0],
+        TemplateCompiler.prototype.mustache = function (_ref8) {
+            var action = _ref8[0],
                 to,
                 params;
+            var path = action.path;
 
-            if (isYield(action)) {
+            if ((0, _syntax.isLiteral)(path)) {
+                this.mustacheExpression(action);
+                this.opcode('append', action, !action.escaped);
+            } else if (isYield(path)) {
                 to = assertValidYield(action);
 
                 this.yield(to, action);
-            } else if (isPartial(action)) {
+            } else if (isPartial(path)) {
                 params = assertValidPartial(action);
 
                 this.partial(params, action);
-            } else if (isDebugger(action)) {
+            } else if (isDebugger(path)) {
                 assertValidDebuggerUsage(action);
                 this.debugger('debugger', action);
             } else {
@@ -857,89 +1147,125 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             }
         };
 
-        TemplateCompiler.prototype.block = function (_ref11) {
-            var action /*, index, count*/ = _ref11[0];
+        TemplateCompiler.prototype.block = function (_ref9) {
+            var action /*, index, count*/ = _ref9[0];
 
             this.prepareHelper(action);
             var templateId = this.templateIds.pop();
             var inverseId = action.inverse === null ? null : this.templateIds.pop();
-            this.opcode('block', action, action.path.parts, templateId, inverseId);
+            this.opcode('block', action, action.path.parts[0], templateId, inverseId);
         };
+        /// Internal actions, not found in the original processed actions
 
-        TemplateCompiler.prototype.arg = function (_ref12) {
-            var path = _ref12[0];
-            var parts = path.parts;
 
-            this.opcode('arg', path, parts);
+        TemplateCompiler.prototype.arg = function (_ref10) {
+            var path = _ref10[0];
+
+            var _path$parts = path.parts,
+                head = _path$parts[0],
+                rest = _path$parts.slice(1);
+
+            var symbol = this.symbols.allocateNamed(head);
+            this.opcode('get', path, symbol, rest);
         };
 
         TemplateCompiler.prototype.mustacheExpression = function (expr) {
-            if (isBuiltInHelper(expr)) {
+            var path = expr.path,
+                _path$parts2,
+                head,
+                parts;
+
+            if ((0, _syntax.isLiteral)(path)) {
+                this.opcode('literal', expr, path.value);
+            } else if (isBuiltInHelper(path)) {
                 this.builtInHelper(expr);
-            } else if (isLiteral(expr)) {
-                this.opcode('literal', expr, expr.path.value);
-            } else if (isArg(expr)) {
-                this.arg([expr.path]);
+            } else if (isArg(path)) {
+                this.arg([path]);
             } else if (isHelperInvocation(expr)) {
                 this.prepareHelper(expr);
-                this.opcode('helper', expr, expr.path.parts);
-            } else if (!isSimplePath(expr) || isSelfGet(expr) || isLocalVariable(expr, this.symbols)) {
-                this.opcode('get', expr, expr.path.parts);
+                this.opcode('helper', expr, path.parts[0]);
+            } else if (path.this) {
+                this.opcode('get', expr, 0, path.parts);
+            } else if (isLocal(path, this.symbols)) {
+                _path$parts2 = path.parts, head = _path$parts2[0], parts = _path$parts2.slice(1);
+
+
+                this.opcode('get', expr, this.symbols.get(head), parts);
+            } else if (isSimplePath(path)) {
+                this.opcode('unknown', expr, path.parts[0]);
             } else {
-                this.opcode('unknown', expr, expr.path.parts);
+                this.opcode('maybeLocal', expr, path.parts);
             }
         };
+        /// Internal Syntax
+
 
         TemplateCompiler.prototype.yield = function (to, action) {
             this.prepareParams(action.params);
-            this.opcode('yield', action, to);
+            this.opcode('yield', action, this.symbols.allocateBlock(to));
         };
 
-        TemplateCompiler.prototype.debugger = function () {
-            this.opcode('debugger', null);
+        TemplateCompiler.prototype.debugger = function (_name, action) {
+            this.opcode('debugger', action, this.symbols.getEvalInfo());
         };
 
         TemplateCompiler.prototype.hasBlock = function (name, action) {
-            this.opcode('hasBlock', action, name);
+            this.opcode('hasBlock', action, this.symbols.allocateBlock(name));
         };
 
         TemplateCompiler.prototype.hasBlockParams = function (name, action) {
-            this.opcode('hasBlockParams', action, name);
+            this.opcode('hasBlockParams', action, this.symbols.allocateBlock(name));
         };
 
-        TemplateCompiler.prototype.partial = function (params, action) {
+        TemplateCompiler.prototype.partial = function (_params, action) {
             this.prepareParams(action.params);
-            this.opcode('partial', action);
+            this.opcode('partial', action, this.symbols.getEvalInfo());
         };
 
         TemplateCompiler.prototype.builtInHelper = function (expr) {
-            var name, _name;
+            var path = expr.path,
+                name,
+                _name2;
 
-            if (isHasBlock(expr)) {
+            if (isHasBlock(path)) {
                 name = assertValidHasBlockUsage(expr.path.original, expr);
 
                 this.hasBlock(name, expr);
-            } else if (isHasBlockParams(expr)) {
-                _name = assertValidHasBlockUsage(expr.path.original, expr);
+            } else if (isHasBlockParams(path)) {
+                _name2 = assertValidHasBlockUsage(expr.path.original, expr);
 
-                this.hasBlockParams(_name, expr);
+                this.hasBlockParams(_name2, expr);
             }
         };
+        /// Expressions, invoked recursively from prepareParams and prepareHash
+
 
         TemplateCompiler.prototype.SubExpression = function (expr) {
-            if (isBuiltInHelper(expr)) {
+            if (isBuiltInHelper(expr.path)) {
                 this.builtInHelper(expr);
             } else {
                 this.prepareHelper(expr);
-                this.opcode('helper', expr, expr.path.parts);
+                this.opcode('helper', expr, expr.path.parts[0]);
             }
         };
 
         TemplateCompiler.prototype.PathExpression = function (expr) {
+            var symbols, _expr$parts, head;
+
             if (expr.data) {
                 this.arg([expr]);
             } else {
-                this.opcode('get', expr, expr.parts);
+                symbols = this.symbols;
+                _expr$parts = expr.parts, head = _expr$parts[0];
+
+
+                if (expr.this) {
+                    this.opcode('get', expr, 0, expr.parts);
+                } else if (symbols.has(head)) {
+                    this.opcode('get', expr, symbols.get(head), expr.parts.slice(1));
+                } else {
+                    this.opcode('get', expr, 0, expr.parts);
+                }
             }
         };
 
@@ -962,6 +1288,8 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
         TemplateCompiler.prototype.UndefinedLiteral = function (action) {
             this.opcode('literal', null, action.value);
         };
+        /// Utilities
+
 
         TemplateCompiler.prototype.opcode = function (name, action) {
             for (_len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
@@ -979,16 +1307,12 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
         };
 
         TemplateCompiler.prototype.prepareHelper = function (expr) {
-            assertIsSimplePath(expr, 'helper');
+            assertIsSimplePath(expr.path, expr.loc, 'helper');
             var params = expr.params,
                 hash = expr.hash;
 
             this.prepareHash(hash);
             this.prepareParams(params);
-        };
-
-        TemplateCompiler.prototype.preparePath = function (path) {
-            this.opcode('literal', path, path.parts);
         };
 
         TemplateCompiler.prototype.prepareParams = function (params) {
@@ -1001,7 +1325,7 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             for (i = params.length - 1; i >= 0; i--) {
                 param = params[i];
 
-                (0, _util.assert)(this[param.type], 'Unimplemented ' + param.type + ' on TemplateCompiler');
+                (0, _util.assert)(this[param.type], "Unimplemented " + param.type + " on TemplateCompiler");
                 this[param.type](param);
             }
             this.opcode('prepareArray', null, params.length);
@@ -1021,7 +1345,7 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
                 _pairs$i = pairs[i], key = _pairs$i.key, value = _pairs$i.value;
 
 
-                (0, _util.assert)(this[value.type], 'Unimplemented ' + value.type + ' on TemplateCompiler');
+                (0, _util.assert)(this[value.type], "Unimplemented " + value.type + " on TemplateCompiler");
                 this[value.type](value);
                 this.opcode('literal', null, key);
             }
@@ -1059,8 +1383,8 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             this.opcode('prepareArray', null, parts.length);
         };
 
-        TemplateCompiler.prototype.attributeMustache = function (_ref13) {
-            var action = _ref13[0];
+        TemplateCompiler.prototype.attributeMustache = function (_ref11) {
+            var action = _ref11[0];
 
             this.mustacheExpression(action);
         };
@@ -1077,184 +1401,161 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
             return ['loc', [source || null, [start.line, start.column], [end.line, end.column]]];
         };
 
+        _createClass(TemplateCompiler, [{
+            key: "symbols",
+            get: function () {
+                return this.symbolStack.current;
+            }
+        }]);
+
         return TemplateCompiler;
     }();
 
     function isHelperInvocation(mustache) {
         return mustache.params && mustache.params.length > 0 || mustache.hash && mustache.hash.pairs.length > 0;
     }
-    function isSimplePath(mustache) {
-        var parts = mustache.path.parts;
+    function isSimplePath(_ref12) {
+        var parts = _ref12.parts;
 
         return parts.length === 1;
     }
-    function isSelfGet(mustache) {
-        var parts = mustache.path.parts;
+    function isLocal(_ref13, symbols) {
+        var parts = _ref13.parts;
 
-        return parts[0] === null;
+        return symbols && symbols.has(parts[0]);
     }
-    function isLocalVariable(mustache, symbols) {
-        var parts = mustache.path.parts;
-
-        return parts.length === 1 && symbols && symbols.hasLocalVariable(parts[0]);
-    }
-    function isYield(_ref14) {
-        var path = _ref14.path;
-
+    function isYield(path) {
         return path.original === 'yield';
     }
-    function isPartial(_ref15) {
-        var path = _ref15.path;
-
+    function isPartial(path) {
         return path.original === 'partial';
     }
-    function isDebugger(_ref16) {
-        var path = _ref16.path;
-
+    function isDebugger(path) {
         return path.original === 'debugger';
     }
-    function isArg(_ref17) {
-        var path = _ref17.path;
-
-        return path.data;
-    }
-    function isLiteral(_ref18) {
-        var path = _ref18.path;
-
-        return path.type === 'StringLiteral' || path.type === 'BooleanLiteral' || path.type === 'NumberLiteral' || path.type === 'NullLiteral' || path.type === 'UndefinedLiteral';
-    }
-    function isHasBlock(_ref19) {
-        var path = _ref19.path;
-
+    function isHasBlock(path) {
         return path.original === 'has-block';
     }
-    function assertIsSimplePath(expr, context) {
-        var original, line;
-
-        if (!isSimplePath(expr)) {
-            original = expr.path.original, line = expr.loc.start.line;
-
-
-            throw new Error('`' + original + '` is not a valid name for a ' + context + ' on line ' + line + '.');
-        }
-    }
-    function isHasBlockParams(_ref20) {
-        var path = _ref20.path;
-
+    function isHasBlockParams(path) {
         return path.original === 'has-block-params';
     }
-    function isBuiltInHelper(expr) {
-        return isHasBlock(expr) || isHasBlockParams(expr);
+    function isBuiltInHelper(path) {
+        return isHasBlock(path) || isHasBlockParams(path);
     }
-    function assertValidYield(_ref21) {
-        var hash = _ref21.hash;
+    function isArg(path) {
+        return !!path['data'];
+    }
+    function assertIsSimplePath(path, loc, context) {
+        if (!isSimplePath(path)) {
+            throw new Error("`" + path.original + "` is not a valid name for a " + context + " on line " + loc.start.line + ".");
+        }
+    }
+    function assertValidYield(_ref14) {
+        var hash = _ref14.hash;
 
         var pairs = hash.pairs;
         if (pairs.length === 1 && pairs[0].key !== 'to' || pairs.length > 1) {
-            throw new Error('yield only takes a single named argument: \'to\'');
+            throw new Error("yield only takes a single named argument: 'to'");
         } else if (pairs.length === 1 && pairs[0].value.type !== 'StringLiteral') {
-            throw new Error('you can only yield to a literal value');
+            throw new Error("you can only yield to a literal value");
         } else if (pairs.length === 0) {
             return 'default';
         } else {
             return pairs[0].value.value;
         }
     }
-    function assertValidPartial(_ref22) {
-        var params = _ref22.params,
-            hash = _ref22.hash,
-            escaped = _ref22.escaped,
-            loc = _ref22.loc;
+    function assertValidPartial(_ref15) {
+        var params = _ref15.params,
+            hash = _ref15.hash,
+            escaped = _ref15.escaped,
+            loc = _ref15.loc;
 
         if (params && params.length !== 1) {
-            throw new Error('Partial found with no arguments. You must specify a template name. (on line ' + loc.start.line + ')');
+            throw new Error("Partial found with no arguments. You must specify a template name. (on line " + loc.start.line + ")");
         } else if (hash && hash.pairs.length > 0) {
-            throw new Error('partial does not take any named arguments (on line ' + loc.start.line + ')');
+            throw new Error("partial does not take any named arguments (on line " + loc.start.line + ")");
         } else if (!escaped) {
-            throw new Error('{{{partial ...}}} is not supported, please use {{partial ...}} instead (on line ' + loc.start.line + ')');
+            throw new Error("{{{partial ...}}} is not supported, please use {{partial ...}} instead (on line " + loc.start.line + ")");
         }
         return params;
     }
-    function assertValidHasBlockUsage(type, _ref23) {
-        var params = _ref23.params,
-            hash = _ref23.hash,
-            loc = _ref23.loc;
+    function assertValidHasBlockUsage(type, _ref16) {
+        var params = _ref16.params,
+            hash = _ref16.hash,
+            loc = _ref16.loc,
+            param;
 
         if (hash && hash.pairs.length > 0) {
-            throw new Error(type + ' does not take any named arguments');
+            throw new Error(type + " does not take any named arguments");
         }
         if (params.length === 0) {
             return 'default';
         } else if (params.length === 1) {
-            if (params[0].type === 'StringLiteral') {
-                return params[0].value;
+            param = params[0];
+
+            if (param.type === 'StringLiteral') {
+                return param.value;
             } else {
-                throw new Error('you can only yield to a literal value (on line ' + loc.start.line + ')');
+                throw new Error("you can only yield to a literal value (on line " + loc.start.line + ")");
             }
         } else {
-            throw new Error(type + ' only takes a single positional argument (on line ' + loc.start.line + ')');
+            throw new Error(type + " only takes a single positional argument (on line " + loc.start.line + ")");
         }
     }
-    function assertValidDebuggerUsage(_ref24) {
-        var params = _ref24.params,
-            hash = _ref24.hash;
+    function assertValidDebuggerUsage(_ref17) {
+        var params = _ref17.params,
+            hash = _ref17.hash;
 
         if (hash && hash.pairs.length > 0) {
-            throw new Error('debugger does not take any named arguments');
+            throw new Error("debugger does not take any named arguments");
         }
         if (params.length === 0) {
             return 'default';
         } else {
-            throw new Error('debugger does not take any positional arguments');
+            throw new Error("debugger does not take any positional arguments");
         }
     }
 
     var defaultId = function () {
-        var idFn = void 0;
+        var crypto, idFn;
+
+        if (typeof _nodeModule.require === 'function') {
+            try {
+                /* tslint:disable:no-require-imports */
+                crypto = (0, _nodeModule.require)('crypto');
+                /* tslint:enable:no-require-imports */
+
+                idFn = function (src) {
+                    var hash = crypto.createHash('sha1');
+                    hash.update(src, 'utf8');
+                    // trim to 6 bytes of data (2^48 - 1)
+                    return hash.digest('base64').substring(0, 8);
+                };
+
+                idFn("test");
+                return idFn;
+            } catch (e) {}
+        }
         return function () {
-            var crypto;
-
-            if (!idFn) {
-                if (typeof _nodeModule.require === 'function') {
-                    try {
-                        /* tslint:disable:no-require-imports */
-                        crypto = (0, _nodeModule.require)('crypto');
-                        /* tslint:enable:no-require-imports */
-
-                        idFn = function (src) {
-                            var hash = crypto.createHash('sha1');
-                            hash.update(src, 'utf8');
-                            // trim to 6 bytes of data (2^48 - 1)
-                            return hash.digest('base64').substring(0, 8);
-                        };
-                        idFn("test");
-                    } catch (e) {
-                        idFn = null;
-                    }
-                }
-                if (!idFn) {
-                    idFn = function () {
-                        return null;
-                    };
-                }
-            }
-            return idFn;
+            return null;
         };
     }();
+    var defaultOptions = {
+        id: defaultId,
+        meta: {}
+    };
 
 
-    exports.precompile = function (string, options) {
-        var opts = options || {
-            id: defaultId(),
-            meta: {}
-        };
-        var ast = (0, _syntax.preprocess)(string, opts);
+    exports.precompile = function (string) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultOptions;
 
-        var _TemplateCompiler$com = TemplateCompiler.compile(opts, ast),
+        var ast = (0, _syntax.preprocess)(string, options);
+
+        var _TemplateCompiler$com = TemplateCompiler.compile(options, ast),
             block = _TemplateCompiler$com.block,
             meta = _TemplateCompiler$com.meta;
 
-        var idFn = opts.id || defaultId();
+        var idFn = options.id || defaultId;
         var blockJSON = JSON.stringify(block.toJSON());
         var templateJSONObject = {
             id: idFn(JSON.stringify(meta) + blockJSON),
@@ -1266,17 +1567,49 @@ enifed('@glimmer/compiler', ['exports', 'ember-babel', 'node-module', '@glimmer/
     };
     exports.TemplateVisitor = TemplateVisitor;
 });
-enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], function (exports, _emberBabel, _util) {
+enifed("@glimmer/reference", ["exports", "@glimmer/util"], function (exports, _util) {
     "use strict";
 
-    exports.isModified = exports.ReferenceCache = exports.map = exports.CachedReference = exports.CURRENT_TAG = exports.VOLATILE_TAG = exports.CONSTANT_TAG = exports.UpdatableTag = exports.CachedTag = exports.combine = exports.combineSlice = exports.combineTagged = exports.DirtyableTag = exports.RevisionTag = exports.VOLATILE = exports.INITIAL = exports.CONSTANT = exports.IteratorSynchronizer = exports.ReferenceIterator = exports.IterationArtifacts = exports.referenceFromParts = exports.ListItem = exports.isConst = exports.ConstReference = undefined;
+    exports.isModified = exports.ReferenceCache = exports.map = exports.CachedReference = exports.UpdatableTag = exports.CachedTag = exports.combine = exports.combineSlice = exports.combineTagged = exports.DirtyableTag = exports.CURRENT_TAG = exports.VOLATILE_TAG = exports.CONSTANT_TAG = exports.TagWrapper = exports.RevisionTag = exports.VOLATILE = exports.INITIAL = exports.CONSTANT = exports.IteratorSynchronizer = exports.ReferenceIterator = exports.IterationArtifacts = exports.referenceFromParts = exports.ListItem = exports.isConst = exports.ConstReference = undefined;
+
+    function _defaults(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults),
+            i,
+            key,
+            value;for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = Object.getOwnPropertyDescriptor(defaults, key);
+            if (value && value.configurable && obj[key] === undefined) {
+                Object.defineProperty(obj, key, value);
+            }
+        }return obj;
+    }
+
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass);
+    }
+
+    function _classCallCheck$1(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
 
     var CONSTANT = 0;
     var INITIAL = 1;
     var VOLATILE = NaN;
-
     var RevisionTag = function () {
-        function RevisionTag() {}
+        function RevisionTag() {
+            _classCallCheck$1(this, RevisionTag);
+        }
 
         RevisionTag.prototype.validate = function (snapshot) {
             return this.value() === snapshot;
@@ -1284,17 +1617,81 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
 
         return RevisionTag;
     }();
+    RevisionTag.id = 0;
+    var VALUE = [];
+    var VALIDATE = [];
+    var TagWrapper = function () {
+        function TagWrapper(type, inner) {
+            _classCallCheck$1(this, TagWrapper);
 
+            this.type = type;
+            this.inner = inner;
+        }
+
+        TagWrapper.prototype.value = function () {
+            var func = VALUE[this.type];
+            return func(this.inner);
+        };
+
+        TagWrapper.prototype.validate = function (snapshot) {
+            var func = VALIDATE[this.type];
+            return func(this.inner, snapshot);
+        };
+
+        return TagWrapper;
+    }();
+    function register(Type) {
+        var type = VALUE.length;
+        VALUE.push(function (tag) {
+            return tag.value();
+        });
+        VALIDATE.push(function (tag, snapshot) {
+            return tag.validate(snapshot);
+        });
+        Type.id = type;
+    }
+    ///
+    // CONSTANT: 0
+    VALUE.push(function () {
+        return CONSTANT;
+    });
+    VALIDATE.push(function (_tag, snapshot) {
+        return snapshot === CONSTANT;
+    });
+    var CONSTANT_TAG = new TagWrapper(0, null);
+    // VOLATILE: 1
+    VALUE.push(function () {
+        return VOLATILE;
+    });
+    VALIDATE.push(function (_tag, snapshot) {
+        return snapshot === VOLATILE;
+    });
+    var VOLATILE_TAG = new TagWrapper(1, null);
+    // CURRENT: 2
+    VALUE.push(function () {
+        return $REVISION;
+    });
+    VALIDATE.push(function (_tag, snapshot) {
+        return snapshot === $REVISION;
+    });
+    var CURRENT_TAG = new TagWrapper(2, null);
+    ///
     var $REVISION = INITIAL;
-
     var DirtyableTag = function (_RevisionTag) {
-        (0, _emberBabel.inherits)(DirtyableTag, _RevisionTag);
+        _inherits(DirtyableTag, _RevisionTag);
+
+        DirtyableTag.create = function () {
+            var revision = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : $REVISION;
+
+            return new TagWrapper(this.id, new DirtyableTag(revision));
+        };
 
         function DirtyableTag() {
             var revision = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : $REVISION;
 
+            _classCallCheck$1(this, DirtyableTag);
 
-            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RevisionTag.call(this));
+            var _this = _possibleConstructorReturn(this, _RevisionTag.call(this));
 
             _this.revision = revision;
             return _this;
@@ -1310,6 +1707,7 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
 
         return DirtyableTag;
     }(RevisionTag);
+    register(DirtyableTag);
 
     function _combine(tags) {
         switch (tags.length) {
@@ -1318,18 +1716,18 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
             case 1:
                 return tags[0];
             case 2:
-                return new TagsPair(tags[0], tags[1]);
+                return TagsPair.create(tags[0], tags[1]);
             default:
-                return new TagsCombinator(tags);
+                return TagsCombinator.create(tags);
         }
     }
-
     var CachedTag = function (_RevisionTag2) {
-        (0, _emberBabel.inherits)(CachedTag, _RevisionTag2);
+        _inherits(CachedTag, _RevisionTag2);
 
         function CachedTag() {
+            _classCallCheck$1(this, CachedTag);
 
-            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _RevisionTag2.apply(this, arguments));
+            var _this2 = _possibleConstructorReturn(this, _RevisionTag2.apply(this, arguments));
 
             _this2.lastChecked = null;
             _this2.lastValue = null;
@@ -1355,11 +1753,16 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
     }(RevisionTag);
 
     var TagsPair = function (_CachedTag) {
-        (0, _emberBabel.inherits)(TagsPair, _CachedTag);
+        _inherits(TagsPair, _CachedTag);
+
+        TagsPair.create = function (first, second) {
+            return new TagWrapper(this.id, new TagsPair(first, second));
+        };
 
         function TagsPair(first, second) {
+            _classCallCheck$1(this, TagsPair);
 
-            var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedTag.call(this));
+            var _this3 = _possibleConstructorReturn(this, _CachedTag.call(this));
 
             _this3.first = first;
             _this3.second = second;
@@ -1373,12 +1776,19 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
         return TagsPair;
     }(CachedTag);
 
+    register(TagsPair);
+
     var TagsCombinator = function (_CachedTag2) {
-        (0, _emberBabel.inherits)(TagsCombinator, _CachedTag2);
+        _inherits(TagsCombinator, _CachedTag2);
+
+        TagsCombinator.create = function (tags) {
+            return new TagWrapper(this.id, new TagsCombinator(tags));
+        };
 
         function TagsCombinator(tags) {
+            _classCallCheck$1(this, TagsCombinator);
 
-            var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedTag2.call(this));
+            var _this4 = _possibleConstructorReturn(this, _CachedTag2.call(this));
 
             _this4.tags = tags;
             return _this4;
@@ -1401,12 +1811,18 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
         return TagsCombinator;
     }(CachedTag);
 
+    register(TagsCombinator);
     var UpdatableTag = function (_CachedTag3) {
-        (0, _emberBabel.inherits)(UpdatableTag, _CachedTag3);
+        _inherits(UpdatableTag, _CachedTag3);
+
+        UpdatableTag.create = function (tag) {
+            return new TagWrapper(this.id, new UpdatableTag(tag));
+        };
 
         function UpdatableTag(tag) {
+            _classCallCheck$1(this, UpdatableTag);
 
-            var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedTag3.call(this));
+            var _this5 = _possibleConstructorReturn(this, _CachedTag3.call(this));
 
             _this5.tag = tag;
             _this5.lastUpdated = INITIAL;
@@ -1427,50 +1843,10 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
 
         return UpdatableTag;
     }(CachedTag);
-
-    //////////
-    var CONSTANT_TAG = new (function (_RevisionTag3) {
-        (0, _emberBabel.inherits)(ConstantTag, _RevisionTag3);
-
-        function ConstantTag() {
-            return (0, _emberBabel.possibleConstructorReturn)(this, _RevisionTag3.apply(this, arguments));
-        }
-
-        ConstantTag.prototype.value = function () {
-            return CONSTANT;
-        };
-
-        return ConstantTag;
-    }(RevisionTag))();
-    var VOLATILE_TAG = new (function (_RevisionTag4) {
-        (0, _emberBabel.inherits)(VolatileTag, _RevisionTag4);
-
-        function VolatileTag() {
-            return (0, _emberBabel.possibleConstructorReturn)(this, _RevisionTag4.apply(this, arguments));
-        }
-
-        VolatileTag.prototype.value = function () {
-            return VOLATILE;
-        };
-
-        return VolatileTag;
-    }(RevisionTag))();
-    var CURRENT_TAG = new (function (_DirtyableTag) {
-        (0, _emberBabel.inherits)(CurrentTag, _DirtyableTag);
-
-        function CurrentTag() {
-            return (0, _emberBabel.possibleConstructorReturn)(this, _DirtyableTag.apply(this, arguments));
-        }
-
-        CurrentTag.prototype.value = function () {
-            return $REVISION;
-        };
-
-        return CurrentTag;
-    }(DirtyableTag))();
-
+    register(UpdatableTag);
     var CachedReference = function () {
         function CachedReference() {
+            _classCallCheck$1(this, CachedReference);
 
             this.lastRevision = null;
             this.lastValue = null;
@@ -1496,16 +1872,17 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
     }();
 
     var MapperReference = function (_CachedReference) {
-        (0, _emberBabel.inherits)(MapperReference, _CachedReference);
+        _inherits(MapperReference, _CachedReference);
 
         function MapperReference(reference, mapper) {
+            _classCallCheck$1(this, MapperReference);
 
-            var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.call(this));
+            var _this6 = _possibleConstructorReturn(this, _CachedReference.call(this));
 
-            _this9.tag = reference.tag;
-            _this9.reference = reference;
-            _this9.mapper = mapper;
-            return _this9;
+            _this6.tag = reference.tag;
+            _this6.reference = reference;
+            _this6.mapper = mapper;
+            return _this6;
         }
 
         MapperReference.prototype.compute = function () {
@@ -1519,9 +1896,9 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
     }(CachedReference);
 
     //////////
-
     var ReferenceCache = function () {
         function ReferenceCache(reference) {
+            _classCallCheck$1(this, ReferenceCache);
 
             this.lastValue = null;
             this.lastRevision = null;
@@ -1566,12 +1943,18 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
 
         return ReferenceCache;
     }();
-
     var NOT_MODIFIED = "adb3b78e-3d22-4e4b-877a-6317c2c5c145";
 
 
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
     var ConstReference = function () {
         function ConstReference(inner) {
+            _classCallCheck(this, ConstReference);
 
             this.inner = inner;
             this.tag = CONSTANT_TAG;
@@ -1584,19 +1967,52 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
         return ConstReference;
     }();
 
+
+    function _defaults$1(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults),
+            i,
+            key,
+            value;for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = Object.getOwnPropertyDescriptor(defaults, key);
+            if (value && value.configurable && obj[key] === undefined) {
+                Object.defineProperty(obj, key, value);
+            }
+        }return obj;
+    }
+
+    function _classCallCheck$2(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn$1(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits$1(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults$1(subClass, superClass);
+    }
+
     var ListItem = function (_ListNode) {
-        (0, _emberBabel.inherits)(ListItem, _ListNode);
+        _inherits$1(ListItem, _ListNode);
 
         function ListItem(iterable, result) {
+            _classCallCheck$2(this, ListItem);
 
-            var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _ListNode.call(this, iterable.valueReferenceFor(result)));
+            var _this = _possibleConstructorReturn$1(this, _ListNode.call(this, iterable.valueReferenceFor(result)));
 
-            _this10.retained = false;
-            _this10.seen = false;
-            _this10.key = result.key;
-            _this10.iterable = iterable;
-            _this10.memo = iterable.memoReferenceFor(result);
-            return _this10;
+            _this.retained = false;
+            _this.seen = false;
+            _this.key = result.key;
+            _this.iterable = iterable;
+            _this.memo = iterable.memoReferenceFor(result);
+            return _this;
         }
 
         ListItem.prototype.update = function (item) {
@@ -1616,9 +2032,9 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
 
         return ListItem;
     }(_util.ListNode);
-
     var IterationArtifacts = function () {
         function IterationArtifacts(iterable) {
+            _classCallCheck$2(this, IterationArtifacts);
 
             this.map = (0, _util.dict)();
             this.list = new _util.LinkedList();
@@ -1696,11 +2112,11 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
 
         return IterationArtifacts;
     }();
-
     var ReferenceIterator = function () {
         // if anyone needs to construct this object with something other than
         // an iterable, let @wycats know.
         function ReferenceIterator(iterable) {
+            _classCallCheck$2(this, ReferenceIterator);
 
             this.iterator = null;
             var artifacts = new IterationArtifacts(iterable);
@@ -1718,19 +2134,18 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
 
         return ReferenceIterator;
     }();
-
     var Phase;
     (function (Phase) {
         Phase[Phase["Append"] = 0] = "Append";
         Phase[Phase["Prune"] = 1] = "Prune";
         Phase[Phase["Done"] = 2] = "Done";
     })(Phase || (Phase = {}));
-
     var IteratorSynchronizer = function () {
         function IteratorSynchronizer(_ref) {
             var target = _ref.target,
                 artifacts = _ref.artifacts;
 
+            _classCallCheck$2(this, IteratorSynchronizer);
 
             this.target = target;
             this.artifacts = artifacts;
@@ -1792,7 +2207,7 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
             var artifacts = this.artifacts,
                 current = this.current;
 
-            current = (0, _util.expect)(current, 'BUG: current is empty');
+            current = current;
             current.update(item);
             this.current = artifacts.nextNode(current);
             this.target.retain(item.key, current.value, current.memo);
@@ -1874,6 +2289,10 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
     exports.INITIAL = INITIAL;
     exports.VOLATILE = VOLATILE;
     exports.RevisionTag = RevisionTag;
+    exports.TagWrapper = TagWrapper;
+    exports.CONSTANT_TAG = CONSTANT_TAG;
+    exports.VOLATILE_TAG = VOLATILE_TAG;
+    exports.CURRENT_TAG = CURRENT_TAG;
     exports.DirtyableTag = DirtyableTag;
     exports.combineTagged = function (tagged) {
         var optimized = [],
@@ -1918,9 +2337,6 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
     };
     exports.CachedTag = CachedTag;
     exports.UpdatableTag = UpdatableTag;
-    exports.CONSTANT_TAG = CONSTANT_TAG;
-    exports.VOLATILE_TAG = VOLATILE_TAG;
-    exports.CURRENT_TAG = CURRENT_TAG;
     exports.CachedReference = CachedReference;
     exports.map = function (reference, mapper) {
         return new MapperReference(reference, mapper);
@@ -1930,37 +2346,54 @@ enifed("@glimmer/reference", ["exports", "ember-babel", "@glimmer/util"], functi
         return value !== NOT_MODIFIED;
     };
 });
-enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], function (exports, _handlebars, _simpleHtmlTokenizer) {
+enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 'handlebars'], function (exports, _simpleHtmlTokenizer, _util, _handlebars) {
     'use strict';
 
-    exports.print = exports.Walker = exports.traverse = exports.builders = exports.preprocess = undefined;
+    exports.printLiteral = exports.isLiteral = exports.print = exports.Walker = exports.traverse = exports.builders = exports.preprocess = exports.AST = undefined;
 
-    // Statements
+    function isLiteral(input) {
+        return !!(typeof input === 'object' && input.type.match(/Literal$/));
+    }
 
-    // Nodes
-
+    var nodes = Object.freeze({
+        isCall: function (node) {
+            return node.type === 'SubExpression' || node.type === 'MustacheStatement' && node.path.type === 'PathExpression';
+        },
+        isLiteral: isLiteral
+    });
     // Expressions
 
     function buildPath(original, loc) {
         if (typeof original !== 'string') return original;
         var parts = original.split('.');
+        var thisHead = false;
         if (parts[0] === 'this') {
-            parts[0] = null;
+            thisHead = true;
+            parts = parts.slice(1);
         }
         return {
             type: "PathExpression",
             original: original,
+            this: thisHead,
             parts: parts,
             data: false,
-            loc: buildLoc(loc)
+            loc: buildLoc(loc || null)
         };
     }
-
+    function buildLiteral(type, value, loc) {
+        return {
+            type: type,
+            value: value,
+            original: value,
+            loc: buildLoc(loc || null)
+        };
+    }
     // Miscellaneous
-    function buildHash(pairs) {
+    function buildHash(pairs, loc) {
         return {
             type: "Hash",
-            pairs: pairs || []
+            pairs: pairs || [],
+            loc: buildLoc(loc || null)
         };
     }
 
@@ -1969,10 +2402,11 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
     }
     function buildPosition(line, column) {
         return {
-            line: typeof line === 'number' ? line : null,
-            column: typeof column === 'number' ? column : null
+            line: line,
+            column: column
         };
     }
+    var SYNTHETIC = { source: '(synthetic)', start: { line: 1, column: 0 }, end: { line: 1, column: 0 } };
     function buildLoc() {
         var _len, args, _key, loc, startLine, startColumn, endLine, endColumn, source;
 
@@ -1983,14 +2417,14 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
         if (args.length === 1) {
             loc = args[0];
 
-            if (typeof loc === 'object') {
+            if (loc && typeof loc === 'object') {
                 return {
                     source: buildSource(loc.source),
                     start: buildPosition(loc.start.line, loc.start.column),
                     end: buildPosition(loc.end.line, loc.end.column)
                 };
             } else {
-                return null;
+                return SYNTHETIC;
             }
         } else {
             startLine = args[0], startColumn = args[1], endLine = args[2], endColumn = args[3], source = args[4];
@@ -2005,47 +2439,52 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
     }
     var b = {
         mustache: function (path, params, hash, raw, loc) {
+            if (!isLiteral(path)) {
+                path = buildPath(path);
+            }
             return {
                 type: "MustacheStatement",
-                path: buildPath(path),
+                path: path,
                 params: params || [],
                 hash: hash || buildHash([]),
                 escaped: !raw,
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         block: function (path, params, hash, program, inverse, loc) {
             return {
                 type: "BlockStatement",
                 path: buildPath(path),
-                params: params ? params.map(buildPath) : [],
+                params: params || [],
                 hash: hash || buildHash([]),
                 program: program || null,
                 inverse: inverse || null,
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
-        partial: function (name, params, hash, indent) {
+        partial: function (name, params, hash, indent, loc) {
             return {
                 type: "PartialStatement",
                 name: name,
                 params: params || [],
                 hash: hash || buildHash([]),
-                indent: indent
+                indent: indent || '',
+                strip: { open: false, close: false },
+                loc: buildLoc(loc || null)
             };
         },
         comment: function (value, loc) {
             return {
                 type: "CommentStatement",
                 value: value,
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         mustacheComment: function (value, loc) {
             return {
                 type: "MustacheCommentStatement",
                 value: value,
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         element: function (tag, attributes, modifiers, children, comments, loc) {
@@ -2062,7 +2501,7 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
                 modifiers: modifiers || [],
                 comments: comments || [],
                 children: children || [],
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         elementModifier: function (path, params, hash, loc) {
@@ -2071,7 +2510,7 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
                 path: buildPath(path),
                 params: params || [],
                 hash: hash || buildHash([]),
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         attr: function (name, value, loc) {
@@ -2079,14 +2518,14 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
                 type: "AttrNode",
                 name: name,
                 value: value,
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         text: function (chars, loc) {
             return {
                 type: "TextNode",
                 chars: chars || "",
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         sexpr: function (path, params, hash, loc) {
@@ -2095,262 +2534,597 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
                 path: buildPath(path),
                 params: params || [],
                 hash: hash || buildHash([]),
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         path: buildPath,
-        string: function (value) {
-            return {
-                type: "StringLiteral",
-                value: value,
-                original: value
-            };
-        },
-        boolean: function (value) {
-            return {
-                type: "BooleanLiteral",
-                value: value,
-                original: value
-            };
-        },
-        number: function (value) {
-            return {
-                type: "NumberLiteral",
-                value: value,
-                original: value
-            };
-        },
-        undefined: function () {
-            return {
-                type: "UndefinedLiteral",
-                value: undefined,
-                original: undefined
-            };
-        },
-        null: function () {
-            return {
-                type: "NullLiteral",
-                value: null,
-                original: null
-            };
-        },
-        concat: function (parts) {
+        concat: function (parts, loc) {
             return {
                 type: "ConcatStatement",
-                parts: parts || []
+                parts: parts || [],
+                loc: buildLoc(loc || null)
             };
         },
         hash: buildHash,
-        pair: function (key, value) {
+        pair: function (key, value, loc) {
             return {
                 type: "HashPair",
                 key: key,
-                value: value
+                value: value,
+                loc: buildLoc(loc || null)
             };
         },
+        literal: buildLiteral,
         program: function (body, blockParams, loc) {
             return {
                 type: "Program",
                 body: body || [],
                 blockParams: blockParams || [],
-                loc: buildLoc(loc)
+                loc: buildLoc(loc || null)
             };
         },
         loc: buildLoc,
-        pos: buildPosition
+        pos: buildPosition,
+        string: literal('StringLiteral'),
+        boolean: literal('BooleanLiteral'),
+        number: literal('NumberLiteral'),
+        undefined: function () {
+            return buildLiteral('UndefinedLiteral', undefined);
+        },
+        null: function () {
+            return buildLiteral('NullLiteral', null);
+        }
     };
-
-    function build(ast) {
-        if (!ast) {
-            return '';
-        }
-        var output = [],
-            chainBlock,
-            body,
-            value,
-            lines;
-        switch (ast.type) {
-            case 'Program':
-                {
-                    chainBlock = ast.chained && ast.body[0];
-
-                    if (chainBlock) {
-                        chainBlock.chained = true;
-                    }
-                    body = buildEach(ast.body).join('');
-
-                    output.push(body);
-                }
-                break;
-            case 'ElementNode':
-                output.push('<', ast.tag);
-                if (ast.attributes.length) {
-                    output.push(' ', buildEach(ast.attributes).join(' '));
-                }
-                if (ast.modifiers.length) {
-                    output.push(' ', buildEach(ast.modifiers).join(' '));
-                }
-                if (ast.comments.length) {
-                    output.push(' ', buildEach(ast.comments).join(' '));
-                }
-                output.push('>');
-                output.push.apply(output, buildEach(ast.children));
-                output.push('</', ast.tag, '>');
-                break;
-            case 'AttrNode':
-                output.push(ast.name, '=');
-                value = build(ast.value);
-
-                if (ast.value.type === 'TextNode') {
-                    output.push('"', value, '"');
-                } else {
-                    output.push(value);
-                }
-                break;
-            case 'ConcatStatement':
-                output.push('"');
-                ast.parts.forEach(function (node) {
-                    if (node.type === 'StringLiteral') {
-                        output.push(node.original);
-                    } else {
-                        output.push(build(node));
-                    }
-                });
-                output.push('"');
-                break;
-            case 'TextNode':
-                output.push(ast.chars);
-                break;
-            case 'MustacheStatement':
-                {
-                    output.push(compactJoin(['{{', pathParams(ast), '}}']));
-                }
-                break;
-            case 'MustacheCommentStatement':
-                {
-                    output.push(compactJoin(['{{!--', ast.value, '--}}']));
-                }
-                break;
-            case 'ElementModifierStatement':
-                {
-                    output.push(compactJoin(['{{', pathParams(ast), '}}']));
-                }
-                break;
-            case 'PathExpression':
-                output.push(ast.original);
-                break;
-            case 'SubExpression':
-                {
-                    output.push('(', pathParams(ast), ')');
-                }
-                break;
-            case 'BooleanLiteral':
-                output.push(ast.value ? 'true' : false);
-                break;
-            case 'BlockStatement':
-                {
-                    lines = [];
-
-                    if (ast.chained) {
-                        lines.push(['{{else ', pathParams(ast), '}}'].join(''));
-                    } else {
-                        lines.push(openBlock(ast));
-                    }
-                    lines.push(build(ast.program));
-                    if (ast.inverse) {
-                        if (!ast.inverse.chained) {
-                            lines.push('{{else}}');
-                        }
-                        lines.push(build(ast.inverse));
-                    }
-                    if (!ast.chained) {
-                        lines.push(closeBlock(ast));
-                    }
-                    output.push(lines.join(''));
-                }
-                break;
-            case 'PartialStatement':
-                {
-                    output.push(compactJoin(['{{>', pathParams(ast), '}}']));
-                }
-                break;
-            case 'CommentStatement':
-                {
-                    output.push(compactJoin(['<!--', ast.value, '-->']));
-                }
-                break;
-            case 'StringLiteral':
-                {
-                    output.push('"' + ast.value + '"');
-                }
-                break;
-            case 'NumberLiteral':
-                {
-                    output.push(ast.value);
-                }
-                break;
-            case 'UndefinedLiteral':
-                {
-                    output.push('undefined');
-                }
-                break;
-            case 'NullLiteral':
-                {
-                    output.push('null');
-                }
-                break;
-            case 'Hash':
-                {
-                    output.push(ast.pairs.map(function (pair) {
-                        return build(pair);
-                    }).join(' '));
-                }
-                break;
-            case 'HashPair':
-                {
-                    output.push(ast.key + '=' + build(ast.value));
-                }
-                break;
-        }
-        return output.join('');
+    function literal(type) {
+        return function (value) {
+            return buildLiteral(type, value);
+        };
     }
-    function compact(array) {
-        var newArray = [];
-        array.forEach(function (a) {
-            if (typeof a !== 'undefined' && a !== null && a !== '') {
-                newArray.push(a);
+
+    // Regex to validate the identifier for block parameters.
+    // Based on the ID validation regex in Handlebars.
+    var ID_INVERSE_PATTERN = /[!"#%-,\.\/;->@\[-\^`\{-~]/;
+    // Checks the element's attributes to see if it uses block params.
+    // If it does, registers the block params with the program and
+    // removes the corresponding attributes from the element.
+    function parseElementBlockParams(element) {
+        var params = parseBlockParams(element);
+        if (params) element.blockParams = params;
+    }
+    function parseBlockParams(element) {
+        var l = element.attributes.length,
+            i,
+            paramsString,
+            params,
+            _i,
+            param;
+        var attrNames = [];
+        for (i = 0; i < l; i++) {
+            attrNames.push(element.attributes[i].name);
+        }
+        var asIndex = attrNames.indexOf('as');
+        if (asIndex !== -1 && l > asIndex && attrNames[asIndex + 1].charAt(0) === '|') {
+            // Some basic validation, since we're doing the parsing ourselves
+            paramsString = attrNames.slice(asIndex).join(' ');
+
+            if (paramsString.charAt(paramsString.length - 1) !== '|' || paramsString.match(/\|/g).length !== 2) {
+                throw new Error('Invalid block parameters syntax: \'' + paramsString + '\'');
             }
-        });
-        return newArray;
+            params = [];
+
+            for (_i = asIndex + 1; _i < l; _i++) {
+                param = attrNames[_i].replace(/\|/g, '');
+
+                if (param !== '') {
+                    if (ID_INVERSE_PATTERN.test(param)) {
+                        throw new Error('Invalid identifier for block parameters: \'' + param + '\' in \'' + paramsString + '\'');
+                    }
+                    params.push(param);
+                }
+            }
+            if (params.length === 0) {
+                throw new Error('Cannot use zero block parameters: \'' + paramsString + '\'');
+            }
+            element.attributes = element.attributes.slice(0, asIndex);
+            return params;
+        }
+        return null;
     }
-    function buildEach(asts) {
-        var output = [];
-        asts.forEach(function (node) {
-            output.push(build(node));
-        });
-        return output;
-    }
-    function pathParams(ast) {
-        var name = build(ast.name);
-        var path = build(ast.path);
-        var params = buildEach(ast.params).join(' ');
-        var hash = build(ast.hash);
-        return compactJoin([name, path, params, hash], ' ');
-    }
-    function compactJoin(array, delimiter) {
-        return compact(array).join(delimiter || '');
-    }
-    function blockParams(block) {
-        var params = block.program.blockParams;
-        if (params.length) {
-            return ' as |' + params.join(' ') + '|';
+    function childrenFor(node) {
+        switch (node.type) {
+            case 'Program':
+                return node.body;
+            case 'ElementNode':
+                return node.children;
         }
     }
-    function openBlock(block) {
-        return ['{{#', pathParams(block), blockParams(block), '}}'].join('');
+    function appendChild(parent, node) {
+        childrenFor(parent).push(node);
     }
-    function closeBlock(block) {
-        return ['{{/', build(block.path), '}}'].join('');
+    function isLiteral$1(path) {
+        return path.type === 'StringLiteral' || path.type === 'BooleanLiteral' || path.type === 'NumberLiteral' || path.type === 'NullLiteral' || path.type === 'UndefinedLiteral';
+    }
+    function printLiteral(literal) {
+        if (literal.type === 'UndefinedLiteral') {
+            return 'undefined';
+        } else {
+            return JSON.stringify(literal.value);
+        }
+    }
+
+    var _createClass = function () {
+        function defineProperties(target, props) {
+            var i, descriptor;
+
+            for (i = 0; i < props.length; i++) {
+                descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }return function (Constructor, protoProps, staticProps) {
+            if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+        };
+    }();
+
+    function _classCallCheck$2(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var entityParser = new _simpleHtmlTokenizer.EntityParser(_simpleHtmlTokenizer.HTML5NamedCharRefs);
+    var Parser = function () {
+        function Parser(source) {
+            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+            _classCallCheck$2(this, Parser);
+
+            this.elementStack = [];
+            this.currentAttribute = null;
+            this.currentNode = null;
+            this.tokenizer = new _simpleHtmlTokenizer.EventedTokenizer(this, entityParser);
+            this.options = options;
+            this.source = source.split(/(?:\r\n?|\n)/g);
+        }
+
+        Parser.prototype.acceptNode = function (node) {
+            return this[node.type](node);
+        };
+
+        Parser.prototype.currentElement = function () {
+            return this.elementStack[this.elementStack.length - 1];
+        };
+
+        Parser.prototype.sourceForNode = function (node, endNode) {
+            var firstLine = node.loc.start.line - 1;
+            var currentLine = firstLine - 1;
+            var firstColumn = node.loc.start.column;
+            var string = [];
+            var line = void 0;
+            var lastLine = void 0;
+            var lastColumn = void 0;
+            if (endNode) {
+                lastLine = endNode.loc.end.line - 1;
+                lastColumn = endNode.loc.end.column;
+            } else {
+                lastLine = node.loc.end.line - 1;
+                lastColumn = node.loc.end.column;
+            }
+            while (currentLine < lastLine) {
+                currentLine++;
+                line = this.source[currentLine];
+                if (currentLine === firstLine) {
+                    if (firstLine === lastLine) {
+                        string.push(line.slice(firstColumn, lastColumn));
+                    } else {
+                        string.push(line.slice(firstColumn));
+                    }
+                } else if (currentLine === lastLine) {
+                    string.push(line.slice(0, lastColumn));
+                } else {
+                    string.push(line);
+                }
+            }
+            return string.join('\n');
+        };
+
+        _createClass(Parser, [{
+            key: 'currentAttr',
+            get: function () {
+                return this.currentAttribute;
+            }
+        }, {
+            key: 'currentTag',
+            get: function () {
+                var node = this.currentNode;
+                (0, _util.assert)(node && (node.type === 'StartTag' || node.type === 'EndTag'), 'expected tag');
+                return node;
+            }
+        }, {
+            key: 'currentStartTag',
+            get: function () {
+                var node = this.currentNode;
+                (0, _util.assert)(node && node.type === 'StartTag', 'expected start tag');
+                return node;
+            }
+        }, {
+            key: 'currentEndTag',
+            get: function () {
+                var node = this.currentNode;
+                (0, _util.assert)(node && node.type === 'EndTag', 'expected end tag');
+                return node;
+            }
+        }, {
+            key: 'currentComment',
+            get: function () {
+                var node = this.currentNode;
+                (0, _util.assert)(node && node.type === 'CommentStatement', 'expected a comment');
+                return node;
+            }
+        }, {
+            key: 'currentData',
+            get: function () {
+                var node = this.currentNode;
+                (0, _util.assert)(node && node.type === 'TextNode', 'expected a text node');
+                return node;
+            }
+        }]);
+
+        return Parser;
+    }();
+
+    function _defaults$1(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults),
+            i,
+            key,
+            value;for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = Object.getOwnPropertyDescriptor(defaults, key);
+            if (value && value.configurable && obj[key] === undefined) {
+                Object.defineProperty(obj, key, value);
+            }
+        }return obj;
+    }
+
+    function _classCallCheck$1(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn$1(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits$1(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults$1(subClass, superClass);
+    }
+
+    var HandlebarsNodeVisitors = function (_Parser) {
+        _inherits$1(HandlebarsNodeVisitors, _Parser);
+
+        function HandlebarsNodeVisitors() {
+            _classCallCheck$1(this, HandlebarsNodeVisitors);
+
+            return _possibleConstructorReturn$1(this, _Parser.apply(this, arguments));
+        }
+
+        HandlebarsNodeVisitors.prototype.Program = function (program) {
+            var node = b.program([], program.blockParams, program.loc);
+            var i = void 0,
+                l = program.body.length;
+            this.elementStack.push(node);
+            if (l === 0) {
+                return this.elementStack.pop();
+            }
+            for (i = 0; i < l; i++) {
+                this.acceptNode(program.body[i]);
+            }
+            // Ensure that that the element stack is balanced properly.
+            var poppedNode = this.elementStack.pop();
+            if (poppedNode !== node) {
+                throw new Error("Unclosed element `" + poppedNode.tag + "` (on line " + poppedNode.loc.start.line + ").");
+            }
+            return node;
+        };
+
+        HandlebarsNodeVisitors.prototype.BlockStatement = function (block) {
+            // delete block.inverseStrip;
+            // delete block.openString;
+            // delete block.closeStrip;
+            if (this.tokenizer['state'] === 'comment') {
+                this.appendToCommentData(this.sourceForNode(block));
+                return;
+            }
+            if (this.tokenizer['state'] !== 'comment' && this.tokenizer['state'] !== 'data' && this.tokenizer['state'] !== 'beforeData') {
+                throw new Error("A block may only be used inside an HTML element or another block.");
+            }
+
+            var _acceptCallNodes = acceptCallNodes(this, block),
+                path = _acceptCallNodes.path,
+                params = _acceptCallNodes.params,
+                hash = _acceptCallNodes.hash;
+
+            var program = this.Program(block.program);
+            var inverse = block.inverse ? this.Program(block.inverse) : null;
+            var node = b.block(path, params, hash, program, inverse, block.loc);
+            var parentProgram = this.currentElement();
+            appendChild(parentProgram, node);
+        };
+
+        HandlebarsNodeVisitors.prototype.MustacheStatement = function (rawMustache) {
+            var tokenizer = this.tokenizer,
+                _acceptCallNodes2,
+                path,
+                params,
+                hash;
+
+            if (tokenizer['state'] === 'comment') {
+                this.appendToCommentData(this.sourceForNode(rawMustache));
+                return;
+            }
+            var mustache = void 0;
+            var escaped = rawMustache.escaped,
+                loc = rawMustache.loc;
+
+            if (rawMustache.path.type.match(/Literal$/)) {
+                mustache = {
+                    type: 'MustacheStatement',
+                    path: this.acceptNode(rawMustache.path),
+                    params: [],
+                    hash: b.hash(),
+                    escaped: escaped,
+                    loc: loc
+                };
+            } else {
+                _acceptCallNodes2 = acceptCallNodes(this, rawMustache), path = _acceptCallNodes2.path, params = _acceptCallNodes2.params, hash = _acceptCallNodes2.hash;
+
+
+                mustache = b.mustache(path, params, hash, !escaped, loc);
+            }
+            switch (tokenizer.state) {
+                // Tag helpers
+                case "tagName":
+                    addElementModifier(this.currentStartTag, mustache);
+                    tokenizer.state = "beforeAttributeName";
+                    break;
+                case "beforeAttributeName":
+                    addElementModifier(this.currentStartTag, mustache);
+                    break;
+                case "attributeName":
+                case "afterAttributeName":
+                    this.beginAttributeValue(false);
+                    this.finishAttributeValue();
+                    addElementModifier(this.currentStartTag, mustache);
+                    tokenizer.state = "beforeAttributeName";
+                    break;
+                case "afterAttributeValueQuoted":
+                    addElementModifier(this.currentStartTag, mustache);
+                    tokenizer.state = "beforeAttributeName";
+                    break;
+                // Attribute values
+                case "beforeAttributeValue":
+                    appendDynamicAttributeValuePart(this.currentAttribute, mustache);
+                    tokenizer.state = 'attributeValueUnquoted';
+                    break;
+                case "attributeValueDoubleQuoted":
+                case "attributeValueSingleQuoted":
+                case "attributeValueUnquoted":
+                    appendDynamicAttributeValuePart(this.currentAttribute, mustache);
+                    break;
+                // TODO: Only append child when the tokenizer state makes
+                // sense to do so, otherwise throw an error.
+                default:
+                    appendChild(this.currentElement(), mustache);
+            }
+            return mustache;
+        };
+
+        HandlebarsNodeVisitors.prototype.ContentStatement = function (content) {
+            updateTokenizerLocation(this.tokenizer, content);
+            this.tokenizer.tokenizePart(content.value);
+            this.tokenizer.flushData();
+        };
+
+        HandlebarsNodeVisitors.prototype.CommentStatement = function (rawComment) {
+            var tokenizer = this.tokenizer;
+
+            if (tokenizer.state === 'comment') {
+                this.appendToCommentData(this.sourceForNode(rawComment));
+                return null;
+            }
+            var value = rawComment.value,
+                loc = rawComment.loc;
+
+            var comment = b.mustacheComment(value, loc);
+            switch (tokenizer.state) {
+                case "beforeAttributeName":
+                    this.currentStartTag.comments.push(comment);
+                    break;
+                case 'beforeData':
+                case 'data':
+                    appendChild(this.currentElement(), comment);
+                    break;
+                default:
+                    throw new Error("Using a Handlebars comment when in the `" + tokenizer.state + "` state is not supported: \"" + comment.value + "\" on line " + loc.start.line + ":" + loc.start.column);
+            }
+            return comment;
+        };
+
+        HandlebarsNodeVisitors.prototype.PartialStatement = function (partial) {
+            var loc = partial.loc;
+
+            throw new Error("Handlebars partials are not supported: \"" + this.sourceForNode(partial, partial.name) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+        };
+
+        HandlebarsNodeVisitors.prototype.PartialBlockStatement = function (partialBlock) {
+            var loc = partialBlock.loc;
+
+            throw new Error("Handlebars partial blocks are not supported: \"" + this.sourceForNode(partialBlock, partialBlock.name) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+        };
+
+        HandlebarsNodeVisitors.prototype.Decorator = function (decorator) {
+            var loc = decorator.loc;
+
+            throw new Error("Handlebars decorators are not supported: \"" + this.sourceForNode(decorator, decorator.path) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+        };
+
+        HandlebarsNodeVisitors.prototype.DecoratorBlock = function (decoratorBlock) {
+            var loc = decoratorBlock.loc;
+
+            throw new Error("Handlebars decorator blocks are not supported: \"" + this.sourceForNode(decoratorBlock, decoratorBlock.path) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+        };
+
+        HandlebarsNodeVisitors.prototype.SubExpression = function (sexpr) {
+            var _acceptCallNodes3 = acceptCallNodes(this, sexpr),
+                path = _acceptCallNodes3.path,
+                params = _acceptCallNodes3.params,
+                hash = _acceptCallNodes3.hash;
+
+            return b.sexpr(path, params, hash, sexpr.loc);
+        };
+
+        HandlebarsNodeVisitors.prototype.PathExpression = function (path) {
+            var original = path.original,
+                loc = path.loc;
+
+            var parts = void 0;
+            if (original.indexOf('/') !== -1) {
+                // TODO add a SyntaxError with loc info
+                if (original.slice(0, 2) === './') {
+                    throw new Error("Using \"./\" is not supported in Glimmer and unnecessary: \"" + path.original + "\" on line " + loc.start.line + ".");
+                }
+                if (original.slice(0, 3) === '../') {
+                    throw new Error("Changing context using \"../\" is not supported in Glimmer: \"" + path.original + "\" on line " + loc.start.line + ".");
+                }
+                if (original.indexOf('.') !== -1) {
+                    throw new Error("Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths: \"" + path.original + "\" on line " + loc.start.line + ".");
+                }
+                parts = [path.parts.join('/')];
+            } else {
+                parts = path.parts;
+            }
+            var thisHead = false;
+            // This is to fix a bug in the Handlebars AST where the path expressions in
+            // `{{this.foo}}` (and similarly `{{foo-bar this.foo named=this.foo}}` etc)
+            // are simply turned into `{{foo}}`. The fix is to push it back onto the
+            // parts array and let the runtime see the difference. However, we cannot
+            // simply use the string `this` as it means literally the property called
+            // "this" in the current context (it can be expressed in the syntax as
+            // `{{[this]}}`, where the square bracket are generally for this kind of
+            // escaping – such as `{{foo.["bar.baz"]}}` would mean lookup a property
+            // named literally "bar.baz" on `this.foo`). By convention, we use `null`
+            // for this purpose.
+            if (original.match(/^this(\..+)?$/)) {
+                thisHead = true;
+            }
+            return {
+                type: 'PathExpression',
+                original: path.original,
+                this: thisHead,
+                parts: parts,
+                data: path.data,
+                loc: path.loc
+            };
+        };
+
+        HandlebarsNodeVisitors.prototype.Hash = function (hash) {
+            var pairs = [],
+                i,
+                pair;
+            for (i = 0; i < hash.pairs.length; i++) {
+                pair = hash.pairs[i];
+
+                pairs.push(b.pair(pair.key, this.acceptNode(pair.value), pair.loc));
+            }
+            return b.hash(pairs, hash.loc);
+        };
+
+        HandlebarsNodeVisitors.prototype.StringLiteral = function (string) {
+            return b.literal('StringLiteral', string.value, string.loc);
+        };
+
+        HandlebarsNodeVisitors.prototype.BooleanLiteral = function (boolean) {
+            return b.literal('BooleanLiteral', boolean.value, boolean.loc);
+        };
+
+        HandlebarsNodeVisitors.prototype.NumberLiteral = function (number) {
+            return b.literal('NumberLiteral', number.value, number.loc);
+        };
+
+        HandlebarsNodeVisitors.prototype.UndefinedLiteral = function (undef) {
+            return b.literal('UndefinedLiteral', undefined, undef.loc);
+        };
+
+        HandlebarsNodeVisitors.prototype.NullLiteral = function (nul) {
+            return b.literal('NullLiteral', null, nul.loc);
+        };
+
+        return HandlebarsNodeVisitors;
+    }(Parser);
+    function calculateRightStrippedOffsets(original, value) {
+        if (value === '') {
+            // if it is empty, just return the count of newlines
+            // in original
+            return {
+                lines: original.split("\n").length - 1,
+                columns: 0
+            };
+        }
+        // otherwise, return the number of newlines prior to
+        // `value`
+        var difference = original.split(value)[0];
+        var lines = difference.split(/\n/);
+        var lineCount = lines.length - 1;
+        return {
+            lines: lineCount,
+            columns: lines[lineCount].length
+        };
+    }
+    function updateTokenizerLocation(tokenizer, content) {
+        var line = content.loc.start.line;
+        var column = content.loc.start.column;
+        var offsets = calculateRightStrippedOffsets(content.original, content.value);
+        line = line + offsets.lines;
+        if (offsets.lines) {
+            column = offsets.columns;
+        } else {
+            column = column + offsets.columns;
+        }
+        tokenizer.line = line;
+        tokenizer.column = column;
+    }
+    function acceptCallNodes(compiler, node) {
+        var path = compiler.PathExpression(node.path);
+        var params = node.params ? node.params.map(function (e) {
+            return compiler.acceptNode(e);
+        }) : [];
+        var hash = node.hash ? compiler.Hash(node.hash) : b.hash();
+        return { path: path, params: params, hash: hash };
+    }
+    function addElementModifier(element, mustache) {
+        var path = mustache.path,
+            params = mustache.params,
+            hash = mustache.hash,
+            loc = mustache.loc,
+            _modifier,
+            tag;
+
+        if (isLiteral$1(path)) {
+            _modifier = "{{" + printLiteral(path) + "}}";
+            tag = "<" + element.name + " ... " + _modifier + " ...";
+
+            throw new Error("In " + tag + ", " + _modifier + " is not a valid modifier: \"" + path.original + "\" on line " + (loc && loc.start.line) + ".");
+        }
+        var modifier = b.elementModifier(path, params, hash, loc);
+        element.modifiers.push(modifier);
+    }
+    function appendDynamicAttributeValuePart(attribute, part) {
+        attribute.isDynamic = true;
+        attribute.parts.push(part);
     }
 
     var visitorKeys = {
@@ -2376,13 +3150,54 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
         HashPair: ['value']
     };
 
-    function TraversalError(message, node, parent, key) {
-        this.name = "TraversalError";
-        this.message = message;
-        this.node = node;
-        this.parent = parent;
-        this.key = key;
+    function _defaults$2(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults),
+            i,
+            key,
+            value;for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = Object.getOwnPropertyDescriptor(defaults, key);
+            if (value && value.configurable && obj[key] === undefined) {
+                Object.defineProperty(obj, key, value);
+            }
+        }return obj;
     }
+
+    function _classCallCheck$3(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    function _possibleConstructorReturn$2(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
+    }
+
+    function _inherits$2(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults$2(subClass, superClass);
+    }
+
+    var TraversalError = function (_Error) {
+        _inherits$2(TraversalError, _Error);
+
+        function TraversalError(message, node, parent, key) {
+            _classCallCheck$3(this, TraversalError);
+
+            var _this = _possibleConstructorReturn$2(this, _Error.call(this, message));
+
+            _this.node = node;
+            _this.parent = parent;
+            _this.key = key;
+            return _this;
+        }
+
+        return TraversalError;
+    }(Error);
+
     TraversalError.prototype = Object.create(Error.prototype);
     TraversalError.prototype.constructor = TraversalError;
     function cannotRemoveNode(node, parent, key) {
@@ -2396,12 +3211,12 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
     }
 
     function visitNode(visitor, node) {
-        var handler = visitor[node.type] || visitor.All,
+        var handler = visitor[node.type] || visitor.All || null,
             keys,
             i;
         var result = void 0;
-        if (handler && handler.enter) {
-            result = handler.enter.call(null, node);
+        if (handler && handler['enter']) {
+            result = handler['enter'].call(null, node);
         }
         if (result !== undefined && result !== null) {
             if (JSON.stringify(node) === JSON.stringify(result)) {
@@ -2418,8 +3233,8 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
             for (i = 0; i < keys.length; i++) {
                 visitKey(visitor, handler, node, keys[i]);
             }
-            if (handler && handler.exit) {
-                result = handler.exit.call(null, node);
+            if (handler && handler['exit']) {
+                result = handler['exit'].call(null, node);
             }
         }
         return result;
@@ -2543,26 +3358,251 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
         return normalizedVisitor;
     }
 
-    function Walker() {
-        var order = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
-
-        this.order = order;
-        this.stack = [];
+    function unreachable() {
+        throw new Error('unreachable');
     }
-    Walker.prototype.visit = function (node, callback) {
-        if (!node) {
-            return;
+    function build(ast) {
+        if (!ast) {
+            return '';
         }
-        this.stack.push(node);
-        if (this.order === 'post') {
-            this.children(node, callback);
-            callback(node, this);
-        } else {
-            callback(node, this);
-            this.children(node, callback);
+        var output = [],
+            chainBlock,
+            body,
+            value,
+            lines;
+        switch (ast.type) {
+            case 'Program':
+                {
+                    chainBlock = ast['chained'] && ast.body[0];
+
+                    if (chainBlock) {
+                        chainBlock['chained'] = true;
+                    }
+                    body = buildEach(ast.body).join('');
+
+                    output.push(body);
+                }
+                break;
+            case 'ElementNode':
+                output.push('<', ast.tag);
+                if (ast.attributes.length) {
+                    output.push(' ', buildEach(ast.attributes).join(' '));
+                }
+                if (ast.modifiers.length) {
+                    output.push(' ', buildEach(ast.modifiers).join(' '));
+                }
+                if (ast.comments.length) {
+                    output.push(' ', buildEach(ast.comments).join(' '));
+                }
+                output.push('>');
+                output.push.apply(output, buildEach(ast.children));
+                output.push('</', ast.tag, '>');
+                break;
+            case 'AttrNode':
+                output.push(ast.name, '=');
+                value = build(ast.value);
+
+                if (ast.value.type === 'TextNode') {
+                    output.push('"', value, '"');
+                } else {
+                    output.push(value);
+                }
+                break;
+            case 'ConcatStatement':
+                output.push('"');
+                ast.parts.forEach(function (node) {
+                    if (node.type === 'StringLiteral') {
+                        output.push(node.original);
+                    } else {
+                        output.push(build(node));
+                    }
+                });
+                output.push('"');
+                break;
+            case 'TextNode':
+                output.push(ast.chars);
+                break;
+            case 'MustacheStatement':
+                {
+                    output.push(compactJoin(['{{', pathParams(ast), '}}']));
+                }
+                break;
+            case 'MustacheCommentStatement':
+                {
+                    output.push(compactJoin(['{{!--', ast.value, '--}}']));
+                }
+                break;
+            case 'ElementModifierStatement':
+                {
+                    output.push(compactJoin(['{{', pathParams(ast), '}}']));
+                }
+                break;
+            case 'PathExpression':
+                output.push(ast.original);
+                break;
+            case 'SubExpression':
+                {
+                    output.push('(', pathParams(ast), ')');
+                }
+                break;
+            case 'BooleanLiteral':
+                output.push(ast.value ? 'true' : 'false');
+                break;
+            case 'BlockStatement':
+                {
+                    lines = [];
+
+                    if (ast['chained']) {
+                        lines.push(['{{else ', pathParams(ast), '}}'].join(''));
+                    } else {
+                        lines.push(openBlock(ast));
+                    }
+                    lines.push(build(ast.program));
+                    if (ast.inverse) {
+                        if (!ast.inverse['chained']) {
+                            lines.push('{{else}}');
+                        }
+                        lines.push(build(ast.inverse));
+                    }
+                    if (!ast['chained']) {
+                        lines.push(closeBlock(ast));
+                    }
+                    output.push(lines.join(''));
+                }
+                break;
+            case 'PartialStatement':
+                {
+                    output.push(compactJoin(['{{>', pathParams(ast), '}}']));
+                }
+                break;
+            case 'CommentStatement':
+                {
+                    output.push(compactJoin(['<!--', ast.value, '-->']));
+                }
+                break;
+            case 'StringLiteral':
+                {
+                    output.push('"' + ast.value + '"');
+                }
+                break;
+            case 'NumberLiteral':
+                {
+                    output.push(String(ast.value));
+                }
+                break;
+            case 'UndefinedLiteral':
+                {
+                    output.push('undefined');
+                }
+                break;
+            case 'NullLiteral':
+                {
+                    output.push('null');
+                }
+                break;
+            case 'Hash':
+                {
+                    output.push(ast.pairs.map(function (pair) {
+                        return build(pair);
+                    }).join(' '));
+                }
+                break;
+            case 'HashPair':
+                {
+                    output.push(ast.key + '=' + build(ast.value));
+                }
+                break;
         }
-        this.stack.pop();
-    };
+        return output.join('');
+    }
+    function compact(array) {
+        var newArray = [];
+        array.forEach(function (a) {
+            if (typeof a !== 'undefined' && a !== null && a !== '') {
+                newArray.push(a);
+            }
+        });
+        return newArray;
+    }
+    function buildEach(asts) {
+        return asts.map(build);
+    }
+    function pathParams(ast) {
+        var path = void 0;
+        switch (ast.type) {
+            case 'MustacheStatement':
+            case 'SubExpression':
+            case 'ElementModifierStatement':
+            case 'BlockStatement':
+                if (isLiteral(ast.path)) {
+                    return String(ast.path.value);
+                }
+                path = build(ast.path);
+                break;
+            case 'PartialStatement':
+                path = build(ast.name);
+                break;
+            default:
+                return unreachable();
+        }
+        return compactJoin([path, buildEach(ast.params).join(' '), build(ast.hash)], ' ');
+    }
+    function compactJoin(array, delimiter) {
+        return compact(array).join(delimiter || '');
+    }
+    function blockParams(block) {
+        var params = block.program.blockParams;
+        if (params.length) {
+            return ' as |' + params.join(' ') + '|';
+        }
+        return null;
+    }
+    function openBlock(block) {
+        return ['{{#', pathParams(block), blockParams(block), '}}'].join('');
+    }
+    function closeBlock(block) {
+        return ['{{/', build(block.path), '}}'].join('');
+    }
+
+    function _classCallCheck$4(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    var Walker = function () {
+        function Walker(order) {
+            _classCallCheck$4(this, Walker);
+
+            this.order = order;
+            this.stack = [];
+        }
+
+        Walker.prototype.visit = function (node, callback) {
+            if (!node) {
+                return;
+            }
+            this.stack.push(node);
+            if (this.order === 'post') {
+                this.children(node, callback);
+                callback(node, this);
+            } else {
+                callback(node, this);
+                this.children(node, callback);
+            }
+            this.stack.pop();
+        };
+
+        Walker.prototype.children = function (node, callback) {
+            var visitor = visitors[node.type];
+            if (visitor) {
+                visitor(this, node, callback);
+            }
+        };
+
+        return Walker;
+    }();
+
     var visitors = {
         Program: function (walker, node, callback) {
             var i;
@@ -2580,332 +3620,39 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
         },
         BlockStatement: function (walker, node, callback) {
             walker.visit(node.program, callback);
-            walker.visit(node.inverse, callback);
-        }
-    };
-    Walker.prototype.children = function (node, callback) {
-        var visitor = visitors[node.type];
-        if (visitor) {
-            visitor(this, node, callback);
+            walker.visit(node.inverse || null, callback);
         }
     };
 
-    // Regex to validate the identifier for block parameters.
-    // Based on the ID validation regex in Handlebars.
-    var ID_INVERSE_PATTERN = /[!"#%-,\.\/;->@\[-\^`\{-~]/;
-    // Checks the element's attributes to see if it uses block params.
-    // If it does, registers the block params with the program and
-    // removes the corresponding attributes from the element.
-    function parseElementBlockParams(element) {
-        var params = parseBlockParams(element);
-        if (params) element.blockParams = params;
-    }
-    function parseBlockParams(element) {
-        var l = element.attributes.length,
+    function _defaults(obj, defaults) {
+        var keys = Object.getOwnPropertyNames(defaults),
             i,
-            paramsString,
-            params,
-            _i,
-            param;
-        var attrNames = [];
-        for (i = 0; i < l; i++) {
-            attrNames.push(element.attributes[i].name);
-        }
-        var asIndex = attrNames.indexOf('as');
-        if (asIndex !== -1 && l > asIndex && attrNames[asIndex + 1].charAt(0) === '|') {
-            // Some basic validation, since we're doing the parsing ourselves
-            paramsString = attrNames.slice(asIndex).join(' ');
-
-            if (paramsString.charAt(paramsString.length - 1) !== '|' || paramsString.match(/\|/g).length !== 2) {
-                throw new Error('Invalid block parameters syntax: \'' + paramsString + '\'');
+            key,
+            value;for (i = 0; i < keys.length; i++) {
+            key = keys[i];
+            value = Object.getOwnPropertyDescriptor(defaults, key);
+            if (value && value.configurable && obj[key] === undefined) {
+                Object.defineProperty(obj, key, value);
             }
-            params = [];
-
-            for (_i = asIndex + 1; _i < l; _i++) {
-                param = attrNames[_i].replace(/\|/g, '');
-
-                if (param !== '') {
-                    if (ID_INVERSE_PATTERN.test(param)) {
-                        throw new Error('Invalid identifier for block parameters: \'' + param + '\' in \'' + paramsString + '\'');
-                    }
-                    params.push(param);
-                }
-            }
-            if (params.length === 0) {
-                throw new Error('Cannot use zero block parameters: \'' + paramsString + '\'');
-            }
-            element.attributes = element.attributes.slice(0, asIndex);
-            return params;
-        }
-    }
-    function childrenFor(node) {
-        if (node.type === 'Program') {
-            return node.body;
-        }
-        if (node.type === 'ElementNode') {
-            return node.children;
-        }
-    }
-    function appendChild(parent, node) {
-        childrenFor(parent).push(node);
+        }return obj;
     }
 
-    var handlebarsNodeVisitors = {
-        Program: function (program) {
-            var node = b.program([], program.blockParams, program.loc);
-            var i = void 0,
-                l = program.body.length;
-            this.elementStack.push(node);
-            if (l === 0) {
-                return this.elementStack.pop();
-            }
-            for (i = 0; i < l; i++) {
-                this.acceptNode(program.body[i]);
-            }
-            // Ensure that that the element stack is balanced properly.
-            var poppedNode = this.elementStack.pop();
-            if (poppedNode !== node) {
-                throw new Error("Unclosed element `" + poppedNode.tag + "` (on line " + poppedNode.loc.start.line + ").");
-            }
-            return node;
-        },
-        BlockStatement: function (block) {
-            delete block.inverseStrip;
-            delete block.openString;
-            delete block.closeStrip;
-            if (this.tokenizer.state === 'comment') {
-                this.appendToCommentData('{{' + this.sourceForMustache(block) + '}}');
-                return;
-            }
-            if (this.tokenizer.state !== 'comment' && this.tokenizer.state !== 'data' && this.tokenizer.state !== 'beforeData') {
-                throw new Error("A block may only be used inside an HTML element or another block.");
-            }
-            block = acceptCommonNodes(this, block);
-            var program = block.program ? this.acceptNode(block.program) : null;
-            var inverse = block.inverse ? this.acceptNode(block.inverse) : null;
-            var node = b.block(block.path, block.params, block.hash, program, inverse, block.loc);
-            var parentProgram = this.currentElement();
-            appendChild(parentProgram, node);
-        },
-        MustacheStatement: function (rawMustache) {
-            var tokenizer = this.tokenizer;
-            var path = rawMustache.path,
-                params = rawMustache.params,
-                hash = rawMustache.hash,
-                escaped = rawMustache.escaped,
-                loc = rawMustache.loc;
-
-            var mustache = b.mustache(path, params, hash, !escaped, loc);
-            if (tokenizer.state === 'comment') {
-                this.appendToCommentData('{{' + this.sourceForMustache(mustache) + '}}');
-                return;
-            }
-            acceptCommonNodes(this, mustache);
-            switch (tokenizer.state) {
-                // Tag helpers
-                case "tagName":
-                    addElementModifier(this.currentNode, mustache);
-                    tokenizer.state = "beforeAttributeName";
-                    break;
-                case "beforeAttributeName":
-                    addElementModifier(this.currentNode, mustache);
-                    break;
-                case "attributeName":
-                case "afterAttributeName":
-                    this.beginAttributeValue(false);
-                    this.finishAttributeValue();
-                    addElementModifier(this.currentNode, mustache);
-                    tokenizer.state = "beforeAttributeName";
-                    break;
-                case "afterAttributeValueQuoted":
-                    addElementModifier(this.currentNode, mustache);
-                    tokenizer.state = "beforeAttributeName";
-                    break;
-                // Attribute values
-                case "beforeAttributeValue":
-                    appendDynamicAttributeValuePart(this.currentAttribute, mustache);
-                    tokenizer.state = 'attributeValueUnquoted';
-                    break;
-                case "attributeValueDoubleQuoted":
-                case "attributeValueSingleQuoted":
-                case "attributeValueUnquoted":
-                    appendDynamicAttributeValuePart(this.currentAttribute, mustache);
-                    break;
-                // TODO: Only append child when the tokenizer state makes
-                // sense to do so, otherwise throw an error.
-                default:
-                    appendChild(this.currentElement(), mustache);
-            }
-            return mustache;
-        },
-        ContentStatement: function (content) {
-            updateTokenizerLocation(this.tokenizer, content);
-            this.tokenizer.tokenizePart(content.value);
-            this.tokenizer.flushData();
-        },
-        CommentStatement: function (rawComment) {
-            var tokenizer = this.tokenizer;
-            var value = rawComment.value,
-                loc = rawComment.loc;
-
-            var comment = b.mustacheComment(value, loc);
-            if (tokenizer.state === 'comment') {
-                this.appendToCommentData('{{' + this.sourceForMustache(comment) + '}}');
-                return;
-            }
-            switch (tokenizer.state) {
-                case "beforeAttributeName":
-                    this.currentNode.comments.push(comment);
-                    break;
-                case 'beforeData':
-                case 'data':
-                    appendChild(this.currentElement(), comment);
-                    break;
-                default:
-                    throw new Error('Using a Handlebars comment when in the `' + tokenizer.state + '` state is not supported: "' + comment.value + '" on line ' + loc.start.line + ':' + loc.start.column);
-            }
-            return comment;
-        },
-        PartialStatement: function (partial) {
-            var name = partial.name,
-                loc = partial.loc;
-
-            throw new Error('Handlebars partials are not supported: "{{> ' + name.original + '" at L' + loc.start.line + ':C' + loc.start.column);
-        },
-        PartialBlockStatement: function (partialBlock) {
-            var name = partialBlock.name,
-                loc = partialBlock.loc;
-
-            throw new Error('Handlebars partial blocks are not supported: "{{#> ' + name.original + '" at L' + loc.start.line + ':C' + loc.start.column);
-        },
-        Decorator: function (decorator) {
-            var loc = decorator.loc,
-                path = decorator.path;
-
-            this.sourceForMustache(decorator);
-
-            throw new Error('Handlebars decorators are not supported: "{{* ' + path.original + '" at L' + loc.start.line + ':C' + loc.start.column);
-        },
-        DecoratorBlock: function (decoratorBlock) {
-            var loc = decoratorBlock.loc,
-                path = decoratorBlock.path;
-
-            this.sourceForMustache(decoratorBlock);
-
-            throw new Error('Handlebars decorator blocks are not supported: "{{#* ' + path.original + '" at L' + loc.start.line + ':C' + loc.start.column);
-        },
-        SubExpression: function (sexpr) {
-            return acceptCommonNodes(this, sexpr);
-        },
-        PathExpression: function (path) {
-            var original = path.original,
-                loc = path.loc;
-
-            if (original.indexOf('/') !== -1) {
-                // TODO add a SyntaxError with loc info
-                if (original.slice(0, 2) === './') {
-                    throw new Error('Using "./" is not supported in Glimmer and unnecessary: "' + path.original + '" on line ' + loc.start.line + '.');
-                }
-                if (original.slice(0, 3) === '../') {
-                    throw new Error('Changing context using "../" is not supported in Glimmer: "' + path.original + '" on line ' + loc.start.line + '.');
-                }
-                if (original.indexOf('.') !== -1) {
-                    throw new Error('Mixing \'.\' and \'/\' in paths is not supported in Glimmer; use only \'.\' to separate property paths: "' + path.original + '" on line ' + loc.start.line + '.');
-                }
-                path.parts = [path.parts.join('/')];
-            }
-            delete path.depth;
-            // This is to fix a bug in the Handlebars AST where the path expressions in
-            // `{{this.foo}}` (and similarly `{{foo-bar this.foo named=this.foo}}` etc)
-            // are simply turned into `{{foo}}`. The fix is to push it back onto the
-            // parts array and let the runtime see the difference. However, we cannot
-            // simply use the string `this` as it means literally the property called
-            // "this" in the current context (it can be expressed in the syntax as
-            // `{{[this]}}`, where the square bracket are generally for this kind of
-            // escaping – such as `{{foo.["bar.baz"]}}` would mean lookup a property
-            // named literally "bar.baz" on `this.foo`). By convention, we use `null`
-            // for this purpose.
-            if (original.match(/^this(\..+)?$/)) {
-                path.parts.unshift(null);
-            }
-            return path;
-        },
-        Hash: function (hash) {
-            var i;
-
-            for (i = 0; i < hash.pairs.length; i++) {
-                this.acceptNode(hash.pairs[i].value);
-            }
-            return hash;
-        },
-        StringLiteral: function () {},
-        BooleanLiteral: function () {},
-        NumberLiteral: function () {},
-        UndefinedLiteral: function () {},
-        NullLiteral: function () {}
-    };
-    function calculateRightStrippedOffsets(original, value) {
-        if (value === '') {
-            // if it is empty, just return the count of newlines
-            // in original
-            return {
-                lines: original.split("\n").length - 1,
-                columns: 0
-            };
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
         }
-        // otherwise, return the number of newlines prior to
-        // `value`
-        var difference = original.split(value)[0];
-        var lines = difference.split(/\n/);
-        var lineCount = lines.length - 1;
-        return {
-            lines: lineCount,
-            columns: lines[lineCount].length
-        };
     }
-    function updateTokenizerLocation(tokenizer, content) {
-        var line = content.loc.start.line;
-        var column = content.loc.start.column;
-        var offsets = calculateRightStrippedOffsets(content.original, content.value);
-        line = line + offsets.lines;
-        if (offsets.lines) {
-            column = offsets.columns;
-        } else {
-            column = column + offsets.columns;
-        }
-        tokenizer.line = line;
-        tokenizer.column = column;
-    }
-    function acceptCommonNodes(compiler, node) {
-        var i;
 
-        compiler.acceptNode(node.path);
-        if (node.params) {
-            for (i = 0; i < node.params.length; i++) {
-                compiler.acceptNode(node.params[i]);
-            }
-        } else {
-            node.params = [];
-        }
-        if (node.hash) {
-            compiler.acceptNode(node.hash);
-        } else {
-            node.hash = b.hash();
-        }
-        return node;
+    function _possibleConstructorReturn(self, call) {
+        if (!self) {
+            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
     }
-    function addElementModifier(element, mustache) {
-        var path = mustache.path,
-            params = mustache.params,
-            hash = mustache.hash,
-            loc = mustache.loc;
 
-        var modifier = b.elementModifier(path, params, hash, loc);
-        element.modifiers.push(modifier);
-    }
-    function appendDynamicAttributeValuePart(attribute, part) {
-        attribute.isDynamic = true;
-        attribute.parts.push(part);
+    function _inherits(subClass, superClass) {
+        if (typeof superClass !== "function" && superClass !== null) {
+            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass);
     }
 
     var voidMap = Object.create(null);
@@ -2913,48 +3660,71 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
     "area base br col command embed hr img input keygen link meta param source track wbr".split(" ").forEach(function (tagName) {
         voidMap[tagName] = true;
     });
-    var tokenizerEventHandlers = {
-        reset: function () {
+    var TokenizerEventHandlers = function (_HandlebarsNodeVisito) {
+        _inherits(TokenizerEventHandlers, _HandlebarsNodeVisito);
+
+        function TokenizerEventHandlers() {
+            _classCallCheck(this, TokenizerEventHandlers);
+
+            var _this = _possibleConstructorReturn(this, _HandlebarsNodeVisito.apply(this, arguments));
+
+            _this.tagOpenLine = 0;
+            _this.tagOpenColumn = 0;
+            return _this;
+        }
+
+        TokenizerEventHandlers.prototype.reset = function () {
             this.currentNode = null;
-        },
+        };
         // Comment
-        beginComment: function () {
+
+
+        TokenizerEventHandlers.prototype.beginComment = function () {
             this.currentNode = b.comment("");
             this.currentNode.loc = {
                 source: null,
                 start: b.pos(this.tagOpenLine, this.tagOpenColumn),
                 end: null
             };
-        },
-        appendToCommentData: function (char) {
-            this.currentNode.value += char;
-        },
-        finishComment: function () {
-            this.currentNode.loc.end = b.pos(this.tokenizer.line, this.tokenizer.column);
-            appendChild(this.currentElement(), this.currentNode);
-        },
+        };
+
+        TokenizerEventHandlers.prototype.appendToCommentData = function (char) {
+            this.currentComment.value += char;
+        };
+
+        TokenizerEventHandlers.prototype.finishComment = function () {
+            this.currentComment.loc.end = b.pos(this.tokenizer.line, this.tokenizer.column);
+            appendChild(this.currentElement(), this.currentComment);
+        };
         // Data
-        beginData: function () {
+
+
+        TokenizerEventHandlers.prototype.beginData = function () {
             this.currentNode = b.text();
             this.currentNode.loc = {
                 source: null,
                 start: b.pos(this.tokenizer.line, this.tokenizer.column),
                 end: null
             };
-        },
-        appendToData: function (char) {
-            this.currentNode.chars += char;
-        },
-        finishData: function () {
-            this.currentNode.loc.end = b.pos(this.tokenizer.line, this.tokenizer.column);
-            appendChild(this.currentElement(), this.currentNode);
-        },
+        };
+
+        TokenizerEventHandlers.prototype.appendToData = function (char) {
+            this.currentData.chars += char;
+        };
+
+        TokenizerEventHandlers.prototype.finishData = function () {
+            this.currentData.loc.end = b.pos(this.tokenizer.line, this.tokenizer.column);
+            appendChild(this.currentElement(), this.currentData);
+        };
         // Tags - basic
-        tagOpen: function () {
+
+
+        TokenizerEventHandlers.prototype.tagOpen = function () {
             this.tagOpenLine = this.tokenizer.line;
             this.tagOpenColumn = this.tokenizer.column;
-        },
-        beginStartTag: function () {
+        };
+
+        TokenizerEventHandlers.prototype.beginStartTag = function () {
             this.currentNode = {
                 type: 'StartTag',
                 name: "",
@@ -2962,10 +3732,11 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
                 modifiers: [],
                 comments: [],
                 selfClosing: false,
-                loc: null
+                loc: SYNTHETIC
             };
-        },
-        beginEndTag: function () {
+        };
+
+        TokenizerEventHandlers.prototype.beginEndTag = function () {
             this.currentNode = {
                 type: 'EndTag',
                 name: "",
@@ -2973,15 +3744,16 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
                 modifiers: [],
                 comments: [],
                 selfClosing: false,
-                loc: null
+                loc: SYNTHETIC
             };
-        },
-        finishTag: function () {
+        };
+
+        TokenizerEventHandlers.prototype.finishTag = function () {
             var _tokenizer = this.tokenizer,
                 line = _tokenizer.line,
                 column = _tokenizer.column;
 
-            var tag = this.currentNode;
+            var tag = this.currentTag;
             tag.loc = b.loc(this.tagOpenLine, this.tagOpenColumn, line, column);
             if (tag.type === 'StartTag') {
                 this.finishStartTag();
@@ -2991,20 +3763,22 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
             } else if (tag.type === 'EndTag') {
                 this.finishEndTag(false);
             }
-        },
-        finishStartTag: function () {
-            var _currentNode = this.currentNode,
-                name = _currentNode.name,
-                attributes = _currentNode.attributes,
-                modifiers = _currentNode.modifiers,
-                comments = _currentNode.comments;
+        };
+
+        TokenizerEventHandlers.prototype.finishStartTag = function () {
+            var _currentStartTag = this.currentStartTag,
+                name = _currentStartTag.name,
+                attributes = _currentStartTag.attributes,
+                modifiers = _currentStartTag.modifiers,
+                comments = _currentStartTag.comments;
 
             var loc = b.loc(this.tagOpenLine, this.tagOpenColumn);
             var element = b.element(name, attributes, modifiers, [], comments, loc);
             this.elementStack.push(element);
-        },
-        finishEndTag: function (isVoid) {
-            var tag = this.currentNode;
+        };
+
+        TokenizerEventHandlers.prototype.finishEndTag = function (isVoid) {
+            var tag = this.currentTag;
             var element = this.elementStack.pop();
             var parent = this.currentElement();
             validateEndTag(tag, element, isVoid);
@@ -3012,19 +3786,24 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
             element.loc.end.column = this.tokenizer.column;
             parseElementBlockParams(element);
             appendChild(parent, element);
-        },
-        markTagAsSelfClosing: function () {
-            this.currentNode.selfClosing = true;
-        },
+        };
+
+        TokenizerEventHandlers.prototype.markTagAsSelfClosing = function () {
+            this.currentTag.selfClosing = true;
+        };
         // Tags - name
-        appendToTagName: function (char) {
-            this.currentNode.name += char;
-        },
+
+
+        TokenizerEventHandlers.prototype.appendToTagName = function (char) {
+            this.currentTag.name += char;
+        };
         // Tags - attributes
-        beginAttribute: function () {
-            var tag = this.currentNode;
+
+
+        TokenizerEventHandlers.prototype.beginAttribute = function () {
+            var tag = this.currentTag;
             if (tag.type === 'EndTag') {
-                throw new Error('Invalid end tag: closing tag must not have attributes, ' + ('in `' + tag.name + '` (on line ' + this.tokenizer.line + ').'));
+                throw new Error("Invalid end tag: closing tag must not have attributes, " + ("in `" + tag.name + "` (on line " + this.tokenizer.line + ")."));
             }
             this.currentAttribute = {
                 name: "",
@@ -3032,20 +3811,23 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
                 isQuoted: false,
                 isDynamic: false,
                 start: b.pos(this.tokenizer.line, this.tokenizer.column),
-                valueStartLine: null,
-                valueStartColumn: null
+                valueStartLine: 0,
+                valueStartColumn: 0
             };
-        },
-        appendToAttributeName: function (char) {
-            this.currentAttribute.name += char;
-        },
-        beginAttributeValue: function (isQuoted) {
-            this.currentAttribute.isQuoted = isQuoted;
-            this.currentAttribute.valueStartLine = this.tokenizer.line;
-            this.currentAttribute.valueStartColumn = this.tokenizer.column;
-        },
-        appendToAttributeValue: function (char) {
-            var parts = this.currentAttribute.parts,
+        };
+
+        TokenizerEventHandlers.prototype.appendToAttributeName = function (char) {
+            this.currentAttr.name += char;
+        };
+
+        TokenizerEventHandlers.prototype.beginAttributeValue = function (isQuoted) {
+            this.currentAttr.isQuoted = isQuoted;
+            this.currentAttr.valueStartLine = this.tokenizer.line;
+            this.currentAttr.valueStartColumn = this.tokenizer.column;
+        };
+
+        TokenizerEventHandlers.prototype.appendToAttributeValue = function (char) {
+            var parts = this.currentAttr.parts,
                 loc,
                 text;
             var lastPart = parts[parts.length - 1];
@@ -3061,41 +3843,46 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
 
                 if (char === '\n') {
                     loc.start.line -= 1;
-                    loc.start.column = lastPart ? lastPart.loc.end.column : this.currentAttribute.valueStartColumn;
+                    loc.start.column = lastPart ? lastPart.loc.end.column : this.currentAttr.valueStartColumn;
                 }
                 text = b.text(char, loc);
 
                 parts.push(text);
             }
-        },
-        finishAttributeValue: function () {
-            var _currentAttribute = this.currentAttribute,
-                name = _currentAttribute.name,
-                parts = _currentAttribute.parts,
-                isQuoted = _currentAttribute.isQuoted,
-                isDynamic = _currentAttribute.isDynamic,
-                valueStartLine = _currentAttribute.valueStartLine,
-                valueStartColumn = _currentAttribute.valueStartColumn;
+        };
+
+        TokenizerEventHandlers.prototype.finishAttributeValue = function () {
+            var _currentAttr = this.currentAttr,
+                name = _currentAttr.name,
+                parts = _currentAttr.parts,
+                isQuoted = _currentAttr.isQuoted,
+                isDynamic = _currentAttr.isDynamic,
+                valueStartLine = _currentAttr.valueStartLine,
+                valueStartColumn = _currentAttr.valueStartColumn;
 
             var value = assembleAttributeValue(parts, isQuoted, isDynamic, this.tokenizer.line);
             value.loc = b.loc(valueStartLine, valueStartColumn, this.tokenizer.line, this.tokenizer.column);
-            var loc = b.loc(this.currentAttribute.start.line, this.currentAttribute.start.column, this.tokenizer.line, this.tokenizer.column);
+            var loc = b.loc(this.currentAttr.start.line, this.currentAttr.start.column, this.tokenizer.line, this.tokenizer.column);
             var attribute = b.attr(name, value, loc);
-            this.currentNode.attributes.push(attribute);
-        },
-        reportSyntaxError: function (message) {
-            throw new Error('Syntax error at line ' + this.tokenizer.line + ' col ' + this.tokenizer.column + ': ' + message);
-        }
-    };
+            this.currentStartTag.attributes.push(attribute);
+        };
+
+        TokenizerEventHandlers.prototype.reportSyntaxError = function (message) {
+            throw new Error("Syntax error at line " + this.tokenizer.line + " col " + this.tokenizer.column + ": " + message);
+        };
+
+        return TokenizerEventHandlers;
+    }(HandlebarsNodeVisitors);
+
     function assembleAttributeValue(parts, isQuoted, isDynamic, line) {
         if (isDynamic) {
             if (isQuoted) {
                 return assembleConcatenatedValue(parts);
             } else {
-                if (parts.length === 1 || parts.length === 2 && parts[1].chars === '/') {
+                if (parts.length === 1 || parts.length === 2 && parts[1].type === 'TextNode' && parts[1].chars === '/') {
                     return parts[0];
                 } else {
-                    throw new Error('An unquoted attribute value must be a string or a mustache, ' + 'preceeded by whitespace or a \'=\' character, and ' + ('followed by whitespace, a \'>\' character, or \'/>\' (on line ' + line + ')'));
+                    throw new Error("An unquoted attribute value must be a string or a mustache, " + "preceeded by whitespace or a '=' character, and " + ("followed by whitespace, a '>' character, or '/>' (on line " + line + ")"));
                 }
             }
         } else {
@@ -3109,7 +3896,7 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
             part = parts[i];
 
             if (part.type !== 'MustacheStatement' && part.type !== 'TextNode') {
-                throw new Error("Unsupported node in quoted attribute value: " + part.type);
+                throw new Error("Unsupported node in quoted attribute value: " + part['type']);
             }
         }
         return b.concat(parts);
@@ -3133,7 +3920,6 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
     function formatEndTagInfo(tag) {
         return "`" + tag.name + "` (on line " + tag.loc.end.line + ")";
     }
-
     var syntax = {
         parse: preprocess,
         builders: b,
@@ -3146,7 +3932,7 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
             i,
             l,
             plugin;
-        var combined = new Parser(html, options).acceptNode(ast);
+        var combined = new TokenizerEventHandlers(html, options).acceptNode(ast);
         if (options && options.plugins && options.plugins.ast) {
             for (i = 0, l = options.plugins.ast.length; i < l; i++) {
                 plugin = new options.plugins.ast[i](options);
@@ -3157,82 +3943,22 @@ enifed('@glimmer/syntax', ['exports', 'handlebars', 'simple-html-tokenizer'], fu
         }
         return combined;
     }
-    var entityParser = new _simpleHtmlTokenizer.EntityParser(_simpleHtmlTokenizer.HTML5NamedCharRefs);
-
-    var Parser = function () {
-        function Parser(source) {
-            var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-
-            this.elementStack = [];
-            this.currentAttribute = null;
-            this.currentNode = null;
-            this.tokenizer = new _simpleHtmlTokenizer.EventedTokenizer(this, entityParser);
-            this.options = options;
-            if (typeof source === 'string') {
-                this.source = source.split(/(?:\r\n?|\n)/g);
-            }
-        }
-
-        Parser.prototype.acceptNode = function (node) {
-            return this[node.type](node);
-        };
-
-        Parser.prototype.currentElement = function () {
-            return this.elementStack[this.elementStack.length - 1];
-        };
-
-        Parser.prototype.sourceForMustache = function (mustache) {
-            var firstLine = mustache.loc.start.line - 1;
-            var lastLine = mustache.loc.end.line - 1;
-            var currentLine = firstLine - 1;
-            var firstColumn = mustache.loc.start.column + 2;
-            var lastColumn = mustache.loc.end.column - 2;
-            var string = [];
-            var line = void 0;
-            if (!this.source) {
-                return '{{' + mustache.path.id.original + '}}';
-            }
-            while (currentLine < lastLine) {
-                currentLine++;
-                line = this.source[currentLine];
-                if (currentLine === firstLine) {
-                    if (firstLine === lastLine) {
-                        string.push(line.slice(firstColumn, lastColumn));
-                    } else {
-                        string.push(line.slice(firstColumn));
-                    }
-                } else if (currentLine === lastLine) {
-                    string.push(line.slice(0, lastColumn));
-                } else {
-                    string.push(line);
-                }
-            }
-            return string.join('\n');
-        };
-
-        return Parser;
-    }();
-
-    for (var key in handlebarsNodeVisitors) {
-        Parser.prototype[key] = handlebarsNodeVisitors[key];
-    }
-    for (var _key2 in tokenizerEventHandlers) {
-        Parser.prototype[_key2] = tokenizerEventHandlers[_key2];
-    }
 
     // used by ember-compiler
+    // AST
 
+    exports.AST = nodes;
     exports.preprocess = preprocess;
     exports.builders = b;
     exports.traverse = traverse;
     exports.Walker = Walker;
     exports.print = build;
+    exports.isLiteral = isLiteral$1;
+    exports.printLiteral = printLiteral;
 });
 enifed('@glimmer/util', ['exports'], function (exports) {
     'use strict';
 
-    exports.unreachable = exports.expect = exports.unwrap = exports.HAS_NATIVE_WEAKMAP = exports.A = exports.ListSlice = exports.ListNode = exports.LinkedList = exports.EMPTY_SLICE = exports.dict = exports.DictSet = exports.Stack = exports.initializeGuid = exports.ensureGuid = exports.fillNulls = exports.assign = exports.LogLevel = exports.Logger = exports.LOGGER = exports.assert = exports.getAttrNamespace = undefined;
     // There is a small whitelist of namespaced attributes specially
     // enumerated in
     // https://www.w3.org/TR/html/syntax.html#attributes-0
@@ -3246,6 +3972,7 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     // with no special meaning:
     //
     // > No other namespaced attribute can be expressed in the HTML syntax.
+
     var XLINK = 'http://www.w3.org/1999/xlink';
     var XML = 'http://www.w3.org/XML/1998/namespace';
     var XMLNS = 'http://www.w3.org/2000/xmlns/';
@@ -3264,13 +3991,16 @@ enifed('@glimmer/util', ['exports'], function (exports) {
         'xmlns:xlink': XMLNS
     };
 
-    // tslint:disable-line
-
-
     // import Logger from './logger';
     // let alreadyWarned = false;
     // import Logger from './logger';
 
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
 
     var LogLevel;
     (function (LogLevel) {
@@ -3281,7 +4011,9 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     })(LogLevel || (exports.LogLevel = LogLevel = {}));
 
     var NullConsole = function () {
-        function NullConsole() {}
+        function NullConsole() {
+            _classCallCheck(this, NullConsole);
+        }
 
         NullConsole.prototype.log = function () {};
 
@@ -3295,12 +4027,12 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     }();
 
     var ALWAYS = void 0;
-
     var Logger = function () {
         function Logger(_ref) {
             var console = _ref.console,
                 level = _ref.level;
 
+            _classCallCheck(this, Logger);
 
             this.f = ALWAYS;
             this.force = ALWAYS;
@@ -3349,10 +4081,9 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
         return Logger;
     }();
-
     var _console = typeof console === 'undefined' ? new NullConsole() : console;
     ALWAYS = new Logger({ console: _console, level: LogLevel.Trace });
-    var LOG_LEVEL = LogLevel.Warn;
+    var LOG_LEVEL = LogLevel.Debug;
     var logger = new Logger({ console: _console, level: LOG_LEVEL });
 
     var objKeys = Object.keys;
@@ -3363,6 +4094,12 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     }
     function ensureGuid(object) {
         return object._guid || initializeGuid(object);
+    }
+
+    function _classCallCheck$1(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
     }
 
     var proto = Object.create(null, {
@@ -3383,9 +4120,9 @@ enifed('@glimmer/util', ['exports'], function (exports) {
         // return d;
         return new EmptyObject();
     }
-
     var DictSet = function () {
         function DictSet() {
+            _classCallCheck$1(this, DictSet);
 
             this.dict = dict();
         }
@@ -3400,11 +4137,13 @@ enifed('@glimmer/util', ['exports'], function (exports) {
         };
 
         DictSet.prototype.forEach = function (callback) {
-            var dict = this.dict;
+            var dict = this.dict,
+                i;
 
-            Object.keys(dict).forEach(function (key) {
-                return callback(dict[key]);
-            });
+            var dictKeys = Object.keys(dict);
+            for (i = 0; dictKeys.length; i++) {
+                callback(dict[dictKeys[i]]);
+            }
         };
 
         DictSet.prototype.toArray = function () {
@@ -3413,9 +4152,9 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
         return DictSet;
     }();
-
     var Stack = function () {
         function Stack() {
+            _classCallCheck$1(this, Stack);
 
             this.stack = [];
             this.current = null;
@@ -3444,8 +4183,15 @@ enifed('@glimmer/util', ['exports'], function (exports) {
         return Stack;
     }();
 
+    function _classCallCheck$2(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
     var LinkedList = function () {
         function LinkedList() {
+            _classCallCheck$2(this, LinkedList);
 
             this.clear();
         }
@@ -3564,9 +4310,9 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
         return LinkedList;
     }();
-
     var ListSlice = function () {
         function ListSlice(head, tail) {
+            _classCallCheck$2(this, ListSlice);
 
             this._head = head;
             this._tail = tail;
@@ -3629,17 +4375,7 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
         return ListSlice;
     }();
-
     var EMPTY_SLICE = new ListSlice(null, null);
-
-    var HAS_TYPED_ARRAYS = typeof Uint32Array !== 'undefined';
-    var A = void 0;
-    if (HAS_TYPED_ARRAYS) {
-        A = Uint32Array;
-    } else {
-        A = Array;
-    }
-    var A$1 = A;
 
     var HAS_NATIVE_WEAKMAP = function () {
         // detect if `WeakMap` is even present
@@ -3652,6 +4388,16 @@ enifed('@glimmer/util', ['exports'], function (exports) {
         // polyfills as native weakmaps
         return Object.prototype.toString.call(instance) === '[object WeakMap]';
     }();
+
+    var HAS_TYPED_ARRAYS = typeof Uint32Array !== 'undefined';
+    var A = void 0;
+    if (HAS_TYPED_ARRAYS) {
+        A = Uint32Array;
+    } else {
+        A = Array;
+    }
+    var A$1 = A;
+    var EMPTY_ARRAY = HAS_NATIVE_WEAKMAP ? Object.freeze([]) : [];
 
     exports.getAttrNamespace = function (attrName) {
         return WHITELIST[attrName] || null;
@@ -3700,7 +4446,8 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     exports.dict = dict;
     exports.EMPTY_SLICE = EMPTY_SLICE;
     exports.LinkedList = LinkedList;
-    exports.ListNode = function (value) {
+    exports.ListNode = function ListNode(value) {
+        _classCallCheck$2(this, ListNode);
 
         this.next = null;
         this.prev = null;
@@ -3708,6 +4455,7 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     };
     exports.ListSlice = ListSlice;
     exports.A = A$1;
+    exports.EMPTY_ARRAY = EMPTY_ARRAY;
     exports.HAS_NATIVE_WEAKMAP = HAS_NATIVE_WEAKMAP;
     exports.unwrap = function (val) {
         if (val === null || val === undefined) throw new Error('Expected value to be present');
@@ -3729,57 +4477,51 @@ enifed("@glimmer/wire-format", ["exports"], function (exports) {
         // Statements
         Opcodes[Opcodes["Text"] = 0] = "Text";
         Opcodes[Opcodes["Append"] = 1] = "Append";
-        Opcodes[Opcodes["UnoptimizedAppend"] = 2] = "UnoptimizedAppend";
-        Opcodes[Opcodes["OptimizedAppend"] = 3] = "OptimizedAppend";
-        Opcodes[Opcodes["Comment"] = 4] = "Comment";
-        Opcodes[Opcodes["Modifier"] = 5] = "Modifier";
-        Opcodes[Opcodes["Block"] = 6] = "Block";
-        Opcodes[Opcodes["ScannedBlock"] = 7] = "ScannedBlock";
-        Opcodes[Opcodes["NestedBlock"] = 8] = "NestedBlock";
-        Opcodes[Opcodes["Component"] = 9] = "Component";
-        Opcodes[Opcodes["ScannedComponent"] = 10] = "ScannedComponent";
-        Opcodes[Opcodes["OpenElement"] = 11] = "OpenElement";
-        Opcodes[Opcodes["OpenPrimitiveElement"] = 12] = "OpenPrimitiveElement";
-        Opcodes[Opcodes["FlushElement"] = 13] = "FlushElement";
-        Opcodes[Opcodes["CloseElement"] = 14] = "CloseElement";
-        Opcodes[Opcodes["StaticAttr"] = 15] = "StaticAttr";
-        Opcodes[Opcodes["DynamicAttr"] = 16] = "DynamicAttr";
-        Opcodes[Opcodes["AnyDynamicAttr"] = 17] = "AnyDynamicAttr";
-        Opcodes[Opcodes["Yield"] = 18] = "Yield";
-        Opcodes[Opcodes["Partial"] = 19] = "Partial";
-        Opcodes[Opcodes["StaticPartial"] = 20] = "StaticPartial";
-        Opcodes[Opcodes["DynamicPartial"] = 21] = "DynamicPartial";
-        Opcodes[Opcodes["DynamicArg"] = 22] = "DynamicArg";
-        Opcodes[Opcodes["StaticArg"] = 23] = "StaticArg";
-        Opcodes[Opcodes["TrustingAttr"] = 24] = "TrustingAttr";
-        Opcodes[Opcodes["Debugger"] = 25] = "Debugger";
+        Opcodes[Opcodes["Comment"] = 2] = "Comment";
+        Opcodes[Opcodes["Modifier"] = 3] = "Modifier";
+        Opcodes[Opcodes["Block"] = 4] = "Block";
+        Opcodes[Opcodes["Component"] = 5] = "Component";
+        Opcodes[Opcodes["OpenElement"] = 6] = "OpenElement";
+        Opcodes[Opcodes["FlushElement"] = 7] = "FlushElement";
+        Opcodes[Opcodes["CloseElement"] = 8] = "CloseElement";
+        Opcodes[Opcodes["StaticAttr"] = 9] = "StaticAttr";
+        Opcodes[Opcodes["DynamicAttr"] = 10] = "DynamicAttr";
+        Opcodes[Opcodes["Yield"] = 11] = "Yield";
+        Opcodes[Opcodes["Partial"] = 12] = "Partial";
+        Opcodes[Opcodes["DynamicArg"] = 13] = "DynamicArg";
+        Opcodes[Opcodes["StaticArg"] = 14] = "StaticArg";
+        Opcodes[Opcodes["TrustingAttr"] = 15] = "TrustingAttr";
+        Opcodes[Opcodes["Debugger"] = 16] = "Debugger";
+        Opcodes[Opcodes["ClientSideStatement"] = 17] = "ClientSideStatement";
         // Expressions
-        Opcodes[Opcodes["Unknown"] = 26] = "Unknown";
-        Opcodes[Opcodes["Arg"] = 27] = "Arg";
-        Opcodes[Opcodes["Get"] = 28] = "Get";
-        Opcodes[Opcodes["HasBlock"] = 29] = "HasBlock";
-        Opcodes[Opcodes["HasBlockParams"] = 30] = "HasBlockParams";
-        Opcodes[Opcodes["Undefined"] = 31] = "Undefined";
-        Opcodes[Opcodes["Function"] = 32] = "Function";
-        Opcodes[Opcodes["Helper"] = 33] = "Helper";
-        Opcodes[Opcodes["Concat"] = 34] = "Concat";
+        Opcodes[Opcodes["Unknown"] = 18] = "Unknown";
+        Opcodes[Opcodes["Get"] = 19] = "Get";
+        Opcodes[Opcodes["MaybeLocal"] = 20] = "MaybeLocal";
+        Opcodes[Opcodes["FixThisBeforeWeMerge"] = 21] = "FixThisBeforeWeMerge";
+        Opcodes[Opcodes["HasBlock"] = 22] = "HasBlock";
+        Opcodes[Opcodes["HasBlockParams"] = 23] = "HasBlockParams";
+        Opcodes[Opcodes["Undefined"] = 24] = "Undefined";
+        Opcodes[Opcodes["Helper"] = 25] = "Helper";
+        Opcodes[Opcodes["Concat"] = 26] = "Concat";
+        Opcodes[Opcodes["ClientSideExpression"] = 27] = "ClientSideExpression";
     })(Opcodes || (exports.Ops = Opcodes = {}));
 
     function is(variant) {
         return function (value) {
-            return value[0] === variant;
+            return Array.isArray(value) && value[0] === variant;
         };
     }
     var Expressions;
     (function (Expressions) {
         Expressions.isUnknown = is(Opcodes.Unknown);
-        Expressions.isArg = is(Opcodes.Arg);
         Expressions.isGet = is(Opcodes.Get);
         Expressions.isConcat = is(Opcodes.Concat);
         Expressions.isHelper = is(Opcodes.Helper);
         Expressions.isHasBlock = is(Opcodes.HasBlock);
         Expressions.isHasBlockParams = is(Opcodes.HasBlockParams);
         Expressions.isUndefined = is(Opcodes.Undefined);
+        Expressions.isClientSide = is(Opcodes.ClientSideExpression);
+        Expressions.isMaybeLocal = is(Opcodes.MaybeLocal);
 
         Expressions.isPrimitiveValue = function (value) {
             if (value === null) {
@@ -3807,8 +4549,9 @@ enifed("@glimmer/wire-format", ["exports"], function (exports) {
         Statements.isStaticArg = is(Opcodes.StaticArg);
         Statements.isTrustingAttr = is(Opcodes.TrustingAttr);
         Statements.isDebugger = is(Opcodes.Debugger);
+        Statements.isClientSide = is(Opcodes.ClientSideStatement);
         function isAttribute(val) {
-            return val[0] === Opcodes.StaticAttr || val[0] === Opcodes.DynamicAttr;
+            return val[0] === Opcodes.StaticAttr || val[0] === Opcodes.DynamicAttr || val[0] === Opcodes.TrustingAttr;
         }
         Statements.isAttribute = isAttribute;
         function isArgument(val) {
@@ -14686,7 +15429,8 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
    {{@foo.bar}}
     ```
   
-    as well as `{{#if attrs.foo}}`, `{{deeply (nested attrs.foobar.baz)}}` etc
+    as well as `{{#if attrs.foo}}`, `{{deeply (nested attrs.foobar.baz)}}`,
+    `{{this.attrs.foo}}` etc
   
     @private
     @class TransformAttrsToProps
@@ -14705,12 +15449,11 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
     }
 
     if (name === 'attrs') {
-      return true;
-    }
+      if (node.this === true) {
+        node.parts.shift();
+        node.original = node.original.slice(5);
+      }
 
-    if (name === null && node.parts[1] === 'attrs') {
-      node.parts.shift();
-      node.original = node.original.slice(5);
       return true;
     }
 
@@ -16576,7 +17319,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+d42a2a6c";
+  exports.default = "2.15.0-alpha.1-null+91d8f08d";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

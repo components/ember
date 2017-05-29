@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.d42a2a6c"
+        "version": "2.15.0-alpha.1.91d8f08d"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -364,6 +364,22 @@
             "fors": {},
             "namespaces": {}
         },
+        "packages/ember-glimmer/lib/component-managers/outlet.js": {
+            "name": "packages/ember-glimmer/lib/component-managers/outlet.js",
+            "modules": {
+                "ember-glimmer": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/component-managers/render.js": {
+            "name": "packages/ember-glimmer/lib/component-managers/render.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
         "packages/ember-glimmer/lib/components/checkbox.js": {
             "name": "packages/ember-glimmer/lib/components/checkbox.js",
             "modules": {
@@ -379,9 +395,7 @@
         },
         "packages/ember-glimmer/lib/components/link-to.js": {
             "name": "packages/ember-glimmer/lib/components/link-to.js",
-            "modules": {
-                "ember-glimmer": 1
-            },
+            "modules": {},
             "classes": {
                 "Ember.LinkComponent": 1
             },
@@ -533,15 +547,6 @@
             },
             "namespaces": {}
         },
-        "packages/ember-glimmer/lib/syntax/component-state-bucket.js": {
-            "name": "packages/ember-glimmer/lib/syntax/component-state-bucket.js",
-            "modules": {},
-            "classes": {
-                "ComponentStateBucket": 1
-            },
-            "fors": {},
-            "namespaces": {}
-        },
         "packages/ember-glimmer/lib/syntax/input.js": {
             "name": "packages/ember-glimmer/lib/syntax/input.js",
             "modules": {},
@@ -576,6 +581,15 @@
             "fors": {
                 "Ember.Templates.helpers": 1
             },
+            "namespaces": {}
+        },
+        "packages/ember-glimmer/lib/utils/curly-component-state-bucket.js": {
+            "name": "packages/ember-glimmer/lib/utils/curly-component-state-bucket.js",
+            "modules": {},
+            "classes": {
+                "ComponentStateBucket": 1
+            },
+            "fors": {},
             "namespaces": {}
         },
         "packages/ember-glimmer/lib/utils/string.js": {
@@ -1891,8 +1905,8 @@
                 "ember-application": 1,
                 "ember-debug": 1,
                 "ember-extension-support": 1,
-                "ember-views": 1,
                 "ember-glimmer": 1,
+                "ember-views": 1,
                 "ember-metal": 1,
                 "ember-routing": 1,
                 "ember-runtime": 1,
@@ -2067,30 +2081,6 @@
             "line": 18,
             "description": "The `ContainerDebugAdapter` helps the container and resolver interface\nwith tools that debug Ember such as the\n[Ember Inspector](https://github.com/emberjs/ember-inspector)\nfor Chrome and Firefox.\n\nThis class can be extended by a custom resolver implementer\nto override some of the methods with library-specific code.\n\nThe methods likely to be overridden are:\n\n* `canCatalogEntriesByType`\n* `catalogEntriesByType`\n\nThe adapter will need to be registered\nin the application's container as `container-debug-adapter:main`.\n\nExample:\n\n```javascript\nApplication.initializer({\n  name: \"containerDebugAdapter\",\n\n  initialize(application) {\n    application.register('container-debug-adapter:main', require('app/container-debug-adapter'));\n  }\n});\n```"
         },
-        "ember-views": {
-            "name": "ember-views",
-            "submodules": {},
-            "elements": {},
-            "classes": {
-                "Ember.Checkbox": 1,
-                "Ember.TextField": 1,
-                "Ember.ActionSupport": 1,
-                "Ember.ClassNamesSupport": 1,
-                "Ember.TextSupport": 1,
-                "Ember.EventDispatcher": 1,
-                "Ember.View": 1
-            },
-            "fors": {},
-            "is_submodule": 1,
-            "namespaces": {
-                "Ember": 1
-            },
-            "module": "ember",
-            "namespace": "",
-            "file": "packages/ember-views/lib/views/view.js",
-            "line": 6,
-            "description": "The internal class used to create text inputs when the `{{input}}`\nhelper is used with `type` of `checkbox`.\n\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n\n## Direct manipulation of `checked`\n\nThe `checked` attribute of an `Ember.Checkbox` object should always be set\nthrough the Ember object or by interacting with its rendered element\nrepresentation via the mouse, keyboard, or touch. Updating the value of the\ncheckbox via jQuery will result in the checked value of the object and its\nelement losing synchronization.\n\n## Layout and LayoutName properties\n\nBecause HTML `input` elements are self closing `layout` and `layoutName`\nproperties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s\nlayout section for more information."
-        },
         "ember-glimmer": {
             "name": "ember-glimmer",
             "submodules": {},
@@ -2120,6 +2110,30 @@
             "itemtype": "main",
             "access": "public",
             "tagname": ""
+        },
+        "ember-views": {
+            "name": "ember-views",
+            "submodules": {},
+            "elements": {},
+            "classes": {
+                "Ember.Checkbox": 1,
+                "Ember.TextField": 1,
+                "Ember.ActionSupport": 1,
+                "Ember.ClassNamesSupport": 1,
+                "Ember.TextSupport": 1,
+                "Ember.EventDispatcher": 1,
+                "Ember.View": 1
+            },
+            "fors": {},
+            "is_submodule": 1,
+            "namespaces": {
+                "Ember": 1
+            },
+            "module": "ember",
+            "namespace": "",
+            "file": "packages/ember-views/lib/views/view.js",
+            "line": 6,
+            "description": "The internal class used to create text inputs when the `{{input}}`\nhelper is used with `type` of `checkbox`.\n\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n\n## Direct manipulation of `checked`\n\nThe `checked` attribute of an `Ember.Checkbox` object should always be set\nthrough the Ember object or by interacting with its rendered element\nrepresentation via the mouse, keyboard, or touch. Updating the value of the\ncheckbox via jQuery will result in the checked value of the object and its\nelement losing synchronization.\n\n## Layout and LayoutName properties\n\nBecause HTML `input` elements are self closing `layout` and `layoutName`\nproperties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s\nlayout section for more information."
         },
         "ember-metal": {
             "name": "ember-metal",
@@ -2684,7 +2698,7 @@
             "module": "ember",
             "submodule": "ember-glimmer",
             "namespace": "",
-            "file": "packages/ember-glimmer/lib/syntax/component-state-bucket.js",
+            "file": "packages/ember-glimmer/lib/utils/curly-component-state-bucket.js",
             "line": 8,
             "description": "Represents the internal state of the component.",
             "access": "private",
@@ -8052,7 +8066,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/helpers/action.js",
-            "line": 21,
+            "line": 20,
             "description": "The `{{action}}` helper provides a way to pass triggers for behavior (usually\njust a function) between components, and into components from controllers.\n\n### Passing functions with the action helper\n\nThere are three contexts an action helper can be used in. The first two\ncontexts to discuss are attribute context, and Handlebars value context.\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n{{! Examples of Handlebars value context }}\n{{input on-input=(action \"save\")}}\n{{yield (action \"refreshData\") andAnotherParam}}\n```\n\nIn these contexts,\nthe helper is called a \"closure action\" helper. Its behavior is simple:\nIf passed a function name, read that function off the `actions` property\nof the current context. Once that function is read (or if a function was\npassed), create a closure over that function and any arguments.\nThe resulting value of an action helper used this way is simply a function.\n\nFor example, in the attribute context:\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n```\n\nThe resulting template render logic would be:\n\n```js\nvar div = document.createElement('div');\nvar actionFunction = (function(context){\n  return function() {\n    return context.actions.save.apply(context, arguments);\n  };\n})(context);\ndiv.onclick = actionFunction;\n```\n\nThus when the div is clicked, the action on that context is called.\nBecause the `actionFunction` is just a function, closure actions can be\npassed between components and still execute in the correct context.\n\nHere is an example action handler on a component:\n\n```js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  actions: {\n    save() {\n      this.get('model').save();\n    }\n  }\n});\n```\n\nActions are always looked up on the `actions` property of the current context.\nThis avoids collisions in the naming of common actions, such as `destroy`.\nTwo options can be passed to the `action` helper when it is used in this way.\n\n* `target=someProperty` will look to `someProperty` instead of the current\n  context for the `actions` hash. This can be useful when targetting a\n  service for actions.\n* `value=\"target.value\"` will read the path `target.value` off the first\n  argument to the action when it is called and rewrite the first argument\n  to be that value. This is useful when attaching actions to event listeners.\n\n### Invoking an action\n\nClosure actions curry both their scope and any arguments. When invoked, any\nadditional arguments are added to the already curried list.\nActions should be invoked using the [sendAction](/api/classes/Ember.Component.html#method_sendAction)\nmethod. The first argument to `sendAction` is the action to be called, and\nadditional arguments are passed to the action function. This has interesting\nproperties combined with currying of arguments. For example:\n\n```js\nexport default Ember.Component.extend({\n  actions: {\n    // Usage {{input on-input=(action (action 'setName' model) value=\"target.value\")}}\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\nThe first argument (`model`) was curried over, and the run-time argument (`event`)\nbecomes a second argument. Action calls can be nested this way because each simply\nreturns a function. Any function can be passed to the `{{action}}` helper, including\nother actions.\n\nActions invoked with `sendAction` have the same currying behavior as demonstrated\nwith `on-input` above. For example:\n\n```app/components/my-input.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  actions: {\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\n```handlebars\n{{my-input submit=(action 'setName' model)}}\n```\n\n```app/components/my-component.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  click() {\n    // Note that model is not passed, it was curried in the template\n    this.sendAction('submit', 'bob');\n  }\n});\n```\n\n### Attaching actions to DOM elements\n\nThe third context of the `{{action}}` helper can be called \"element space\".\nFor example:\n\n```handlebars\n{{! An example of element space }}\n<div {{action \"save\"}}></div>\n```\n\nUsed this way, the `{{action}}` helper provides a useful shortcut for\nregistering an HTML element in a template for a single DOM event and\nforwarding that interaction to the template's context (controller or component).\nIf the context of a template is a controller, actions used this way will\nbubble to routes when the controller does not implement the specified action.\nOnce an action hits a route, it will bubble through the route hierarchy.\n\n### Event Propagation\n\n`{{action}}` helpers called in element space can control event bubbling. Note\nthat the closure style actions cannot.\n\nEvents triggered through the action helper will automatically have\n`.preventDefault()` called on them. You do not need to do so in your event\nhandlers. If you need to allow event propagation (to handle file inputs for\nexample) you can supply the `preventDefault=false` option to the `{{action}}` helper:\n\n```handlebars\n<div {{action \"sayHello\" preventDefault=false}}>\n  <input type=\"file\" />\n  <input type=\"checkbox\" />\n</div>\n```\n\nTo disable bubbling, pass `bubbles=false` to the helper:\n\n```handlebars\n<button {{action 'edit' post bubbles=false}}>Edit</button>\n```\n\nTo disable bubbling with closure style actions you must create your own\nwrapper helper that makes use of `event.stopPropagation()`:\n\n```handlebars\n<div onclick={{disable-bubbling (action \"sayHello\")}}>Hello</div>\n```\n\n```app/helpers/disable-bubbling.js\nimport Ember from 'ember';\n\nexport function disableBubbling([action]) {\n  return function(event) {\n    event.stopPropagation();\n    return action(event);\n  };\n}\nexport default Ember.Helper.helper(disableBubbling);\n```\n\nIf you need the default handler to trigger you should either register your\nown event handler, or use event methods on your view class. See\n[\"Responding to Browser Events\"](/api/classes/Ember.View.html#toc_responding-to-browser-events)\nin the documentation for Ember.View for more information.\n\n### Specifying DOM event type\n\n`{{action}}` helpers called in element space can specify an event type.\nBy default the `{{action}}` helper registers for DOM `click` events. You can\nsupply an `on` option to the helper to specify a different DOM event name:\n\n```handlebars\n<div {{action \"anActionName\" on=\"doubleClick\"}}>\n  click me\n</div>\n```\n\nSee [\"Event Names\"](/api/classes/Ember.View.html#toc_event-names) for a list of\nacceptable DOM event names.\n\n### Specifying whitelisted modifier keys\n\n`{{action}}` helpers called in element space can specify modifier keys.\nBy default the `{{action}}` helper will ignore click events with pressed modifier\nkeys. You can supply an `allowedKeys` option to specify which keys should not be ignored.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"alt\"}}>\n  click me\n</div>\n```\n\nThis way the action will fire when clicking with the alt key pressed down.\nAlternatively, supply \"any\" to the `allowedKeys` option to accept any combination of modifier keys.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"any\"}}>\n  click me with any key pressed\n</div>\n```\n\n### Specifying a Target\n\nA `target` option can be provided to the helper to change\nwhich object will receive the method call. This option must be a path\nto an object, accessible in the current context:\n\n```app/templates/application.hbs\n<div {{action \"anActionName\" target=someService}}>\n  click me\n</div>\n```\n\n```app/controllers/application.js\nimport Ember from 'ember';\n\nexport default Ember.Controller.extend({\n  someService: Ember.inject.service()\n});\n```",
             "itemtype": "method",
             "name": "action",
@@ -8064,7 +8078,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/helpers/component.js",
-            "line": 20,
+            "line": 18,
             "description": "The `{{component}}` helper lets you add instances of `Ember.Component` to a\ntemplate. See [Ember.Component](/api/classes/Ember.Component.html) for\nadditional information on how a `Component` functions.\n`{{component}}`'s primary use is for cases where you want to dynamically\nchange which type of component is rendered as the state of your application\nchanges. This helper has three modes: inline, block, and nested.\n\n### Inline Form\n\nGiven the following template:\n\n```app/application.hbs\n{{component infographicComponentName}}\n```\n\nAnd the following application code:\n\n```app/controllers/application.js\nexport default Ember.Controller.extend({\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nThe `live-updating-chart` component will be appended when `isMarketOpen` is\n`true`, and the `market-close-summary` component will be appended when\n`isMarketOpen` is `false`. If the value changes while the app is running,\nthe component will be automatically swapped out accordingly.\nNote: You should not use this helper when you are consistently rendering the same\ncomponent. In that case, use standard component syntax, for example:\n\n```app/templates/application.hbs\n{{live-updating-chart}}\n```\n\n### Block Form\n\nUsing the block form of this helper is similar to using the block form\nof a component. Given the following application template:\n\n```app/templates/application.hbs\n{{#component infographicComponentName}}\n  Last update: {{lastUpdateTimestamp}}\n{{/component}}\n```\n\nThe following controller code:\n\n```app/controllers/application.js\nexport default Ember.Controller.extend({\n  lastUpdateTimestamp: computed(function() {\n    return new Date();\n  }),\n\n  infographicComponentName: computed('isMarketOpen', {\n    get() {\n      if (this.get('isMarketOpen')) {\n        return 'live-updating-chart';\n      } else {\n        return 'market-close-summary';\n      }\n    }\n  })\n});\n```\n\nAnd the following component template:\n\n```app/templates/components/live-updating-chart.hbs\n{{! chart }}\n{{yield}}\n```\n\nThe `Last Update: {{lastUpdateTimestamp}}` will be rendered in place of the `{{yield}}`.\n\n### Nested Usage\n\nThe `component` helper can be used to package a component path with initial attrs.\nThe included attrs can then be merged during the final invocation.\nFor example, given a `person-form` component with the following template:\n\n```app/templates/components/person-form.hbs\n{{yield (hash\n  nameInput=(component \"my-input-component\" value=model.name placeholder=\"First Name\")\n)}}\n```\n\nWhen yielding the component via the `hash` helper, the component is invoked directly.\nSee the following snippet:\n\n```\n{{#person-form as |form|}}\n  {{form.nameInput placeholder=\"Username\"}}\n{{/person-form}}\n```\n\nWhich outputs an input whose value is already bound to `model.name` and `placeholder`\nis \"Username\".\n\nWhen yielding the component without the hash helper use the `component` helper.\nFor example, below is a `full-name` component template:\n\n```handlebars\n{{yield (component \"my-input-component\" value=model.name placeholder=\"Name\")}}\n```\n\n```\n{{#full-name as |field|}}\n  {{component field placeholder=\"Full name\"}}\n{{/full-name}}\n```",
             "itemtype": "method",
             "name": "component",
@@ -8304,7 +8318,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/syntax/input.js",
-            "line": 15,
+            "line": 16,
             "description": "The `{{input}}` helper lets you create an HTML `<input />` component.\nIt causes an `Ember.TextField` component to be rendered.  For more info,\nsee the [Ember.TextField](/api/classes/Ember.TextField.html) docs and\nthe [templates guide](https://emberjs.com/guides/templates/input-helpers/).\n\n```handlebars\n{{input value=\"987\"}}\n```\n\nrenders as:\n\n```HTML\n<input type=\"text\" value=\"987\" />\n```\n\n### Text field\n\nIf no `type` option is specified, a default of type 'text' is used.\nMany of the standard HTML attributes may be passed to this helper.\n<table>\n  <tr><td>`readonly`</td><td>`required`</td><td>`autofocus`</td></tr>\n  <tr><td>`value`</td><td>`placeholder`</td><td>`disabled`</td></tr>\n  <tr><td>`size`</td><td>`tabindex`</td><td>`maxlength`</td></tr>\n  <tr><td>`name`</td><td>`min`</td><td>`max`</td></tr>\n  <tr><td>`pattern`</td><td>`accept`</td><td>`autocomplete`</td></tr>\n  <tr><td>`autosave`</td><td>`formaction`</td><td>`formenctype`</td></tr>\n  <tr><td>`formmethod`</td><td>`formnovalidate`</td><td>`formtarget`</td></tr>\n  <tr><td>`height`</td><td>`inputmode`</td><td>`multiple`</td></tr>\n  <tr><td>`step`</td><td>`width`</td><td>`form`</td></tr>\n  <tr><td>`selectionDirection`</td><td>`spellcheck`</td><td>&nbsp;</td></tr>\n</table>\nWhen set to a quoted string, these values will be directly applied to the HTML\nelement. When left unquoted, these values will be bound to a property on the\ntemplate's current rendering context (most typically a controller instance).\nA very common use of this helper is to bind the `value` of an input to an Object's attribute:\n\n```handlebars\nSearch:\n{{input value=searchWord}}\n```\n\nIn this example, the initial value in the `<input />` will be set to the value of `searchWord`.\nIf the user changes the text, the value of `searchWord` will also be updated.\n\n### Actions\n\nThe helper can send multiple actions based on user events.\nThe action property defines the action which is sent when\nthe user presses the return key.\n\n```handlebars\n{{input action=\"submit\"}}\n```\n\nThe helper allows some user events to send actions.\n\n* `enter`\n* `insert-newline`\n* `escape-press`\n* `focus-in`\n* `focus-out`\n* `key-press`\n* `key-up`\n\nFor example, if you desire an action to be sent when the input is blurred,\nyou only need to setup the action name to the event name property.\n\n```handlebars\n{{input focus-out=\"alertMessage\"}}\n```\nSee more about [Text Support Actions](/api/classes/Ember.TextField.html)\n\n### Extending `Ember.TextField`\n\nInternally, `{{input type=\"text\"}}` creates an instance of `Ember.TextField`, passing\narguments from the helper to `Ember.TextField`'s `create` method. You can extend the\ncapabilities of text inputs in your applications by reopening this class. For example,\nif you are building a Bootstrap project where `data-*` attributes are used, you\ncan add one to the `TextField`'s `attributeBindings` property:\n\n```javascript\nEmber.TextField.reopen({\n  attributeBindings: ['data-error']\n});\n```\n\nKeep in mind when writing `Ember.TextField` subclasses that `Ember.TextField`\nitself extends `Ember.Component`. Expect isolated component semantics, not\nlegacy 1.x view semantics (like `controller` being present).\nSee more about [Ember components](/api/classes/Ember.Component.html)\n\n### Checkbox\n\nCheckboxes are special forms of the `{{input}}` helper.  To create a `<checkbox />`:\n\n```handlebars\nEmberize Everything:\n{{input type=\"checkbox\" name=\"isEmberized\" checked=isEmberized}}\n```\n\nThis will bind checked state of this checkbox to the value of `isEmberized`  -- if either one changes,\nit will be reflected in the other.\n\nThe following HTML attributes can be set via the helper:\n\n* `checked`\n* `disabled`\n* `tabindex`\n* `indeterminate`\n* `name`\n* `autofocus`\n* `form`\n\n### Extending `Ember.Checkbox`\n\nInternally, `{{input type=\"checkbox\"}}` creates an instance of `Ember.Checkbox`, passing\narguments from the helper to `Ember.Checkbox`'s `create` method. You can extend the\ncapablilties of checkbox inputs in your applications by reopening this class. For example,\nif you wanted to add a css class to all checkboxes in your application:\n\n```javascript\nEmber.Checkbox.reopen({\n  classNames: ['my-app-checkbox']\n});\n```",
             "itemtype": "method",
             "name": "input",
@@ -8323,7 +8337,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/syntax/mount.js",
-            "line": 25,
+            "line": 18,
             "description": "The `{{mount}}` helper lets you embed a routeless engine in a template.\nMounting an engine will cause an instance to be booted and its `application`\ntemplate to be rendered.\n\nFor example, the following template mounts the `ember-chat` engine:\n\n```handlebars\n{{! application.hbs }}\n{{mount \"ember-chat\"}}\n```\n\nCurrently, the engine name is the only argument that can be passed to\n`{{mount}}`.",
             "itemtype": "method",
             "name": "mount",
@@ -8338,7 +8352,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/syntax/outlet.js",
-            "line": 35,
+            "line": 73,
             "description": "The `{{outlet}}` helper lets you specify where a child route will render in\nyour template. An important use of the `{{outlet}}` helper is in your\napplication's `application.hbs` file:\n\n```handlebars\n{{! app/templates/application.hbs }}\n<!-- header content goes here, and will always display -->\n{{my-header}}\n<div class=\"my-dynamic-content\">\n  <!-- this content will change based on the current route, which depends on the current URL -->\n  {{outlet}}\n</div>\n<!-- footer content goes here, and will always display -->\n{{my-footer}}\n```\n\nSee [templates guide](https://emberjs.com/guides/templates/the-application-template/) for\nadditional information on using `{{outlet}}` in `application.hbs`.\nYou may also specify a name for the `{{outlet}}`, which is useful when using more than one\n`{{outlet}}` in a template:\n\n```handlebars\n{{outlet \"menu\"}}\n{{outlet \"sidebar\"}}\n{{outlet \"main\"}}\n```\n\nYour routes can then render into a specific one of these `outlet`s by specifying the `outlet`\nattribute in your `renderTemplate` function:\n\n```javascript\n// app/routes/menu.js\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render({ outlet: 'menu' });\n  }\n});\n```\n\nSee the [routing guide](https://emberjs.com/guides/routing/rendering-a-template/) for more\ninformation on how your `route` interacts with the `{{outlet}}` helper.\nNote: Your content __will not render__ if there isn't an `{{outlet}}` for it.",
             "itemtype": "method",
             "name": "outlet",
@@ -8353,12 +8367,11 @@
             "access": "public",
             "tagname": "",
             "class": "Ember.Templates.helpers",
-            "module": "ember",
-            "submodule": "ember-glimmer"
+            "module": "ember"
         },
         {
             "file": "packages/ember-glimmer/lib/syntax/render.js",
-            "line": 52,
+            "line": 50,
             "description": "Calling ``{{render}}`` from within a template will insert another\ntemplate that matches the provided name. The inserted template will\naccess its properties on its own controller (rather than the controller\nof the parent template).\n\nIf a view class with the same name exists, the view class also will be used.\nNote: A given controller may only be used *once* in your app in this manner.\nA singleton instance of the controller will be created for you.\n\nExample:\n\n```javascript\nApp.NavigationController = Ember.Controller.extend({\n  who: \"world\"\n});\n```\n\n```handlebars\n<!-- navigation.hbs -->\nHello, {{who}}.\n```\n\n```handlebars\n<!-- application.hbs -->\n<h1>My great app</h1>\n{{render \"navigation\"}}\n```\n\n```html\n<h1>My great app</h1>\n<div class='ember-view'>\n  Hello, world.\n</div>\n```\n\nOptionally you may provide a second argument: a property path\nthat will be bound to the `model` property of the controller.\nIf a `model` property path is specified, then a new instance of the\ncontroller will be created and `{{render}}` can be used multiple times\nwith the same name.\n\nFor example if you had this `author` template.\n\n```handlebars\n<div class=\"author\">\n  Written by {{firstName}} {{lastName}}.\n  Total Posts: {{postCount}}\n</div>\n```\n\nYou could render it inside the `post` template using the `render` helper.\n\n```handlebars\n<div class=\"post\">\n  <h1>{{title}}</h1>\n  <div>{{body}}</div>\n  {{render \"author\" author}}\n</div>\n```",
             "itemtype": "method",
             "name": "render",

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d42a2a6c
+ * @version   2.15.0-alpha.1-null+91d8f08d
  */
 
 var enifed, requireModule, Ember;
@@ -7784,10 +7784,40 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-extension-support/tests/data_adapter_test.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | ember-glimmer/component-managers/abstract.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/component-managers/abstract.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | ember-glimmer/component-managers/curly.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/component-managers/curly.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-glimmer/component-managers/mount.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/component-managers/mount.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-glimmer/component-managers/outlet.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/component-managers/outlet.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-glimmer/component-managers/render.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/component-managers/render.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-glimmer/component-managers/root.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/component-managers/root.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-glimmer/component.js');
@@ -7976,40 +8006,10 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/syntax.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-glimmer/syntax/-in-element.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/-in-element.js should pass ESLint\n\n');
-});
-
 QUnit.module('ESLint | ember-glimmer/syntax/-text-area.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/syntax/-text-area.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/-with-dynamic-vars.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/-with-dynamic-vars.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/abstract-manager.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/abstract-manager.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/component-state-bucket.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/component-state-bucket.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-glimmer/syntax/curly-component.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-glimmer/syntax/curly-component.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-glimmer/syntax/dynamic-component.js');
@@ -8040,6 +8040,12 @@ QUnit.module('ESLint | ember-glimmer/syntax/render.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/syntax/render.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-glimmer/syntax/utils.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/syntax/utils.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-glimmer/template.js');
@@ -16420,6 +16426,18 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertText('Hi!');
     };
 
+    _class.prototype['@test can access properties off of rest style positionalParams array'] = function testCanAccessPropertiesOffOfRestStylePositionalParamsArray(assert) {
+      this.registerComponent('foo-bar', {
+        ComponentClass: _helpers.Component.extend().reopenClass({ positionalParams: 'things' }),
+        // using `attrs` here to simulate `@things.length`
+        template: '{{attrs.things.length}}'
+      });
+
+      this.render('{{foo-bar "foo" "bar" "baz"}}');
+
+      this.assertText('3');
+    };
+
     return _class;
   }(_testCase.RenderingTest));
 });
@@ -22480,7 +22498,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/content-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-babel', '@glimmer/runtime', 'ember-glimmer/tests/utils/test-case', 'ember/features', 'ember-glimmer/component-managers/curly'], function (_emberBabel, _runtime, _testCase, _features, _curly) {
+enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-babel', '@glimmer/runtime', 'ember-glimmer/tests/utils/test-case', 'ember/features', 'ember-glimmer'], function (_emberBabel, _runtime, _testCase, _features, _emberGlimmer) {
   'use strict';
 
   if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
@@ -22492,7 +22510,7 @@ enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-
       }
 
       TestLayoutCompiler.prototype.compile = function compile(builder) {
-        builder.wrapLayout(this.template.asLayout());
+        builder.wrapLayout(this.template);
         builder.tag.dynamic(function () {
           return _runtime.PrimitiveReference.create('p');
         });
@@ -22503,14 +22521,13 @@ enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-
       return TestLayoutCompiler;
     }();
 
-    var TestComponentManager = function () {
+    var TestComponentManager = function (_AbstractComponentMan) {
+      (0, _emberBabel.inherits)(TestComponentManager, _AbstractComponentMan);
+
       function TestComponentManager() {
         (0, _emberBabel.classCallCheck)(this, TestComponentManager);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractComponentMan.apply(this, arguments));
       }
-
-      TestComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
-        return args;
-      };
 
       TestComponentManager.prototype.create = function create(env, definition, args, dynamicScope, caller, hasBlock) {
         return definition.ComponentClass.create();
@@ -22520,32 +22537,8 @@ enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-
         return env.getCompiledBlock(TestLayoutCompiler, definition.template);
       };
 
-      TestComponentManager.prototype.getSelf = function getSelf(_ref) {
-        var component = _ref.component;
-        return component;
-      };
-
-      TestComponentManager.prototype.didCreateElement = function didCreateElement(component, element, operations) {};
-
-      TestComponentManager.prototype.didRenderLayout = function didRenderLayout(component, bounds) {};
-
-      TestComponentManager.prototype.didCreate = function didCreate(component) {};
-
-      TestComponentManager.prototype.getTag = function getTag(_ref2) {
-        var component = _ref2.component;
-        return null;
-      };
-
-      TestComponentManager.prototype.update = function update(component, dynamicScope) {};
-
-      TestComponentManager.prototype.didUpdateLayout = function didUpdateLayout(component, bounds) {};
-
-      TestComponentManager.prototype.didUpdate = function didUpdate(component) {};
-
-      TestComponentManager.prototype.getDestructor = function getDestructor(component) {};
-
       return TestComponentManager;
-    }();
+    }(_emberGlimmer.AbstractComponentManager);
 
     (0, _testCase.moduleFor)('Components test: curly components with custom manager', function (_RenderingTest) {
       (0, _emberBabel.inherits)(_class, _RenderingTest);
@@ -34675,18 +34668,9 @@ enifed('ember-glimmer/tests/integration/syntax/experimental-syntax-test', ['embe
       var originalMacros = _emberGlimmer._experimentalMacros.slice();
 
       (0, _emberGlimmer._registerMacros)(function (blocks, inlines) {
-        blocks.add('-let', function (sexp, builder) {
-          var params = sexp[2],
-              hash = sexp[3],
-              _default = sexp[4];
-
-          var args = (0, _runtime.compileArgs)(params, hash, builder);
-
-          builder.putArgs(args);
-
-          builder.labelled(null, function (b) {
-            b.evaluate(_default);
-          });
+        blocks.add('-let', function (params, hash, _default, inverse, builder) {
+          (0, _runtime.compileExpression)(params[0], builder);
+          builder.invokeStatic(_default, 1);
         });
       });
 
@@ -35578,7 +35562,7 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['ember-babel', 'ember-glim
       var template = this.template;
 
       COUNTER.increment(this.constructor.id + '+' + template.id);
-      builder.wrapLayout(template.asLayout());
+      builder.wrapLayout(template);
     };
 
     return BasicCompiler;
@@ -35633,29 +35617,29 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['ember-babel', 'ember-glim
       var template1 = this.templateFor('Hello world!');
       var template2 = this.templateFor('{{foo}} {{bar}}');
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
       assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
       assert.strictEqual(COUNTER.get('type-one+' + template2.id), 0);
       assert.strictEqual(COUNTER.total, 1);
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
       assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
       assert.strictEqual(COUNTER.get('type-one+' + template2.id), 0);
       assert.strictEqual(COUNTER.total, 1);
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
       assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
       assert.strictEqual(COUNTER.get('type-one+' + template2.id), 1);
       assert.strictEqual(COUNTER.total, 2);
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
 
       assert.strictEqual(COUNTER.get('type-one+' + template1.id), 1);
       assert.strictEqual(COUNTER.get('type-one+' + template2.id), 1);
@@ -35668,29 +35652,29 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['ember-babel', 'ember-glim
 
       var template = this.templateFor('Hello world!');
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
       assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
       assert.strictEqual(COUNTER.get('type-two+' + template.id), 0);
       assert.strictEqual(COUNTER.total, 1);
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
       assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
       assert.strictEqual(COUNTER.get('type-two+' + template.id), 0);
       assert.strictEqual(COUNTER.total, 1);
 
-      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
       assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
       assert.strictEqual(COUNTER.get('type-two+' + template.id), 1);
       assert.strictEqual(COUNTER.total, 2);
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeTwoCompiler, template) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
 
       assert.strictEqual(COUNTER.get('type-one+' + template.id), 1);
       assert.strictEqual(COUNTER.get('type-two+' + template.id), 1);
@@ -35714,8 +35698,8 @@ enifed('ember-glimmer/tests/unit/layout-cache-test', ['ember-babel', 'ember-glim
       var template1 = templateInstanceFor('Hello world!');
       var template2 = templateInstanceFor('{{foo}} {{bar}}');
 
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
-      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledBlock, 'should return a CompiledBlock');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template1) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
+      assert.ok(env.getCompiledBlock(TypeOneCompiler, template2) instanceof _runtime.CompiledDynamicTemplate, 'should return a CompiledDynamicTemplate');
     };
 
     return _class;
@@ -35994,76 +35978,6 @@ enifed('ember-glimmer/tests/unit/utils/iterable-test', ['ember-babel', 'ember', 
       }
     };
 
-    _class.prototype['@test iterates over an object\'s own properties'] = function testIteratesOverAnObjectSOwnProperties() {
-      var iterator = iteratorForObject({ first: 'foo', second: 'bar' });
-
-      this.assert.deepEqual(iterator.next(), { key: 'first', memo: 'first', value: 'foo' });
-      this.assert.deepEqual(iterator.next(), { key: 'second', memo: 'second', value: 'bar' });
-    };
-
-    _class.prototype['@test iterates over an object\'s own properties with indices as keys'] = function testIteratesOverAnObjectSOwnPropertiesWithIndicesAsKeys() {
-      var iterator = iteratorForObject({ first: 'foo', second: 'bar' }, '@index');
-
-      this.assert.deepEqual(iterator.next(), { key: 'first', memo: 'first', value: 'foo' });
-      this.assert.deepEqual(iterator.next(), { key: 'second', memo: 'second', value: 'bar' });
-    };
-
-    _class.prototype['@test iterates over an object\'s own properties with identities as keys'] = function testIteratesOverAnObjectSOwnPropertiesWithIdentitiesAsKeys() {
-      var iterator = iteratorForObject({ first: 'foo', second: 'bar' }, '@identity');
-
-      this.assert.deepEqual(iterator.next(), { key: 'foo', memo: 'first', value: 'foo' });
-      this.assert.deepEqual(iterator.next(), { key: 'bar', memo: 'second', value: 'bar' });
-    };
-
-    _class.prototype['@test iterates over an object\'s own properties with arbitrary properties as keys'] = function testIteratesOverAnObjectSOwnPropertiesWithArbitraryPropertiesAsKeys() {
-      var iterator = iteratorForObject({ first: { k: 'uno', v: 'foo' }, second: { k: 'dos', v: 'bar' } }, 'k');
-
-      this.assert.deepEqual(iterator.next(), { key: 'uno', memo: 'first', value: { k: 'uno', v: 'foo' } });
-      this.assert.deepEqual(iterator.next(), { key: 'dos', memo: 'second', value: { k: 'dos', v: 'bar' } });
-    };
-
-    _class.prototype['@test each-in errors on `#next` with an undefined ref'] = function testEachInErrorsOnNextWithAnUndefinedRef() {
-      var iterator = iteratorForObject(undefined);
-
-      this.assert.expect(1);
-
-      try {
-        iterator.next();
-      } catch (_ref5) {
-        var message = _ref5.message;
-
-        this.assert.equal(message, 'Cannot call next() on an empty iterator');
-      }
-    };
-
-    _class.prototype['@test each-in errors on `#next` with a null ref'] = function testEachInErrorsOnNextWithANullRef() {
-      var iterator = iteratorForObject(null);
-
-      this.assert.expect(1);
-
-      try {
-        iterator.next();
-      } catch (_ref6) {
-        var message = _ref6.message;
-
-        this.assert.equal(message, 'Cannot call next() on an empty iterator');
-      }
-    };
-
-    _class.prototype['@test each-in errors on `#next` with an invalid ref type'] = function testEachInErrorsOnNextWithAnInvalidRefType() {
-      var iterator = iteratorForObject('string');
-
-      this.assert.expect(1);
-
-      try {
-        iterator.next();
-      } catch (_ref7) {
-        var message = _ref7.message;
-
-        this.assert.equal(message, 'Cannot call next() on an empty iterator');
-      }
-    };
-
     _class.prototype['@test ensures keys are unique'] = function testEnsuresKeysAreUnique() {
       var iterator = iteratorForArray([{ k: 'qux', v: 'foo' }, { k: 'qux', v: 'bar' }, { k: 'qux', v: 'baz' }], 'k');
 
@@ -36077,15 +35991,6 @@ enifed('ember-glimmer/tests/unit/utils/iterable-test', ['ember-babel', 'ember', 
 
   function iteratorForArray(arr, keyPath) {
     var ref = new _references.UpdatableReference(arr);
-    var iterable = (0, _iterable.default)(ref, keyPath);
-
-    return iterable.iterate();
-  }
-
-  function iteratorForObject(obj, keyPath) {
-    var vm = null;
-    var positionalArgs = _runtime.EvaluatedPositionalArgs.create([new _references.UpdatableReference(obj)]);
-    var ref = (0, _eachIn.default)(vm, { positional: positionalArgs });
     var iterable = (0, _iterable.default)(ref, keyPath);
 
     return iterable.iterate();
@@ -37417,6 +37322,12 @@ QUnit.module('ESLint | ember-glimmer/utils/bindings.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-glimmer/utils/bindings.js should pass ESLint\n\n');
+});
+
+QUnit.module('ESLint | ember-glimmer/utils/curly-component-state-bucket.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-glimmer/utils/curly-component-state-bucket.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-glimmer/utils/debug-stack.js');
@@ -78938,11 +78849,15 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
     AbstractRenderingTestCase.prototype.getResolver = function getResolver() {};
 
     AbstractRenderingTestCase.prototype.teardown = function teardown() {
-      if (this.component) {
-        (0, _run.runDestroy)(this.component);
-      }
-      if (this.owner) {
-        (0, _run.runDestroy)(this.owner);
+      try {
+        if (this.component) {
+          (0, _run.runDestroy)(this.component);
+        }
+        if (this.owner) {
+          (0, _run.runDestroy)(this.owner);
+        }
+      } finally {
+        (0, _emberGlimmer._resetRenderers)();
       }
     };
 
