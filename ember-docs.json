@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.311ce4ad"
+        "version": "2.15.0-alpha.1.f4b151f3"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -3200,7 +3200,7 @@
             "submodule": "ember-routing",
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 67,
+            "line": 66,
             "description": "The `Ember.Route` class is used to define individual routes. Refer to\nthe [routing guide](https://emberjs.com/guides/routing/) for documentation.",
             "extends": "Ember.Object",
             "uses": [
@@ -12209,7 +12209,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 80,
+            "line": 79,
             "description": "Configuration hash for this route's queryParams. The possible\nconfiguration options and their defaults are as follows\n(assuming a query param whose controller property is `page`):\n\n```javascript\nqueryParams: {\n  page: {\n    // By default, controller query param properties don't\n    // cause a full transition when they are changed, but\n    // rather only cause the URL to update. Setting\n    // `refreshModel` to true will cause an \"in-place\"\n    // transition to occur, whereby the model hooks for\n    // this route (and any child routes) will re-fire, allowing\n    // you to reload models (e.g., from the server) using the\n    // updated query param values.\n    refreshModel: false,\n\n    // By default, changes to controller query param properties\n    // cause the URL to update via `pushState`, which means an\n    // item will be added to the browser's history, allowing\n    // you to use the back button to restore the app to the\n    // previous state before the query param property was changed.\n    // Setting `replace` to true will use `replaceState` (or its\n    // hash location equivalent), which causes no browser history\n    // item to be added. This options name and default value are\n    // the same as the `link-to` helper's `replace` option.\n    replace: false,\n\n    // By default, the query param URL key is the same name as\n    // the controller property name. Use `as` to specify a\n    // different URL key.\n    as: 'page'\n  }\n}\n```",
             "itemtype": "property",
             "name": "queryParams",
@@ -12224,7 +12224,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 125,
+            "line": 124,
             "description": "The name of the route, dot-delimited.\n\nFor example, a route found at `app/routes/posts/post.js` will have\na `routeName` of `posts.post`.",
             "itemtype": "property",
             "name": "routeName",
@@ -12239,7 +12239,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 138,
+            "line": 137,
             "description": "Sets the name for this route, including a fully resolved name for routes\ninside engines.",
             "access": "private",
             "tagname": "",
@@ -12259,7 +12259,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 151,
+            "line": 150,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -12271,7 +12271,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 273,
+            "line": 272,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -12283,7 +12283,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 280,
+            "line": 279,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -12295,7 +12295,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 309,
+            "line": 308,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -12307,7 +12307,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 318,
+            "line": 317,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -12319,7 +12319,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 328,
+            "line": 327,
             "description": "Returns a hash containing the parameters of an ancestor route.\n\nExample\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('member', { path: ':name' }, function() {\n    this.route('interest', { path: ':interest' });\n  });\n});\n```\n\n```app/routes/member.js\nexport default Ember.Route.extend({\n  queryParams: {\n    memberQp: { refreshModel: true }\n  }\n});\n```\n\n```app/routes/member/interest.js\nexport default Ember.Route.extend({\n  queryParams: {\n    interestQp: { refreshModel: true }\n  },\n\n  model() {\n    return this.paramsFor('member');\n  }\n});\n```\n\nIf we visit `/turing/maths?memberQp=member&interestQp=interest` the model for\nthe `member.interest` route is hash with:\n\n* `name`: `turing`\n* `memberQp`: `member`",
             "itemtype": "method",
             "name": "paramsFor",
@@ -12344,7 +12344,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 396,
+            "line": 395,
             "description": "Serializes the query parameter key",
             "itemtype": "method",
             "name": "serializeQueryParamKey",
@@ -12364,7 +12364,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 407,
+            "line": 406,
             "description": "Serializes value of the query parameter based on defaultValueType",
             "itemtype": "method",
             "name": "serializeQueryParam",
@@ -12394,7 +12394,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 423,
+            "line": 422,
             "description": "Deserializes value of the query parameter based on defaultValueType",
             "itemtype": "method",
             "name": "deserializeQueryParam",
@@ -12424,7 +12424,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 439,
+            "line": 438,
             "access": "private",
             "tagname": "",
             "itemtype": "property",
@@ -12436,7 +12436,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 448,
+            "line": 447,
             "description": "A hook you can use to reset controller values either when the model\nchanges or the route is exiting.\n\n```app/routes/articles.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  resetController(controller, isExiting, transition) {\n    if (isExiting) {\n      controller.set('page', 1);\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "resetController",
@@ -12467,7 +12467,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 473,
+            "line": 472,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -12479,7 +12479,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 484,
+            "line": 483,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -12492,7 +12492,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 497,
+            "line": 496,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -12504,7 +12504,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 508,
+            "line": 507,
             "description": "The name of the template to use by default when rendering this routes\ntemplate.\n\n```app/routes/posts/list.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  templateName: 'posts/list'\n});\n```\n\n```app/routes/posts/index.js\nimport PostsList from '../posts/list';\n\nexport default PostsList.extend();\n```\n\n```app/routes/posts/archived.js\nimport PostsList from '../posts/list';\n\nexport default PostsList.extend();\n```",
             "itemtype": "property",
             "name": "templateName",
@@ -12520,7 +12520,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 540,
+            "line": 539,
             "description": "The name of the controller to associate with this route.\n\nBy default, Ember will lookup a route's controller that matches the name\nof the route (i.e. `App.PostController` for `App.PostRoute`). However,\nif you would like to define a specific controller to use, you can do so\nusing this property.\n\nThis is useful in many ways, as the controller specified will be:\n\n* passed to the `setupController` method.\n* used as the controller for the template being rendered by the route.\n* returned from a call to `controllerFor` for the route.",
             "itemtype": "property",
             "name": "controllerName",
@@ -12536,7 +12536,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 562,
+            "line": 561,
             "description": "The `willTransition` action is fired at the beginning of any\nattempted transition with a `Transition` object as the sole\nargument. This action can be used for aborting, redirecting,\nor decorating the transition from the currently active routes.\n\nA good example is preventing navigation when a form is\nhalf-filled out:\n\n```app/routes/contact-form.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    willTransition(transition) {\n      if (this.controller.get('userHasEnteredData')) {\n        this.controller.displayNavigationConfirm();\n        transition.abort();\n      }\n    }\n  }\n});\n```\n\nYou can also redirect elsewhere by calling\n`this.transitionTo('elsewhere')` from within `willTransition`.\nNote that `willTransition` will not be fired for the\nredirecting `transitionTo`, since `willTransition` doesn't\nfire when there is already a transition underway. If you want\nsubsequent `willTransition` actions to fire for the redirecting\ntransition, you must first explicitly call\n`transition.abort()`.\n\nTo allow the `willTransition` event to continue bubbling to the parent\nroute, use `return true;`. When the `willTransition` method has a\nreturn value of `true` then the parent route's `willTransition` method\nwill be fired, enabling \"bubbling\" behavior for the event.",
             "itemtype": "event",
             "name": "willTransition",
@@ -12557,7 +12557,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 606,
+            "line": 605,
             "description": "The `didTransition` action is fired after a transition has\nsuccessfully been completed. This occurs after the normal model\nhooks (`beforeModel`, `model`, `afterModel`, `setupController`)\nhave resolved. The `didTransition` action has no arguments,\nhowever, it can be useful for tracking page views or resetting\nstate on the controller.\n\n```app/routes/login.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    didTransition() {\n      this.controller.get('errors.base').clear();\n      return true; // Bubble the didTransition event\n    }\n  }\n});\n```",
             "itemtype": "event",
             "name": "didTransition",
@@ -12571,7 +12571,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 632,
+            "line": 631,
             "description": "The `loading` action is fired on the route when a route's `model`\nhook returns a promise that is not already resolved. The current\n`Transition` object is the first parameter and the route that\ntriggered the loading event is the second parameter.\n\n```app/routes/application.js\nexport default Ember.Route.extend({\n  actions: {\n    loading(transition, route) {\n      let controller = this.controllerFor('foo');\n      controller.set('currentlyLoading', true);\n\n      transition.finally(function() {\n        controller.set('currentlyLoading', false);\n      });\n    }\n  }\n});\n```",
             "itemtype": "event",
             "name": "loading",
@@ -12597,7 +12597,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 660,
+            "line": 659,
             "description": "When attempting to transition into a route, any of the hooks\nmay return a promise that rejects, at which point an `error`\naction will be fired on the partially-entered routes, allowing\nfor per-route error handling logic, or shared error handling\nlogic defined on a parent route.\n\nHere is an example of an error handler that will be invoked\nfor rejected promises from the various hooks on the route,\nas well as any unhandled errors from child routes:\n\n```app/routes/admin.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  beforeModel() {\n    return Ember.RSVP.reject('bad things!');\n  },\n\n  actions: {\n    error(error, transition) {\n      // Assuming we got here due to the error in `beforeModel`,\n      // we can expect that error === \"bad things!\",\n      // but a promise model rejecting would also\n      // call this hook, as would any errors encountered\n      // in `afterModel`.\n\n      // The `error` hook is also provided the failed\n      // `transition`, which can be stored and later\n      // `.retry()`d if desired.\n\n      this.transitionTo('login');\n    }\n  }\n});\n```\n\n`error` actions that bubble up all the way to `ApplicationRoute`\nwill fire a default error handler that logs the error. You can\nspecify your own global default error handler by overriding the\n`error` handler on `ApplicationRoute`:\n\n```app/routes/application.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    error(error, transition) {\n      this.controllerFor('banner').displayError(error.message);\n    }\n  }\n});\n```",
             "itemtype": "event",
             "name": "error",
@@ -12623,7 +12623,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 720,
+            "line": 719,
             "description": "This event is triggered when the router enters the route. It is\nnot executed when the model for the route changes.\n\n```app/routes/application.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  collectAnalytics: Ember.on('activate', function(){\n    collectAnalytics();\n  })\n});\n```",
             "itemtype": "event",
             "name": "activate",
@@ -12637,7 +12637,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 739,
+            "line": 738,
             "description": "This event is triggered when the router completely exits this\nroute. It is not executed when the model for the route changes.\n\n```app/routes/index.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  trackPageLeaveAnalytics: Ember.on('deactivate', function(){\n    trackPageLeaveAnalytics();\n  })\n});\n```",
             "itemtype": "event",
             "name": "deactivate",
@@ -12651,7 +12651,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 758,
+            "line": 757,
             "description": "The controller associated with this route.\n\nExample\n\n```app/routes/form.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    willTransition(transition) {\n      if (this.controller.get('userHasEnteredData') &&\n          !confirm('Are you sure you want to abandon progress?')) {\n        transition.abort();\n      } else {\n        // Bubble the `willTransition` action so that\n        // parent routes can decide whether or not to abort.\n        return true;\n      }\n    }\n  }\n});\n```",
             "itemtype": "property",
             "name": "controller",
@@ -12666,7 +12666,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 790,
+            "line": 789,
             "description": "This action is called when one or more query params have changed. Bubbles.",
             "itemtype": "method",
             "name": "queryParamsDidChange",
@@ -12700,7 +12700,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 900,
+            "line": 899,
             "description": "This hook is executed when the router completely exits this route. It is\nnot executed when the model for the route changes.",
             "itemtype": "method",
             "name": "deactivate",
@@ -12714,7 +12714,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 910,
+            "line": 909,
             "description": "This hook is executed when the router enters the route. It is not executed\nwhen the model for the route changes.",
             "itemtype": "method",
             "name": "activate",
@@ -12728,7 +12728,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 920,
+            "line": 919,
             "description": "Transition the application into another route. The route may\nbe either a single route or route path:\n\n```javascript\nthis.transitionTo('blogPosts');\nthis.transitionTo('blogPosts.recentEntries');\n```\n\nOptionally supply a model for the route in question. The model\nwill be serialized into the URL using the `serialize` hook of\nthe route:\n\n```javascript\nthis.transitionTo('blogPost', aPost);\n```\n\nIf a literal is passed (such as a number or a string), it will\nbe treated as an identifier instead. In this case, the `model`\nhook of the route will be triggered:\n\n```javascript\nthis.transitionTo('blogPost', 1);\n```\n\nMultiple models will be applied last to first recursively up the\nroute tree.\n\n```app/routes.js\n// ...\n\nRouter.map(function() {\n  this.route('blogPost', { path:':blogPostId' }, function() {\n    this.route('blogComment', { path: ':blogCommentId' });\n  });\n});\n\nexport default Router;\n```\n\n```javascript\nthis.transitionTo('blogComment', aPost, aComment);\nthis.transitionTo('blogComment', 1, 13);\n```\n\nIt is also possible to pass a URL (a string that starts with a\n`/`). This is intended for testing and debugging purposes and\nshould rarely be used in production code.\n\n```javascript\nthis.transitionTo('/');\nthis.transitionTo('/blog/post/1/comment/13');\nthis.transitionTo('/blog/posts?sort=title');\n```\n\nAn options hash with a `queryParams` property may be provided as\nthe final argument to add query parameters to the destination URL.\n\n```javascript\nthis.transitionTo('blogPost', 1, {\n  queryParams: { showComments: 'true' }\n});\n\n// if you just want to transition the query parameters without changing the route\nthis.transitionTo({ queryParams: { sort: 'date' } });\n```\n\nSee also [replaceWith](#method_replaceWith).\n\nSimple Transition Example\n\n```app/routes.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n  this.route('secret');\n  this.route('fourOhFour', { path: '*:' });\n});\n\nexport default Router;\n```\n\n```app/routes/index.js\nimport Ember from 'ember':\n\nexport Ember.Route.extend({\n  actions: {\n    moveToSecret(context) {\n      if (authorized()) {\n        this.transitionTo('secret', context);\n      } else {\n        this.transitionTo('fourOhFour');\n      }\n    }\n  }\n});\n```\n\nTransition to a nested route\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('articles', { path: '/articles' }, function() {\n    this.route('new');\n  });\n});\n\nexport default Router;\n```\n\n```app/routes/index.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    transitionToNewArticle() {\n      this.transitionTo('articles.new');\n    }\n  }\n});\n```\n\nMultiple Models Example\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n\n  this.route('breakfast', { path: ':breakfastId' }, function() {\n    this.route('cereal', { path: ':cerealId' });\n  });\n});\n\nexport default Router;\n```\n\n```app/routes/index.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    moveToChocolateCereal() {\n      let cereal = { cerealId: 'ChocolateYumminess' };\n      let breakfast = { breakfastId: 'CerealAndMilk' };\n\n      this.transitionTo('breakfast.cereal', breakfast, cereal);\n    }\n  }\n});\n```\n\nNested Route with Query String Example\n\n```app/routes.js\n// ...\n\nRouter.map(function() {\n  this.route('fruits', function() {\n    this.route('apples');\n  });\n});\n\nexport default Router;\n```\n\n```app/routes/index.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    transitionToApples() {\n      this.transitionTo('fruits.apples', { queryParams: { color: 'red' } });\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "transitionTo",
@@ -12764,7 +12764,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1118,
+            "line": 1116,
             "description": "Perform a synchronous transition into another route without attempting\nto resolve promises, update the URL, or abort any currently active\nasynchronous transitions (i.e. regular transitions caused by\n`transitionTo` or URL changes).\n\nThis method is handy for performing intermediate transitions on the\nway to a final destination route, and is called internally by the\ndefault implementations of the `error` and `loading` handlers.",
             "itemtype": "method",
             "name": "intermediateTransitionTo",
@@ -12790,7 +12790,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1140,
+            "line": 1137,
             "description": "Refresh the model on this route and any child routes, firing the\n`beforeModel`, `model`, and `afterModel` hooks in a similar fashion\nto how routes are entered when transitioning in from other route.\nThe current route params (e.g. `article_id`) will be passed in\nto the respective model hooks, and if a different model is returned,\n`setupController` and associated route hooks will re-fire as well.\n\nAn example usage of this method is re-querying the server for the\nlatest information using the same parameters as when the route\nwas first entered.\n\nNote that this will cause `model` hooks to fire even on routes\nthat were provided a model object when the route was initially\nentered.",
             "itemtype": "method",
             "name": "refresh",
@@ -12808,7 +12808,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1166,
+            "line": 1163,
             "description": "Transition into another route while replacing the current URL, if possible.\nThis will replace the current history entry instead of adding a new one.\nBeside that, it is identical to `transitionTo` in all other respects. See\n'transitionTo' for additional information regarding multiple models.\n\nExample\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n  this.route('secret');\n});\n\nexport default Router;\n```\n\n```app/routes/secret.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  afterModel() {\n    if (!authorized()){\n      this.replaceWith('index');\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "replaceWith",
@@ -12844,7 +12844,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1213,
+            "line": 1209,
             "description": "Sends an action to the router, which will delegate it to the currently\nactive route hierarchy per the bubbling rules explained under `actions`.\n\nExample\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n});\n\nexport default Router;\n```\n\n```app/routes/application.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    track(arg) {\n      console.log(arg, 'was clicked');\n    }\n  }\n});\n```\n\n```app/routes/index.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  actions: {\n    trackIfDebug(arg) {\n      if (debug) {\n        this.send('track', arg);\n      }\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "send",
@@ -12870,7 +12870,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1274,
+            "line": 1269,
             "description": "This hook is the entry point for router.js",
             "access": "private",
             "tagname": "",
@@ -12883,7 +12883,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1354,
+            "line": 1349,
             "description": "This hook is the first of the route entry validation hooks\ncalled when an attempt is made to transition into a route\nor one of its children. It is called before `model` and\n`afterModel`, and is appropriate for cases when:\n\n1) A decision can be made to redirect elsewhere without\n   needing to resolve the model first.\n2) Any async operations need to occur first before the\n   model is attempted to be resolved.\n\nThis hook is provided the current `transition` attempt\nas a parameter, which can be used to `.abort()` the transition,\nsave it for a later `.retry()`, or retrieve values set\non it from a previous hook. You can also just call\n`this.transitionTo` to another route to implicitly\nabort the `transition`.\n\nYou can return a promise from this hook to pause the\ntransition until the promise resolves (or rejects). This could\nbe useful, for instance, for retrieving async code from\nthe server that is required to enter a route.",
             "itemtype": "method",
             "name": "beforeModel",
@@ -12908,7 +12908,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1388,
+            "line": 1383,
             "description": "This hook is called after this route's model has resolved.\nIt follows identical async/promise semantics to `beforeModel`\nbut is provided the route's resolved model in addition to\nthe `transition`, and is therefore suited to performing\nlogic that can only take place after the model has already\nresolved.\n\n```app/routes/posts.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  afterModel(posts, transition) {\n    if (posts.get('length') === 1) {\n      this.transitionTo('post.show', posts.get('firstObject'));\n    }\n  }\n});\n```\n\nRefer to documentation for `beforeModel` for a description\nof transition-pausing semantics when a promise is returned\nfrom this hook.",
             "itemtype": "method",
             "name": "afterModel",
@@ -12938,7 +12938,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1425,
+            "line": 1420,
             "description": "A hook you can implement to optionally redirect to another route.\n\nIf you call `this.transitionTo` from inside of this hook, this route\nwill not be entered in favor of the other hook.\n\n`redirect` and `afterModel` behave very similarly and are\ncalled almost at the same time, but they have an important\ndistinction in the case that, from one of these hooks, a\nredirect into a child route of this route occurs: redirects\nfrom `afterModel` essentially invalidate the current attempt\nto enter this route, and will result in this route's `beforeModel`,\n`model`, and `afterModel` hooks being fired again within\nthe new, redirecting transition. Redirects that occur within\nthe `redirect` hook, on the other hand, will _not_ cause\nthese hooks to be fired again the second time around; in\nother words, by the time the `redirect` hook has been called,\nboth the resolved model and attempted entry into this route\nare considered to be fully validated.",
             "itemtype": "method",
             "name": "redirect",
@@ -12964,7 +12964,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1453,
+            "line": 1448,
             "description": "Called when the context is changed by router.js.",
             "access": "private",
             "tagname": "",
@@ -12977,7 +12977,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1463,
+            "line": 1458,
             "description": "A hook you can implement to convert the URL into the model for\nthis route.\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n\nexport default Router;\n```\n\nThe model for the `post` route is `store.findRecord('post', params.post_id)`.\n\nBy default, if your route has a dynamic segment ending in `_id`:\n\n* The model class is determined from the segment (`post_id`'s\n  class is `App.Post`)\n* The find method is called on the model class with the value of\n  the dynamic segment.\n\nNote that for routes with dynamic segments, this hook is not always\nexecuted. If the route is entered through a transition (e.g. when\nusing the `link-to` Handlebars helper or the `transitionTo` method\nof routes), and a model context is already provided this hook\nis not called.\n\nA model context does not include a primitive string or number,\nwhich does cause the model hook to be called.\n\nRoutes without dynamic segments will always execute the model hook.\n\n```javascript\n// no dynamic segment, model hook always called\nthis.transitionTo('posts');\n\n// model passed in, so model hook not called\nthePost = store.findRecord('post', 1);\nthis.transitionTo('post', thePost);\n\n// integer passed in, model hook is called\nthis.transitionTo('post', 1);\n\n// model id passed in, model hook is called\n// useful for forcing the hook to execute\nthePost = store.findRecord('post', 1);\nthis.transitionTo('post', thePost.id);\n```\n\n\nThis hook follows the asynchronous/promise semantics\ndescribed in the documentation for `beforeModel`. In particular,\nif a promise returned from `model` fails, the error will be\nhandled by the `error` hook on `Ember.Route`.\n\nExample\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  model(params) {\n    return this.store.findRecord('post', params.post_id);\n  }\n});\n```",
             "itemtype": "method",
             "name": "model",
@@ -13007,7 +13007,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1570,
+            "line": 1566,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -13035,7 +13035,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1583,
+            "line": 1579,
             "itemtype": "method",
             "name": "findModel",
             "params": [
@@ -13059,7 +13059,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1595,
+            "line": 1590,
             "description": "Store property provides a hook for data persistence libraries to inject themselves.\n\nBy default, this store property provides the exact same functionality previously\nin the model hook.\n\nCurrently, the required interface is:\n\n`store.find(modelName, findArguments)`",
             "itemtype": "method",
             "name": "store",
@@ -13079,7 +13079,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1632,
+            "line": 1629,
             "description": "A hook you can implement to convert the route's model into parameters\nfor the URL.\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n\n```\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  model(params) {\n    // the server returns `{ id: 12 }`\n    return Ember.$.getJSON('/posts/' + params.post_id);\n  },\n\n  serialize(model) {\n    // this will make the URL `/posts/12`\n    return { post_id: model.id };\n  }\n});\n```\n\nThe default `serialize` method will insert the model's `id` into the\nroute's dynamic segment (in this case, `:post_id`) if the segment contains '_id'.\nIf the route has multiple dynamic segments or does not contain '_id', `serialize`\nwill return `Ember.getProperties(model, params)`\n\nThis method is called when `transitionTo` is called with a context\nin order to populate the URL.",
             "itemtype": "method",
             "name": "serialize",
@@ -13109,7 +13109,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1679,
+            "line": 1676,
             "description": "A hook you can use to setup the controller for the current route.\n\nThis method is called with the controller for the current route and the\nmodel supplied by the `model` hook.\n\nBy default, the `setupController` hook sets the `model` property of\nthe controller to the `model`.\n\nIf you implement the `setupController` hook in your Route, it will\nprevent this default behavior. If you want to preserve that behavior\nwhen implementing your `setupController` function, make sure to call\n`_super`:\n\n```app/routes/photos.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  model() {\n    return this.store.findAll('photo');\n  },\n\n  setupController(controller, model) {\n    // Call _super for default behavior\n    this._super(controller, model);\n    // Implement your custom setup after\n    this.controllerFor('application').set('showingPhotos', true);\n  }\n});\n```\n\nThe provided controller will be one resolved based on the name\nof this route.\n\nIf no explicit controller is defined, Ember will automatically create one.\n\nAs an example, consider the router:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n\nexport default Router;\n```\n\nFor the `post` route, a controller named `App.PostController` would\nbe used if it is defined. If it is not defined, a basic `Ember.Controller`\ninstance would be used.\n\nExample\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  setupController(controller, model) {\n    controller.set('model', model);\n  }\n});\n```",
             "itemtype": "method",
             "name": "setupController",
@@ -13135,7 +13135,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1755,
+            "line": 1752,
             "description": "Returns the controller of the current route, or a parent (or any ancestor)\nroute in a route hierarchy.\n\nThe controller instance must already have been created, either through entering the\nassociated route or using `generateController`.\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  setupController(controller, post) {\n    this._super(controller, post);\n    this.controllerFor('posts').set('currentPost', post);\n  }\n});\n```",
             "itemtype": "method",
             "name": "controllerFor",
@@ -13160,7 +13160,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1798,
+            "line": 1795,
             "description": "Generates a controller for a route.\n\nExample\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  setupController(controller, post) {\n    this._super(controller, post);\n    this.generateController('posts');\n  }\n});\n```",
             "itemtype": "method",
             "name": "generateController",
@@ -13180,7 +13180,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1824,
+            "line": 1821,
             "description": "Returns the resolved model of a parent (or any ancestor) route\nin a route hierarchy.  During a transition, all routes\nmust resolve a model object, and if a route\nneeds access to a parent route's model in order to\nresolve a model (or just reuse the model from a parent),\nit can call `this.modelFor(theNameOfParentRoute)` to\nretrieve it. If the ancestor route's model was a promise,\nits resolved result is returned.\n\nExample\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('post', { path: '/posts/:post_id' }, function() {\n    this.route('comments');\n  });\n});\n\nexport default Router;\n```\n\n```app/routes/post/comments.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  model() {\n    let post = this.modelFor('post');\n    return post.get('comments');\n  }\n});\n```",
             "itemtype": "method",
             "name": "modelFor",
@@ -13205,7 +13205,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1891,
+            "line": 1888,
             "description": "A hook you can use to render the template for the current route.\n\nThis method is called with the controller for the current route and the\nmodel supplied by the `model` hook. By default, it renders the route's\ntemplate, configured with the controller for the route.\n\nThis method can be overridden to set up and render additional or\nalternative templates.\n\n```app/routes/posts.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate(controller, model) {\n    let favController = this.controllerFor('favoritePost');\n\n    // Render the `favoritePost` template into\n    // the outlet `posts`, and display the `favoritePost`\n    // controller.\n    this.render('favoritePost', {\n      outlet: 'posts',\n      controller: favController\n    });\n  }\n});\n```",
             "itemtype": "method",
             "name": "renderTemplate",
@@ -13231,7 +13231,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 1929,
+            "line": 1926,
             "description": "`render` is used to render a template into a region of another template\n(indicated by an `{{outlet}}`). `render` is used both during the entry\nphase of routing (via the `renderTemplate` hook) and later in response to\nuser interaction.\n\nFor example, given the following minimal router and templates:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('photos');\n});\n\nexport default Router;\n```\n\n```handlebars\n<!-- application.hbs -->\n<div class='something-in-the-app-hbs'>\n  {{outlet \"anOutletName\"}}\n</div>\n```\n\n```handlebars\n<!-- photos.hbs -->\n<h1>Photos</h1>\n```\n\nYou can render `photos.hbs` into the `\"anOutletName\"` outlet of\n`application.hbs` by calling `render`:\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render('photos', {\n      into: 'application',\n      outlet: 'anOutletName'\n    })\n  }\n});\n```\n\n`render` additionally allows you to supply which `controller` and\n`model` objects should be loaded and associated with the rendered template.\n\n\n```app/routes/posts.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate(controller, model){\n    this.render('posts', {    // the template to render, referenced by name\n      into: 'application',    // the template to render into, referenced by name\n      outlet: 'anOutletName', // the outlet inside `options.template` to render into.\n      controller: 'someControllerName', // the controller to use for this template, referenced by name\n      model: model            // the model to set on `options.controller`.\n    })\n  }\n});\n```\n\nThe string values provided for the template name, and controller\nwill eventually pass through to the resolver for lookup. See\nEmber.Resolver for how these are mapped to JavaScript objects in your\napplication. The template to render into needs to be related to  either the\ncurrent route or one of its ancestors.\n\nNot all options need to be passed to `render`. Default values will be used\nbased on the name of the route specified in the router or the Route's\n`controllerName` and `templateName` properties.\n\nFor example:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n  this.route('post', { path: '/posts/:post_id' });\n});\n\nexport default Router;\n```\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render(); // all defaults apply\n  }\n});\n```\n\nThe name of the route, defined by the router, is `post`.\n\nThe following equivalent default options will be applied when\nthe Route calls `render`:\n\n```javascript\nthis.render('post', {  // the template name associated with 'post' Route\n  into: 'application', // the parent route to 'post' Route\n  outlet: 'main',      // {{outlet}} and {{outlet 'main'}} are synonymous,\n  controller: 'post',  // the controller associated with the 'post' Route\n})\n```\n\nBy default the controller's `model` will be the route's model, so it does not\nneed to be passed unless you wish to change which model is being used.",
             "itemtype": "method",
             "name": "render",
@@ -13284,7 +13284,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 2076,
+            "line": 2073,
             "description": "Disconnects a view that has been rendered into an outlet.\n\nYou may pass any or all of the following options to `disconnectOutlet`:\n\n* `outlet`: the name of the outlet to clear (default: 'main')\n* `parentView`: the name of the view containing the outlet to clear\n   (default: the view rendered by the parent route)\n\nExample:\n\n```app/routes/application.js\nimport Ember from 'ember';\n\nexport default App.Route.extend({\n  actions: {\n    showModal(evt) {\n      this.render(evt.modalName, {\n        outlet: 'modal',\n        into: 'application'\n      });\n    },\n    hideModal(evt) {\n      this.disconnectOutlet({\n        outlet: 'modal',\n        parentView: 'application'\n      });\n    }\n  }\n});\n```\n\nAlternatively, you can pass the `outlet` name directly as a string.\n\nExample:\n\n```app/routes/application.js\nimport Ember from 'ember';\n\nexport default App.Route.extend({\n  actions: {\n    showModal(evt) {\n      // ...\n    },\n    hideModal(evt) {\n      this.disconnectOutlet('modal');\n    }\n  }\n});",
             "itemtype": "method",
             "name": "disconnectOutlet",
@@ -13305,7 +13305,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 2191,
+            "line": 2189,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -20919,7 +20919,7 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " packages/ember-routing/lib/system/route.js:790"
+            "line": " packages/ember-routing/lib/system/route.js:789"
         },
         {
             "message": "Missing item type\nThe main entry point into the router. The API is essentially\nthe same as the `map` method in `route-recognizer`.\n\nThis method extracts the String handler at the last `.to()`\ncall and uses it as the name of the whole route.",

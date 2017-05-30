@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+311ce4ad
+ * @version   2.15.0-alpha.1-null+f4b151f3
  */
 
 var enifed, requireModule, Ember;
@@ -31322,7 +31322,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
 
   exports.defaultSerialize = defaultSerialize;
   exports.hasDefaultSerialize = hasDefaultSerialize;
-  var slice = Array.prototype.slice;
 
 
   function K() {
@@ -32033,19 +32032,22 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     activate: K,
 
     transitionTo: function (name, context) {
-      var router = this.router;
-      return router.transitionTo.apply(router, (0, _utils.prefixRouteNameArg)(this, arguments));
+      var _router;
+
+      return (_router = this.router).transitionTo.apply(_router, (0, _utils.prefixRouteNameArg)(this, arguments));
     },
     intermediateTransitionTo: function () {
-      var router = this.router;
-      router.intermediateTransitionTo.apply(router, (0, _utils.prefixRouteNameArg)(this, arguments));
+      var _router2;
+
+      (_router2 = this.router).intermediateTransitionTo.apply(_router2, (0, _utils.prefixRouteNameArg)(this, arguments));
     },
     refresh: function () {
       return this.router._routerMicrolib.refresh(this);
     },
     replaceWith: function () {
-      var router = this.router;
-      return router.replaceWith.apply(router, (0, _utils.prefixRouteNameArg)(this, arguments));
+      var _router3;
+
+      return (_router3 = this.router).replaceWith.apply(_router3, (0, _utils.prefixRouteNameArg)(this, arguments));
     },
     send: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -32053,15 +32055,14 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       }
 
       if (this.router && this.router._routerMicrolib || !(0, _emberDebug.isTesting)()) {
-        var _router;
+        var _router4;
 
-        (_router = this.router).send.apply(_router, args);
+        (_router4 = this.router).send.apply(_router4, args);
       } else {
-        var name = args[0];
-        args = slice.call(args, 1);
+        var name = args.shift();
         var action = this.actions[name];
         if (action) {
-          return this.actions[name].apply(this, args);
+          return action.apply(this, args);
         }
       }
     },
@@ -32239,21 +32240,22 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         }
 
         var match = prop.match(/^(.*)_id$/);
-        if (match) {
+        if (match !== null) {
           name = match[1];
           value = params[prop];
         }
         sawParams = true;
       }
 
-      if (!name && sawParams) {
-        return (0, _emberRuntime.copy)(params);
-      } else if (!name) {
-        if (transition.resolveIndex < 1) {
-          return;
+      if (!name) {
+        if (sawParams) {
+          return (0, _emberRuntime.copy)(params);
+        } else {
+          if (transition.resolveIndex < 1) {
+            return;
+          }
+          return transition.state.handlerInfos[transition.resolveIndex - 1].context;
         }
-
-        return transition.state.handlerInfos[transition.resolveIndex - 1].context;
       }
 
       return this.findModel(name, value);
@@ -32262,8 +32264,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       return this.model(this.paramsFor(this.routeName), transition);
     },
     findModel: function () {
-      var store = (0, _emberMetal.get)(this, 'store');
-      return store.find.apply(store, arguments);
+      var _get;
+
+      return (_get = (0, _emberMetal.get)(this, 'store')).find.apply(_get, arguments);
     },
 
 
@@ -32420,23 +32423,26 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     disconnectOutlet: function (options) {
       var outletName = void 0;
       var parentView = void 0;
-      if (!options || typeof options === 'string') {
-        outletName = options;
-      } else {
-        outletName = options.outlet;
-        parentView = options.parentView;
+      if (options) {
+        if (typeof options === 'string') {
+          outletName = options;
+        } else {
+          outletName = options.outlet;
+          parentView = options.parentView ? options.parentView.replace(/\//g, '.') : undefined;
 
-        (true && (0, _emberDebug.assert)('You passed undefined as the outlet name.', !('outlet' in options && options.outlet === undefined)));
+          (true && (0, _emberDebug.assert)('You passed undefined as the outlet name.', !('outlet' in options && options.outlet === undefined)));
+        }
       }
-      parentView = parentView && parentView.replace(/\//g, '.');
+
       outletName = outletName || 'main';
       this._disconnectOutlet(outletName, parentView);
-      for (var i = 0; i < this.router._routerMicrolib.currentHandlerInfos.length; i++) {
+      var handlerInfos = this.router._routerMicrolib.currentHandlerInfos;
+      for (var i = 0; i < handlerInfos.length; i++) {
         // This non-local state munging is sadly necessary to maintain
         // backward compatibility with our existing semantics, which allow
         // any route to disconnectOutlet things originally rendered by any
         // other route. This should all get cut in 2.0.
-        this.router._routerMicrolib.currentHandlerInfos[i].handler._disconnectOutlet(outletName, parentView);
+        handlerInfos[i].handler._disconnectOutlet(outletName, parentView);
       }
     },
     _disconnectOutlet: function (outletName, parentView) {
@@ -48025,7 +48031,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+311ce4ad";
+  exports.default = "2.15.0-alpha.1-null+f4b151f3";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
