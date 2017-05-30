@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+40d1953d
+ * @version   2.15.0-alpha.1-null+311ce4ad
  */
 
 var enifed, requireModule, Ember;
@@ -69107,11 +69107,11 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
 
     App.HomeRoute = _emberRouting.Route.extend({
       renderTemplate: function () {
-        try {
-          this.render('homepage', { controller: 'stefanpenneristhemanforme' });
-        } catch (e) {
-          equal(e.message, 'You passed `controller: \'stefanpenneristhemanforme\'` into the `render` method, but no such controller could be found.');
-        }
+        var _this = this;
+
+        expectAssertion(function () {
+          _this.render('homepage', { controller: 'stefanpenneristhemanforme' });
+        }, 'You passed `controller: \'stefanpenneristhemanforme\'` into the `render` method, but no such controller could be found.');
       }
     });
 

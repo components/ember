@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+40d1953d
+ * @version   2.15.0-alpha.1-null+311ce4ad
  */
 
 var enifed, requireModule, Ember;
@@ -32505,11 +32505,24 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
   }
 
   function buildRenderOptions(route, isDefaultRender, _name, options) {
-    var into = options && options.into && options.into.replace(/\//g, '.');
-    var outlet = options && options.outlet || 'main';
+    (true && (0, _emberDebug.assert)('You passed undefined as the outlet name.', isDefaultRender || !(options && 'outlet' in options && options.outlet === undefined)));
 
+
+    var owner = (0, _emberUtils.getOwner)(route);
     var name = void 0,
-        templateName = void 0;
+        templateName = void 0,
+        into = void 0,
+        outlet = void 0,
+        controller = void 0,
+        model = void 0;
+    if (options) {
+      into = options.into && options.into.replace(/\//g, '.');
+      outlet = options.outlet;
+      controller = options.controller;
+      model = options.model;
+    }
+    outlet = outlet || 'main';
+
     if (isDefaultRender) {
       name = route.routeName;
       templateName = route.templateName || name;
@@ -32518,8 +32531,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       templateName = name;
     }
 
-    var owner = (0, _emberUtils.getOwner)(route);
-    var controller = options && options.controller;
     if (!controller) {
       if (isDefaultRender) {
         controller = route.controllerName || owner.lookup('controller:' + name);
@@ -32531,19 +32542,16 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     if (typeof controller === 'string') {
       var controllerName = controller;
       controller = owner.lookup('controller:' + controllerName);
-      if (!controller) {
-        throw new _emberDebug.Error('You passed `controller: \'' + controllerName + '\'` into the `render` method, but no such controller could be found.');
-      }
+      (true && (0, _emberDebug.assert)('You passed `controller: \'' + controllerName + '\'` into the `render` method, but no such controller could be found.', isDefaultRender || controller));
     }
 
-    (true && (0, _emberDebug.assert)('You passed undefined as the outlet name.', isDefaultRender || !(options && 'outlet' in options && options.outlet === undefined)));
-
-
-    if (options && options.model) {
-      controller.set('model', options.model);
+    if (model) {
+      controller.set('model', model);
     }
 
     var template = owner.lookup('template:' + templateName);
+    (true && (0, _emberDebug.assert)('Could not find "' + templateName + '" template, view, or component.', isDefaultRender || template));
+
 
     var parent = void 0;
     if (into && (parent = parentRoute(route)) && into === parent.routeName) {
@@ -32559,9 +32567,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       template: template || route._topLevelViewTemplate,
       ViewClass: undefined
     };
-
-    (true && (0, _emberDebug.assert)('Could not find "' + name + '" template, view, or component.', isDefaultRender || template));
-
 
     if (true) {
       var LOG_VIEW_LOOKUPS = (0, _emberMetal.get)(route.router, 'namespace.LOG_VIEW_LOOKUPS');
@@ -48020,7 +48025,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+40d1953d";
+  exports.default = "2.15.0-alpha.1-null+311ce4ad";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
