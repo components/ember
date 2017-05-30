@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+92904171
+ * @version   2.15.0-alpha.1-null+40d1953d
  */
 
 var enifed, requireModule, Ember;
@@ -1576,24 +1576,29 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
   });
 
   QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
-    assert.expect(3);
+    assert.expect(5);
 
     appInstance = (0, _emberMetal.run)(function () {
       return _applicationInstance.default.create({ application: application });
     });
 
-    var PostController = (0, _internalTestHelpers.factory)();
+    var PostController1 = (0, _internalTestHelpers.factory)();
+    var PostController2 = (0, _internalTestHelpers.factory)();
 
-    appInstance.register('controller:post', PostController);
+    appInstance.register('controller:post', PostController1);
 
     var postController1 = appInstance.lookup('controller:post');
-    assert.ok(postController1, 'lookup creates instance');
+    var postController1Factory = appInstance.factoryFor('controller:post');
+    assert.ok(postController1 instanceof PostController1, 'precond - lookup creates instance');
+    assert.equal(PostController1, postController1Factory.class, 'precond - factoryFor().class matches');
 
     appInstance.unregister('controller:post');
-    appInstance.register('controller:post', PostController);
+    appInstance.register('controller:post', PostController2);
 
     var postController2 = appInstance.lookup('controller:post');
-    assert.ok(postController2, 'lookup creates instance');
+    var postController2Factory = appInstance.factoryFor('controller:post');
+    assert.ok(postController2 instanceof PostController2, 'lookup creates instance');
+    assert.equal(PostController2, postController2Factory.class, 'factoryFor().class matches');
 
     assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });

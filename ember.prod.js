@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+92904171
+ * @version   2.15.0-alpha.1-null+40d1953d
  */
 
 var enifed, requireModule, Ember;
@@ -10334,7 +10334,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
       this.isDestroyed = true;
     },
     reset: function (fullName) {
-      if (arguments.length > 0) {
+      if (fullName !== undefined) {
         resetMember(this, this.registry.normalize(fullName));
       } else {
         resetCache(this);
@@ -44118,7 +44118,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+92904171";
+  exports.default = "2.15.0-alpha.1-null+40d1953d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

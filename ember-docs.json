@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.92904171"
+        "version": "2.15.0-alpha.1.40d1953d"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -5079,7 +5079,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 123,
+            "line": 124,
             "description": "Returns an object that can be used to provide an owner to a\nmanually created instance.",
             "access": "private",
             "tagname": "",
@@ -5093,7 +5093,7 @@
         },
         {
             "file": "packages/container/lib/container.js",
-            "line": 134,
+            "line": 135,
             "description": "Given a fullName, return the corresponding factory. The consumer of the factory\nis responsible for the destruction of any factory instances, as there is no\nway for the container to ensure instances are destroyed when it itself is\ndestroyed.",
             "access": "public",
             "tagname": "",
@@ -20915,7 +20915,7 @@
     "warnings": [
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " packages/container/lib/container.js:123"
+            "line": " packages/container/lib/container.js:124"
         },
         {
             "message": "replacing incorrect tag: returns with return",
