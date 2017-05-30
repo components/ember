@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+f4b151f3
+ * @version   2.15.0-alpha.1-null+f183e43a
  */
 
 var enifed, requireModule, Ember;
@@ -1541,6 +1541,18 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers'], 
     assert.ok(!result, 'foo:baz/qux not found');
 
     assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
+  });
+
+  QUnit.module('Registry privatize');
+
+  QUnit.test('valid format', function (assert) {
+    var privatized = (0, _container.privatize)(['secret:factory']);
+    var matched = privatized.match(/^([^:]+):([^:]+)-(\d+)$/);
+
+    assert.ok(matched, 'privatized format was recognized');
+    assert.equal(matched[1], 'secret');
+    assert.equal(matched[2], 'factory');
+    assert.ok(/^\d+$/.test(matched[3]));
   });
 });
 QUnit.module('ESLint | container/tests/registry_test.js');

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+f4b151f3
+ * @version   2.15.0-alpha.1-null+f183e43a
  */
 
 var enifed, requireModule, Ember;
@@ -9955,12 +9955,14 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
    @private
    @class Container
    */
-  function Container(registry, options) {
+  function Container(registry) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     this.registry = registry;
-    this.owner = options && options.owner ? options.owner : null;
-    this.cache = (0, _emberUtils.dictionary)(options && options.cache ? options.cache : null);
-    this.factoryManagerCache = (0, _emberUtils.dictionary)(options && options.factoryManagerCache ? options.factoryManagerCache : null);
-    this.validationCache = (0, _emberUtils.dictionary)(options && options.validationCache ? options.validationCache : null);
+    this.owner = options.owner || null;
+    this.cache = (0, _emberUtils.dictionary)(options.cache || null);
+    this.validationCache = (0, _emberUtils.dictionary)(options.validationCache || null);
+    this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
     this[CONTAINER_OVERRIDE] = undefined;
     this.isDestroyed = false;
   }
@@ -10322,18 +10324,19 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
    @class Registry
    @since 1.11.0
   */
-  function Registry(options) {
-    this.fallback = options && options.fallback ? options.fallback : null;
+  function Registry() {
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    if (options && options.resolver) {
+    this.fallback = options.fallback || null;
+
+    if (options.resolver) {
       this.resolver = options.resolver;
-
       if (typeof this.resolver === 'function') {
         deprecateResolverFunction(this);
       }
     }
 
-    this.registrations = (0, _emberUtils.dictionary)(options && options.registrations ? options.registrations : null);
+    this.registrations = (0, _emberUtils.dictionary)(options.registrations || null);
 
     this._typeInjections = (0, _emberUtils.dictionary)(null);
     this._injections = (0, _emberUtils.dictionary)(null);
@@ -10762,7 +10765,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }
 
   var privateNames = (0, _emberUtils.dictionary)(null);
-  var privateSuffix = '' + Math.random() + Date.now();
+  var privateSuffix = ('' + Math.random() + Date.now()).replace('.', '');
 
   function privatize(_ref6) {
     var fullName = _ref6[0];
@@ -16601,21 +16604,19 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     }),
 
     transitioningIn: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningIn() {
-      var willBeActive = (0, _emberMetal.get)(this, 'willBeActive');
-      if (typeof willBeActive === 'undefined') {
+      if ((0, _emberMetal.get)(this, 'willBeActive') === true && !(0, _emberMetal.get)(this, 'active')) {
+        return 'ember-transitioning-in';
+      } else {
         return false;
       }
-
-      return !(0, _emberMetal.get)(this, 'active') && willBeActive && 'ember-transitioning-in';
     }),
 
     transitioningOut: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningOut() {
-      var willBeActive = (0, _emberMetal.get)(this, 'willBeActive');
-      if (typeof willBeActive === 'undefined') {
+      if ((0, _emberMetal.get)(this, 'willBeActive') === false && (0, _emberMetal.get)(this, 'active')) {
+        return 'ember-transitioning-out';
+      } else {
         return false;
       }
-
-      return (0, _emberMetal.get)(this, 'active') && !willBeActive && 'ember-transitioning-out';
     }),
 
     _invoke: function (event) {
@@ -48031,7 +48032,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+f4b151f3";
+  exports.default = "2.15.0-alpha.1-null+f183e43a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

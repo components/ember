@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+f4b151f3
+ * @version   2.15.0-alpha.1-null+f183e43a
  */
 
 var enifed, requireModule, Ember;
@@ -5592,12 +5592,14 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
    @private
    @class Container
    */
-  function Container(registry, options) {
+  function Container(registry) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     this.registry = registry;
-    this.owner = options && options.owner ? options.owner : null;
-    this.cache = (0, _emberUtils.dictionary)(options && options.cache ? options.cache : null);
-    this.factoryManagerCache = (0, _emberUtils.dictionary)(options && options.factoryManagerCache ? options.factoryManagerCache : null);
-    this.validationCache = (0, _emberUtils.dictionary)(options && options.validationCache ? options.validationCache : null);
+    this.owner = options.owner || null;
+    this.cache = (0, _emberUtils.dictionary)(options.cache || null);
+    this.validationCache = (0, _emberUtils.dictionary)(options.validationCache || null);
+    this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
     this[CONTAINER_OVERRIDE] = undefined;
     this.isDestroyed = false;
   }
@@ -5967,18 +5969,19 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
    @class Registry
    @since 1.11.0
   */
-  function Registry(options) {
-    this.fallback = options && options.fallback ? options.fallback : null;
+  function Registry() {
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    if (options && options.resolver) {
+    this.fallback = options.fallback || null;
+
+    if (options.resolver) {
       this.resolver = options.resolver;
-
       if (typeof this.resolver === 'function') {
         deprecateResolverFunction(this);
       }
     }
 
-    this.registrations = (0, _emberUtils.dictionary)(options && options.registrations ? options.registrations : null);
+    this.registrations = (0, _emberUtils.dictionary)(options.registrations || null);
 
     this._typeInjections = (0, _emberUtils.dictionary)(null);
     this._injections = (0, _emberUtils.dictionary)(null);
@@ -6410,7 +6413,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
   }
 
   var privateNames = (0, _emberUtils.dictionary)(null);
-  var privateSuffix = '' + Math.random() + Date.now();
+  var privateSuffix = ('' + Math.random() + Date.now()).replace('.', '');
 
   /*
   Public API for the container is still in flux.
@@ -17319,7 +17322,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+f4b151f3";
+  exports.default = "2.15.0-alpha.1-null+f183e43a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
