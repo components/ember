@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.2-release+3384ae52
+ * @version   2.13.2-release+08952376
  */
 
 var enifed, requireModule, Ember;
@@ -1106,13 +1106,13 @@ enifed('container/tests/owner_test.lint-test', ['exports'], function (exports) {
     assert.ok(true, 'container/tests/owner_test.js should pass ESLint\n\n');
   });
 });
-enifed('container/tests/registry_test', ['exports', 'container/index', 'internal-test-helpers'], function (exports, _containerIndex, _internalTestHelpers) {
+enifed('container/tests/registry_test', ['exports', 'container', 'internal-test-helpers'], function (exports, _container, _internalTestHelpers) {
   'use strict';
 
   QUnit.module('Registry');
 
   QUnit.test('A registered factory is returned from resolve', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
 
     registry.register('controller:post', PostController);
@@ -1124,7 +1124,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('The registered factory returned from resolve is the same factory each time', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
 
     registry.register('controller:post', PostController);
@@ -1133,7 +1133,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('The registered value returned from resolve is the same value each time even if the value is falsy', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
 
     registry.register('falsy:value', null, { instantiate: false });
 
@@ -1148,13 +1148,13 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
         }
       }
     };
-    var registry = new _containerIndex.Registry({ resolver: resolver });
+    var registry = new _container.Registry({ resolver: resolver });
 
     strictEqual(registry.resolve('falsy:value'), null);
   });
 
   QUnit.test('A registered factory returns true for `has` if an item is registered', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
 
     registry.register('controller:post', PostController);
@@ -1164,7 +1164,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('Throw exception when trying to inject `type:thing` on all type(s)', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
 
     registry.register('controller:post', PostController);
@@ -1183,7 +1183,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
         }
       }
     };
-    var registry = new _containerIndex.Registry({ resolver: resolver });
+    var registry = new _container.Registry({ resolver: resolver });
 
     strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
   });
@@ -1197,13 +1197,13 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
         }
       }
     };
-    var registry = new _containerIndex.Registry({ resolver: resolver });
+    var registry = new _container.Registry({ resolver: resolver });
 
     ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
   });
 
   QUnit.test('The registry normalizes names when resolving', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
 
     registry.normalizeFullName = function (fullName) {
@@ -1217,7 +1217,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('The registry normalizes names when checking if the factory is registered', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
 
     registry.normalizeFullName = function (fullName) {
@@ -1233,7 +1233,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   QUnit.test('validateFullName throws an error if name is incorrect', function () {
     expect(2);
 
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
 
     registry.normalize = function (fullName) {
@@ -1251,7 +1251,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('The registry normalizes names when injecting', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
     var user = { name: 'Stef' };
 
@@ -1267,7 +1267,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('cannot register an `undefined` factory', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
 
     throws(function () {
       registry.register('controller:apple', undefined);
@@ -1275,7 +1275,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('can re-register a factory', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var FirstApple = _internalTestHelpers.factory('first');
     var SecondApple = _internalTestHelpers.factory('second');
 
@@ -1286,7 +1286,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('cannot re-register a factory if it has been resolved', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var FirstApple = _internalTestHelpers.factory('first');
     var SecondApple = _internalTestHelpers.factory('second');
 
@@ -1303,7 +1303,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   QUnit.test('registry.has should not accidentally cause injections on that factory to be run. (Mitigate merely on observing)', function () {
     expect(1);
 
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var FirstApple = _internalTestHelpers.factory('first');
     var SecondApple = _internalTestHelpers.factory('second');
 
@@ -1321,7 +1321,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   QUnit.test('registry.has should not error for invalid fullNames)', function () {
     expect(1);
 
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
 
     ok(!registry.has('foo:bar:baz'));
   });
@@ -1329,7 +1329,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   QUnit.test('once resolved, always return the same result', function () {
     expect(1);
 
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
 
     registry.resolver = {
       resolve: function () {
@@ -1349,7 +1349,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('factory resolves are cached', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
     var resolveWasCalled = [];
 
@@ -1369,7 +1369,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('factory for non extendables (MODEL) resolves are cached', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
     var resolveWasCalled = [];
 
@@ -1389,7 +1389,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('factory for non extendables resolves are cached', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = {};
     var resolveWasCalled = [];
 
@@ -1409,7 +1409,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('registry.container creates a container', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
     var PostController = _internalTestHelpers.factory();
     registry.register('controller:post', PostController);
 
@@ -1432,7 +1432,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({ fallback: fallback, resolver: resolver });
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
 
     equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
 
@@ -1458,7 +1458,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({ fallback: fallback, resolver: resolver });
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
 
     equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
 
@@ -1484,7 +1484,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({ fallback: fallback, resolver: resolver });
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
 
     equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
 
@@ -1498,9 +1498,9 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`resolve` can be handled by a fallback registry', function () {
-    var fallback = new _containerIndex.Registry();
+    var fallback = new _container.Registry();
 
-    var registry = new _containerIndex.Registry({ fallback: fallback });
+    var registry = new _container.Registry({ fallback: fallback });
     var PostController = _internalTestHelpers.factory();
 
     fallback.register('controller:post', PostController);
@@ -1512,9 +1512,9 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`has` can be handled by a fallback registry', function () {
-    var fallback = new _containerIndex.Registry();
+    var fallback = new _container.Registry();
 
-    var registry = new _containerIndex.Registry({ fallback: fallback });
+    var registry = new _container.Registry({ fallback: fallback });
     var PostController = _internalTestHelpers.factory();
 
     fallback.register('controller:post', PostController);
@@ -1523,8 +1523,8 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`getInjections` includes injections from a fallback registry', function () {
-    var fallback = new _containerIndex.Registry();
-    var registry = new _containerIndex.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getInjections('model:user').length, 0, 'No injections in the primary registry');
 
@@ -1534,8 +1534,8 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`getTypeInjections` includes type injections from a fallback registry', function () {
-    var fallback = new _containerIndex.Registry();
-    var registry = new _containerIndex.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getTypeInjections('model').length, 0, 'No injections in the primary registry');
 
@@ -1545,8 +1545,8 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`getFactoryInjections` includes factory injections from a fallback registry', function () {
-    var fallback = new _containerIndex.Registry();
-    var registry = new _containerIndex.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getFactoryInjections('model:user').length, 0, 'No factory injections in the primary registry');
 
@@ -1556,8 +1556,8 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`getFactoryTypeInjections` includes factory type injections from a fallback registry', function () {
-    var fallback = new _containerIndex.Registry();
-    var registry = new _containerIndex.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     equal(registry.getFactoryTypeInjections('model').length, 0, 'No factory type injections in the primary registry');
 
@@ -1567,7 +1567,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`knownForType` contains keys for each item of a given type', function () {
-    var registry = new _containerIndex.Registry();
+    var registry = new _container.Registry();
 
     registry.register('foo:bar-baz', 'baz');
     registry.register('foo:qux-fez', 'fez');
@@ -1581,8 +1581,8 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   });
 
   QUnit.test('`knownForType` includes fallback registry results', function () {
-    var fallback = new _containerIndex.Registry();
-    var registry = new _containerIndex.Registry({ fallback: fallback });
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
 
     registry.register('foo:bar-baz', 'baz');
     registry.register('foo:qux-fez', 'fez');
@@ -1609,7 +1609,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
     registry.register('foo:bar-baz', 'baz');
@@ -1628,7 +1628,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
     var registry = undefined;
 
     expectDeprecation(function () {
-      registry = new _containerIndex.Registry({
+      registry = new _container.Registry({
         resolver: function (fullName) {
           return fullName + '-resolved';
         }
@@ -1641,7 +1641,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
   QUnit.test('resolver.expandLocalLookup is not required', function (assert) {
     assert.expect(1);
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       resolver: {}
     });
 
@@ -1665,7 +1665,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1699,11 +1699,11 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var fallbackRegistry = new _containerIndex.Registry({
+    var fallbackRegistry = new _container.Registry({
       resolver: fallbackResolver
     });
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       fallback: fallbackRegistry,
       resolver: resolver
     });
@@ -1743,7 +1743,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1772,7 +1772,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1805,7 +1805,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1837,7 +1837,7 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
       }
     };
 
-    var registry = new _containerIndex.Registry({
+    var registry = new _container.Registry({
       resolver: resolver
     });
 
@@ -1854,6 +1854,18 @@ enifed('container/tests/registry_test', ['exports', 'container/index', 'internal
     assert.ok(!result, 'foo:baz/qux not found');
 
     assert.deepEqual(['foo:qux/bar'], resolvedFullNames);
+  });
+
+  QUnit.module('Registry privatize');
+
+  QUnit.test('valid format', function (assert) {
+    var privatized = _container.privatize(['secret:factory']);
+    var matched = privatized.match(/^([^:]+):([^:]+)-(\d+)$/);
+
+    assert.ok(matched, 'privatized format was recognized');
+    assert.equal(matched[1], 'secret');
+    assert.equal(matched[2], 'factory');
+    assert.ok(/^\d+$/.test(matched[3]));
   });
 });
 enifed('container/tests/registry_test.lint-test', ['exports'], function (exports) {

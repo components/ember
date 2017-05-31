@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.2-release+3384ae52
+ * @version   2.13.2-release+08952376
  */
 
 var enifed, requireModule, Ember;
@@ -2984,7 +2984,7 @@ enifed('container/registry', ['exports', 'ember-utils', 'ember-debug', 'containe
   }
 
   var privateNames = _emberUtils.dictionary(null);
-  var privateSuffix = '' + Math.random() + Date.now();
+  var privateSuffix = ('' + Math.random() + Date.now()).replace('.', '');
 
   function privatize(_ref) {
     var fullName = _ref[0];
@@ -19943,7 +19943,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.2-release+3384ae52";
+  exports.default = "2.13.2-release+08952376";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
