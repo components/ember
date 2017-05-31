@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.2-null+ab2560e4
+ * @version   2.14.0-beta.2-null+2e0a4de6
  */
 
 var enifed, requireModule, Ember;
@@ -4386,17 +4386,25 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
 
         RawInlineBlock.prototype.scan = function scan() {
             var buffer = [];
-            for (var i = 0; i < this.statements.length; i++) {
-                var statement = this.statements[i];
-                if (_wireFormat.Statements.isBlock(statement)) {
-                    buffer.push(this.specializeBlock(statement));
-                } else if (_wireFormat.Statements.isComponent(statement)) {
-                    buffer.push.apply(buffer, this.specializeComponent(statement));
-                } else {
-                    buffer.push(statement);
-                }
-            }
+            this.specializeStatements(this.statements, buffer);
             return new InlineBlock(buffer, this.table);
+        };
+
+        RawInlineBlock.prototype.specializeStatements = function specializeStatements(statements, buffer) {
+            for (var i = 0; i < statements.length; i++) {
+                var statement = statements[i];
+                this.specializeStatement(statement, buffer);
+            }
+        };
+
+        RawInlineBlock.prototype.specializeStatement = function specializeStatement(statement, buffer) {
+            if (_wireFormat.Statements.isBlock(statement)) {
+                buffer.push(this.specializeBlock(statement));
+            } else if (_wireFormat.Statements.isComponent(statement)) {
+                buffer.push.apply(buffer, this.specializeComponent(statement));
+            } else {
+                buffer.push(statement);
+            }
         };
 
         RawInlineBlock.prototype.specializeBlock = function specializeBlock(block$$1) {
@@ -4418,13 +4426,13 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
                 var attrs = new RawInlineBlock(this.env, this.table, component.attrs);
                 return [[Ops$2.ScannedComponent, tag, attrs, component.args, child]];
             } else {
-                var buf = [];
-                buf.push([Ops$2.OpenElement, tag, []]);
-                buf.push.apply(buf, component.attrs);
-                buf.push([Ops$2.FlushElement]);
-                buf.push.apply(buf, component.statements);
-                buf.push([Ops$2.CloseElement]);
-                return buf;
+                var buff = [];
+                buff.push([Ops$2.OpenElement, tag, []]);
+                this.specializeStatements(component.attrs, buff);
+                buff.push([Ops$2.FlushElement]);
+                this.specializeStatements(component.statements, buff);
+                buff.push([Ops$2.CloseElement]);
+                return buff;
             }
         };
 
@@ -4827,26 +4835,6 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             blocks = _builder$env$macros4.blocks;
 
         blocks.compile([Ops$1.NestedBlock, path, params, hash, templateBlock, inverseBlock], builder);
-    });
-    // this fixes an issue with Ember versions using glimmer-vm@0.22 when attempting
-    // to use nested web components.  This is obviously not correct for angle bracket components
-    // but since no consumers are currently using them with glimmer@0.22.x we are hard coding
-    // support to just use the fallback case.
-    STATEMENTS.add(Ops$1.Component, function (sexp, builder) {
-        var tag = sexp[1],
-            component = sexp[2];
-        var attrs = component.attrs,
-            statements = component.statements;
-
-        builder.openPrimitiveElement(tag);
-        for (var i = 0; i < attrs.length; i++) {
-            STATEMENTS.compile(attrs[i], builder);
-        }
-        builder.flushElement();
-        for (var _i2 = 0; _i2 < statements.length; _i2++) {
-            STATEMENTS.compile(statements[_i2], builder);
-        }
-        builder.closeElement();
     });
     STATEMENTS.add(Ops$1.ScannedComponent, function (sexp, builder) {
         var tag = sexp[1],
@@ -6266,30 +6254,30 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
             var updatedComponents = this.updatedComponents,
                 updatedManagers = this.updatedManagers;
 
-            for (var _i3 = 0; _i3 < updatedComponents.length; _i3++) {
-                var _component2 = updatedComponents[_i3];
-                var _manager2 = updatedManagers[_i3];
+            for (var _i2 = 0; _i2 < updatedComponents.length; _i2++) {
+                var _component2 = updatedComponents[_i2];
+                var _manager2 = updatedManagers[_i2];
                 _manager2.didUpdate(_component2);
             }
             var destructors = this.destructors;
 
-            for (var _i4 = 0; _i4 < destructors.length; _i4++) {
-                destructors[_i4].destroy();
+            for (var _i3 = 0; _i3 < destructors.length; _i3++) {
+                destructors[_i3].destroy();
             }
             var scheduledInstallManagers = this.scheduledInstallManagers,
                 scheduledInstallModifiers = this.scheduledInstallModifiers;
 
-            for (var _i5 = 0; _i5 < scheduledInstallManagers.length; _i5++) {
-                var _manager3 = scheduledInstallManagers[_i5];
-                var modifier = scheduledInstallModifiers[_i5];
+            for (var _i4 = 0; _i4 < scheduledInstallManagers.length; _i4++) {
+                var _manager3 = scheduledInstallManagers[_i4];
+                var modifier = scheduledInstallModifiers[_i4];
                 _manager3.install(modifier);
             }
             var scheduledUpdateModifierManagers = this.scheduledUpdateModifierManagers,
                 scheduledUpdateModifiers = this.scheduledUpdateModifiers;
 
-            for (var _i6 = 0; _i6 < scheduledUpdateModifierManagers.length; _i6++) {
-                var _manager4 = scheduledUpdateModifierManagers[_i6];
-                var _modifier = scheduledUpdateModifiers[_i6];
+            for (var _i5 = 0; _i5 < scheduledUpdateModifierManagers.length; _i5++) {
+                var _manager4 = scheduledUpdateModifierManagers[_i5];
+                var _modifier = scheduledUpdateModifiers[_i5];
                 _manager4.update(_modifier);
             }
         };
@@ -6412,7 +6400,6 @@ enifed('@glimmer/runtime', ['exports', 'ember-babel', '@glimmer/util', '@glimmer
         };
 
         Environment.prototype.begin = function begin() {
-
             this._transaction = new Transaction();
         };
 
@@ -48038,7 +48025,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.2-null+ab2560e4";
+  exports.default = "2.14.0-beta.2-null+2e0a4de6";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
