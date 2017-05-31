@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+91dd6bbf
+ * @version   2.15.0-alpha.1-null+eff9312c
  */
 
 var enifed, requireModule, Ember;
@@ -69164,7 +69164,7 @@ enifed('ember/tests/production_build_test', ['ember-debug'], function (_emberDeb
       assert.expect(1);
 
       try {
-        (true && (0, _emberDebug.assert)('Should not throw'));
+        (true && !(false) && (0, _emberDebug.assert)('Should not throw'));
 
         assert.ok(true, 'Ember.assert did not throw');
       } catch (e) {
