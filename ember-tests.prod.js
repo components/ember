@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+f183e43a
+ * @version   2.15.0-alpha.1-null+91dd6bbf
  */
 
 var enifed, requireModule, Ember;
@@ -21572,8 +21572,69 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
     };
 
-    _class.prototype['@test dispatches to the nearest event manager'] = function (assert) {
+    _class.prototype['@test events bubble to parent view'] = function (assert) {
       var _this3 = this;
+
+      var receivedEvent = void 0;
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _helpers.Component.extend({
+          change: function (event) {
+            receivedEvent = event;
+          }
+        }),
+        template: '{{yield}}'
+      });
+
+      this.registerComponent('x-bar', {
+        ComponentClass: _helpers.Component.extend({
+          change: function () {}
+        }),
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{#x-foo}}{{x-bar}}{{/x-foo}}');
+
+      this.runTask(function () {
+        return _this3.$('#is-done').trigger('change');
+      });
+      assert.ok(receivedEvent, 'change event was triggered');
+      assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
+    };
+
+    _class.prototype['@test events bubbling up can be prevented'] = function (assert) {
+      var _this4 = this;
+
+      var hasReceivedEvent = void 0;
+
+      this.registerComponent('x-foo', {
+        ComponentClass: _helpers.Component.extend({
+          change: function () {
+            hasReceivedEvent = true;
+          }
+        }),
+        template: '{{yield}}'
+      });
+
+      this.registerComponent('x-bar', {
+        ComponentClass: _helpers.Component.extend({
+          change: function () {
+            return false;
+          }
+        }),
+        template: '<input id="is-done" type="checkbox">'
+      });
+
+      this.render('{{#x-foo}}{{x-bar}}{{/x-foo}}');
+
+      this.runTask(function () {
+        return _this4.$('#is-done').trigger('change');
+      });
+      assert.notOk(hasReceivedEvent, 'change event has not been received');
+    };
+
+    _class.prototype['@test dispatches to the nearest event manager'] = function (assert) {
+      var _this5 = this;
 
       var receivedEvent = void 0;
 
@@ -21597,13 +21658,13 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       this.render('{{x-foo}}');
 
       this.runTask(function () {
-        return _this3.$('#is-done').trigger('click');
+        return _this5.$('#is-done').trigger('click');
       });
       assert.strictEqual(receivedEvent.target, this.$('#is-done')[0]);
     };
 
     _class.prototype['@test event manager can re-dispatch to the component'] = function (assert) {
-      var _this4 = this;
+      var _this6 = this;
 
       var handlers = [];
 
@@ -21636,7 +21697,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       this.render('{{x-foo}}');
 
       this.runTask(function () {
-        return _this4.$('#is-done').trigger('click');
+        return _this6.$('#is-done').trigger('click');
       });
       assert.deepEqual(handlers, ['eventManager', 'component']);
     };
@@ -21664,13 +21725,13 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
 
     function _class2() {
 
-      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.call(this));
+      var _this7 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.call(this));
 
-      var dispatcher = _this5.owner.lookup('event_dispatcher:main');
+      var dispatcher = _this7.owner.lookup('event_dispatcher:main');
       (0, _emberMetal.run)(dispatcher, 'destroy');
-      _this5.owner.__container__.reset('event_dispatcher:main');
-      _this5.dispatcher = _this5.owner.lookup('event_dispatcher:main');
-      return _this5;
+      _this7.owner.__container__.reset('event_dispatcher:main');
+      _this7.dispatcher = _this7.owner.lookup('event_dispatcher:main');
+      return _this7;
     }
 
     _class2.prototype['@test additional events can be specified'] = function (assert) {
@@ -21747,10 +21808,10 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     };
 
     _class2.prototype['@test throws if specified rootElement does not exist'] = function (assert) {
-      var _this6 = this;
+      var _this8 = this;
 
       assert.throws(function () {
-        _this6.dispatcher.setup({ myevent: 'myEvent' }, '#app');
+        _this8.dispatcher.setup({ myevent: 'myEvent' }, '#app');
       });
     };
 
