@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.3
+ * @version   2.14.0-beta.3-null+a6923dff
  */
 
 var enifed, requireModule, Ember;
@@ -20695,6 +20695,9 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
     }
   });
   var UPDATE = exports.UPDATE = (0, _emberUtils.symbol)('UPDATE');
+
+  // @abstract
+  // @implements PathReference
 
   var EmberPathReference = function () {
     function EmberPathReference() {}
@@ -43821,7 +43824,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.3";
+  exports.default = "2.14.0-beta.3-null+a6923dff";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
