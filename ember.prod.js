@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+e4f4b8f5
+ * @version   2.15.0-alpha.1-null+a0f2ab8b
  */
 
 var enifed, requireModule, Ember;
@@ -42393,7 +42393,7 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
   exports.default = _emberMetal.Mixin.create(_emberRuntime.TargetActionSupport, {
     value: '',
 
-    attributeBindings: ['autocapitalize', 'autocorrect', 'autofocus', 'disabled', 'form', 'maxlength', 'placeholder', 'readonly', 'required', 'selectionDirection', 'spellcheck', 'tabindex', 'title'],
+    attributeBindings: ['autocapitalize', 'autocorrect', 'autofocus', 'disabled', 'form', 'maxlength', 'minlength', 'placeholder', 'readonly', 'required', 'selectionDirection', 'spellcheck', 'tabindex', 'title'],
     placeholder: null,
     disabled: false,
     maxlength: null,
@@ -44193,7 +44193,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+e4f4b8f5";
+  exports.default = "2.15.0-alpha.1-null+a0f2ab8b";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

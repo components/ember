@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+e4f4b8f5
+ * @version   2.15.0-alpha.1-null+a0f2ab8b
  */
 
 var enifed, requireModule, Ember;
@@ -27044,12 +27044,13 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     _class.prototype['@test dynamic attributes'] = function () {
       var _this6 = this;
 
-      this.render('\n      {{input type="text"\n        disabled=disabled\n        value=value\n        placeholder=placeholder\n        name=name\n        maxlength=maxlength\n        size=size\n        tabindex=tabindex\n      }}', {
+      this.render('\n      {{input type="text"\n        disabled=disabled\n        value=value\n        placeholder=placeholder\n        name=name\n        maxlength=maxlength\n        minlength=minlength\n        size=size\n        tabindex=tabindex\n      }}', {
         disabled: false,
         value: 'Original value',
         placeholder: 'Original placeholder',
         name: 'original-name',
         maxlength: 10,
+        minlength: 5,
         size: 20,
         tabindex: 30
       });
@@ -27059,6 +27060,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('placeholder', 'Original placeholder');
       this.assertAttr('name', 'original-name');
       this.assertAttr('maxlength', '10');
+      this.assertAttr('minlength', '5');
       // this.assertAttr('size', '20'); //NOTE: failing in IE  (TEST_SUITE=sauce)
       // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
 
@@ -27071,6 +27073,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('placeholder', 'Original placeholder');
       this.assertAttr('name', 'original-name');
       this.assertAttr('maxlength', '10');
+      this.assertAttr('minlength', '5');
       // this.assertAttr('size', '20'); //NOTE: failing in IE (TEST_SUITE=sauce)
       // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
 
@@ -27080,6 +27083,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
         (0, _emberMetal.set)(_this6.context, 'placeholder', 'Updated placeholder');
         (0, _emberMetal.set)(_this6.context, 'name', 'updated-name');
         (0, _emberMetal.set)(_this6.context, 'maxlength', 11);
+        (0, _emberMetal.set)(_this6.context, 'minlength', 6);
         // set(this.context, 'size', 21); //NOTE: failing in IE (TEST_SUITE=sauce)
         // set(this.context, 'tabindex', 31); //NOTE: failing in IE (TEST_SUITE=sauce)
       });
@@ -27089,6 +27093,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('placeholder', 'Updated placeholder');
       this.assertAttr('name', 'updated-name');
       this.assertAttr('maxlength', '11');
+      this.assertAttr('minlength', '6');
       // this.assertAttr('size', '21'); //NOTE: failing in IE (TEST_SUITE=sauce)
       // this.assertAttr('tabindex', '31'); //NOTE: failing in IE (TEST_SUITE=sauce)
 
@@ -27098,6 +27103,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
         (0, _emberMetal.set)(_this6.context, 'placeholder', 'Original placeholder');
         (0, _emberMetal.set)(_this6.context, 'name', 'original-name');
         (0, _emberMetal.set)(_this6.context, 'maxlength', 10);
+        (0, _emberMetal.set)(_this6.context, 'minlength', 5);
         // set(this.context, 'size', 20); //NOTE: failing in IE (TEST_SUITE=sauce)
         // set(this.context, 'tabindex', 30); //NOTE: failing in IE (TEST_SUITE=sauce)
       });
@@ -27107,6 +27113,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('placeholder', 'Original placeholder');
       this.assertAttr('name', 'original-name');
       this.assertAttr('maxlength', '10');
+      this.assertAttr('minlength', '5');
       // this.assertAttr('size', '20'); //NOTE: failing in IE (TEST_SUITE=sauce)
       // this.assertAttr('tabindex', '30'); //NOTE: failing in IE (TEST_SUITE=sauce)
     };
@@ -27114,13 +27121,14 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     _class.prototype['@test static attributes'] = function () {
       var _this7 = this;
 
-      this.render('\n      {{input type="text"\n        disabled=true\n        value="Original value"\n        placeholder="Original placeholder"\n        name="original-name"\n        maxlength=10\n        size=20\n        tabindex=30\n      }}');
+      this.render('\n      {{input type="text"\n        disabled=true\n        value="Original value"\n        placeholder="Original placeholder"\n        name="original-name"\n        maxlength=10\n        minlength=5\n        size=20\n        tabindex=30\n      }}');
 
       this.assertDisabled();
       this.assertValue('Original value');
       this.assertAttr('placeholder', 'Original placeholder');
       this.assertAttr('name', 'original-name');
       this.assertAttr('maxlength', '10');
+      this.assertAttr('minlength', '5');
       // this.assertAttr('size', '20');  //NOTE: failing in IE (TEST_SUITE=sauce)
       // this.assertAttr('tabindex', '30');  //NOTE: failing in IE (TEST_SUITE=sauce)
 
@@ -27133,6 +27141,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('placeholder', 'Original placeholder');
       this.assertAttr('name', 'original-name');
       this.assertAttr('maxlength', '10');
+      this.assertAttr('minlength', '5');
       // this.assertAttr('size', '20');  //NOTE: failing in IE (TEST_SUITE=sauce)
       // this.assertAttr('tabindex', '30');  //NOTE: failing in IE (TEST_SUITE=sauce)
     };
