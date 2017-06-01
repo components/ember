@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.3
+ * @version   2.13.3-release+02b4995f
  */
 
 var enifed, requireModule, Ember;
@@ -16492,6 +16492,8 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
   exports.NULL_REFERENCE = _glimmerRuntime.NULL_REFERENCE;
   exports.UNDEFINED_REFERENCE = _glimmerRuntime.UNDEFINED_REFERENCE;
 
+  var maybeFreeze = undefined;
+
   // @abstract
   // @implements PathReference
 
@@ -16945,6 +16947,15 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
 
   exports.UnboundReference = UnboundReference;
 });
+
+// gaurding this in a DEBUG gaurd (as well as all invocations)
+// so that it is properly stripped during the minification's
+// dead code elimination
+
+// re-freezing an already frozen object introduces a significant
+// performance penalty on Chrome (tested through 59).
+//
+// See: https://bugs.chromium.org/p/v8/issues/detail?id=6450
 enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   /**
   @module ember
@@ -42694,7 +42705,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.3";
+  exports.default = "2.13.3-release+02b4995f";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

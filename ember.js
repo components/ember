@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.3
+ * @version   2.13.3-release+02b4995f
  */
 
 var enifed, requireModule, Ember;
@@ -17109,6 +17109,22 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
   exports.NULL_REFERENCE = _glimmerRuntime.NULL_REFERENCE;
   exports.UNDEFINED_REFERENCE = _glimmerRuntime.UNDEFINED_REFERENCE;
 
+  var maybeFreeze = undefined;
+  _emberDebug.runInDebug(function () {
+    // gaurding this in a DEBUG gaurd (as well as all invocations)
+    // so that it is properly stripped during the minification's
+    // dead code elimination
+    maybeFreeze = function (obj) {
+      // re-freezing an already frozen object introduces a significant
+      // performance penalty on Chrome (tested through 59).
+      //
+      // See: https://bugs.chromium.org/p/v8/issues/detail?id=6450
+      if (!Object.isFrozen(obj) && _emberUtils.HAS_NATIVE_WEAKMAP) {
+        Object.freeze(obj);
+      }
+    };
+  });
+
   // @abstract
   // @implements PathReference
 
@@ -17456,10 +17472,8 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
           var namedValue = named.value();
 
           _emberDebug.runInDebug(function () {
-            if (_emberUtils.HAS_NATIVE_WEAKMAP) {
-              Object.freeze(positionalValue);
-              Object.freeze(namedValue);
-            }
+            maybeFreeze(positionalValue);
+            maybeFreeze(namedValue);
           });
 
           var result = helper(positionalValue, namedValue);
@@ -17509,10 +17523,8 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       var namedValue = named.value();
 
       _emberDebug.runInDebug(function () {
-        if (_emberUtils.HAS_NATIVE_WEAKMAP) {
-          Object.freeze(positionalValue);
-          Object.freeze(namedValue);
-        }
+        maybeFreeze(positionalValue);
+        maybeFreeze(namedValue);
       });
 
       return helper(positionalValue, namedValue);
@@ -17552,10 +17564,8 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-utils', 'ember-metal
       var namedValue = named.value();
 
       _emberDebug.runInDebug(function () {
-        if (_emberUtils.HAS_NATIVE_WEAKMAP) {
-          Object.freeze(positionalValue);
-          Object.freeze(namedValue);
-        }
+        maybeFreeze(positionalValue);
+        maybeFreeze(namedValue);
       });
 
       return instance.compute(positionalValue, namedValue);
@@ -45573,7 +45583,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.3";
+  exports.default = "2.13.3-release+02b4995f";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
