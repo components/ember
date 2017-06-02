@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a0f2ab8b
+ * @version   2.15.0-alpha.1-null+bf6a88af
  */
 
 var enifed, requireModule, Ember;
@@ -4812,240 +4812,168 @@ enifed('ember-application/tests/system/readiness_test', ['ember-metal', 'ember-a
     });
   });
 });
-enifed('ember-application/tests/system/reset_test', ['ember-metal', 'ember-application/system/application', 'ember-runtime', 'ember-routing', 'container'], function (_emberMetal, _application, _emberRuntime, _emberRouting, _container) {
+enifed('ember-application/tests/system/reset_test', ['ember-babel', 'ember-metal', 'ember-runtime', 'ember-routing', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _emberRuntime, _emberRouting, _internalTestHelpers) {
   'use strict';
 
-  var application = void 0,
-      Application = void 0;
+  (0, _internalTestHelpers.moduleFor)('Ember.Application - resetting', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
-  QUnit.module('Ember.Application - resetting', {
-    setup: function () {
-      Application = _application.default.extend({
-        name: 'App',
-        rootElement: '#qunit-fixture'
-      });
-    },
-    teardown: function () {
-      Application = null;
-      if (application) {
-        (0, _emberMetal.run)(application, 'destroy');
-      }
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
     }
-  });
 
-  QUnit.test('Brings its own run-loop if not provided', function () {
-    application = (0, _emberMetal.run)(Application, 'create');
-    application.ready = function () {
-      QUnit.start();
-      ok(true, 'app booted');
+    _class.prototype['@test Brings its own run-loop if not provided'] = function (assert) {
+      var _this2 = this;
+
+      assert.expect(0);
+      (0, _emberMetal.run)(function () {
+        return _this2.createApplication();
+      });
+      this.application.reset();
     };
 
-    QUnit.stop();
-    application.reset();
-  });
+    _class.prototype['@test Does not bring its own run loop if one is already provided'] = function (assert) {
+      var _this3 = this;
 
-  QUnit.test('Does not bring its own run loop if one is already provided', function () {
-    expect(3);
+      assert.expect(3);
 
-    var didBecomeReady = false;
+      var didBecomeReady = false;
 
-    application = (0, _emberMetal.run)(Application, 'create');
+      (0, _emberMetal.run)(function () {
+        return _this3.createApplication();
+      });
 
-    (0, _emberMetal.run)(function () {
-      application.ready = function () {
-        didBecomeReady = true;
+      (0, _emberMetal.run)(function () {
+        _this3.application.ready = function () {
+          didBecomeReady = true;
+        };
+
+        _this3.application.reset();
+
+        _this3.application.deferReadiness();
+        assert.ok(!didBecomeReady, 'app is not ready');
+      });
+
+      assert.ok(!didBecomeReady, 'app is not ready');
+      (0, _emberMetal.run)(this.application, 'advanceReadiness');
+      assert.ok(didBecomeReady, 'app is ready');
+    };
+
+    _class.prototype['@test When an application is reset, new instances of controllers are generated'] = function (assert) {
+      var _this4 = this;
+
+      (0, _emberMetal.run)(function () {
+        _this4.createApplication();
+        _this4.add('controller:academic', _emberRuntime.Controller.extend());
+      });
+
+      var firstController = this.applicationInstance.lookup('controller:academic');
+      var secondController = this.applicationInstance.lookup('controller:academic');
+
+      this.application.reset();
+
+      var thirdController = this.applicationInstance.lookup('controller:academic');
+
+      assert.strictEqual(firstController, secondController, 'controllers looked up in succession should be the same instance');
+
+      ok(firstController.isDestroying, 'controllers are destroyed when their application is reset');
+
+      assert.notStrictEqual(firstController, thirdController, 'controllers looked up after the application is reset should not be the same instance');
+    };
+
+    _class.prototype['@test When an application is reset, the eventDispatcher is destroyed and recreated'] = function (assert) {
+      var _this5 = this;
+
+      var eventDispatcherWasSetup = 0;
+      var eventDispatcherWasDestroyed = 0;
+
+      var mockEventDispatcher = {
+        setup: function () {
+          eventDispatcherWasSetup++;
+        },
+        destroy: function () {
+          eventDispatcherWasDestroyed++;
+        }
       };
 
-      application.reset();
-
-      application.deferReadiness();
-      ok(!didBecomeReady, 'app is not ready');
-    });
-
-    ok(!didBecomeReady, 'app is not ready');
-    (0, _emberMetal.run)(application, 'advanceReadiness');
-    ok(didBecomeReady, 'app is ready');
-  });
-
-  QUnit.test('When an application is reset, new instances of controllers are generated', function () {
-    (0, _emberMetal.run)(function () {
-      application = Application.create();
-      application.AcademicController = _emberRuntime.Controller.extend();
-    });
-
-    var firstController = application.__container__.lookup('controller:academic');
-    var secondController = application.__container__.lookup('controller:academic');
-
-    application.reset();
-
-    var thirdController = application.__container__.lookup('controller:academic');
-
-    strictEqual(firstController, secondController, 'controllers looked up in succession should be the same instance');
-
-    ok(firstController.isDestroying, 'controllers are destroyed when their application is reset');
-
-    notStrictEqual(firstController, thirdController, 'controllers looked up after the application is reset should not be the same instance');
-  });
-
-  QUnit.test('When an application is reset, the eventDispatcher is destroyed and recreated', function () {
-    var eventDispatcherWasSetup = void 0,
-        eventDispatcherWasDestroyed = void 0;
-
-    eventDispatcherWasSetup = 0;
-    eventDispatcherWasDestroyed = 0;
-
-    var mock_event_dispatcher = {
-      create: function () {
-        return {
-          setup: function () {
-            eventDispatcherWasSetup++;
-          },
-          destroy: function () {
-            eventDispatcherWasDestroyed++;
-          }
-        };
-      }
-    };
-
-    // this is pretty awful. We should make this less Global-ly.
-    var originalRegister = _container.Registry.prototype.register;
-    _container.Registry.prototype.register = function (name, type, options) {
-      if (name === 'event_dispatcher:main') {
-        return mock_event_dispatcher;
-      } else {
-        return originalRegister.call(this, name, type, options);
-      }
-    };
-
-    try {
       (0, _emberMetal.run)(function () {
-        application = Application.create();
+        _this5.createApplication();
+        _this5.add('event_dispatcher:main', { create: function () {
+            return mockEventDispatcher;
+          } });
 
-        equal(eventDispatcherWasSetup, 0);
-        equal(eventDispatcherWasDestroyed, 0);
+        assert.equal(eventDispatcherWasSetup, 0);
+        assert.equal(eventDispatcherWasDestroyed, 0);
       });
 
-      equal(eventDispatcherWasSetup, 1);
-      equal(eventDispatcherWasDestroyed, 0);
+      assert.equal(eventDispatcherWasSetup, 1);
+      assert.equal(eventDispatcherWasDestroyed, 0);
 
-      application.reset();
+      this.application.reset();
 
-      equal(eventDispatcherWasDestroyed, 1);
-      equal(eventDispatcherWasSetup, 2, 'setup called after reset');
-    } catch (error) {
-      _container.Registry.prototype.register = originalRegister;
-    }
-
-    _container.Registry.prototype.register = originalRegister;
-  });
-
-  QUnit.test('When an application is reset, the router URL is reset to `/`', function () {
-    var location = void 0,
-        router = void 0;
-
-    (0, _emberMetal.run)(function () {
-      application = Application.create();
-      application.Router = _emberRouting.Router.extend({
-        location: 'none'
-      });
-
-      application.Router.map(function () {
-        this.route('one');
-        this.route('two');
-      });
-    });
-
-    router = application.__container__.lookup('router:main');
-
-    location = router.get('location');
-
-    (0, _emberMetal.run)(function () {
-      location.handleURL('/one');
-    });
-
-    application.reset();
-
-    var applicationController = application.__container__.lookup('controller:application');
-    router = application.__container__.lookup('router:main');
-    location = router.get('location');
-
-    equal(location.getURL(), '');
-
-    equal((0, _emberMetal.get)(applicationController, 'currentPath'), 'index');
-
-    location = application.__container__.lookup('router:main').get('location');
-    (0, _emberMetal.run)(function () {
-      location.handleURL('/one');
-    });
-
-    equal((0, _emberMetal.get)(applicationController, 'currentPath'), 'one');
-  });
-
-  QUnit.test('When an application with advance/deferReadiness is reset, the app does correctly become ready after reset', function () {
-    var readyCallCount = 0;
-
-    (0, _emberMetal.run)(function () {
-      application = Application.create({
-        ready: function () {
-          readyCallCount++;
-        }
-      });
-
-      application.deferReadiness();
-      equal(readyCallCount, 0, 'ready has not yet been called');
-    });
-
-    (0, _emberMetal.run)(function () {
-      application.advanceReadiness();
-    });
-
-    equal(readyCallCount, 1, 'ready was called once');
-
-    application.reset();
-
-    equal(readyCallCount, 2, 'ready was called twice');
-  });
-
-  QUnit.test('With ember-data like initializer and constant', function () {
-    var DS = {
-      Store: _emberRuntime.Object.extend({
-        init: function () {
-          if (!(0, _emberMetal.get)(DS, 'defaultStore')) {
-            (0, _emberMetal.set)(DS, 'defaultStore', this);
-          }
-
-          this._super.apply(this, arguments);
-        },
-        willDestroy: function () {
-          if ((0, _emberMetal.get)(DS, 'defaultStore') === this) {
-            (0, _emberMetal.set)(DS, 'defaultStore', null);
-          }
-        }
-      })
+      assert.equal(eventDispatcherWasDestroyed, 1);
+      assert.equal(eventDispatcherWasSetup, 2, 'setup called after reset');
     };
 
-    Application.initializer({
-      name: 'store',
-      initialize: function (application) {
-        application.unregister('store:main');
-        application.register('store:main', application.Store);
+    _class.prototype['@test When an application is reset, the router URL is reset to `/`'] = function (assert) {
+      var _this6 = this;
 
-        application.__container__.lookup('store:main');
-      }
-    });
+      (0, _emberMetal.run)(function () {
+        _this6.createApplication();
 
-    (0, _emberMetal.run)(function () {
-      application = Application.create();
-      application.Store = DS.Store;
-    });
+        _this6.add('router:main', _emberRouting.Router.extend({
+          location: 'none'
+        }));
 
-    ok(DS.defaultStore, 'has defaultStore');
+        _this6.router.map(function () {
+          this.route('one');
+          this.route('two');
+        });
+      });
 
-    application.reset();
+      this.visit('/one');
 
-    ok(DS.defaultStore, 'still has defaultStore');
-    ok(application.__container__.lookup('store:main'), 'store is still present');
-  });
+      this.application.reset();
+
+      var applicationController = this.applicationInstance.lookup('controller:application');
+      var router = this.applicationInstance.lookup('router:main');
+      var location = router.get('location');
+
+      assert.equal(location.getURL(), '');
+      assert.equal((0, _emberMetal.get)(applicationController, 'currentPath'), 'index');
+
+      this.visit('/one');
+
+      assert.equal((0, _emberMetal.get)(applicationController, 'currentPath'), 'one');
+    };
+
+    _class.prototype['@test When an application with advance/deferReadiness is reset, the app does correctly become ready after reset'] = function (assert) {
+      var _this7 = this;
+
+      var readyCallCount = 0;
+
+      (0, _emberMetal.run)(function () {
+        _this7.createApplication({
+          ready: function () {
+            readyCallCount++;
+          }
+        });
+
+        _this7.application.deferReadiness();
+        assert.equal(readyCallCount, 0, 'ready has not yet been called');
+      });
+
+      (0, _emberMetal.run)(this.application, 'advanceReadiness');
+
+      assert.equal(readyCallCount, 1, 'ready was called once');
+
+      this.application.reset();
+
+      assert.equal(readyCallCount, 2, 'ready was called twice');
+    };
+
+    return _class;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing', 'ember-glimmer', 'ember-template-compiler', 'ember-views'], function (_emberRuntime, _emberMetal, _application, _applicationInstance, _engine, _emberRouting, _emberGlimmer, _emberTemplateCompiler, _emberViews) {
   'use strict';
@@ -76102,7 +76030,7 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
 
   exports.default = ApplicationTestCase;
 });
-enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'internal-test-helpers/run'], function (exports, _emberBabel, _abstract, _testResolver, _emberApplication, _emberUtils, _run) {
+enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'internal-test-helpers/run', 'ember-metal', 'ember-template-compiler'], function (exports, _emberBabel, _abstract, _testResolver, _emberApplication, _emberUtils, _run, _emberMetal, _emberTemplateCompiler) {
   'use strict';
 
   var AutobootApplicationTestCase = function (_AbstractTestCase) {
@@ -76133,10 +76061,31 @@ enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'emb
       this.resolver.add(specifier, factory);
     };
 
-    AutobootApplicationTestCase.prototype.addTemplate = function (templateName, templateString) {
-      this.resolver.addTemplate(templateName, templateString);
+    AutobootApplicationTestCase.prototype.visit = function (url, options) {
+      return (0, _emberMetal.run)(this.applicationInstance, 'visit', url, options);
     };
 
+    AutobootApplicationTestCase.prototype.compile = function () {
+      return _emberTemplateCompiler.compile.apply(undefined, arguments);
+    };
+
+    AutobootApplicationTestCase.prototype.addTemplate = function (templateName, templateString) {
+      this.resolver.add('template:' + templateName, this.compile(templateString, {
+        moduleName: templateName
+      }));
+    };
+
+    (0, _emberBabel.createClass)(AutobootApplicationTestCase, [{
+      key: 'router',
+      get: function () {
+        return this.application.resolveRegistration('router:main');
+      }
+    }, {
+      key: 'applicationInstance',
+      get: function () {
+        return this.application.__deprecatedInstance__;
+      }
+    }]);
     return AutobootApplicationTestCase;
   }(_abstract.default);
 
