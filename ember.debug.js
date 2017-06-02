@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+bf6a88af
+ * @version   2.15.0-alpha.1-null+b2c628b6
  */
 
 var enifed, requireModule, Ember;
@@ -10039,13 +10039,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   function wrapManagerInDeprecationProxy(manager) {
     if (_emberUtils.HAS_NATIVE_PROXY) {
       var validator = {
-        get: function (obj, prop) {
-          if (prop !== 'class' && prop !== 'create') {
-            throw new Error('You attempted to access "' + prop + '" on a factory manager created by container#factoryFor. "' + prop + '" is not a member of a factory manager."');
-          }
-
-          return obj[prop];
-        },
         set: function (obj, prop, value) {
           throw new Error('You attempted to set "' + prop + '" on a factory manager created by container#factoryFor. A factory manager is a read-only construct.');
         }
@@ -48098,7 +48091,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+bf6a88af";
+  exports.default = "2.15.0-alpha.1-null+b2c628b6";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
