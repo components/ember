@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b2c628b6
+ * @version   2.15.0-alpha.1-null+d338c608
  */
 
 var enifed, requireModule, Ember;
@@ -15039,7 +15039,7 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
       var bucket = { engine: engine };
 
       if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        bucket.args = args.capture();
+        bucket.modelReference = args.named.get('model');
       }
 
       return bucket;
@@ -15054,7 +15054,7 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
 
     MountManager.prototype.getSelf = function (bucket) {
       var engine = bucket.engine,
-          args = bucket.args,
+          modelReference = bucket.modelReference,
           model;
 
       var applicationFactory = engine.factoryFor('controller:application');
@@ -15062,9 +15062,9 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
       var controller = bucket.controller = controllerFactory.create();
 
       if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        model = args.named.value();
+        model = modelReference.value();
 
-        bucket.argsRevision = args.tag.value();
+        bucket.modelRevision = modelReference.tag.value();
         controller.set('model', model);
       }
 
@@ -15080,16 +15080,16 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
     MountManager.prototype.didRenderLayout = function () {};
 
     MountManager.prototype.update = function (bucket) {
-      var controller, args, argsRevision, model;
+      var controller, modelReference, modelRevision, model;
 
       if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        controller = bucket.controller, args = bucket.args, argsRevision = bucket.argsRevision;
+        controller = bucket.controller, modelReference = bucket.modelReference, modelRevision = bucket.modelRevision;
 
 
-        if (!args.tag.validate(argsRevision)) {
-          model = args.named.value();
+        if (!modelReference.tag.validate(modelRevision)) {
+          model = modelReference.value();
 
-          bucket.argsRevision = args.tag.value();
+          bucket.modelRevision = modelReference.tag.value();
           controller.set('model', model);
         }
       }
@@ -44193,7 +44193,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+b2c628b6";
+  exports.default = "2.15.0-alpha.1-null+d338c608";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

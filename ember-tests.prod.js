@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b2c628b6
+ * @version   2.15.0-alpha.1-null+d338c608
  */
 
 var enifed, requireModule, Ember;
@@ -30967,7 +30967,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         this.router.map(function () {
           this.route('engine-params-static');
         });
-        this.addTemplate('engine-params-static', '{{mount "paramEngine" foo="bar"}}');
+        this.addTemplate('engine-params-static', '{{mount "paramEngine" model=(hash foo="bar")}}');
 
         return this.visit('/engine-params-static').then(function () {
           _this14.assertComponentElement(_this14.firstChild, { content: '<h2>Param Engine: bar</h2>' });
@@ -30988,7 +30988,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
             controller = this;
           }
         }));
-        this.addTemplate('engine-params-bound', '{{mount "paramEngine" foo=boundParamValue}}');
+        this.addTemplate('engine-params-bound', '{{mount "paramEngine" model=(hash foo=boundParamValue)}}');
 
         return this.visit('/engine-params-bound').then(function () {
           _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: </h2>' });
@@ -31052,7 +31052,7 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
             this.register('template:application', (0, _helpers.compile)('{{model.foo}}', { moduleName: 'application' }));
           }
         }));
-        this.addTemplate('engine-params-contextual-component', '{{mount "componentParamEngine" foo=(component "foo-component")}}');
+        this.addTemplate('engine-params-contextual-component', '{{mount "componentParamEngine" model=(hash foo=(component "foo-component"))}}');
 
         return this.visit('/engine-params-contextual-component').then(function () {
           _this16.assertComponentElement(_this16.firstChild.firstChild, { content: 'foo-component rendered! - rendered app-bar-component from the app' });
