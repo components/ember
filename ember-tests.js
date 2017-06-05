@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d338c608
+ * @version   2.15.0-alpha.1-null+1c720c8d
  */
 
 var enifed, requireModule, Ember;
@@ -66718,1578 +66718,1365 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember/tests/helpers/helper_registration_test.js should pass ESLint\n\n');
 });
 
-enifed('ember/tests/helpers/link_to_test', ['ember-console', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-application', 'ember-views', 'ember-template-compiler', 'ember-glimmer', 'ember-debug'], function (_emberConsole, _emberRuntime, _emberMetal, _emberRouting, _emberApplication, _emberViews, _emberTemplateCompiler, _emberGlimmer, _emberDebug) {
+enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-views', 'ember/features'], function (_emberBabel, _emberConsole, _internalTestHelpers, _emberRuntime, _emberMetal, _emberRouting, _emberViews, _features) {
   'use strict';
-
-  var Router = void 0,
-      App = void 0,
-      router = void 0,
-      appInstance = void 0;
-
-  function bootApplication() {
-    router = appInstance.lookup('router:main');
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-  }
 
   // IE includes the host name
   function normalizeUrl(url) {
     return url.replace(/https?:\/\/[^\/]+/, '');
   }
 
-  function shouldNotBeActive(selector) {
-    checkActive(selector, false);
+  function shouldNotBeActive(assert, element) {
+    checkActive(assert, element, false);
   }
 
-  function shouldBeActive(selector) {
-    checkActive(selector, true);
+  function shouldBeActive(assert, element) {
+    checkActive(assert, element, true);
   }
 
-  function checkActive(selector, active) {
-    var classList = (0, _emberViews.jQuery)(selector, '#qunit-fixture')[0].className;
-    equal(classList.indexOf('active') > -1, active, selector + ' active should be ' + active.toString());
+  function checkActive(assert, element, active) {
+    var classList = element.attr('class');
+    assert.equal(classList.indexOf('active') > -1, active, element + ' active should be ' + active);
   }
 
-  var updateCount = void 0,
-      replaceCount = void 0;
+  (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper - basic tests', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  function sharedSetup() {
-    App = _emberApplication.Application.create({
-      name: 'App',
-      rootElement: '#qunit-fixture'
-    });
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-    App.deferReadiness();
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
 
-    updateCount = replaceCount = 0;
-    App.Router.reopen({
-      location: _emberRouting.NoneLocation.create({
-        setURL: function (path) {
-          updateCount++;
-          (0, _emberMetal.set)(this, 'path', path);
-        },
-        replaceURL: function (path) {
-          replaceCount++;
-          (0, _emberMetal.set)(this, 'path', path);
-        }
-      })
-    });
-
-    Router = App.Router;
-    appInstance = App.__deprecatedInstance__;
-  }
-
-  function sharedTeardown() {
-    (0, _emberMetal.run)(function () {
-      return App.destroy();
-    });
-    (0, _emberGlimmer.setTemplates)({});
-    (0, _emberMetal.instrumentationReset)();
-  }
-
-  QUnit.module('The {{link-to}} helper', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        sharedSetup();
-
-        (0, _emberGlimmer.setTemplate)('app', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
-        (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}'));
-        (0, _emberGlimmer.setTemplate)('about', (0, _emberTemplateCompiler.compile)('<h3>About</h3>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}'));
-        (0, _emberGlimmer.setTemplate)('item', (0, _emberTemplateCompiler.compile)('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}'));
-
-        appInstance.unregister('router:main');
-        appInstance.register('router:main', Router);
-      });
-    },
-
-
-    teardown: sharedTeardown
-  });
-
-  QUnit.test('The {{link-to}} helper moves into the named route', function () {
-    Router.map(function (match) {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal((0, _emberViews.jQuery)('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal((0, _emberViews.jQuery)('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(About)', '#qunit-fixture').length, 1, 'The about template was rendered');
-    equal((0, _emberViews.jQuery)('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal((0, _emberViews.jQuery)('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
-  });
-
-  if (_emberDebug.EMBER_IMPROVED_INSTRUMENTATION) {
-    QUnit.test('The {{link-to}} helper fires an interaction event', function (assert) {
-      assert.expect(2);
-      Router.map(function (match) {
+      _this.router.map(function () {
         this.route('about');
       });
 
-      bootApplication();
-
-      (0, _emberMetal.run)(function () {
-        return router.handleURL('/');
-      });
-
-      (0, _emberMetal.instrumentationSubscribe)('interaction.link-to', {
-        before: function () {
-          assert.ok(true, 'instrumentation subscriber was called');
-        },
-        after: function () {
-          assert.ok(true, 'instrumentation subscriber was called');
-        }
-      });
-
-      (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    QUnit.test('The {{link-to}} helper interaction event includes the route name', function (assert) {
-      assert.expect(2);
-      Router.map(function (match) {
-        this.route('about');
-      });
-
-      bootApplication();
-
-      (0, _emberMetal.run)(function () {
-        return router.handleURL('/');
-      });
-
-      (0, _emberMetal.instrumentationSubscribe)('interaction.link-to', {
-        before: function (name, timestamp, _ref) {
-          var routeName = _ref.routeName;
-
-          assert.equal(routeName, 'about', 'instrumentation subscriber was passed route name');
-        },
-        after: function (name, timestamp, _ref2) {
-          var routeName = _ref2.routeName;
-
-          assert.equal(routeName, 'about', 'instrumentation subscriber was passed route name');
-        }
-      });
-
-      (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    QUnit.test('The {{link-to}} helper interaction event includes the transition in the after hook', function (assert) {
-      assert.expect(1);
-      Router.map(function (match) {
-        this.route('about');
-      });
-
-      bootApplication();
-
-      (0, _emberMetal.run)(function () {
-        return router.handleURL('/');
-      });
-
-      (0, _emberMetal.instrumentationSubscribe)('interaction.link-to', {
-        before: function () {},
-        after: function (name, timestamp, _ref3) {
-          var transition = _ref3.transition;
-
-          assert.equal(transition.targetName, 'about', 'instrumentation subscriber was passed route name');
-        }
-      });
-
-      (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-  }
-
-  QUnit.test('The {{link-to}} helper supports URL replacement', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal(updateCount, 0, 'precond: setURL has not been called');
-    equal(replaceCount, 0, 'precond: replaceURL has not been called');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    equal(updateCount, 0, 'setURL should not be called');
-    equal(replaceCount, 1, 'replaceURL should be called once');
-  });
-
-  QUnit.test('The {{link-to}} helper supports URL replacement via replace=boundTruthyThing', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}'));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      boundTruthyThing: true
-    });
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal(updateCount, 0, 'precond: setURL has not been called');
-    equal(replaceCount, 0, 'precond: replaceURL has not been called');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    equal(updateCount, 0, 'setURL should not be called');
-    equal(replaceCount, 1, 'replaceURL should be called once');
-  });
-
-  QUnit.test('The {{link-to}} helper supports setting replace=boundFalseyThing', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}'));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      boundFalseyThing: false
-    });
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal(updateCount, 0, 'precond: setURL has not been called');
-    equal(replaceCount, 0, 'precond: replaceURL has not been called');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    equal(updateCount, 1, 'setURL should be called');
-    equal(replaceCount, 0, 'replaceURL should not be called');
-  });
-
-  // jscs:disable
-
-  QUnit.test("the {{link-to}} helper doesn't add an href when the tagName isn't 'a'", function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('#about-link').attr('href'), undefined, 'there is no href attribute');
-  });
-
-  QUnit.test("the {{link-to}} applies a 'disabled' class when disabled", function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('\n    {{#link-to "about" id="about-link-static" disabledWhen="shouldDisable"}}About{{/link-to}}\n    {{#link-to "about" id="about-link-dynamic" disabledWhen=dynamicDisabledWhen}}About{{/link-to}}\n  '));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      shouldDisable: true,
-      dynamicDisabledWhen: 'shouldDisable'
-    });
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('#about-link-static.disabled', '#qunit-fixture').length, 1, 'The static link is disabled when its disabledWhen is true');
-    equal((0, _emberViews.jQuery)('#about-link-dynamic.disabled', '#qunit-fixture').length, 1, 'The dynamic link is disabled when its disabledWhen is true');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(appInstance.lookup('controller:index'), 'dynamicDisabledWhen', false);
-    });
-
-    equal((0, _emberViews.jQuery)('#about-link-dynamic.disabled', '#qunit-fixture').length, 0, 'The dynamic link is re-enabled when its disabledWhen becomes false');
-  });
-
-  QUnit.test("the {{link-to}} doesn't apply a 'disabled' class if disabledWhen is not provided", function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to "about" id="about-link"}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    ok(!(0, _emberViews.jQuery)('#about-link', '#qunit-fixture').hasClass('disabled'), 'The link is not disabled if disabledWhen not provided');
-  });
-
-  QUnit.test('the {{link-to}} helper supports a custom disabledClass', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to "about" id="about-link" disabledWhen=true disabledClass="do-not-want"}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class');
-  });
-
-  QUnit.test('the {{link-to}} helper supports a custom disabledClass set via bound param', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to "about" id="about-link" disabledWhen=true disabledClass=disabledClass}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      disabledClass: 'do-not-want'
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class via bound param');
-  });
-
-  QUnit.test('the {{link-to}} helper does not respond to clicks when disabled', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
-  });
-
-  QUnit.test('the {{link-to}} helper responds to clicks according to its disabledWhen bound param', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      disabledWhen: true
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberMetal.set)(appInstance.lookup('controller:index'), 'disabledWhen', false);
-    });
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(About)', '#qunit-fixture').length, 1, 'Transitioning did occur when disabledWhen became false');
-  });
-
-  QUnit.test('The {{link-to}} helper supports a custom activeClass', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{#link-to 'about' id='about-link'}}About{{/link-to}}{{#link-to 'index' id='self-link' activeClass='zomg-active'}}Self{{/link-to}}"));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal((0, _emberViews.jQuery)('#self-link.zomg-active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal((0, _emberViews.jQuery)('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
-  });
-
-  QUnit.test('The {{link-to}} helper supports a custom activeClass from a bound param', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      activeClass: 'zomg-active'
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal((0, _emberViews.jQuery)('#self-link.zomg-active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal((0, _emberViews.jQuery)('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
-  });
-
-  QUnit.test("The {{link-to}} helper supports 'classNameBindings' with custom values [GH #11699]", function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      foo: false
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    equal((0, _emberViews.jQuery)('#about-link.foo-is-false', '#qunit-fixture').length, 1, 'The about-link was rendered with the falsy class');
-
-    var controller = appInstance.lookup('controller:index');
-
-    (0, _emberMetal.run)(function () {
-      return controller.set('foo', true);
-    });
-
-    equal((0, _emberViews.jQuery)('#about-link.foo-is-true', '#qunit-fixture').length, 1, 'The about-link was rendered with the truthy class after toggling the property');
-  });
-
-  QUnit.test('The {{link-to}} helper supports leaving off .index for nested routes', function () {
-    Router.map(function () {
-      this.route('about', function () {
-        this.route('item');
-      });
-    });
-
-    (0, _emberGlimmer.setTemplate)('about', (0, _emberTemplateCompiler.compile)('<h1>About</h1>{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('about/index', (0, _emberTemplateCompiler.compile)("<div id='index'>Index</div>"));
-    (0, _emberGlimmer.setTemplate)('about/item', (0, _emberTemplateCompiler.compile)("<div id='item'>{{#link-to 'about'}}About{{/link-to}}</div>"));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/about/item');
-
-    equal(normalizeUrl((0, _emberViews.jQuery)('#item a', '#qunit-fixture').attr('href')), '/about');
-  });
-
-  QUnit.test('The {{link-to}} helper supports currentWhen (DEPRECATED)', function () {
-    expectDeprecation('Usage of `currentWhen` is deprecated, use `current-when` instead.');
-
-    Router.map(function (match) {
-      this.route('index', { path: '/' }, function () {
-        this.route('about');
-      });
-
-      this.route('item');
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('index/about', (0, _emberTemplateCompiler.compile)("{{#link-to 'item' id='other-link' currentWhen='index'}}ITEM{{/link-to}}"));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
-  });
-
-  QUnit.test('The {{link-to}} helper supports custom, nested, current-when', function () {
-    Router.map(function (match) {
-      this.route('index', { path: '/' }, function () {
-        this.route('about');
-      });
-
-      this.route('item');
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('index/about', (0, _emberTemplateCompiler.compile)("{{#link-to 'item' id='other-link' current-when='index'}}ITEM{{/link-to}}"));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
-  });
-
-  QUnit.test('The {{link-to}} helper does not disregard current-when when it is given explicitly for a route', function () {
-    Router.map(function (match) {
-      this.route('index', { path: '/' }, function () {
-        this.route('about');
-      });
-
-      this.route('items', function () {
-        this.route('item');
-      });
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('index/about', (0, _emberTemplateCompiler.compile)("{{#link-to 'items' id='other-link' current-when='index'}}ITEM{{/link-to}}"));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('#other-link.active', '#qunit-fixture').length, 1, 'The link is active when current-when is given for explicitly for a route');
-  });
-
-  QUnit.test('The {{link-to}} helper does not disregard current-when when it is set via a bound param', function () {
-    Router.map(function (match) {
-      this.route('index', { path: '/' }, function () {
-        this.route('about');
-      });
-
-      this.route('items', function () {
-        this.route('item');
-      });
-    });
-
-    App.IndexAboutController = _emberRuntime.Controller.extend({
-      currentWhen: 'index'
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('index/about', (0, _emberTemplateCompiler.compile)("{{#link-to 'items' id='other-link' current-when=currentWhen}}ITEM{{/link-to}}"));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('#other-link.active', '#qunit-fixture').length, 1, 'The link is active when current-when is given for explicitly for a route');
-  });
-
-  QUnit.test('The {{link-to}} helper supports multiple current-when routes', function () {
-    Router.map(function (match) {
-      this.route('index', { path: '/' }, function () {
-        this.route('about');
-      });
-      this.route('item');
-      this.route('foo');
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h3>Home</h3>{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('index/about', (0, _emberTemplateCompiler.compile)("{{#link-to 'item' id='link1' current-when='item index'}}ITEM{{/link-to}}"));
-    (0, _emberGlimmer.setTemplate)('item', (0, _emberTemplateCompiler.compile)("{{#link-to 'item' id='link2' current-when='item index'}}ITEM{{/link-to}}"));
-    (0, _emberGlimmer.setTemplate)('foo', (0, _emberTemplateCompiler.compile)("{{#link-to 'item' id='link3' current-when='item index'}}ITEM{{/link-to}}"));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('#link1.active', '#qunit-fixture').length, 1, 'The link is active since current-when contains the parent route');
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/item');
-    });
-
-    equal((0, _emberViews.jQuery)('#link2.active', '#qunit-fixture').length, 1, 'The link is active since you are on the active route');
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/foo');
-    });
-
-    equal((0, _emberViews.jQuery)('#link3.active', '#qunit-fixture').length, 0, 'The link is not active since current-when does not contain the active route');
-  });
-
-  QUnit.test('The {{link-to}} helper defaults to bubbling', function () {
-    (0, _emberGlimmer.setTemplate)('about', (0, _emberTemplateCompiler.compile)("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact'}}About{{/link-to}}</div>{{outlet}}"));
-    (0, _emberGlimmer.setTemplate)('about/contact', (0, _emberTemplateCompiler.compile)("<h1 id='contact'>Contact</h1>"));
-
-    Router.map(function () {
-      this.route('about', function () {
-        this.route('contact');
-      });
-    });
-
-    var hidden = 0;
-
-    App.AboutRoute = _emberRouting.Route.extend({
-      actions: {
-        hide: function () {
-          hidden++;
-        }
-      }
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-contact', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
-
-    equal(hidden, 1, 'The link bubbles');
-  });
-
-  QUnit.test('The {{link-to}} helper supports bubbles=false', function () {
-    (0, _emberGlimmer.setTemplate)('about', (0, _emberTemplateCompiler.compile)("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=false}}About{{/link-to}}</div>{{outlet}}"));
-    (0, _emberGlimmer.setTemplate)('about/contact', (0, _emberTemplateCompiler.compile)("<h1 id='contact'>Contact</h1>"));
-
-    Router.map(function () {
-      this.route('about', function () {
-        this.route('contact');
-      });
-    });
-
-    var hidden = 0;
-
-    App.AboutRoute = _emberRouting.Route.extend({
-      actions: {
-        hide: function () {
-          hidden++;
-        }
-      }
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-contact', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
-
-    equal(hidden, 0, "The link didn't bubble");
-  });
-
-  QUnit.test('The {{link-to}} helper supports bubbles=boundFalseyThing', function () {
-    (0, _emberGlimmer.setTemplate)('about', (0, _emberTemplateCompiler.compile)("<div {{action 'hide'}}>{{#link-to 'about.contact' id='about-contact' bubbles=boundFalseyThing}}About{{/link-to}}</div>{{outlet}}"));
-    (0, _emberGlimmer.setTemplate)('about/contact', (0, _emberTemplateCompiler.compile)("<h1 id='contact'>Contact</h1>"));
-
-    App.AboutController = _emberRuntime.Controller.extend({
-      boundFalseyThing: false
-    });
-
-    Router.map(function () {
-      this.route('about', function () {
-        this.route('contact');
-      });
-    });
-
-    var hidden = 0;
-
-    App.AboutRoute = _emberRouting.Route.extend({
-      actions: {
-        hide: function () {
-          hidden++;
-        }
-      }
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-contact', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
-
-    equal(hidden, 0, "The link didn't bubble");
-  });
-
-  QUnit.test('The {{link-to}} helper moves into the named route with context', function () {
-    Router.map(function (match) {
-      this.route('about');
-      this.route('item', { path: '/item/:id' });
-    });
-
-    (0, _emberGlimmer.setTemplate)('about', (0, _emberTemplateCompiler.compile)("<h3>List</h3><ul>{{#each model as |person|}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}"));
-
-    App.AboutRoute = _emberRouting.Route.extend({
-      model: function () {
-        return (0, _emberRuntime.A)([{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }]);
-      }
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(List)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal(normalizeUrl((0, _emberViews.jQuery)('#home-link').attr('href')), '/', 'The home link points back at /');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('li a:contains(Yehuda)', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'Yehuda Katz', 'The name is correct');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#home-link').click();
-    });
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link').click();
-    });
-
-    equal(normalizeUrl((0, _emberViews.jQuery)('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
-    equal(normalizeUrl((0, _emberViews.jQuery)('li a:contains(Tom)').attr('href')), '/item/tom');
-    equal(normalizeUrl((0, _emberViews.jQuery)('li a:contains(Erik)').attr('href')), '/item/erik');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('li a:contains(Erik)', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'Erik Brynroflsson', 'The name is correct');
-  });
-
-  QUnit.test('The {{link-to}} helper binds some anchor html tag common attributes', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{#link-to 'index' id='self-link' title='title-attr' rel='rel-attr' tabindex='-1'}}Self{{/link-to}}"));
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    var link = (0, _emberViews.jQuery)('#self-link', '#qunit-fixture');
-    equal(link.attr('title'), 'title-attr', 'The self-link contains title attribute');
-    equal(link.attr('rel'), 'rel-attr', 'The self-link contains rel attribute');
-    equal(link.attr('tabindex'), '-1', 'The self-link contains tabindex attribute');
-  });
-
-  QUnit.test('The {{link-to}} helper supports `target` attribute', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    var link = (0, _emberViews.jQuery)('#self-link', '#qunit-fixture');
-    equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
-  });
-
-  QUnit.test('The {{link-to}} helper supports `target` attribute specified as a bound param', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{#link-to 'index' id='self-link' target=boundLinkTarget}}Self{{/link-to}}"));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      boundLinkTarget: '_blank'
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    var link = (0, _emberViews.jQuery)('#self-link', '#qunit-fixture');
-    equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
-  });
-
-  QUnit.test('The {{link-to}} helper does not call preventDefault if `target` attribute is provided', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_blank'}}Self{{/link-to}}"));
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    var event = _emberViews.jQuery.Event('click');
-    (0, _emberViews.jQuery)('#self-link', '#qunit-fixture').trigger(event);
-
-    equal(event.isDefaultPrevented(), false, 'should not preventDefault when target attribute is specified');
-  });
-
-  QUnit.test('The {{link-to}} helper should preventDefault when `target = _self`', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{#link-to 'index' id='self-link' target='_self'}}Self{{/link-to}}"));
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    var event = _emberViews.jQuery.Event('click');
-    (0, _emberViews.jQuery)('#self-link', '#qunit-fixture').trigger(event);
-
-    equal(event.isDefaultPrevented(), true, 'should preventDefault when target attribute is `_self`');
-  });
-
-  QUnit.test('The {{link-to}} helper should not transition if target is not equal to _self or empty', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{#link-to 'about' id='about-link' replace=true target='_blank'}}About{{/link-to}}"));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').click();
-    });
-
-    notEqual(appInstance.lookup('controller:application').get('currentRouteName'), 'about', 'link-to should not transition if target is not equal to _self or empty');
-  });
-
-  QUnit.test('The {{link-to}} helper accepts string/numeric arguments', function () {
-    Router.map(function () {
-      this.route('filter', { path: '/filters/:filter' });
-      this.route('post', { path: '/post/:post_id' });
-      this.route('repo', { path: '/repo/:owner/:name' });
-    });
-
-    App.FilterController = _emberRuntime.Controller.extend({
-      filter: 'unpopular',
-      repo: _emberRuntime.Object.create({ owner: 'ember', name: 'ember.js' }),
-      post_id: 123
-    });
-    (0, _emberGlimmer.setTemplate)('filter', (0, _emberTemplateCompiler.compile)('<p>{{filter}}</p>{{#link-to "filter" "unpopular" id="link"}}Unpopular{{/link-to}}{{#link-to "filter" filter id="path-link"}}Unpopular{{/link-to}}{{#link-to "post" post_id id="post-path-link"}}Post{{/link-to}}{{#link-to "post" 123 id="post-number-link"}}Post{{/link-to}}{{#link-to "repo" repo id="repo-object-link"}}Repo{{/link-to}}'));
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)(' '));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/filters/popular');
-    });
-
-    equal(normalizeUrl((0, _emberViews.jQuery)('#link', '#qunit-fixture').attr('href')), '/filters/unpopular');
-    equal(normalizeUrl((0, _emberViews.jQuery)('#path-link', '#qunit-fixture').attr('href')), '/filters/unpopular');
-    equal(normalizeUrl((0, _emberViews.jQuery)('#post-path-link', '#qunit-fixture').attr('href')), '/post/123');
-    equal(normalizeUrl((0, _emberViews.jQuery)('#post-number-link', '#qunit-fixture').attr('href')), '/post/123');
-    equal(normalizeUrl((0, _emberViews.jQuery)('#repo-object-link', '#qunit-fixture').attr('href')), '/repo/ember/ember.js');
-  });
-
-  QUnit.test("Issue 4201 - Shorthand for route.index shouldn't throw errors about context arguments", function () {
-    expect(2);
-    Router.map(function () {
-      this.route('lobby', function () {
-        this.route('index', { path: ':lobby_id' });
-        this.route('list');
-      });
-    });
-
-    App.LobbyIndexRoute = _emberRouting.Route.extend({
-      model: function (params) {
-        equal(params.lobby_id, 'foobar');
-        return params.lobby_id;
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('lobby/index', (0, _emberTemplateCompiler.compile)("{{#link-to 'lobby' 'foobar' id='lobby-link'}}Lobby{{/link-to}}"));
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)(''));
-    (0, _emberGlimmer.setTemplate)('lobby/list', (0, _emberTemplateCompiler.compile)("{{#link-to 'lobby' 'foobar' id='lobby-link'}}Lobby{{/link-to}}"));
-    bootApplication();
-    (0, _emberMetal.run)(router, 'handleURL', '/lobby/list');
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#lobby-link'), 'click');
-    shouldBeActive('#lobby-link');
-  });
-
-  QUnit.test('Quoteless route param performs property lookup', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{#link-to 'index' id='string-link'}}string{{/link-to}}{{#link-to foo id='path-link'}}path{{/link-to}}"));
-
-    function assertEquality(href) {
-      equal(normalizeUrl((0, _emberViews.jQuery)('#string-link', '#qunit-fixture').attr('href')), '/');
-      equal(normalizeUrl((0, _emberViews.jQuery)('#path-link', '#qunit-fixture').attr('href')), href);
+      _this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      _this.addTemplate('about', '\n      <h3>About</h3>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n      {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      return _this;
     }
 
-    App.IndexController = _emberRuntime.Controller.extend({
-      foo: 'index'
-    });
+    _class.prototype['@test The {{link-to}} helper moves into the named route'] = function testTheLinkToHelperMovesIntoTheNamedRoute(assert) {
+      this.visit('/');
+      assert.equal(this.$('h3:contains(Home)').length, 1, 'The home template was rendered');
+      assert.equal(this.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
+      assert.equal(this.$('#about-link:not(.active)').length, 1, 'The other link was rendered without active class');
 
-    App.Router.map(function () {
-      this.route('about');
-    });
+      this.click('#about-link');
 
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/');
-
-    assertEquality('/');
-
-    var controller = appInstance.lookup('controller:index');
-    (0, _emberMetal.run)(function () {
-      return controller.set('foo', 'about');
-    });
-
-    assertEquality('/about');
-  });
-
-  QUnit.test('link-to with null/undefined dynamic parameters are put in a loading state', function () {
-    expect(19);
-
-    var oldWarn = _emberConsole.default.warn;
-    var warnCalled = false;
-    _emberConsole.default.warn = function () {
-      warnCalled = true;
+      assert.equal(this.$('h3:contains(About)').length, 1, 'The about template was rendered');
+      assert.equal(this.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
+      assert.equal(this.$('#home-link:not(.active)').length, 1, 'The other link was rendered without active class');
     };
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{#link-to destinationRoute routeContext loadingClass='i-am-loading' id='context-link'}}string{{/link-to}}{{#link-to secondRoute loadingClass=loadingClass id='static-link'}}string{{/link-to}}"));
 
-    var thing = _emberRuntime.Object.create({ id: 123 });
+    _class.prototype['@test the {{link-to}} helper doesn\'t add an href when the tagName isn\'t \'a\''] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}\n    ');
 
-    App.IndexController = _emberRuntime.Controller.extend({
-      destinationRoute: null,
-      routeContext: null,
-      loadingClass: 'i-am-loading'
-    });
+      this.visit('/');
 
-    App.AboutRoute = _emberRouting.Route.extend({
-      activate: function () {
-        ok(true, 'About was entered');
-      }
-    });
+      assert.equal(this.$('#about-link').attr('href'), undefined, 'there is no href attribute');
+    };
 
-    App.Router.map(function () {
-      this.route('thing', { path: '/thing/:thing_id' });
-      this.route('about');
-    });
+    _class.prototype['@test the {{link-to}} applies a \'disabled\' class when disabled'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to "about" id="about-link-static" disabledWhen="shouldDisable"}}About{{/link-to}}\n      {{#link-to "about" id="about-link-dynamic" disabledWhen=dynamicDisabledWhen}}About{{/link-to}}\n    ');
 
-    bootApplication();
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        shouldDisable: true,
+        dynamicDisabledWhen: 'shouldDisable'
+      }));
 
-    (0, _emberMetal.run)(router, 'handleURL', '/');
+      this.visit('/');
 
-    function assertLinkStatus($link, url) {
-      if (url) {
-        equal(normalizeUrl($link.attr('href')), url, 'loaded link-to has expected href');
-        ok(!$link.hasClass('i-am-loading'), 'loaded linkComponent has no loadingClass');
-      } else {
-        equal(normalizeUrl($link.attr('href')), '#', "unloaded link-to has href='#'");
-        ok($link.hasClass('i-am-loading'), 'loading linkComponent has loadingClass');
-      }
+      assert.equal(this.$('#about-link-static.disabled').length, 1, 'The static link is disabled when its disabledWhen is true');
+      assert.equal(this.$('#about-link-dynamic.disabled').length, 1, 'The dynamic link is disabled when its disabledWhen is true');
+
+      var controller = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return controller.set('dynamicDisabledWhen', false);
+      });
+
+      assert.equal(this.$('#about-link-dynamic.disabled').length, 0, 'The dynamic link is re-enabled when its disabledWhen becomes false');
+    };
+
+    _class.prototype['@test the {{link-to}} doesn\'t apply a \'disabled\' class if disabledWhen is not provided'] = function (assert) {
+      this.addTemplate('index', '{{#link-to "about" id="about-link"}}About{{/link-to}}');
+
+      this.visit('/');
+
+      assert.ok(!this.$('#about-link').hasClass('disabled'), 'The link is not disabled if disabledWhen not provided');
+    };
+
+    _class.prototype['@test the {{link-to}} helper supports a custom disabledClass'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabledWhen=true disabledClass="do-not-want"}}About{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      assert.equal(this.$('#about-link.do-not-want').length, 1, 'The link can apply a custom disabled class');
+    };
+
+    _class.prototype['@test the {{link-to}} helper supports a custom disabledClass set via bound param'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabledWhen=true disabledClass=disabledClass}}About{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        disabledClass: 'do-not-want'
+      }));
+
+      this.visit('/');
+
+      assert.equal(this.$('#about-link.do-not-want').length, 1, 'The link can apply a custom disabled class via bound param');
+    };
+
+    _class.prototype['@test the {{link-to}} helper does not respond to clicks when disabled'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}\n    ');
+
+      this.visit('/');
+      this.click('#about-link');
+
+      assert.equal(this.$('h3:contains(About)').length, 0, 'Transitioning did not occur');
+    };
+
+    _class.prototype['@test the {{link-to}} helper responds to clicks according to its disabledWhen bound param'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        disabledWhen: true
+      }));
+
+      this.visit('/');
+
+      this.click('#about-link');
+
+      assert.equal(this.$('h3:contains(About)').length, 0, 'Transitioning did not occur');
+
+      var controller = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return controller.set('disabledWhen', false);
+      });
+
+      this.click('#about-link');
+
+      assert.equal(this.$('h3:contains(About)').length, 1, 'Transitioning did occur when disabledWhen became false');
+    };
+
+    _class.prototype['@test The {{link-to}} helper supports a custom activeClass'] = function (assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\' activeClass=\'zomg-active\'}}Self{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      assert.equal(this.$('h3:contains(Home)').length, 1, 'The home template was rendered');
+      assert.equal(this.$('#self-link.zomg-active').length, 1, 'The self-link was rendered with active class');
+      assert.equal(this.$('#about-link:not(.active)').length, 1, 'The other link was rendered without active class');
+    };
+
+    _class.prototype['@test The {{link-to}} helper supports a custom activeClass from a bound param'] = function (assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        activeClass: 'zomg-active'
+      }));
+
+      this.visit('/');
+
+      assert.equal(this.$('h3:contains(Home)').length, 1, 'The home template was rendered');
+      assert.equal(this.$('#self-link.zomg-active').length, 1, 'The self-link was rendered with active class');
+      assert.equal(this.$('#about-link:not(.active)').length, 1, 'The other link was rendered without active class');
+    };
+
+    _class.prototype['@test The {{link-to}} helper supports \'classNameBindings\' with custom values [GH #11699]'] = function (assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        foo: false
+      }));
+
+      this.visit('/');
+
+      assert.equal(this.$('#about-link.foo-is-false').length, 1, 'The about-link was rendered with the falsy class');
+
+      var controller = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return controller.set('foo', true);
+      });
+
+      assert.equal(this.$('#about-link.foo-is-true').length, 1, 'The about-link was rendered with the truthy class after toggling the property');
+    };
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper - location hooks', function (_ApplicationTestCase2) {
+    (0, _emberBabel.inherits)(_class2, _ApplicationTestCase2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
+
+      _this2.updateCount = 0;
+      _this2.replaceCount = 0;
+
+      var testContext = _this2;
+      _this2.add('location:none', _emberRouting.NoneLocation.extend({
+        setURL: function () {
+          testContext.updateCount++;
+          return this._super.apply(this, arguments);
+        },
+        replaceURL: function () {
+          testContext.replaceCount++;
+          return this._super.apply(this, arguments);
+        }
+      }));
+
+      _this2.router.map(function () {
+        this.route('about');
+      });
+
+      _this2.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      _this2.addTemplate('about', '\n      <h3>About</h3>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n      {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      return _this2;
     }
 
-    var $contextLink = (0, _emberViews.jQuery)('#context-link', '#qunit-fixture');
-    var $staticLink = (0, _emberViews.jQuery)('#static-link', '#qunit-fixture');
-    var controller = appInstance.lookup('controller:index');
+    _class2.prototype.visit = function visit() {
+      var _ApplicationTestCase3;
 
-    assertLinkStatus($contextLink);
-    assertLinkStatus($staticLink);
+      (_ApplicationTestCase3 = _ApplicationTestCase2.prototype.visit).call.apply(_ApplicationTestCase3, [this].concat(Array.prototype.slice.call(arguments)));
+      this.updateCountAfterVisit = this.updateCount;
+      this.replaceCountAfterVisit = this.replaceCount;
+    };
 
-    (0, _emberMetal.run)(function () {
-      warnCalled = false;
-      $contextLink.click();
-      ok(warnCalled, 'Logger.warn was called from clicking loading link');
-    });
+    _class2.prototype['@test The {{link-to}} helper supports URL replacement'] = function testTheLinkToHelperSupportsURLReplacement(assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}\n    ');
 
-    // Set the destinationRoute (context is still null).
-    (0, _emberMetal.run)(controller, 'set', 'destinationRoute', 'thing');
-    assertLinkStatus($contextLink);
+      this.visit('/');
+      this.click('#about-link');
 
-    // Set the routeContext to an id
-    (0, _emberMetal.run)(controller, 'set', 'routeContext', '456');
-    assertLinkStatus($contextLink, '/thing/456');
+      assert.equal(this.updateCount, this.updateCountAfterVisit, 'setURL should not be called');
+      assert.equal(this.replaceCount, this.replaceCountAfterVisit + 1, 'replaceURL should be called once');
+    };
 
-    // Test that 0 isn't interpreted as falsy.
-    (0, _emberMetal.run)(controller, 'set', 'routeContext', 0);
-    assertLinkStatus($contextLink, '/thing/0');
+    _class2.prototype['@test The {{link-to}} helper supports URL replacement via replace=boundTruthyThing'] = function testTheLinkToHelperSupportsURLReplacementViaReplaceBoundTruthyThing(assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}\n    ');
 
-    // Set the routeContext to an object
-    (0, _emberMetal.run)(controller, 'set', 'routeContext', thing);
-    assertLinkStatus($contextLink, '/thing/123');
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        boundTruthyThing: true
+      }));
 
-    // Set the destinationRoute back to null.
-    (0, _emberMetal.run)(controller, 'set', 'destinationRoute', null);
-    assertLinkStatus($contextLink);
+      this.visit('/');
+      this.click('#about-link');
 
-    (0, _emberMetal.run)(function () {
-      warnCalled = false;
-      $staticLink.click();
-      ok(warnCalled, 'Logger.warn was called from clicking loading link');
-    });
+      assert.equal(this.updateCount, this.updateCountAfterVisit, 'setURL should not be called');
+      assert.equal(this.replaceCount, this.replaceCountAfterVisit + 1, 'replaceURL should be called once');
+    };
 
-    (0, _emberMetal.run)(controller, 'set', 'secondRoute', 'about');
-    assertLinkStatus($staticLink, '/about');
+    _class2.prototype['@test The {{link-to}} helper supports setting replace=boundFalseyThing'] = function testTheLinkToHelperSupportsSettingReplaceBoundFalseyThing(assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}\n    ');
 
-    // Click the now-active link
-    (0, _emberMetal.run)($staticLink, 'click');
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        boundFalseyThing: false
+      }));
 
-    _emberConsole.default.warn = oldWarn;
-  });
+      this.visit('/');
+      this.click('#about-link');
 
-  QUnit.test('The {{link-to}} helper refreshes href element when one of params changes', function () {
-    Router.map(function () {
-      this.route('post', { path: '/posts/:post_id' });
-    });
+      assert.equal(this.updateCount, this.updateCountAfterVisit + 1, 'setURL should be called');
+      assert.equal(this.replaceCount, this.replaceCountAfterVisit, 'replaceURL should not be called');
+    };
 
-    var post = _emberRuntime.Object.create({ id: '1' });
-    var secondPost = _emberRuntime.Object.create({ id: '2' });
+    return _class2;
+  }(_internalTestHelpers.ApplicationTestCase));
 
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to "post" post id="post"}}post{{/link-to}}'));
+  if (_features.EMBER_IMPROVED_INSTRUMENTATION) {
+    (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper with EMBER_IMPROVED_INSTRUMENTATION', function (_ApplicationTestCase4) {
+      (0, _emberBabel.inherits)(_class3, _ApplicationTestCase4);
 
-    App.IndexController = _emberRuntime.Controller.extend();
-    var indexController = appInstance.lookup('controller:index');
+      function _class3() {
+        (0, _emberBabel.classCallCheck)(this, _class3);
 
-    (0, _emberMetal.run)(function () {
-      return indexController.set('post', post);
-    });
+        var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase4.call(this));
 
-    bootApplication();
+        _this3.router.map(function () {
+          this.route('about');
+        });
 
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
+        _this3.addTemplate('index', '\n        <h3>Home</h3>\n        {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n        {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n      ');
+        _this3.addTemplate('about', '\n        <h3>About</h3>\n        {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n        {{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}\n      ');
 
-    equal(normalizeUrl((0, _emberViews.jQuery)('#post', '#qunit-fixture').attr('href')), '/posts/1', 'precond - Link has rendered href attr properly');
+        _this3.visit('/');
+        return _this3;
+      }
 
-    (0, _emberMetal.run)(function () {
-      return indexController.set('post', secondPost);
-    });
+      _class3.prototype['@test The {{link-to}} helper fires an interaction event'] = function testTheLinkToHelperFiresAnInteractionEvent(assert) {
+        assert.expect(2);
 
-    equal((0, _emberViews.jQuery)('#post', '#qunit-fixture').attr('href'), '/posts/2', 'href attr was updated after one of the params had been changed');
+        (0, _emberMetal.instrumentationSubscribe)('interaction.link-to', {
+          before: function () {
+            assert.ok(true, 'instrumentation subscriber was called');
+          },
+          after: function () {
+            assert.ok(true, 'instrumentation subscriber was called');
+          }
+        });
 
-    (0, _emberMetal.run)(function () {
-      return indexController.set('post', null);
-    });
+        this.click('#about-link');
+      };
 
-    equal((0, _emberViews.jQuery)('#post', '#qunit-fixture').attr('href'), '#', 'href attr becomes # when one of the arguments in nullified');
-  });
+      _class3.prototype['@test The {{link-to}} helper interaction event includes the route name'] = function testTheLinkToHelperInteractionEventIncludesTheRouteName(assert) {
+        assert.expect(2);
 
-  QUnit.test('The {{link-to}} helper is active when a route is active', function () {
-    Router.map(function () {
-      this.route('about', function () {
+        (0, _emberMetal.instrumentationSubscribe)('interaction.link-to', {
+          before: function (name, timestamp, _ref) {
+            var routeName = _ref.routeName;
+
+            assert.equal(routeName, 'about', 'instrumentation subscriber was passed route name');
+          },
+          after: function (name, timestamp, _ref2) {
+            var routeName = _ref2.routeName;
+
+            assert.equal(routeName, 'about', 'instrumentation subscriber was passed route name');
+          }
+        });
+
+        this.click('#about-link');
+      };
+
+      _class3.prototype['@test The {{link-to}} helper interaction event includes the transition in the after hook'] = function testTheLinkToHelperInteractionEventIncludesTheTransitionInTheAfterHook(assert) {
+        assert.expect(1);
+
+        (0, _emberMetal.instrumentationSubscribe)('interaction.link-to', {
+          before: function () {},
+          after: function (name, timestamp, _ref3) {
+            var transition = _ref3.transition;
+
+            assert.equal(transition.targetName, 'about', 'instrumentation subscriber was passed route name');
+          }
+        });
+
+        this.click('#about-link');
+      };
+
+      return _class3;
+    }(_internalTestHelpers.ApplicationTestCase));
+  }
+
+  (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper - nested routes and link-to arguments', function (_ApplicationTestCase5) {
+    (0, _emberBabel.inherits)(_class4, _ApplicationTestCase5);
+
+    function _class4() {
+      (0, _emberBabel.classCallCheck)(this, _class4);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase5.apply(this, arguments));
+    }
+
+    _class4.prototype['@test The {{link-to}} helper supports leaving off .index for nested routes'] = function testTheLinkToHelperSupportsLeavingOffIndexForNestedRoutes(assert) {
+      this.router.map(function () {
+        this.route('about', function () {
+          this.route('item');
+        });
+      });
+
+      this.addTemplate('about', '<h1>About</h1>{{outlet}}');
+      this.addTemplate('about.index', '<div id=\'index\'>Index</div>');
+      this.addTemplate('about.item', '<div id=\'item\'>{{#link-to \'about\'}}About{{/link-to}}</div>');
+
+      this.visit('/about/item');
+
+      assert.equal(normalizeUrl(this.$('#item a').attr('href')), '/about');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper supports currentWhen (DEPRECATED)'] = function testTheLinkToHelperSupportsCurrentWhenDEPRECATED(assert) {
+      expectDeprecation('Usage of `currentWhen` is deprecated, use `current-when` instead.');
+
+      this.router.map(function () {
+        this.route('index', { path: '/' }, function () {
+          this.route('about');
+        });
         this.route('item');
       });
-    });
 
-    (0, _emberGlimmer.setTemplate)('about', (0, _emberTemplateCompiler.compile)("<div id='about'>{{#link-to 'about' id='about-link'}}About{{/link-to}} {{#link-to 'about.item' id='item-link'}}Item{{/link-to}} {{outlet}}</div>"));
-    (0, _emberGlimmer.setTemplate)('about/item', (0, _emberTemplateCompiler.compile)(' '));
-    (0, _emberGlimmer.setTemplate)('about/index', (0, _emberTemplateCompiler.compile)(' '));
+      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index.about', '\n      {{#link-to \'item\' id=\'other-link\' currentWhen=\'index\'}}ITEM{{/link-to}}\n    ');
 
-    bootApplication();
+      this.visit('/about');
 
-    (0, _emberMetal.run)(router, 'handleURL', '/about');
+      assert.equal(this.$('#other-link.active').length, 1, 'The link is active since current-when is a parent route');
+    };
 
-    equal((0, _emberViews.jQuery)('#about-link.active', '#qunit-fixture').length, 1, 'The about route link is active');
-    equal((0, _emberViews.jQuery)('#item-link.active', '#qunit-fixture').length, 0, 'The item route link is inactive');
+    _class4.prototype['@test The {{link-to}} helper supports custom, nested, current-when'] = function (assert) {
+      this.router.map(function () {
+        this.route('index', { path: '/' }, function () {
+          this.route('about');
+        });
 
-    (0, _emberMetal.run)(router, 'handleURL', '/about/item');
+        this.route('item');
+      });
 
-    equal((0, _emberViews.jQuery)('#about-link.active', '#qunit-fixture').length, 1, 'The about route link is active');
-    equal((0, _emberViews.jQuery)('#item-link.active', '#qunit-fixture').length, 1, 'The item route link is active');
-  });
+      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index.about', '\n      {{#link-to \'item\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}\n    ');
 
-  QUnit.test("The {{link-to}} helper works in an #each'd array of string route names", function () {
-    Router.map(function () {
-      this.route('foo');
-      this.route('bar');
-      this.route('rar');
-    });
+      this.visit('/about');
 
-    App.IndexController = _emberRuntime.Controller.extend({
-      routeNames: (0, _emberRuntime.A)(['foo', 'bar', 'rar']),
-      route1: 'bar',
-      route2: 'foo'
-    });
+      equal(this.$('#other-link.active').length, 1, 'The link is active since current-when is a parent route');
+    };
 
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#each routeNames as |routeName|}}{{#link-to routeName}}{{routeName}}{{/link-to}}{{/each}}{{#each routeNames as |r|}}{{#link-to r}}{{r}}{{/link-to}}{{/each}}{{#link-to route1}}a{{/link-to}}{{#link-to route2}}b{{/link-to}}'));
+    _class4.prototype['@test The {{link-to}} helper does not disregard current-when when it is given explicitly for a route'] = function (assert) {
+      this.router.map(function () {
+        this.route('index', { path: '/' }, function () {
+          this.route('about');
+        });
 
-    bootApplication();
+        this.route('items', function () {
+          this.route('item');
+        });
+      });
 
-    function linksEqual($links, expected) {
-      equal($links.length, expected.length, 'Has correct number of links');
+      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index.about', '\n      {{#link-to \'items\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}\n    ');
 
-      var idx = void 0;
-      for (idx = 0; idx < $links.length; idx++) {
-        var href = (0, _emberViews.jQuery)($links[idx]).attr('href');
-        // Old IE includes the whole hostname as well
-        equal(href.slice(-expected[idx].length), expected[idx], 'Expected link to be \'' + expected[idx] + '\', but was \'' + href + '\'');
-      }
+      this.visit('/about');
+
+      assert.equal(this.$('#other-link.active').length, 1, 'The link is active when current-when is given for explicitly for a route');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper does not disregard current-when when it is set via a bound param'] = function testTheLinkToHelperDoesNotDisregardCurrentWhenWhenItIsSetViaABoundParam(assert) {
+      this.router.map(function () {
+        this.route('index', { path: '/' }, function () {
+          this.route('about');
+        });
+
+        this.route('items', function () {
+          this.route('item');
+        });
+      });
+
+      this.add('controller:index.about', _emberRuntime.Controller.extend({
+        currentWhen: 'index'
+      }));
+
+      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index.about', '{{#link-to \'items\' id=\'other-link\' current-when=currentWhen}}ITEM{{/link-to}}');
+
+      this.visit('/about');
+
+      assert.equal(this.$('#other-link.active').length, 1, 'The link is active when current-when is given for explicitly for a route');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper supports multiple current-when routes'] = function testTheLinkToHelperSupportsMultipleCurrentWhenRoutes(assert) {
+      this.router.map(function () {
+        this.route('index', { path: '/' }, function () {
+          this.route('about');
+        });
+        this.route('item');
+        this.route('foo');
+      });
+
+      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index.about', '{{#link-to \'item\' id=\'link1\' current-when=\'item index\'}}ITEM{{/link-to}}');
+      this.addTemplate('item', '{{#link-to \'item\' id=\'link2\' current-when=\'item index\'}}ITEM{{/link-to}}');
+      this.addTemplate('foo', '{{#link-to \'item\' id=\'link3\' current-when=\'item index\'}}ITEM{{/link-to}}');
+
+      this.visit('/about');
+
+      assert.equal(this.$('#link1.active').length, 1, 'The link is active since current-when contains the parent route');
+
+      this.visit('/item');
+
+      assert.equal(this.$('#link2.active').length, 1, 'The link is active since you are on the active route');
+
+      this.visit('/foo');
+
+      assert.equal(this.$('#link3.active').length, 0, 'The link is not active since current-when does not contain the active route');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper defaults to bubbling'] = function testTheLinkToHelperDefaultsToBubbling(assert) {
+      this.addTemplate('about', '\n      <div {{action \'hide\'}}>\n        {{#link-to \'about.contact\' id=\'about-contact\'}}About{{/link-to}}\n      </div>\n      {{outlet}}\n    ');
+      this.addTemplate('about.contact', '\n      <h1 id=\'contact\'>Contact</h1>\n    ');
+
+      this.router.map(function () {
+        this.route('about', function () {
+          this.route('contact');
+        });
+      });
+
+      var hidden = 0;
+
+      this.add('route:about', _emberRouting.Route.extend({
+        actions: {
+          hide: function () {
+            hidden++;
+          }
+        }
+      }));
+
+      this.visit('/about');
+
+      this.click('#about-contact');
+
+      assert.equal(this.$('#contact').text(), 'Contact', 'precond - the link worked');
+
+      assert.equal(hidden, 1, 'The link bubbles');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper supports bubbles=false'] = function (assert) {
+      this.addTemplate('about', '\n      <div {{action \'hide\'}}>\n        {{#link-to \'about.contact\' id=\'about-contact\' bubbles=false}}\n          About\n        {{/link-to}}\n      </div>\n      {{outlet}}\n    ');
+      this.addTemplate('about.contact', '<h1 id=\'contact\'>Contact</h1>');
+
+      this.router.map(function () {
+        this.route('about', function () {
+          this.route('contact');
+        });
+      });
+
+      var hidden = 0;
+
+      this.add('route:about', _emberRouting.Route.extend({
+        actions: {
+          hide: function () {
+            hidden++;
+          }
+        }
+      }));
+
+      this.visit('/about');
+
+      this.click('#about-contact');
+
+      assert.equal(this.$('#contact').text(), 'Contact', 'precond - the link worked');
+
+      assert.equal(hidden, 0, "The link didn't bubble");
+    };
+
+    _class4.prototype['@test The {{link-to}} helper supports bubbles=boundFalseyThing'] = function (assert) {
+      this.addTemplate('about', '\n      <div {{action \'hide\'}}>\n        {{#link-to \'about.contact\' id=\'about-contact\' bubbles=boundFalseyThing}}\n          About\n        {{/link-to}}\n      </div>\n      {{outlet}}\n    ');
+      this.addTemplate('about.contact', '<h1 id=\'contact\'>Contact</h1>');
+
+      this.add('controller:about', _emberRuntime.Controller.extend({
+        boundFalseyThing: false
+      }));
+
+      this.router.map(function () {
+        this.route('about', function () {
+          this.route('contact');
+        });
+      });
+
+      var hidden = 0;
+
+      this.add('route:about', _emberRouting.Route.extend({
+        actions: {
+          hide: function () {
+            hidden++;
+          }
+        }
+      }));
+
+      this.visit('/about');
+      this.click('#about-contact');
+
+      assert.equal(this.$('#contact').text(), 'Contact', 'precond - the link worked');
+      assert.equal(hidden, 0, "The link didn't bubble");
+    };
+
+    _class4.prototype['@test The {{link-to}} helper moves into the named route with context'] = function (assert) {
+      this.router.map(function () {
+        this.route('about');
+        this.route('item', { path: '/item/:id' });
+      });
+
+      this.addTemplate('about', '\n      <h3>List</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{#link-to \'item\' person}}\n              {{person.name}}\n            {{/link-to}}\n          </li>\n        {{/each}}\n      </ul>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+
+      this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n    ');
+
+      this.add('route:about', _emberRouting.Route.extend({
+        model: function () {
+          return [{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }];
+        }
+      }));
+
+      this.visit('/about');
+
+      assert.equal(this.$('h3:contains(List)').length, 1, 'The home template was rendered');
+      assert.equal(normalizeUrl(this.$('#home-link').attr('href')), '/', 'The home link points back at /');
+
+      this.click('li a:contains(Yehuda)');
+
+      assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
+      assert.equal(this.$('p').text(), 'Yehuda Katz', 'The name is correct');
+
+      this.click('#home-link');
+      this.click('#about-link');
+
+      assert.equal(normalizeUrl(this.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
+      assert.equal(normalizeUrl(this.$('li a:contains(Tom)').attr('href')), '/item/tom');
+      assert.equal(normalizeUrl(this.$('li a:contains(Erik)').attr('href')), '/item/erik');
+
+      this.click('li a:contains(Erik)');
+
+      assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
+      assert.equal(this.$('p').text(), 'Erik Brynroflsson', 'The name is correct');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper binds some anchor html tag common attributes'] = function (assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' title=\'title-attr\' rel=\'rel-attr\' tabindex=\'-1\'}}\n        Self\n      {{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var link = this.$('#self-link');
+      assert.equal(link.attr('title'), 'title-attr', 'The self-link contains title attribute');
+      assert.equal(link.attr('rel'), 'rel-attr', 'The self-link contains rel attribute');
+      assert.equal(link.attr('tabindex'), '-1', 'The self-link contains tabindex attribute');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper supports \'target\' attribute'] = function (assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var link = this.$('#self-link');
+      assert.equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper supports \'target\' attribute specified as a bound param'] = function (assert) {
+      this.addTemplate('index', '<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=boundLinkTarget}}Self{{/link-to}}');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        boundLinkTarget: '_blank'
+      }));
+
+      this.visit('/');
+
+      var link = this.$('#self-link');
+      assert.equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
+    };
+
+    _class4.prototype['@test the {{link-to}} helper calls preventDefault'] = function (assert) {
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.addTemplate('index', '\n      {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var event = _emberViews.jQuery.Event('click');
+      this.$('#about-link').trigger(event);
+
+      assert.equal(event.isDefaultPrevented(), true, 'should preventDefault');
+    };
+
+    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=false\' is passed as an option'] = function (assert) {
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.addTemplate('index', '\n      {{#link-to \'about\' id=\'about-link\' preventDefault=false}}About{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var event = _emberViews.jQuery.Event('click');
+      this.$('#about-link').trigger(event);
+
+      assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+    };
+
+    _class4.prototype['@test the {{link-to}} helper does not call preventDefault if \'preventDefault=boundFalseyThing\' is passed as an option'] = function (assert) {
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.addTemplate('index', '\n      {{#link-to \'about\' id=\'about-link\' preventDefault=boundFalseyThing}}About{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        boundFalseyThing: false
+      }));
+
+      this.visit('/');
+
+      var event = _emberViews.jQuery.Event('click');
+      this.$('#about-link').trigger(event);
+
+      equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper does not call preventDefault if \'target\' attribute is provided'] = function (assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var event = _emberViews.jQuery.Event('click');
+      this.$('#self-link').trigger(event);
+
+      assert.equal(event.isDefaultPrevented(), false, 'should not preventDefault when target attribute is specified');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper should preventDefault when \'target = _self\''] = function (assert) {
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to \'index\' id=\'self-link\' target=\'_self\'}}Self{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var event = _emberViews.jQuery.Event('click');
+      this.$('#self-link').trigger(event);
+
+      equal(event.isDefaultPrevented(), true, 'should preventDefault when target attribute is `_self`');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper should not transition if target is not equal to _self or empty'] = function (assert) {
+      this.addTemplate('index', '\n      {{#link-to \'about\' id=\'about-link\' replace=true target=\'_blank\'}}\n        About\n      {{/link-to}}\n    ');
+
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.visit('/');
+      this.click('#about-link');
+
+      var currentRouteName = this.applicationInstance.lookup('controller:application').get('currentRouteName');
+      assert.notEqual(currentRouteName, 'about', 'link-to should not transition if target is not equal to _self or empty');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper accepts string/numeric arguments'] = function (assert) {
+      this.router.map(function () {
+        this.route('filter', { path: '/filters/:filter' });
+        this.route('post', { path: '/post/:post_id' });
+        this.route('repo', { path: '/repo/:owner/:name' });
+      });
+
+      this.add('controller:filter', _emberRuntime.Controller.extend({
+        filter: 'unpopular',
+        repo: { owner: 'ember', name: 'ember.js' },
+        post_id: 123
+      }));
+
+      this.addTemplate('filter', '\n      <p>{{filter}}</p>\n      {{#link-to "filter" "unpopular" id="link"}}Unpopular{{/link-to}}\n      {{#link-to "filter" filter id="path-link"}}Unpopular{{/link-to}}\n      {{#link-to "post" post_id id="post-path-link"}}Post{{/link-to}}\n      {{#link-to "post" 123 id="post-number-link"}}Post{{/link-to}}\n      {{#link-to "repo" repo id="repo-object-link"}}Repo{{/link-to}}\n    ');
+
+      this.visit('/filters/popular');
+
+      assert.equal(normalizeUrl(this.$('#link').attr('href')), '/filters/unpopular');
+      assert.equal(normalizeUrl(this.$('#path-link').attr('href')), '/filters/unpopular');
+      assert.equal(normalizeUrl(this.$('#post-path-link').attr('href')), '/post/123');
+      assert.equal(normalizeUrl(this.$('#post-number-link').attr('href')), '/post/123');
+      assert.equal(normalizeUrl(this.$('#repo-object-link').attr('href')), '/repo/ember/ember.js');
+    };
+
+    _class4.prototype['@test Issue 4201 - Shorthand for route.index shouldn\'t throw errors about context arguments'] = function (assert) {
+      assert.expect(2);
+      this.router.map(function () {
+        this.route('lobby', function () {
+          this.route('index', { path: ':lobby_id' });
+          this.route('list');
+        });
+      });
+
+      this.add('route:lobby.index', _emberRouting.Route.extend({
+        model: function (params) {
+          assert.equal(params.lobby_id, 'foobar');
+          return params.lobby_id;
+        }
+      }));
+
+      this.addTemplate('lobby.index', '\n      {{#link-to \'lobby\' \'foobar\' id=\'lobby-link\'}}Lobby{{/link-to}}\n    ');
+      this.addTemplate('lobby.list', '\n      {{#link-to \'lobby\' \'foobar\' id=\'lobby-link\'}}Lobby{{/link-to}}\n    ');
+
+      this.visit('/lobby/list');
+      this.click('#lobby-link');
+
+      shouldBeActive(assert, this.$('#lobby-link'));
+    };
+
+    _class4.prototype['@test Quoteless route param performs property lookup'] = function (assert) {
+      var _this5 = this;
+
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.addTemplate('index', '\n      {{#link-to \'index\' id=\'string-link\'}}string{{/link-to}}\n      {{#link-to foo id=\'path-link\'}}path{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        foo: 'index'
+      }));
+
+      var assertEquality = function (href) {
+        assert.equal(normalizeUrl(_this5.$('#string-link').attr('href')), '/');
+        assert.equal(normalizeUrl(_this5.$('#path-link').attr('href')), href);
+      };
+
+      this.visit('/');
+
+      assertEquality('/');
+
+      var controller = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return controller.set('foo', 'about');
+      });
+
+      assertEquality('/about');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper refreshes href element when one of params changes'] = function (assert) {
+      this.router.map(function () {
+        this.route('post', { path: '/posts/:post_id' });
+      });
+
+      var post = { id: '1' };
+      var secondPost = { id: '2' };
+
+      this.addTemplate('index', '\n      {{#link-to "post" post id="post"}}post{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend());
+
+      this.visit('/');
+
+      var indexController = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return indexController.set('post', post);
+      });
+
+      assert.equal(normalizeUrl(this.$('#post').attr('href')), '/posts/1', 'precond - Link has rendered href attr properly');
+
+      this.runTask(function () {
+        return indexController.set('post', secondPost);
+      });
+
+      assert.equal(this.$('#post').attr('href'), '/posts/2', 'href attr was updated after one of the params had been changed');
+
+      this.runTask(function () {
+        return indexController.set('post', null);
+      });
+
+      assert.equal(this.$('#post').attr('href'), '#', 'href attr becomes # when one of the arguments in nullified');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper is active when a route is active'] = function (assert) {
+      this.router.map(function () {
+        this.route('about', function () {
+          this.route('item');
+        });
+      });
+
+      this.addTemplate('about', '\n      <div id=\'about\'>\n        {{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}\n        {{#link-to \'about.item\' id=\'item-link\'}}Item{{/link-to}}\n        {{outlet}}\n      </div>\n    ');
+
+      this.visit('/about');
+
+      assert.equal(this.$('#about-link.active').length, 1, 'The about route link is active');
+      assert.equal(this.$('#item-link.active').length, 0, 'The item route link is inactive');
+
+      this.visit('/about/item');
+
+      assert.equal(this.$('#about-link.active').length, 1, 'The about route link is active');
+      assert.equal(this.$('#item-link.active').length, 1, 'The item route link is active');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper works in an #each\'d array of string route names'] = function (assert) {
+      var _this6 = this;
+
+      this.router.map(function () {
+        this.route('foo');
+        this.route('bar');
+        this.route('rar');
+      });
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        routeNames: (0, _emberRuntime.A)(['foo', 'bar', 'rar']),
+        route1: 'bar',
+        route2: 'foo'
+      }));
+
+      this.addTemplate('index', '\n      {{#each routeNames as |routeName|}}\n        {{#link-to routeName}}{{routeName}}{{/link-to}}\n      {{/each}}\n      {{#each routeNames as |r|}}\n        {{#link-to r}}{{r}}{{/link-to}}\n      {{/each}}\n      {{#link-to route1}}a{{/link-to}}\n      {{#link-to route2}}b{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var linksEqual = function (links, expected) {
+        equal(links.length, expected.length, 'Has correct number of links');
+
+        var idx = void 0;
+        for (idx = 0; idx < links.length; idx++) {
+          var href = _this6.$(links[idx]).attr('href');
+          // Old IE includes the whole hostname as well
+          assert.equal(href.slice(-expected[idx].length), expected[idx], 'Expected link to be \'' + expected[idx] + '\', but was \'' + href + '\'');
+        }
+      };
+
+      linksEqual(this.$('a'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/bar', '/foo']);
+
+      var indexController = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return indexController.set('route1', 'rar');
+      });
+
+      linksEqual(this.$('a'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/rar', '/foo']);
+
+      this.runTask(function () {
+        return indexController.routeNames.shiftObject();
+      });
+
+      linksEqual(this.$('a'), ['/bar', '/rar', '/bar', '/rar', '/rar', '/foo']);
+    };
+
+    _class4.prototype['@test The non-block form {{link-to}} helper moves into the named route'] = function (assert) {
+      assert.expect(3);
+      this.router.map(function () {
+        this.route('contact');
+      });
+
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{link-to \'Contact us\' \'contact\' id=\'contact-link\'}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('contact', '\n      <h3>Contact</h3>\n      {{link-to \'Home\' \'index\' id=\'home-link\'}}\n      {{link-to \'Self\' \'contact\' id=\'self-link\'}}\n    ');
+
+      this.visit('/');
+
+      this.click('#contact-link');
+
+      assert.equal(this.$('h3:contains(Contact)').length, 1, 'The contact template was rendered');
+      assert.equal(this.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
+      assert.equal(this.$('#home-link:not(.active)').length, 1, 'The other link was rendered without active class');
+    };
+
+    _class4.prototype['@test The non-block form {{link-to}} helper updates the link text when it is a binding'] = function (assert) {
+      assert.expect(8);
+      this.router.map(function () {
+        this.route('contact');
+      });
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        contactName: 'Jane'
+      }));
+
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{link-to contactName \'contact\' id=\'contact-link\'}}\n      {{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}\n    ');
+      this.addTemplate('contact', '\n      <h3>Contact</h3>\n      {{link-to \'Home\' \'index\' id=\'home-link\'}}\n      {{link-to \'Self\' \'contact\' id=\'self-link\'}}\n    ');
+
+      this.visit('/');
+
+      assert.equal(this.$('#contact-link:contains(Jane)').length, 1, 'The link title is correctly resolved');
+
+      var controller = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return controller.set('contactName', 'Joe');
+      });
+
+      assert.equal(this.$('#contact-link:contains(Joe)').length, 1, 'The link title is correctly updated when the bound property changes');
+
+      this.runTask(function () {
+        return controller.set('contactName', 'Robert');
+      });
+
+      assert.equal(this.$('#contact-link:contains(Robert)').length, 1, 'The link title is correctly updated when the bound property changes a second time');
+
+      this.click('#contact-link');
+
+      assert.equal(this.$('h3:contains(Contact)').length, 1, 'The contact template was rendered');
+      assert.equal(this.$('#self-link.active').length, 1, 'The self-link was rendered with active class');
+      assert.equal(this.$('#home-link:not(.active)').length, 1, 'The other link was rendered without active class');
+
+      this.click('#home-link');
+
+      assert.equal(this.$('h3:contains(Home)').length, 1, 'The index template was rendered');
+      assert.equal(this.$('#contact-link:contains(Robert)').length, 1, 'The link title is correctly updated when the route changes');
+    };
+
+    _class4.prototype['@test The non-block form {{link-to}} helper moves into the named route with context'] = function (assert) {
+      assert.expect(5);
+
+      this.router.map(function () {
+        this.route('item', { path: '/item/:id' });
+      });
+
+      this.add('route:index', _emberRouting.Route.extend({
+        model: function () {
+          return [{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }];
+        }
+      }));
+
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      <ul>\n        {{#each model as |person|}}\n          <li>\n            {{link-to person.name \'item\' person}}\n          </li>\n        {{/each}}\n      </ul>\n    ');
+      this.addTemplate('item', '\n      <h3>Item</h3>\n      <p>{{model.name}}</p>\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      this.click('li a:contains(Yehuda)');
+
+      assert.equal(this.$('h3:contains(Item)').length, 1, 'The item template was rendered');
+      assert.equal(this.$('p').text(), 'Yehuda Katz', 'The name is correct');
+
+      this.click('#home-link');
+
+      assert.equal(normalizeUrl(this.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
+      assert.equal(normalizeUrl(this.$('li a:contains(Tom)').attr('href')), '/item/tom');
+      assert.equal(normalizeUrl(this.$('li a:contains(Erik)').attr('href')), '/item/erik');
+    };
+
+    _class4.prototype['@test The non-block form {{link-to}} performs property lookup'] = function (assert) {
+      var _this7 = this;
+
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.addTemplate('index', '\n      {{link-to \'string\' \'index\' id=\'string-link\'}}\n      {{link-to path foo id=\'path-link\'}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        foo: 'index'
+      }));
+
+      this.visit('/');
+
+      var assertEquality = function (href) {
+        assert.equal(normalizeUrl(_this7.$('#string-link').attr('href')), '/');
+        assert.equal(normalizeUrl(_this7.$('#path-link').attr('href')), href);
+      };
+
+      assertEquality('/');
+
+      var controller = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        return controller.set('foo', 'about');
+      });
+
+      assertEquality('/about');
+    };
+
+    _class4.prototype['@test The non-block form {{link-to}} protects against XSS'] = function (assert) {
+      this.addTemplate('application', '{{link-to display \'index\' id=\'link\'}}');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        display: 'blahzorz'
+      }));
+
+      this.visit('/');
+
+      assert.equal(this.$('#link').text(), 'blahzorz');
+
+      var controller = this.applicationInstance.lookup('controller:application');
+      this.runTask(function () {
+        return controller.set('display', '<b>BLAMMO</b>');
+      });
+
+      assert.equal(this.$('#link').text(), '<b>BLAMMO</b>');
+      assert.equal(this.$('b').length, 0);
+    };
+
+    _class4.prototype['@test the {{link-to}} helper does not throw an error if its route has exited'] = function (assert) {
+      assert.expect(0);
+
+      this.router.map(function () {
+        this.route('post', { path: 'post/:post_id' });
+      });
+
+      this.addTemplate('application', '\n      {{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}\n      {{#link-to \'post\' defaultPost id=\'default-post-link\'}}Default Post{{/link-to}}\n      {{#if currentPost}}\n        {{#link-to \'post\' currentPost id=\'current-post-link\'}}Current Post{{/link-to}}\n      {{/if}}\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        defaultPost: { id: 1 },
+        postController: _emberRuntime.inject.controller('post'),
+        currentPost: (0, _emberMetal.alias)('postController.model')
+      }));
+
+      this.add('controller:post', _emberRuntime.Controller.extend());
+
+      this.add('route:post', _emberRouting.Route.extend({
+        model: function () {
+          return { id: 2 };
+        },
+        serialize: function (model) {
+          return { post_id: model.id };
+        }
+      }));
+
+      this.visit('/');
+
+      this.click('#default-post-link');
+      this.click('#home-link');
+      this.click('#current-post-link');
+      this.click('#home-link');
+    };
+
+    _class4.prototype['@test {{link-to}} active property respects changing parent route context'] = function (assert) {
+      this.router.map(function () {
+        this.route('things', { path: '/things/:name' }, function () {
+          this.route('other');
+        });
+      });
+
+      this.addTemplate('application', '\n      {{link-to \'OMG\' \'things\' \'omg\' id=\'omg-link\'}}\n      {{link-to \'LOL\' \'things\' \'lol\' id=\'lol-link\'}}\n    ');
+
+      this.visit('/things/omg');
+
+      shouldBeActive(assert, this.$('#omg-link'));
+      shouldNotBeActive(assert, this.$('#lol-link'));
+
+      this.visit('/things/omg/other');
+
+      shouldBeActive(assert, this.$('#omg-link'));
+      shouldNotBeActive(assert, this.$('#lol-link'));
+    };
+
+    _class4.prototype['@test {{link-to}} populates href with default query param values even without query-params object'] = function (assert) {
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        queryParams: ['foo'],
+        foo: '123'
+      }));
+
+      this.addTemplate('index', '{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}');
+
+      this.visit('/');
+
+      assert.equal(this.$('#the-link').attr('href'), '/', 'link has right href');
+    };
+
+    _class4.prototype['@test {{link-to}} populates href with default query param values with empty query-params object'] = function (assert) {
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        queryParams: ['foo'],
+        foo: '123'
+      }));
+
+      this.addTemplate('index', '\n      {{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      assert.equal(this.$('#the-link').attr('href'), '/', 'link has right href');
+    };
+
+    _class4.prototype['@test {{link-to}} with only query-params and a block updates when route changes'] = function (assert) {
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        queryParams: ['foo', 'bar'],
+        foo: '123',
+        bar: 'yes'
+      }));
+
+      this.addTemplate('application', '\n      {{#link-to (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      assert.equal(this.$('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
+
+      this.visit('/about');
+
+      assert.equal(this.$('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
+    };
+
+    _class4.prototype['@test Block-less {{link-to}} with only query-params updates when route changes'] = function (assert) {
+      this.router.map(function () {
+        this.route('about');
+      });
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        queryParams: ['foo', 'bar'],
+        foo: '123',
+        bar: 'yes'
+      }));
+
+      this.addTemplate('application', '\n      {{link-to "Index" (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}\n    ');
+
+      this.visit('/');
+
+      assert.equal(this.$('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
+
+      this.visit('/about');
+
+      assert.equal(this.$('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper can use dynamic params'] = function (assert) {
+      this.router.map(function () {
+        this.route('foo', { path: 'foo/:some/:thing' });
+        this.route('bar', { path: 'bar/:some/:thing/:else' });
+      });
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.dynamicLinkParams = ['foo', 'one', 'two'];
+        }
+      }));
+
+      this.addTemplate('index', '\n      <h3>Home</h3>\n      {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n    ');
+
+      this.visit('/');
+
+      var link = this.$('#dynamic-link');
+
+      assert.equal(link.attr('href'), '/foo/one/two');
+
+      var controller = this.applicationInstance.lookup('controller:index');
+      this.runTask(function () {
+        controller.set('dynamicLinkParams', ['bar', 'one', 'two', 'three']);
+      });
+
+      assert.equal(link.attr('href'), '/bar/one/two/three');
+    };
+
+    _class4.prototype['@test GJ: {{link-to}} to a parent root model hook which performs a \'transitionTo\' has correct active class #13256'] = function (assert) {
+      assert.expect(1);
+
+      this.router.map(function () {
+        this.route('parent', function () {
+          this.route('child');
+        });
+      });
+
+      this.add('route:parent', _emberRouting.Route.extend({
+        afterModel: function (transition) {
+          this.transitionTo('parent.child');
+        }
+      }));
+
+      this.addTemplate('application', '\n      {{link-to \'Parent\' \'parent\' id=\'parent-link\'}}\n    ');
+
+      this.visit('/');
+
+      this.click('#parent-link');
+
+      shouldBeActive(assert, this.$('#parent-link'));
+    };
+
+    return _class4;
+  }(_internalTestHelpers.ApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper - loading states and warnings', function (_ApplicationTestCase6) {
+    (0, _emberBabel.inherits)(_class5, _ApplicationTestCase6);
+
+    function _class5() {
+      (0, _emberBabel.classCallCheck)(this, _class5);
+
+      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase6.call(this));
+
+      _this8._oldWarn = _emberConsole.default.warn;
+      _this8.warnCalled = false;
+      _emberConsole.default.warn = function () {
+        return _this8.warnCalled = true;
+      };
+      return _this8;
     }
 
-    linksEqual((0, _emberViews.jQuery)('a', '#qunit-fixture'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/bar', '/foo']);
+    _class5.prototype.teardown = function teardown() {
+      _emberConsole.default.warn = this._oldWarn;
+      _ApplicationTestCase6.prototype.teardown.call(this);
+    };
 
-    var indexController = appInstance.lookup('controller:index');
-    (0, _emberMetal.run)(indexController, 'set', 'route1', 'rar');
+    _class5.prototype['@test link-to with null/undefined dynamic parameters are put in a loading state'] = function (assert) {
+      assert.expect(19);
 
-    linksEqual((0, _emberViews.jQuery)('a', '#qunit-fixture'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/rar', '/foo']);
+      this.router.map(function () {
+        this.route('thing', { path: '/thing/:thing_id' });
+        this.route('about');
+      });
 
-    (0, _emberMetal.run)(indexController.routeNames, 'shiftObject');
+      this.addTemplate('index', '\n      {{#link-to destinationRoute routeContext loadingClass=\'i-am-loading\' id=\'context-link\'}}\n        string\n      {{/link-to}}\n      {{#link-to secondRoute loadingClass=loadingClass id=\'static-link\'}}\n        string\n      {{/link-to}}\n    ');
 
-    linksEqual((0, _emberViews.jQuery)('a', '#qunit-fixture'), ['/bar', '/rar', '/bar', '/rar', '/rar', '/foo']);
-  });
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        destinationRoute: null,
+        routeContext: null,
+        loadingClass: 'i-am-loading'
+      }));
 
-  QUnit.test('The non-block form {{link-to}} helper moves into the named route', function () {
-    expect(3);
-    Router.map(function (match) {
-      this.route('contact');
-    });
+      this.add('route:about', _emberRouting.Route.extend({
+        activate: function () {
+          assert.ok(true, 'About was entered');
+        }
+      }));
 
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{link-to 'Contact us' 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}"));
-    (0, _emberGlimmer.setTemplate)('contact', (0, _emberTemplateCompiler.compile)("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}"));
+      this.visit('/');
 
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#contact-link', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Contact)', '#qunit-fixture').length, 1, 'The contact template was rendered');
-    equal((0, _emberViews.jQuery)('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal((0, _emberViews.jQuery)('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
-  });
-
-  QUnit.test('The non-block form {{link-to}} helper updates the link text when it is a binding', function () {
-    expect(8);
-    Router.map(function (match) {
-      this.route('contact');
-    });
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      contactName: 'Jane'
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3>{{link-to contactName 'contact' id='contact-link'}}{{#link-to 'index' id='self-link'}}Self{{/link-to}}"));
-    (0, _emberGlimmer.setTemplate)('contact', (0, _emberTemplateCompiler.compile)("<h3>Contact</h3>{{link-to 'Home' 'index' id='home-link'}}{{link-to 'Self' 'contact' id='self-link'}}"));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    var controller = appInstance.lookup('controller:index');
-
-    equal((0, _emberViews.jQuery)('#contact-link:contains(Jane)', '#qunit-fixture').length, 1, 'The link title is correctly resolved');
-
-    (0, _emberMetal.run)(function () {
-      return controller.set('contactName', 'Joe');
-    });
-
-    equal((0, _emberViews.jQuery)('#contact-link:contains(Joe)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the bound property changes');
-
-    (0, _emberMetal.run)(function () {
-      return controller.set('contactName', 'Robert');
-    });
-
-    equal((0, _emberViews.jQuery)('#contact-link:contains(Robert)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the bound property changes a second time');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#contact-link', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Contact)', '#qunit-fixture').length, 1, 'The contact template was rendered');
-    equal((0, _emberViews.jQuery)('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal((0, _emberViews.jQuery)('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#home-link', '#qunit-fixture').click();
-    });
-
-    equal((0, _emberViews.jQuery)('h3:contains(Home)', '#qunit-fixture').length, 1, 'The index template was rendered');
-    equal((0, _emberViews.jQuery)('#contact-link:contains(Robert)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the route changes');
-  });
-
-  QUnit.test('The non-block form {{link-to}} helper moves into the named route with context', function () {
-    expect(5);
-
-    Router.map(function (match) {
-      this.route('item', { path: '/item/:id' });
-    });
-
-    App.IndexRoute = _emberRouting.Route.extend({
-      model: function () {
-        return (0, _emberRuntime.A)([{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }]);
+      function assertLinkStatus(link, url) {
+        if (url) {
+          assert.equal(normalizeUrl(link.attr('href')), url, 'loaded link-to has expected href');
+          assert.ok(!link.hasClass('i-am-loading'), 'loaded linkComponent has no loadingClass');
+        } else {
+          assert.equal(normalizeUrl(link.attr('href')), '#', "unloaded link-to has href='#'");
+          assert.ok(link.hasClass('i-am-loading'), 'loading linkComponent has loadingClass');
+        }
       }
-    });
 
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("<h3>Home</h3><ul>{{#each model as |person|}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>"));
-    (0, _emberGlimmer.setTemplate)('item', (0, _emberTemplateCompiler.compile)("<h3>Item</h3><p>{{model.name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}"));
+      var contextLink = this.$('#context-link');
+      var staticLink = this.$('#static-link');
+      var controller = this.applicationInstance.lookup('controller:index');
 
-    bootApplication();
+      assertLinkStatus(contextLink);
+      assertLinkStatus(staticLink);
 
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('li a:contains(Yehuda)', '#qunit-fixture').click();
-    });
+      this.warnCalled = false;
+      this.click(contextLink);
+      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
 
-    equal((0, _emberViews.jQuery)('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'Yehuda Katz', 'The name is correct');
+      // Set the destinationRoute (context is still null).
+      this.runTask(function () {
+        return controller.set('destinationRoute', 'thing');
+      });
+      assertLinkStatus(contextLink);
 
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#home-link').click();
-    });
+      // Set the routeContext to an id
+      this.runTask(function () {
+        return controller.set('routeContext', '456');
+      });
+      assertLinkStatus(contextLink, '/thing/456');
 
-    equal(normalizeUrl((0, _emberViews.jQuery)('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
-    equal(normalizeUrl((0, _emberViews.jQuery)('li a:contains(Tom)').attr('href')), '/item/tom');
-    equal(normalizeUrl((0, _emberViews.jQuery)('li a:contains(Erik)').attr('href')), '/item/erik');
-  });
+      // Test that 0 isn't interpreted as falsy.
+      this.runTask(function () {
+        return controller.set('routeContext', 0);
+      });
+      assertLinkStatus(contextLink, '/thing/0');
 
-  QUnit.test('The non-block form {{link-to}} performs property lookup', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{link-to 'string' 'index' id='string-link'}}{{link-to path foo id='path-link'}}"));
+      // Set the routeContext to an object
+      this.runTask(function () {
+        controller.set('routeContext', { id: 123 });
+      });
+      assertLinkStatus(contextLink, '/thing/123');
 
-    function assertEquality(href) {
-      equal(normalizeUrl((0, _emberViews.jQuery)('#string-link', '#qunit-fixture').attr('href')), '/');
-      equal(normalizeUrl((0, _emberViews.jQuery)('#path-link', '#qunit-fixture').attr('href')), href);
+      // Set the destinationRoute back to null.
+      this.runTask(function () {
+        return controller.set('destinationRoute', null);
+      });
+      assertLinkStatus(contextLink);
+
+      this.warnCalled = false;
+      this.click(staticLink);
+      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
+
+      this.runTask(function () {
+        return controller.set('secondRoute', 'about');
+      });
+      assertLinkStatus(staticLink, '/about');
+
+      // Click the now-active link
+      this.click(staticLink);
+    };
+
+    return _class5;
+  }(_internalTestHelpers.ApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper - globals mode app', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class6, _AutobootApplicationT);
+
+    function _class6() {
+      (0, _emberBabel.classCallCheck)(this, _class6);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
     }
 
-    App.IndexController = _emberRuntime.Controller.extend({
-      foo: 'index'
-    });
+    _class6.prototype['@test the {{link-to}} helper throws a useful error if you invoke it wrong'] = function (assert) {
+      var _this10 = this;
 
-    App.Router.map(function () {
-      this.route('about');
-    });
+      assert.expect(1);
 
-    bootApplication();
+      assert.throws(function () {
+        _this10.runTask(function () {
+          _this10.createApplication();
 
-    (0, _emberMetal.run)(router, 'handleURL', '/');
+          _this10.add('router:main', _emberRouting.Router.extend({
+            location: 'none'
+          }));
 
-    assertEquality('/');
+          _this10.router.map(function () {
+            this.route('post', { path: 'post/:post_id' });
+          });
 
-    var controller = appInstance.lookup('controller:index');
-    (0, _emberMetal.run)(function () {
-      return controller.set('foo', 'about');
-    });
+          _this10.addTemplate('application', '{{#link-to \'post\'}}Post{{/link-to}}');
+        });
+      }, /(You attempted to define a `\{\{link-to "post"\}\}` but did not pass the parameters required for generating its dynamic segments.|You must provide param `post_id` to `generate`)/);
+    };
 
-    assertEquality('/about');
-  });
-
-  QUnit.test('The non-block form {{link-to}} protects against XSS', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)("{{link-to display 'index' id='link'}}"));
-
-    App.ApplicationController = _emberRuntime.Controller.extend({
-      display: 'blahzorz'
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/');
-
-    var controller = appInstance.lookup('controller:application');
-
-    equal((0, _emberViews.jQuery)('#link', '#qunit-fixture').text(), 'blahzorz');
-    (0, _emberMetal.run)(function () {
-      return controller.set('display', '<b>BLAMMO</b>');
-    });
-
-    equal((0, _emberViews.jQuery)('#link', '#qunit-fixture').text(), '<b>BLAMMO</b>');
-    equal((0, _emberViews.jQuery)('b', '#qunit-fixture').length, 0);
-  });
-
-  QUnit.test('the {{link-to}} helper calls preventDefault', function () {
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/');
-
-    var event = _emberViews.jQuery.Event('click');
-    (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').trigger(event);
-
-    equal(event.isDefaultPrevented(), true, 'should preventDefault');
-  });
-
-  QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=false` is passed as an option', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{#link-to 'about' id='about-link' preventDefault=false}}About{{/link-to}}"));
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/');
-
-    var event = _emberViews.jQuery.Event('click');
-    (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').trigger(event);
-
-    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
-  });
-
-  QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=boundFalseyThing` is passed as an option', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{#link-to 'about' id='about-link' preventDefault=boundFalseyThing}}About{{/link-to}}"));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      boundFalseyThing: false
-    });
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/');
-
-    var event = _emberViews.jQuery.Event('click');
-    (0, _emberViews.jQuery)('#about-link', '#qunit-fixture').trigger(event);
-
-    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
-  });
-
-  QUnit.test('the {{link-to}} helper throws a useful error if you invoke it wrong', function () {
-    expect(1);
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)("{{#link-to 'post'}}Post{{/link-to}}"));
-
-    Router.map(function () {
-      this.route('post', { path: 'post/:post_id' });
-    });
-
-    QUnit.throws(function () {
-      bootApplication();
-    }, /(You attempted to define a `\{\{link-to "post"\}\}` but did not pass the parameters required for generating its dynamic segments.|You must provide param `post_id` to `generate`)/);
-  });
-
-  QUnit.test('the {{link-to}} helper does not throw an error if its route has exited', function () {
-    expect(0);
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)("{{#link-to 'index' id='home-link'}}Home{{/link-to}}{{#link-to 'post' defaultPost id='default-post-link'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to 'post' currentPost id='current-post-link'}}Current Post{{/link-to}}{{/if}}"));
-
-    App.ApplicationController = _emberRuntime.Controller.extend({
-      defaultPost: { id: 1 },
-      postController: _emberRuntime.inject.controller('post'),
-      currentPost: (0, _emberMetal.alias)('postController.model')
-    });
-
-    App.PostController = _emberRuntime.Controller.extend();
-
-    App.PostRoute = _emberRouting.Route.extend({
-      model: function () {
-        return { id: 2 };
-      },
-      serialize: function (model) {
-        return { post_id: model.id };
-      }
-    });
-
-    Router.map(function () {
-      this.route('post', { path: 'post/:post_id' });
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#default-post-link', '#qunit-fixture').click();
-    });
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#home-link', '#qunit-fixture').click();
-    });
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#current-post-link', '#qunit-fixture').click();
-    });
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#home-link', '#qunit-fixture').click();
-    });
-  });
-
-  QUnit.test('{{link-to}} active property respects changing parent route context', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)("{{link-to 'OMG' 'things' 'omg' id='omg-link'}} " + "{{link-to 'LOL' 'things' 'lol' id='lol-link'}} "));
-
-    Router.map(function () {
-      this.route('things', { path: '/things/:name' }, function () {
-        this.route('other');
-      });
-    });
-
-    bootApplication();
-
-    (0, _emberMetal.run)(router, 'handleURL', '/things/omg');
-    shouldBeActive('#omg-link');
-    shouldNotBeActive('#lol-link');
-
-    (0, _emberMetal.run)(router, 'handleURL', '/things/omg/other');
-    shouldBeActive('#omg-link');
-    shouldNotBeActive('#lol-link');
-  });
-
-  QUnit.test('{{link-to}} populates href with default query param values even without query-params object', function () {
-    App.IndexController = _emberRuntime.Controller.extend({
-      queryParams: ['foo'],
-      foo: '123'
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{#link-to 'index' id='the-link'}}Index{{/link-to}}"));
-    bootApplication();
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/', 'link has right href');
-  });
-
-  QUnit.test('{{link-to}} populates href with default query param values with empty query-params object', function () {
-    App.IndexController = _emberRuntime.Controller.extend({
-      queryParams: ['foo'],
-      foo: '123'
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)("{{#link-to 'index' (query-params) id='the-link'}}Index{{/link-to}}"));
-    bootApplication();
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/', 'link has right href');
-  });
-
-  QUnit.test('{{link-to}} with only query-params and a block updates when route changes', function () {
-    Router.map(function () {
-      this.route('about');
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend({
-      queryParams: ['foo', 'bar'],
-      foo: '123',
-      bar: 'yes'
-    });
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{#link-to (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}'));
-    bootApplication();
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
-  });
-
-  QUnit.test('Block-less {{link-to}} with only query-params updates when route changes', function () {
-    Router.map(function () {
-      this.route('about');
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend({
-      queryParams: ['foo', 'bar'],
-      foo: '123',
-      bar: 'yes'
-    });
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{link-to "Index" (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}'));
-    bootApplication();
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/about');
-    });
-
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
-  });
-
-  QUnit.test('The {{link-to}} helper can use dynamic params', function () {
-    Router.map(function (match) {
-      this.route('foo', { path: 'foo/:some/:thing' });
-      this.route('bar', { path: 'bar/:some/:thing/:else' });
-    });
-
-    var controller = void 0;
-    App.IndexController = _emberRuntime.Controller.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        controller = this;
-
-        this.dynamicLinkParams = ['foo', 'one', 'two'];
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('\n    <h3>Home</h3>\n\n    {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n  '));
-
-    bootApplication();
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/');
-    });
-
-    var link = (0, _emberViews.jQuery)('#dynamic-link', '#qunit-fixture');
-
-    equal(link.attr('href'), '/foo/one/two');
-
-    (0, _emberMetal.run)(function () {
-      controller.set('dynamicLinkParams', ['bar', 'one', 'two', 'three']);
-    });
-
-    equal(link.attr('href'), '/bar/one/two/three');
-  });
-
-  QUnit.test('GJ: {{link-to}} to a parent root model hook which performs a `transitionTo` has correct active class #13256', function () {
-    expect(1);
-
-    Router.map(function () {
-      this.route('parent', function () {
-        this.route('child');
-      });
-    });
-
-    App.ParentRoute = _emberRouting.Route.extend({
-      afterModel: function (transition) {
-        this.transitionTo('parent.child');
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('\n    {{link-to \'Parent\' \'parent\' id=\'parent-link\'}}\n  '));
-
-    bootApplication();
-
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#parent-link'), 'click');
-
-    shouldBeActive('#parent-link');
-  });
+    return _class6;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 QUnit.module('ESLint | ember/tests/helpers/link_to_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -78741,10 +78528,14 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
 
 
       if (applicationInstance) {
-        return (0, _emberMetal.run)(applicationInstance, 'visit', url, options);
+        return this.runTask(function () {
+          return applicationInstance.visit(url, options);
+        });
       } else {
-        return (0, _emberMetal.run)(this.application, 'visit', url, options).then(function (instance) {
-          _this2.applicationInstance = instance;
+        return this.runTask(function () {
+          return _this2.application.visit(url, options).then(function (instance) {
+            _this2.applicationInstance = instance;
+          });
         });
       }
     };
@@ -79014,11 +78805,11 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     AbstractTestCase.prototype.teardown = function teardown() {};
 
     AbstractTestCase.prototype.runTask = function runTask(callback) {
-      (0, _emberMetal.run)(callback);
+      return (0, _emberMetal.run)(callback);
     };
 
     AbstractTestCase.prototype.runTaskNext = function runTaskNext(callback) {
-      _emberMetal.run.next(callback);
+      return _emberMetal.run.next(callback);
     };
 
     AbstractTestCase.prototype.nthChild = function nthChild(n) {
@@ -79042,6 +78833,14 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
 
     AbstractTestCase.prototype.$ = function $(sel) {
       return sel ? (0, _emberViews.jQuery)(sel, this.element) : (0, _emberViews.jQuery)(this.element);
+    };
+
+    AbstractTestCase.prototype.click = function click(selector) {
+      var _this = this;
+
+      this.runTask(function () {
+        return _this.$(selector).click();
+      });
     };
 
     AbstractTestCase.prototype.textValue = function textValue() {
@@ -79126,11 +78925,11 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     };
 
     AbstractTestCase.prototype.assertStableRerender = function assertStableRerender() {
-      var _this = this;
+      var _this2 = this;
 
       this.takeSnapshot();
       this.runTask(function () {
-        return _this.rerender();
+        return _this2.rerender();
       });
       this.assertInvariants();
     };
