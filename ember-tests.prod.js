@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+1c720c8d
+ * @version   2.15.0-alpha.1-null+ad446bc0
  */
 
 var enifed, requireModule, Ember;
@@ -63160,224 +63160,199 @@ enifed('ember-utils/tests/try_invoke_test', ['ember-utils'], function (_emberUti
     equal((0, _emberUtils.tryInvoke)(obj, 'aMethodThatTakesArguments', [true, true]), true);
   });
 });
-enifed('ember/tests/application_lifecycle_test', ['ember-application', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler'], function (_emberApplication, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler) {
+enifed('ember/tests/application_lifecycle_test', ['ember-babel', 'internal-test-helpers', 'ember-application', 'ember-routing', 'ember-glimmer'], function (_emberBabel, _internalTestHelpers, _emberApplication, _emberRouting, _emberGlimmer) {
   'use strict';
 
-  var App = void 0,
-      TEMPLATES = void 0,
-      appInstance = void 0,
-      router = void 0;
+  (0, _internalTestHelpers.moduleFor)('Application Lifecycle - route hooks', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
-  function setupApp(klass) {
-    (0, _emberMetal.run)(function () {
-      App = klass.create({
-        rootElement: '#qunit-fixture'
-      });
+    _class.prototype.createApplication = function () {
+      var _AutobootApplicationT2;
 
-      App.Router = App.Router.extend({
+      var application = (_AutobootApplicationT2 = _AutobootApplicationT.prototype.createApplication).call.apply(_AutobootApplicationT2, [this].concat(Array.prototype.slice.call(arguments)));
+      this.add('router:main', _emberRouting.Router.extend({
         location: 'none'
+      }));
+      return application;
+    };
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+
+      var menuItem = _this.menuItem = {};
+
+      _this.runTask(function () {
+        _this.createApplication();
+
+        var SettingRoute = _emberRouting.Route.extend({
+          setupController: function () {
+            this.controller.set('selectedMenuItem', menuItem);
+          },
+          deactivate: function () {
+            this.controller.set('selectedMenuItem', null);
+          }
+        });
+        _this.add('route:index', SettingRoute);
+        _this.add('route:application', SettingRoute);
       });
-
-      App.deferReadiness();
-
-      appInstance = App.__deprecatedInstance__;
-    });
-  }
-
-  QUnit.module('Application Lifecycle', {
-    setup: function () {
-      TEMPLATES = (0, _emberGlimmer.getTemplates)();
-      setupApp(_emberApplication.Application.extend());
-    },
-    teardown: function () {
-      router = null;
-      (0, _emberMetal.run)(App, 'destroy');
-      (0, _emberGlimmer.setTemplates)({});
+      return _this;
     }
-  });
 
-  function handleURL(path) {
-    router = appInstance.lookup('router:main');
-    return (0, _emberMetal.run)(function () {
-      return router.handleURL(path).then(function (value) {
-        ok(true, 'url: `' + path + '` was handled');
-        return value;
-      }, function (reason) {
-        ok(false, reason);
-        throw reason;
+    _class.prototype['@test Resetting the application allows controller properties to be set when a route deactivates'] = function (assert) {
+      var indexController = this.indexController,
+          applicationController = this.applicationController;
+
+      assert.equal(indexController.get('selectedMenuItem'), this.menuItem);
+      assert.equal(applicationController.get('selectedMenuItem'), this.menuItem);
+
+      this.application.reset();
+
+      assert.equal(indexController.get('selectedMenuItem'), null);
+      assert.equal(applicationController.get('selectedMenuItem'), null);
+    };
+
+    _class.prototype['@test Destroying the application resets the router before the appInstance is destroyed'] = function (assert) {
+      var _this2 = this;
+
+      var indexController = this.indexController,
+          applicationController = this.applicationController;
+
+      assert.equal(indexController.get('selectedMenuItem'), this.menuItem);
+      assert.equal(applicationController.get('selectedMenuItem'), this.menuItem);
+
+      this.runTask(function () {
+        _this2.application.destroy();
       });
-    });
-  }
 
-  QUnit.test('Resetting the application allows controller properties to be set when a route deactivates', function () {
-    App.Router.map(function () {
-      this.route('home', { path: '/' });
-    });
+      assert.equal(indexController.get('selectedMenuItem'), null);
+      assert.equal(applicationController.get('selectedMenuItem'), null);
+    };
 
-    App.HomeRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        this.controllerFor('home').set('selectedMenuItem', 'home');
-      },
-      deactivate: function () {
-        this.controllerFor('home').set('selectedMenuItem', null);
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'indexController',
+      get: function () {
+        return this.applicationInstance.lookup('controller:index');
       }
-    });
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        this.controllerFor('application').set('selectedMenuItem', 'home');
-      },
-      deactivate: function () {
-        this.controllerFor('application').set('selectedMenuItem', null);
+    }, {
+      key: 'applicationController',
+      get: function () {
+        return this.applicationInstance.lookup('controller:application');
       }
-    });
+    }]);
+    return _class;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 
-    appInstance.lookup('router:main');
+  (0, _internalTestHelpers.moduleFor)('Application Lifecycle', function (_AutobootApplicationT3) {
+    (0, _emberBabel.inherits)(_class2, _AutobootApplicationT3);
 
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT3.apply(this, arguments));
+    }
 
-    handleURL('/');
+    _class2.prototype.createApplication = function () {
+      var _AutobootApplicationT4;
 
-    equal((0, _emberRouting.controllerFor)(appInstance, 'home').get('selectedMenuItem'), 'home');
-    equal((0, _emberRouting.controllerFor)(appInstance, 'application').get('selectedMenuItem'), 'home');
+      var application = (_AutobootApplicationT4 = _AutobootApplicationT3.prototype.createApplication).call.apply(_AutobootApplicationT4, [this].concat(Array.prototype.slice.call(arguments)));
+      this.add('router:main', _emberRouting.Router.extend({
+        location: 'none'
+      }));
+      return application;
+    };
 
-    App.reset();
+    _class2.prototype['@test Destroying a route after the router does create an undestroyed \'toplevelView\''] = function () {
+      var _this4 = this;
 
-    equal((0, _emberRouting.controllerFor)(appInstance, 'home').get('selectedMenuItem'), null);
-    equal((0, _emberRouting.controllerFor)(appInstance, 'application').get('selectedMenuItem'), null);
-  });
+      this.runTask(function () {
+        _this4.createApplication();
+        _this4.addTemplate('index', 'Index!');
+        _this4.addTemplate('application', 'Application! {{outlet}}');
+      });
 
-  QUnit.test('Destroying the application resets the router before the appInstance is destroyed', function () {
-    App.Router.map(function () {
-      this.route('home', { path: '/' });
-    });
+      var router = this.applicationInstance.lookup('router:main');
+      var route = this.applicationInstance.lookup('route:index');
 
-    App.HomeRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        this.controllerFor('home').set('selectedMenuItem', 'home');
-      },
-      deactivate: function () {
-        this.controllerFor('home').set('selectedMenuItem', null);
-      }
-    });
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        this.controllerFor('application').set('selectedMenuItem', 'home');
-      },
-      deactivate: function () {
-        this.controllerFor('application').set('selectedMenuItem', null);
-      }
-    });
+      this.runTask(function () {
+        return router.destroy();
+      });
+      equal(router._toplevelView, null, 'the toplevelView was cleared');
 
-    appInstance.lookup('router:main');
+      this.runTask(function () {
+        return route.destroy();
+      });
+      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
 
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+      this.runTask(function () {
+        return _this4.application.destroy();
+      });
+      equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+    };
 
-    handleURL('/');
+    _class2.prototype['@test initializers can augment an applications customEvents hash'] = function (assert) {
+      var _this5 = this;
 
-    equal((0, _emberRouting.controllerFor)(appInstance, 'home').get('selectedMenuItem'), 'home');
-    equal((0, _emberRouting.controllerFor)(appInstance, 'application').get('selectedMenuItem'), 'home');
+      assert.expect(1);
 
-    (0, _emberMetal.run)(App, 'destroy');
+      var MyApplication = _emberApplication.Application.extend();
 
-    equal((0, _emberRouting.controllerFor)(appInstance, 'home').get('selectedMenuItem'), null);
-    equal((0, _emberRouting.controllerFor)(appInstance, 'application').get('selectedMenuItem'), null);
-  });
+      MyApplication.initializer({
+        name: 'customize-things',
+        initialize: function (application) {
+          application.customEvents = {
+            wowza: 'wowza'
+          };
+        }
+      });
 
-  QUnit.test('Destroying a route after the router does create an undestroyed `toplevelView`', function () {
-    App.Router.map(function () {
-      this.route('home', { path: '/' });
-    });
+      this.runTask(function () {
+        _this5.createApplication({}, MyApplication);
 
-    (0, _emberGlimmer.setTemplates)({
-      index: (0, _emberTemplateCompiler.compile)('Index!'),
-      application: (0, _emberTemplateCompiler.compile)('Application! {{outlet}}')
-    });
+        _this5.add('component:foo-bar', _emberGlimmer.Component.extend({
+          wowza: function () {
+            assert.ok(true, 'fired the event!');
+          }
+        }));
 
-    App.IndexRoute = _emberRouting.Route.extend();
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+        _this5.addTemplate('application', '{{foo-bar}}');
+        _this5.addTemplate('components/foo-bar', '<div id=\'wowza-thingy\'></div>');
+      });
 
-    handleURL('/');
+      this.$('#wowza-thingy').trigger('wowza');
+    };
 
-    var router = appInstance.lookup('router:main');
-    var route = appInstance.lookup('route:index');
+    _class2.prototype['@test instanceInitializers can augment an the customEvents hash'] = function (assert) {
+      var _this6 = this;
 
-    (0, _emberMetal.run)(router, 'destroy');
-    equal(router._toplevelView, null, 'the toplevelView was cleared');
+      assert.expect(1);
 
-    (0, _emberMetal.run)(route, 'destroy');
-    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
+      var MyApplication = _emberApplication.Application.extend();
 
-    (0, _emberMetal.run)(App, 'destroy');
-    equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
-  });
+      MyApplication.instanceInitializer({
+        name: 'customize-things',
+        initialize: function (application) {
+          application.customEvents = {
+            herky: 'jerky'
+          };
+        }
+      });
+      this.runTask(function () {
+        _this6.createApplication({}, MyApplication);
 
-  QUnit.test('initializers can augment an applications customEvents hash', function (assert) {
-    assert.expect(1);
+        _this6.add('component:foo-bar', _emberGlimmer.Component.extend({
+          jerky: function () {
+            assert.ok(true, 'fired the event!');
+          }
+        }));
 
-    (0, _emberMetal.run)(App, 'destroy');
+        _this6.addTemplate('application', '{{foo-bar}}');
+        _this6.addTemplate('components/foo-bar', '<div id=\'herky-thingy\'></div>');
+      });
 
-    var ApplicationSubclass = _emberApplication.Application.extend();
+      this.$('#herky-thingy').trigger('herky');
+    };
 
-    ApplicationSubclass.initializer({
-      name: 'customize-things',
-      initialize: function (application) {
-        application.customEvents = {
-          wowza: 'wowza'
-        };
-      }
-    });
-
-    setupApp(ApplicationSubclass);
-
-    App.FooBarComponent = _emberGlimmer.Component.extend({
-      wowza: function () {
-        assert.ok(true, 'fired the event!');
-      }
-    });
-
-    TEMPLATES['application'] = (0, _emberTemplateCompiler.compile)('{{foo-bar}}');
-    TEMPLATES['components/foo-bar'] = (0, _emberTemplateCompiler.compile)('<div id=\'wowza-thingy\'></div>');
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#wowza-thingy').trigger('wowza');
-    });
-  });
-
-  QUnit.test('instanceInitializers can augment an the customEvents hash', function (assert) {
-    assert.expect(1);
-
-    (0, _emberMetal.run)(App, 'destroy');
-
-    var ApplicationSubclass = _emberApplication.Application.extend();
-
-    ApplicationSubclass.instanceInitializer({
-      name: 'customize-things',
-      initialize: function (application) {
-        application.customEvents = {
-          herky: 'jerky'
-        };
-      }
-    });
-
-    setupApp(ApplicationSubclass);
-
-    App.FooBarComponent = _emberGlimmer.Component.extend({
-      jerky: function () {
-        assert.ok(true, 'fired the event!');
-      }
-    });
-
-    TEMPLATES['application'] = (0, _emberTemplateCompiler.compile)('{{foo-bar}}');
-    TEMPLATES['components/foo-bar'] = (0, _emberTemplateCompiler.compile)('<div id=\'herky-thingy\'></div>');
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    (0, _emberMetal.run)(function () {
-      return (0, _emberViews.jQuery)('#herky-thingy').trigger('herky');
-    });
-  });
+    return _class2;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 enifed('ember/tests/component_registration_test', ['ember-runtime', 'ember-metal', 'ember-application', 'ember-routing', 'ember-template-compiler', 'ember-glimmer', 'ember-views'], function (_emberRuntime, _emberMetal, _emberApplication, _emberRouting, _emberTemplateCompiler, _emberGlimmer, _emberViews) {
   'use strict';
