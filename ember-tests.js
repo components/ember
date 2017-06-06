@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+ad446bc0
+ * @version   2.15.0-alpha.1-null+7342deec
  */
 
 var enifed, requireModule, Ember;
@@ -4728,216 +4728,189 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-application/tests/system/instance_initializers_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-application/tests/system/logging_test', ['ember-console', 'ember-metal', 'ember-application/system/application', 'ember-runtime', 'ember-routing', 'ember-template-compiler'], function (_emberConsole, _emberMetal, _application, _emberRuntime, _emberRouting, _emberTemplateCompiler) {
+enifed('ember-application/tests/system/logging_test', ['ember-babel', 'internal-test-helpers', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-utils'], function (_emberBabel, _internalTestHelpers, _emberConsole, _emberRuntime, _emberRouting, _emberUtils) {
   'use strict';
 
-  /*globals EmberDev */
+  var LoggingApplicationTestCase = function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(LoggingApplicationTestCase, _ApplicationTestCase);
 
-  var App = void 0,
-      logs = void 0,
-      originalLogger = void 0;
+    function LoggingApplicationTestCase() {
+      (0, _emberBabel.classCallCheck)(this, LoggingApplicationTestCase);
 
-  QUnit.module('Ember.Application – logging of generated classes', {
-    setup: function () {
-      logs = {};
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
 
-      originalLogger = _emberConsole.default.info;
+      _this.logs = {};
 
-      _emberConsole.default.info = function () {
-        var fullName = arguments[1].fullName;
+      _this._originalLogger = _emberConsole.default.info;
 
-        logs[fullName] = logs[fullName] || 0;
-        logs[fullName]++;
+      _emberConsole.default.info = function (_, _ref) {
+        var fullName = _ref.fullName;
+
+        if (!_this.logs.hasOwnProperty(fullName)) {
+          _this.logs[fullName] = 0;
+        }
+        _this.logs[fullName]++;
       };
 
-      (0, _emberMetal.run)(function () {
-        App = _application.default.create({
+      _this.router.map(function () {
+        this.route('posts', { resetNamespace: true });
+      });
+      return _this;
+    }
+
+    LoggingApplicationTestCase.prototype.teardown = function teardown() {
+      _emberConsole.default.info = this._originalLogger;
+      _ApplicationTestCase.prototype.teardown.call(this);
+    };
+
+    return LoggingApplicationTestCase;
+  }(_internalTestHelpers.ApplicationTestCase);
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Application with LOG_ACTIVE_GENERATION=true', function (_LoggingApplicationTe) {
+    (0, _emberBabel.inherits)(_class, _LoggingApplicationTe);
+
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _LoggingApplicationTe.apply(this, arguments));
+    }
+
+    _class.prototype['@test log class generation if logging enabled'] = function testLogClassGenerationIfLoggingEnabled(assert) {
+      if (EmberDev && EmberDev.runningProdBuild) {
+        assert.ok(true, 'Logging does not occur in production builds');
+        return;
+      }
+
+      this.visit('/posts');
+      assert.equal(Object.keys(this.logs).length, 4, 'expected logs');
+    };
+
+    _class.prototype['@test actively generated classes get logged'] = function testActivelyGeneratedClassesGetLogged(assert) {
+      if (EmberDev && EmberDev.runningProdBuild) {
+        assert.ok(true, 'Logging does not occur in production builds');
+        return;
+      }
+
+      this.visit('/posts');
+      assert.equal(this.logs['controller:application'], 1, 'expected: ApplicationController was generated');
+      assert.equal(this.logs['controller:posts'], 1, 'expected: PostsController was generated');
+
+      assert.equal(this.logs['route:application'], 1, 'expected: ApplicationRoute was generated');
+      assert.equal(this.logs['route:posts'], 1, 'expected: PostsRoute was generated');
+    };
+
+    _class.prototype['@test predefined classes do not get logged'] = function testPredefinedClassesDoNotGetLogged(assert) {
+      this.add('controller:application', _emberRuntime.Controller.extend());
+      this.add('controller:posts', _emberRuntime.Controller.extend());
+      this.add('route:application', _emberRouting.Route.extend());
+      this.add('route:posts', _emberRouting.Route.extend());
+
+      this.visit('/posts');
+
+      assert.ok(!this.logs['controller:application'], 'did not expect: ApplicationController was generated');
+      assert.ok(!this.logs['controller:posts'], 'did not expect: PostsController was generated');
+
+      assert.ok(!this.logs['route:application'], 'did not expect: ApplicationRoute was generated');
+      assert.ok(!this.logs['route:posts'], 'did not expect: PostsRoute was generated');
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_LoggingApplicationTe.prototype.applicationOptions, {
           LOG_ACTIVE_GENERATION: true
         });
-
-        App.Router.reopen({
-          location: 'none'
-        });
-
-        App.Router.map(function () {
-          this.route('posts', { resetNamespace: true });
-        });
-
-        App.deferReadiness();
-      });
-    },
-    teardown: function () {
-      _emberConsole.default.info = originalLogger;
-
-      (0, _emberMetal.run)(App, 'destroy');
-
-      logs = App = null;
-    }
-  });
-
-  function visit(path) {
-    QUnit.stop();
-
-    var promise = (0, _emberMetal.run)(function () {
-      return new _emberRuntime.RSVP.Promise(function (resolve, reject) {
-        var router = App.__container__.lookup('router:main');
-
-        resolve(router.handleURL(path).then(function (value) {
-          QUnit.start();
-          ok(true, 'visited: `' + path + '`');
-          return value;
-        }, function (reason) {
-          QUnit.start();
-          ok(false, 'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));
-          throw reason;
-        }));
-      });
-    });
-
-    return {
-      then: function (resolve, reject) {
-        (0, _emberMetal.run)(promise, 'then', resolve, reject);
       }
+    }]);
+    return _class;
+  }(LoggingApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Application when LOG_ACTIVE_GENERATION=false', function (_LoggingApplicationTe2) {
+    (0, _emberBabel.inherits)(_class2, _LoggingApplicationTe2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _LoggingApplicationTe2.apply(this, arguments));
+    }
+
+    _class2.prototype['@test do NOT log class generation if logging disabled'] = function (assert) {
+      this.visit('/posts');
+      assert.equal(Object.keys(this.logs).length, 0, 'expected logs');
     };
-  }
 
-  QUnit.test('log class generation if logging enabled', function () {
-    if (EmberDev && EmberDev.runningProdBuild) {
-      ok(true, 'Logging does not occur in production builds');
-      return;
+    (0, _emberBabel.createClass)(_class2, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_LoggingApplicationTe2.prototype.applicationOptions, {
+          LOG_ACTIVE_GENERATION: false
+        });
+      }
+    }]);
+    return _class2;
+  }(LoggingApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Ember.Application with LOG_VIEW_LOOKUPS=true', function (_LoggingApplicationTe3) {
+    (0, _emberBabel.inherits)(_class3, _LoggingApplicationTe3);
+
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _LoggingApplicationTe3.apply(this, arguments));
     }
 
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+    _class3.prototype['@test log when template and view are missing when flag is active'] = function (assert) {
+      if (EmberDev && EmberDev.runningProdBuild) {
+        assert.ok(true, 'Logging does not occur in production builds');
+        return;
+      }
 
-    visit('/posts').then(function () {
-      equal(Object.keys(logs).length, 6, 'expected logs');
-    });
-  });
+      this.addTemplate('application', '{{outlet}}');
 
-  QUnit.test('do NOT log class generation if logging disabled', function () {
-    App.reopen({
-      LOG_ACTIVE_GENERATION: false
-    });
+      this.visit('/');
+      this.visit('/posts');
 
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+      assert.equal(this.logs['template:application'], undefined, 'expected: Should not log template:application since it exists.');
+      assert.equal(this.logs['template:index'], 1, 'expected: Could not find "index" template or view.');
+      assert.equal(this.logs['template:posts'], 1, 'expected: Could not find "posts" template or view.');
+    };
 
-    visit('/posts').then(function () {
-      equal(Object.keys(logs).length, 0, 'expected no logs');
-    });
-  });
-
-  QUnit.test('actively generated classes get logged', function () {
-    if (EmberDev && EmberDev.runningProdBuild) {
-      ok(true, 'Logging does not occur in production builds');
-      return;
-    }
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    visit('/posts').then(function () {
-      equal(logs['controller:application'], 1, 'expected: ApplicationController was generated');
-      equal(logs['controller:posts'], 1, 'expected: PostsController was generated');
-
-      equal(logs['route:application'], 1, 'expected: ApplicationRoute was generated');
-      equal(logs['route:posts'], 1, 'expected: PostsRoute was generated');
-    });
-  });
-
-  QUnit.test('predefined classes do not get logged', function () {
-    App.ApplicationController = _emberRuntime.Controller.extend();
-    App.PostsController = _emberRuntime.Controller.extend();
-
-    App.ApplicationRoute = _emberRouting.Route.extend();
-    App.PostsRoute = _emberRouting.Route.extend();
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    visit('/posts').then(function () {
-      ok(!logs['controller:application'], 'did not expect: ApplicationController was generated');
-      ok(!logs['controller:posts'], 'did not expect: PostsController was generated');
-
-      ok(!logs['route:application'], 'did not expect: ApplicationRoute was generated');
-      ok(!logs['route:posts'], 'did not expect: PostsRoute was generated');
-    });
-  });
-
-  QUnit.module('Ember.Application – logging of view lookups', {
-    setup: function () {
-      logs = {};
-
-      originalLogger = _emberConsole.default.info;
-
-      _emberConsole.default.info = function () {
-        var fullName = arguments[1].fullName;
-
-        logs[fullName] = logs[fullName] || 0;
-        logs[fullName]++;
-      };
-
-      (0, _emberMetal.run)(function () {
-        App = _application.default.create({
+    (0, _emberBabel.createClass)(_class3, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_LoggingApplicationTe3.prototype.applicationOptions, {
           LOG_VIEW_LOOKUPS: true
         });
+      }
+    }]);
+    return _class3;
+  }(LoggingApplicationTestCase));
 
-        App.Router.reopen({
-          location: 'none'
-        });
+  (0, _internalTestHelpers.moduleFor)('Ember.Application with LOG_VIEW_LOOKUPS=false', function (_LoggingApplicationTe4) {
+    (0, _emberBabel.inherits)(_class4, _LoggingApplicationTe4);
 
-        App.Router.map(function () {
-          this.route('posts', { resetNamespace: true });
-        });
-
-        App.deferReadiness();
-      });
-    },
-    teardown: function () {
-      _emberConsole.default.info = originalLogger;
-
-      (0, _emberMetal.run)(App, 'destroy');
-
-      logs = App = null;
-    }
-  });
-
-  QUnit.test('log when template and view are missing when flag is active', function () {
-    if (EmberDev && EmberDev.runningProdBuild) {
-      ok(true, 'Logging does not occur in production builds');
-      return;
+    function _class4() {
+      (0, _emberBabel.classCallCheck)(this, _class4);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _LoggingApplicationTe4.apply(this, arguments));
     }
 
-    App.register('template:application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
-    (0, _emberMetal.run)(App, 'advanceReadiness');
+    _class4.prototype['@test do not log when template and view are missing when flag is not true'] = function (assert) {
+      this.visit('/posts');
+      assert.equal(Object.keys(this.logs).length, 0, 'expected no logs');
+    };
 
-    visit('/posts').then(function () {
-      equal(logs['template:application'], undefined, 'expected: Should not log template:application since it exists.');
-      equal(logs['template:index'], 1, 'expected: Could not find "index" template or view.');
-      equal(logs['template:posts'], 1, 'expected: Could not find "posts" template or view.');
-    });
-  });
+    _class4.prototype['@test do not log which views are used with templates when flag is not true'] = function (assert) {
+      this.visit('/posts');
+      assert.equal(Object.keys(this.logs).length, 0, 'expected no logs');
+    };
 
-  QUnit.test('do not log when template and view are missing when flag is not true', function () {
-    App.reopen({
-      LOG_VIEW_LOOKUPS: false
-    });
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    visit('/posts').then(function () {
-      equal(Object.keys(logs).length, 0, 'expected no logs');
-    });
-  });
-
-  QUnit.test('do not log which views are used with templates when flag is not true', function () {
-    App.reopen({
-      LOG_VIEW_LOOKUPS: false
-    });
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-
-    visit('/posts').then(function () {
-      equal(Object.keys(logs).length, 0, 'expected no logs');
-    });
-  });
+    (0, _emberBabel.createClass)(_class4, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_LoggingApplicationTe4.prototype.applicationOptions, {
+          LOG_VIEW_LOOKUPS: false
+        });
+      }
+    }]);
+    return _class4;
+  }(LoggingApplicationTestCase));
 });
 QUnit.module('ESLint | ember-application/tests/system/logging_test.js');
 QUnit.test('should pass ESLint', function(assert) {
