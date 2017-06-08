@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+473309fa
+ * @version   2.15.0-alpha.1-null+36bd4f71
  */
 
 var enifed, requireModule, Ember;
@@ -23884,7 +23884,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function isObject(obj) {
-    return typeof obj === 'object' && obj;
+    return typeof obj === 'object' && obj !== null;
   }
 
   function isVolatile(obj) {
@@ -24059,10 +24059,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     ChainNode.prototype.destroy = function destroy() {
       if (this._watching === true) {
-        var obj = this._object;
-        if (obj) {
-          removeChainWatcher(obj, this._key, this);
-        }
+        removeChainWatcher(this._object, this._key, this);
         this._watching = false; // so future calls do nothing
       }
     };
@@ -24166,9 +24163,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         var parentValue = this._parent.value();
 
         if (parentValue !== this._object) {
-          if (this._object !== undefined) {
-            removeChainWatcher(this._object, this._key, this);
-          }
+          removeChainWatcher(this._object, this._key, this);
 
           if (isObject(parentValue)) {
             this._object = parentValue;
@@ -24232,7 +24227,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       // Otherwise attempt to get the cached value of the computed property
     } else {
       var cache = meta$$1.readableCache();
-      if (cache) {
+      if (cache !== undefined) {
         return cacheFor.get(cache, key);
       }
     }
@@ -48086,7 +48081,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+473309fa";
+  exports.default = "2.15.0-alpha.1-null+36bd4f71";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
