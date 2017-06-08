@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+7342deec
+ * @version   2.15.0-alpha.1-null+a8aa701c
  */
 
 var enifed, requireModule, Ember;
@@ -15011,7 +15011,7 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', 'emb
     return CurlyComponentDefinition;
   }(_runtime.ComponentDefinition);
 });
-enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@glimmer/runtime', '@glimmer/reference', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/outlet', 'ember-glimmer/component-managers/abstract', 'ember-routing', 'ember/features'], function (exports, _emberBabel, _runtime, _reference, _references, _outlet, _abstract, _emberRouting, _features) {
+enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@glimmer/runtime', '@glimmer/reference', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/outlet', 'ember-glimmer/component-managers/abstract', 'ember-routing'], function (exports, _emberBabel, _runtime, _reference, _references, _outlet, _abstract, _emberRouting) {
   'use strict';
 
   exports.MountDefinition = undefined;
@@ -15038,9 +15038,8 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
 
       var bucket = { engine: engine };
 
-      if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        bucket.modelReference = args.named.get('model');
-      }
+      bucket.modelReference = args.named.get('model');
+
 
       return bucket;
     };
@@ -15054,19 +15053,16 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
 
     MountManager.prototype.getSelf = function (bucket) {
       var engine = bucket.engine,
-          modelReference = bucket.modelReference,
-          model;
+          modelReference = bucket.modelReference;
 
       var applicationFactory = engine.factoryFor('controller:application');
       var controllerFactory = applicationFactory || (0, _emberRouting.generateControllerFactory)(engine, 'application');
       var controller = bucket.controller = controllerFactory.create();
 
-      if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        model = modelReference.value();
+      var model = modelReference.value();
+      bucket.modelRevision = modelReference.tag.value();
+      controller.set('model', model);
 
-        bucket.modelRevision = modelReference.tag.value();
-        controller.set('model', model);
-      }
 
       return new _references.RootReference(controller);
     };
@@ -15080,18 +15076,16 @@ enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@gl
     MountManager.prototype.didRenderLayout = function () {};
 
     MountManager.prototype.update = function (bucket) {
-      var controller, modelReference, modelRevision, model;
+      var controller = bucket.controller,
+          modelReference = bucket.modelReference,
+          modelRevision = bucket.modelRevision,
+          model;
 
-      if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        controller = bucket.controller, modelReference = bucket.modelReference, modelRevision = bucket.modelRevision;
+      if (!modelReference.tag.validate(modelRevision)) {
+        model = modelReference.value();
 
-
-        if (!modelReference.tag.validate(modelRevision)) {
-          model = modelReference.value();
-
-          bucket.modelRevision = modelReference.tag.value();
-          controller.set('model', model);
-        }
+        bucket.modelRevision = modelReference.tag.value();
+        controller.set('model', model);
       }
     };
 
@@ -19983,7 +19977,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     return true;
   }
 });
-enifed('ember-glimmer/syntax/mount', ['exports', 'ember-debug', 'ember/features', 'ember-glimmer/syntax/utils', 'ember-glimmer/component-managers/mount'], function (exports, _emberDebug, _features, _utils, _mount) {
+enifed('ember-glimmer/syntax/mount', ['exports', 'ember-debug', 'ember-glimmer/syntax/utils', 'ember-glimmer/component-managers/mount'], function (exports, _emberDebug, _utils, _mount) {
   'use strict';
 
   exports.mountMacro =
@@ -20008,22 +20002,20 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-debug', 'ember/features'
     @category ember-application-engines
     @public
   */
+  /**
+  @module ember
+  @submodule ember-glimmer
+  */
   function (name, params, hash, builder) {
-    if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-      false && !(params.length === 1) && (0, _emberDebug.assert)('You can only pass a single positional argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1);
-    } else {
-      false && !(params.length === 1 && hash === null) && (0, _emberDebug.assert)('You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1 && hash === null);
-    }
+    false && !(params.length === 1) && (0, _emberDebug.assert)('You can only pass a single positional argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1);
+
 
     var definitionArgs = [params.slice(0, 1), null, null, null];
     var args = [null, (0, _utils.hashToArgs)(hash), null, null];
     builder.component.dynamic(definitionArgs, dynamicEngineFor, args);
     return true;
   };
-  /**
-  @module ember
-  @submodule ember-glimmer
-  */
+
   function dynamicEngineFor(vm, args, meta) {
     var env = vm.env;
     var nameRef = args.positional.at(0);
@@ -23669,10 +23661,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var pointer = this,
           map,
           innerMap,
-          i,
-          _calls$i,
-          _innerKey,
-          value;
+          i;
       var seen = void 0;
       var calls = void 0;
       while (pointer !== undefined) {
@@ -23687,19 +23676,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
               if (seen[innerKey] === undefined) {
                 seen[innerKey] = true;
                 calls = calls || [];
-                calls.push([innerKey, innerMap[innerKey]]);
+                calls.push(innerKey, innerMap[innerKey]);
               }
             }
           }
         }
         pointer = pointer.parent;
       }
+
       if (calls !== undefined) {
-        for (i = 0; i < calls.length; i++) {
-          _calls$i = calls[i], _innerKey = _calls$i[0], value = _calls$i[1];
-
-
-          fn(_innerKey, value);
+        for (i = 0; i < calls.length; i += 2) {
+          fn(calls[i], calls[i + 1]);
         }
       }
     };
@@ -43643,7 +43630,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     'use strict';
 
     exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": null, "ember-engines-mount-params": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": null, "ember-engines-mount-params": true, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
@@ -44193,7 +44180,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+7342deec";
+  exports.default = "2.15.0-alpha.1-null+a8aa701c";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

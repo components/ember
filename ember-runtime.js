@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+7342deec
+ * @version   2.15.0-alpha.1-null+a8aa701c
  */
 
 var enifed, requireModule, Ember;
@@ -3446,20 +3446,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
               if (seen[innerKey] === undefined) {
                 seen[innerKey] = true;
                 calls = calls || [];
-                calls.push([innerKey, innerMap[innerKey]]);
+                calls.push(innerKey, innerMap[innerKey]);
               }
             }
           }
         }
         pointer = pointer.parent;
       }
-      if (calls !== undefined) {
-        for (var i = 0; i < calls.length; i++) {
-          var _calls$i = calls[i],
-              _innerKey = _calls$i[0],
-              value = _calls$i[1];
 
-          fn(_innerKey, value);
+      if (calls !== undefined) {
+        for (var i = 0; i < calls.length; i += 2) {
+          fn(calls[i], calls[i + 1]);
         }
       }
     };

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+7342deec
+ * @version   2.15.0-alpha.1-null+a8aa701c
  */
 
 var enifed, requireModule, Ember;
@@ -30672,46 +30672,27 @@ enifed('ember-glimmer/tests/integration/input-test', ['ember-babel', 'ember-glim
     return _class;
   }(_testCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-application', 'ember/features'], function (_emberBabel, _emberUtils, _testCase, _helpers, _emberRuntime, _emberMetal, _emberApplication, _features) {
+enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-utils', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-metal', 'ember-application'], function (_emberBabel, _emberUtils, _testCase, _helpers, _emberRuntime, _emberMetal, _emberApplication) {
   'use strict';
 
-  if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-    (0, _testCase.moduleFor)('{{mount}} single param assertion', function (_RenderingTest) {
-      (0, _emberBabel.inherits)(_class, _RenderingTest);
+  (0, _testCase.moduleFor)('{{mount}} single param assertion', function (_RenderingTest) {
+    (0, _emberBabel.inherits)(_class, _RenderingTest);
 
-      function _class() {
-        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
-      }
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest.apply(this, arguments));
+    }
 
-      _class.prototype['@test it asserts that only a single param is passed'] = function () {
-        var _this2 = this;
+    _class.prototype['@test it asserts that only a single param is passed'] = function () {
+      var _this2 = this;
 
-        expectAssertion(function () {
-          _this2.render('{{mount "chat" "foo"}}');
-        }, /You can only pass a single positional argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}./i);
-      };
+      expectAssertion(function () {
+        _this2.render('{{mount "chat" "foo"}}');
+      }, /You can only pass a single positional argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}./i);
+    };
 
-      return _class;
-    }(_testCase.RenderingTest));
-  } else {
-    (0, _testCase.moduleFor)('{{mount}} single param assertion', function (_RenderingTest2) {
-      (0, _emberBabel.inherits)(_class2, _RenderingTest2);
+    return _class;
+  }(_testCase.RenderingTest));
 
-      function _class2() {
-        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest2.apply(this, arguments));
-      }
-
-      _class2.prototype['@test it asserts that only a single param is passed'] = function () {
-        var _this4 = this;
-
-        expectAssertion(function () {
-          _this4.render('{{mount "chat" "foo"}}');
-        }, /You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}./i);
-      };
-
-      return _class2;
-    }(_testCase.RenderingTest));
-  }
 
   (0, _testCase.moduleFor)('{{mount}} assertions', function (_RenderingTest3) {
     (0, _emberBabel.inherits)(_class3, _RenderingTest3);
@@ -30911,125 +30892,123 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
     return _class4;
   }(_testCase.ApplicationTest));
 
-  if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-    (0, _testCase.moduleFor)('{{mount}} params tests', function (_ApplicationTest2) {
-      (0, _emberBabel.inherits)(_class5, _ApplicationTest2);
+  (0, _testCase.moduleFor)('{{mount}} params tests', function (_ApplicationTest2) {
+    (0, _emberBabel.inherits)(_class5, _ApplicationTest2);
 
-      function _class5() {
+    function _class5() {
 
-        var _this13 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest2.call(this));
+      var _this13 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTest2.call(this));
 
-        _this13.add('engine:paramEngine', _emberApplication.Engine.extend({
-          router: null,
-          init: function () {
-            this._super.apply(this, arguments);
-            this.register('template:application', (0, _helpers.compile)('<h2>Param Engine: {{model.foo}}</h2>', { moduleName: 'application' }));
-          }
-        }));
-        return _this13;
-      }
+      _this13.add('engine:paramEngine', _emberApplication.Engine.extend({
+        router: null,
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', (0, _helpers.compile)('<h2>Param Engine: {{model.foo}}</h2>', { moduleName: 'application' }));
+        }
+      }));
+      return _this13;
+    }
 
-      _class5.prototype['@test it renders with static parameters'] = function () {
-        var _this14 = this;
+    _class5.prototype['@test it renders with static parameters'] = function () {
+      var _this14 = this;
 
-        this.router.map(function () {
-          this.route('engine-params-static');
-        });
-        this.addTemplate('engine-params-static', '{{mount "paramEngine" model=(hash foo="bar")}}');
+      this.router.map(function () {
+        this.route('engine-params-static');
+      });
+      this.addTemplate('engine-params-static', '{{mount "paramEngine" model=(hash foo="bar")}}');
 
-        return this.visit('/engine-params-static').then(function () {
-          _this14.assertComponentElement(_this14.firstChild, { content: '<h2>Param Engine: bar</h2>' });
-        });
-      };
+      return this.visit('/engine-params-static').then(function () {
+        _this14.assertComponentElement(_this14.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+      });
+    };
 
-      _class5.prototype['@test it renders with bound parameters'] = function () {
-        var _this15 = this;
+    _class5.prototype['@test it renders with bound parameters'] = function () {
+      var _this15 = this;
 
-        this.router.map(function () {
-          this.route('engine-params-bound');
-        });
-        var controller = void 0;
-        this.add('controller:engine-params-bound', _emberRuntime.Controller.extend({
-          boundParamValue: null,
-          init: function () {
-            this._super();
-            controller = this;
-          }
-        }));
-        this.addTemplate('engine-params-bound', '{{mount "paramEngine" model=(hash foo=boundParamValue)}}');
+      this.router.map(function () {
+        this.route('engine-params-bound');
+      });
+      var controller = void 0;
+      this.add('controller:engine-params-bound', _emberRuntime.Controller.extend({
+        boundParamValue: null,
+        init: function () {
+          this._super();
+          controller = this;
+        }
+      }));
+      this.addTemplate('engine-params-bound', '{{mount "paramEngine" model=(hash foo=boundParamValue)}}');
 
-        return this.visit('/engine-params-bound').then(function () {
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: </h2>' });
+      return this.visit('/engine-params-bound').then(function () {
+        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: </h2>' });
 
-          _this15.runTask(function () {
-            return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
-          });
-
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
-
-          _this15.runTask(function () {
-            return (0, _emberMetal.set)(controller, 'boundParamValue', undefined);
-          });
-
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: </h2>' });
-
-          _this15.runTask(function () {
-            return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
-          });
-
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
-
-          _this15.runTask(function () {
-            return (0, _emberMetal.set)(controller, 'boundParamValue', 'baz');
-          });
-
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: baz</h2>' });
-
-          _this15.runTask(function () {
-            return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
-          });
-
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
-
-          _this15.runTask(function () {
-            return (0, _emberMetal.set)(controller, 'boundParamValue', null);
-          });
-
-          _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: </h2>' });
-        });
-      };
-
-      _class5.prototype['@test it renders contextual components passed as parameter values'] = function () {
-        var _this16 = this;
-
-        this.router.map(function () {
-          this.route('engine-params-contextual-component');
+        _this15.runTask(function () {
+          return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
         });
 
-        this.addComponent("foo-component", {
-          template: 'foo-component rendered! - {{app-bar-component}}'
-        });
-        this.addComponent('app-bar-component', {
-          ComponentClass: _helpers.Component.extend({ tagName: "" }),
-          template: 'rendered app-bar-component from the app'
-        });
-        this.add('engine:componentParamEngine', _emberApplication.Engine.extend({
-          router: null,
-          init: function () {
-            this._super.apply(this, arguments);
-            this.register('template:application', (0, _helpers.compile)('{{model.foo}}', { moduleName: 'application' }));
-          }
-        }));
-        this.addTemplate('engine-params-contextual-component', '{{mount "componentParamEngine" model=(hash foo=(component "foo-component"))}}');
+        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
 
-        return this.visit('/engine-params-contextual-component').then(function () {
-          _this16.assertComponentElement(_this16.firstChild.firstChild, { content: 'foo-component rendered! - rendered app-bar-component from the app' });
+        _this15.runTask(function () {
+          return (0, _emberMetal.set)(controller, 'boundParamValue', undefined);
         });
-      };
 
-      return _class5;
-    }(_testCase.ApplicationTest));
-  }
+        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: </h2>' });
+
+        _this15.runTask(function () {
+          return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
+        });
+
+        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+
+        _this15.runTask(function () {
+          return (0, _emberMetal.set)(controller, 'boundParamValue', 'baz');
+        });
+
+        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: baz</h2>' });
+
+        _this15.runTask(function () {
+          return (0, _emberMetal.set)(controller, 'boundParamValue', 'bar');
+        });
+
+        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: bar</h2>' });
+
+        _this15.runTask(function () {
+          return (0, _emberMetal.set)(controller, 'boundParamValue', null);
+        });
+
+        _this15.assertComponentElement(_this15.firstChild, { content: '<h2>Param Engine: </h2>' });
+      });
+    };
+
+    _class5.prototype['@test it renders contextual components passed as parameter values'] = function () {
+      var _this16 = this;
+
+      this.router.map(function () {
+        this.route('engine-params-contextual-component');
+      });
+
+      this.addComponent("foo-component", {
+        template: 'foo-component rendered! - {{app-bar-component}}'
+      });
+      this.addComponent('app-bar-component', {
+        ComponentClass: _helpers.Component.extend({ tagName: "" }),
+        template: 'rendered app-bar-component from the app'
+      });
+      this.add('engine:componentParamEngine', _emberApplication.Engine.extend({
+        router: null,
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', (0, _helpers.compile)('{{model.foo}}', { moduleName: 'application' }));
+        }
+      }));
+      this.addTemplate('engine-params-contextual-component', '{{mount "componentParamEngine" model=(hash foo=(component "foo-component"))}}');
+
+      return this.visit('/engine-params-contextual-component').then(function () {
+        _this16.assertComponentElement(_this16.firstChild.firstChild, { content: 'foo-component rendered! - rendered app-bar-component from the app' });
+      });
+    };
+
+    return _class5;
+  }(_testCase.ApplicationTest));
 });
 enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-metal'], function (_emberBabel, _testCase, _internalTestHelpers, _emberMetal) {
   'use strict';
