@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a8aa701c
+ * @version   2.15.0-alpha.1-null+ad2e9146
  */
 
 var enifed, requireModule, Ember;
@@ -24314,7 +24314,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  var memberNames = Object.keys(members);
   var META_FIELD = '__ember_meta__';
 
   var Meta = function () {
@@ -24612,41 +24611,39 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   for (var name in protoMethods) {
     Meta.prototype[name] = protoMethods[name];
   }
-  memberNames.forEach(function (name) {
-    return members[name](name, Meta);
+
+  Object.keys(members).forEach(function (name) {
+    var key = memberProperty(name);
+    var capitalized = capitalize(name);
+    members[name](capitalized, key, Meta);
   });
 
   // Implements a member that is a lazily created, non-inheritable
   // POJO.
-  function ownMap(name, Meta) {
-    var key = memberProperty(name);
-    var capitalized = capitalize(name);
-    Meta.prototype['writable' + capitalized] = function () {
+  function ownMap(name, key, Meta) {
+    Meta.prototype['writable' + name] = function () {
       return this._getOrCreateOwnMap(key);
     };
-    Meta.prototype['readable' + capitalized] = function () {
+    Meta.prototype['readable' + name] = function () {
       return this[key];
     };
   }
 
   // Implements a member that is a lazily created POJO with inheritable
   // values.
-  function inheritedMap(name, Meta) {
-    var key = memberProperty(name);
-    var capitalized = capitalize(name);
-
-    Meta.prototype['write' + capitalized] = function (subkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call write' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+  function inheritedMap(name, key, Meta) {
+    Meta.prototype['write' + name] = function (subkey, value) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call write' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap(key);
       map[subkey] = value;
     };
 
-    Meta.prototype['peek' + capitalized] = function (subkey) {
+    Meta.prototype['peek' + name] = function (subkey) {
       return this._findInherited(key, subkey);
     };
 
-    Meta.prototype['forEach' + capitalized] = function (fn) {
+    Meta.prototype['forEach' + name] = function (fn) {
       var pointer = this;
       var seen = void 0;
       while (pointer !== undefined) {
@@ -24664,17 +24661,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
     };
 
-    Meta.prototype['clear' + capitalized] = function () {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clear' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+    Meta.prototype['clear' + name] = function () {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clear' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       this[key] = undefined;
     };
 
-    Meta.prototype['deleteFrom' + capitalized] = function (subkey) {
+    Meta.prototype['deleteFrom' + name] = function (subkey) {
       delete this._getOrCreateOwnMap(key)[subkey];
     };
 
-    Meta.prototype['hasIn' + capitalized] = function (subkey) {
+    Meta.prototype['hasIn' + name] = function (subkey) {
       return this._findInherited(key, subkey) !== undefined;
     };
   }
@@ -24683,11 +24680,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // Implements a member that provides a non-heritable, lazily-created
   // object using the method you provide.
-  function ownCustomObject(name, Meta) {
-    var key = memberProperty(name);
-    var capitalized = capitalize(name);
-    Meta.prototype['writable' + capitalized] = function (create) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+  function ownCustomObject(name, key, Meta) {
+    Meta.prototype['writable' + name] = function (create) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writable' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
       if (ret === undefined) {
@@ -24695,7 +24690,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
       return ret;
     };
-    Meta.prototype['readable' + capitalized] = function () {
+
+    Meta.prototype['readable' + name] = function () {
       return this[key];
     };
   }
@@ -24703,23 +24699,22 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   // Implements a member that provides an inheritable, lazily-created
   // object using the method you provide. We will derived children from
   // their parents by calling your object's `copy()` method.
-  function inheritedCustomObject(name, Meta) {
-    var key = memberProperty(name);
-    var capitalized = capitalize(name);
-    Meta.prototype['writable' + capitalized] = function (create) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writable' + capitalized + ' after the object is destroyed.', !this.isMetaDestroyed());
+  function inheritedCustomObject(name, key, Meta) {
+    Meta.prototype['writable' + name] = function (create) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writable' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
 
       var ret = this[key];
       if (ret === undefined) {
         if (this.parent) {
-          ret = this[key] = this.parent['writable' + capitalized](create).copy(this.source);
+          ret = this[key] = this.parent['writable' + name](create).copy(this.source);
         } else {
           ret = this[key] = create(this.source);
         }
       }
       return ret;
     };
-    Meta.prototype['readable' + capitalized] = function () {
+
+    Meta.prototype['readable' + name] = function () {
       return this._getInherited(key);
     };
   }
@@ -48088,7 +48083,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+a8aa701c";
+  exports.default = "2.15.0-alpha.1-null+ad2e9146";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
