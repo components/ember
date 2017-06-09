@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+36bd4f71
+ * @version   2.15.0-alpha.1-null+0022a48a
  */
 
 var enifed, requireModule, Ember;
@@ -24263,39 +24263,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   @module ember-metal
   */
 
-  /*
-   This declares several meta-programmed members on the Meta class. Such
-   meta!
-  
-   In general, the `readable` variants will give you an object (if it
-   already exists) that you can read but should not modify. The
-   `writable` variants will give you a mutable object, and they will
-   create it if it didn't already exist.
-  
-   The following methods will get generated metaprogrammatically, and
-   I'm including them here for greppability:
-  
-   writableCache, readableCache, writeWatching,
-   peekWatching, clearWatching, writeMixins,
-   peekMixins, clearMixins, writeBindings,
-   peekBindings, clearBindings, writeValues,
-   peekValues, clearValues, writeDeps, forEachInDeps
-   writableChainWatchers, readableChainWatchers, writableChains,
-   readableChains, writableTag, readableTag, writableTags,
-   readableTags
-  */
-  var members = {
-    cache: ownMap,
-    weak: ownMap,
-    watching: inheritedMap,
-    mixins: inheritedMap,
-    bindings: inheritedMap,
-    values: inheritedMap,
-    chainWatchers: ownCustomObject,
-    chains: inheritedCustomObject,
-    tag: ownCustomObject,
-    tags: ownMap
-  };
+  var UNDEFINED = emberUtils.symbol('undefined');
 
   // FLAGS
   var SOURCE_DESTROYING = 1 << 1;
@@ -24303,16 +24271,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var META_DESTROYED = 1 << 3;
   var IS_PROXY = 1 << 4;
 
-  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-    members.lastRendered = ownMap;
-    if (require.has('ember-debug')) {
-      //https://github.com/emberjs/ember.js/issues/14732
-      members.lastRenderedReferenceMap = ownMap;
-      members.lastRenderedTemplateMap = ownMap;
-    }
-  }
-
   var META_FIELD = '__ember_meta__';
+  var NODE_STACK = [];
 
   var Meta = function () {
     function Meta(obj, parentMeta) {
@@ -24591,6 +24551,248 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
     };
 
+    Meta.prototype.writableCache = function writableCache() {
+      return this._getOrCreateOwnMap('_cache');
+    };
+
+    Meta.prototype.readableCache = function readableCache() {
+      return this._cache;
+    };
+
+    Meta.prototype.writableWeak = function writableWeak() {
+      return this._getOrCreateOwnMap('_weak');
+    };
+
+    Meta.prototype.readableWeak = function readableWeak() {
+      return this._weak;
+    };
+
+    Meta.prototype.writableTags = function writableTags() {
+      return this._getOrCreateOwnMap('_tags');
+    };
+
+    Meta.prototype.readableTags = function readableTags() {
+      return this._tags;
+    };
+
+    Meta.prototype.writableTag = function writableTag(create) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writableTag after the object is destroyed.', !this.isMetaDestroyed());
+
+      var ret = this._tag;
+      if (ret === undefined) {
+        ret = this._tag = create(this.source);
+      }
+      return ret;
+    };
+
+    Meta.prototype.readableTag = function readableTag() {
+      return this._tag;
+    };
+
+    Meta.prototype.writableChainWatchers = function writableChainWatchers(create) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writableChainWatchers after the object is destroyed.', !this.isMetaDestroyed());
+
+      var ret = this._chainWatchers;
+      if (ret === undefined) {
+        ret = this._chainWatchers = create(this.source);
+      }
+      return ret;
+    };
+
+    Meta.prototype.readableChainWatchers = function readableChainWatchers() {
+      return this._chainWatchers;
+    };
+
+    Meta.prototype.writableChains = function writableChains(create) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writableChains after the object is destroyed.', !this.isMetaDestroyed());
+
+      var ret = this._chains;
+      if (ret === undefined) {
+        if (this.parent) {
+          ret = this._chains = this.parent.writableChains(create).copy(this.source);
+        } else {
+          ret = this._chains = create(this.source);
+        }
+      }
+      return ret;
+    };
+
+    Meta.prototype.readableChains = function readableChains() {
+      return this._getInherited('_chains');
+    };
+
+    Meta.prototype.writeWatching = function writeWatching(subkey, value) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeWatching after the object is destroyed.', !this.isMetaDestroyed());
+
+      var map = this._getOrCreateOwnMap('_watching');
+      map[subkey] = value;
+    };
+
+    Meta.prototype.peekWatching = function peekWatching(subkey) {
+      return this._findInherited('_watching', subkey);
+    };
+
+    Meta.prototype.forEachWatching = function forEachWatching(fn) {
+      var pointer = this;
+      var seen = void 0;
+      while (pointer !== undefined) {
+        var map = pointer._watching;
+        if (map !== undefined) {
+          for (var key in map) {
+            seen = seen || Object.create(null);
+            if (seen[key] === undefined) {
+              seen[key] = true;
+              fn(key, map[key]);
+            }
+          }
+        }
+        pointer = pointer.parent;
+      }
+    };
+
+    Meta.prototype.clearWatching = function clearWatching() {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearWatching after the object is destroyed.', !this.isMetaDestroyed());
+
+      this._watching = undefined;
+    };
+
+    Meta.prototype.deleteFromWatching = function deleteFromWatching(subkey) {
+      delete this._getOrCreateOwnMap('_watching')[subkey];
+    };
+
+    Meta.prototype.hasInWatching = function hasInWatching(subkey) {
+      return this._findInherited('_watching', subkey) !== undefined;
+    };
+
+    Meta.prototype.writeMixins = function writeMixins(subkey, value) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeMixins after the object is destroyed.', !this.isMetaDestroyed());
+
+      var map = this._getOrCreateOwnMap('_mixins');
+      map[subkey] = value;
+    };
+
+    Meta.prototype.peekMixins = function peekMixins(subkey) {
+      return this._findInherited('_mixins', subkey);
+    };
+
+    Meta.prototype.forEachMixins = function forEachMixins(fn) {
+      var pointer = this;
+      var seen = void 0;
+      while (pointer !== undefined) {
+        var map = pointer._mixins;
+        if (map !== undefined) {
+          for (var key in map) {
+            seen = seen || Object.create(null);
+            if (seen[key] === undefined) {
+              seen[key] = true;
+              fn(key, map[key]);
+            }
+          }
+        }
+        pointer = pointer.parent;
+      }
+    };
+
+    Meta.prototype.clearMixins = function clearMixins() {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearMixins after the object is destroyed.', !this.isMetaDestroyed());
+
+      this._mixins = undefined;
+    };
+
+    Meta.prototype.deleteFromMixins = function deleteFromMixins(subkey) {
+      delete this._getOrCreateOwnMap('_mixins')[subkey];
+    };
+
+    Meta.prototype.hasInMixins = function hasInMixins(subkey) {
+      return this._findInherited('_mixins', subkey) !== undefined;
+    };
+
+    Meta.prototype.writeBindings = function writeBindings(subkey, value) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeBindings after the object is destroyed.', !this.isMetaDestroyed());
+
+      var map = this._getOrCreateOwnMap('_bindings');
+      map[subkey] = value;
+    };
+
+    Meta.prototype.peekBindings = function peekBindings(subkey) {
+      return this._findInherited('_bindings', subkey);
+    };
+
+    Meta.prototype.forEachBindings = function forEachBindings(fn) {
+      var pointer = this;
+      var seen = void 0;
+      while (pointer !== undefined) {
+        var map = pointer._bindings;
+        if (map !== undefined) {
+          for (var key in map) {
+            seen = seen || Object.create(null);
+            if (seen[key] === undefined) {
+              seen[key] = true;
+              fn(key, map[key]);
+            }
+          }
+        }
+        pointer = pointer.parent;
+      }
+    };
+
+    Meta.prototype.clearBindings = function clearBindings() {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearBindings after the object is destroyed.', !this.isMetaDestroyed());
+
+      this._bindings = undefined;
+    };
+
+    Meta.prototype.deleteFromBindings = function deleteFromBindings(subkey) {
+      delete this._getOrCreateOwnMap('_bindings')[subkey];
+    };
+
+    Meta.prototype.hasInBindings = function hasInBindings(subkey) {
+      return this._findInherited('_bindings', subkey) !== undefined;
+    };
+
+    Meta.prototype.writeValues = function writeValues(subkey, value) {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeValues after the object is destroyed.', !this.isMetaDestroyed());
+
+      var map = this._getOrCreateOwnMap('_values');
+      map[subkey] = value;
+    };
+
+    Meta.prototype.peekValues = function peekValues(subkey) {
+      return this._findInherited('_values', subkey);
+    };
+
+    Meta.prototype.forEachValues = function forEachValues(fn) {
+      var pointer = this;
+      var seen = void 0;
+      while (pointer !== undefined) {
+        var map = pointer._values;
+        if (map !== undefined) {
+          for (var key in map) {
+            seen = seen || Object.create(null);
+            if (seen[key] === undefined) {
+              seen[key] = true;
+              fn(key, map[key]);
+            }
+          }
+        }
+        pointer = pointer.parent;
+      }
+    };
+
+    Meta.prototype.clearValues = function clearValues() {
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearValues after the object is destroyed.', !this.isMetaDestroyed());
+
+      this._values = undefined;
+    };
+
+    Meta.prototype.deleteFromValues = function deleteFromValues(subkey) {
+      delete this._getOrCreateOwnMap('_values')[subkey];
+    };
+
+    Meta.prototype.hasInValues = function hasInValues(subkey) {
+      return this._findInherited('_values', subkey) !== undefined;
+    };
+
     emberBabel.createClass(Meta, [{
       key: 'factory',
       set: function (factory) {
@@ -24604,129 +24806,31 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return Meta;
   }();
 
-  var NODE_STACK = [];
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+    Meta.prototype.writableLastRendered = function () {
+      return this._getOrCreateOwnMap('_lastRendered');
+    };
+    Meta.prototype.readableLastRendered = function () {
+      return this._lastRendered;
+    };
+    {
+      Meta.prototype.writableLastRenderedReferenceMap = function () {
+        return this._getOrCreateOwnMap('_lastRenderedReferenceMap');
+      };
+      Meta.prototype.readableLastRenderedReferenceMap = function () {
+        return this._lastRenderedReferenceMap;
+      };
+      Meta.prototype.writableLastRenderedTemplateMap = function () {
+        return this._getOrCreateOwnMap('_lastRenderedTemplateMap');
+      };
+      Meta.prototype.readableLastRenderedTemplateMap = function () {
+        return this._lastRenderedTemplateMap;
+      };
+    }
+  }
 
   for (var name in protoMethods) {
     Meta.prototype[name] = protoMethods[name];
-  }
-
-  Object.keys(members).forEach(function (name) {
-    var key = memberProperty(name);
-    var capitalized = capitalize(name);
-    members[name](capitalized, key, Meta);
-  });
-
-  // Implements a member that is a lazily created, non-inheritable
-  // POJO.
-  function ownMap(name, key, Meta) {
-    Meta.prototype['writable' + name] = function () {
-      return this._getOrCreateOwnMap(key);
-    };
-    Meta.prototype['readable' + name] = function () {
-      return this[key];
-    };
-  }
-
-  // Implements a member that is a lazily created POJO with inheritable
-  // values.
-  function inheritedMap(name, key, Meta) {
-    Meta.prototype['write' + name] = function (subkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call write' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
-
-      var map = this._getOrCreateOwnMap(key);
-      map[subkey] = value;
-    };
-
-    Meta.prototype['peek' + name] = function (subkey) {
-      return this._findInherited(key, subkey);
-    };
-
-    Meta.prototype['forEach' + name] = function (fn) {
-      var pointer = this;
-      var seen = void 0;
-      while (pointer !== undefined) {
-        var map = pointer[key];
-        if (map !== undefined) {
-          for (var _key in map) {
-            seen = seen || Object.create(null);
-            if (seen[_key] === undefined) {
-              seen[_key] = true;
-              fn(_key, map[_key]);
-            }
-          }
-        }
-        pointer = pointer.parent;
-      }
-    };
-
-    Meta.prototype['clear' + name] = function () {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clear' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
-
-      this[key] = undefined;
-    };
-
-    Meta.prototype['deleteFrom' + name] = function (subkey) {
-      delete this._getOrCreateOwnMap(key)[subkey];
-    };
-
-    Meta.prototype['hasIn' + name] = function (subkey) {
-      return this._findInherited(key, subkey) !== undefined;
-    };
-  }
-
-  var UNDEFINED = emberUtils.symbol('undefined');
-
-  // Implements a member that provides a non-heritable, lazily-created
-  // object using the method you provide.
-  function ownCustomObject(name, key, Meta) {
-    Meta.prototype['writable' + name] = function (create) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writable' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
-
-      var ret = this[key];
-      if (ret === undefined) {
-        ret = this[key] = create(this.source);
-      }
-      return ret;
-    };
-
-    Meta.prototype['readable' + name] = function () {
-      return this[key];
-    };
-  }
-
-  // Implements a member that provides an inheritable, lazily-created
-  // object using the method you provide. We will derived children from
-  // their parents by calling your object's `copy()` method.
-  function inheritedCustomObject(name, key, Meta) {
-    Meta.prototype['writable' + name] = function (create) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writable' + name + ' after the object is destroyed.', !this.isMetaDestroyed());
-
-      var ret = this[key];
-      if (ret === undefined) {
-        if (this.parent) {
-          ret = this[key] = this.parent['writable' + name](create).copy(this.source);
-        } else {
-          ret = this[key] = create(this.source);
-        }
-      }
-      return ret;
-    };
-
-    Meta.prototype['readable' + name] = function () {
-      return this._getInherited(key);
-    };
-  }
-
-  function memberProperty(name) {
-    return '_' + name;
-  }
-
-  // there's a more general-purpose capitalize in ember-runtime, but we
-  // don't want to make ember-metal depend on ember-runtime.
-  function capitalize(name) {
-    return name.replace(/^\w/, function (m) {
-      return m.toUpperCase();
-    });
   }
 
   var META_DESC = {
@@ -48081,7 +48185,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+36bd4f71";
+  exports.default = "2.15.0-alpha.1-null+0022a48a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
