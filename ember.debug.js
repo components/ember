@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+0022a48a
+ * @version   2.15.0-alpha.1-null+4591eec4
  */
 
 var enifed, requireModule, Ember;
@@ -9961,10 +9961,13 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     this.registry = registry;
     this.owner = options.owner || null;
     this.cache = (0, _emberUtils.dictionary)(options.cache || null);
-    this.validationCache = (0, _emberUtils.dictionary)(options.validationCache || null);
     this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
     this[CONTAINER_OVERRIDE] = undefined;
     this.isDestroyed = false;
+
+    if (true) {
+      this.validationCache = (0, _emberUtils.dictionary)(options.validationCache || null);
+    }
   }
 
   Container.prototype = {
@@ -10252,7 +10255,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     FactoryManager.prototype.create = function create() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
 
       var injections = this.injections;
       if (injections === undefined) {
@@ -10605,19 +10607,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     isValidFullName: function (fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
     },
-    validateInjections: function (injections) {
-      if (!injections) {
-        return;
-      }
-
-      var fullName = void 0;
-
-      for (var i = 0; i < injections.length; i++) {
-        fullName = injections[i].fullName;
-
-        (true && !(this.has(fullName)) && (0, _emberDebug.assert)('Attempting to inject an unknown injection: \'' + fullName + '\'', this.has(fullName)));
-      }
-    },
     normalizeInjectionsHash: function (hash) {
       var injections = [];
 
@@ -10656,6 +10645,22 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     registry.resolver = {
       resolve: registry.resolver
+    };
+  }
+
+  if (true) {
+    Registry.prototype.validateInjections = function (injections) {
+      if (!injections) {
+        return;
+      }
+
+      var fullName = void 0;
+
+      for (var i = 0; i < injections.length; i++) {
+        fullName = injections[i].fullName;
+
+        (true && !(this.has(fullName)) && (0, _emberDebug.assert)('Attempting to inject an unknown injection: \'' + fullName + '\'', this.has(fullName)));
+      }
     };
   }
 
@@ -48185,7 +48190,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+0022a48a";
+  exports.default = "2.15.0-alpha.1-null+4591eec4";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
