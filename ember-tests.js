@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+4591eec4
+ * @version   2.15.0-alpha.1-null+764e43fa
  */
 
 var enifed, requireModule, Ember;
@@ -63212,29 +63212,22 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-testing/test/waiters.js should pass ESLint\n\n');
 });
 
-enifed('ember-testing/tests/acceptance_test', ['ember-metal', 'ember-views', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-application', 'ember-routing', 'ember-template-compiler', 'ember-runtime', 'ember-glimmer', 'ember-testing/initializers'], function (_emberMetal, _emberViews, _test, _qunit, _emberApplication, _emberRouting, _emberTemplateCompiler, _emberRuntime, _emberGlimmer) {
+enifed('ember-testing/tests/acceptance_test', ['ember-babel', 'internal-test-helpers', 'ember-metal', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-routing', 'ember-runtime'], function (_emberBabel, _internalTestHelpers, _emberMetal, _test, _qunit, _emberRouting, _emberRuntime) {
   'use strict';
 
-  //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
+  (0, _internalTestHelpers.moduleFor)('ember-testing Acceptance', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
-  var App, find, click, fillIn, currentRoute, currentURL, visit, originalAdapter, andThen, indexHitCount; // ensure the initializer is setup
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
 
-  QUnit.module('ember-testing Acceptance', {
-    setup: function () {
-      (0, _emberViews.jQuery)('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
-      (0, _emberViews.jQuery)('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
+      _this._originalAdapter = _test.default.adapter;
 
-      originalAdapter = _test.default.adapter;
-
-      (0, _emberMetal.run)(function () {
-        indexHitCount = 0;
-
-        App = _emberApplication.Application.create({
-          rootElement: '#ember-testing'
-        });
-
-        App.Router.map(function () {
+      _this.runTask(function () {
+        _this.createApplication();
+        _this.router.map(function () {
           this.route('posts');
           this.route('comments');
 
@@ -63243,369 +63236,375 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal', 'ember-views', 'em
           this.route('redirect');
         });
 
-        App.IndexRoute = _emberRouting.Route.extend({
+        _this.indexHitCount = 0;
+        _this.currentRoute = 'index';
+        var testContext = _this;
+
+        _this.add('route:index', _emberRouting.Route.extend({
           model: function () {
-            indexHitCount += 1;
+            testContext.indexHitCount += 1;
           }
-        });
+        }));
 
-        App.PostsRoute = _emberRouting.Route.extend({
+        _this.add('route:posts', _emberRouting.Route.extend({
           renderTemplate: function () {
-            currentRoute = 'posts';
+            testContext.currentRoute = 'posts';
             this._super.apply(this, arguments);
           }
-        });
+        }));
 
-        (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('<div class="posts-view"><a class="dummy-link"></a><div id="comments-link">{{#link-to \'comments\'}}Comments{{/link-to}}</div></div>'));
+        _this.addTemplate('posts', '\n        <div class="posts-view">\n          <a class="dummy-link"></a>\n          <div id="comments-link">\n            {{#link-to \'comments\'}}Comments{{/link-to}}\n          </div>\n        </div>\n      ');
 
-        App.CommentsRoute = _emberRouting.Route.extend({
+        _this.add('route:comments', _emberRouting.Route.extend({
           renderTemplate: function () {
-            currentRoute = 'comments';
+            testContext.currentRoute = 'comments';
             this._super.apply(this, arguments);
           }
-        });
+        }));
 
-        (0, _emberGlimmer.setTemplate)('comments', (0, _emberTemplateCompiler.compile)('<div>{{input type="text"}}</div>'));
+        _this.addTemplate('comments', '<div>{{input type="text"}}</div>');
 
-        App.AbortTransitionRoute = _emberRouting.Route.extend({
+        _this.add('route:abort_transition', _emberRouting.Route.extend({
           beforeModel: function (transition) {
             transition.abort();
           }
-        });
+        }));
 
-        App.RedirectRoute = _emberRouting.Route.extend({
+        _this.add('route:redirect', _emberRouting.Route.extend({
           beforeModel: function () {
             this.transitionTo('comments');
           }
+        }));
+
+        _this.application.setupForTesting();
+
+        _test.default.registerAsyncHelper('slowHelper', function () {
+          return new _emberRuntime.RSVP.Promise(function (resolve) {
+            return _emberMetal.run.later(resolve, 10);
+          });
         });
 
-        App.setupForTesting();
+        _this.application.injectTestHelpers();
       });
+      return _this;
+    }
 
-      _test.default.registerAsyncHelper('slowHelper', function () {
-        return new _emberRuntime.RSVP.Promise(function (resolve) {
-          setTimeout(resolve, 10);
+    _class.prototype.teardown = function teardown() {
+      _test.default.adapter = this._originalAdapter;
+      _AutobootApplicationT.prototype.teardown.call(this);
+    };
+
+    _class.prototype['@test helpers can be chained with then'] = function (assert) {
+      var _this2 = this;
+
+      assert.expect(6);
+
+      window.visit('/posts').then(function () {
+        assert.equal(_this2.currentRoute, 'posts', 'Successfully visited posts route');
+        assert.equal(window.currentURL(), '/posts', 'posts URL is correct');
+        return window.click('a:contains("Comments")');
+      }).then(function () {
+        assert.equal(_this2.currentRoute, 'comments', 'visit chained with click');
+        return window.fillIn('.ember-text-field', 'yeah');
+      }).then(function () {
+        assert.equal(_this2.$('.ember-text-field').val(), 'yeah', 'chained with fillIn');
+        return window.fillIn('.ember-text-field', '#qunit-fixture', 'context working');
+      }).then(function () {
+        assert.equal(_this2.$('.ember-text-field').val(), 'context working', 'chained with fillIn');
+        return window.click('.does-not-exist');
+      }).catch(function (e) {
+        assert.equal(e.message, 'Element .does-not-exist not found.', 'Non-existent click exception caught');
+      });
+    };
+
+    _class.prototype['@test helpers can be chained to each other (legacy)'] = function (assert) {
+      var _this3 = this;
+
+      assert.expect(7);
+
+      window.visit('/posts').click('a:first', '#comments-link').fillIn('.ember-text-field', 'hello').then(function () {
+        assert.equal(_this3.currentRoute, 'comments', 'Successfully visited comments route');
+        assert.equal(window.currentURL(), '/comments', 'Comments URL is correct');
+        assert.equal(_this3.$('.ember-text-field').val(), 'hello', 'Fillin successfully works');
+        window.find('.ember-text-field').one('keypress', function (e) {
+          assert.equal(e.keyCode, 13, 'keyevent chained with correct keyCode.');
+          assert.equal(e.which, 13, 'keyevent chained with correct which.');
         });
+      }).keyEvent('.ember-text-field', 'keypress', 13).visit('/posts').then(function () {
+        assert.equal(_this3.currentRoute, 'posts', 'Thens can also be chained to helpers');
+        assert.equal(window.currentURL(), '/posts', 'URL is set correct on chained helpers');
+      });
+    };
+
+    _class.prototype['@test helpers don\'t need to be chained'] = function (assert) {
+      var _this4 = this;
+
+      assert.expect(5);
+
+      window.visit('/posts');
+
+      window.click('a:first', '#comments-link');
+
+      window.fillIn('.ember-text-field', 'hello');
+
+      window.andThen(function () {
+        assert.equal(_this4.currentRoute, 'comments', 'Successfully visited comments route');
+        assert.equal(window.currentURL(), '/comments', 'Comments URL is correct');
+        assert.equal(window.find('.ember-text-field').val(), 'hello', 'Fillin successfully works');
       });
 
-      App.injectTestHelpers();
+      window.visit('/posts');
 
-      find = window.find;
-      click = window.click;
-      fillIn = window.fillIn;
-      visit = window.visit;
-      andThen = window.andThen;
-      currentURL = window.currentURL;
-    },
-    teardown: function () {
-      _test.default.unregisterHelper('slowHelper');
-      (0, _emberGlimmer.setTemplates)({});
-      (0, _emberViews.jQuery)('#ember-testing-container, #ember-testing').remove();
-      (0, _emberMetal.run)(App, App.destroy);
-      App = null;
-      _test.default.adapter = originalAdapter;
-      indexHitCount = 0;
+      window.andThen(function () {
+        assert.equal(_this4.currentRoute, 'posts');
+        assert.equal(window.currentURL(), '/posts');
+      });
+    };
+
+    _class.prototype['@test Nested async helpers'] = function (assert) {
+      var _this5 = this;
+
+      assert.expect(5);
+
+      window.visit('/posts');
+
+      window.andThen(function () {
+        window.click('a:first', '#comments-link');
+        window.fillIn('.ember-text-field', 'hello');
+      });
+
+      window.andThen(function () {
+        assert.equal(_this5.currentRoute, 'comments', 'Successfully visited comments route');
+        assert.equal(window.currentURL(), '/comments', 'Comments URL is correct');
+        assert.equal(window.find('.ember-text-field').val(), 'hello', 'Fillin successfully works');
+      });
+
+      window.visit('/posts');
+
+      window.andThen(function () {
+        assert.equal(_this5.currentRoute, 'posts');
+        assert.equal(window.currentURL(), '/posts');
+      });
+    };
+
+    _class.prototype['@test Multiple nested async helpers'] = function (assert) {
+      var _this6 = this;
+
+      assert.expect(3);
+
+      window.visit('/posts');
+
+      window.andThen(function () {
+        window.click('a:first', '#comments-link');
+
+        window.fillIn('.ember-text-field', 'hello');
+        window.fillIn('.ember-text-field', 'goodbye');
+      });
+
+      window.andThen(function () {
+        assert.equal(window.find('.ember-text-field').val(), 'goodbye', 'Fillin successfully works');
+        assert.equal(_this6.currentRoute, 'comments', 'Successfully visited comments route');
+        assert.equal(window.currentURL(), '/comments', 'Comments URL is correct');
+      });
+    };
+
+    _class.prototype['@test Helpers nested in thens'] = function (assert) {
+      var _this7 = this;
+
+      assert.expect(5);
+
+      window.visit('/posts').then(function () {
+        window.click('a:first', '#comments-link');
+      });
+
+      window.andThen(function () {
+        window.fillIn('.ember-text-field', 'hello');
+      });
+
+      window.andThen(function () {
+        assert.equal(_this7.currentRoute, 'comments', 'Successfully visited comments route');
+        assert.equal(window.currentURL(), '/comments', 'Comments URL is correct');
+        assert.equal(window.find('.ember-text-field').val(), 'hello', 'Fillin successfully works');
+      });
+
+      window.visit('/posts');
+
+      window.andThen(function () {
+        assert.equal(_this7.currentRoute, 'posts');
+        assert.equal(window.currentURL(), '/posts', 'Posts URL is correct');
+      });
+    };
+
+    _class.prototype['@test Aborted transitions are not logged via Ember.Test.adapter#exception'] = function (assert) {
+      assert.expect(0);
+
+      _test.default.adapter = _qunit.default.create({
+        exception: function (error) {
+          assert.ok(false, 'aborted transitions are not logged');
+        }
+      });
+
+      window.visit('/abort_transition');
+    };
+
+    _class.prototype['@test Unhandled exceptions are logged via Ember.Test.adapter#exception'] = function (assert) {
+      assert.expect(2);
+
+      var asyncHandled = void 0;
+      _test.default.adapter = _qunit.default.create({
+        exception: function (error) {
+          assert.equal(error.message, 'Element .does-not-exist not found.', 'Exception successfully caught and passed to Ember.Test.adapter.exception');
+          // handle the rejection so it doesn't leak later.
+          asyncHandled.catch(function () {});
+        }
+      });
+
+      window.visit('/posts');
+
+      window.click('.invalid-element').catch(function (error) {
+        assert.equal(error.message, 'Element .invalid-element not found.', 'Exception successfully handled in the rejection handler');
+      });
+
+      asyncHandled = window.click('.does-not-exist');
+    };
+
+    _class.prototype['@test Unhandled exceptions in \'andThen\' are logged via Ember.Test.adapter#exception'] = function (assert) {
+      assert.expect(1);
+
+      _test.default.adapter = _qunit.default.create({
+        exception: function (error) {
+          assert.equal(error.message, 'Catch me', 'Exception successfully caught and passed to Ember.Test.adapter.exception');
+        }
+      });
+
+      window.visit('/posts');
+
+      window.andThen(function () {
+        throw new Error('Catch me');
+      });
+    };
+
+    _class.prototype['@test should not start routing on the root URL when visiting another'] = function (assert) {
+      var _this8 = this;
+
+      assert.expect(4);
+
+      window.visit('/posts');
+
+      window.andThen(function () {
+        assert.ok(window.find('#comments-link'), 'found comments-link');
+        assert.equal(_this8.currentRoute, 'posts', 'Successfully visited posts route');
+        assert.equal(window.currentURL(), '/posts', 'Posts URL is correct');
+        assert.equal(_this8.indexHitCount, 0, 'should not hit index route when visiting another route');
+      });
+    };
+
+    _class.prototype['@test only enters the index route once when visiting '] = function (assert) {
+      var _this9 = this;
+
+      assert.expect(1);
+
+      window.visit('/');
+
+      window.andThen(function () {
+        assert.equal(_this9.indexHitCount, 1, 'should hit index once when visiting /');
+      });
+    };
+
+    _class.prototype['@test test must not finish while asyncHelpers are pending'] = function (assert) {
+      assert.expect(2);
+
+      var async = 0;
+      var innerRan = false;
+
+      _test.default.adapter = _qunit.default.extend({
+        asyncStart: function () {
+          async++;
+          this._super();
+        },
+        asyncEnd: function () {
+          async--;
+          this._super();
+        }
+      }).create();
+
+      this.application.testHelpers.slowHelper();
+
+      window.andThen(function () {
+        innerRan = true;
+      });
+
+      assert.equal(innerRan, false, 'should not have run yet');
+      assert.ok(async > 0, 'should have told the adapter to pause');
+
+      if (async === 0) {
+        // If we failed the test, prevent zalgo from escaping and breaking
+        // our other tests.
+        _test.default.adapter.asyncStart();
+        _test.default.resolve().then(function () {
+          _test.default.adapter.asyncEnd();
+        });
+      }
+    };
+
+    _class.prototype['@test visiting a URL that causes another transition should yield the correct URL'] = function (assert) {
+      assert.expect(1);
+
+      window.visit('/redirect');
+
+      window.andThen(function () {
+        assert.equal(window.currentURL(), '/comments', 'Redirected to Comments URL');
+      });
+    };
+
+    _class.prototype['@test visiting a URL and then visiting a second URL with a transition should yield the correct URL'] = function (assert) {
+      assert.expect(2);
+
+      window.visit('/posts');
+
+      window.andThen(function () {
+        assert.equal(window.currentURL(), '/posts', 'First visited URL is correct');
+      });
+
+      window.visit('/redirect');
+
+      window.andThen(function () {
+        assert.equal(window.currentURL(), '/comments', 'Redirected to Comments URL');
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('ember-testing Acceptance - teardown', function (_AutobootApplicationT2) {
+    (0, _emberBabel.inherits)(_class2, _AutobootApplicationT2);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT2.apply(this, arguments));
     }
-  });
 
-  QUnit.test('helpers can be chained with then', function () {
-    expect(6);
+    _class2.prototype['@test that the setup/teardown happens correctly'] = function (assert) {
+      var _this11 = this;
 
-    currentRoute = 'index';
+      assert.expect(2);
 
-    visit('/posts').then(function () {
-      equal(currentRoute, 'posts', 'Successfully visited posts route');
-      equal(currentURL(), '/posts', 'posts URL is correct');
-      return click('a:contains("Comments")');
-    }).then(function () {
-      equal(currentRoute, 'comments', 'visit chained with click');
-      return fillIn('.ember-text-field', 'yeah');
-    }).then(function () {
-      equal((0, _emberViews.jQuery)('.ember-text-field').val(), 'yeah', 'chained with fillIn');
-      return fillIn('.ember-text-field', '#ember-testing-container', 'context working');
-    }).then(function () {
-      equal((0, _emberViews.jQuery)('.ember-text-field').val(), 'context working', 'chained with fillIn');
-      return click('.does-not-exist');
-    }).then(null, function (e) {
-      equal(e.message, 'Element .does-not-exist not found.', 'Non-existent click exception caught');
-    });
-  });
-
-  // Keep this for backwards compatibility
-
-  QUnit.test('helpers can be chained to each other', function () {
-    expect(7);
-
-    currentRoute = 'index';
-
-    visit('/posts').click('a:first', '#comments-link').fillIn('.ember-text-field', 'hello').then(function () {
-      equal(currentRoute, 'comments', 'Successfully visited comments route');
-      equal(currentURL(), '/comments', 'Comments URL is correct');
-      equal((0, _emberViews.jQuery)('.ember-text-field').val(), 'hello', 'Fillin successfully works');
-      find('.ember-text-field').one('keypress', function (e) {
-        equal(e.keyCode, 13, 'keyevent chained with correct keyCode.');
-        equal(e.which, 13, 'keyevent chained with correct which.');
+      this.runTask(function () {
+        _this11.createApplication();
       });
-    }).keyEvent('.ember-text-field', 'keypress', 13).visit('/posts').then(function () {
-      equal(currentRoute, 'posts', 'Thens can also be chained to helpers');
-      equal(currentURL(), '/posts', 'URL is set correct on chained helpers');
-    });
-  });
+      this.application.injectTestHelpers();
 
-  QUnit.test('helpers don\'t need to be chained', function () {
-    expect(5);
+      assert.ok(typeof _test.default.Promise.prototype.click === 'function');
 
-    currentRoute = 'index';
-
-    visit('/posts');
-
-    click('a:first', '#comments-link');
-
-    fillIn('.ember-text-field', 'hello');
-
-    andThen(function () {
-      equal(currentRoute, 'comments', 'Successfully visited comments route');
-      equal(currentURL(), '/comments', 'Comments URL is correct');
-      equal(find('.ember-text-field').val(), 'hello', 'Fillin successfully works');
-    });
-
-    visit('/posts');
-
-    andThen(function () {
-      equal(currentRoute, 'posts');
-      equal(currentURL(), '/posts');
-    });
-  });
-
-  QUnit.test('Nested async helpers', function () {
-    expect(5);
-
-    currentRoute = 'index';
-
-    visit('/posts');
-
-    andThen(function () {
-      click('a:first', '#comments-link');
-
-      fillIn('.ember-text-field', 'hello');
-    });
-
-    andThen(function () {
-      equal(currentRoute, 'comments', 'Successfully visited comments route');
-      equal(currentURL(), '/comments', 'Comments URL is correct');
-      equal(find('.ember-text-field').val(), 'hello', 'Fillin successfully works');
-    });
-
-    visit('/posts');
-
-    andThen(function () {
-      equal(currentRoute, 'posts');
-      equal(currentURL(), '/posts');
-    });
-  });
-
-  QUnit.test('Multiple nested async helpers', function () {
-    expect(3);
-
-    visit('/posts');
-
-    andThen(function () {
-      click('a:first', '#comments-link');
-
-      fillIn('.ember-text-field', 'hello');
-      fillIn('.ember-text-field', 'goodbye');
-    });
-
-    andThen(function () {
-      equal(find('.ember-text-field').val(), 'goodbye', 'Fillin successfully works');
-      equal(currentRoute, 'comments', 'Successfully visited comments route');
-      equal(currentURL(), '/comments', 'Comments URL is correct');
-    });
-  });
-
-  QUnit.test('Helpers nested in thens', function () {
-    expect(5);
-
-    currentRoute = 'index';
-
-    visit('/posts').then(function () {
-      click('a:first', '#comments-link');
-    });
-
-    andThen(function () {
-      fillIn('.ember-text-field', 'hello');
-    });
-
-    andThen(function () {
-      equal(currentRoute, 'comments', 'Successfully visited comments route');
-      equal(currentURL(), '/comments', 'Comments URL is correct');
-      equal(find('.ember-text-field').val(), 'hello', 'Fillin successfully works');
-    });
-
-    visit('/posts');
-
-    andThen(function () {
-      equal(currentRoute, 'posts');
-      equal(currentURL(), '/posts', 'Posts URL is correct');
-    });
-  });
-
-  QUnit.test('Aborted transitions are not logged via Ember.Test.adapter#exception', function () {
-    expect(0);
-
-    _test.default.adapter = _qunit.default.create({
-      exception: function (error) {
-        ok(false, 'aborted transitions are not logged');
-      }
-    });
-
-    visit('/abort_transition');
-  });
-
-  QUnit.test('Unhandled exceptions are logged via Ember.Test.adapter#exception', function () {
-    expect(2);
-
-    var asyncHandled;
-    _test.default.adapter = _qunit.default.create({
-      exception: function (error) {
-        equal(error.message, 'Element .does-not-exist not found.', 'Exception successfully caught and passed to Ember.Test.adapter.exception');
-        asyncHandled['catch'](function () {}); // handle the rejection so it doesn't leak later.
-      }
-    });
-
-    visit('/posts');
-
-    click('.invalid-element').then(null, function (error) {
-      equal(error.message, 'Element .invalid-element not found.', 'Exception successfully handled in the rejection handler');
-    });
-
-    asyncHandled = click('.does-not-exist');
-  });
-
-  QUnit.test('Unhandled exceptions in `andThen` are logged via Ember.Test.adapter#exception', function () {
-    expect(1);
-
-    _test.default.adapter = _qunit.default.create({
-      exception: function (error) {
-        equal(error.message, 'Catch me', 'Exception successfully caught and passed to Ember.Test.adapter.exception');
-      }
-    });
-
-    visit('/posts');
-
-    andThen(function () {
-      throw new Error('Catch me');
-    });
-  });
-
-  QUnit.test('should not start routing on the root URL when visiting another', function () {
-    expect(4);
-
-    visit('/posts');
-
-    andThen(function () {
-      ok(find('#comments-link'), 'found comments-link');
-      equal(currentRoute, 'posts', 'Successfully visited posts route');
-      equal(currentURL(), '/posts', 'Posts URL is correct');
-      equal(indexHitCount, 0, 'should not hit index route when visiting another route');
-    });
-  });
-
-  QUnit.test('only enters the index route once when visiting /', function () {
-    expect(1);
-
-    visit('/');
-
-    andThen(function () {
-      equal(indexHitCount, 1, 'should hit index once when visiting /');
-    });
-  });
-
-  QUnit.test('test must not finish while asyncHelpers are pending', function () {
-    expect(2);
-
-    var async = 0;
-    var innerRan = false;
-
-    _test.default.adapter = _qunit.default.extend({
-      asyncStart: function () {
-        async++;
-        this._super();
-      },
-      asyncEnd: function () {
-        async--;
-        this._super();
-      }
-    }).create();
-
-    App.testHelpers.slowHelper();
-    andThen(function () {
-      innerRan = true;
-    });
-
-    equal(innerRan, false, 'should not have run yet');
-    ok(async > 0, 'should have told the adapter to pause');
-
-    if (async === 0) {
-      // If we failed the test, prevent zalgo from escaping and breaking
-      // our other tests.
-      _test.default.adapter.asyncStart();
-      _test.default.resolve().then(function () {
-        _test.default.adapter.asyncEnd();
+      this.runTask(function () {
+        _this11.application.destroy();
       });
-    }
-  });
 
-  QUnit.test('visiting a URL that causes another transition should yield the correct URL', function () {
-    expect(1);
+      assert.equal(_test.default.Promise.prototype.click, undefined);
+    };
 
-    visit('/redirect');
-
-    andThen(function () {
-      equal(currentURL(), '/comments', 'Redirected to Comments URL');
-    });
-  });
-
-  QUnit.test('visiting a URL and then visiting a second URL with a transition should yield the correct URL', function () {
-    expect(2);
-
-    visit('/posts');
-
-    andThen(function () {
-      equal(currentURL(), '/posts', 'First visited URL is correct');
-    });
-
-    visit('/redirect');
-
-    andThen(function () {
-      equal(currentURL(), '/comments', 'Redirected to Comments URL');
-    });
-  });
-
-  QUnit.module('ember-testing Acceptance – teardown');
-
-  QUnit.test('that the setup/teardown happens correct', function () {
-    expect(2);
-
-    (0, _emberViews.jQuery)('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
-    (0, _emberViews.jQuery)('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
-
-    (0, _emberMetal.run)(function () {
-      indexHitCount = 0;
-      App = _emberApplication.Application.create({
-        rootElement: '#ember-testing'
-      });
-    });
-    App.injectTestHelpers();
-
-    (0, _emberViews.jQuery)('#ember-testing-container, #ember-testing').remove();
-    ok(typeof _test.default.Promise.prototype.click === 'function');
-    (0, _emberMetal.run)(App, App.destroy);
-    equal(_test.default.Promise.prototype.click, undefined);
-    App = null;
-    _test.default.adapter = originalAdapter;
-    indexHitCount = 0;
-  });
+    return _class2;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 QUnit.module('ESLint | ember-testing/tests/acceptance_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -63985,37 +63984,14 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-testing/tests/helper_registration_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-testing/tests/helpers_test', ['ember-routing', 'ember-runtime', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/setup_for_testing', 'ember-application', 'ember-template-compiler', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters', 'ember-testing/helpers', 'ember-testing/initializers'], function (_emberRouting, _emberRuntime, _emberMetal, _emberViews, _emberGlimmer, _test, _setup_for_testing, _emberApplication, _emberTemplateCompiler, _pending_requests, _adapter, _waiters) {
+enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helpers', 'ember-routing', 'ember-runtime', 'ember-metal', 'ember-views', 'ember-glimmer', 'ember-testing/test', 'ember-testing/setup_for_testing', 'ember-testing/test/pending_requests', 'ember-testing/test/adapter', 'ember-testing/test/waiters'], function (_emberBabel, _internalTestHelpers, _emberRouting, _emberRuntime, _emberMetal, _emberViews, _emberGlimmer, _test, _setup_for_testing, _pending_requests, _adapter, _waiters) {
   'use strict';
 
-  // ensure the initializer is setup
-  var App; // ensure that the helpers are loaded
-
-  var originalAdapter = (0, _adapter.getAdapter)();
-
-  function cleanup() {
-    // Teardown setupForTesting
-
-    (0, _adapter.setAdapter)(originalAdapter);
-    (0, _emberMetal.run)(function () {
-      (0, _emberViews.jQuery)(document).off('ajaxSend');
-      (0, _emberViews.jQuery)(document).off('ajaxComplete');
-    });
-    (0, _pending_requests.clearPendingRequests)();
-    // Test.waiters = null;
-
-    // Other cleanup
-
-    if (App) {
-      (0, _emberMetal.run)(App, App.destroy);
-      App.removeTestHelpers();
-      App = null;
-    }
-
-    (0, _emberGlimmer.setTemplates)({});
+  function registerHelper() {
+    _test.default.registerHelper('LeakyMcLeakLeak', function () {});
   }
 
-  function assertHelpers(application, helperContainer, expected) {
+  function assertHelpers(assert, application, helperContainer, expected) {
     if (!helperContainer) {
       helperContainer = window;
     }
@@ -64027,8 +64003,8 @@ enifed('ember-testing/tests/helpers_test', ['ember-routing', 'ember-runtime', 'e
       var presentInHelperContainer = !!helperContainer[helper];
       var presentInTestHelpers = !!application.testHelpers[helper];
 
-      ok(presentInHelperContainer === expected, 'Expected \'' + helper + '\' to be present in the helper container (defaults to window).');
-      ok(presentInTestHelpers === expected, 'Expected \'' + helper + '\' to be present in App.testHelpers.');
+      assert.ok(presentInHelperContainer === expected, 'Expected \'' + helper + '\' to be present in the helper container (defaults to window).');
+      assert.ok(presentInTestHelpers === expected, 'Expected \'' + helper + '\' to be present in App.testHelpers.');
     }
 
     checkHelperPresent('visit', expected);
@@ -64039,988 +64015,1102 @@ enifed('ember-testing/tests/helpers_test', ['ember-routing', 'ember-runtime', 'e
     checkHelperPresent('triggerEvent', expected);
   }
 
-  function assertNoHelpers(application, helperContainer) {
-    assertHelpers(application, helperContainer, false);
+  function assertNoHelpers(assert, application, helperContainer) {
+    assertHelpers(assert, application, helperContainer, false);
   }
 
-  function currentRouteName(app) {
-    return app.testHelpers.currentRouteName();
-  }
+  var HelpersTestCase = function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(HelpersTestCase, _AutobootApplicationT);
 
-  function currentPath(app) {
-    return app.testHelpers.currentPath();
-  }
+    function HelpersTestCase() {
+      (0, _emberBabel.classCallCheck)(this, HelpersTestCase);
 
-  function currentURL(app) {
-    return app.testHelpers.currentURL();
-  }
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
 
-  function setupApp() {
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-
-      App.injectTestHelpers();
-    });
-  }
-
-  QUnit.module('ember-testing: Helper setup', {
-    setup: function () {
-      cleanup();
-    },
-    teardown: function () {
-      cleanup();
-    }
-  });
-
-  function registerHelper() {
-    _test.default.registerHelper('LeakyMcLeakLeak', function (app) {});
-  }
-
-  QUnit.test('Ember.Application#injectTestHelpers/#removeTestHelpers', function () {
-    App = (0, _emberMetal.run)(_emberApplication.Application, _emberApplication.Application.create);
-    assertNoHelpers(App);
-
-    registerHelper();
-
-    App.injectTestHelpers();
-    assertHelpers(App);
-    ok(_test.default.Promise.prototype.LeakyMcLeakLeak, 'helper in question SHOULD be present');
-
-    App.removeTestHelpers();
-    assertNoHelpers(App);
-
-    equal(_test.default.Promise.prototype.LeakyMcLeakLeak, undefined, 'should NOT leak test promise extensions');
-  });
-
-  QUnit.test('Ember.Application#setupForTesting', function () {
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    equal(App.__container__.lookup('router:main').location, 'none');
-  });
-
-  QUnit.test('Ember.Application.setupForTesting sets the application to `testing`.', function () {
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    equal(App.testing, true, 'Application instance is set to testing.');
-  });
-
-  QUnit.test('Ember.Application.setupForTesting leaves the system in a deferred state.', function () {
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    equal(App._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
-  });
-
-  QUnit.test('App.reset() after Application.setupForTesting leaves the system in a deferred state.', function () {
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    equal(App._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
-
-    App.reset();
-    equal(App._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
-  });
-
-  QUnit.test('Ember.Application#setupForTesting attaches ajax listeners', function () {
-    var documentEvents;
-
-    documentEvents = _emberViews.jQuery._data(document, 'events');
-
-    if (!documentEvents) {
-      documentEvents = {};
+      _this._originalAdapter = (0, _adapter.getAdapter)();
+      return _this;
     }
 
-    ok(documentEvents['ajaxSend'] === undefined, 'there are no ajaxSend listers setup prior to calling injectTestHelpers');
-    ok(documentEvents['ajaxComplete'] === undefined, 'there are no ajaxComplete listers setup prior to calling injectTestHelpers');
-
-    (0, _emberMetal.run)(function () {
-      (0, _setup_for_testing.default)();
-    });
-
-    documentEvents = _emberViews.jQuery._data(document, 'events');
-
-    equal(documentEvents['ajaxSend'].length, 1, 'calling injectTestHelpers registers an ajaxSend handler');
-    equal(documentEvents['ajaxComplete'].length, 1, 'calling injectTestHelpers registers an ajaxComplete handler');
-  });
-
-  QUnit.test('Ember.Application#setupForTesting attaches ajax listeners only once', function () {
-    var documentEvents;
-
-    documentEvents = _emberViews.jQuery._data(document, 'events');
-
-    if (!documentEvents) {
-      documentEvents = {};
-    }
-
-    ok(documentEvents['ajaxSend'] === undefined, 'there are no ajaxSend listeners setup prior to calling injectTestHelpers');
-    ok(documentEvents['ajaxComplete'] === undefined, 'there are no ajaxComplete listeners setup prior to calling injectTestHelpers');
-
-    (0, _emberMetal.run)(function () {
-      (0, _setup_for_testing.default)();
-    });
-    (0, _emberMetal.run)(function () {
-      (0, _setup_for_testing.default)();
-    });
-
-    documentEvents = _emberViews.jQuery._data(document, 'events');
-
-    equal(documentEvents['ajaxSend'].length, 1, 'calling injectTestHelpers registers an ajaxSend handler');
-    equal(documentEvents['ajaxComplete'].length, 1, 'calling injectTestHelpers registers an ajaxComplete handler');
-  });
-
-  QUnit.test('Ember.Application#injectTestHelpers calls callbacks registered with onInjectHelpers', function () {
-    var injected = 0;
-
-    _test.default.onInjectHelpers(function () {
-      injected++;
-    });
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    equal(injected, 0, 'onInjectHelpers are not called before injectTestHelpers');
-
-    App.injectTestHelpers();
-
-    equal(injected, 1, 'onInjectHelpers are called after injectTestHelpers');
-  });
-
-  QUnit.test('Ember.Application#injectTestHelpers adds helpers to provided object.', function () {
-    var helpers = {};
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    App.injectTestHelpers(helpers);
-    assertHelpers(App, helpers);
-
-    App.removeTestHelpers();
-    assertNoHelpers(App, helpers);
-  });
-
-  QUnit.test('Ember.Application#removeTestHelpers resets the helperContainer\'s original values', function () {
-    var helpers = { visit: 'snazzleflabber' };
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create();
-      App.setupForTesting();
-    });
-
-    App.injectTestHelpers(helpers);
-
-    ok(helpers.visit !== 'snazzleflabber', 'helper added to container');
-    App.removeTestHelpers();
-
-    ok(helpers.visit === 'snazzleflabber', 'original value added back to container');
-  });
-
-  QUnit.module('ember-testing: Helper methods', {
-    setup: function () {
-      setupApp();
-    },
-    teardown: function () {
-      cleanup();
-    }
-  });
-
-  QUnit.test('`wait` respects registerWaiters', function (assert) {
-    assert.expect(3);
-
-    var done = assert.async();
-
-    var counter = 0;
-    function waiter() {
-      return ++counter > 2;
-    }
-
-    var other = 0;
-    function otherWaiter() {
-      return ++other > 2;
-    }
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-    (0, _waiters.registerWaiter)(waiter);
-    (0, _waiters.registerWaiter)(otherWaiter);
-
-    App.testHelpers.wait().then(function () {
-      equal(waiter(), true, 'should not resolve until our waiter is ready');
-      (0, _waiters.unregisterWaiter)(waiter);
-      counter = 0;
-      return App.testHelpers.wait();
-    }).then(function () {
-      equal(counter, 0, 'unregistered waiter was not checked');
-      equal(otherWaiter(), true, 'other waiter is still registered');
-    }).finally(function () {
-      (0, _waiters.unregisterWaiter)(otherWaiter);
-      done();
-    });
-  });
-
-  QUnit.test('`visit` advances readiness.', function () {
-    expect(2);
-
-    equal(App._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
-
-    return App.testHelpers.visit('/').then(function () {
-      equal(App._readinessDeferrals, 0, 'App\'s readiness was advanced by visit.');
-    });
-  });
-
-  QUnit.test('`wait` helper can be passed a resolution value', function () {
-    expect(4);
-
-    var promise, wait;
-
-    promise = new _emberRuntime.RSVP.Promise(function (resolve) {
-      (0, _emberMetal.run)(null, resolve, 'promise');
-    });
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    wait = App.testHelpers.wait;
-
-    return wait('text').then(function (val) {
-      equal(val, 'text', 'can resolve to a string');
-      return wait(1);
-    }).then(function (val) {
-      equal(val, 1, 'can resolve to an integer');
-      return wait({ age: 10 });
-    }).then(function (val) {
-      deepEqual(val, { age: 10 }, 'can resolve to an object');
-      return wait(promise);
-    }).then(function (val) {
-      equal(val, 'promise', 'can resolve to a promise resolution value');
-    });
-  });
-
-  QUnit.test('`click` triggers appropriate events in order', function () {
-    expect(5);
-
-    var click, wait, events;
-
-    App.IndexWrapperComponent = _emberGlimmer.Component.extend({
-      classNames: 'index-wrapper',
-
-      didInsertElement: function () {
-        this.$().on('mousedown focusin mouseup click', function (e) {
-          events.push(e.type);
-        });
+    HelpersTestCase.prototype.teardown = function teardown() {
+      (0, _adapter.setAdapter)(this._originalAdapter);
+      (0, _emberViews.jQuery)(document).off('ajaxSend');
+      (0, _emberViews.jQuery)(document).off('ajaxComplete');
+      (0, _pending_requests.clearPendingRequests)();
+      if (this.application) {
+        this.application.removeTestHelpers();
       }
-    });
-
-    App.XCheckboxComponent = _emberGlimmer.Component.extend({
-      tagName: 'input',
-      attributeBindings: ['type'],
-      type: 'checkbox',
-      click: function () {
-        events.push('click:' + this.get('checked'));
-      },
-      change: function () {
-        events.push('change:' + this.get('checked'));
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#index-wrapper}}{{input type="text"}} {{x-checkbox type="checkbox"}} {{textarea}} <div contenteditable="true"> </div>{{/index-wrapper}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    click = App.testHelpers.click;
-    wait = App.testHelpers.wait;
-
-    return wait().then(function () {
-      events = [];
-      return click('.index-wrapper');
-    }).then(function () {
-      deepEqual(events, ['mousedown', 'mouseup', 'click'], 'fires events in order');
-    }).then(function () {
-      events = [];
-      return click('.index-wrapper input[type=text]');
-    }).then(function () {
-      deepEqual(events, ['mousedown', 'focusin', 'mouseup', 'click'], 'fires focus events on inputs');
-    }).then(function () {
-      events = [];
-      return click('.index-wrapper textarea');
-    }).then(function () {
-      deepEqual(events, ['mousedown', 'focusin', 'mouseup', 'click'], 'fires focus events on textareas');
-    }).then(function () {
-      events = [];
-      return click('.index-wrapper div');
-    }).then(function () {
-      deepEqual(events, ['mousedown', 'focusin', 'mouseup', 'click'], 'fires focus events on contenteditable');
-    }).then(function () {
-      events = [];
-      return click('.index-wrapper input[type=checkbox]');
-    }).then(function () {
-      // i.e. mousedown, mouseup, change:true, click, click:true
-      // Firefox differs so we can't assert the exact ordering here.
-      // See https://bugzilla.mozilla.org/show_bug.cgi?id=843554.
-      equal(events.length, 5, 'fires click and change on checkboxes');
-    });
-  });
-
-  QUnit.test('`click` triggers native events with simulated X/Y coordinates', function () {
-    expect(15);
-
-    var click, wait, events;
-
-    App.IndexWrapperComponent = _emberGlimmer.Component.extend({
-      classNames: 'index-wrapper',
-
-      didInsertElement: function () {
-        var pushEvent = function (e) {
-          return events.push(e);
-        };
-        this.element.addEventListener('mousedown', pushEvent);
-        this.element.addEventListener('mouseup', pushEvent);
-        this.element.addEventListener('click', pushEvent);
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#index-wrapper}}some text{{/index-wrapper}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    click = App.testHelpers.click;
-    wait = App.testHelpers.wait;
-
-    return wait().then(function () {
-      events = [];
-      return click('.index-wrapper');
-    }).then(function () {
-      events.forEach(function (e) {
-        ok(e instanceof window.Event, 'The event is an instance of MouseEvent');
-        ok(typeof e.screenX === 'number' && e.screenX > 0, 'screenX is correct');
-        ok(typeof e.screenY === 'number' && e.screenY > 0, 'screenY is correct');
-        ok(typeof e.clientX === 'number' && e.clientX > 0, 'clientX is correct');
-        ok(typeof e.clientY === 'number' && e.clientY > 0, 'clientY is correct');
-      });
-    });
-  });
-
-  QUnit.test('`triggerEvent` with mouseenter triggers native events with simulated X/Y coordinates', function () {
-    expect(5);
-
-    var triggerEvent, wait, evt;
-
-    App.IndexWrapperComponent = _emberGlimmer.Component.extend({
-      classNames: 'index-wrapper',
-
-      didInsertElement: function () {
-        this.element.addEventListener('mouseenter', function (e) {
-          return evt = e;
-        });
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#index-wrapper}}some text{{/index-wrapper}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    triggerEvent = App.testHelpers.triggerEvent;
-    wait = App.testHelpers.wait;
-
-    return wait().then(function () {
-      return triggerEvent('.index-wrapper', 'mouseenter');
-    }).then(function () {
-      ok(evt instanceof window.Event, 'The event is an instance of MouseEvent');
-      ok(typeof evt.screenX === 'number' && evt.screenX > 0, 'screenX is correct');
-      ok(typeof evt.screenY === 'number' && evt.screenY > 0, 'screenY is correct');
-      ok(typeof evt.clientX === 'number' && evt.clientX > 0, 'clientX is correct');
-      ok(typeof evt.clientY === 'number' && evt.clientY > 0, 'clientY is correct');
-    });
-  });
-
-  QUnit.test('`wait` waits for outstanding timers', function () {
-    expect(1);
-
-    var wait_done = false;
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    _emberMetal.run.later(this, function () {
-      wait_done = true;
-    }, 500);
-
-    return App.testHelpers.wait().then(function () {
-      equal(wait_done, true, 'should wait for the timer to be fired.');
-    });
-  });
-
-  QUnit.test('`wait` respects registerWaiters with optional context', function () {
-    expect(3);
-
-    var obj = {
-      counter: 0,
-      ready: function () {
-        return ++this.counter > 2;
-      }
+      _AutobootApplicationT.prototype.teardown.call(this);
     };
 
-    var other = 0;
-    function otherWaiter() {
-      return ++other > 2;
+    return HelpersTestCase;
+  }(_internalTestHelpers.AutobootApplicationTestCase);
+
+  var HelpersApplicationTestCase = function (_HelpersTestCase) {
+    (0, _emberBabel.inherits)(HelpersApplicationTestCase, _HelpersTestCase);
+
+    function HelpersApplicationTestCase() {
+      (0, _emberBabel.classCallCheck)(this, HelpersApplicationTestCase);
+
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _HelpersTestCase.call(this));
+
+      _this2.runTask(function () {
+        _this2.createApplication();
+        _this2.application.setupForTesting();
+        _this2.application.injectTestHelpers();
+      });
+      return _this2;
     }
 
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-    (0, _waiters.registerWaiter)(obj, obj.ready);
-    (0, _waiters.registerWaiter)(otherWaiter);
+    return HelpersApplicationTestCase;
+  }(HelpersTestCase);
 
-    return App.testHelpers.wait().then(function () {
-      equal(obj.ready(), true, 'should not resolve until our waiter is ready');
-      (0, _waiters.unregisterWaiter)(obj, obj.ready);
-      obj.counter = 0;
-      return App.testHelpers.wait();
-    }).then(function () {
-      equal(obj.counter, 0, 'the unregistered waiter should still be at 0');
-      equal(otherWaiter(), true, 'other waiter should still be registered');
-    }).finally(function () {
-      (0, _waiters.unregisterWaiter)(otherWaiter);
-    });
-  });
+  (0, _internalTestHelpers.moduleFor)('ember-testing: Helper setup', function (_HelpersTestCase2) {
+    (0, _emberBabel.inherits)(_class, _HelpersTestCase2);
 
-  QUnit.test('`wait` does not error if routing has not begun', function () {
-    expect(1);
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _HelpersTestCase2.apply(this, arguments));
+    }
 
-    return App.testHelpers.wait().then(function () {
-      ok(true, 'should not error without `visit`');
-    });
-  });
+    _class.prototype['@test Ember.Application#injectTestHelpers/#removeTestHelper'] = function (assert) {
+      var _this4 = this;
 
-  QUnit.test('`triggerEvent accepts an optional options hash without context', function () {
-    expect(3);
-
-    var triggerEvent, wait, event;
-
-    App.IndexWrapperComponent = _emberGlimmer.Component.extend({
-      didInsertElement: function () {
-        this.$('.input').on('keydown change', function (e) {
-          event = e;
-        });
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{index-wrapper}}'));
-    (0, _emberGlimmer.setTemplate)('components/index-wrapper', (0, _emberTemplateCompiler.compile)('{{input type="text" id="scope" class="input"}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    triggerEvent = App.testHelpers.triggerEvent;
-    wait = App.testHelpers.wait;
-
-    return wait().then(function () {
-      return triggerEvent('.input', 'keydown', { keyCode: 13 });
-    }).then(function () {
-      equal(event.keyCode, 13, 'options were passed');
-      equal(event.type, 'keydown', 'correct event was triggered');
-      equal(event.target.getAttribute('id'), 'scope', 'triggered on the correct element');
-    });
-  });
-
-  QUnit.test('`triggerEvent can limit searching for a selector to a scope', function () {
-    expect(2);
-
-    var triggerEvent, wait, event;
-
-    App.IndexWrapperComponent = _emberGlimmer.Component.extend({
-      didInsertElement: function () {
-        this.$('.input').on('blur change', function (e) {
-          event = e;
-        });
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('components/index-wrapper', (0, _emberTemplateCompiler.compile)('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'));
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{index-wrapper}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    triggerEvent = App.testHelpers.triggerEvent;
-    wait = App.testHelpers.wait;
-
-    return wait().then(function () {
-      return triggerEvent('.input', '#limited', 'blur');
-    }).then(function () {
-      equal(event.type, 'blur', 'correct event was triggered');
-      equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
-    });
-  });
-
-  QUnit.test('`triggerEvent` can be used to trigger arbitrary events', function () {
-    expect(2);
-
-    var triggerEvent, wait, event;
-
-    App.IndexWrapperComponent = _emberGlimmer.Component.extend({
-      didInsertElement: function () {
-        this.$('#foo').on('blur change', function (e) {
-          event = e;
-        });
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('components/index-wrapper', (0, _emberTemplateCompiler.compile)('{{input type="text" id="foo"}}'));
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{index-wrapper}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    triggerEvent = App.testHelpers.triggerEvent;
-    wait = App.testHelpers.wait;
-
-    return wait().then(function () {
-      return triggerEvent('#foo', 'blur');
-    }).then(function () {
-      equal(event.type, 'blur', 'correct event was triggered');
-      equal(event.target.getAttribute('id'), 'foo', 'triggered on the correct element');
-    });
-  });
-
-  QUnit.test('`fillIn` takes context into consideration', function () {
-    expect(2);
-    var fillIn, find, visit, andThen;
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<div id="parent">{{input type="text" id="first" class="current"}}</div>{{input type="text" id="second" class="current"}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    fillIn = App.testHelpers.fillIn;
-    find = App.testHelpers.find;
-    visit = App.testHelpers.visit;
-    andThen = App.testHelpers.andThen;
-
-    visit('/');
-    fillIn('.current', '#parent', 'current value');
-
-    return andThen(function () {
-      equal(find('#first').val(), 'current value');
-      equal(find('#second').val(), '');
-    });
-  });
-
-  QUnit.test('`fillIn` focuses on the element', function () {
-    expect(2);
-    var fillIn, find, visit, andThen, wait;
-
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      actions: {
-        wasFocused: function () {
-          ok(true, 'focusIn event was triggered');
-        }
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<div id="parent">{{input type="text" id="first" focus-in="wasFocused"}}</div>'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    fillIn = App.testHelpers.fillIn;
-    find = App.testHelpers.find;
-    visit = App.testHelpers.visit;
-    andThen = App.testHelpers.andThen;
-    wait = App.testHelpers.wait;
-
-    visit('/');
-    fillIn('#first', 'current value');
-    andThen(function () {
-      equal(find('#first').val(), 'current value');
-    });
-
-    return wait();
-  });
-
-  QUnit.test('`fillIn` fires `input` and `change` events in the proper order', function () {
-    expect(1);
-
-    var fillIn, visit, andThen, wait;
-    var events = [];
-    App.IndexController = _emberRuntime.Controller.extend({
-      actions: {
-        oninputHandler: function (e) {
-          events.push(e.type);
-        },
-        onchangeHandler: function (e) {
-          events.push(e.type);
-        }
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<input type="text" id="first" oninput={{action "oninputHandler"}} onchange={{action "onchangeHandler"}}>'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    fillIn = App.testHelpers.fillIn;
-    visit = App.testHelpers.visit;
-    andThen = App.testHelpers.andThen;
-    wait = App.testHelpers.wait;
-
-    visit('/');
-    fillIn('#first', 'current value');
-    andThen(function () {
-      deepEqual(events, ['input', 'change'], '`input` and `change` events are fired in the proper order');
-    });
-
-    return wait();
-  });
-
-  QUnit.test('`fillIn` only sets the value in the first matched element', function () {
-    var fillIn = void 0,
-        find = void 0,
-        visit = void 0,
-        andThen = void 0,
-        wait = void 0;
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<input type="text" id="first" class="in-test"><input type="text" id="second" class="in-test">'));
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    fillIn = App.testHelpers.fillIn;
-    find = App.testHelpers.find;
-    visit = App.testHelpers.visit;
-    andThen = App.testHelpers.andThen;
-    wait = App.testHelpers.wait;
-
-    visit('/');
-    fillIn('input.in-test', 'new value');
-    andThen(function () {
-      equal(find('#first').val(), 'new value');
-      equal(find('#second').val(), '');
-    });
-
-    return wait();
-  });
-
-  QUnit.test('`triggerEvent accepts an optional options hash and context', function () {
-    expect(3);
-
-    var triggerEvent, wait, event;
-
-    App.IndexWrapperComponent = _emberGlimmer.Component.extend({
-      didInsertElement: function () {
-        this.$('.input').on('keydown change', function (e) {
-          event = e;
-        });
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('components/index-wrapper', (0, _emberTemplateCompiler.compile)('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'));
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{index-wrapper}}'));
-
-    (0, _emberMetal.run)(App, App.advanceReadiness);
-
-    triggerEvent = App.testHelpers.triggerEvent;
-    wait = App.testHelpers.wait;
-
-    return wait().then(function () {
-      return triggerEvent('.input', '#limited', 'keydown', { keyCode: 13 });
-    }).then(function () {
-      equal(event.keyCode, 13, 'options were passed');
-      equal(event.type, 'keydown', 'correct event was triggered');
-      equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
-    });
-  });
-
-  QUnit.module('ember-testing debugging helpers', {
-    setup: function () {
-      setupApp();
-
-      (0, _emberMetal.run)(function () {
-        App.Router = _emberRouting.Router.extend({
-          location: 'none'
-        });
+      this.runTask(function () {
+        _this4.createApplication();
       });
 
-      (0, _emberMetal.run)(App, 'advanceReadiness');
-    },
-    teardown: function () {
-      cleanup();
+      assertNoHelpers(assert, this.application);
+
+      registerHelper();
+
+      this.application.injectTestHelpers();
+
+      assertHelpers(assert, this.application);
+
+      assert.ok(_test.default.Promise.prototype.LeakyMcLeakLeak, 'helper in question SHOULD be present');
+
+      this.application.removeTestHelpers();
+
+      assertNoHelpers(assert, this.application);
+
+      assert.equal(_test.default.Promise.prototype.LeakyMcLeakLeak, undefined, 'should NOT leak test promise extensions');
+    };
+
+    _class.prototype['@test Ember.Application#setupForTesting'] = function (assert) {
+      var _this5 = this;
+
+      this.runTask(function () {
+        _this5.createApplication();
+        _this5.application.setupForTesting();
+      });
+
+      var routerInstance = this.applicationInstance.lookup('router:main');
+      assert.equal(routerInstance.location, 'none');
+    };
+
+    _class.prototype['@test Ember.Application.setupForTesting sets the application to \'testing\''] = function (assert) {
+      var _this6 = this;
+
+      this.runTask(function () {
+        _this6.createApplication();
+        _this6.application.setupForTesting();
+      });
+
+      assert.equal(this.application.testing, true, 'Application instance is set to testing.');
+    };
+
+    _class.prototype['@test Ember.Application.setupForTesting leaves the system in a deferred state.'] = function (assert) {
+      var _this7 = this;
+
+      this.runTask(function () {
+        _this7.createApplication();
+        _this7.application.setupForTesting();
+      });
+
+      assert.equal(this.application._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
+    };
+
+    _class.prototype['@test App.reset() after Application.setupForTesting leaves the system in a deferred state.'] = function (assert) {
+      var _this8 = this;
+
+      this.runTask(function () {
+        _this8.createApplication();
+        _this8.application.setupForTesting();
+      });
+
+      assert.equal(this.application._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
+
+      this.application.reset();
+
+      assert.equal(this.application._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
+    };
+
+    _class.prototype['@test #setupForTesting attaches ajax listeners'] = function (assert) {
+      var documentEvents = _emberViews.jQuery._data(document, 'events') || {};
+
+      assert.ok(documentEvents['ajaxSend'] === undefined, 'there are no ajaxSend listers setup prior to calling injectTestHelpers');
+      assert.ok(documentEvents['ajaxComplete'] === undefined, 'there are no ajaxComplete listers setup prior to calling injectTestHelpers');
+
+      (0, _setup_for_testing.default)();
+
+      documentEvents = _emberViews.jQuery._data(document, 'events');
+
+      assert.equal(documentEvents['ajaxSend'].length, 1, 'calling injectTestHelpers registers an ajaxSend handler');
+      assert.equal(documentEvents['ajaxComplete'].length, 1, 'calling injectTestHelpers registers an ajaxComplete handler');
+    };
+
+    _class.prototype['@test #setupForTesting attaches ajax listeners only once'] = function (assert) {
+      var documentEvents = _emberViews.jQuery._data(document, 'events') || {};
+
+      assert.ok(documentEvents['ajaxSend'] === undefined, 'there are no ajaxSend listeners setup prior to calling injectTestHelpers');
+      assert.ok(documentEvents['ajaxComplete'] === undefined, 'there are no ajaxComplete listeners setup prior to calling injectTestHelpers');
+
+      (0, _setup_for_testing.default)();
+      (0, _setup_for_testing.default)();
+
+      documentEvents = _emberViews.jQuery._data(document, 'events');
+
+      assert.equal(documentEvents['ajaxSend'].length, 1, 'calling injectTestHelpers registers an ajaxSend handler');
+      assert.equal(documentEvents['ajaxComplete'].length, 1, 'calling injectTestHelpers registers an ajaxComplete handler');
+    };
+
+    _class.prototype['@test Ember.Application#injectTestHelpers calls callbacks registered with onInjectHelpers'] = function (assert) {
+      var _this9 = this;
+
+      var injected = 0;
+
+      _test.default.onInjectHelpers(function () {
+        injected++;
+      });
+
+      this.runTask(function () {
+        _this9.createApplication();
+        _this9.application.setupForTesting();
+      });
+
+      assert.equal(injected, 0, 'onInjectHelpers are not called before injectTestHelpers');
+
+      this.application.injectTestHelpers();
+
+      assert.equal(injected, 1, 'onInjectHelpers are called after injectTestHelpers');
+    };
+
+    _class.prototype['@test Ember.Application#injectTestHelpers adds helpers to provided object.'] = function (assert) {
+      var _this10 = this;
+
+      var helpers = {};
+
+      this.runTask(function () {
+        _this10.createApplication();
+        _this10.application.setupForTesting();
+      });
+
+      this.application.injectTestHelpers(helpers);
+
+      assertHelpers(assert, this.application, helpers);
+
+      this.application.removeTestHelpers();
+
+      assertNoHelpers(assert, this.application, helpers);
+    };
+
+    _class.prototype['@test Ember.Application#removeTestHelpers resets the helperContainer\'s original values'] = function (assert) {
+      var _this11 = this;
+
+      var helpers = { visit: 'snazzleflabber' };
+
+      this.runTask(function () {
+        _this11.createApplication();
+        _this11.application.setupForTesting();
+      });
+
+      this.application.injectTestHelpers(helpers);
+
+      assert.notEqual(helpers.visit, 'snazzleflabber', 'helper added to container');
+      this.application.removeTestHelpers();
+
+      assert.equal(helpers.visit, 'snazzleflabber', 'original value added back to container');
+    };
+
+    return _class;
+  }(HelpersTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('ember-testing: Helper methods', function (_HelpersApplicationTe) {
+    (0, _emberBabel.inherits)(_class2, _HelpersApplicationTe);
+
+    function _class2() {
+      (0, _emberBabel.classCallCheck)(this, _class2);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _HelpersApplicationTe.apply(this, arguments));
     }
-  });
 
-  QUnit.test('pauseTest pauses', function () {
-    expect(1);
+    _class2.prototype['@test \'wait\' respects registerWaiters'] = function (assert) {
+      var _this13 = this;
 
-    function fakeAdapterAsyncStart() {
-      ok(true, 'Async start should be called after waiting for other helpers');
-    }
+      assert.expect(3);
 
-    App.testHelpers.andThen(function () {
-      _test.default.adapter.asyncStart = fakeAdapterAsyncStart;
-    });
+      var counter = 0;
+      function waiter() {
+        return ++counter > 2;
+      }
 
-    App.testHelpers.pauseTest();
-  });
+      var other = 0;
+      function otherWaiter() {
+        return ++other > 2;
+      }
 
-  QUnit.test('resumeTest resumes paused tests', function () {
-    expect(1);
+      this.runTask(function () {
+        _this13.application.advanceReadiness();
+      });
 
-    var pausePromise = App.testHelpers.pauseTest();
-    setTimeout(function () {
-      return App.testHelpers.resumeTest();
-    }, 0);
+      (0, _waiters.registerWaiter)(waiter);
+      (0, _waiters.registerWaiter)(otherWaiter);
 
-    return pausePromise.then(function () {
-      return ok(true, 'pauseTest promise was resolved');
-    });
-  });
+      var testHelpers = this.application.testHelpers;
 
-  QUnit.test('resumeTest throws if nothing to resume', function () {
-    expect(1);
+      return testHelpers.wait().then(function () {
+        assert.equal(waiter(), true, 'should not resolve until our waiter is ready');
+        (0, _waiters.unregisterWaiter)(waiter);
+        counter = 0;
+        return testHelpers.wait();
+      }).then(function () {
+        assert.equal(counter, 0, 'unregistered waiter was not checked');
+        assert.equal(otherWaiter(), true, 'other waiter is still registered');
+      }).finally(function () {
+        (0, _waiters.unregisterWaiter)(otherWaiter);
+      });
+    };
 
-    throws(function () {
-      return App.testHelpers.resumeTest();
-    }, /Testing has not been paused. There is nothing to resume./);
-  });
+    _class2.prototype['@test \'visit\' advances readiness.'] = function (assert) {
+      var _this14 = this;
 
-  QUnit.module('ember-testing routing helpers', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create();
-        App.setupForTesting();
+      assert.expect(2);
 
-        App.injectTestHelpers();
+      assert.equal(this.application._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
 
-        App.Router = _emberRouting.Router.extend({
-          location: 'none'
+      return this.application.testHelpers.visit('/').then(function () {
+        assert.equal(_this14.application._readinessDeferrals, 0, 'App\'s readiness was advanced by visit.');
+      });
+    };
+
+    _class2.prototype['@test \'wait\' helper can be passed a resolution value'] = function (assert) {
+      var _this15 = this;
+
+      assert.expect(4);
+
+      this.runTask(function () {
+        _this15.application.advanceReadiness();
+      });
+
+      var promiseObjectValue = {};
+      var objectValue = {};
+      var testHelpers = this.application.testHelpers;
+
+      return testHelpers.wait('text').then(function (val) {
+        assert.equal(val, 'text', 'can resolve to a string');
+        return testHelpers.wait(1);
+      }).then(function (val) {
+        assert.equal(val, 1, 'can resolve to an integer');
+        return testHelpers.wait(objectValue);
+      }).then(function (val) {
+        assert.equal(val, objectValue, 'can resolve to an object');
+        return testHelpers.wait(_emberRuntime.RSVP.resolve(promiseObjectValue));
+      }).then(function (val) {
+        assert.equal(val, promiseObjectValue, 'can resolve to a promise resolution value');
+      });
+    };
+
+    _class2.prototype['@test \'click\' triggers appropriate events in order'] = function (assert) {
+      var _this16 = this;
+
+      assert.expect(5);
+
+      this.add('component:index-wrapper', _emberGlimmer.Component.extend({
+        classNames: 'index-wrapper',
+
+        didInsertElement: function () {
+          this.$().on('mousedown focusin mouseup click', function (e) {
+            events.push(e.type);
+          });
+        }
+      }));
+
+      this.add('component:x-checkbox', _emberGlimmer.Component.extend({
+        tagName: 'input',
+        attributeBindings: ['type'],
+        type: 'checkbox',
+        click: function () {
+          events.push('click:' + this.get('checked'));
+        },
+        change: function () {
+          events.push('change:' + this.get('checked'));
+        }
+      }));
+
+      this.addTemplate('index', '\n      {{#index-wrapper}}\n        {{input type="text"}}\n        {{x-checkbox type="checkbox"}}\n        {{textarea}}\n        <div contenteditable="true"> </div>\n      {{/index-wrapper}}\'));\n    ');
+
+      this.runTask(function () {
+        _this16.application.advanceReadiness();
+      });
+
+      var events = void 0;
+      var testHelpers = this.application.testHelpers;
+
+      return testHelpers.wait().then(function () {
+        events = [];
+        return testHelpers.click('.index-wrapper');
+      }).then(function () {
+        assert.deepEqual(events, ['mousedown', 'mouseup', 'click'], 'fires events in order');
+      }).then(function () {
+        events = [];
+        return testHelpers.click('.index-wrapper input[type=text]');
+      }).then(function () {
+        assert.deepEqual(events, ['mousedown', 'focusin', 'mouseup', 'click'], 'fires focus events on inputs');
+      }).then(function () {
+        events = [];
+        return testHelpers.click('.index-wrapper textarea');
+      }).then(function () {
+        assert.deepEqual(events, ['mousedown', 'focusin', 'mouseup', 'click'], 'fires focus events on textareas');
+      }).then(function () {
+        events = [];
+        return testHelpers.click('.index-wrapper div');
+      }).then(function () {
+        assert.deepEqual(events, ['mousedown', 'focusin', 'mouseup', 'click'], 'fires focus events on contenteditable');
+      }).then(function () {
+        events = [];
+        return testHelpers.click('.index-wrapper input[type=checkbox]');
+      }).then(function () {
+        // i.e. mousedown, mouseup, change:true, click, click:true
+        // Firefox differs so we can't assert the exact ordering here.
+        // See https://bugzilla.mozilla.org/show_bug.cgi?id=843554.
+        assert.equal(events.length, 5, 'fires click and change on checkboxes');
+      });
+    };
+
+    _class2.prototype['@test \'click\' triggers native events with simulated X/Y coordinates'] = function (assert) {
+      var _this17 = this;
+
+      assert.expect(15);
+
+      this.add('component:index-wrapper', _emberGlimmer.Component.extend({
+        classNames: 'index-wrapper',
+
+        didInsertElement: function () {
+          var pushEvent = function (e) {
+            return events.push(e);
+          };
+          this.element.addEventListener('mousedown', pushEvent);
+          this.element.addEventListener('mouseup', pushEvent);
+          this.element.addEventListener('click', pushEvent);
+        }
+      }));
+
+      this.addTemplate('index', '\n      {{#index-wrapper}}some text{{/index-wrapper}}\n    ');
+
+      this.runTask(function () {
+        _this17.application.advanceReadiness();
+      });
+
+      var events = void 0;
+      var _application$testHelp = this.application.testHelpers,
+          wait = _application$testHelp.wait,
+          click = _application$testHelp.click;
+
+      return wait().then(function () {
+        events = [];
+        return click('.index-wrapper');
+      }).then(function () {
+        events.forEach(function (e) {
+          assert.ok(e instanceof window.Event, 'The event is an instance of MouseEvent');
+          assert.ok(typeof e.screenX === 'number', 'screenX is correct');
+          assert.ok(typeof e.screenY === 'number', 'screenY is correct');
+          assert.ok(typeof e.clientX === 'number', 'clientX is correct');
+          assert.ok(typeof e.clientY === 'number', 'clientY is correct');
         });
+      });
+    };
 
-        App.Router.map(function () {
+    _class2.prototype['@test \'triggerEvent\' with mouseenter triggers native events with simulated X/Y coordinates'] = function (assert) {
+      var _this18 = this;
+
+      assert.expect(5);
+
+      var evt = void 0;
+      this.add('component:index-wrapper', _emberGlimmer.Component.extend({
+        classNames: 'index-wrapper',
+        didInsertElement: function () {
+          this.element.addEventListener('mouseenter', function (e) {
+            return evt = e;
+          });
+        }
+      }));
+
+      this.addTemplate('index', '{{#index-wrapper}}some text{{/index-wrapper}}');
+
+      this.runTask(function () {
+        _this18.application.advanceReadiness();
+      });
+
+      var _application$testHelp2 = this.application.testHelpers,
+          wait = _application$testHelp2.wait,
+          triggerEvent = _application$testHelp2.triggerEvent;
+
+      return wait().then(function () {
+        return triggerEvent('.index-wrapper', 'mouseenter');
+      }).then(function () {
+        assert.ok(evt instanceof window.Event, 'The event is an instance of MouseEvent');
+        assert.ok(typeof evt.screenX === 'number', 'screenX is correct');
+        assert.ok(typeof evt.screenY === 'number', 'screenY is correct');
+        assert.ok(typeof evt.clientX === 'number', 'clientX is correct');
+        assert.ok(typeof evt.clientY === 'number', 'clientY is correct');
+      });
+    };
+
+    _class2.prototype['@test \'wait\' waits for outstanding timers'] = function (assert) {
+      var _this19 = this;
+
+      assert.expect(1);
+
+      this.runTask(function () {
+        _this19.application.advanceReadiness();
+      });
+
+      var waitDone = false;
+      _emberMetal.run.later(function () {
+        waitDone = true;
+      }, 20);
+
+      return this.application.testHelpers.wait().then(function () {
+        assert.equal(waitDone, true, 'should wait for the timer to be fired.');
+      });
+    };
+
+    _class2.prototype['@test \'wait\' respects registerWaiters with optional context'] = function (assert) {
+      var _this20 = this;
+
+      assert.expect(3);
+
+      var obj = {
+        counter: 0,
+        ready: function () {
+          return ++this.counter > 2;
+        }
+      };
+
+      var other = 0;
+      function otherWaiter() {
+        return ++other > 2;
+      }
+
+      this.runTask(function () {
+        _this20.application.advanceReadiness();
+      });
+
+      (0, _waiters.registerWaiter)(obj, obj.ready);
+      (0, _waiters.registerWaiter)(otherWaiter);
+
+      var wait = this.application.testHelpers.wait;
+
+      return wait().then(function () {
+        assert.equal(obj.ready(), true, 'should not resolve until our waiter is ready');
+        (0, _waiters.unregisterWaiter)(obj, obj.ready);
+        obj.counter = 0;
+        return wait();
+      }).then(function () {
+        assert.equal(obj.counter, 0, 'the unregistered waiter should still be at 0');
+        assert.equal(otherWaiter(), true, 'other waiter should still be registered');
+      }).finally(function () {
+        (0, _waiters.unregisterWaiter)(otherWaiter);
+      });
+    };
+
+    _class2.prototype['@test \'wait\' does not error if routing has not begun'] = function (assert) {
+      assert.expect(1);
+
+      return this.application.testHelpers.wait().then(function () {
+        ok(true, 'should not error without `visit`');
+      });
+    };
+
+    _class2.prototype['@test \'triggerEvent\' accepts an optional options hash without context'] = function (assert) {
+      var _this21 = this;
+
+      assert.expect(3);
+
+      var event = void 0;
+      this.add('component:index-wrapper', _emberGlimmer.Component.extend({
+        didInsertElement: function () {
+          this.$('.input').on('keydown change', function (e) {
+            return event = e;
+          });
+        }
+      }));
+
+      this.addTemplate('index', '{{index-wrapper}}');
+      this.addTemplate('components/index-wrapper', '\n      {{input type="text" id="scope" class="input"}}\n    ');
+
+      this.runTask(function () {
+        _this21.application.advanceReadiness();
+      });
+
+      var _application$testHelp3 = this.application.testHelpers,
+          wait = _application$testHelp3.wait,
+          triggerEvent = _application$testHelp3.triggerEvent;
+
+      return wait().then(function () {
+        return triggerEvent('.input', 'keydown', { keyCode: 13 });
+      }).then(function () {
+        assert.equal(event.keyCode, 13, 'options were passed');
+        assert.equal(event.type, 'keydown', 'correct event was triggered');
+        assert.equal(event.target.getAttribute('id'), 'scope', 'triggered on the correct element');
+      });
+    };
+
+    _class2.prototype['@test \'triggerEvent\' can limit searching for a selector to a scope'] = function (assert) {
+      var _this22 = this;
+
+      assert.expect(2);
+
+      var event = void 0;
+      this.add('component:index-wrapper', _emberGlimmer.Component.extend({
+        didInsertElement: function () {
+          this.$('.input').on('blur change', function (e) {
+            return event = e;
+          });
+        }
+      }));
+
+      this.addTemplate('components/index-wrapper', '\n      {{input type="text" id="outside-scope" class="input"}}\n      <div id="limited">\n        {{input type="text" id="inside-scope" class="input"}}\n      </div>\n    ');
+      this.addTemplate('index', '{{index-wrapper}}');
+
+      this.runTask(function () {
+        _this22.application.advanceReadiness();
+      });
+
+      var _application$testHelp4 = this.application.testHelpers,
+          wait = _application$testHelp4.wait,
+          triggerEvent = _application$testHelp4.triggerEvent;
+
+      return wait().then(function () {
+        return triggerEvent('.input', '#limited', 'blur');
+      }).then(function () {
+        assert.equal(event.type, 'blur', 'correct event was triggered');
+        assert.equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
+      });
+    };
+
+    _class2.prototype['@test \'triggerEvent\' can be used to trigger arbitrary events'] = function (assert) {
+      var _this23 = this;
+
+      assert.expect(2);
+
+      var event = void 0;
+      this.add('component:index-wrapper', _emberGlimmer.Component.extend({
+        didInsertElement: function () {
+          this.$('#foo').on('blur change', function (e) {
+            return event = e;
+          });
+        }
+      }));
+
+      this.addTemplate('components/index-wrapper', '\n      {{input type="text" id="foo"}}\n    ');
+      this.addTemplate('index', '{{index-wrapper}}');
+
+      this.runTask(function () {
+        _this23.application.advanceReadiness();
+      });
+
+      var _application$testHelp5 = this.application.testHelpers,
+          wait = _application$testHelp5.wait,
+          triggerEvent = _application$testHelp5.triggerEvent;
+
+      return wait().then(function () {
+        return triggerEvent('#foo', 'blur');
+      }).then(function () {
+        assert.equal(event.type, 'blur', 'correct event was triggered');
+        assert.equal(event.target.getAttribute('id'), 'foo', 'triggered on the correct element');
+      });
+    };
+
+    _class2.prototype['@test \'fillIn\' takes context into consideration'] = function (assert) {
+      var _this24 = this;
+
+      assert.expect(2);
+
+      this.addTemplate('index', '\n      <div id="parent">\n        {{input type="text" id="first" class="current"}}\n      </div>\n      {{input type="text" id="second" class="current"}}\n    ');
+
+      this.runTask(function () {
+        _this24.application.advanceReadiness();
+      });
+
+      var _application$testHelp6 = this.application.testHelpers,
+          visit = _application$testHelp6.visit,
+          fillIn = _application$testHelp6.fillIn,
+          andThen = _application$testHelp6.andThen,
+          find = _application$testHelp6.find;
+
+      visit('/');
+      fillIn('.current', '#parent', 'current value');
+
+      return andThen(function () {
+        assert.equal(find('#first').val(), 'current value');
+        assert.equal(find('#second').val(), '');
+      });
+    };
+
+    _class2.prototype['@test \'fillIn\' focuses on the element'] = function (assert) {
+      var _this25 = this;
+
+      assert.expect(2);
+
+      this.add('route:application', _emberRouting.Route.extend({
+        actions: {
+          wasFocused: function () {
+            assert.ok(true, 'focusIn event was triggered');
+          }
+        }
+      }));
+
+      this.addTemplate('index', '\n      <div id="parent">\n        {{input type="text" id="first" focus-in="wasFocused"}}\n      </div>\'\n    ');
+
+      this.runTask(function () {
+        _this25.application.advanceReadiness();
+      });
+
+      var _application$testHelp7 = this.application.testHelpers,
+          visit = _application$testHelp7.visit,
+          fillIn = _application$testHelp7.fillIn,
+          andThen = _application$testHelp7.andThen,
+          find = _application$testHelp7.find,
+          wait = _application$testHelp7.wait;
+
+      visit('/');
+      fillIn('#first', 'current value');
+      andThen(function () {
+        assert.equal(find('#first').val(), 'current value');
+      });
+
+      return wait();
+    };
+
+    _class2.prototype['@test \'fillIn\' fires \'input\' and \'change\' events in the proper order'] = function (assert) {
+      var _this26 = this;
+
+      assert.expect(1);
+
+      var events = [];
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        actions: {
+          oninputHandler: function (e) {
+            events.push(e.type);
+          },
+          onchangeHandler: function (e) {
+            events.push(e.type);
+          }
+        }
+      }));
+
+      this.addTemplate('index', '\n      <input type="text" id="first"\n          oninput={{action "oninputHandler"}}\n          onchange={{action "onchangeHandler"}}>\n    ');
+
+      this.runTask(function () {
+        _this26.application.advanceReadiness();
+      });
+
+      var _application$testHelp8 = this.application.testHelpers,
+          visit = _application$testHelp8.visit,
+          fillIn = _application$testHelp8.fillIn,
+          andThen = _application$testHelp8.andThen,
+          wait = _application$testHelp8.wait;
+
+
+      visit('/');
+      fillIn('#first', 'current value');
+      andThen(function () {
+        assert.deepEqual(events, ['input', 'change'], '`input` and `change` events are fired in the proper order');
+      });
+
+      return wait();
+    };
+
+    _class2.prototype['@test \'fillIn\' only sets the value in the first matched element'] = function (assert) {
+      var _this27 = this;
+
+      this.addTemplate('index', '\n      <input type="text" id="first" class="in-test">\n      <input type="text" id="second" class="in-test">\n    ');
+
+      this.runTask(function () {
+        _this27.application.advanceReadiness();
+      });
+
+      var _application$testHelp9 = this.application.testHelpers,
+          visit = _application$testHelp9.visit,
+          fillIn = _application$testHelp9.fillIn,
+          find = _application$testHelp9.find,
+          andThen = _application$testHelp9.andThen,
+          wait = _application$testHelp9.wait;
+
+
+      visit('/');
+      fillIn('input.in-test', 'new value');
+      andThen(function () {
+        assert.equal(find('#first').val(), 'new value');
+        assert.equal(find('#second').val(), '');
+      });
+
+      return wait();
+    };
+
+    _class2.prototype['@test \'triggerEvent\' accepts an optional options hash and context'] = function (assert) {
+      var _this28 = this;
+
+      assert.expect(3);
+
+      var event = void 0;
+      this.add('component:index-wrapper', _emberGlimmer.Component.extend({
+        didInsertElement: function () {
+          this.$('.input').on('keydown change', function (e) {
+            return event = e;
+          });
+        }
+      }));
+
+      this.addTemplate('components/index-wrapper', '\n      {{input type="text" id="outside-scope" class="input"}}\n      <div id="limited">\n        {{input type="text" id="inside-scope" class="input"}}\n      </div>\n    ');
+      this.addTemplate('index', '{{index-wrapper}}');
+
+      this.runTask(function () {
+        _this28.application.advanceReadiness();
+      });
+
+      var _application$testHelp10 = this.application.testHelpers,
+          wait = _application$testHelp10.wait,
+          triggerEvent = _application$testHelp10.triggerEvent;
+
+      return wait().then(function () {
+        return triggerEvent('.input', '#limited', 'keydown', { keyCode: 13 });
+      }).then(function () {
+        assert.equal(event.keyCode, 13, 'options were passed');
+        assert.equal(event.type, 'keydown', 'correct event was triggered');
+        assert.equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
+      });
+    };
+
+    return _class2;
+  }(HelpersApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('ember-testing: debugging helpers', function (_HelpersApplicationTe2) {
+    (0, _emberBabel.inherits)(_class3, _HelpersApplicationTe2);
+
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+
+      var _this29 = (0, _emberBabel.possibleConstructorReturn)(this, _HelpersApplicationTe2.call(this));
+
+      _this29.runTask(function () {
+        _this29.application.advanceReadiness();
+      });
+      return _this29;
+    }
+
+    _class3.prototype['@test pauseTest pauses'] = function (assert) {
+      assert.expect(1);
+
+      var _application$testHelp11 = this.application.testHelpers,
+          andThen = _application$testHelp11.andThen,
+          pauseTest = _application$testHelp11.pauseTest;
+
+      andThen(function () {
+        _test.default.adapter.asyncStart = function () {
+          assert.ok(true, 'Async start should be called after waiting for other helpers');
+        };
+      });
+
+      pauseTest();
+    };
+
+    _class3.prototype['@test resumeTest resumes paused tests'] = function (assert) {
+      assert.expect(1);
+
+      var _application$testHelp12 = this.application.testHelpers,
+          pauseTest = _application$testHelp12.pauseTest,
+          resumeTest = _application$testHelp12.resumeTest;
+
+
+      _emberMetal.run.later(function () {
+        return resumeTest();
+      }, 20);
+      return pauseTest().then(function () {
+        assert.ok(true, 'pauseTest promise was resolved');
+      });
+    };
+
+    _class3.prototype['@test resumeTest throws if nothing to resume'] = function (assert) {
+      var _this30 = this;
+
+      assert.expect(1);
+
+      assert.throws(function () {
+        _this30.application.testHelpers.resumeTest();
+      }, /Testing has not been paused. There is nothing to resume./);
+    };
+
+    return _class3;
+  }(HelpersApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('ember-testing: routing helpers', function (_HelpersTestCase3) {
+    (0, _emberBabel.inherits)(_class4, _HelpersTestCase3);
+
+    function _class4() {
+      (0, _emberBabel.classCallCheck)(this, _class4);
+
+      var _this31 = (0, _emberBabel.possibleConstructorReturn)(this, _HelpersTestCase3.call(this));
+
+      _this31.runTask(function () {
+        _this31.createApplication();
+        _this31.application.setupForTesting();
+        _this31.application.injectTestHelpers();
+        _this31.router.map(function () {
           this.route('posts', { resetNamespace: true }, function () {
             this.route('new');
           });
         });
       });
-
-      (0, _emberMetal.run)(App, 'advanceReadiness');
-    },
-    teardown: function () {
-      cleanup();
+      _this31.runTask(function () {
+        _this31.application.advanceReadiness();
+      });
+      return _this31;
     }
-  });
 
-  QUnit.test('currentRouteName for \'/\'', function () {
-    expect(3);
+    _class4.prototype['@test currentRouteName for \'/\''] = function (assert) {
+      assert.expect(3);
 
-    return App.testHelpers.visit('/').then(function () {
-      equal(App.testHelpers.currentRouteName(), 'index', 'should equal \'index\'.');
-      equal(App.testHelpers.currentPath(), 'index', 'should equal \'index\'.');
-      equal(App.testHelpers.currentURL(), '/', 'should equal \'/\'.');
-    });
-  });
+      var testHelpers = this.application.testHelpers;
 
-  QUnit.test('currentRouteName for \'/posts\'', function () {
-    expect(3);
+      return testHelpers.visit('/').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'index', 'should equal \'index\'.');
+        assert.equal(testHelpers.currentPath(), 'index', 'should equal \'index\'.');
+        assert.equal(testHelpers.currentURL(), '/', 'should equal \'/\'.');
+      });
+    };
 
-    return App.testHelpers.visit('/posts').then(function () {
-      equal(App.testHelpers.currentRouteName(), 'posts.index', 'should equal \'posts.index\'.');
-      equal(App.testHelpers.currentPath(), 'posts.index', 'should equal \'posts.index\'.');
-      equal(App.testHelpers.currentURL(), '/posts', 'should equal \'/posts\'.');
-    });
-  });
+    _class4.prototype['@test currentRouteName for \'/posts\''] = function (assert) {
+      assert.expect(3);
 
-  QUnit.test('currentRouteName for \'/posts/new\'', function () {
-    expect(3);
+      var testHelpers = this.application.testHelpers;
 
-    return App.testHelpers.visit('/posts/new').then(function () {
-      equal(App.testHelpers.currentRouteName(), 'posts.new', 'should equal \'posts.new\'.');
-      equal(App.testHelpers.currentPath(), 'posts.new', 'should equal \'posts.new\'.');
-      equal(App.testHelpers.currentURL(), '/posts/new', 'should equal \'/posts/new\'.');
-    });
-  });
+      return testHelpers.visit('/posts').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'posts.index', 'should equal \'posts.index\'.');
+        assert.equal(testHelpers.currentPath(), 'posts.index', 'should equal \'posts.index\'.');
+        assert.equal(testHelpers.currentURL(), '/posts', 'should equal \'/posts\'.');
+      });
+    };
 
-  QUnit.module('ember-testing pendingRequests', {
-    setup: function () {
-      setupApp();
-    },
-    teardown: function () {
-      cleanup();
+    _class4.prototype['@test currentRouteName for \'/posts/new\''] = function (assert) {
+      assert.expect(3);
+
+      var testHelpers = this.application.testHelpers;
+
+      return testHelpers.visit('/posts/new').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'posts.new', 'should equal \'posts.new\'.');
+        assert.equal(testHelpers.currentPath(), 'posts.new', 'should equal \'posts.new\'.');
+        assert.equal(testHelpers.currentURL(), '/posts/new', 'should equal \'/posts/new\'.');
+      });
+    };
+
+    return _class4;
+  }(HelpersTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('ember-testing: pendingRequests', function (_HelpersApplicationTe3) {
+    (0, _emberBabel.inherits)(_class5, _HelpersApplicationTe3);
+
+    function _class5() {
+      (0, _emberBabel.classCallCheck)(this, _class5);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _HelpersApplicationTe3.apply(this, arguments));
     }
-  });
 
-  QUnit.test('pendingRequests is maintained for ajaxSend and ajaxComplete events', function () {
-    equal((0, _pending_requests.pendingRequests)(), 0);
-    var xhr = { some: 'xhr' };
-    (0, _emberViews.jQuery)(document).trigger('ajaxSend', xhr);
-    equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests was incremented');
-    (0, _emberViews.jQuery)(document).trigger('ajaxComplete', xhr);
-    equal((0, _pending_requests.pendingRequests)(), 0, 'Ember.Test.pendingRequests was decremented');
-  });
+    _class5.prototype['@test pendingRequests is maintained for ajaxSend and ajaxComplete events'] = function (assert) {
+      assert.equal((0, _pending_requests.pendingRequests)(), 0);
 
-  QUnit.test('pendingRequests is ignores ajaxComplete events from past setupForTesting calls', function () {
-    equal((0, _pending_requests.pendingRequests)(), 0);
-    var xhr = { some: 'xhr' };
-    (0, _emberViews.jQuery)(document).trigger('ajaxSend', xhr);
-    equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests was incremented');
+      var xhr = { some: 'xhr' };
 
-    (0, _emberMetal.run)(function () {
+      (0, _emberViews.jQuery)(document).trigger('ajaxSend', xhr);
+      assert.equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests was incremented');
+
+      (0, _emberViews.jQuery)(document).trigger('ajaxComplete', xhr);
+      assert.equal((0, _pending_requests.pendingRequests)(), 0, 'Ember.Test.pendingRequests was decremented');
+    };
+
+    _class5.prototype['@test pendingRequests is ignores ajaxComplete events from past setupForTesting calls'] = function (assert) {
+      assert.equal((0, _pending_requests.pendingRequests)(), 0);
+
+      var xhr = { some: 'xhr' };
+
+      (0, _emberViews.jQuery)(document).trigger('ajaxSend', xhr);
+      assert.equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests was incremented');
+
       (0, _setup_for_testing.default)();
-    });
-    equal((0, _pending_requests.pendingRequests)(), 0, 'Ember.Test.pendingRequests was reset');
 
-    var altXhr = { some: 'more xhr' };
-    (0, _emberViews.jQuery)(document).trigger('ajaxSend', altXhr);
-    equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests was incremented');
-    (0, _emberViews.jQuery)(document).trigger('ajaxComplete', xhr);
-    equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests is not impressed with your unexpected complete');
-  });
+      assert.equal((0, _pending_requests.pendingRequests)(), 0, 'Ember.Test.pendingRequests was reset');
 
-  QUnit.test('pendingRequests is reset by setupForTesting', function () {
-    (0, _pending_requests.incrementPendingRequests)();
-    (0, _emberMetal.run)(function () {
+      var altXhr = { some: 'more xhr' };
+
+      (0, _emberViews.jQuery)(document).trigger('ajaxSend', altXhr);
+      assert.equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests was incremented');
+
+      (0, _emberViews.jQuery)(document).trigger('ajaxComplete', xhr);
+      assert.equal((0, _pending_requests.pendingRequests)(), 1, 'Ember.Test.pendingRequests is not impressed with your unexpected complete');
+    };
+
+    _class5.prototype['@test pendingRequests is reset by setupForTesting'] = function (assert) {
+      (0, _pending_requests.incrementPendingRequests)();
+
       (0, _setup_for_testing.default)();
-    });
-    equal((0, _pending_requests.pendingRequests)(), 0, 'pendingRequests is reset');
-  });
 
-  QUnit.module('ember-testing async router', {
-    setup: function () {
-      cleanup();
+      assert.equal((0, _pending_requests.pendingRequests)(), 0, 'pendingRequests is reset');
+    };
 
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create();
-        App.Router = _emberRouting.Router.extend({
-          location: 'none'
-        });
+    return _class5;
+  }(HelpersApplicationTestCase));
 
-        App.Router.map(function () {
+  (0, _internalTestHelpers.moduleFor)('ember-testing: async router', function (_HelpersTestCase4) {
+    (0, _emberBabel.inherits)(_class6, _HelpersTestCase4);
+
+    function _class6() {
+      (0, _emberBabel.classCallCheck)(this, _class6);
+
+      var _this33 = (0, _emberBabel.possibleConstructorReturn)(this, _HelpersTestCase4.call(this));
+
+      _this33.runTask(function () {
+        _this33.createApplication();
+
+        _this33.router.map(function () {
           this.route('user', { resetNamespace: true }, function () {
             this.route('profile');
             this.route('edit');
           });
         });
 
-        App.UserRoute = _emberRouting.Route.extend({
+        // Emulate a long-running unscheduled async operation.
+        var resolveLater = function () {
+          return new _emberRuntime.RSVP.Promise(function (resolve) {
+            /*
+             * The wait() helper has a 10ms tick. We should resolve() after
+             * at least one tick to test whether wait() held off while the
+             * async router was still loading. 20ms should be enough.
+             */
+            _emberMetal.run.later(resolve, { firstName: 'Tom' }, 20);
+          });
+        };
+
+        _this33.add('route:user', _emberRouting.Route.extend({
           model: function () {
             return resolveLater();
           }
-        });
+        }));
 
-        App.UserProfileRoute = _emberRouting.Route.extend({
+        _this33.add('route:user.profile', _emberRouting.Route.extend({
           beforeModel: function () {
-            var self = this;
+            var _this34 = this;
+
             return resolveLater().then(function () {
-              self.transitionTo('user.edit');
+              return _this34.transitionTo('user.edit');
             });
           }
-        });
+        }));
 
-        // Emulates a long-running unscheduled async operation.
-        function resolveLater() {
-          var promise;
-
-          (0, _emberMetal.run)(function () {
-            promise = new _emberRuntime.RSVP.Promise(function (resolve) {
-              // The wait() helper has a 10ms tick. We should resolve() after at least one tick
-              // to test whether wait() held off while the async router was still loading. 20ms
-              // should be enough.
-              setTimeout(function () {
-                (0, _emberMetal.run)(function () {
-                  resolve(_emberRuntime.Object.create({ firstName: 'Tom' }));
-                });
-              }, 20);
-            });
-          });
-
-          return promise;
-        }
-
-        App.setupForTesting();
+        _this33.application.setupForTesting();
       });
 
-      App.injectTestHelpers();
-      (0, _emberMetal.run)(App, 'advanceReadiness');
-    },
-    teardown: function () {
-      cleanup();
-    }
-  });
-
-  QUnit.test('currentRouteName for \'/user\'', function () {
-    expect(4);
-
-    return App.testHelpers.visit('/user').then(function () {
-      equal(currentRouteName(App), 'user.index', 'should equal \'user.index\'.');
-      equal(currentPath(App), 'user.index', 'should equal \'user.index\'.');
-      equal(currentURL(App), '/user', 'should equal \'/user\'.');
-      equal(App.__container__.lookup('route:user').get('controller.model.firstName'), 'Tom', 'should equal \'Tom\'.');
-    });
-  });
-
-  QUnit.test('currentRouteName for \'/user/profile\'', function () {
-    expect(4);
-
-    return App.testHelpers.visit('/user/profile').then(function () {
-      equal(currentRouteName(App), 'user.edit', 'should equal \'user.edit\'.');
-      equal(currentPath(App), 'user.edit', 'should equal \'user.edit\'.');
-      equal(currentURL(App), '/user/edit', 'should equal \'/user/edit\'.');
-      equal(App.__container__.lookup('route:user').get('controller.model.firstName'), 'Tom', 'should equal \'Tom\'.');
-    });
-  });
-
-  var originalVisitHelper, originalFindHelper, originalWaitHelper;
-
-  QUnit.module('can override built-in helpers', {
-    setup: function () {
-      originalVisitHelper = _test.default._helpers.visit;
-      originalFindHelper = _test.default._helpers.find;
-      originalWaitHelper = _test.default._helpers.wait;
-
-      (0, _emberViews.jQuery)('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
-      (0, _emberViews.jQuery)('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create({
-          rootElement: '#ember-testing'
-        });
-
-        App.setupForTesting();
+      _this33.application.injectTestHelpers();
+      _this33.runTask(function () {
+        _this33.application.advanceReadiness();
       });
-    },
-    teardown: function () {
-      cleanup();
-
-      _test.default._helpers.visit = originalVisitHelper;
-      _test.default._helpers.find = originalFindHelper;
-      _test.default._helpers.wait = originalWaitHelper;
+      return _this33;
     }
-  });
 
-  QUnit.test('can override visit helper', function () {
-    expect(1);
+    _class6.prototype['@test currentRouteName for \'/user\''] = function (assert) {
+      var _this35 = this;
 
-    _test.default.registerHelper('visit', function () {
-      ok(true, 'custom visit helper was called');
-    });
+      assert.expect(4);
 
-    App.injectTestHelpers();
+      var testHelpers = this.application.testHelpers;
 
-    return App.testHelpers.visit();
-  });
+      return testHelpers.visit('/user').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'user.index', 'should equal \'user.index\'.');
+        assert.equal(testHelpers.currentPath(), 'user.index', 'should equal \'user.index\'.');
+        assert.equal(testHelpers.currentURL(), '/user', 'should equal \'/user\'.');
+        var userRoute = _this35.applicationInstance.lookup('route:user');
+        assert.equal(userRoute.get('controller.model.firstName'), 'Tom', 'should equal \'Tom\'.');
+      });
+    };
 
-  QUnit.test('can override find helper', function () {
-    expect(1);
+    _class6.prototype['@test currentRouteName for \'/user/profile\''] = function (assert) {
+      var _this36 = this;
 
-    _test.default.registerHelper('find', function () {
-      ok(true, 'custom find helper was called');
+      assert.expect(4);
 
-      return ['not empty array'];
-    });
+      var testHelpers = this.application.testHelpers;
 
-    App.injectTestHelpers();
+      return testHelpers.visit('/user/profile').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'user.edit', 'should equal \'user.edit\'.');
+        assert.equal(testHelpers.currentPath(), 'user.edit', 'should equal \'user.edit\'.');
+        assert.equal(testHelpers.currentURL(), '/user/edit', 'should equal \'/user/edit\'.');
+        var userRoute = _this36.applicationInstance.lookup('route:user');
+        assert.equal(userRoute.get('controller.model.firstName'), 'Tom', 'should equal \'Tom\'.');
+      });
+    };
 
-    return App.testHelpers.findWithAssert('.who-cares');
-  });
+    return _class6;
+  }(HelpersTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('ember-testing: can override built-in helpers', function (_HelpersTestCase5) {
+    (0, _emberBabel.inherits)(_class7, _HelpersTestCase5);
+
+    function _class7() {
+      (0, _emberBabel.classCallCheck)(this, _class7);
+
+      var _this37 = (0, _emberBabel.possibleConstructorReturn)(this, _HelpersTestCase5.call(this));
+
+      _this37.runTask(function () {
+        _this37.createApplication();
+        _this37.application.setupForTesting();
+      });
+      _this37._originalVisitHelper = _test.default._helpers.visit;
+      _this37._originalFindHelper = _test.default._helpers.find;
+      return _this37;
+    }
+
+    _class7.prototype.teardown = function teardown() {
+      _test.default._helpers.visit = this._originalVisitHelper;
+      _test.default._helpers.find = this._originalFindHelper;
+      _HelpersTestCase5.prototype.teardown.call(this);
+    };
+
+    _class7.prototype['@test can override visit helper'] = function (assert) {
+      assert.expect(1);
+
+      _test.default.registerHelper('visit', function () {
+        assert.ok(true, 'custom visit helper was called');
+      });
+
+      this.application.injectTestHelpers();
+
+      return this.application.testHelpers.visit();
+    };
+
+    _class7.prototype['@test can override find helper'] = function (assert) {
+      assert.expect(1);
+
+      _test.default.registerHelper('find', function () {
+        assert.ok(true, 'custom find helper was called');
+
+        return ['not empty array'];
+      });
+
+      this.application.injectTestHelpers();
+
+      return this.application.testHelpers.findWithAssert('.who-cares');
+    };
+
+    return _class7;
+  }(HelpersTestCase));
 });
 QUnit.module('ESLint | ember-testing/tests/helpers_test.js');
 QUnit.test('should pass ESLint', function(assert) {

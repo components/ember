@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.4591eec4"
+        "version": "2.15.0-alpha.1.764e43fa"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -18962,7 +18962,7 @@
         {
             "file": "packages/ember-testing/lib/ext/application.js",
             "line": 58,
-            "description": "This hook defers the readiness of the application, so that you can start\nthe app when your tests are ready to run. It also sets the router's\nlocation to 'none', so that the window's location will not be modified\n(preventing both accidental leaking of state between tests and interference\nwith your testing framework).\n\nExample:\n\n```\nApp.setupForTesting();\n```",
+            "description": "This hook defers the readiness of the application, so that you can start\nthe app when your tests are ready to run. It also sets the router's\nlocation to 'none', so that the window's location will not be modified\n(preventing both accidental leaking of state between tests and interference\nwith your testing framework). `setupForTesting` should only be called after\nsetting a custom `router` class (for example `App.Router = Router.extend(`).\n\nExample:\n\n```\nApp.setupForTesting();\n```",
             "itemtype": "method",
             "name": "setupForTesting",
             "access": "public",
@@ -18973,7 +18973,7 @@
         },
         {
             "file": "packages/ember-testing/lib/ext/application.js",
-            "line": 84,
+            "line": 85,
             "description": "This will be used as the container to inject the test helpers into. By\ndefault the helpers are injected into `window`.",
             "itemtype": "property",
             "name": "helperContainer",
@@ -18988,7 +18988,7 @@
         },
         {
             "file": "packages/ember-testing/lib/ext/application.js",
-            "line": 96,
+            "line": 97,
             "description": "This injects the test helpers into the `helperContainer` object. If an object is provided\nit will be used as the helperContainer. If `helperContainer` is not set it will default\nto `window`. If a function of the same name has already been defined it will be cached\n(so that it can be reset if the helper is removed with `unregisterHelper` or\n`removeTestHelpers`).\n\nAny callbacks registered with `onInjectHelpers` will be called once the\nhelpers have been injected.\n\nExample:\n```\nApp.injectTestHelpers();\n```",
             "itemtype": "method",
             "name": "injectTestHelpers",
@@ -19000,7 +19000,7 @@
         },
         {
             "file": "packages/ember-testing/lib/ext/application.js",
-            "line": 138,
+            "line": 139,
             "description": "This removes all helpers that have been registered, and resets and functions\nthat were overridden by the helpers.\n\nExample:\n\n```javascript\nApp.removeTestHelpers();\n```",
             "access": "public",
             "tagname": "",
