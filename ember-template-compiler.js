@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+98fe7c0e
+ * @version   2.15.0-alpha.1-null+0c487a4b
  */
 
 var enifed, requireModule, Ember;
@@ -9616,7 +9616,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
     Meta.prototype.writeDeps = function (subkey, itemkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeDeps after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot modify dependent keys for `' + itemkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var outerMap = this._getOrCreateOwnMap('_deps');
       var innerMap = outerMap[subkey];
@@ -9759,7 +9759,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writableTag = function (create) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writableTag after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot create a new tag for `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var ret = this._tag;
       if (ret === undefined) {
@@ -9773,7 +9773,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writableChainWatchers = function (create) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writableChainWatchers after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot create a new chain watcher for `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var ret = this._chainWatchers;
       if (ret === undefined) {
@@ -9787,7 +9787,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writableChains = function (create) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writableChains after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot create a new chains for `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var ret = this._chains;
       if (ret === undefined) {
@@ -9805,7 +9805,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeWatching = function (subkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeWatching after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot update watchers for `hello` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap('_watching');
       map[subkey] = value;
@@ -9836,7 +9836,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.clearWatching = function () {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearWatching after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot clear watchers on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       this._watching = undefined;
     };
@@ -9850,7 +9850,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeMixins = function (subkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeMixins after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot add mixins for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` call writeMixins after it has been destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap('_mixins');
       map[subkey] = value;
@@ -9881,7 +9881,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.clearMixins = function () {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearMixins after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot clear mixins on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       this._mixins = undefined;
     };
@@ -9895,7 +9895,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeBindings = function (subkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeBindings after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot add a binding for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap('_bindings');
       map[subkey] = value;
@@ -9926,7 +9926,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.clearBindings = function () {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearBindings after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot clear bindings on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       this._bindings = undefined;
     };
@@ -9940,7 +9940,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeValues = function (subkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call writeValues after the object is destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot set the value of `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap('_values');
       map[subkey] = value;
@@ -17419,7 +17419,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+98fe7c0e";
+  exports.default = "2.15.0-alpha.1-null+0c487a4b";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

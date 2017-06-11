@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+98fe7c0e
+ * @version   2.15.0-alpha.1-null+0c487a4b
  */
 
 var enifed, requireModule, Ember;
@@ -37406,6 +37406,23 @@ enifed('ember-metal/tests/computed_test', ['ember-runtime', 'internal-test-helpe
     }, /cannot contain spaces/);
   });
 
+  (0, _internalTestHelpers.testBoth)('throws an assertion if an uncached `get` is called after object is destroyed', function (get) {
+    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'precond not watching dependent key');
+
+    var meta = (0, _emberMetal.meta)(obj);
+    meta.destroy();
+
+    obj.toString = function () {
+      return '<custom-obj:here>';
+    };
+
+    expectAssertion(function () {
+      get(obj, 'foo', 'bar');
+    }, 'Cannot modify dependent keys for `foo` on `<custom-obj:here>` after it has been destroyed.');
+
+    equal((0, _emberMetal.isWatching)(obj, 'bar'), false, 'deps were not updated');
+  });
+
   // ..........................................................
   // CHAINED DEPENDENT KEYS
   //
@@ -39654,6 +39671,103 @@ enifed('ember-metal/tests/meta_test', ['ember-metal'], function (_emberMetal) {
     var matching = m.matchingListeners('hello');
     assert.equal(matching.length, 3);
     assert.equal(matching[0], t);
+  });
+
+  QUnit.test('meta.writeWatching issues useful error after destroy', function () {
+    var targetMeta = (0, _emberMetal.meta)({
+      toString: function () {
+        return '<special-sauce:123>';
+      }
+    });
+
+    targetMeta.destroy();
+
+    expectAssertion(function () {
+      targetMeta.writeWatching('hello', 1);
+    }, 'Cannot update watchers for `hello` on `<special-sauce:123>` after it has been destroyed.');
+  });
+
+  QUnit.test('meta.clearWatching issues useful error after destroy', function () {
+    var targetMeta = (0, _emberMetal.meta)({
+      toString: function () {
+        return '<special-sauce:123>';
+      }
+    });
+
+    targetMeta.destroy();
+
+    expectAssertion(function () {
+      targetMeta.clearWatching();
+    }, 'Cannot clear watchers on `<special-sauce:123>` after it has been destroyed.');
+  });
+  QUnit.test('meta.writableTag issues useful error after destroy', function () {
+    var targetMeta = (0, _emberMetal.meta)({
+      toString: function () {
+        return '<special-sauce:123>';
+      }
+    });
+
+    targetMeta.destroy();
+
+    expectAssertion(function () {
+      targetMeta.writableTag(function () {});
+    }, 'Cannot create a new tag for `<special-sauce:123>` after it has been destroyed.');
+  });
+
+  QUnit.test('meta.writableChainWatchers issues useful error after destroy', function () {
+    var targetMeta = (0, _emberMetal.meta)({
+      toString: function () {
+        return '<special-sauce:123>';
+      }
+    });
+
+    targetMeta.destroy();
+
+    expectAssertion(function () {
+      targetMeta.writableChainWatchers(function () {});
+    }, 'Cannot create a new chain watcher for `<special-sauce:123>` after it has been destroyed.');
+  });
+
+  QUnit.test('meta.writableChains issues useful error after destroy', function () {
+    var targetMeta = (0, _emberMetal.meta)({
+      toString: function () {
+        return '<special-sauce:123>';
+      }
+    });
+
+    targetMeta.destroy();
+
+    expectAssertion(function () {
+      targetMeta.writableChains(function () {});
+    }, 'Cannot create a new chains for `<special-sauce:123>` after it has been destroyed.');
+  });
+
+  QUnit.test('meta.writeValues issues useful error after destroy', function () {
+    var targetMeta = (0, _emberMetal.meta)({
+      toString: function () {
+        return '<special-sauce:123>';
+      }
+    });
+
+    targetMeta.destroy();
+
+    expectAssertion(function () {
+      targetMeta.writeValues('derp', 'ohai');
+    }, 'Cannot set the value of `derp` on `<special-sauce:123>` after it has been destroyed.');
+  });
+
+  QUnit.test('meta.writeDeps issues useful error after destroy', function () {
+    var targetMeta = (0, _emberMetal.meta)({
+      toString: function () {
+        return '<special-sauce:123>';
+      }
+    });
+
+    targetMeta.destroy();
+
+    expectAssertion(function () {
+      targetMeta.writeDeps('derp', 'ohai', 1);
+    }, 'Cannot modify dependent keys for `ohai` on `<special-sauce:123>` after it has been destroyed.');
   });
 });
 enifed('ember-metal/tests/mixin/alias_method_test', ['ember-metal'], function (_emberMetal) {
