@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+0c487a4b
+ * @version   2.15.0-alpha.1-null+f4eef941
  */
 
 var enifed, requireModule, Ember;
@@ -1853,7 +1853,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
     }
 
-    _class.prototype.buildSecondApplication = function buildSecondApplication(options) {
+    _class.prototype.createSecondApplication = function createSecondApplication(options) {
       var myOptions = (0, _emberUtils.assign)(this.applicationOptions, options);
       return this.secondApp = _application.default.create(myOptions);
     };
@@ -1870,7 +1870,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       var _this2 = this;
 
       var app = (0, _emberMetal.run)(function () {
-        return _this2.buildSecondApplication({
+        return _this2.createSecondApplication({
           rootElement: '#two'
         });
       });
@@ -1884,7 +1884,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
       expectAssertion(function () {
         (0, _emberMetal.run)(function () {
-          return _this3.buildSecondApplication({
+          return _this3.createSecondApplication({
             rootElement: '#qunit-fixture'
           });
         });
@@ -1896,7 +1896,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
       expectAssertion(function () {
         (0, _emberMetal.run)(function () {
-          return _this4.buildSecondApplication({
+          return _this4.createSecondApplication({
             rootElement: '#one-child'
           });
         });
@@ -1908,7 +1908,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
       expectAssertion(function () {
         (0, _emberMetal.run)(function () {
-          return _this5.buildSecondApplication({
+          return _this5.createSecondApplication({
             rootElement: '#one'
           });
         });
@@ -1920,7 +1920,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
       expectAssertion(function () {
         (0, _emberMetal.run)(function () {
-          return _this6.buildSecondApplication();
+          return _this6.createSecondApplication();
         });
       });
     };
@@ -68966,74 +68966,96 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember/tests/homepage_example_test.js should pass ESLint\n\n');
 });
 
-enifed('ember/tests/integration/multiple-app-test', ['ember-metal', 'ember-template-compiler', 'ember-application', 'ember-glimmer', 'ember-views'], function (_emberMetal, _emberTemplateCompiler, _emberApplication, _emberGlimmer, _emberViews) {
+enifed('ember/tests/integration/multiple-app-test', ['ember-babel', 'internal-test-helpers', 'ember-application', 'ember-glimmer', 'ember-views', 'ember-utils'], function (_emberBabel, _internalTestHelpers, _emberApplication, _emberGlimmer, _emberViews, _emberUtils) {
   'use strict';
 
-  var App1 = void 0,
-      App2 = void 0,
-      actions = void 0;
+  (0, _internalTestHelpers.moduleFor)('View Integration', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  function startApp(rootElement) {
-    var application = void 0;
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-    (0, _emberMetal.run)(function () {
-      application = _emberApplication.Application.create({
-        rootElement: rootElement
+      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one"></div>\n      <div id="two"></div>\n    ');
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+
+      _this.runTask(function () {
+        _this.createSecondApplication();
       });
-      application.deferReadiness();
+      return _this;
+    }
 
-      application.Router.reopen({
-        location: 'none'
-      });
+    _class.prototype.createSecondApplication = function createSecondApplication(options) {
+      var applicationOptions = this.applicationOptions;
 
-      var registry = application.__registry__;
+      var secondApplicationOptions = { rootElement: '#two' };
+      var myOptions = (0, _emberUtils.assign)(applicationOptions, secondApplicationOptions, options);
+      this.secondApp = _emberApplication.Application.create(myOptions);
+      this.secondResolver = myOptions.Resolver.lastInstance;
+      return this.secondApp;
+    };
 
-      registry.register('component:special-button', _emberGlimmer.Component.extend({
+    _class.prototype.teardown = function teardown() {
+      var _this2 = this;
+
+      _ApplicationTestCase.prototype.teardown.call(this);
+
+      if (this.secondApp) {
+        this.runTask(function () {
+          _this2.secondApp.destroy();
+        });
+      }
+    };
+
+    _class.prototype.addFactoriesToResolver = function addFactoriesToResolver(actions, resolver) {
+      resolver.add('component:special-button', _emberGlimmer.Component.extend({
         actions: {
           doStuff: function () {
+            var rootElement = (0, _emberUtils.getOwner)(this).application.rootElement;
             actions.push(rootElement);
           }
         }
       }));
-      registry.register('template:application', (0, _emberTemplateCompiler.compile)('{{outlet}}', { moduleName: 'application' }));
-      registry.register('template:index', (0, _emberTemplateCompiler.compile)('<h1>Node 1</h1>{{special-button}}', { moduleName: 'index' }));
-      registry.register('template:components/special-button', (0, _emberTemplateCompiler.compile)('<button class=\'do-stuff\' {{action \'doStuff\'}}>Button</button>', { moduleName: 'components/special-button' }));
-    });
 
-    return application;
-  }
+      resolver.add('template:index', this.compile('\n        <h1>Node 1</h1>{{special-button}}\n      ', {
+        moduleName: 'index'
+      }));
+      resolver.add('template:components/special-button', this.compile('\n        <button class=\'do-stuff\' {{action \'doStuff\'}}>Button</button>\n      ', {
+        moduleName: 'components/special-button'
+      }));
+    };
 
-  function handleURL(application, path) {
-    var router = application.__container__.lookup('router:main');
-    return (0, _emberMetal.run)(router, 'handleURL', path);
-  }
+    _class.prototype['@test booting multiple applications can properly handle events'] = function (assert) {
+      var _this3 = this;
 
-  QUnit.module('View Integration', {
-    setup: function () {
-      actions = [];
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<div id="app-1"></div><div id="app-2"></div>');
-      App1 = startApp('#app-1');
-      App2 = startApp('#app-2');
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(App1, 'destroy');
-      (0, _emberMetal.run)(App2, 'destroy');
-      App1 = App2 = null;
-    }
-  });
+      var actions = [];
+      this.addFactoriesToResolver(actions, this.resolver);
+      this.addFactoriesToResolver(actions, this.secondResolver);
 
-  QUnit.test('booting multiple applications can properly handle events', function (assert) {
-    (0, _emberMetal.run)(App1, 'advanceReadiness');
-    (0, _emberMetal.run)(App2, 'advanceReadiness');
+      this.runTask(function () {
+        _this3.secondApp.visit('/');
+      });
+      this.runTask(function () {
+        _this3.application.visit('/');
+      });
 
-    handleURL(App1, '/');
-    handleURL(App2, '/');
+      (0, _emberViews.jQuery)('#two .do-stuff').click();
+      (0, _emberViews.jQuery)('#one .do-stuff').click();
 
-    (0, _emberViews.jQuery)('#app-2 .do-stuff').click();
-    (0, _emberViews.jQuery)('#app-1 .do-stuff').click();
+      assert.deepEqual(actions, ['#two', '#one']);
+    };
 
-    assert.deepEqual(actions, ['#app-2', '#app-1']);
-  });
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
+          rootElement: '#one',
+          router: null
+        });
+      }
+    }]);
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 QUnit.module('ESLint | ember/tests/integration/multiple-app-test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -78665,7 +78687,9 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
 
       var applicationOptions = _this.applicationOptions;
 
-      _this.application = (0, _emberMetal.run)(_emberApplication.Application, 'create', applicationOptions);
+      _this.application = _this.runTask(function () {
+        return _emberApplication.Application.create(applicationOptions);
+      });
 
       _this.resolver = applicationOptions.Resolver.lastInstance;
 
