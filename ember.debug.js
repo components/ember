@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+1291b273
+ * @version   2.15.0-alpha.1-null+feb9374c
  */
 
 var enifed, requireModule, Ember;
@@ -47722,7 +47722,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
         (true && !(false) && (0, _emberDebug.deprecate)('Ember.MODEL_FACTORY_INJECTIONS is no longer required', false, {
           id: 'ember-metal.model_factory_injections',
           until: '2.17.0',
-          url: 'https://emberjs.com/deprecations/v2.x#toc_code-ember-model-factory-injections'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-model-em-factory-em-injections-removed'
         }));
       },
 
@@ -48078,7 +48078,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+1291b273";
+  exports.default = "2.15.0-alpha.1-null+feb9374c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
