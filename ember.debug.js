@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+f4eef941
+ * @version   2.15.0-alpha.1-null+1291b273
  */
 
 var enifed, requireModule, Ember;
@@ -22451,7 +22451,7 @@ enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', 'ember-utils', '
 enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, ember_features, _glimmer_reference, require, Logger, Backburner) {
   'use strict';
 
-  var require__default = 'default' in require ? require['default'] : require;
+  require = 'default' in require ? require['default'] : require;
   Logger = 'default' in Logger ? Logger['default'] : Logger;
   Backburner = 'default' in Backburner ? Backburner['default'] : Backburner;
 
@@ -23027,7 +23027,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function ensureRunloop() {
     if (!run) {
-      run = require__default('ember-metal').run;
+      run = require('ember-metal').run;
     }
 
     if (hasViews() && !run.backburner.currentInstance) {
@@ -23927,7 +23927,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
     };
 
-    ChainWatchers.prototype.has = function has$$1(key, node) {
+    ChainWatchers.prototype.has = function has(key, node) {
       var nodes = this.chains[key];
       if (nodes) {
         for (var i = 0; i < nodes.length; i++) {
@@ -24526,36 +24526,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
     };
 
-    Meta.prototype.readInheritedValue = function readInheritedValue(key, subkey) {
-      var internalKey = '_' + key;
-
-      var pointer = this;
-
-      while (pointer !== undefined) {
-        var map = pointer[internalKey];
-        if (map !== undefined) {
-          var value = map[subkey];
-          if (value !== undefined || subkey in map) {
-            return value;
-          }
-        }
-        pointer = pointer.parent;
-      }
-
-      return UNDEFINED;
-    };
-
-    Meta.prototype.writeValue = function writeValue(obj, key, value) {
-      var descriptor = emberUtils.lookupDescriptor(obj, key);
-      var isMandatorySetter = descriptor !== undefined && descriptor.set && descriptor.set.isMandatorySetter;
-
-      if (isMandatorySetter) {
-        this.writeValues(key, value);
-      } else {
-        obj[key] = value;
-      }
-    };
-
     Meta.prototype.writableCache = function writableCache() {
       return this._getOrCreateOwnMap('_cache');
     };
@@ -24637,38 +24607,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return this._findInherited('_watching', subkey);
     };
 
-    Meta.prototype.forEachWatching = function forEachWatching(fn) {
-      var pointer = this;
-      var seen = void 0;
-      while (pointer !== undefined) {
-        var map = pointer._watching;
-        if (map !== undefined) {
-          for (var key in map) {
-            seen = seen || Object.create(null);
-            if (seen[key] === undefined) {
-              seen[key] = true;
-              fn(key, map[key]);
-            }
-          }
-        }
-        pointer = pointer.parent;
-      }
-    };
-
-    Meta.prototype.clearWatching = function clearWatching() {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot clear watchers on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
-      this._watching = undefined;
-    };
-
-    Meta.prototype.deleteFromWatching = function deleteFromWatching(subkey) {
-      delete this._getOrCreateOwnMap('_watching')[subkey];
-    };
-
-    Meta.prototype.hasInWatching = function hasInWatching(subkey) {
-      return this._findInherited('_watching', subkey) !== undefined;
-    };
-
     Meta.prototype.writeMixins = function writeMixins(subkey, value) {
       true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot add mixins for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` call writeMixins after it has been destroyed.', !this.isMetaDestroyed());
 
@@ -24696,20 +24634,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         }
         pointer = pointer.parent;
       }
-    };
-
-    Meta.prototype.clearMixins = function clearMixins() {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot clear mixins on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
-
-      this._mixins = undefined;
-    };
-
-    Meta.prototype.deleteFromMixins = function deleteFromMixins(subkey) {
-      delete this._getOrCreateOwnMap('_mixins')[subkey];
-    };
-
-    Meta.prototype.hasInMixins = function hasInMixins(subkey) {
-      return this._findInherited('_mixins', subkey) !== undefined;
     };
 
     Meta.prototype.writeBindings = function writeBindings(subkey, value) {
@@ -24747,14 +24671,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       this._bindings = undefined;
     };
 
-    Meta.prototype.deleteFromBindings = function deleteFromBindings(subkey) {
-      delete this._getOrCreateOwnMap('_bindings')[subkey];
-    };
-
-    Meta.prototype.hasInBindings = function hasInBindings(subkey) {
-      return this._findInherited('_bindings', subkey) !== undefined;
-    };
-
     Meta.prototype.writeValues = function writeValues(subkey, value) {
       true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot set the value of `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
@@ -24766,36 +24682,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return this._findInherited('_values', subkey);
     };
 
-    Meta.prototype.forEachValues = function forEachValues(fn) {
-      var pointer = this;
-      var seen = void 0;
-      while (pointer !== undefined) {
-        var map = pointer._values;
-        if (map !== undefined) {
-          for (var key in map) {
-            seen = seen || Object.create(null);
-            if (seen[key] === undefined) {
-              seen[key] = true;
-              fn(key, map[key]);
-            }
-          }
-        }
-        pointer = pointer.parent;
-      }
-    };
-
-    Meta.prototype.clearValues = function clearValues() {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot call clearValues after the object is destroyed.', !this.isMetaDestroyed());
-
-      this._values = undefined;
-    };
-
     Meta.prototype.deleteFromValues = function deleteFromValues(subkey) {
       delete this._getOrCreateOwnMap('_values')[subkey];
-    };
-
-    Meta.prototype.hasInValues = function hasInValues(subkey) {
-      return this._findInherited('_values', subkey) !== undefined;
     };
 
     emberBabel.createClass(Meta, [{
@@ -48190,7 +48078,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+f4eef941";
+  exports.default = "2.15.0-alpha.1-null+1291b273";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
