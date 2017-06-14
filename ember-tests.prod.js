@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+1425a52e
+ * @version   2.15.0-alpha.1-null+12c18e20
  */
 
 var enifed, requireModule, Ember;
@@ -63480,33 +63480,220 @@ enifed('ember/tests/application_lifecycle_test', ['ember-babel', 'internal-test-
     return _class2;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
+enifed('ember/tests/component_context_test', ['ember-babel', 'ember-runtime', 'ember-glimmer', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberGlimmer, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('Application Lifecycle - Component Context', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
+
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
+    }
+
+    _class.prototype['@test Components with a block should have the proper content when a template is provided'] = function (assert) {
+      var _this2 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>\n        {{#my-component}}{{text}}{{/my-component}}\n      </div>\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        'text': 'outer'
+      }));
+      this.addComponent('my-component', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          text: 'inner'
+        }),
+        template: '{{text}}-{{yield}}'
+      });
+
+      this.visit('/').then(function () {
+        var text = _this2.$('#wrapper').text().trim();
+        assert.equal(text, 'inner-outer', 'The component is composed correctly');
+      });
+    };
+
+    _class.prototype['@test Components with a block should yield the proper content without a template provided'] = function (assert) {
+      var _this3 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>\n        {{#my-component}}{{text}}{{/my-component}}\n      </div>\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        'text': 'outer'
+      }));
+      this.addComponent('my-component', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          text: 'inner'
+        })
+      });
+
+      this.visit('/').then(function () {
+        var text = _this3.$('#wrapper').text().trim();
+        assert.equal(text, 'outer', 'The component is composed correctly');
+      });
+    };
+
+    _class.prototype['@test Components without a block should have the proper content when a template is provided'] = function (assert) {
+      var _this4 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>{{my-component}}</div>\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        'text': 'outer'
+      }));
+      this.addComponent('my-component', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          text: 'inner'
+        }),
+        template: '{{text}}'
+      });
+
+      this.visit('/').then(function () {
+        var text = _this4.$('#wrapper').text().trim();
+        assert.equal(text, 'inner', 'The component is composed correctly');
+      });
+    };
+
+    _class.prototype['@test Components without a block should have the proper content'] = function (assert) {
+      var _this5 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>{{my-component}}</div>\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        'text': 'outer'
+      }));
+      this.addComponent('my-component', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          didInsertElement: function () {
+            this.$().html('Some text inserted by jQuery');
+          }
+        })
+      });
+
+      this.visit('/').then(function () {
+        var text = _this5.$('#wrapper').text().trim();
+        assert.equal(text, 'Some text inserted by jQuery', 'The component is composed correctly');
+      });
+    };
+
+    _class.prototype['@test properties of a component without a template should not collide with internal structures [DEPRECATED]'] = function (assert) {
+      var _this6 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>{{my-component data=foo}}</div>');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        'text': 'outer',
+        'foo': 'Some text inserted by jQuery'
+      }));
+      this.addComponent('my-component', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          didInsertElement: function () {
+            this.$().html(this.get('data'));
+          }
+        })
+      });
+
+      this.visit('/').then(function () {
+        var text = _this6.$('#wrapper').text().trim();
+        assert.equal(text, 'Some text inserted by jQuery', 'The component is composed correctly');
+      });
+    };
+
+    _class.prototype['@test attrs property of a component without a template should not collide with internal structures'] = function (assert) {
+      var _this7 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>{{my-component attrs=foo}}</div>\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        'text': 'outer',
+        'foo': 'Some text inserted by jQuery'
+      }));
+      this.addComponent('my-component', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          didInsertElement: function () {
+            // FIXME: I'm unsure if this is even the right way to access attrs
+            this.$().html(this.get('attrs.attrs.value'));
+          }
+        })
+      });
+
+      this.visit('/').then(function () {
+        var text = _this7.$('#wrapper').text().trim();
+        assert.equal(text, 'Some text inserted by jQuery', 'The component is composed correctly');
+      });
+    };
+
+    _class.prototype['@test Components trigger actions in the parents context when called from within a block'] = function () {
+      var _this8 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>\n        {{#my-component}}\n          <a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>\n        {{/my-component}}\n      </div>\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        actions: {
+          fizzbuzz: function () {
+            ok(true, 'action triggered on parent');
+          }
+        }
+      }));
+      this.addComponent('my-component', { ComponentClass: _emberGlimmer.Component.extend({}) });
+
+      this.visit('/').then(function () {
+        _this8.$('#fizzbuzz', '#wrapper').click();
+      });
+    };
+
+    _class.prototype['@test Components trigger actions in the components context when called from within its template'] = function () {
+      var _this9 = this;
+
+      this.addTemplate('application', '\n      <div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>\n    ');
+
+      this.add('controller:application', _emberRuntime.Controller.extend({
+        actions: {
+          fizzbuzz: function () {
+            ok(false, 'action on the wrong context');
+          }
+        }
+      }));
+      this.addComponent('my-component', {
+        ComponentClass: _emberGlimmer.Component.extend({
+          actions: {
+            fizzbuzz: function () {
+              ok(true, 'action triggered on component');
+            }
+          }
+        }),
+        template: '<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>'
+      });
+
+      this.visit('/').then(function () {
+        _this9.$('#fizzbuzz', '#wrapper').click();
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
+});
 enifed('ember/tests/component_registration_test', ['ember-runtime', 'ember-metal', 'ember-application', 'ember-routing', 'ember-template-compiler', 'ember-glimmer', 'ember-views'], function (_emberRuntime, _emberMetal, _emberApplication, _emberRouting, _emberTemplateCompiler, _emberGlimmer, _emberViews) {
   'use strict';
 
   var App = void 0,
       appInstance = void 0;
 
-  function prepare() {
-    (0, _emberGlimmer.setTemplate)('components/expand-it', (0, _emberTemplateCompiler.compile)('<p>hello {{yield}}</p>'));
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('Hello world {{#expand-it}}world{{/expand-it}}'));
-  }
-
-  function cleanup() {
-    (0, _emberMetal.run)(function () {
-      try {
-        if (App) {
-          App.destroy();
-        }
-        App = appInstance = null;
-      } finally {
-        (0, _emberGlimmer.setTemplates)({});
-      }
-    });
-  }
-
   QUnit.module('Application Lifecycle - Component Registration', {
-    setup: prepare,
-    teardown: cleanup
+    setup: function () {
+      (0, _emberGlimmer.setTemplate)('components/expand-it', (0, _emberTemplateCompiler.compile)('<p>hello {{yield}}</p>'));
+      (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('Hello world {{#expand-it}}world{{/expand-it}}'));
+    },
+    teardown: function () {
+      (0, _emberMetal.run)(function () {
+        try {
+          if (App) {
+            App.destroy();
+          }
+          App = appInstance = null;
+        } finally {
+          (0, _emberGlimmer.setTemplates)({});
+        }
+      });
+    }
   });
 
   function boot(callback) {
@@ -63678,164 +63865,6 @@ enifed('ember/tests/component_registration_test', ['ember-runtime', 'ember-metal
     expectAssertion(function () {
       return boot();
     }, /.* named "no-good" .*/);
-  });
-
-  QUnit.module('Application Lifecycle - Component Context', {
-    setup: prepare,
-    teardown: cleanup
-  });
-
-  QUnit.test('Components with a block should have the proper content when a template is provided', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    (0, _emberGlimmer.setTemplate)('components/my-component', (0, _emberTemplateCompiler.compile)('{{text}}-{{yield}}'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        text: 'inner'
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
-  });
-
-  QUnit.test('Components with a block should yield the proper content without a template provided', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        text: 'inner'
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'outer', 'The component is composed correctly');
-  });
-
-  QUnit.test('Components without a block should have the proper content when a template is provided', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{my-component}}</div>'));
-    (0, _emberGlimmer.setTemplate)('components/my-component', (0, _emberTemplateCompiler.compile)('{{text}}'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        text: 'inner'
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'inner', 'The component is composed correctly');
-  });
-
-  QUnit.test('Components without a block should have the proper content', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{my-component}}</div>'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        didInsertElement: function () {
-          this.$().html('Some text inserted by jQuery');
-        }
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
-  });
-
-  // The test following this one is the non-deprecated version
-  QUnit.test('properties of a component without a template should not collide with internal structures [DEPRECATED]', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{my-component data=foo}}</div>'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer',
-        'foo': 'Some text inserted by jQuery'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        didInsertElement: function () {
-          this.$().html(this.get('data'));
-        }
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
-  });
-
-  QUnit.test('attrs property of a component without a template should not collide with internal structures', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{my-component attrs=foo}}</div>'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer',
-        'foo': 'Some text inserted by jQuery'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        didInsertElement: function () {
-          // FIXME: I'm unsure if this is even the right way to access attrs
-          this.$().html(this.get('attrs.attrs.value'));
-        }
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
-  });
-
-  QUnit.test('Components trigger actions in the parents context when called from within a block', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>{{/my-component}}</div>'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        actions: {
-          fizzbuzz: function () {
-            ok(true, 'action triggered on parent');
-          }
-        }
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend());
-    });
-
-    (0, _emberMetal.run)(function () {
-      (0, _emberViews.jQuery)('#fizzbuzz', '#wrapper').click();
-    });
-  });
-
-  QUnit.test('Components trigger actions in the components context when called from within its template', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    (0, _emberGlimmer.setTemplate)('components/my-component', (0, _emberTemplateCompiler.compile)('<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        actions: {
-          fizzbuzz: function () {
-            ok(false, 'action triggered on the wrong context');
-          }
-        }
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        actions: {
-          fizzbuzz: function () {
-            ok(true, 'action triggered on component');
-          }
-        }
-      }));
-    });
-
-    (0, _emberViews.jQuery)('#fizzbuzz', '#wrapper').click();
   });
 });
 enifed('ember/tests/controller_test', ['ember-babel', 'ember-runtime', 'internal-test-helpers', 'ember-glimmer'], function (_emberBabel, _emberRuntime, _internalTestHelpers, _emberGlimmer) {
