@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+12c18e20
+ * @version   2.15.0-alpha.1-null+6a6f279d
  */
 
 var enifed, requireModule, Ember;
@@ -14937,8 +14937,8 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', 'emb
         component.setProperties(props);
         component[_component.IS_DISPATCHING_ATTRS] = false;
 
-        (0, _emberViews.dispatchLifeCycleHook)(component, 'didUpdateAttrs');
-        (0, _emberViews.dispatchLifeCycleHook)(component, 'didReceiveAttrs');
+        component.trigger('didUpdateAttrs');
+        component.trigger('didReceiveAttrs');
       }
 
       if (environment.isInteractive) {
@@ -41788,7 +41788,7 @@ enifed('ember-views/component_lookup', ['exports', 'ember-debug', 'ember-runtime
 enifed('ember-views/index', ['exports', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/event_dispatcher', 'ember-views/component_lookup', 'ember-views/mixins/text_support', 'ember-views/views/core_view', 'ember-views/mixins/class_names_support', 'ember-views/mixins/child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/view_support', 'ember-views/mixins/action_support', 'ember-views/compat/attrs', 'ember-views/system/lookup_partial', 'ember-views/utils/lookup-component', 'ember-views/system/action_manager', 'ember-views/compat/fallback-view-registry', 'ember-views/system/ext'], function (exports, _jquery, _utils, _event_dispatcher, _component_lookup, _text_support, _core_view, _class_names_support, _child_views_support, _view_state_support, _view_support, _action_support, _attrs, _lookup_partial, _lookupComponent, _action_manager, _fallbackViewRegistry) {
   'use strict';
 
-  exports.fallbackViewRegistry = exports.ActionManager = exports.lookupComponent = exports.hasPartial = exports.lookupPartial = exports.MUTABLE_CELL = exports.ActionSupport = exports.dispatchLifeCycleHook = exports.ViewMixin = exports.ViewStateSupport = exports.ChildViewsSupport = exports.ClassNamesSupport = exports.CoreView = exports.TextSupport = exports.ComponentLookup = exports.EventDispatcher = exports.constructStyleDeprecationMessage = exports.setViewElement = exports.getViewElement = exports.getViewId = exports.getChildViews = exports.getRootViews = exports.getViewBoundingClientRect = exports.getViewClientRects = exports.getViewBounds = exports.isSimpleClick = exports.jQuery = undefined;
+  exports.fallbackViewRegistry = exports.ActionManager = exports.lookupComponent = exports.hasPartial = exports.lookupPartial = exports.MUTABLE_CELL = exports.ActionSupport = exports.ViewMixin = exports.ViewStateSupport = exports.ChildViewsSupport = exports.ClassNamesSupport = exports.CoreView = exports.TextSupport = exports.ComponentLookup = exports.EventDispatcher = exports.constructStyleDeprecationMessage = exports.setViewElement = exports.getViewElement = exports.getViewId = exports.getChildViews = exports.getRootViews = exports.getViewBoundingClientRect = exports.getViewClientRects = exports.getViewBounds = exports.isSimpleClick = exports.jQuery = undefined;
   Object.defineProperty(exports, 'jQuery', {
     enumerable: true,
     get: function () {
@@ -41901,12 +41901,6 @@ enifed('ember-views/index', ['exports', 'ember-views/system/jquery', 'ember-view
     enumerable: true,
     get: function () {
       return _view_support.default;
-    }
-  });
-  Object.defineProperty(exports, 'dispatchLifeCycleHook', {
-    enumerable: true,
-    get: function () {
-      return _view_support.dispatchLifeCycleHook;
     }
   });
   Object.defineProperty(exports, 'ActionSupport', {
@@ -42551,16 +42545,10 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal'], func
 enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-environment', 'ember-views/system/utils', 'ember-runtime/system/core_object', 'ember-views/system/jquery'], function (exports, _emberUtils, _emberMetal, _emberDebug, _emberEnvironment, _utils, _core_object, _jquery) {
   'use strict';
 
-  exports.dispatchLifeCycleHook = dispatchLifeCycleHook;
-
   var _Mixin$create;
 
   function K() {
     return this;
-  }
-
-  function dispatchLifeCycleHook(component, hook) {
-    component.trigger(hook);
   }
 
   /**
@@ -42607,9 +42595,10 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
       @public
      */
     concatenatedProperties: ['attributeBindings']
+
   }, _Mixin$create[_core_object.POST_INIT] = function () {
-    dispatchLifeCycleHook(this, 'didInitAttrs', undefined, this.attrs);
-    dispatchLifeCycleHook(this, 'didReceiveAttrs', undefined, this.attrs);
+    this.trigger('didInitAttrs');
+    this.trigger('didReceiveAttrs');
   }, _Mixin$create.nearestOfType = function (klass) {
     var view = this.parentView;
     var isOfType = klass instanceof _emberMetal.Mixin ? function (view) {
@@ -44129,7 +44118,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+12c18e20";
+  exports.default = "2.15.0-alpha.1-null+6a6f279d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
