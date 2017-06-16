@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+6a6f279d
+ * @version   2.15.0-alpha.1-null+6483526d
  */
 
 var enifed, requireModule, Ember;
@@ -26859,8 +26859,41 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[red and yellow] [red and yellow]');
     };
 
-    _class.prototype['@test should be able to get an object value with a bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithABoundDynamicKey() {
+    _class.prototype['@test should be able to get an object value with numeric keys'] = function testShouldBeAbleToGetAnObjectValueWithNumericKeys() {
       var _this4 = this;
+
+      this.render('{{#each indexes as |index|}}[{{get items index}}]{{/each}}', {
+        indexes: [1, 2, 3],
+        items: {
+          1: 'First',
+          2: 'Second',
+          3: 'Third'
+        }
+      });
+
+      this.assertText('[First][Second][Third]');
+
+      this.runTask(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('[First][Second][Third]');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this4.context, 'items.1', 'Qux');
+      });
+
+      this.assertText('[Qux][Second][Third]');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this4.context, 'items', { 1: 'First', 2: 'Second', 3: 'Third' });
+      });
+
+      this.assertText('[First][Second][Third]');
+    };
+
+    _class.prototype['@test should be able to get an object value with a bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithABoundDynamicKey() {
+      var _this5 = this;
 
       this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
         colors: { apple: 'red', banana: 'yellow' },
@@ -26870,39 +26903,39 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[red] [red]');
 
       this.runTask(function () {
-        return _this4.rerender();
+        return _this5.rerender();
       });
 
       this.assertText('[red] [red]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.context, 'key', 'banana');
+        return (0, _emberMetal.set)(_this5.context, 'key', 'banana');
       });
 
       this.assertText('[yellow] [yellow]');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this4.context, 'colors.apple', 'green');
-        (0, _emberMetal.set)(_this4.context, 'colors.banana', 'purple');
+        (0, _emberMetal.set)(_this5.context, 'colors.apple', 'green');
+        (0, _emberMetal.set)(_this5.context, 'colors.banana', 'purple');
       });
 
       this.assertText('[purple] [purple]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.context, 'key', 'apple');
+        return (0, _emberMetal.set)(_this5.context, 'key', 'apple');
       });
 
       this.assertText('[green] [green]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.context, 'colors', { apple: 'red' });
+        return (0, _emberMetal.set)(_this5.context, 'colors', { apple: 'red' });
       });
 
       this.assertText('[red] [red]');
     };
 
     _class.prototype['@test should be able to get an object value with nested dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithNestedDynamicKey() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
         colors: {
@@ -26918,32 +26951,32 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[red and yellow] [red and yellow]');
 
       this.runTask(function () {
-        return _this5.rerender();
+        return _this6.rerender();
       });
 
       this.assertText('[red and yellow] [red and yellow]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.context, 'key', 'apple.mcintosh');
+        return (0, _emberMetal.set)(_this6.context, 'key', 'apple.mcintosh');
       });
 
       this.assertText('[red] [red]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.context, 'key', 'banana');
+        return (0, _emberMetal.set)(_this6.context, 'key', 'banana');
       });
 
       this.assertText('[yellow] [yellow]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.context, 'key', 'apple.gala');
+        return (0, _emberMetal.set)(_this6.context, 'key', 'apple.gala');
       });
 
       this.assertText('[red and yellow] [red and yellow]');
     };
 
     _class.prototype['@test should be able to get an object value with subexpression returning nested key'] = function testShouldBeAbleToGetAnObjectValueWithSubexpressionReturningNestedKey() {
-      var _this6 = this;
+      var _this7 = this;
 
       this.render('[{{get colors (concat \'apple\' \'.\' \'gala\')}}] [{{if true (get colors (concat \'apple\' \'.\' \'gala\'))}}]', {
         colors: {
@@ -26958,25 +26991,25 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[red and yellow] [red and yellow]');
 
       this.runTask(function () {
-        return _this6.rerender();
+        return _this7.rerender();
       });
 
       this.assertText('[red and yellow] [red and yellow]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this6.context, 'colors.apple.gala', 'yellow and red striped');
+        return (0, _emberMetal.set)(_this7.context, 'colors.apple.gala', 'yellow and red striped');
       });
 
       this.assertText('[yellow and red striped] [yellow and red striped]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this6.context, 'colors.apple.gala', 'yellow-redish');
+        return (0, _emberMetal.set)(_this7.context, 'colors.apple.gala', 'yellow-redish');
       });
 
       this.assertText('[yellow-redish] [yellow-redish]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this6.context, 'colors', {
+        return (0, _emberMetal.set)(_this7.context, 'colors', {
           apple: {
             gala: 'red and yellow',
             mcintosh: 'red'
@@ -26988,58 +27021,12 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
     };
 
     _class.prototype['@test should be able to get an object value with a get helper as the key'] = function testShouldBeAbleToGetAnObjectValueWithAGetHelperAsTheKey() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.render('[{{get colors (get possibleKeys key)}}] [{{if true (get colors (get possibleKeys key))}}]', {
         colors: { apple: 'red', banana: 'yellow' },
         key: 'key1',
         possibleKeys: { key1: 'apple', key2: 'banana' }
-      });
-
-      this.assertText('[red] [red]');
-
-      this.runTask(function () {
-        return _this7.rerender();
-      });
-
-      this.assertText('[red] [red]');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this7.context, 'key', 'key2');
-      });
-
-      this.assertText('[yellow] [yellow]');
-
-      this.runTask(function () {
-        (0, _emberMetal.set)(_this7.context, 'colors.apple', 'green');
-        (0, _emberMetal.set)(_this7.context, 'colors.banana', 'purple');
-      });
-
-      this.assertText('[purple] [purple]');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this7.context, 'key', 'key1');
-      });
-
-      this.assertText('[green] [green]');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this7.context, 'colors', { apple: 'red', banana: 'yellow' });
-      });
-
-      this.assertText('[red] [red]');
-    };
-
-    _class.prototype['@test should be able to get an object value with a get helper value as a bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithAGetHelperValueAsABoundDynamicKey() {
-      var _this8 = this;
-
-      this.render('[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]', {
-        possibleValues: {
-          colors1: { apple: 'red', banana: 'yellow' },
-          colors2: { apple: 'green', banana: 'purple' }
-        },
-        objectKey: 'colors1',
-        key: 'apple'
       });
 
       this.assertText('[red] [red]');
@@ -27051,54 +27038,41 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[red] [red]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this8.context, 'objectKey', 'colors2');
-      });
-
-      this.assertText('[green] [green]');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this8.context, 'objectKey', 'colors1');
-      });
-
-      this.assertText('[red] [red]');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this8.context, 'key', 'banana');
+        return (0, _emberMetal.set)(_this8.context, 'key', 'key2');
       });
 
       this.assertText('[yellow] [yellow]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this8.context, 'objectKey', 'colors2');
+        (0, _emberMetal.set)(_this8.context, 'colors.apple', 'green');
+        (0, _emberMetal.set)(_this8.context, 'colors.banana', 'purple');
       });
 
       this.assertText('[purple] [purple]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this8.context, 'objectKey', 'colors1');
+        return (0, _emberMetal.set)(_this8.context, 'key', 'key1');
       });
 
-      this.assertText('[yellow] [yellow]');
+      this.assertText('[green] [green]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this8.context, 'key', 'apple');
+        return (0, _emberMetal.set)(_this8.context, 'colors', { apple: 'red', banana: 'yellow' });
       });
+
+      this.assertText('[red] [red]');
     };
 
-    _class.prototype['@test should be able to get an object value with a get helper as the value and a get helper as the key'] = function testShouldBeAbleToGetAnObjectValueWithAGetHelperAsTheValueAndAGetHelperAsTheKey() {
+    _class.prototype['@test should be able to get an object value with a get helper value as a bound/dynamic key'] = function testShouldBeAbleToGetAnObjectValueWithAGetHelperValueAsABoundDynamicKey() {
       var _this9 = this;
 
-      this.render('[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]', {
+      this.render('[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]', {
         possibleValues: {
           colors1: { apple: 'red', banana: 'yellow' },
           colors2: { apple: 'green', banana: 'purple' }
         },
         objectKey: 'colors1',
-        possibleKeys: {
-          key1: 'apple',
-          key2: 'banana'
-        },
-        key: 'key1'
+        key: 'apple'
       });
 
       this.assertText('[red] [red]');
@@ -27122,7 +27096,7 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[red] [red]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this9.context, 'key', 'key2');
+        return (0, _emberMetal.set)(_this9.context, 'key', 'banana');
       });
 
       this.assertText('[yellow] [yellow]');
@@ -27134,15 +27108,74 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[purple] [purple]');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this9.context, 'objectKey', 'colors1');
-        (0, _emberMetal.set)(_this9.context, 'key', 'key1');
+        return (0, _emberMetal.set)(_this9.context, 'objectKey', 'colors1');
+      });
+
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this9.context, 'key', 'apple');
+      });
+    };
+
+    _class.prototype['@test should be able to get an object value with a get helper as the value and a get helper as the key'] = function testShouldBeAbleToGetAnObjectValueWithAGetHelperAsTheValueAndAGetHelperAsTheKey() {
+      var _this10 = this;
+
+      this.render('[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]', {
+        possibleValues: {
+          colors1: { apple: 'red', banana: 'yellow' },
+          colors2: { apple: 'green', banana: 'purple' }
+        },
+        objectKey: 'colors1',
+        possibleKeys: {
+          key1: 'apple',
+          key2: 'banana'
+        },
+        key: 'key1'
+      });
+
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return _this10.rerender();
+      });
+
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this10.context, 'objectKey', 'colors2');
+      });
+
+      this.assertText('[green] [green]');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this10.context, 'objectKey', 'colors1');
+      });
+
+      this.assertText('[red] [red]');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this10.context, 'key', 'key2');
+      });
+
+      this.assertText('[yellow] [yellow]');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this10.context, 'objectKey', 'colors2');
+      });
+
+      this.assertText('[purple] [purple]');
+
+      this.runTask(function () {
+        (0, _emberMetal.set)(_this10.context, 'objectKey', 'colors1');
+        (0, _emberMetal.set)(_this10.context, 'key', 'key1');
       });
 
       this.assertText('[red] [red]');
     };
 
     _class.prototype['@test the result of a get helper can be yielded'] = function testTheResultOfAGetHelperCanBeYielded() {
-      var _this10 = this;
+      var _this11 = this;
 
       var fooBarInstance = void 0;
       var FooBarComponent = _helpers.Component.extend({
@@ -27167,28 +27200,28 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('banana');
 
       this.runTask(function () {
-        return _this10.rerender();
+        return _this11.rerender();
       });
 
       this.assertText('banana');
 
       this.runTask(function () {
         (0, _emberMetal.set)(fooBarInstance, 'mcintosh', 'yellow');
-        (0, _emberMetal.set)(_this10.context, 'colors', { yellow: 'bus' });
+        (0, _emberMetal.set)(_this11.context, 'colors', { yellow: 'bus' });
       });
 
       this.assertText('bus');
 
       this.runTask(function () {
         (0, _emberMetal.set)(fooBarInstance, 'mcintosh', 'red');
-        (0, _emberMetal.set)(_this10.context, 'colors', { red: 'banana' });
+        (0, _emberMetal.set)(_this11.context, 'colors', { red: 'banana' });
       });
 
       this.assertText('banana');
     };
 
     _class.prototype['@test should handle object values as nulls'] = function testShouldHandleObjectValuesAsNulls() {
-      var _this11 = this;
+      var _this12 = this;
 
       this.render('[{{get colors \'apple\'}}] [{{if true (get colors \'apple\')}}]', {
         colors: null
@@ -27197,26 +27230,26 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[] []');
 
       this.runTask(function () {
-        return _this11.rerender();
+        return _this12.rerender();
       });
 
       this.assertText('[] []');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this11.context, 'colors', { apple: 'green', banana: 'purple' });
+        return (0, _emberMetal.set)(_this12.context, 'colors', { apple: 'green', banana: 'purple' });
       });
 
       this.assertText('[green] [green]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this11.context, 'colors', null);
+        return (0, _emberMetal.set)(_this12.context, 'colors', null);
       });
 
       this.assertText('[] []');
     };
 
     _class.prototype['@test should handle object keys as nulls'] = function testShouldHandleObjectKeysAsNulls() {
-      var _this12 = this;
+      var _this13 = this;
 
       this.render('[{{get colors key}}] [{{if true (get colors key)}}]', {
         colors: {
@@ -27229,19 +27262,19 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       this.assertText('[] []');
 
       this.runTask(function () {
-        return _this12.rerender();
+        return _this13.rerender();
       });
 
       this.assertText('[] []');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this12.context, 'key', 'banana');
+        return (0, _emberMetal.set)(_this13.context, 'key', 'banana');
       });
 
       this.assertText('[yellow] [yellow]');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this12.context, 'key', null);
+        return (0, _emberMetal.set)(_this13.context, 'key', null);
       });
 
       this.assertText('[] []');
@@ -27257,51 +27290,12 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
     };
 
     _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - static key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutStaticKey(assert) {
-      var _this13 = this;
+      var _this14 = this;
 
       this.render('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}', {
         source: {
           banana: 'banana'
         }
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'banana');
-
-      this.runTask(function () {
-        return _this13.rerender();
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'banana');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this13.context, 'source.banana', 'yellow');
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'yellow');
-
-      this.runTask(function () {
-        return _this13.$('#get-input').val('some value').trigger('change');
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'some value');
-      assert.strictEqual((0, _emberMetal.get)(this.context, 'source.banana'), 'some value');
-
-      this.runTask(function () {
-        return (0, _emberMetal.set)(_this13.context, 'source', { banana: 'banana' });
-      });
-
-      assert.strictEqual(this.$('#get-input').val(), 'banana');
-    };
-
-    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
-      var _this14 = this;
-
-      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
-        source: {
-          apple: 'apple',
-          banana: 'banana'
-        },
-        key: 'banana'
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
@@ -27326,28 +27320,67 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       assert.strictEqual((0, _emberMetal.get)(this.context, 'source.banana'), 'some value');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this14.context, 'key', 'apple');
+        return (0, _emberMetal.set)(_this14.context, 'source', { banana: 'banana' });
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'banana');
+    };
+
+    _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - dynamic key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicKey(assert) {
+      var _this15 = this;
+
+      this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
+        source: {
+          apple: 'apple',
+          banana: 'banana'
+        },
+        key: 'banana'
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return _this15.rerender();
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'banana');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this15.context, 'source.banana', 'yellow');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'yellow');
+
+      this.runTask(function () {
+        return _this15.$('#get-input').val('some value').trigger('change');
+      });
+
+      assert.strictEqual(this.$('#get-input').val(), 'some value');
+      assert.strictEqual((0, _emberMetal.get)(this.context, 'source.banana'), 'some value');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this15.context, 'key', 'apple');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'apple');
 
       this.runTask(function () {
-        return _this14.$('#get-input').val('some other value').trigger('change');
+        return _this15.$('#get-input').val('some other value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'some other value');
       assert.strictEqual((0, _emberMetal.get)(this.context, 'source.apple'), 'some other value');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this14.context, 'key', 'banana');
-        (0, _emberMetal.set)(_this14.context, 'source', { banana: 'banana' });
+        (0, _emberMetal.set)(_this15.context, 'key', 'banana');
+        (0, _emberMetal.set)(_this15.context, 'source', { banana: 'banana' });
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
     };
 
     _class.prototype['@test get helper value should be updatable using {{input}} and (mut) - dynamic nested key'] = function testGetHelperValueShouldBeUpdatableUsingInputAndMutDynamicNestedKey(assert) {
-      var _this15 = this;
+      var _this16 = this;
 
       this.render('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}', {
         source: {
@@ -27363,53 +27396,53 @@ enifed('ember-glimmer/tests/integration/helpers/get-test', ['ember-babel', 'embe
       assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
 
       this.runTask(function () {
-        return _this15.rerender();
+        return _this16.rerender();
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'mcintosh');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this15.context, 'source.apple.mcintosh', 'red');
+        return (0, _emberMetal.set)(_this16.context, 'source.apple.mcintosh', 'red');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'red');
 
       this.runTask(function () {
-        return _this15.$('#get-input').val('some value').trigger('change');
+        return _this16.$('#get-input').val('some value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'some value');
       assert.strictEqual((0, _emberMetal.get)(this.context, 'source.apple.mcintosh'), 'some value');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this15.context, 'key', 'apple.gala');
+        return (0, _emberMetal.set)(_this16.context, 'key', 'apple.gala');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'gala');
 
       this.runTask(function () {
-        return _this15.$('#get-input').val('some other value').trigger('change');
+        return _this16.$('#get-input').val('some other value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'some other value');
       assert.strictEqual((0, _emberMetal.get)(this.context, 'source.apple.gala'), 'some other value');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this15.context, 'key', 'banana');
+        return (0, _emberMetal.set)(_this16.context, 'key', 'banana');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'banana');
 
       this.runTask(function () {
-        return _this15.$('#get-input').val('yet another value').trigger('change');
+        return _this16.$('#get-input').val('yet another value').trigger('change');
       });
 
       assert.strictEqual(this.$('#get-input').val(), 'yet another value');
       assert.strictEqual((0, _emberMetal.get)(this.context, 'source.banana'), 'yet another value');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this15.context, 'key', 'apple.mcintosh');
-        (0, _emberMetal.set)(_this15.context, 'source', {
+        (0, _emberMetal.set)(_this16.context, 'key', 'apple.mcintosh');
+        (0, _emberMetal.set)(_this16.context, 'source', {
           apple: {
             gala: 'gala',
             mcintosh: 'mcintosh'
