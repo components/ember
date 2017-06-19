@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+6483526d
+ * @version   2.15.0-alpha.1-null+4ec05b80
  */
 
 var enifed, requireModule, Ember;
@@ -1659,13 +1659,11 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     assert.equal(registry.resolve('service:-document'), document);
   });
 });
-enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _resolver, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _registryCheck, _emberUtils, _internalTestHelpers) {
+enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember', 'ember-environment', 'ember-metal', 'ember-debug', 'ember-application/system/application', 'ember-routing', 'ember-views', 'ember-runtime', 'ember-template-compiler', 'ember-glimmer', 'container', 'ember-application/tests/test-helpers/registry-check', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _ember, _emberEnvironment, _emberMetal, _emberDebug, _application, _emberRouting, _emberViews, _emberRuntime, _emberTemplateCompiler, _emberGlimmer, _container, _registryCheck, _emberUtils, _internalTestHelpers) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['-bucket-cache:main'], ['-bucket-cache:main']),
       _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:components/-default'], ['template:components/-default']);
-
-  var trim = _emberViews.jQuery.trim;
 
   (0, _internalTestHelpers.moduleFor)('Ember.Application, autobooting multiple apps', function (_ApplicationTestCase) {
     (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
@@ -1682,44 +1680,50 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class.prototype.teardown = function () {
+      var _this2 = this;
+
       _ApplicationTestCase.prototype.teardown.call(this);
 
       if (this.secondApp) {
-        (0, _emberMetal.run)(this.secondApp, 'destroy');
+        this.runTask(function () {
+          return _this2.secondApp.destroy();
+        });
       }
     };
 
     _class.prototype['@test you can make a new application in a non-overlapping element'] = function (assert) {
-      var _this2 = this;
+      var _this3 = this;
 
-      var app = (0, _emberMetal.run)(function () {
-        return _this2.createSecondApplication({
+      var app = this.runTask(function () {
+        return _this3.createSecondApplication({
           rootElement: '#two'
         });
       });
 
-      (0, _emberMetal.run)(app, 'destroy');
+      this.runTask(function () {
+        return app.destroy();
+      });
       assert.ok(true, 'should not raise');
     };
 
     _class.prototype['@test you cannot make a new application that is a parent of an existing application'] = function () {
-      var _this3 = this;
+      var _this4 = this;
 
       expectAssertion(function () {
-        (0, _emberMetal.run)(function () {
-          return _this3.createSecondApplication({
-            rootElement: '#qunit-fixture'
+        _this4.runTask(function () {
+          return _this4.createSecondApplication({
+            rootElement: _this4.applicationOptions.rootElement
           });
         });
       });
     };
 
     _class.prototype['@test you cannot make a new application that is a descendant of an existing application'] = function () {
-      var _this4 = this;
+      var _this5 = this;
 
       expectAssertion(function () {
-        (0, _emberMetal.run)(function () {
-          return _this4.createSecondApplication({
+        _this5.runTask(function () {
+          return _this5.createSecondApplication({
             rootElement: '#one-child'
           });
         });
@@ -1727,11 +1731,11 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test you cannot make a new application that is a duplicate of an existing application'] = function () {
-      var _this5 = this;
+      var _this6 = this;
 
       expectAssertion(function () {
-        (0, _emberMetal.run)(function () {
-          return _this5.createSecondApplication({
+        _this6.runTask(function () {
+          return _this6.createSecondApplication({
             rootElement: '#one'
           });
         });
@@ -1739,11 +1743,11 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test you cannot make two default applications without a rootElement error'] = function () {
-      var _this6 = this;
+      var _this7 = this;
 
       expectAssertion(function () {
-        (0, _emberMetal.run)(function () {
-          return _this6.createSecondApplication();
+        _this7.runTask(function () {
+          return _this7.createSecondApplication();
         });
       });
     };
@@ -1769,7 +1773,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     }
 
     _class2.prototype['@test includes deprecated access to `application.registry`'] = function (assert) {
-      var _this8 = this;
+      var _this9 = this;
 
       assert.expect(3);
 
@@ -1780,7 +1784,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       };
 
       expectDeprecation(function () {
-        _this8.application.registry.register();
+        _this9.application.registry.register();
       }, /Using `Application.registry.register` is deprecated. Please use `Application.register` instead./);
     };
 
@@ -1847,37 +1851,30 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     return _class2;
   }(_internalTestHelpers.ApplicationTestCase));
 
-  (0, _internalTestHelpers.moduleFor)('Ember.Application, default resolver with autoboot', function (_AutobootApplicationT) {
-    (0, _emberBabel.inherits)(_class3, _AutobootApplicationT);
+  (0, _internalTestHelpers.moduleFor)('Ember.Application, default resolver with autoboot', function (_DefaultResolverAppli) {
+    (0, _emberBabel.inherits)(_class3, _DefaultResolverAppli);
 
     function _class3() {
 
-      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+      var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
 
-      _this9.originalLookup = _emberEnvironment.context.lookup;
-      return _this9;
+      _this10.originalLookup = _emberEnvironment.context.lookup;
+      return _this10;
     }
 
     _class3.prototype.teardown = function () {
       _emberEnvironment.context.lookup = this.originalLookup;
-      _AutobootApplicationT.prototype.teardown.call(this);
+      _DefaultResolverAppli.prototype.teardown.call(this);
       (0, _emberGlimmer.setTemplates)({});
     };
 
-    _class3.prototype.createApplication = function (options) {
-      var myOptions = (0, _emberUtils.assign)({
-        Resolver: _resolver.default
-      }, options);
-      return _AutobootApplicationT.prototype.createApplication.call(this, myOptions);
-    };
-
     _class3.prototype['@test acts like a namespace'] = function (assert) {
-      var _this10 = this;
+      var _this11 = this;
 
       var lookup = _emberEnvironment.context.lookup = {};
 
-      (0, _emberMetal.run)(function () {
-        lookup.TestApp = _this10.createApplication();
+      lookup.TestApp = this.runTask(function () {
+        return _this11.createApplication();
       });
 
       (0, _emberRuntime.setNamespaceSearchDisabled)(false);
@@ -1886,76 +1883,77 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class3.prototype['@test can specify custom router'] = function (assert) {
-      var _this11 = this;
+      var _this12 = this;
 
       var MyRouter = _emberRouting.Router.extend();
-      (0, _emberMetal.run)(function () {
-        var app = _this11.createApplication();
-        app.Router = MyRouter;
+      this.runTask(function () {
+        _this12.createApplication();
+        _this12.application.Router = MyRouter;
       });
+
       assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof MyRouter, 'application resolved the correct router');
     };
 
-    _class3.prototype['@test Minimal Application initialized with just an application template'] = function () {
-      var _this12 = this;
+    _class3.prototype['@test Minimal Application initialized with just an application template'] = function (assert) {
+      var _this13 = this;
 
-      (0, _emberViews.jQuery)('#qunit-fixture').html('<script type="text/x-handlebars">Hello World</script>');
-      (0, _emberMetal.run)(function () {
-        _this12.createApplication();
+      this.$().html('<script type="text/x-handlebars">Hello World</script>');
+      this.runTask(function () {
+        return _this13.createApplication();
       });
 
-      equal(trim((0, _emberViews.jQuery)('#qunit-fixture').text()), 'Hello World');
+      assert.equal(this.$().text().trim(), 'Hello World');
     };
 
+    (0, _emberBabel.createClass)(_class3, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_DefaultResolverAppli.prototype.applicationOptions, {
+          autoboot: true
+        });
+      }
+    }]);
     return _class3;
-  }(_internalTestHelpers.AutobootApplicationTestCase));
+  }(_internalTestHelpers.DefaultResolverApplicationTestCase));
 
-  (0, _internalTestHelpers.moduleFor)('Ember.Application, autobooting', function (_AutobootApplicationT2) {
-    (0, _emberBabel.inherits)(_class4, _AutobootApplicationT2);
+  (0, _internalTestHelpers.moduleFor)('Ember.Application, autobooting', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class4, _AutobootApplicationT);
 
     function _class4() {
 
-      var _this13 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT2.call(this));
+      var _this14 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
 
-      _this13.originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
-      _this13.originalDebug = (0, _emberDebug.getDebugFunction)('debug');
-      _this13.originalWarn = (0, _emberDebug.getDebugFunction)('warn');
-      return _this13;
+      _this14.originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
+      _this14.originalDebug = (0, _emberDebug.getDebugFunction)('debug');
+      _this14.originalWarn = (0, _emberDebug.getDebugFunction)('warn');
+      return _this14;
     }
 
     _class4.prototype.teardown = function () {
       (0, _emberDebug.setDebugFunction)('warn', this.originalWarn);
       (0, _emberDebug.setDebugFunction)('debug', this.originalDebug);
       _emberEnvironment.ENV.LOG_VERSION = this.originalLogVersion;
-      _AutobootApplicationT2.prototype.teardown.call(this);
-    };
-
-    _class4.prototype.createApplication = function (options, MyApplication) {
-      var application = _AutobootApplicationT2.prototype.createApplication.call(this, options, MyApplication);
-      this.add('router:main', _emberRouting.Router.extend({
-        location: 'none'
-      }));
-      return application;
+      _AutobootApplicationT.prototype.teardown.call(this);
     };
 
     _class4.prototype['@test initialized application goes to initial route'] = function (assert) {
-      var _this14 = this;
+      var _this15 = this;
 
-      (0, _emberMetal.run)(function () {
-        _this14.createApplication();
-        _this14.addTemplate('application', '{{outlet}}');
-        _this14.addTemplate('index', '<h1>Hi from index</h1>');
+      this.runTask(function () {
+        _this15.createApplication();
+        _this15.addTemplate('application', '{{outlet}}');
+        _this15.addTemplate('index', '<h1>Hi from index</h1>');
       });
 
-      assert.equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hi from index');
+      assert.equal(this.$('h1').text(), 'Hi from index');
     };
 
     _class4.prototype['@test ready hook is called before routing begins'] = function (assert) {
-      var _this15 = this;
+      var _this16 = this;
 
       assert.expect(2);
 
-      (0, _emberMetal.run)(function () {
+      this.runTask(function () {
         function registerRoute(application, name, callback) {
           var route = _emberRouting.Route.extend({
             activate: callback
@@ -1972,7 +1970,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
           }
         });
 
-        var app = _this15.createApplication({}, MyApplication);
+        var app = _this16.createApplication({}, MyApplication);
 
         registerRoute(app, 'application', function () {
           return ok(true, 'normal route is activated');
@@ -1981,47 +1979,47 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test initialize application via initialize call'] = function (assert) {
-      var _this16 = this;
+      var _this17 = this;
 
-      (0, _emberMetal.run)(function () {
-        _this16.createApplication();
+      this.runTask(function () {
+        return _this17.createApplication();
       });
       // This is not a public way to access the container; we just
       // need to make some assertions about the created router
-      var router = this.application.__deprecatedInstance__.lookup('router:main');
+      var router = this.applicationInstance.lookup('router:main');
       assert.equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
       assert.equal(router.location instanceof _emberRouting.NoneLocation, true, 'Location was set from location implementation name');
     };
 
     _class4.prototype['@test initialize application with stateManager via initialize call from Router class'] = function (assert) {
-      var _this17 = this;
+      var _this18 = this;
 
-      (0, _emberMetal.run)(function () {
-        _this17.createApplication();
-        _this17.addTemplate('application', '<h1>Hello!</h1>');
+      this.runTask(function () {
+        _this18.createApplication();
+        _this18.addTemplate('application', '<h1>Hello!</h1>');
       });
       // This is not a public way to access the container; we just
       // need to make some assertions about the created router
       var router = this.application.__deprecatedInstance__.lookup('router:main');
       assert.equal(router instanceof _emberRouting.Router, true, 'Router was set from initialize call');
-      assert.equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hello!');
+      assert.equal(this.$('h1').text(), 'Hello!');
     };
 
     _class4.prototype['@test Application Controller backs the appplication template'] = function (assert) {
-      var _this18 = this;
+      var _this19 = this;
 
-      (0, _emberMetal.run)(function () {
-        _this18.createApplication();
-        _this18.addTemplate('application', '<h1>{{greeting}}</h1>');
-        _this18.add('controller:application', _emberRuntime.Controller.extend({
+      this.runTask(function () {
+        _this19.createApplication();
+        _this19.addTemplate('application', '<h1>{{greeting}}</h1>');
+        _this19.add('controller:application', _emberRuntime.Controller.extend({
           greeting: 'Hello!'
         }));
       });
-      assert.equal((0, _emberViews.jQuery)('#qunit-fixture h1').text(), 'Hello!');
+      assert.equal(this.$('h1').text(), 'Hello!');
     };
 
     _class4.prototype['@test enable log of libraries with an ENV var'] = function (assert) {
-      var _this19 = this;
+      var _this20 = this;
 
       if (EmberDev && EmberDev.runningProdBuild) {
         assert.ok(true, 'Logging does not occur in production builds');
@@ -2038,8 +2036,8 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
 
       _emberMetal.libraries.register('my-lib', '2.0.0a');
 
-      (0, _emberMetal.run)(function () {
-        _this19.createApplication();
+      this.runTask(function () {
+        return _this20.createApplication();
       });
 
       assert.equal(messages[1], 'Ember  : ' + _ember.VERSION);
@@ -2050,7 +2048,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test disable log of version of libraries with an ENV var'] = function (assert) {
-      var _this20 = this;
+      var _this21 = this;
 
       var logged = false;
 
@@ -2060,35 +2058,37 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
         return logged = true;
       });
 
-      (0, _emberMetal.run)(function () {
-        _this20.createApplication();
+      this.runTask(function () {
+        return _this21.createApplication();
       });
 
       assert.ok(!logged, 'library version logging skipped');
     };
 
     _class4.prototype['@test can resolve custom router'] = function (assert) {
-      var _this21 = this;
+      var _this22 = this;
 
       var CustomRouter = _emberRouting.Router.extend();
 
-      (0, _emberMetal.run)(function () {
-        _this21.createApplication();
-        _this21.add('router:main', CustomRouter);
+      this.runTask(function () {
+        _this22.createApplication();
+        _this22.add('router:main', CustomRouter);
       });
 
       assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
     };
 
     _class4.prototype['@test does not leak itself in onLoad._loaded'] = function (assert) {
-      var _this22 = this;
+      var _this23 = this;
 
       assert.equal(_emberRuntime._loaded.application, undefined);
-      (0, _emberMetal.run)(function () {
-        return _this22.createApplication();
+      this.runTask(function () {
+        return _this23.createApplication();
       });
       assert.equal(_emberRuntime._loaded.application, this.application);
-      (0, _emberMetal.run)(this.application, 'destroy');
+      this.runTask(function () {
+        return _this23.application.destroy();
+      });
       assert.equal(_emberRuntime._loaded.application, undefined);
     };
 
@@ -2127,78 +2127,81 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     return _class5;
   }(_internalTestHelpers.AbstractTestCase));
 });
-enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-routing', 'ember-utils', 'ember-views', 'internal-test-helpers', 'ember-glimmer', 'ember-application/system/resolver'], function (_emberBabel, _emberRouting, _emberUtils, _emberViews, _internalTestHelpers, _emberGlimmer, _resolver) {
+enifed('ember-application/tests/system/bootstrap-test', ['ember-babel', 'ember-utils', 'ember-views', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberViews, _internalTestHelpers) {
   'use strict';
 
-  (0, _internalTestHelpers.moduleFor)('Ember.Application with default resolver and autoboot', function (_ApplicationTestCase) {
-    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
+  (0, _internalTestHelpers.moduleFor)('Ember.Application with default resolver and autoboot', function (_DefaultResolverAppli) {
+    (0, _emberBabel.inherits)(_class, _DefaultResolverAppli);
 
     function _class() {
 
       (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="app"></div>\n\n      <script type="text/x-handlebars">Hello {{outlet}}</script>\n      <script type="text/x-handlebars" id="index">World!</script>\n    ');
-      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+      return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
     }
 
-    _class.prototype.teardown = function () {
-      (0, _emberGlimmer.setTemplates)({});
-    };
-
     _class.prototype['@test templates in script tags are extracted at application creation'] = function (assert) {
-      assert.equal((0, _emberViews.jQuery)('#app').text(), 'Hello World!');
+      var _this2 = this;
+
+      this.runTask(function () {
+        return _this2.createApplication();
+      });
+      assert.equal(this.$('#app').text(), 'Hello World!');
     };
 
     (0, _emberBabel.createClass)(_class, [{
       key: 'applicationOptions',
       get: function () {
-        return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
+        return (0, _emberUtils.assign)(_DefaultResolverAppli.prototype.applicationOptions, {
           autoboot: true,
-          rootElement: '#app',
-          Resolver: _resolver.default,
-          Router: _emberRouting.Router.extend({
-            location: 'none'
-          })
+          rootElement: '#app'
         });
       }
     }]);
     return _class;
-  }(_internalTestHelpers.ApplicationTestCase));
+  }(_internalTestHelpers.DefaultResolverApplicationTestCase));
 });
-enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['ember-views', 'ember-metal', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler'], function (_emberViews, _emberMetal, _application, _resolver, _emberTemplateCompiler) {
+enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['ember-babel', 'ember-application/system/resolver', 'ember-utils', 'internal-test-helpers'], function (_emberBabel, _resolver, _emberUtils, _internalTestHelpers) {
   'use strict';
 
-  var application = void 0;
+  (0, _internalTestHelpers.moduleFor)('Ember.Application with extended default resolver and autoboot', function (_DefaultResolverAppli) {
+    (0, _emberBabel.inherits)(_class, _DefaultResolverAppli);
 
-  QUnit.module('Ember.Application Dependency Injection – customResolver', {
-    setup: function () {
-      var fallbackTemplate = (0, _emberTemplateCompiler.compile)('<h1>Fallback</h1>');
-
-      var Resolver = _resolver.default.extend({
-        resolveTemplate: function (resolvable) {
-          var resolvedTemplate = this._super(resolvable);
-          if (resolvedTemplate) {
-            return resolvedTemplate;
-          }
-          if (resolvable.fullNameWithoutType === 'application') {
-            return fallbackTemplate;
-          } else {}
-        }
-      });
-
-      application = (0, _emberMetal.run)(function () {
-        return _application.default.create({
-          Resolver: Resolver,
-          rootElement: '#qunit-fixture'
-        });
-      });
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(application, 'destroy');
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.apply(this, arguments));
     }
-  });
 
-  QUnit.test('a resolver can be supplied to application', function () {
-    equal((0, _emberViews.jQuery)('h1', application.rootElement).text(), 'Fallback');
-  });
+    _class.prototype['@test a resolver can be supplied to application'] = function (assert) {
+      var _this2 = this;
+
+      this.runTask(function () {
+        return _this2.createApplication();
+      });
+      assert.equal(this.$('h1').text(), 'Fallback');
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'applicationOptions',
+      get: function () {
+        var applicationTemplate = this.compile('<h1>Fallback</h1>');
+
+        var Resolver = _resolver.default.extend({
+          resolveTemplate: function (resolvable) {
+            if (resolvable.fullNameWithoutType === 'application') {
+              return applicationTemplate;
+            } else {
+              return this._super(resolvable);
+            }
+          }
+        });
+
+        return (0, _emberUtils.assign)(_DefaultResolverAppli.prototype.applicationOptions, {
+          Resolver: Resolver,
+          autoboot: true
+        });
+      }
+    }]);
+    return _class;
+  }(_internalTestHelpers.DefaultResolverApplicationTestCase));
 });
 enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['ember-environment', 'ember-metal', 'ember-runtime', 'ember-routing', 'ember-application/system/application', 'ember-glimmer', 'ember-template-compiler', 'ember-debug'], function (_emberEnvironment, _emberMetal, _emberRuntime, _emberRouting, _application, _emberGlimmer, _emberTemplateCompiler, _emberDebug) {
   'use strict';
@@ -75189,7 +75192,7 @@ enifed('internal-test-helpers/factory', ['exports'], function (exports) {
 
   var guids = 0;
 });
-enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering', 'internal-test-helpers/test-cases/router', 'internal-test-helpers/test-cases/autoboot-application', 'internal-test-helpers/test-resolver'], function (exports, _factory, _buildOwner, _confirmExport, _equalInnerHtml, _equalTokens, _moduleFor, _strip, _applyMixins, _matchers, _run, _testGroups, _abstract, _abstractApplication, _application, _queryParam, _abstractRendering, _rendering, _router, _autobootApplication, _testResolver) {
+enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory', 'internal-test-helpers/build-owner', 'internal-test-helpers/confirm-export', 'internal-test-helpers/equal-inner-html', 'internal-test-helpers/equal-tokens', 'internal-test-helpers/module-for', 'internal-test-helpers/strip', 'internal-test-helpers/apply-mixins', 'internal-test-helpers/matchers', 'internal-test-helpers/run', 'internal-test-helpers/test-groups', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-cases/application', 'internal-test-helpers/test-cases/query-param', 'internal-test-helpers/test-cases/abstract-rendering', 'internal-test-helpers/test-cases/rendering', 'internal-test-helpers/test-cases/router', 'internal-test-helpers/test-cases/autoboot-application', 'internal-test-helpers/test-cases/default-resolver-application', 'internal-test-helpers/test-resolver'], function (exports, _factory, _buildOwner, _confirmExport, _equalInnerHtml, _equalTokens, _moduleFor, _strip, _applyMixins, _matchers, _run, _testGroups, _abstract, _abstractApplication, _application, _queryParam, _abstractRendering, _rendering, _router, _autobootApplication, _defaultResolverApplication, _testResolver) {
   'use strict';
 
   Object.defineProperty(exports, 'factory', {
@@ -75334,6 +75337,12 @@ enifed('internal-test-helpers/index', ['exports', 'internal-test-helpers/factory
     enumerable: true,
     get: function () {
       return _autobootApplication.default;
+    }
+  });
+  Object.defineProperty(exports, 'DefaultResolverApplicationTestCase', {
+    enumerable: true,
+    get: function () {
+      return _defaultResolverApplication.default;
     }
   });
   Object.defineProperty(exports, 'TestResolver', {
@@ -75537,7 +75546,7 @@ enifed('internal-test-helpers/strip', ['exports'], function (exports) {
     }).join('');
   };
 });
-enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-metal', 'ember-views', 'ember-application', 'ember-routing', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-resolver', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberMetal, _emberViews, _emberApplication, _emberRouting, _emberTemplateCompiler, _abstract, _testResolver, _run) {
+enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'ember-babel', 'ember-template-compiler', 'internal-test-helpers/test-cases/abstract', 'ember-views', 'internal-test-helpers/run'], function (exports, _emberBabel, _emberTemplateCompiler, _abstract, _emberViews, _run) {
   'use strict';
 
   var AbstractApplicationTestCase = function (_AbstractTestCase) {
@@ -75548,88 +75557,23 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
       _this.element = (0, _emberViews.jQuery)('#qunit-fixture')[0];
-
-      var applicationOptions = _this.applicationOptions;
-
-      _this.application = _this.runTask(function () {
-        return _emberApplication.Application.create(applicationOptions);
-      });
-
-      _this.resolver = applicationOptions.Resolver.lastInstance;
-
-      if (_this.resolver) {
-        _this.resolver.add('router:main', _emberRouting.Router.extend(_this.routerOptions));
-      }
-
-      _this.applicationInstance = null;
       return _this;
     }
 
     AbstractApplicationTestCase.prototype.teardown = function () {
-      (0, _run.runDestroy)(this.applicationInstance);
       (0, _run.runDestroy)(this.application);
-    };
-
-    AbstractApplicationTestCase.prototype.visit = function (url, options) {
-      var _this2 = this;
-
-      var applicationInstance = this.applicationInstance;
-
-      if (applicationInstance) {
-        return this.runTask(function () {
-          return applicationInstance.visit(url, options);
-        });
-      } else {
-        return this.runTask(function () {
-          return _this2.application.visit(url, options).then(function (instance) {
-            _this2.applicationInstance = instance;
-          });
-        });
-      }
-    };
-
-    AbstractApplicationTestCase.prototype.transitionTo = function () {
-      return _emberMetal.run.apply(undefined, [this.appRouter, 'transitionTo'].concat(Array.prototype.slice.call(arguments)));
+      _AbstractTestCase.prototype.teardown.call(this);
     };
 
     AbstractApplicationTestCase.prototype.compile = function () {
       return _emberTemplateCompiler.compile.apply(undefined, arguments);
     };
 
-    AbstractApplicationTestCase.prototype.add = function (specifier, factory) {
-      this.resolver.add(specifier, factory);
-    };
-
-    AbstractApplicationTestCase.prototype.addTemplate = function (templateName, templateString) {
-      this.resolver.add('template:' + templateName, this.compile(templateString, {
-        moduleName: templateName
-      }));
-    };
-
-    AbstractApplicationTestCase.prototype.addComponent = function (name, _ref) {
-      var _ref$ComponentClass = _ref.ComponentClass,
-          ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass,
-          _ref$template = _ref.template,
-          template = _ref$template === undefined ? null : _ref$template;
-
-      if (ComponentClass) {
-        this.resolver.add('component:' + name, ComponentClass);
-      }
-
-      if (typeof template === 'string') {
-        this.resolver.add('template:components/' + name, this.compile(template, {
-          moduleName: 'components/' + name
-        }));
-      }
-    };
-
     (0, _emberBabel.createClass)(AbstractApplicationTestCase, [{
       key: 'applicationOptions',
       get: function () {
         return {
-          rootElement: '#qunit-fixture',
-          autoboot: false,
-          Resolver: _testResolver.ModuleBasedResolver
+          rootElement: '#qunit-fixture'
         };
       }
     }, {
@@ -75643,11 +75587,6 @@ enifed('internal-test-helpers/test-cases/abstract-application', ['exports', 'emb
       key: 'router',
       get: function () {
         return this.application.resolveRegistration('router:main');
-      }
-    }, {
-      key: 'appRouter',
-      get: function () {
-        return this.applicationInstance.lookup('router:main');
       }
     }]);
     return AbstractApplicationTestCase;
@@ -75997,7 +75936,126 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
 
   exports.default = AbstractTestCase;
 });
-enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application'], function (exports, _emberBabel, _abstractApplication) {
+enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'ember-application', 'ember-routing', 'ember-utils', 'internal-test-helpers/run'], function (exports, _emberBabel, _testResolverApplication, _emberApplication, _emberRouting, _emberUtils, _run) {
+  'use strict';
+
+  var ApplicationTestCase = function (_TestResolverApplicat) {
+    (0, _emberBabel.inherits)(ApplicationTestCase, _TestResolverApplicat);
+
+    function ApplicationTestCase() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _TestResolverApplicat.call(this));
+
+      var applicationOptions = _this.applicationOptions;
+
+      _this.application = _this.runTask(function () {
+        return _emberApplication.Application.create(applicationOptions);
+      });
+
+      _this.resolver = applicationOptions.Resolver.lastInstance;
+
+      if (_this.resolver) {
+        _this.resolver.add('router:main', _emberRouting.Router.extend(_this.routerOptions));
+      }
+      return _this;
+    }
+
+    ApplicationTestCase.prototype.teardown = function () {
+      (0, _run.runDestroy)(this.applicationInstance);
+      _TestResolverApplicat.prototype.teardown.call(this);
+    };
+
+    ApplicationTestCase.prototype.visit = function (url, options) {
+      var _this2 = this;
+
+      var applicationInstance = this.applicationInstance;
+
+      if (applicationInstance) {
+        return this.runTask(function () {
+          return applicationInstance.visit(url, options);
+        });
+      } else {
+        return this.runTask(function () {
+          return _this2.application.visit(url, options).then(function (instance) {
+            _this2.applicationInstance = instance;
+          });
+        });
+      }
+    };
+
+    ApplicationTestCase.prototype.transitionTo = function () {
+      var _this3 = this,
+          _arguments = arguments;
+
+      return this.runTask(function () {
+        var _appRouter;
+
+        return (_appRouter = _this3.appRouter).transitionTo.apply(_appRouter, _arguments);
+      });
+    };
+
+    (0, _emberBabel.createClass)(ApplicationTestCase, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_TestResolverApplicat.prototype.applicationOptions, {
+          autoboot: false
+        });
+      }
+    }, {
+      key: 'appRouter',
+      get: function () {
+        return this.applicationInstance.lookup('router:main');
+      }
+    }]);
+    return ApplicationTestCase;
+  }(_testResolverApplication.default);
+
+  exports.default = ApplicationTestCase;
+});
+enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/test-resolver-application', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'ember-routing'], function (exports, _emberBabel, _testResolverApplication, _testResolver, _emberApplication, _emberUtils, _emberRouting) {
+  'use strict';
+
+  var AutobootApplicationTestCase = function (_TestResolverApplicat) {
+    (0, _emberBabel.inherits)(AutobootApplicationTestCase, _TestResolverApplicat);
+
+    function AutobootApplicationTestCase() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _TestResolverApplicat.apply(this, arguments));
+    }
+
+    AutobootApplicationTestCase.prototype.createApplication = function (options) {
+      var MyApplication = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _emberApplication.Application;
+
+      var myOptions = (0, _emberUtils.assign)(this.applicationOptions, options);
+      var application = this.application = MyApplication.create(myOptions);
+      this.resolver = myOptions.Resolver.lastInstance;
+
+      if (this.resolver) {
+        this.resolver.add('router:main', _emberRouting.Router.extend(this.routerOptions));
+      }
+
+      return application;
+    };
+
+    AutobootApplicationTestCase.prototype.visit = function (url, options) {
+      var _this2 = this;
+
+      return this.runTask(function () {
+        return _this2.applicationInstance.visit(url, options);
+      });
+    };
+
+    (0, _emberBabel.createClass)(AutobootApplicationTestCase, [{
+      key: 'applicationInstance',
+      get: function () {
+        return this.application.__deprecatedInstance__;
+      }
+    }]);
+    return AutobootApplicationTestCase;
+  }(_testResolverApplication.default);
+
+  exports.default = AutobootApplicationTestCase;
+});
+enifed('internal-test-helpers/test-cases/default-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'ember-application', 'ember-glimmer', 'ember-utils', 'internal-test-helpers/run'], function (exports, _emberBabel, _abstractApplication, _emberApplication, _emberGlimmer, _emberUtils, _run) {
   'use strict';
 
   var ApplicationTestCase = function (_AbstractApplicationT) {
@@ -76007,71 +76065,69 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
       return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractApplicationT.apply(this, arguments));
     }
 
+    ApplicationTestCase.prototype.createApplication = function () {
+      return this.application = _emberApplication.Application.create(this.applicationOptions);
+    };
+
+    ApplicationTestCase.prototype.teardown = function () {
+      (0, _run.runDestroy)(this.applicationInstance);
+      _AbstractApplicationT.prototype.teardown.call(this);
+      (0, _emberGlimmer.setTemplates)({});
+    };
+
+    ApplicationTestCase.prototype.visit = function (url, options) {
+      var _this2 = this;
+
+      var applicationInstance = this.applicationInstance;
+
+      if (applicationInstance) {
+        return this.runTask(function () {
+          return applicationInstance.visit(url, options);
+        });
+      } else {
+        return this.runTask(function () {
+          return _this2.application.visit(url, options).then(function (instance) {
+            _this2.applicationInstance = instance;
+          });
+        });
+      }
+    };
+
+    ApplicationTestCase.prototype.transitionTo = function () {
+      var _this3 = this,
+          _arguments = arguments;
+
+      return this.runTask(function () {
+        var _appRouter;
+
+        return (_appRouter = _this3.appRouter).transitionTo.apply(_appRouter, _arguments);
+      });
+    };
+
+    ApplicationTestCase.prototype.addTemplate = function (name, templateString) {
+      var compiled = this.compile(templateString);
+      (0, _emberGlimmer.setTemplate)(name, compiled);
+      return compiled;
+    };
+
+    (0, _emberBabel.createClass)(ApplicationTestCase, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_AbstractApplicationT.prototype.applicationOptions, {
+          autoboot: false,
+          Resolver: _emberApplication.Resolver
+        });
+      }
+    }, {
+      key: 'appRouter',
+      get: function () {
+        return this.applicationInstance.lookup('router:main');
+      }
+    }]);
     return ApplicationTestCase;
   }(_abstractApplication.default);
 
   exports.default = ApplicationTestCase;
-});
-enifed('internal-test-helpers/test-cases/autoboot-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract', 'internal-test-helpers/test-resolver', 'ember-application', 'ember-utils', 'internal-test-helpers/run', 'ember-metal', 'ember-template-compiler'], function (exports, _emberBabel, _abstract, _testResolver, _emberApplication, _emberUtils, _run, _emberMetal, _emberTemplateCompiler) {
-  'use strict';
-
-  var AutobootApplicationTestCase = function (_AbstractTestCase) {
-    (0, _emberBabel.inherits)(AutobootApplicationTestCase, _AbstractTestCase);
-
-    function AutobootApplicationTestCase() {
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.apply(this, arguments));
-    }
-
-    AutobootApplicationTestCase.prototype.teardown = function () {
-      (0, _run.runDestroy)(this.application);
-      _AbstractTestCase.prototype.teardown.call(this);
-    };
-
-    AutobootApplicationTestCase.prototype.createApplication = function (options) {
-      var MyApplication = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _emberApplication.Application;
-
-      var myOptions = (0, _emberUtils.assign)({
-        rootElement: '#qunit-fixture',
-        Resolver: _testResolver.default
-      }, options);
-      var application = this.application = MyApplication.create(myOptions);
-      this.resolver = myOptions.Resolver.lastInstance;
-      return application;
-    };
-
-    AutobootApplicationTestCase.prototype.add = function (specifier, factory) {
-      this.resolver.add(specifier, factory);
-    };
-
-    AutobootApplicationTestCase.prototype.visit = function (url, options) {
-      return (0, _emberMetal.run)(this.applicationInstance, 'visit', url, options);
-    };
-
-    AutobootApplicationTestCase.prototype.compile = function () {
-      return _emberTemplateCompiler.compile.apply(undefined, arguments);
-    };
-
-    AutobootApplicationTestCase.prototype.addTemplate = function (templateName, templateString) {
-      this.resolver.add('template:' + templateName, this.compile(templateString, {
-        moduleName: templateName
-      }));
-    };
-
-    (0, _emberBabel.createClass)(AutobootApplicationTestCase, [{
-      key: 'router',
-      get: function () {
-        return this.application.resolveRegistration('router:main');
-      }
-    }, {
-      key: 'applicationInstance',
-      get: function () {
-        return this.application.__deprecatedInstance__;
-      }
-    }]);
-    return AutobootApplicationTestCase;
-  }(_abstract.default);
-
-  exports.default = AutobootApplicationTestCase;
 });
 enifed('internal-test-helpers/test-cases/query-param', ['exports', 'ember-babel', 'ember-runtime', 'ember-routing', 'ember-metal', 'internal-test-helpers/test-cases/application'], function (exports, _emberBabel, _emberRuntime, _emberRouting, _emberMetal, _application) {
   'use strict';
@@ -76236,6 +76292,56 @@ enifed('internal-test-helpers/test-cases/router', ['exports', 'ember-babel', 'in
   }(_application.default);
 
   exports.default = RouterTestCase;
+});
+enifed('internal-test-helpers/test-cases/test-resolver-application', ['exports', 'ember-babel', 'internal-test-helpers/test-cases/abstract-application', 'internal-test-helpers/test-resolver', 'ember-utils'], function (exports, _emberBabel, _abstractApplication, _testResolver, _emberUtils) {
+  'use strict';
+
+  var TestResolverApplicationTestCase = function (_AbstractApplicationT) {
+    (0, _emberBabel.inherits)(TestResolverApplicationTestCase, _AbstractApplicationT);
+
+    function TestResolverApplicationTestCase() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractApplicationT.apply(this, arguments));
+    }
+
+    TestResolverApplicationTestCase.prototype.add = function (specifier, factory) {
+      this.resolver.add(specifier, factory);
+    };
+
+    TestResolverApplicationTestCase.prototype.addTemplate = function (templateName, templateString) {
+      this.resolver.add('template:' + templateName, this.compile(templateString, {
+        moduleName: templateName
+      }));
+    };
+
+    TestResolverApplicationTestCase.prototype.addComponent = function (name, _ref) {
+      var _ref$ComponentClass = _ref.ComponentClass,
+          ComponentClass = _ref$ComponentClass === undefined ? null : _ref$ComponentClass,
+          _ref$template = _ref.template,
+          template = _ref$template === undefined ? null : _ref$template;
+
+      if (ComponentClass) {
+        this.resolver.add('component:' + name, ComponentClass);
+      }
+
+      if (typeof template === 'string') {
+        this.resolver.add('template:components/' + name, this.compile(template, {
+          moduleName: 'components/' + name
+        }));
+      }
+    };
+
+    (0, _emberBabel.createClass)(TestResolverApplicationTestCase, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_AbstractApplicationT.prototype.applicationOptions, {
+          Resolver: _testResolver.ModuleBasedResolver
+        });
+      }
+    }]);
+    return TestResolverApplicationTestCase;
+  }(_abstractApplication.default);
+
+  exports.default = TestResolverApplicationTestCase;
 });
 enifed('internal-test-helpers/test-groups', ['exports', 'ember-environment', 'ember-metal'], function (exports, _emberEnvironment, _emberMetal) {
   'use strict';
