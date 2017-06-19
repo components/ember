@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+4ec05b80
+ * @version   2.15.0-alpha.1-null+26a8b5bb
  */
 
 var enifed, requireModule, Ember;
@@ -13153,7 +13153,7 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var possibleConstructorReturn = exports.possibleConstructorReturn = function (self, call) {
     if (!self) {
-      throw new ReferenceError('this hasn\'t been initialised - super() hasn\'t been called');
+      throw new ReferenceError('this hasn\'t been initialized - super() hasn\'t been called');
     }
     return call && (typeof call === 'object' || typeof call === 'function') ? call : self;
   };
@@ -16953,7 +16953,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
   
     any passed value to `disabled` will disable it except `undefined`.
     to ensure that only `true` disable the `link-to` component you can
-    override the global behaviour of `Ember.LinkComponent`.
+    override the global behavior of `Ember.LinkComponent`.
   
     ```javascript
     Ember.LinkComponent.reopen({
@@ -17999,7 +17999,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     Two options can be passed to the `action` helper when it is used in this way.
   
     * `target=someProperty` will look to `someProperty` instead of the current
-      context for the `actions` hash. This can be useful when targetting a
+      context for the `actions` hash. This can be useful when targeting a
       service for actions.
     * `value="target.value"` will read the path `target.value` off the first
       argument to the action when it is called and rewrite the first argument
@@ -19793,7 +19793,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
     };
 
     Renderer.prototype.getElement = function getElement(view) {
-      // overriden in the subclasses
+      // overridden in the subclasses
     };
 
     Renderer.prototype.getBounds = function getBounds(view) {
@@ -20108,7 +20108,7 @@ enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember
 
   var experimentalMacros = exports.experimentalMacros = [];
 
-  // This is a private API to allow for expiremental macros
+  // This is a private API to allow for experimental macros
   // to be created in user space. Registering a macro should
   // should be done in an initializer.
   function registerMacros(macro) {
@@ -27029,7 +27029,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       will be resolved on the target object at the time the scheduled item is
       invoked allowing you to change the target function.
     @param {Object} [arguments*] Optional arguments to be passed to the queued method.
-    @return {*} Timer information for use in cancelling, see `run.cancel`.
+    @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.schedule = function () /* queue, target, method */{
@@ -27094,7 +27094,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
     @param {Number} wait Number of milliseconds to wait.
-    @return {*} Timer information for use in cancelling, see `run.cancel`.
+    @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.later = function () /*target, method*/{
@@ -27111,7 +27111,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       If you pass a string it will be resolved on the
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
-    @return {Object} Timer information for use in cancelling, see `run.cancel`.
+    @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.once = function () {
@@ -27174,7 +27174,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       If you pass a string it will be resolved on the
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
-    @return {Object} Timer information for use in cancelling, see `run.cancel`.
+    @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.scheduleOnce = function () /*queue, target, method*/{
@@ -27243,7 +27243,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       If you pass a string it will be resolved on the
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
-    @return {Object} Timer information for use in cancelling, see `run.cancel`.
+    @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.next = function () {
@@ -27301,13 +27301,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       // will be executed since we passed in true (immediate)
     }, 100, true);
   
-    // the 100ms delay until this method can be called again will be cancelled
+    // the 100ms delay until this method can be called again will be canceled
     run.cancel(debounceImmediate);
     ```
   
     @method cancel
     @param {Object} timer Timer object to cancel
-    @return {Boolean} true if cancelled or false/undefined if it wasn't found
+    @return {Boolean} true if canceled or false/undefined if it wasn't found
     @public
   */
   run$1.cancel = function (timer) {
@@ -27380,7 +27380,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {Number} wait Number of milliseconds to wait.
     @param {Boolean} immediate Trigger the function on the leading instead
       of the trailing edge of the wait interval. Defaults to false.
-    @return {Array} Timer information for use in cancelling, see `run.cancel`.
+    @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.debounce = function () {
@@ -27423,7 +27423,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {Number} spacing Number of milliseconds to space out requests.
     @param {Boolean} immediate Trigger the function on the leading instead
       of the trailing edge of the wait interval. Defaults to true.
-    @return {Array} Timer information for use in cancelling, see `run.cancel`.
+    @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.throttle = function () {
@@ -29779,7 +29779,7 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
       `this.category` and `this.page`.
       By default, Ember coerces query parameter values using `toggleProperty`.
       This behavior may lead to unexpected results.
-      To explicity configure a query parameter property so it coerces as expected, you must define a type property:
+      To explicitly configure a query parameter property so it coerces as expected, you must define a type property:
       ```javascript
         queryParams: [{
           category: {
@@ -32191,7 +32191,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       the server that is required to enter a route.
        @method beforeModel
       @param {Transition} transition
-      @return {Promise} if the value returned from this hook is
+      @return {any | Promise<any>} if the value returned from this hook is
         a promise, the transition will pause until the transition
         resolves. Otherwise, non-promise return values are not
         utilized in any way.
@@ -32224,7 +32224,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @param {Object} resolvedModel the value returned from `model`,
         or its resolved value if it was a promise
       @param {Transition} transition
-      @return {Promise} if the value returned from this hook is
+      @return {any | Promise<any>} if the value returned from this hook is
         a promise, the transition will pause until the transition
         resolves. Otherwise, non-promise return values are not
         utilized in any way.
@@ -32765,7 +32765,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
        * `history` - use the browser's history API to make the URLs look just like any standard URL
       * `hash` - use `#` to separate the server part of the URL from the Ember part: `/blog/#/posts/new`
       * `none` - do not store the Ember URL in the actual browser URL (mainly used for testing)
-      * `auto` - use the best option based on browser capabilites: `history` if possible, then `hash` if possible, otherwise `none`
+      * `auto` - use the best option based on browser capabilities: `history` if possible, then `hash` if possible, otherwise `none`
        Note: If using ember-cli, this value is defaulted to `auto` by the `locationType` setting of `/config/environment.js`
        @property location
       @default 'hash'
@@ -43766,7 +43766,7 @@ enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], funct
     @method click
     @param {String} selector jQuery selector for finding element on the DOM
     @param {Object} context A DOM Element, Document, or jQuery to use as context
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function click(app, selector, context) {
@@ -43898,7 +43898,7 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], fun
     @param {String} selector jQuery selector finding an input element on the DOM
     to fill text with
     @param {String} text text to place inside the input element
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function fillIn(app, selector, contextOrText, text) {
@@ -44023,7 +44023,7 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     @param {String} selector jQuery selector for finding element on the DOM
     @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
     @param {Number} keyCode the keyCode of the simulated key event
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @since 1.5.0
     @public
   */
@@ -44114,7 +44114,7 @@ enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'
                              argument to find only within the context's children
    @param {String} type The event type to be triggered.
    @param {Object} [options] The options to be passed to jQuery.Event.
-   @return {RSVP.Promise}
+   @return {RSVP.Promise<undefined>}
    @since 1.5.0
    @public
   */
@@ -44183,7 +44183,7 @@ enifed('ember-testing/helpers/visit', ['exports', 'ember-metal'], function (expo
   
     @method visit
     @param {String} url the name of the route
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function visit(app, url) {
@@ -44241,7 +44241,7 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
   
     @method wait
     @param {Object} value The value to be returned.
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<any>} Promise that resolves to the passed value.
     @public
     @since 1.0.0
   */
@@ -46129,7 +46129,7 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
     `TextSupport` is a shared mixin used by both `Ember.TextField` and
     `Ember.TextArea`. `TextSupport` adds a number of methods that allow you to
     specify a controller action to invoke when a certain event is fired on your
-    text field or textarea. The specifed controller action would get the current
+    text field or textarea. The specified controller action would get the current
     value of the field passed in as the only argument unless the value of
     the field is empty. In that case, the instance of the field itself is passed
     in as the only argument.
@@ -47190,7 +47190,7 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
     `getViewBoundingClientRect` provides information about the position of the
     bounding border box edges of a view relative to the viewport.
   
-    It is only intended to be used by development tools like the Ember Inpsector
+    It is only intended to be used by development tools like the Ember Inspector
     and may not work on older browsers.
   
     @private
@@ -48067,7 +48067,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+4ec05b80";
+  exports.default = "2.15.0-alpha.1-null+26a8b5bb";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

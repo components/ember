@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+4ec05b80
+ * @version   2.15.0-alpha.1-null+26a8b5bb
  */
 
 var enifed, requireModule, Ember;
@@ -5966,7 +5966,7 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var possibleConstructorReturn = exports.possibleConstructorReturn = function (self, call) {
     if (!self) {
-      throw new ReferenceError('this hasn\'t been initialised - super() hasn\'t been called');
+      throw new ReferenceError('this hasn\'t been initialized - super() hasn\'t been called');
     }
     return call && (typeof call === 'object' || typeof call === 'function') ? call : self;
   };
@@ -10845,7 +10845,7 @@ enifed('ember-glimmer/tests/integration/components/attrs-lookup-test', ['ember-b
       assert.equal(instance.get('second'), 'second', 'matches known value');
     };
 
-    _class.prototype['@test bound computed properties can be overriden in extensions, set during init, and passed in as attrs'] = function testBoundComputedPropertiesCanBeOverridenInExtensionsSetDuringInitAndPassedInAsAttrs() {
+    _class.prototype['@test bound computed properties can be overridden in extensions, set during init, and passed in as attrs'] = function testBoundComputedPropertiesCanBeOverriddenInExtensionsSetDuringInitAndPassedInAsAttrs() {
       var FooClass = _helpers.Component.extend({
         attributeBindings: ['style'],
         style: (0, _emberMetal.computed)('height', 'color', function () {
@@ -12462,7 +12462,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
       assert.ok(!(0, _emberMetal.isEmpty)(instance), 'a instance was created');
       assert.equal(previousInstance, undefined, 'no previous component exists');
       assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
-      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+      assert.equal(this.$().text(), 'open', 'the components text is "open"');
 
       this.runTask(function () {
         return _this31.rerender();
@@ -12471,7 +12471,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
       assert.ok(!(0, _emberMetal.isEmpty)(instance), 'the component instance exists');
       assert.equal(previousInstance, undefined, 'no previous component exists');
       assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
-      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+      assert.equal(this.$().text(), 'open', 'the components text is "open"');
 
       this.runTask(function () {
         return _this31.context.set('isOpen', false);
@@ -12498,7 +12498,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
       assert.ok(!(0, _emberMetal.isEmpty)(instance), 'the component instance exists');
       assert.equal(previousInstance, undefined, 'no previous component exists');
       assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
-      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+      assert.equal(this.$().text(), 'open', 'the components text is "open"');
     };
 
     _class.prototype['@test GH#13982 contextual component ref is stable even when bound params change (bound name param)'] = function testGH13982ContextualComponentRefIsStableEvenWhenBoundParamsChangeBoundNameParam(assert) {
@@ -12530,7 +12530,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
       assert.ok(!(0, _emberMetal.isEmpty)(instance), 'a instance was created');
       assert.equal(previousInstance, undefined, 'no previous component exists');
       assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
-      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+      assert.equal(this.$().text(), 'open', 'the components text is "open"');
 
       this.runTask(function () {
         return _this32.rerender();
@@ -12539,7 +12539,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
       assert.ok(!(0, _emberMetal.isEmpty)(instance), 'the component instance exists');
       assert.equal(previousInstance, undefined, 'no previous component exists');
       assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
-      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+      assert.equal(this.$().text(), 'open', 'the components text is "open"');
 
       this.runTask(function () {
         return _this32.context.set('isOpen', false);
@@ -12566,7 +12566,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
       assert.ok(!(0, _emberMetal.isEmpty)(instance), 'the component instance exists');
       assert.equal(previousInstance, undefined, 'no previous component exists');
       assert.equal(initCount, 1, 'the component was constructed exactly 1 time');
-      assert.equal(this.$().text(), 'open', 'the componet text is "open"');
+      assert.equal(this.$().text(), 'open', 'the components text is "open"');
     };
 
     _class.prototype['@test GH#13982 contextual component ref is recomputed when component name param changes'] = function testGH13982ContextualComponentRefIsRecomputedWhenComponentNameParamChanges(assert) {
@@ -14634,7 +14634,7 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.assertComponentElement(this.firstChild, { attrs: { role: 'main' } });
     };
 
-    _class.prototype['@test `template` specified in component is overriden by block'] = function testTemplateSpecifiedInComponentIsOverridenByBlock() {
+    _class.prototype['@test `template` specified in component is overridden by block'] = function testTemplateSpecifiedInComponentIsOverriddenByBlock() {
       var _this51 = this;
 
       this.registerComponent('with-template', {
@@ -37563,19 +37563,19 @@ enifed('ember-metal/tests/accessors/get_test', ['internal-test-helpers', 'ember-
     equal(get(obj, 'foo'), 'FOO', 'should return value from unknown');
   });
 
-  QUnit.test('warn on attemps to call get with no arguments', function () {
+  QUnit.test('warn on attempts to call get with no arguments', function () {
     expectAssertion(function () {
       (0, _emberMetal.get)('aProperty');
     }, /Get must be called with two arguments;/i);
   });
 
-  QUnit.test('warn on attemps to call get with only one argument', function () {
+  QUnit.test('warn on attempts to call get with only one argument', function () {
     expectAssertion(function () {
       (0, _emberMetal.get)('aProperty');
     }, /Get must be called with two arguments;/i);
   });
 
-  QUnit.test('warn on attemps to call get with more then two arguments', function () {
+  QUnit.test('warn on attempts to call get with more then two arguments', function () {
     expectAssertion(function () {
       (0, _emberMetal.get)({}, 'aProperty', true);
     }, /Get must be called with two arguments;/i);
@@ -40576,7 +40576,7 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
     SecondMixin.apply(obj);
 
     (0, _emberMetal.sendEvent)(obj, 'bar');
-    equal(triggered, 0, 'should not invoke from overriden property');
+    equal(triggered, 0, 'should not invoke from overridden property');
 
     (0, _emberMetal.sendEvent)(obj, 'baz');
     equal(triggered, 1, 'should invoke from subclass property');
@@ -40721,7 +40721,7 @@ enifed('ember-metal/tests/injected_property_test', ['ember-utils', 'ember-metal'
 
     (0, _emberMetal.set)(obj, 'foo', 'bar');
 
-    equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should return the overriden value');
+    equal((0, _emberMetal.get)(obj, 'foo'), 'bar', 'should return the overridden value');
   });
 
   QUnit.test('getting on an object without an owner or container should fail assertion', function () {
@@ -43099,7 +43099,7 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
 
-  (0, _internalTestHelpers.testBoth)('observing chain with overriden property', function (get, set) {
+  (0, _internalTestHelpers.testBoth)('observing chain with overridden property', function (get, set) {
     var obj2 = { baz: 'baz' };
     var obj3 = { baz: 'foo' };
 
@@ -59404,7 +59404,7 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['ember-m
   });
 
   QUnit.test('arrangedContentArray{Will,Did}Change are called when the arranged content changes', function () {
-    // The behaviour covered by this test may change in the future if we decide
+    // The behavior covered by this test may change in the future if we decide
     // that built-in array methods are not overridable.
 
     var willChangeCallCount = 0;
@@ -59535,7 +59535,7 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['ember-met
   });
 
   QUnit.test('arrayContent{Will,Did}Change are called when the content changes', function () {
-    // The behaviour covered by this test may change in the future if we decide
+    // The behavior covered by this test may change in the future if we decide
     // that built-in array methods are not overridable.
 
     var willChangeCallCount = 0;
@@ -71195,7 +71195,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     ok(generatedRoute instanceof App.Route, 'should extend the correct route');
   });
 
-  QUnit.test('Nested index route is not overriden by parent\'s implicit index route', function () {
+  QUnit.test('Nested index route is not overridden by parent\'s implicit index route', function () {
     Router.map(function () {
       this.route('posts', function () {
         this.route('index', { path: ':category' });
@@ -73263,7 +73263,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
         _this7.assertCurrentPath('/', 'QP did not update due to being overriden');
 
         _this7.setAndFlush(indexController, 'c', false);
-        _this7.assertCurrentPath('/?c=false', 'QP updated with overriden param');
+        _this7.assertCurrentPath('/?c=false', 'QP updated with overridden param');
       });
     };
 

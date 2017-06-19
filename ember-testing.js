@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+4ec05b80
+ * @version   2.15.0-alpha.1-null+26a8b5bb
  */
 
 var enifed, requireModule, Ember;
@@ -178,7 +178,7 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var possibleConstructorReturn = exports.possibleConstructorReturn = function (self, call) {
     if (!self) {
-      throw new ReferenceError('this hasn\'t been initialised - super() hasn\'t been called');
+      throw new ReferenceError('this hasn\'t been initialized - super() hasn\'t been called');
     }
     return call && (typeof call === 'object' || typeof call === 'function') ? call : self;
   };
@@ -1345,7 +1345,7 @@ enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], funct
     @method click
     @param {String} selector jQuery selector for finding element on the DOM
     @param {Object} context A DOM Element, Document, or jQuery to use as context
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function click(app, selector, context) {
@@ -1477,7 +1477,7 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], fun
     @param {String} selector jQuery selector finding an input element on the DOM
     to fill text with
     @param {String} text text to place inside the input element
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function fillIn(app, selector, contextOrText, text) {
@@ -1602,7 +1602,7 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     @param {String} selector jQuery selector for finding element on the DOM
     @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
     @param {Number} keyCode the keyCode of the simulated key event
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @since 1.5.0
     @public
   */
@@ -1693,7 +1693,7 @@ enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'
                              argument to find only within the context's children
    @param {String} type The event type to be triggered.
    @param {Object} [options] The options to be passed to jQuery.Event.
-   @return {RSVP.Promise}
+   @return {RSVP.Promise<undefined>}
    @since 1.5.0
    @public
   */
@@ -1762,7 +1762,7 @@ enifed('ember-testing/helpers/visit', ['exports', 'ember-metal'], function (expo
   
     @method visit
     @param {String} url the name of the route
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function visit(app, url) {
@@ -1820,7 +1820,7 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
   
     @method wait
     @param {Object} value The value to be returned.
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<any>} Promise that resolves to the passed value.
     @public
     @since 1.0.0
   */

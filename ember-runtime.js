@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+4ec05b80
+ * @version   2.15.0-alpha.1-null+26a8b5bb
  */
 
 var enifed, requireModule, Ember;
@@ -1036,7 +1036,7 @@ enifed('ember-babel', ['exports'], function (exports) {
 
   var possibleConstructorReturn = exports.possibleConstructorReturn = function (self, call) {
     if (!self) {
-      throw new ReferenceError('this hasn\'t been initialised - super() hasn\'t been called');
+      throw new ReferenceError('this hasn\'t been initialized - super() hasn\'t been called');
     }
     return call && (typeof call === 'object' || typeof call === 'function') ? call : self;
   };
@@ -5926,7 +5926,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       will be resolved on the target object at the time the scheduled item is
       invoked allowing you to change the target function.
     @param {Object} [arguments*] Optional arguments to be passed to the queued method.
-    @return {*} Timer information for use in cancelling, see `run.cancel`.
+    @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.schedule = function () /* queue, target, method */{
@@ -5991,7 +5991,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
     @param {Number} wait Number of milliseconds to wait.
-    @return {*} Timer information for use in cancelling, see `run.cancel`.
+    @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.later = function () /*target, method*/{
@@ -6008,7 +6008,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       If you pass a string it will be resolved on the
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
-    @return {Object} Timer information for use in cancelling, see `run.cancel`.
+    @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.once = function () {
@@ -6071,7 +6071,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       If you pass a string it will be resolved on the
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
-    @return {Object} Timer information for use in cancelling, see `run.cancel`.
+    @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.scheduleOnce = function () /*queue, target, method*/{
@@ -6140,7 +6140,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       If you pass a string it will be resolved on the
       target at the time the method is invoked.
     @param {Object} [args*] Optional arguments to pass to the timeout.
-    @return {Object} Timer information for use in cancelling, see `run.cancel`.
+    @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.next = function () {
@@ -6198,13 +6198,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       // will be executed since we passed in true (immediate)
     }, 100, true);
   
-    // the 100ms delay until this method can be called again will be cancelled
+    // the 100ms delay until this method can be called again will be canceled
     run.cancel(debounceImmediate);
     ```
   
     @method cancel
     @param {Object} timer Timer object to cancel
-    @return {Boolean} true if cancelled or false/undefined if it wasn't found
+    @return {Boolean} true if canceled or false/undefined if it wasn't found
     @public
   */
   run$1.cancel = function (timer) {
@@ -6277,7 +6277,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {Number} wait Number of milliseconds to wait.
     @param {Boolean} immediate Trigger the function on the leading instead
       of the trailing edge of the wait interval. Defaults to false.
-    @return {Array} Timer information for use in cancelling, see `run.cancel`.
+    @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.debounce = function () {
@@ -6320,7 +6320,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {Number} spacing Number of milliseconds to space out requests.
     @param {Boolean} immediate Trigger the function on the leading instead
       of the trailing edge of the wait interval. Defaults to true.
-    @return {Array} Timer information for use in cancelling, see `run.cancel`.
+    @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
   run$1.throttle = function () {
