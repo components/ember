@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+5b528a01
+ * @version   2.15.0-alpha.1-null+9da11e7f
  */
 
 var enifed, requireModule, Ember;
@@ -4049,420 +4049,443 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal', 'embe
     }, /The `initialize` method for Application initializer 'deprecated' should take only one argument - `App`, an instance of an `Application`./);
   });
 });
-enifed('ember-application/tests/system/instance_initializers_test', ['ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views'], function (_emberMetal, _application, _applicationInstance, _emberViews) {
+enifed('ember-application/tests/system/instance_initializers_test', ['ember-babel', 'ember-utils', 'internal-test-helpers', 'ember-application', 'ember-views'], function (_emberBabel, _emberUtils, _internalTestHelpers, _emberApplication, _emberViews) {
   'use strict';
 
-  var app = void 0;
+  (0, _internalTestHelpers.moduleFor)('Ember.Application instance initializers', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
-  QUnit.module('Ember.Application instance initializers', {
-    teardown: function () {
-      if (app) {
-        (0, _emberMetal.run)(function () {
-          return app.destroy();
+    function _class() {
+
+      (0, _emberViews.jQuery)('#qunit-fixture').html('\n      <div id="one">ONE</div>\n      <div id="two">TWO</div>\n    ');
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+    }
+
+    _class.prototype.createSecondApplication = function (options) {
+      var MyApplication = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _emberApplication.Application;
+
+      var myOptions = (0, _emberUtils.assign)(this.applicationOptions, {
+        rootElement: '#two'
+      }, options);
+      var secondApp = this.secondApp = MyApplication.create(myOptions);
+      return secondApp;
+    };
+
+    _class.prototype.teardown = function () {
+      var _this2 = this;
+
+      _AutobootApplicationT.prototype.teardown.call(this);
+
+      if (this.secondApp) {
+        this.runTask(function () {
+          return _this2.secondApp.destroy();
         });
       }
-    }
-  });
+    };
 
-  QUnit.test('initializers require proper \'name\' and \'initialize\' properties', function () {
-    var MyApplication = _application.default.extend();
+    _class.prototype['@test initializers require proper \'name\' and \'initialize\' properties'] = function () {
+      var _this3 = this;
 
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
+      var MyApplication = _emberApplication.Application.extend();
+
+      expectAssertion(function () {
         MyApplication.instanceInitializer({ name: 'initializer' });
       });
-    });
 
-    expectAssertion(function () {
-      (0, _emberMetal.run)(function () {
+      expectAssertion(function () {
         MyApplication.instanceInitializer({
           initialize: function () {}
         });
       });
-    });
-  });
 
-  QUnit.test('initializers are passed an app instance', function () {
-    var MyApplication = _application.default.extend();
-
-    MyApplication.instanceInitializer({
-      name: 'initializer',
-      initialize: function (instance) {
-        ok(instance instanceof _applicationInstance.default, 'initialize is passed an application instance');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      app = MyApplication.create({
-        router: false,
-        rootElement: '#qunit-fixture'
+      this.runTask(function () {
+        return _this3.createApplication({}, MyApplication);
       });
-    });
-  });
-
-  QUnit.test('initializers can be registered in a specified order', function () {
-    var order = [];
-    var MyApplication = _application.default.extend();
-    MyApplication.instanceInitializer({
-      name: 'fourth',
-      after: 'third',
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'second',
-      after: 'first',
-      before: 'third',
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'first',
-      before: 'second',
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      app = MyApplication.create({
-        router: false,
-        rootElement: '#qunit-fixture'
-      });
-    });
-
-    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-  });
-
-  QUnit.test('initializers can be registered in a specified order as an array', function () {
-    var order = [];
-    var MyApplication = _application.default.extend();
-
-    MyApplication.instanceInitializer({
-      name: 'third',
-      initialize: function () {
-        order.push('third');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'second',
-      after: 'first',
-      before: ['third', 'fourth'],
-      initialize: function () {
-        order.push('second');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'fourth',
-      after: ['second', 'third'],
-      initialize: function () {
-        order.push('fourth');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'fifth',
-      after: 'fourth',
-      before: 'sixth',
-      initialize: function () {
-        order.push('fifth');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'first',
-      before: ['second'],
-      initialize: function () {
-        order.push('first');
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'sixth',
-      initialize: function () {
-        order.push('sixth');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      app = MyApplication.create({
-        router: false,
-        rootElement: '#qunit-fixture'
-      });
-    });
-
-    deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
-  });
-
-  QUnit.test('initializers can have multiple dependencies', function () {
-    var order = [];
-    var a = {
-      name: 'a',
-      before: 'b',
-      initialize: function () {
-        order.push('a');
-      }
-    };
-    var b = {
-      name: 'b',
-      initialize: function () {
-        order.push('b');
-      }
-    };
-    var c = {
-      name: 'c',
-      after: 'b',
-      initialize: function () {
-        order.push('c');
-      }
-    };
-    var afterB = {
-      name: 'after b',
-      after: 'b',
-      initialize: function () {
-        order.push('after b');
-      }
-    };
-    var afterC = {
-      name: 'after c',
-      after: 'c',
-      initialize: function () {
-        order.push('after c');
-      }
     };
 
-    _application.default.instanceInitializer(b);
-    _application.default.instanceInitializer(a);
-    _application.default.instanceInitializer(afterC);
-    _application.default.instanceInitializer(afterB);
-    _application.default.instanceInitializer(c);
+    _class.prototype['@test initializers are passed an app instance'] = function (assert) {
+      var _this4 = this;
 
-    (0, _emberMetal.run)(function () {
-      app = _application.default.create({
-        router: false,
-        rootElement: '#qunit-fixture'
+      var MyApplication = _emberApplication.Application.extend();
+
+      MyApplication.instanceInitializer({
+        name: 'initializer',
+        initialize: function (instance) {
+          assert.ok(instance instanceof _emberApplication.ApplicationInstance, 'initialize is passed an application instance');
+        }
       });
-    });
 
-    ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
-    ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
-    ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
-    ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
-  });
-
-  QUnit.test('initializers set on Application subclasses should not be shared between apps', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstApp = _application.default.extend();
-    var firstApp = void 0,
-        secondApp = void 0;
-
-    FirstApp.instanceInitializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
-    var SecondApp = _application.default.extend();
-    SecondApp.instanceInitializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<div id="first"></div><div id="second"></div>');
-    (0, _emberMetal.run)(function () {
-      firstApp = FirstApp.create({
-        router: false,
-        rootElement: '#qunit-fixture #first'
+      this.runTask(function () {
+        return _this4.createApplication({}, MyApplication);
       });
-    });
-    equal(firstInitializerRunCount, 1, 'first initializer only was run');
-    equal(secondInitializerRunCount, 0, 'first initializer only was run');
-    (0, _emberMetal.run)(function () {
-      secondApp = SecondApp.create({
-        router: false,
-        rootElement: '#qunit-fixture #second'
+    };
+
+    _class.prototype['@test initializers can be registered in a specified order'] = function (assert) {
+      var _this5 = this;
+
+      var order = [];
+      var MyApplication = _emberApplication.Application.extend();
+
+      MyApplication.instanceInitializer({
+        name: 'fourth',
+        after: 'third',
+        initialize: function () {
+          order.push('fourth');
+        }
       });
-    });
-    equal(firstInitializerRunCount, 1, 'second initializer only was run');
-    equal(secondInitializerRunCount, 1, 'second initializer only was run');
-    (0, _emberMetal.run)(function () {
-      firstApp.destroy();
-      secondApp.destroy();
-    });
-  });
 
-  QUnit.test('initializers are concatenated', function () {
-    var firstInitializerRunCount = 0;
-    var secondInitializerRunCount = 0;
-    var FirstApp = _application.default.extend();
-    var firstApp = void 0,
-        secondApp = void 0;
-
-    FirstApp.instanceInitializer({
-      name: 'first',
-      initialize: function () {
-        firstInitializerRunCount++;
-      }
-    });
-
-    var SecondApp = FirstApp.extend();
-    SecondApp.instanceInitializer({
-      name: 'second',
-      initialize: function () {
-        secondInitializerRunCount++;
-      }
-    });
-
-    (0, _emberViews.jQuery)('#qunit-fixture').html('<div id="first"></div><div id="second"></div>');
-    (0, _emberMetal.run)(function () {
-      firstApp = FirstApp.create({
-        router: false,
-        rootElement: '#qunit-fixture #first'
+      MyApplication.instanceInitializer({
+        name: 'second',
+        after: 'first',
+        before: 'third',
+        initialize: function () {
+          order.push('second');
+        }
       });
-    });
-    equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
-    equal(secondInitializerRunCount, 0, 'first initializer only was run when base class created');
-    firstInitializerRunCount = 0;
-    (0, _emberMetal.run)(function () {
-      secondApp = SecondApp.create({
-        router: false,
-        rootElement: '#qunit-fixture #second'
+
+      MyApplication.instanceInitializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
       });
-    });
-    equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
-    equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
-    (0, _emberMetal.run)(function () {
-      firstApp.destroy();
-      secondApp.destroy();
-    });
-  });
 
-  QUnit.test('initializers are per-app', function () {
-    expect(2);
+      MyApplication.instanceInitializer({
+        name: 'first',
+        before: 'second',
+        initialize: function () {
+          order.push('first');
+        }
+      });
 
-    var FirstApp = _application.default.extend();
+      MyApplication.instanceInitializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
 
-    FirstApp.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
+      MyApplication.instanceInitializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
 
-    expectAssertion(function () {
+      this.runTask(function () {
+        return _this5.createApplication({}, MyApplication);
+      });
+
+      assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    };
+
+    _class.prototype['@test initializers can be registered in a specified order as an array'] = function (assert) {
+      var _this6 = this;
+
+      var order = [];
+      var MyApplication = _emberApplication.Application.extend();
+
+      MyApplication.instanceInitializer({
+        name: 'third',
+        initialize: function () {
+          order.push('third');
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: 'second',
+        after: 'first',
+        before: ['third', 'fourth'],
+        initialize: function () {
+          order.push('second');
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: 'fourth',
+        after: ['second', 'third'],
+        initialize: function () {
+          order.push('fourth');
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: 'fifth',
+        after: 'fourth',
+        before: 'sixth',
+        initialize: function () {
+          order.push('fifth');
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: 'first',
+        before: ['second'],
+        initialize: function () {
+          order.push('first');
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: 'sixth',
+        initialize: function () {
+          order.push('sixth');
+        }
+      });
+
+      this.runTask(function () {
+        return _this6.createApplication({}, MyApplication);
+      });
+
+      assert.deepEqual(order, ['first', 'second', 'third', 'fourth', 'fifth', 'sixth']);
+    };
+
+    _class.prototype['@test initializers can have multiple dependencies'] = function (assert) {
+      var _this7 = this;
+
+      var order = [];
+      var MyApplication = _emberApplication.Application.extend();
+      var a = {
+        name: 'a',
+        before: 'b',
+        initialize: function () {
+          order.push('a');
+        }
+      };
+      var b = {
+        name: 'b',
+        initialize: function () {
+          order.push('b');
+        }
+      };
+      var c = {
+        name: 'c',
+        after: 'b',
+        initialize: function () {
+          order.push('c');
+        }
+      };
+      var afterB = {
+        name: 'after b',
+        after: 'b',
+        initialize: function () {
+          order.push('after b');
+        }
+      };
+      var afterC = {
+        name: 'after c',
+        after: 'c',
+        initialize: function () {
+          order.push('after c');
+        }
+      };
+
+      MyApplication.instanceInitializer(b);
+      MyApplication.instanceInitializer(a);
+      MyApplication.instanceInitializer(afterC);
+      MyApplication.instanceInitializer(afterB);
+      MyApplication.instanceInitializer(c);
+
+      this.runTask(function () {
+        return _this7.createApplication({}, MyApplication);
+      });
+
+      assert.ok(order.indexOf(a.name) < order.indexOf(b.name), 'a < b');
+      assert.ok(order.indexOf(b.name) < order.indexOf(c.name), 'b < c');
+      assert.ok(order.indexOf(b.name) < order.indexOf(afterB.name), 'b < afterB');
+      assert.ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
+    };
+
+    _class.prototype['@test initializers set on Application subclasses should not be shared between apps'] = function (assert) {
+      var _this8 = this;
+
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstApp = _emberApplication.Application.extend();
+
+      FirstApp.instanceInitializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondApp = _emberApplication.Application.extend();
+      SecondApp.instanceInitializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      this.runTask(function () {
+        return _this8.createApplication({}, FirstApp);
+      });
+
+      assert.equal(firstInitializerRunCount, 1, 'first initializer only was run');
+      assert.equal(secondInitializerRunCount, 0, 'first initializer only was run');
+
+      this.runTask(function () {
+        return _this8.createSecondApplication({}, SecondApp);
+      });
+
+      assert.equal(firstInitializerRunCount, 1, 'second initializer only was run');
+      assert.equal(secondInitializerRunCount, 1, 'second initializer only was run');
+    };
+
+    _class.prototype['@test initializers are concatenated'] = function () {
+      var _this9 = this;
+
+      var firstInitializerRunCount = 0;
+      var secondInitializerRunCount = 0;
+      var FirstApp = _emberApplication.Application.extend();
+
+      FirstApp.instanceInitializer({
+        name: 'first',
+        initialize: function () {
+          firstInitializerRunCount++;
+        }
+      });
+
+      var SecondApp = FirstApp.extend();
+      SecondApp.instanceInitializer({
+        name: 'second',
+        initialize: function () {
+          secondInitializerRunCount++;
+        }
+      });
+
+      this.runTask(function () {
+        return _this9.createApplication({}, FirstApp);
+      });
+
+      equal(firstInitializerRunCount, 1, 'first initializer only was run when base class created');
+      equal(secondInitializerRunCount, 0, 'first initializer only was run when base class created');
+
+      firstInitializerRunCount = 0;
+      this.runTask(function () {
+        return _this9.createSecondApplication({}, SecondApp);
+      });
+
+      equal(firstInitializerRunCount, 1, 'first initializer was run when subclass created');
+      equal(secondInitializerRunCount, 1, 'second initializers was run when subclass created');
+    };
+
+    _class.prototype['@test initializers are per-app'] = function (assert) {
+      var _this10 = this;
+
+      assert.expect(2);
+
+      var FirstApp = _emberApplication.Application.extend();
       FirstApp.instanceInitializer({
         name: 'abc',
         initialize: function () {}
       });
-    });
 
-    var SecondApp = _application.default.extend();
-    SecondApp.instanceInitializer({
-      name: 'abc',
-      initialize: function () {}
-    });
-
-    ok(true, 'Two apps can have initializers named the same.');
-  });
-
-  QUnit.test('initializers are run before ready hook', function () {
-    expect(2);
-
-    var readyWasCalled = false;
-
-    var MyApplication = _application.default.extend({
-      ready: function () {
-        ok(true, 'ready is called');
-        readyWasCalled = true;
-      }
-    });
-
-    MyApplication.instanceInitializer({
-      name: 'initializer',
-      initialize: function () {
-        ok(!readyWasCalled, 'ready is not yet called');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      app = MyApplication.create({
-        router: false,
-        rootElement: '#qunit-fixture'
+      expectAssertion(function () {
+        FirstApp.instanceInitializer({
+          name: 'abc',
+          initialize: function () {}
+        });
       });
-    });
-  });
 
-  QUnit.test('initializers are executed in their own context', function () {
-    expect(1);
-
-    var MyApplication = _application.default.extend();
-
-    MyApplication.instanceInitializer({
-      name: 'coolInitializer',
-      myProperty: 'cool',
-      initialize: function () {
-        equal(this.myProperty, 'cool', 'should have access to its own context');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      app = MyApplication.create({
-        router: false,
-        rootElement: '#qunit-fixture'
+      this.runTask(function () {
+        return _this10.createApplication({}, FirstApp);
       });
-    });
-  });
 
-  QUnit.test('initializers get an instance on app reset', function () {
-    expect(2);
-
-    var MyApplication = _application.default.extend();
-
-    MyApplication.instanceInitializer({
-      name: 'giveMeAnInstance',
-      initialize: function (instance) {
-        ok(!!instance, 'Initializer got an instance');
-      }
-    });
-
-    (0, _emberMetal.run)(function () {
-      app = MyApplication.create({
-        router: false,
-        rootElement: '#qunit-fixture'
+      var SecondApp = _emberApplication.Application.extend();
+      SecondApp.instanceInitializer({
+        name: 'abc',
+        initialize: function () {}
       });
-    });
 
-    (0, _emberMetal.run)(app, 'reset');
-  });
+      this.runTask(function () {
+        return _this10.createSecondApplication({}, SecondApp);
+      });
+
+      assert.ok(true, 'Two apps can have initializers named the same.');
+    };
+
+    _class.prototype['@test initializers are run before ready hook'] = function (assert) {
+      var _this11 = this;
+
+      assert.expect(2);
+
+      var MyApplication = _emberApplication.Application.extend({
+        ready: function () {
+          assert.ok(true, 'ready is called');
+          readyWasCalled = false;
+        }
+      });
+      var readyWasCalled = false;
+
+      MyApplication.instanceInitializer({
+        name: 'initializer',
+        initialize: function () {
+          assert.ok(!readyWasCalled, 'ready is not yet called');
+        }
+      });
+
+      this.runTask(function () {
+        return _this11.createApplication({}, MyApplication);
+      });
+    };
+
+    _class.prototype['@test initializers are executed in their own context'] = function (assert) {
+      var _this12 = this;
+
+      assert.expect(1);
+
+      var MyApplication = _emberApplication.Application.extend();
+
+      MyApplication.instanceInitializer({
+        name: 'coolInitializer',
+        myProperty: 'cool',
+        initialize: function () {
+          assert.equal(this.myProperty, 'cool', 'should have access to its own context');
+        }
+      });
+
+      this.runTask(function () {
+        return _this12.createApplication({}, MyApplication);
+      });
+    };
+
+    _class.prototype['@test initializers get an instance on app reset'] = function (assert) {
+      var _this13 = this;
+
+      assert.expect(2);
+
+      var MyApplication = _emberApplication.Application.extend();
+
+      MyApplication.instanceInitializer({
+        name: 'giveMeAnInstance',
+        initialize: function (instance) {
+          assert.ok(!!instance, 'Initializer got an instance');
+        }
+      });
+
+      this.runTask(function () {
+        return _this13.createApplication({}, MyApplication);
+      });
+
+      this.runTask(function () {
+        return _this13.application.reset();
+      });
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_AutobootApplicationT.prototype.applicationOptions, {
+          rootElement: '#one'
+        });
+      }
+    }]);
+    return _class;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 enifed('ember-application/tests/system/logging_test', ['ember-babel', 'internal-test-helpers', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-utils'], function (_emberBabel, _internalTestHelpers, _emberConsole, _emberRuntime, _emberRouting, _emberUtils) {
   'use strict';
