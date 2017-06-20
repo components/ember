@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+723752ab
+ * @version   2.15.0-alpha.1-null+74cfead2
  */
 
 var enifed, requireModule, Ember;
@@ -65292,115 +65292,88 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-testing/tests/helpers_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-testing/tests/integration_test', ['ember-metal', 'ember-runtime', 'ember-views', 'ember-testing/test', 'ember-routing', 'ember-application', 'ember-template-compiler', 'ember-glimmer'], function (_emberMetal, _emberRuntime, _emberViews, _test, _emberRouting, _emberApplication, _emberTemplateCompiler, _emberGlimmer) {
+enifed('ember-testing/tests/integration_test', ['ember-babel', 'internal-test-helpers', 'ember-testing/test', 'ember-runtime', 'ember-routing'], function (_emberBabel, _internalTestHelpers, _test, _emberRuntime, _emberRouting) {
   'use strict';
 
-  var App, find, visit;
-  var originalAdapter = _test.default.adapter;
+  (0, _internalTestHelpers.moduleFor)('ember-testing Integration tests of acceptance', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
-  QUnit.module('ember-testing Integration', {
-    setup: function () {
-      (0, _emberViews.jQuery)('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
-      (0, _emberMetal.run)(function () {
-        (0, _emberGlimmer.setTemplate)('people', (0, _emberTemplateCompiler.compile)('<div>{{#each model as |person|}}<div class="name">{{person.firstName}}</div>{{/each}}</div>'));
-        (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-        App = _emberApplication.Application.create({
-          rootElement: '#ember-testing'
-        });
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
 
-        App.Router.map(function () {
+      _this.modelContent = [];
+      _this._originalAdapter = _test.default.adapter;
+
+      _this.runTask(function () {
+        _this.createApplication();
+
+        _this.addTemplate('people', '\n        <div>\n          {{#each model as |person|}}\n            <div class="name">{{person.firstName}}</div>\n          {{/each}}\n        </div>\n      ');
+
+        _this.router.map(function () {
           this.route('people', { path: '/' });
         });
 
-        App.PeopleRoute = _emberRouting.Route.extend({
+        _this.add('route:people', _emberRouting.Route.extend({
           model: function () {
-            return App.Person.find();
+            return _this.modelContent;
           }
-        });
+        }));
 
-        App.PeopleController = _emberRuntime.Controller.extend({});
-
-        App.Person = _emberRuntime.Object.extend({
-          firstName: ''
-        });
-
-        App.Person.reopenClass({
-          find: function () {
-            return (0, _emberRuntime.A)();
-          }
-        });
-
-        App.setupForTesting();
+        _this.application.setupForTesting();
       });
 
-      (0, _emberMetal.run)(function () {
-        App.reset();
+      _this.runTask(function () {
+        _this.application.reset();
       });
 
-      App.injectTestHelpers();
-
-      find = window.find;
-      visit = window.visit;
-    },
-    teardown: function () {
-      App.removeTestHelpers();
-      (0, _emberGlimmer.setTemplates)({});
-      (0, _emberViews.jQuery)('#ember-testing-container, #ember-testing').remove();
-      (0, _emberMetal.run)(App, App.destroy);
-      App = null;
-      _test.default.adapter = originalAdapter;
+      _this.application.injectTestHelpers();
+      return _this;
     }
-  });
 
-  QUnit.test('template is bound to empty array of people', function () {
-    App.Person.find = function () {
-      return (0, _emberRuntime.A)();
-    };
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-    visit('/').then(function () {
-      var rows = find('.name').length;
-      equal(rows, 0, 'successfully stubbed an empty array of people');
-    });
-  });
-
-  QUnit.test('template is bound to array of 2 people', function () {
-    App.Person.find = function () {
-      var people = (0, _emberRuntime.A)();
-      var first = App.Person.create({ firstName: 'x' });
-      var last = App.Person.create({ firstName: 'y' });
-      (0, _emberMetal.run)(people, people.pushObject, first);
-      (0, _emberMetal.run)(people, people.pushObject, last);
-      return people;
-    };
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-    visit('/').then(function () {
-      var rows = find('.name').length;
-      equal(rows, 2, 'successfully stubbed a non empty array of people');
-    });
-  });
-
-  QUnit.test('template is again bound to empty array of people', function () {
-    App.Person.find = function () {
-      return (0, _emberRuntime.A)();
-    };
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-    visit('/').then(function () {
-      var rows = find('.name').length;
-      equal(rows, 0, 'successfully stubbed another empty array of people');
-    });
-  });
-
-  QUnit.test('`visit` can be called without advancedReadiness.', function () {
-    App.Person.find = function () {
-      return (0, _emberRuntime.A)();
+    _class.prototype.teardown = function teardown() {
+      _AutobootApplicationT.prototype.teardown.call(this);
+      _test.default.adapter = this._originalAdapter;
     };
 
-    visit('/').then(function () {
-      var rows = find('.name').length;
-      equal(rows, 0, 'stubbed an empty array of people without calling advancedReadiness.');
-    });
-  });
+    _class.prototype['@test template is bound to empty array of people'] = function (assert) {
+      var _this2 = this;
+
+      this.runTask(function () {
+        return _this2.application.advanceReadiness();
+      });
+      window.visit('/').then(function () {
+        var rows = window.find('.name').length;
+        assert.equal(rows, 0, 'successfully stubbed an empty array of people');
+      });
+    };
+
+    _class.prototype['@test template is bound to array of 2 people'] = function (assert) {
+      var _this3 = this;
+
+      this.modelContent = (0, _emberRuntime.A)([]);
+      this.modelContent.pushObject({ firstName: 'x' });
+      this.modelContent.pushObject({ firstName: 'y' });
+
+      this.runTask(function () {
+        return _this3.application.advanceReadiness();
+      });
+      window.visit('/').then(function () {
+        var rows = window.find('.name').length;
+        assert.equal(rows, 2, 'successfully stubbed a non empty array of people');
+      });
+    };
+
+    _class.prototype['@test \'visit\' can be called without advanceReadiness.'] = function (assert) {
+      window.visit('/').then(function () {
+        var rows = window.find('.name').length;
+        assert.equal(rows, 0, 'stubbed an empty array of people without calling advanceReadiness.');
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 QUnit.module('ESLint | ember-testing/tests/integration_test.js');
 QUnit.test('should pass ESLint', function(assert) {
