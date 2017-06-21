@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+17235982
+ * @version   2.15.0-alpha.1-null+28f64f02
  */
 
 var enifed, requireModule, Ember;
@@ -24255,11 +24255,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return setPath(obj, keyName, value, tolerant);
     }
 
-    var meta$$1 = exports.peekMeta(obj);
-    var possibleDesc = obj[keyName];
-
     var desc = void 0,
-        currentValue = void 0;
+        currentValue = void 0,
+        meta$$1;
+    var possibleDesc = obj[keyName];
     if (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) {
       desc = possibleDesc;
     } else {
@@ -24278,6 +24277,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       /* no change */
       return value;
     } else {
+      meta$$1 = exports.peekMeta(obj);
+
       propertyWillChange(obj, keyName, meta$$1);
 
       {
@@ -39787,11 +39788,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
 
                 if (baseValue) {
-                  if ('function' === typeof baseValue.concat) {
-                    value = baseValue.concat(value);
-                  } else {
-                    value = (0, _emberUtils.makeArray)(baseValue).concat(value);
-                  }
+                  value = (0, _emberUtils.makeArray)(baseValue).concat(value);
                 } else {
                   value = (0, _emberUtils.makeArray)(value);
                 }
@@ -40019,11 +40016,11 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
   }, _ClassMixinProps.metaForProperty = function (key) {
     var proto = this.proto();
     var possibleDesc = proto[key];
-    var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-    false && !(!!desc && desc instanceof _emberMetal.ComputedProperty) && (0, _emberDebug.assert)('metaForProperty() could not find a computed property with key \'' + key + '\'.', !!desc && desc instanceof _emberMetal.ComputedProperty);
+    false && !(isDescriptor && possibleDesc instanceof _emberMetal.ComputedProperty) && (0, _emberDebug.assert)('metaForProperty() could not find a computed property with key \'' + key + '\'.', isDescriptor && possibleDesc instanceof _emberMetal.ComputedProperty);
 
-    return desc._meta || {};
+    return possibleDesc._meta || {};
   }, _ClassMixinProps._computedProperties = (0, _emberMetal.computed)(function () {
     (0, _emberMetal._hasCachedComputedProperties)();
     var proto = this.proto();
@@ -40033,7 +40030,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     for (var name in proto) {
       property = proto[name];
 
-      if (property && property.isDescriptor) {
+      if (property !== null && typeof property === 'object' && property.isDescriptor) {
         properties.push({
           name: name,
           meta: property._meta
@@ -44197,7 +44194,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+17235982";
+  exports.default = "2.15.0-alpha.1-null+28f64f02";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
