@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+74cfead2
+ * @version   2.15.0-alpha.1-null+17235982
  */
 
 var enifed, requireModule, Ember;
@@ -1025,12 +1025,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         Register[Register["t0"] = 6] = "t0";
         Register[Register["t1"] = 7] = "t1";
     })(Register || (exports.Register = Register = {}));
-    function debugSlice() {}
+
     var AppendOpcodes = function () {
         function AppendOpcodes() {
             _classCallCheck(this, AppendOpcodes);
 
-            this.evaluateOpcode = (0, _util.fillNulls)(71 /* Size */).slice();
+            this.evaluateOpcode = (0, _util.fillNulls)(72 /* Size */).slice();
         }
 
         AppendOpcodes.prototype.add = function (name, evaluate) {
@@ -1301,7 +1301,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var expr = vm.stack.pop();
         vm.scope().bindSymbol(symbol, expr);
     });
-    APPEND_OPCODES.add(69 /* ResolveMaybeLocal */, function (vm, _ref5) {
+    APPEND_OPCODES.add(70 /* ResolveMaybeLocal */, function (vm, _ref5) {
         var _name = _ref5.op1;
 
         var name = vm.constants.getString(_name);
@@ -1758,10 +1758,10 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     APPEND_OPCODES.add(21 /* PopScope */, function (vm) {
         return vm.popScope();
     });
-    APPEND_OPCODES.add(38 /* PushDynamicScope */, function (vm) {
+    APPEND_OPCODES.add(39 /* PushDynamicScope */, function (vm) {
         return vm.pushDynamicScope();
     });
-    APPEND_OPCODES.add(39 /* PopDynamicScope */, function (vm) {
+    APPEND_OPCODES.add(40 /* PopDynamicScope */, function (vm) {
         return vm.popDynamicScope();
     });
     APPEND_OPCODES.add(12 /* Immediate */, function (vm, _ref) {
@@ -1824,49 +1824,49 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var register = _ref7.op1;
         return vm.fetch(register);
     });
-    APPEND_OPCODES.add(37 /* BindDynamicScope */, function (vm, _ref8) {
+    APPEND_OPCODES.add(38 /* BindDynamicScope */, function (vm, _ref8) {
         var _names = _ref8.op1;
 
         var names = vm.constants.getArray(_names);
         vm.bindDynamicScope(names);
     });
-    APPEND_OPCODES.add(46 /* PushFrame */, function (vm) {
+    APPEND_OPCODES.add(47 /* PushFrame */, function (vm) {
         return vm.pushFrame();
     });
-    APPEND_OPCODES.add(47 /* PopFrame */, function (vm) {
+    APPEND_OPCODES.add(48 /* PopFrame */, function (vm) {
         return vm.popFrame();
     });
-    APPEND_OPCODES.add(48 /* Enter */, function (vm, _ref9) {
+    APPEND_OPCODES.add(49 /* Enter */, function (vm, _ref9) {
         var args = _ref9.op1;
         return vm.enter(args);
     });
-    APPEND_OPCODES.add(49 /* Exit */, function (vm) {
+    APPEND_OPCODES.add(50 /* Exit */, function (vm) {
         return vm.exit();
     });
-    APPEND_OPCODES.add(40 /* CompileDynamicBlock */, function (vm) {
+    APPEND_OPCODES.add(41 /* CompileDynamicBlock */, function (vm) {
         var stack = vm.stack;
         var block = stack.pop();
         stack.push(block ? block.compileDynamic(vm.env) : null);
     });
-    APPEND_OPCODES.add(41 /* InvokeStatic */, function (vm, _ref10) {
+    APPEND_OPCODES.add(42 /* InvokeStatic */, function (vm, _ref10) {
         var _block = _ref10.op1;
 
         var block = vm.constants.getBlock(_block);
         var compiled = block.compileStatic(vm.env);
-        vm.call(compiled.start);
+        vm.call(compiled.handle);
     });
-    APPEND_OPCODES.add(42 /* InvokeDynamic */, function (vm, _ref11) {
+    APPEND_OPCODES.add(43 /* InvokeDynamic */, function (vm, _ref11) {
         var _invoker = _ref11.op1;
 
         var invoker = vm.constants.getOther(_invoker);
         var block = vm.stack.pop();
         invoker.invoke(vm, block);
     });
-    APPEND_OPCODES.add(43 /* Jump */, function (vm, _ref12) {
+    APPEND_OPCODES.add(44 /* Jump */, function (vm, _ref12) {
         var target = _ref12.op1;
         return vm.goto(target);
     });
-    APPEND_OPCODES.add(44 /* JumpIf */, function (vm, _ref13) {
+    APPEND_OPCODES.add(45 /* JumpIf */, function (vm, _ref13) {
         var target = _ref13.op1,
             cache;
 
@@ -1884,7 +1884,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             vm.updateWith(new Assert(cache));
         }
     });
-    APPEND_OPCODES.add(45 /* JumpUnless */, function (vm, _ref14) {
+    APPEND_OPCODES.add(46 /* JumpUnless */, function (vm, _ref14) {
         var target = _ref14.op1,
             cache;
 
@@ -1905,6 +1905,11 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     APPEND_OPCODES.add(22 /* Return */, function (vm) {
         return vm.return();
     });
+    APPEND_OPCODES.add(23 /* ReturnTo */, function (vm, _ref15) {
+        var relative = _ref15.op1;
+
+        vm.returnTo(relative);
+    });
     var ConstTest = function (ref) {
         return new _reference2.ConstReference(!!ref.value());
     };
@@ -1914,8 +1919,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     var EnvironmentTest = function (ref, env) {
         return env.toConditionalReference(ref);
     };
-    APPEND_OPCODES.add(50 /* Test */, function (vm, _ref15) {
-        var _func = _ref15.op1;
+    APPEND_OPCODES.add(51 /* Test */, function (vm, _ref16) {
+        var _func = _ref16.op1;
 
         var stack = vm.stack;
         var operand = stack.pop();
@@ -2085,34 +2090,34 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
     }
 
-    APPEND_OPCODES.add(23 /* Text */, function (vm, _ref) {
+    APPEND_OPCODES.add(24 /* Text */, function (vm, _ref) {
         var text = _ref.op1;
 
         vm.elements().appendText(vm.constants.getString(text));
     });
-    APPEND_OPCODES.add(24 /* Comment */, function (vm, _ref2) {
+    APPEND_OPCODES.add(25 /* Comment */, function (vm, _ref2) {
         var text = _ref2.op1;
 
         vm.elements().appendComment(vm.constants.getString(text));
     });
-    APPEND_OPCODES.add(26 /* OpenElement */, function (vm, _ref3) {
+    APPEND_OPCODES.add(27 /* OpenElement */, function (vm, _ref3) {
         var tag = _ref3.op1;
 
         vm.elements().openElement(vm.constants.getString(tag));
     });
-    APPEND_OPCODES.add(27 /* OpenElementWithOperations */, function (vm, _ref4) {
+    APPEND_OPCODES.add(28 /* OpenElementWithOperations */, function (vm, _ref4) {
         var tag = _ref4.op1;
 
         var tagName = vm.constants.getString(tag);
         var operations = vm.stack.pop();
         vm.elements().openElement(tagName, operations);
     });
-    APPEND_OPCODES.add(28 /* OpenDynamicElement */, function (vm) {
+    APPEND_OPCODES.add(29 /* OpenDynamicElement */, function (vm) {
         var operations = vm.stack.pop();
         var tagName = vm.stack.pop().value();
         vm.elements().openElement(tagName, operations);
     });
-    APPEND_OPCODES.add(35 /* PushRemoteElement */, function (vm) {
+    APPEND_OPCODES.add(36 /* PushRemoteElement */, function (vm) {
         var elementRef = vm.stack.pop(),
             cache,
             _cache;
@@ -2137,7 +2142,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
         vm.elements().pushRemoteElement(element, nextSibling);
     });
-    APPEND_OPCODES.add(36 /* PopRemoteElement */, function (vm) {
+    APPEND_OPCODES.add(37 /* PopRemoteElement */, function (vm) {
         return vm.elements().popRemoteElement();
     });
 
@@ -2395,16 +2400,16 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
         return ComponentElementOperations;
     }();
-    APPEND_OPCODES.add(32 /* FlushElement */, function (vm) {
+    APPEND_OPCODES.add(33 /* FlushElement */, function (vm) {
         var stack = vm.elements();
         var action = 'FlushElementOpcode#evaluate';
         stack.expectOperations(action).flush(stack.expectConstructing(action), vm);
         stack.flushElement();
     });
-    APPEND_OPCODES.add(33 /* CloseElement */, function (vm) {
+    APPEND_OPCODES.add(34 /* CloseElement */, function (vm) {
         return vm.elements().closeElement();
     });
-    APPEND_OPCODES.add(29 /* StaticAttr */, function (vm, _ref5) {
+    APPEND_OPCODES.add(30 /* StaticAttr */, function (vm, _ref5) {
         var _name = _ref5.op1,
             _value = _ref5.op2,
             _namespace = _ref5.op3,
@@ -2420,7 +2425,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             vm.elements().setStaticAttribute(name, value);
         }
     });
-    APPEND_OPCODES.add(34 /* Modifier */, function (vm, _ref6) {
+    APPEND_OPCODES.add(35 /* Modifier */, function (vm, _ref6) {
         var _manager = _ref6.op1;
 
         var manager = vm.constants.getOther(_manager);
@@ -2571,7 +2576,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     function formatElement(element) {
         return JSON.stringify('<' + element.tagName.toLowerCase() + ' />');
     }
-    APPEND_OPCODES.add(31 /* DynamicAttrNS */, function (vm, _ref7) {
+    APPEND_OPCODES.add(32 /* DynamicAttrNS */, function (vm, _ref7) {
         var _name = _ref7.op1,
             _namespace = _ref7.op2,
             trusting = _ref7.op3;
@@ -2581,7 +2586,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var reference = vm.stack.pop();
         vm.elements().setDynamicAttributeNS(namespace, name, reference, !!trusting);
     });
-    APPEND_OPCODES.add(30 /* DynamicAttr */, function (vm, _ref8) {
+    APPEND_OPCODES.add(31 /* DynamicAttr */, function (vm, _ref8) {
         var _name = _ref8.op1,
             trusting = _ref8.op2;
 
@@ -2653,14 +2658,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults$3(subClass, superClass);
     }
 
-    APPEND_OPCODES.add(55 /* PushComponentManager */, function (vm, _ref) {
+    APPEND_OPCODES.add(56 /* PushComponentManager */, function (vm, _ref) {
         var _definition = _ref.op1;
 
         var definition = vm.constants.getOther(_definition);
         var stack = vm.stack;
         stack.push({ definition: definition, manager: definition.manager, component: null });
     });
-    APPEND_OPCODES.add(56 /* PushDynamicComponentManager */, function (vm) {
+    APPEND_OPCODES.add(57 /* PushDynamicComponentManager */, function (vm) {
         var stack = vm.stack;
         var reference = stack.pop();
         var cache = (0, _reference2.isConst)(reference) ? undefined : new _reference2.ReferenceCache(reference);
@@ -2670,14 +2675,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             vm.updateWith(new Assert(cache));
         }
     });
-    APPEND_OPCODES.add(57 /* PushArgs */, function (vm, _ref2) {
+    APPEND_OPCODES.add(58 /* PushArgs */, function (vm, _ref2) {
         var synthetic = _ref2.op1;
 
         var stack = vm.stack;
         ARGS.setup(stack, !!synthetic);
         stack.push(ARGS);
     });
-    APPEND_OPCODES.add(58 /* PrepareArgs */, function (vm, _ref3) {
+    APPEND_OPCODES.add(59 /* PrepareArgs */, function (vm, _ref3) {
         var _state = _ref3.op1,
             positional,
             named,
@@ -2723,7 +2728,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
         stack.push(args);
     });
-    APPEND_OPCODES.add(59 /* CreateComponent */, function (vm, _ref4) {
+    APPEND_OPCODES.add(60 /* CreateComponent */, function (vm, _ref4) {
         var _vm$fetchValue2;
 
         var flags = _ref4.op1,
@@ -2739,7 +2744,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         state.component = component;
         vm.updateWith(new UpdateComponentOpcode(args.tag, definition.name, component, manager, dynamicScope));
     });
-    APPEND_OPCODES.add(60 /* RegisterComponentDestructor */, function (vm, _ref5) {
+    APPEND_OPCODES.add(61 /* RegisterComponentDestructor */, function (vm, _ref5) {
         var _state = _ref5.op1;
 
         var _vm$fetchValue3 = vm.fetchValue(_state),
@@ -2749,14 +2754,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var destructor = manager.getDestructor(component);
         if (destructor) vm.newDestroyable(destructor);
     });
-    APPEND_OPCODES.add(64 /* BeginComponentTransaction */, function (vm) {
+    APPEND_OPCODES.add(65 /* BeginComponentTransaction */, function (vm) {
         vm.beginCacheGroup();
         vm.elements().pushSimpleBlock();
     });
-    APPEND_OPCODES.add(61 /* PushComponentOperations */, function (vm) {
+    APPEND_OPCODES.add(62 /* PushComponentOperations */, function (vm) {
         vm.stack.push(new ComponentElementOperations(vm.env));
     });
-    APPEND_OPCODES.add(66 /* DidCreateElement */, function (vm, _ref6) {
+    APPEND_OPCODES.add(67 /* DidCreateElement */, function (vm, _ref6) {
         var _state = _ref6.op1;
 
         var _vm$fetchValue4 = vm.fetchValue(_state),
@@ -2766,13 +2771,13 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         var action = 'DidCreateElementOpcode#evaluate';
         manager.didCreateElement(component, vm.elements().expectConstructing(action), vm.elements().expectOperations(action));
     });
-    APPEND_OPCODES.add(62 /* GetComponentSelf */, function (vm, _ref7) {
+    APPEND_OPCODES.add(63 /* GetComponentSelf */, function (vm, _ref7) {
         var _state = _ref7.op1;
 
         var state = vm.fetchValue(_state);
         vm.stack.push(state.manager.getSelf(state.component));
     });
-    APPEND_OPCODES.add(63 /* GetComponentLayout */, function (vm, _ref8) {
+    APPEND_OPCODES.add(64 /* GetComponentLayout */, function (vm, _ref8) {
         var _state = _ref8.op1;
 
         var _vm$fetchValue5 = vm.fetchValue(_state),
@@ -2782,7 +2787,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
         vm.stack.push(manager.layoutFor(definition, component, vm.env));
     });
-    APPEND_OPCODES.add(67 /* DidRenderLayout */, function (vm, _ref9) {
+    APPEND_OPCODES.add(68 /* DidRenderLayout */, function (vm, _ref9) {
         var _state = _ref9.op1;
 
         var _vm$fetchValue6 = vm.fetchValue(_state),
@@ -2794,7 +2799,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         vm.env.didCreate(component, manager);
         vm.updateWith(new DidUpdateLayoutOpcode(manager, component, bounds));
     });
-    APPEND_OPCODES.add(65 /* CommitComponentTransaction */, function (vm) {
+    APPEND_OPCODES.add(66 /* CommitComponentTransaction */, function (vm) {
         return vm.commitCacheGroup();
     });
     var UpdateComponentOpcode = function (_UpdatingOpcode) {
@@ -3651,7 +3656,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
     }
 
-    APPEND_OPCODES.add(25 /* DynamicContent */, function (vm, _ref) {
+    APPEND_OPCODES.add(26 /* DynamicContent */, function (vm, _ref) {
         var append = _ref.op1;
 
         var opcode = vm.constants.getOther(append);
@@ -3947,7 +3952,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         return ScopeInspector;
     }();
 
-    APPEND_OPCODES.add(70 /* Debugger */, function (vm, _ref) {
+    APPEND_OPCODES.add(71 /* Debugger */, function (vm, _ref) {
         var _symbols = _ref.op1,
             _evalInfo = _ref.op2;
 
@@ -3959,7 +3964,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         });
     });
 
-    APPEND_OPCODES.add(68 /* GetPartialTemplate */, function (vm) {
+    APPEND_OPCODES.add(69 /* GetPartialTemplate */, function (vm) {
         var stack = vm.stack;
         var definition = stack.pop();
         stack.push(definition.value().template.asPartial());
@@ -3986,7 +3991,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         return IterablePresenceReference;
     }();
 
-    APPEND_OPCODES.add(53 /* PutIterator */, function (vm) {
+    APPEND_OPCODES.add(54 /* PutIterator */, function (vm) {
         var stack = vm.stack;
         var listRef = stack.pop();
         var key = stack.pop();
@@ -3995,15 +4000,15 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         stack.push(iterator);
         stack.push(new IterablePresenceReference(iterator.artifacts));
     });
-    APPEND_OPCODES.add(51 /* EnterList */, function (vm, _ref) {
-        var start = _ref.op1;
+    APPEND_OPCODES.add(52 /* EnterList */, function (vm, _ref) {
+        var relativeStart = _ref.op1;
 
-        vm.enterList(start);
+        vm.enterList(relativeStart);
     });
-    APPEND_OPCODES.add(52 /* ExitList */, function (vm) {
+    APPEND_OPCODES.add(53 /* ExitList */, function (vm) {
         return vm.exitList();
     });
-    APPEND_OPCODES.add(54 /* Iterate */, function (vm, _ref2) {
+    APPEND_OPCODES.add(55 /* Iterate */, function (vm, _ref2) {
         var breaks = _ref2.op1,
             tryOpcode;
 
@@ -4032,17 +4037,15 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
     }
 
-    var CompiledStaticTemplate = function CompiledStaticTemplate(start, end) {
+    var CompiledStaticTemplate = function CompiledStaticTemplate(handle) {
         _classCallCheck$17(this, CompiledStaticTemplate);
 
-        this.start = start;
-        this.end = end;
+        this.handle = handle;
     };
-    var CompiledDynamicTemplate = function CompiledDynamicTemplate(start, end, symbolTable) {
+    var CompiledDynamicTemplate = function CompiledDynamicTemplate(handle, symbolTable) {
         _classCallCheck$17(this, CompiledDynamicTemplate);
 
-        this.start = start;
-        this.end = end;
+        this.handle = handle;
         this.symbolTable = symbolTable;
     };
 
@@ -4187,9 +4190,9 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             }
             b.stopLabels();
             var start = b.start;
-            var end = b.finalize();
-            debugSlice(env, start, end);
-            return new CompiledDynamicTemplate(start, end, {
+            b.finalize();
+
+            return new CompiledDynamicTemplate(start, {
                 meta: meta,
                 hasEval: layout.hasEval,
                 symbols: layout.symbols.concat([ATTRS_BLOCK])
@@ -4419,20 +4422,20 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.targets.push({ at: at, Target: Target, target: _target });
         };
 
-        Labels.prototype.patch = function (opcodes) {
+        Labels.prototype.patch = function (program) {
             var targets = this.targets,
                 labels = this.labels,
                 i,
                 _targets$i,
                 at,
-                Target,
-                target;
+                target,
+                goto;
 
             for (i = 0; i < targets.length; i++) {
-                _targets$i = targets[i], at = _targets$i.at, Target = _targets$i.Target, target = _targets$i.target;
+                _targets$i = targets[i], at = _targets$i.at, target = _targets$i.target;
+                goto = labels[target] - at;
 
-
-                opcodes.set(at, Target, labels[target]);
+                program.heap.setbyaddr(at + 1, goto);
             }
         };
 
@@ -4447,8 +4450,9 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.meta = meta;
             this.program = program;
             this.labelsStack = new _util.Stack();
-            this.constants = env.constants;
-            this.start = program.next;
+            this.constants = program.constants;
+            this.heap = program.heap;
+            this.start = this.heap.malloc();
         }
 
         BasicOpcodeBuilder.prototype.upvars = function (count) {
@@ -4464,17 +4468,22 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             var op2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
             var op3 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
 
-            return this.program.push(name, op1, op2, op3);
+            this.heap.push(name);
+            this.heap.push(op1);
+            this.heap.push(op2);
+            this.heap.push(op3);
         };
 
         BasicOpcodeBuilder.prototype.finalize = function () {
-            return this.push(22 /* Return */);
+            this.push(22 /* Return */);
+            this.heap.finishMalloc(this.start);
+            return this.start;
         };
         // args
 
 
         BasicOpcodeBuilder.prototype.pushArgs = function (synthetic) {
-            this.push(57 /* PushArgs */, synthetic === true ? 1 : 0);
+            this.push(58 /* PushArgs */, synthetic === true ? 1 : 0);
         };
         // helpers
 
@@ -4491,74 +4500,74 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
 
         BasicOpcodeBuilder.prototype.pushComponentManager = function (definition) {
-            this.push(55 /* PushComponentManager */, this.other(definition));
+            this.push(56 /* PushComponentManager */, this.other(definition));
         };
 
         BasicOpcodeBuilder.prototype.pushDynamicComponentManager = function () {
-            this.push(56 /* PushDynamicComponentManager */);
+            this.push(57 /* PushDynamicComponentManager */);
         };
 
         BasicOpcodeBuilder.prototype.prepareArgs = function (state) {
-            this.push(58 /* PrepareArgs */, state);
+            this.push(59 /* PrepareArgs */, state);
         };
 
         BasicOpcodeBuilder.prototype.createComponent = function (state, hasDefault, hasInverse) {
             var flag = (hasDefault === true ? 1 : 0) | (hasInverse === true ? 1 : 0) << 1;
-            this.push(59 /* CreateComponent */, flag, state);
+            this.push(60 /* CreateComponent */, flag, state);
         };
 
         BasicOpcodeBuilder.prototype.registerComponentDestructor = function (state) {
-            this.push(60 /* RegisterComponentDestructor */, state);
+            this.push(61 /* RegisterComponentDestructor */, state);
         };
 
         BasicOpcodeBuilder.prototype.beginComponentTransaction = function () {
-            this.push(64 /* BeginComponentTransaction */);
+            this.push(65 /* BeginComponentTransaction */);
         };
 
         BasicOpcodeBuilder.prototype.commitComponentTransaction = function () {
-            this.push(65 /* CommitComponentTransaction */);
+            this.push(66 /* CommitComponentTransaction */);
         };
 
         BasicOpcodeBuilder.prototype.pushComponentOperations = function () {
-            this.push(61 /* PushComponentOperations */);
+            this.push(62 /* PushComponentOperations */);
         };
 
         BasicOpcodeBuilder.prototype.getComponentSelf = function (state) {
-            this.push(62 /* GetComponentSelf */, state);
+            this.push(63 /* GetComponentSelf */, state);
         };
 
         BasicOpcodeBuilder.prototype.getComponentLayout = function (state) {
-            this.push(63 /* GetComponentLayout */, state);
+            this.push(64 /* GetComponentLayout */, state);
         };
 
         BasicOpcodeBuilder.prototype.didCreateElement = function (state) {
-            this.push(66 /* DidCreateElement */, state);
+            this.push(67 /* DidCreateElement */, state);
         };
 
         BasicOpcodeBuilder.prototype.didRenderLayout = function (state) {
-            this.push(67 /* DidRenderLayout */, state);
+            this.push(68 /* DidRenderLayout */, state);
         };
         // partial
 
 
         BasicOpcodeBuilder.prototype.getPartialTemplate = function () {
-            this.push(68 /* GetPartialTemplate */);
+            this.push(69 /* GetPartialTemplate */);
         };
 
         BasicOpcodeBuilder.prototype.resolveMaybeLocal = function (name) {
-            this.push(69 /* ResolveMaybeLocal */, this.string(name));
+            this.push(70 /* ResolveMaybeLocal */, this.string(name));
         };
         // debugger
 
 
         BasicOpcodeBuilder.prototype.debugger = function (symbols, evalInfo) {
-            this.push(70 /* Debugger */, this.constants.other(symbols), this.constants.array(evalInfo));
+            this.push(71 /* Debugger */, this.constants.other(symbols), this.constants.array(evalInfo));
         };
         // content
 
 
         BasicOpcodeBuilder.prototype.dynamicContent = function (Opcode) {
-            this.push(25 /* DynamicContent */, this.other(Opcode));
+            this.push(26 /* DynamicContent */, this.other(Opcode));
         };
 
         BasicOpcodeBuilder.prototype.cautiousAppend = function () {
@@ -4572,74 +4581,74 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
 
         BasicOpcodeBuilder.prototype.text = function (_text) {
-            this.push(23 /* Text */, this.constants.string(_text));
+            this.push(24 /* Text */, this.constants.string(_text));
         };
 
         BasicOpcodeBuilder.prototype.openPrimitiveElement = function (tag) {
-            this.push(26 /* OpenElement */, this.constants.string(tag));
+            this.push(27 /* OpenElement */, this.constants.string(tag));
         };
 
         BasicOpcodeBuilder.prototype.openElementWithOperations = function (tag) {
-            this.push(27 /* OpenElementWithOperations */, this.constants.string(tag));
+            this.push(28 /* OpenElementWithOperations */, this.constants.string(tag));
         };
 
         BasicOpcodeBuilder.prototype.openDynamicElement = function () {
-            this.push(28 /* OpenDynamicElement */);
+            this.push(29 /* OpenDynamicElement */);
         };
 
         BasicOpcodeBuilder.prototype.flushElement = function () {
-            this.push(32 /* FlushElement */);
+            this.push(33 /* FlushElement */);
         };
 
         BasicOpcodeBuilder.prototype.closeElement = function () {
-            this.push(33 /* CloseElement */);
+            this.push(34 /* CloseElement */);
         };
 
         BasicOpcodeBuilder.prototype.staticAttr = function (_name, _namespace, _value) {
             var name = this.constants.string(_name);
             var namespace = _namespace ? this.constants.string(_namespace) : 0;
             var value = this.constants.string(_value);
-            this.push(29 /* StaticAttr */, name, value, namespace);
+            this.push(30 /* StaticAttr */, name, value, namespace);
         };
 
         BasicOpcodeBuilder.prototype.dynamicAttrNS = function (_name, _namespace, trusting) {
             var name = this.constants.string(_name);
             var namespace = this.constants.string(_namespace);
-            this.push(31 /* DynamicAttrNS */, name, namespace, trusting === true ? 1 : 0);
+            this.push(32 /* DynamicAttrNS */, name, namespace, trusting === true ? 1 : 0);
         };
 
         BasicOpcodeBuilder.prototype.dynamicAttr = function (_name, trusting) {
             var name = this.constants.string(_name);
-            this.push(30 /* DynamicAttr */, name, trusting === true ? 1 : 0);
+            this.push(31 /* DynamicAttr */, name, trusting === true ? 1 : 0);
         };
 
         BasicOpcodeBuilder.prototype.comment = function (_comment) {
             var comment = this.constants.string(_comment);
-            this.push(24 /* Comment */, comment);
+            this.push(25 /* Comment */, comment);
         };
 
         BasicOpcodeBuilder.prototype.modifier = function (_definition) {
-            this.push(34 /* Modifier */, this.other(_definition));
+            this.push(35 /* Modifier */, this.other(_definition));
         };
         // lists
 
 
         BasicOpcodeBuilder.prototype.putIterator = function () {
-            this.push(53 /* PutIterator */);
+            this.push(54 /* PutIterator */);
         };
 
         BasicOpcodeBuilder.prototype.enterList = function (start) {
-            this.reserve(51 /* EnterList */);
-            this.labels.target(this.pos, 51 /* EnterList */, start);
+            this.reserve(52 /* EnterList */);
+            this.labels.target(this.pos, 52 /* EnterList */, start);
         };
 
         BasicOpcodeBuilder.prototype.exitList = function () {
-            this.push(52 /* ExitList */);
+            this.push(53 /* ExitList */);
         };
 
         BasicOpcodeBuilder.prototype.iterate = function (breaks) {
-            this.reserve(54 /* Iterate */);
-            this.labels.target(this.pos, 54 /* Iterate */, breaks);
+            this.reserve(55 /* Iterate */);
+            this.labels.target(this.pos, 55 /* Iterate */, breaks);
         };
         // expressions
 
@@ -4700,11 +4709,11 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
 
         BasicOpcodeBuilder.prototype.pushRemoteElement = function () {
-            this.push(35 /* PushRemoteElement */);
+            this.push(36 /* PushRemoteElement */);
         };
 
         BasicOpcodeBuilder.prototype.popRemoteElement = function () {
-            this.push(36 /* PopRemoteElement */);
+            this.push(37 /* PopRemoteElement */);
         };
 
         BasicOpcodeBuilder.prototype.label = function (name) {
@@ -4724,17 +4733,16 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         };
 
         BasicOpcodeBuilder.prototype.returnTo = function (label) {
-            this.reserve(12 /* Immediate */);
-            this.labels.target(this.pos, 12 /* Immediate */, label);
-            this.load(Register.ra);
+            this.reserve(23 /* ReturnTo */);
+            this.labels.target(this.pos, 23 /* ReturnTo */, label);
         };
 
         BasicOpcodeBuilder.prototype.pushDynamicScope = function () {
-            this.push(38 /* PushDynamicScope */);
+            this.push(39 /* PushDynamicScope */);
         };
 
         BasicOpcodeBuilder.prototype.popDynamicScope = function () {
-            this.push(39 /* PopDynamicScope */);
+            this.push(40 /* PopDynamicScope */);
         };
 
         BasicOpcodeBuilder.prototype.pushImmediate = function (value) {
@@ -4780,15 +4788,15 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         };
 
         BasicOpcodeBuilder.prototype.bindDynamicScope = function (_names) {
-            this.push(37 /* BindDynamicScope */, this.names(_names));
+            this.push(38 /* BindDynamicScope */, this.names(_names));
         };
 
         BasicOpcodeBuilder.prototype.enter = function (args) {
-            this.push(48 /* Enter */, args);
+            this.push(49 /* Enter */, args);
         };
 
         BasicOpcodeBuilder.prototype.exit = function () {
-            this.push(49 /* Exit */);
+            this.push(50 /* Exit */);
         };
 
         BasicOpcodeBuilder.prototype.return = function () {
@@ -4796,19 +4804,19 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         };
 
         BasicOpcodeBuilder.prototype.pushFrame = function () {
-            this.push(46 /* PushFrame */);
+            this.push(47 /* PushFrame */);
         };
 
         BasicOpcodeBuilder.prototype.popFrame = function () {
-            this.push(47 /* PopFrame */);
+            this.push(48 /* PopFrame */);
         };
 
         BasicOpcodeBuilder.prototype.compileDynamicBlock = function () {
-            this.push(40 /* CompileDynamicBlock */);
+            this.push(41 /* CompileDynamicBlock */);
         };
 
         BasicOpcodeBuilder.prototype.invokeDynamic = function (invoker) {
-            this.push(42 /* InvokeDynamic */, this.other(invoker));
+            this.push(43 /* InvokeDynamic */, this.other(invoker));
         };
 
         BasicOpcodeBuilder.prototype.invokeStatic = function (block) {
@@ -4827,7 +4835,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 }
             }
             var _block = this.constants.block(block);
-            this.push(41 /* InvokeStatic */, _block);
+            this.push(42 /* InvokeStatic */, _block);
             if (count) {
                 this.popScope();
             }
@@ -4848,22 +4856,22 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 throw new Error('unreachable');
             }
             var func = this.constants.function(_func);
-            this.push(50 /* Test */, func);
+            this.push(51 /* Test */, func);
         };
 
         BasicOpcodeBuilder.prototype.jump = function (target) {
-            this.reserve(43 /* Jump */);
-            this.labels.target(this.pos, 43 /* Jump */, target);
+            this.reserve(44 /* Jump */);
+            this.labels.target(this.pos, 44 /* Jump */, target);
         };
 
         BasicOpcodeBuilder.prototype.jumpIf = function (target) {
-            this.reserve(44 /* JumpIf */);
-            this.labels.target(this.pos, 44 /* JumpIf */, target);
+            this.reserve(45 /* JumpIf */);
+            this.labels.target(this.pos, 45 /* JumpIf */, target);
         };
 
         BasicOpcodeBuilder.prototype.jumpUnless = function (target) {
-            this.reserve(45 /* JumpUnless */);
-            this.labels.target(this.pos, 45 /* JumpUnless */, target);
+            this.reserve(46 /* JumpUnless */);
+            this.labels.target(this.pos, 46 /* JumpUnless */, target);
         };
 
         BasicOpcodeBuilder.prototype.string = function (_string) {
@@ -4901,12 +4909,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         _createClass$1(BasicOpcodeBuilder, [{
             key: 'pos',
             get: function () {
-                return this.program.current;
+                return (0, _util.typePos)(this.heap.size());
             }
         }, {
             key: 'nextPos',
             get: function () {
-                return this.program.next;
+                return this.heap.size();
             }
         }, {
             key: 'labels',
@@ -5074,7 +5082,6 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         builder.comment(sexp[1]);
     });
     STATEMENTS.add(Ops$3.CloseElement, function (_sexp, builder) {
-        _util.LOGGER.trace('close-element statement');
         builder.closeElement();
     });
     STATEMENTS.add(Ops$3.FlushElement, function (_sexp, builder) {
@@ -5222,7 +5229,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             if (lookup) lookup['&default'] = defaultBlock;
             if (lookup) scope.bindEvalScope(lookup);
             vm.pushFrame();
-            vm.call(layout.start);
+            vm.call(layout.handle);
         };
 
         InvokeDynamicLayout.prototype.toJSON = function () {
@@ -5313,7 +5320,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             }
             partialScope.bindPartialMap(locals);
             vm.pushFrame();
-            vm.call(partial.start);
+            vm.call(partial.handle);
         };
 
         return PartialInvoker;
@@ -5394,7 +5401,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             for (i = 0; i < count; i++) {
                 scope.bindSymbol(locals[i], stack.fromBase(callerCount - i));
             }
-            vm.call(block.start);
+            vm.call(block.handle);
         };
 
         InvokeDynamicYield.prototype.toJSON = function () {
@@ -5890,16 +5897,15 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         CompilableTemplate.prototype.compileStatic = function (env) {
             var compiledStatic = this.compiledStatic,
                 builder,
-                start,
-                end;
+                handle;
 
             if (!compiledStatic) {
                 builder = compileStatements(this.statements, this.symbolTable.meta, env);
-                start = builder.start;
-                end = builder.finalize();
 
-                debugSlice(env, start, end);
-                compiledStatic = this.compiledStatic = new CompiledStaticTemplate(start, end);
+                builder.finalize();
+                handle = builder.start;
+
+                compiledStatic = this.compiledStatic = new CompiledStaticTemplate(handle);
             }
             return compiledStatic;
         };
@@ -5911,7 +5917,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             if (!compiledDynamic) {
                 staticBlock = this.compileStatic(env);
 
-                compiledDynamic = new CompiledDynamicTemplate(staticBlock.start, staticBlock.end, this.symbolTable);
+                compiledDynamic = new CompiledDynamicTemplate(staticBlock.handle, this.symbolTable);
             }
             return compiledDynamic;
         };
@@ -6440,7 +6446,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     function shouldApplyFix$1(document, svgNamespace) {
         var svg = document.createElementNS(svgNamespace, 'svg');
         try {
-            svg['insertAdjacentHTML']('beforeEnd', '<circle></circle>');
+            svg['insertAdjacentHTML']('beforeend', '<circle></circle>');
         } catch (e) {
             // IE, Edge: Will throw, insertAdjacentHTML is unsupported on SVG
             // Safari: Will throw, insertAdjacentHTML is not present on SVG
@@ -6538,7 +6544,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     function shouldApplyFix$2(document) {
         var mergingTextDiv = document.createElement('div');
         mergingTextDiv.innerHTML = 'first';
-        mergingTextDiv.insertAdjacentHTML('beforeEnd', 'second');
+        mergingTextDiv.insertAdjacentHTML('beforeend', 'second');
         if (mergingTextDiv.childNodes.length === 2) {
             // It worked as expected, no fix required
             return false;
@@ -6766,10 +6772,10 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             return new ConcreteBounds(parent, null, null);
         }
         if (nextSibling === null) {
-            parent.insertAdjacentHTML('beforeEnd', html);
+            parent.insertAdjacentHTML('beforeend', html);
             last = parent.lastChild;
         } else if (nextSibling instanceof HTMLElement) {
-            nextSibling.insertAdjacentHTML('beforeBegin', html);
+            nextSibling.insertAdjacentHTML('beforebegin', html);
             last = nextSibling.previousSibling;
         } else {
             // Non-element nodes do not support insertAdjacentHTML, so add an
@@ -6778,7 +6784,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             // This also protects Edge, IE and Firefox w/o the inspector open
             // from merging adjacent text nodes. See ./compat/text-node-merging-fix.ts
             parent.insertBefore(useless, nextSibling);
-            useless.insertAdjacentHTML('beforeBegin', html);
+            useless.insertAdjacentHTML('beforebegin', html);
             last = useless.previousSibling;
             parent.removeChild(useless);
         }
@@ -7380,86 +7386,164 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
     }();
 
     var Opcode = function () {
-        function Opcode(array) {
+        function Opcode(heap) {
             _classCallCheck$23(this, Opcode);
 
-            this.array = array;
+            this.heap = heap;
             this.offset = 0;
         }
 
         _createClass$4(Opcode, [{
             key: 'type',
             get: function () {
-                return this.array[this.offset];
+                return this.heap.getbyaddr(this.offset);
             }
         }, {
             key: 'op1',
             get: function () {
-                return this.array[this.offset + 1];
+                return this.heap.getbyaddr(this.offset + 1);
             }
         }, {
             key: 'op2',
             get: function () {
-                return this.array[this.offset + 2];
+                return this.heap.getbyaddr(this.offset + 2);
             }
         }, {
             key: 'op3',
             get: function () {
-                return this.array[this.offset + 3];
+                return this.heap.getbyaddr(this.offset + 3);
             }
         }]);
 
         return Opcode;
     }();
+    var TableSlotState;
+    (function (TableSlotState) {
+        TableSlotState[TableSlotState["Allocated"] = 0] = "Allocated";
+        TableSlotState[TableSlotState["Freed"] = 1] = "Freed";
+        TableSlotState[TableSlotState["Purged"] = 2] = "Purged";
+        TableSlotState[TableSlotState["Pointer"] = 3] = "Pointer";
+    })(TableSlotState || (TableSlotState = {}));
+    var Heap = function () {
+        function Heap() {
+            _classCallCheck$23(this, Heap);
+
+            this.heap = [];
+            this.offset = 0;
+            this.handle = 0;
+            /**
+             * layout:
+             *
+             * - pointer into heap
+             * - size
+             * - freed (0 or 1)
+             */
+            this.table = [];
+        }
+
+        Heap.prototype.push = function (item) {
+            this.heap[this.offset++] = item;
+        };
+
+        Heap.prototype.getbyaddr = function (address) {
+            return this.heap[address];
+        };
+
+        Heap.prototype.setbyaddr = function (address, value) {
+            this.heap[address] = value;
+        };
+
+        Heap.prototype.malloc = function () {
+            this.table.push(this.offset, 0, 0);
+            var handle = this.handle;
+            this.handle += 3;
+            return handle;
+        };
+
+        Heap.prototype.finishMalloc = function (handle) {
+            var start = this.table[handle];
+            var finish = this.offset;
+            this.table[handle + 1] = finish - start;
+        };
+
+        Heap.prototype.size = function () {
+            return this.offset;
+        };
+        // It is illegal to close over this address, as compaction
+        // may move it. However, it is legal to use this address
+        // multiple times between compactions.
+
+
+        Heap.prototype.getaddr = function (handle) {
+            return this.table[handle];
+        };
+
+        Heap.prototype.gethandle = function (address) {
+            this.table.push(address, 0, TableSlotState.Pointer);
+            var handle = this.handle;
+            this.handle += 3;
+            return handle;
+        };
+
+        Heap.prototype.sizeof = function () {
+            return -1;
+        };
+
+        Heap.prototype.free = function (handle) {
+            this.table[handle + 2] = 1;
+        };
+
+        Heap.prototype.compact = function () {
+            var compactedSize = 0,
+                i,
+                offset,
+                size,
+                state,
+                j;
+            var table = this.table,
+                length = this.table.length,
+                heap = this.heap;
+
+            for (i = 0; i < length; i += 3) {
+                offset = table[i];
+                size = table[i + 1];
+                state = table[i + 2];
+
+                if (state === TableSlotState.Purged) {
+                    continue;
+                } else if (state === TableSlotState.Freed) {
+                    // transition to "already freed"
+                    // a good improvement would be to reuse
+                    // these slots
+                    table[i + 2] = 2;
+                    compactedSize += size;
+                } else if (state === TableSlotState.Allocated) {
+                    for (j = offset; j <= i + size; j++) {
+                        heap[j - compactedSize] = heap[j];
+                    }
+                    table[i] = offset - compactedSize;
+                } else if (state === TableSlotState.Pointer) {
+                    table[i] = offset - compactedSize;
+                }
+            }
+            this.offset = this.offset - compactedSize;
+        };
+
+        return Heap;
+    }();
     var Program = function () {
         function Program() {
             _classCallCheck$23(this, Program);
 
-            this.opcodes = [];
-            this._offset = 0;
-            this._opcode = new Opcode(this.opcodes);
+            this.heap = new Heap();
+            this._opcode = new Opcode(this.heap);
+            this.constants = new Constants();
         }
 
         Program.prototype.opcode = function (offset) {
             this._opcode.offset = offset;
             return this._opcode;
         };
-
-        Program.prototype.set = function (pos, type) {
-            var op1 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-            var op2 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-            var op3 = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
-
-            this.opcodes[pos] = type;
-            this.opcodes[pos + 1] = op1;
-            this.opcodes[pos + 2] = op2;
-            this.opcodes[pos + 3] = op3;
-        };
-
-        Program.prototype.push = function (type) {
-            var op1 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-            var op2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-            var op3 = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-
-            var offset = this._offset;
-            this.opcodes[this._offset++] = type;
-            this.opcodes[this._offset++] = op1;
-            this.opcodes[this._offset++] = op2;
-            this.opcodes[this._offset++] = op3;
-            return offset;
-        };
-
-        _createClass$4(Program, [{
-            key: 'next',
-            get: function () {
-                return this._offset;
-            }
-        }, {
-            key: 'current',
-            get: function () {
-                return this._offset - 4;
-            }
-        }]);
 
         return Program;
     }();
@@ -7472,7 +7556,6 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
             this._macros = null;
             this._transaction = null;
-            this.constants = new Constants();
             this.program = new Program();
             this.appendOperations = appendOperations;
             this.updateOperations = updateOperations;
@@ -7604,7 +7687,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
             this.frameStack = new _util.Stack();
             this.env = env;
-            this.constants = env.constants;
+            this.constants = env.program.constants;
             this.dom = env.getDOM();
             this.alwaysRevalidate = alwaysRevalidate;
         }
@@ -8124,7 +8207,8 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.t0 = null;
             this.t1 = null;
             this.env = env;
-            this.constants = env.constants;
+            this.heap = env.program.heap;
+            this.constants = env.program.constants;
             this.elementStack = elementStack;
             this.scopeStack.push(scope);
             this.dynamicScopeStack.push(dynamicScope);
@@ -8171,21 +8255,22 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         // Jump to an address in `program`
 
 
-        VM.prototype.goto = function (pc) {
-            this.pc = pc;
+        VM.prototype.goto = function (offset) {
+            this.pc = (0, _util.typePos)(this.pc + offset);
         };
         // Save $pc into $ra, then jump to a new address in `program` (jal in MIPS)
 
 
-        VM.prototype.call = function (pc) {
+        VM.prototype.call = function (handle) {
+            var pc = this.heap.getaddr(handle);
             this.ra = this.pc;
             this.pc = pc;
         };
         // Put a specific `program` address in $ra
 
 
-        VM.prototype.returnTo = function (ra) {
-            this.ra = ra;
+        VM.prototype.returnTo = function (offset) {
+            this.ra = (0, _util.typePos)(this.pc + offset);
         };
         // Return to the `program` address stored in $ra
 
@@ -8197,7 +8282,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         VM.initial = function (env, self, dynamicScope, elementStack, program) {
             var scope = Scope.root(self, program.symbolTable.symbols.length);
             var vm = new VM(env, scope, dynamicScope, elementStack);
-            vm.pc = program.start;
+            vm.pc = vm.heap.getaddr(program.handle);
             vm.updatingOpcodeStack.push(new _util.LinkedList());
             return vm;
         };
@@ -8238,7 +8323,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             var updating = new _util.LinkedList();
             var state = this.capture(args);
             var tracker = this.elements().pushUpdatableBlock();
-            var tryOpcode = new TryOpcode(this.pc, state, tracker, updating);
+            var tryOpcode = new TryOpcode(this.heap.gethandle(this.pc), state, tracker, updating);
             this.didEnter(tryOpcode);
         };
 
@@ -8251,7 +8336,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             // let ip = this.ip;
             // this.ip = end + 4;
             // this.frames.push(ip);
-            return new TryOpcode(this.pc, state, tracker, new _util.LinkedList());
+            return new TryOpcode(this.heap.gethandle(this.pc), state, tracker, new _util.LinkedList());
         };
 
         VM.prototype.enterItem = function (key, opcode) {
@@ -8259,11 +8344,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.didEnter(opcode);
         };
 
-        VM.prototype.enterList = function (start) {
+        VM.prototype.enterList = function (relativeStart) {
             var updating = new _util.LinkedList();
             var state = this.capture(0);
             var tracker = this.elements().pushBlockList(updating);
             var artifacts = this.stack.peek().artifacts;
+            var start = this.heap.gethandle((0, _util.typePos)(this.pc + relativeStart));
             var opcode = new ListBlockOpcode(start, state, tracker, updating, artifacts);
             this.listBlockStack.push(opcode);
             this.didEnter(opcode);
@@ -8359,7 +8445,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
 
         VM.prototype.execute = function (start, initialize) {
-            this.pc = start;
+            this.pc = this.heap.getaddr(start);
             if (initialize) initialize(this);
             var result = void 0;
             while (true) {
@@ -8629,7 +8715,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
         }
     };
     exports.Register = Register;
-    exports.debugSlice = debugSlice;
+    exports.debugSlice = function () {};
     exports.normalizeTextValue = normalizeTextValue;
     exports.setDebuggerCallback = function (cb) {
         callback = cb;
@@ -9188,6 +9274,9 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     };
     exports.unreachable = function () {
         return new Error('unreachable');
+    };
+    exports.typePos = function (lastOperand) {
+        return lastOperand - 4;
     };
 });
 enifed("@glimmer/wire-format", ["exports"], function (exports) {
@@ -44108,7 +44197,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+74cfead2";
+  exports.default = "2.15.0-alpha.1-null+17235982";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

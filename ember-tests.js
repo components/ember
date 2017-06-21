@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+74cfead2
+ * @version   2.15.0-alpha.1-null+17235982
  */
 
 var enifed, requireModule, Ember;
@@ -62788,12 +62788,6 @@ QUnit.module('ESLint | ember-template-compiler/plugins/transform-input-type-synt
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-template-compiler/plugins/transform-input-type-syntax.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-template-compiler/plugins/transform-item-class.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-template-compiler/plugins/transform-item-class.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-template-compiler/plugins/transform-old-binding-syntax.js');

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+74cfead2
+ * @version   2.15.0-alpha.1-null+17235982
  */
 
 var enifed, requireModule, Ember;
@@ -1447,46 +1447,45 @@ enifed('@glimmer/compiler', ['exports', 'node-module', '@glimmer/syntax', '@glim
     }
     function assertIsSimplePath(path, loc, context) {
         if (!isSimplePath(path)) {
-            throw new Error("`" + path.original + "` is not a valid name for a " + context + " on line " + loc.start.line + ".");
+            throw new _syntax.SyntaxError("`" + path.original + "` is not a valid name for a " + context + " on line " + loc.start.line + ".", path.loc);
         }
     }
-    function assertValidYield(_ref14) {
-        var hash = _ref14.hash;
+    function assertValidYield(statement) {
+        var pairs = statement.hash.pairs;
 
-        var pairs = hash.pairs;
         if (pairs.length === 1 && pairs[0].key !== 'to' || pairs.length > 1) {
-            throw new Error("yield only takes a single named argument: 'to'");
+            throw new _syntax.SyntaxError("yield only takes a single named argument: 'to'", statement.loc);
         } else if (pairs.length === 1 && pairs[0].value.type !== 'StringLiteral') {
-            throw new Error("you can only yield to a literal value");
+            throw new _syntax.SyntaxError("you can only yield to a literal value", statement.loc);
         } else if (pairs.length === 0) {
             return 'default';
         } else {
             return pairs[0].value.value;
         }
     }
-    function assertValidPartial(_ref15) {
-        var params = _ref15.params,
-            hash = _ref15.hash,
-            escaped = _ref15.escaped,
-            loc = _ref15.loc;
+    function assertValidPartial(statement) {
+        var params = statement.params,
+            hash = statement.hash,
+            escaped = statement.escaped,
+            loc = statement.loc;
 
         if (params && params.length !== 1) {
-            throw new Error("Partial found with no arguments. You must specify a template name. (on line " + loc.start.line + ")");
+            throw new _syntax.SyntaxError("Partial found with no arguments. You must specify a template name. (on line " + loc.start.line + ")", statement.loc);
         } else if (hash && hash.pairs.length > 0) {
-            throw new Error("partial does not take any named arguments (on line " + loc.start.line + ")");
+            throw new _syntax.SyntaxError("partial does not take any named arguments (on line " + loc.start.line + ")", statement.loc);
         } else if (!escaped) {
-            throw new Error("{{{partial ...}}} is not supported, please use {{partial ...}} instead (on line " + loc.start.line + ")");
+            throw new _syntax.SyntaxError("{{{partial ...}}} is not supported, please use {{partial ...}} instead (on line " + loc.start.line + ")", statement.loc);
         }
         return params;
     }
-    function assertValidHasBlockUsage(type, _ref16) {
-        var params = _ref16.params,
-            hash = _ref16.hash,
-            loc = _ref16.loc,
+    function assertValidHasBlockUsage(type, call) {
+        var params = call.params,
+            hash = call.hash,
+            loc = call.loc,
             param;
 
         if (hash && hash.pairs.length > 0) {
-            throw new Error(type + " does not take any named arguments");
+            throw new _syntax.SyntaxError(type + " does not take any named arguments", call.loc);
         }
         if (params.length === 0) {
             return 'default';
@@ -1496,23 +1495,23 @@ enifed('@glimmer/compiler', ['exports', 'node-module', '@glimmer/syntax', '@glim
             if (param.type === 'StringLiteral') {
                 return param.value;
             } else {
-                throw new Error("you can only yield to a literal value (on line " + loc.start.line + ")");
+                throw new _syntax.SyntaxError("you can only yield to a literal value (on line " + loc.start.line + ")", call.loc);
             }
         } else {
-            throw new Error(type + " only takes a single positional argument (on line " + loc.start.line + ")");
+            throw new _syntax.SyntaxError(type + " only takes a single positional argument (on line " + loc.start.line + ")", call.loc);
         }
     }
-    function assertValidDebuggerUsage(_ref17) {
-        var params = _ref17.params,
-            hash = _ref17.hash;
+    function assertValidDebuggerUsage(statement) {
+        var params = statement.params,
+            hash = statement.hash;
 
         if (hash && hash.pairs.length > 0) {
-            throw new Error("debugger does not take any named arguments");
+            throw new _syntax.SyntaxError("debugger does not take any named arguments", statement.loc);
         }
         if (params.length === 0) {
             return 'default';
         } else {
-            throw new Error("debugger does not take any positional arguments");
+            throw new _syntax.SyntaxError("debugger does not take any positional arguments", statement.loc);
         }
     }
 
@@ -2349,7 +2348,7 @@ enifed("@glimmer/reference", ["exports", "@glimmer/util"], function (exports, _u
 enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 'handlebars'], function (exports, _simpleHtmlTokenizer, _util, _handlebars) {
     'use strict';
 
-    exports.printLiteral = exports.isLiteral = exports.print = exports.Walker = exports.traverse = exports.builders = exports.preprocess = exports.AST = undefined;
+    exports.printLiteral = exports.isLiteral = exports.SyntaxError = exports.print = exports.Walker = exports.traverse = exports.builders = exports.preprocess = exports.AST = undefined;
 
     function isLiteral(input) {
         return !!(typeof input === 'object' && input.type.match(/Literal$/));
@@ -2581,6 +2580,22 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         };
     }
 
+    /**
+     * Subclass of `Error` with additional information
+     * about location of incorrect markup.
+     */
+    var SyntaxError = function () {
+        SyntaxError.prototype = Object.create(Error.prototype);
+        SyntaxError.prototype.constructor = SyntaxError;
+        function SyntaxError(message, location) {
+            var error = Error.call(this, message);
+            this.message = message;
+            this.stack = error.stack;
+            this.location = location;
+        }
+        return SyntaxError;
+    }();
+
     // Regex to validate the identifier for block parameters.
     // Based on the ID validation regex in Handlebars.
     var ID_INVERSE_PATTERN = /[!"#%-,\.\/;->@\[-\^`\{-~]/;
@@ -2608,7 +2623,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
             paramsString = attrNames.slice(asIndex).join(' ');
 
             if (paramsString.charAt(paramsString.length - 1) !== '|' || paramsString.match(/\|/g).length !== 2) {
-                throw new Error('Invalid block parameters syntax: \'' + paramsString + '\'');
+                throw new SyntaxError('Invalid block parameters syntax: \'' + paramsString + '\'', element.loc);
             }
             params = [];
 
@@ -2617,13 +2632,13 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
 
                 if (param !== '') {
                     if (ID_INVERSE_PATTERN.test(param)) {
-                        throw new Error('Invalid identifier for block parameters: \'' + param + '\' in \'' + paramsString + '\'');
+                        throw new SyntaxError('Invalid identifier for block parameters: \'' + param + '\' in \'' + paramsString + '\'', element.loc);
                     }
                     params.push(param);
                 }
             }
             if (params.length === 0) {
-                throw new Error('Cannot use zero block parameters: \'' + paramsString + '\'');
+                throw new SyntaxError('Cannot use zero block parameters: \'' + paramsString + '\'', element.loc);
             }
             element.attributes = element.attributes.slice(0, asIndex);
             return params;
@@ -2813,7 +2828,8 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         }
 
         HandlebarsNodeVisitors.prototype.Program = function (program) {
-            var node = b.program([], program.blockParams, program.loc);
+            var node = b.program([], program.blockParams, program.loc),
+                elementNode;
             var i = void 0,
                 l = program.body.length;
             this.elementStack.push(node);
@@ -2826,21 +2842,20 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
             // Ensure that that the element stack is balanced properly.
             var poppedNode = this.elementStack.pop();
             if (poppedNode !== node) {
-                throw new Error("Unclosed element `" + poppedNode.tag + "` (on line " + poppedNode.loc.start.line + ").");
+                elementNode = poppedNode;
+
+                throw new SyntaxError("Unclosed element `" + elementNode.tag + "` (on line " + elementNode.loc.start.line + ").", elementNode.loc);
             }
             return node;
         };
 
         HandlebarsNodeVisitors.prototype.BlockStatement = function (block) {
-            // delete block.inverseStrip;
-            // delete block.openString;
-            // delete block.closeStrip;
             if (this.tokenizer['state'] === 'comment') {
                 this.appendToCommentData(this.sourceForNode(block));
                 return;
             }
             if (this.tokenizer['state'] !== 'comment' && this.tokenizer['state'] !== 'data' && this.tokenizer['state'] !== 'beforeData') {
-                throw new Error("A block may only be used inside an HTML element or another block.");
+                throw new SyntaxError("A block may only be used inside an HTML element or another block.", block.loc);
             }
 
             var _acceptCallNodes = acceptCallNodes(this, block),
@@ -2949,7 +2964,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
                     appendChild(this.currentElement(), comment);
                     break;
                 default:
-                    throw new Error("Using a Handlebars comment when in the `" + tokenizer.state + "` state is not supported: \"" + comment.value + "\" on line " + loc.start.line + ":" + loc.start.column);
+                    throw new SyntaxError("Using a Handlebars comment when in the `" + tokenizer.state + "` state is not supported: \"" + comment.value + "\" on line " + loc.start.line + ":" + loc.start.column, rawComment.loc);
             }
             return comment;
         };
@@ -2957,25 +2972,25 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         HandlebarsNodeVisitors.prototype.PartialStatement = function (partial) {
             var loc = partial.loc;
 
-            throw new Error("Handlebars partials are not supported: \"" + this.sourceForNode(partial, partial.name) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+            throw new SyntaxError("Handlebars partials are not supported: \"" + this.sourceForNode(partial, partial.name) + "\" at L" + loc.start.line + ":C" + loc.start.column, partial.loc);
         };
 
         HandlebarsNodeVisitors.prototype.PartialBlockStatement = function (partialBlock) {
             var loc = partialBlock.loc;
 
-            throw new Error("Handlebars partial blocks are not supported: \"" + this.sourceForNode(partialBlock, partialBlock.name) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+            throw new SyntaxError("Handlebars partial blocks are not supported: \"" + this.sourceForNode(partialBlock, partialBlock.name) + "\" at L" + loc.start.line + ":C" + loc.start.column, partialBlock.loc);
         };
 
         HandlebarsNodeVisitors.prototype.Decorator = function (decorator) {
             var loc = decorator.loc;
 
-            throw new Error("Handlebars decorators are not supported: \"" + this.sourceForNode(decorator, decorator.path) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+            throw new SyntaxError("Handlebars decorators are not supported: \"" + this.sourceForNode(decorator, decorator.path) + "\" at L" + loc.start.line + ":C" + loc.start.column, decorator.loc);
         };
 
         HandlebarsNodeVisitors.prototype.DecoratorBlock = function (decoratorBlock) {
             var loc = decoratorBlock.loc;
 
-            throw new Error("Handlebars decorator blocks are not supported: \"" + this.sourceForNode(decoratorBlock, decoratorBlock.path) + "\" at L" + loc.start.line + ":C" + loc.start.column);
+            throw new SyntaxError("Handlebars decorator blocks are not supported: \"" + this.sourceForNode(decoratorBlock, decoratorBlock.path) + "\" at L" + loc.start.line + ":C" + loc.start.column, decoratorBlock.loc);
         };
 
         HandlebarsNodeVisitors.prototype.SubExpression = function (sexpr) {
@@ -2993,15 +3008,14 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
 
             var parts = void 0;
             if (original.indexOf('/') !== -1) {
-                // TODO add a SyntaxError with loc info
                 if (original.slice(0, 2) === './') {
-                    throw new Error("Using \"./\" is not supported in Glimmer and unnecessary: \"" + path.original + "\" on line " + loc.start.line + ".");
+                    throw new SyntaxError("Using \"./\" is not supported in Glimmer and unnecessary: \"" + path.original + "\" on line " + loc.start.line + ".", path.loc);
                 }
                 if (original.slice(0, 3) === '../') {
-                    throw new Error("Changing context using \"../\" is not supported in Glimmer: \"" + path.original + "\" on line " + loc.start.line + ".");
+                    throw new SyntaxError("Changing context using \"../\" is not supported in Glimmer: \"" + path.original + "\" on line " + loc.start.line + ".", path.loc);
                 }
                 if (original.indexOf('.') !== -1) {
-                    throw new Error("Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths: \"" + path.original + "\" on line " + loc.start.line + ".");
+                    throw new SyntaxError("Mixing '.' and '/' in paths is not supported in Glimmer; use only '.' to separate property paths: \"" + path.original + "\" on line " + loc.start.line + ".", path.loc);
                 }
                 parts = [path.parts.join('/')];
             } else {
@@ -3117,7 +3131,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
             _modifier = "{{" + printLiteral(path) + "}}";
             tag = "<" + element.name + " ... " + _modifier + " ...";
 
-            throw new Error("In " + tag + ", " + _modifier + " is not a valid modifier: \"" + path.original + "\" on line " + (loc && loc.start.line) + ".");
+            throw new SyntaxError("In " + tag + ", " + _modifier + " is not a valid modifier: \"" + path.original + "\" on line " + (loc && loc.start.line) + ".", mustache.loc);
         }
         var modifier = b.elementModifier(path, params, hash, loc);
         element.modifiers.push(modifier);
@@ -3150,56 +3164,19 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         HashPair: ['value']
     };
 
-    function _defaults$2(obj, defaults) {
-        var keys = Object.getOwnPropertyNames(defaults),
-            i,
-            key,
-            value;for (i = 0; i < keys.length; i++) {
-            key = keys[i];
-            value = Object.getOwnPropertyDescriptor(defaults, key);
-            if (value && value.configurable && obj[key] === undefined) {
-                Object.defineProperty(obj, key, value);
-            }
-        }return obj;
-    }
-
-    function _classCallCheck$3(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-            throw new TypeError("Cannot call a class as a function");
-        }
-    }
-
-    function _possibleConstructorReturn$2(self, call) {
-        if (!self) {
-            throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }return call && (typeof call === "object" || typeof call === "function") ? call : self;
-    }
-
-    function _inherits$2(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-            throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-        }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults$2(subClass, superClass);
-    }
-
-    var TraversalError = function (_Error) {
-        _inherits$2(TraversalError, _Error);
-
+    var TraversalError = function () {
+        TraversalError.prototype = Object.create(Error.prototype);
+        TraversalError.prototype.constructor = TraversalError;
         function TraversalError(message, node, parent, key) {
-            _classCallCheck$3(this, TraversalError);
-
-            var _this = _possibleConstructorReturn$2(this, _Error.call(this, message));
-
-            _this.node = node;
-            _this.parent = parent;
-            _this.key = key;
-            return _this;
+            var error = Error.call(this, message);
+            this.key = key;
+            this.message = message;
+            this.node = node;
+            this.parent = parent;
+            this.stack = error.stack;
         }
-
         return TraversalError;
-    }(Error);
-
-    TraversalError.prototype = Object.create(Error.prototype);
-    TraversalError.prototype.constructor = TraversalError;
+    }();
     function cannotRemoveNode(node, parent, key) {
         return new TraversalError("Cannot remove a node unless it is part of an array", node, parent, key);
     }
@@ -3564,7 +3541,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         return ['{{/', build(block.path), '}}'].join('');
     }
 
-    function _classCallCheck$4(instance, Constructor) {
+    function _classCallCheck$3(instance, Constructor) {
         if (!(instance instanceof Constructor)) {
             throw new TypeError("Cannot call a class as a function");
         }
@@ -3572,7 +3549,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
 
     var Walker = function () {
         function Walker(order) {
-            _classCallCheck$4(this, Walker);
+            _classCallCheck$3(this, Walker);
 
             this.order = order;
             this.stack = [];
@@ -3803,7 +3780,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         TokenizerEventHandlers.prototype.beginAttribute = function () {
             var tag = this.currentTag;
             if (tag.type === 'EndTag') {
-                throw new Error("Invalid end tag: closing tag must not have attributes, " + ("in `" + tag.name + "` (on line " + this.tokenizer.line + ")."));
+                throw new SyntaxError("Invalid end tag: closing tag must not have attributes, " + ("in `" + tag.name + "` (on line " + this.tokenizer.line + ")."), tag.loc);
             }
             this.currentAttribute = {
                 name: "",
@@ -3868,7 +3845,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         };
 
         TokenizerEventHandlers.prototype.reportSyntaxError = function (message) {
-            throw new Error("Syntax error at line " + this.tokenizer.line + " col " + this.tokenizer.column + ": " + message);
+            throw new SyntaxError("Syntax error at line " + this.tokenizer.line + " col " + this.tokenizer.column + ": " + message, b.loc(this.tokenizer.line, this.tokenizer.column));
         };
 
         return TokenizerEventHandlers;
@@ -3882,7 +3859,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
                 if (parts.length === 1 || parts.length === 2 && parts[1].type === 'TextNode' && parts[1].chars === '/') {
                     return parts[0];
                 } else {
-                    throw new Error("An unquoted attribute value must be a string or a mustache, " + "preceeded by whitespace or a '=' character, and " + ("followed by whitespace, a '>' character, or '/>' (on line " + line + ")"));
+                    throw new SyntaxError("An unquoted attribute value must be a string or a mustache, " + "preceeded by whitespace or a '=' character, and " + ("followed by whitespace, a '>' character, or '/>' (on line " + line + ")"), b.loc(line, 0));
                 }
             }
         } else {
@@ -3896,7 +3873,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
             part = parts[i];
 
             if (part.type !== 'MustacheStatement' && part.type !== 'TextNode') {
-                throw new Error("Unsupported node in quoted attribute value: " + part['type']);
+                throw new SyntaxError("Unsupported node in quoted attribute value: " + part['type'], part.loc);
             }
         }
         return b.concat(parts);
@@ -3914,7 +3891,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
             error = "Closing tag " + formatEndTagInfo(tag) + " did not match last open tag `" + element.tag + "` (on line " + element.loc.start.line + ").";
         }
         if (error) {
-            throw new Error(error);
+            throw new SyntaxError(error, element.loc);
         }
     }
     function formatEndTagInfo(tag) {
@@ -3931,17 +3908,20 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
         var ast = typeof html === 'object' ? html : (0, _handlebars.parse)(html),
             i,
             l,
-            plugin;
-        var combined = new TokenizerEventHandlers(html, options).acceptNode(ast);
+            transform,
+            env,
+            pluginResult;
+        var program = new TokenizerEventHandlers(html, options).acceptNode(ast);
         if (options && options.plugins && options.plugins.ast) {
             for (i = 0, l = options.plugins.ast.length; i < l; i++) {
-                plugin = new options.plugins.ast[i](options);
+                transform = options.plugins.ast[i];
+                env = (0, _util.assign)({}, options, { syntax: syntax }, { plugins: undefined });
+                pluginResult = transform(env);
 
-                plugin.syntax = syntax;
-                combined = plugin.transform(combined);
+                traverse(program, pluginResult.visitors);
             }
         }
-        return combined;
+        return program;
     }
 
     // used by ember-compiler
@@ -3953,6 +3933,7 @@ enifed('@glimmer/syntax', ['exports', 'simple-html-tokenizer', '@glimmer/util', 
     exports.traverse = traverse;
     exports.Walker = Walker;
     exports.print = build;
+    exports.SyntaxError = SyntaxError;
     exports.isLiteral = isLiteral$1;
     exports.printLiteral = printLiteral;
 });
@@ -4467,6 +4448,9 @@ enifed('@glimmer/util', ['exports'], function (exports) {
     };
     exports.unreachable = function () {
         return new Error('unreachable');
+    };
+    exports.typePos = function (lastOperand) {
+        return lastOperand - 4;
     };
 });
 enifed("@glimmer/wire-format", ["exports"], function (exports) {
@@ -15101,25 +15085,22 @@ enifed('ember-template-compiler/index', ['exports', 'ember-template-compiler/sys
 enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
-  exports.default = AssertReservedNamedArguments;
-  function AssertReservedNamedArguments(options) {
-    this.syntax = null;
-    this.options = options;
-  }
+  exports.default = function (env) {
+    var moduleName = env.meta.moduleName;
 
-  AssertReservedNamedArguments.prototype.transform = function (ast) {
-    var moduleName = this.options.meta.moduleName;
+    return {
+      name: 'assert-reserved-named-arguments',
 
-    this.syntax.traverse(ast, {
-      PathExpression: function (node) {
-        if (node.original[0] === '@') {
-          true && !false && (0, _emberDebug.assert)(assertMessage(moduleName, node));
+      visitors: {
+        PathExpression: function (node) {
+          if (node.original[0] === '@') {
+            true && !false && (0, _emberDebug.assert)(assertMessage(moduleName, node));
+          }
         }
       }
-    });
-
-    return ast;
+    };
   };
+
 
   function assertMessage(moduleName, node) {
     var path = node.original;
@@ -15131,48 +15112,32 @@ enifed('ember-template-compiler/plugins/assert-reserved-named-arguments', ['expo
 enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
-  exports.default = DeprecateRenderModel;
-  function DeprecateRenderModel(options) {
-    this.syntax = null;
-    this.options = options;
-  }
+  exports.default = function (env) {
+    var moduleName = env.meta.moduleName;
 
-  DeprecateRenderModel.prototype.transform = function (ast) {
-    var moduleName = this.options.meta.moduleName;
-    var walker = new this.syntax.Walker();
+    return {
+      name: 'deprecate-render-model',
 
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
+      visitors: {
+        MustacheStatement: function (node) {
+          if (node.path.original === 'render' && node.params.length > 1) {
+            node.params.forEach(function (param) {
+              if (param.type !== 'PathExpression') {
+                return;
+              }
 
-      each(node.params, function (param) {
-        if (param.type !== 'PathExpression') {
-          return;
+              true && !false && (0, _emberDebug.deprecate)(deprecationMessage(moduleName, node, param), false, {
+                id: 'ember-template-compiler.deprecate-render-model',
+                until: '3.0.0',
+                url: 'https://emberjs.com/deprecations/v2.x#toc_model-param-in-code-render-code-helper'
+              });
+            });
+          }
         }
-
-        true && !false && (0, _emberDebug.deprecate)(deprecationMessage(moduleName, node, param), false, {
-          id: 'ember-template-compiler.deprecate-render-model',
-          until: '3.0.0',
-          url: 'https://emberjs.com/deprecations/v2.x#toc_model-param-in-code-render-code-helper'
-        });
-      });
-    });
-
-    return ast;
+      }
+    };
   };
 
-  function validate(node) {
-    return node.type === 'MustacheStatement' && node.path.original === 'render' && node.params.length > 1;
-  }
-
-  function each(list, callback) {
-    var i, l;
-
-    for (i = 0, l = list.length; i < l; i++) {
-      callback(list[i]);
-    }
-  }
 
   function deprecationMessage(moduleName, node, param) {
     var sourceInformation = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
@@ -15186,40 +15151,37 @@ enifed('ember-template-compiler/plugins/deprecate-render-model', ['exports', 'em
 enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
-  exports.default = DeprecateRender;
-  function DeprecateRender(options) {
-    this.syntax = null;
-    this.options = options;
-  }
+  exports.default = function (env) {
+    var moduleName = env.meta.moduleName;
 
-  DeprecateRender.prototype.transform = function (ast) {
-    var moduleName = this.options.meta.moduleName;
-    var walker = new this.syntax.Walker();
+    return {
+      name: 'deprecate-render',
 
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
+      visitors: {
+        MustacheStatement: function (node) {
+          if (node.path.original !== 'render') {
+            return;
+          }
+          if (node.params.length !== 1) {
+            return;
+          }
 
-      each(node.params, function (param) {
-        if (param.type !== 'StringLiteral') {
-          return;
+          each(node.params, function (param) {
+            if (param.type !== 'StringLiteral') {
+              return;
+            }
+
+            true && !false && (0, _emberDebug.deprecate)(deprecationMessage(moduleName, node), false, {
+              id: 'ember-template-compiler.deprecate-render',
+              until: '3.0.0',
+              url: 'https://emberjs.com/deprecations/v2.x#toc_code-render-code-helper'
+            });
+          });
         }
-
-        true && !false && (0, _emberDebug.deprecate)(deprecationMessage(moduleName, node), false, {
-          id: 'ember-template-compiler.deprecate-render',
-          until: '3.0.0',
-          url: 'https://emberjs.com/deprecations/v2.x#toc_code-render-code-helper'
-        });
-      });
-    });
-
-    return ast;
+      }
+    };
   };
 
-  function validate(node) {
-    return node.type === 'MustacheStatement' && node.path.original === 'render' && node.params.length === 1;
-  }
 
   function each(list, callback) {
     var i, l;
@@ -15240,41 +15202,30 @@ enifed('ember-template-compiler/plugins/deprecate-render', ['exports', 'ember-de
 enifed('ember-template-compiler/plugins/extract-pragma-tag', ['exports'], function (exports) {
   'use strict';
 
-  // Custom Glimmer AST transform to extract custom component
-  // manager id from the template
+  exports.default = function (env) {
+    var meta = env.meta;
 
-  var ExtractPragmaPlugin = function () {
-    function ExtractPragmaPlugin(options) {
+    return {
+      name: 'exract-pragma-tag',
 
-      this.options = options;
-    }
-
-    ExtractPragmaPlugin.prototype.transform = function (ast) {
-      var options = this.options;
-
-      this.syntax.traverse(ast, {
+      visitors: {
         MustacheStatement: {
           enter: function (node) {
-            if (node.path.type === 'PathExpression' && node.path.original === 'use-component-manager') {
-              options.meta.managerId = node.params[0].value;
+            if (node.path.type === 'PathExpression' && node.path.original === PRAGMA_TAG) {
+              meta.managerId = node.params[0].value;
               return null;
             }
           }
         }
-      });
-
-      return ast;
+      }
     };
-
-    return ExtractPragmaPlugin;
-  }();
-
-  exports.default = ExtractPragmaPlugin;
+  };
+  var PRAGMA_TAG = 'use-component-manager';
 });
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformItemClass, _transformAngleBracketComponents, _transformInputOnToOnEvent, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _features) {
+enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformAngleBracketComponents, _transformInputOnToOnEvent, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _features) {
   'use strict';
 
-  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformItemClass.default, _transformAngleBracketComponents.default, _transformInputOnToOnEvent.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default];
+  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformAngleBracketComponents.default, _transformInputOnToOnEvent.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default];
 
   if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
     transforms.push(_extractPragmaTag.default);
@@ -15285,7 +15236,7 @@ enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-comp
 enifed('ember-template-compiler/plugins/transform-action-syntax', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformActionSyntax;
+  exports.default =
   /**
    @module ember
    @submodule ember-glimmer
@@ -15312,40 +15263,31 @@ enifed('ember-template-compiler/plugins/transform-action-syntax', ['exports'], f
     @class TransformActionSyntax
   */
 
-  function TransformActionSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
+  function (_ref) {
+    var syntax = _ref.syntax;
+    var b = syntax.builders;
 
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformActionSyntax.prototype.transform = function (ast) {
-    var _syntax = this.syntax,
-        traverse = _syntax.traverse,
-        b = _syntax.builders;
+    return {
+      name: 'transform-action-syntax',
 
-    traverse(ast, {
-      ElementModifierStatement: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
-        }
-      },
-      MustacheStatement: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
-        }
-      },
-      SubExpression: function (node) {
-        if (isAction(node)) {
-          insertThisAsFirstParam(node, b);
+      visitors: {
+        ElementModifierStatement: function (node) {
+          if (isAction(node)) {
+            insertThisAsFirstParam(node, b);
+          }
+        },
+        MustacheStatement: function (node) {
+          if (isAction(node)) {
+            insertThisAsFirstParam(node, b);
+          }
+        },
+        SubExpression: function (node) {
+          if (isAction(node)) {
+            insertThisAsFirstParam(node, b);
+          }
         }
       }
-    });
-
-    return ast;
+    };
   };
 
   function isAction(node) {
@@ -15359,39 +15301,22 @@ enifed('ember-template-compiler/plugins/transform-action-syntax', ['exports'], f
 enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformAngleBracketComponents;
-  function TransformAngleBracketComponents() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
+  exports.default = function () {
+    return {
+      name: 'transform-angle-bracket-components',
 
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformAngleBracketComponents.prototype.transform = function (ast) {
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
+      visitors: {
+        ComponentNode: function (node) {
+          node.tag = '<' + node.tag + '>';
+        }
       }
-
-      node.tag = '<' + node.tag + '>';
-    });
-
-    return ast;
+    };
   };
-
-  function validate(node) {
-    return node.type === 'ComponentNode';
-  }
 });
 enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformAttrsToProps;
+  exports.default =
   /**
    @module ember
    @submodule ember-glimmer
@@ -15417,10 +15342,39 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
     @class TransformAttrsToProps
   */
 
-  function TransformAttrsToProps() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
+  function (env) {
+    var b = env.syntax.builders;
+
+    var stack = [[]];
+
+    return {
+      name: 'transform-attrs-into-args',
+
+      visitors: {
+        Program: {
+          enter: function (node) {
+            var parent = stack[stack.length - 1];
+            stack.push(parent.concat(node.blockParams));
+          },
+          exit: function () {
+            stack.pop();
+          }
+        },
+
+        PathExpression: function (node) {
+          var path;
+
+          if (isAttrs(node, stack[stack.length - 1])) {
+            path = b.path(node.original.substr(6));
+
+            path.original = '@' + path.original;
+            path.data = true;
+            return path;
+          }
+        }
+      }
+    };
+  };
 
   function isAttrs(node, symbols) {
     var name = node.parts[0];
@@ -15440,50 +15394,11 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
 
     return false;
   }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformAttrsToProps.prototype.transform = function (ast) {
-    var _syntax = this.syntax,
-        traverse = _syntax.traverse,
-        b = _syntax.builders;
-
-    var stack = [[]];
-
-    traverse(ast, {
-      Program: {
-        enter: function (node) {
-          var parent = stack[stack.length - 1];
-          stack.push(parent.concat(node.blockParams));
-        },
-        exit: function () {
-          stack.pop();
-        }
-      },
-
-      PathExpression: function (node) {
-        var path;
-
-        if (isAttrs(node, stack[stack.length - 1])) {
-          path = b.path(node.original.substr(6));
-
-          path.original = '@' + path.original;
-          path.data = true;
-          return path;
-        }
-      }
-    });
-
-    return ast;
-  };
 });
 enifed('ember-template-compiler/plugins/transform-dot-component-invocation', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransFormDotComponentInvocation;
+  exports.default =
 
   /**
     Transforms dot invocation of closure components to be wrapped
@@ -15538,58 +15453,52 @@ enifed('ember-template-compiler/plugins/transform-dot-component-invocation', ['e
     @private
     @class TransFormDotComponentInvocation
   */
-  function TransFormDotComponentInvocation() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
+  function (env) {
+    var b = env.syntax.builders;
 
-  TransFormDotComponentInvocation.prototype = {
-    _isMulipartPath: function (path) {
-      return path.parts.length > 1;
-    },
-    _isInlineInvocation: function (path, params, hash) {
-      if (this._isMulipartPath(path)) {
-        if (params.length > 0 || hash.pairs.length > 0) {
-          return true;
-        }
-      }
+    return {
+      name: 'transform-dot-component-invocation',
 
-      return false;
-    },
-    _wrapInComponent: function (node, builder) {
-      var component = node.path;
-      var componentHelper = builder.path('component');
-      node.path = componentHelper;
-      node.params.unshift(component);
-    },
-    transform: function (ast) {
-      var _this = this;
-
-      var _syntax = this.syntax,
-          traverse = _syntax.traverse,
-          b = _syntax.builders;
-
-      traverse(ast, {
+      visitors: {
         MustacheStatement: function (node) {
-          if (_this._isInlineInvocation(node.path, node.params, node.hash)) {
-            _this._wrapInComponent(node, b);
+          if (isInlineInvocation(node.path, node.params, node.hash)) {
+            wrapInComponent(node, b);
           }
         },
         BlockStatement: function (node) {
-          if (_this._isMulipartPath(node.path)) {
-            _this._wrapInComponent(node, b);
+          if (isMulipartPath(node.path)) {
+            wrapInComponent(node, b);
           }
         }
-      });
-
-      return ast;
-    }
+      }
+    };
   };
+
+  function isMulipartPath(path) {
+    return path.parts.length > 1;
+  }
+
+  function isInlineInvocation(path, params, hash) {
+    if (isMulipartPath(path)) {
+      if (params.length > 0 || hash.pairs.length > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function wrapInComponent(node, builder) {
+    var component = node.path;
+    var componentHelper = builder.path('component');
+    node.path = componentHelper;
+    node.params.unshift(component);
+  }
 });
 enifed('ember-template-compiler/plugins/transform-each-in-into-each', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformEachInIntoEach;
+  exports.default =
   /**
    @module ember
    @submodule ember-glimmer
@@ -15611,38 +15520,51 @@ enifed('ember-template-compiler/plugins/transform-each-in-into-each', ['exports'
     @private
     @class TransformHasBlockSyntax
   */
+  function (env) {
+    var b = env.syntax.builders;
 
-  function TransformEachInIntoEach() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
+    return {
+      name: 'transform-each-in-into-each',
 
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformEachInIntoEach.prototype.transform = function (ast) {
-    var _syntax = this.syntax,
-        traverse = _syntax.traverse,
-        b = _syntax.builders;
-
-    traverse(ast, {
-      BlockStatement: function (node) {
-        if (node.path.original === 'each-in') {
-          node.params[0] = b.sexpr(b.path('-each-in'), [node.params[0]]);
-          return b.block(b.path('each'), node.params, node.hash, node.program, node.inverse, node.loc);
+      visitors: {
+        BlockStatement: function (node) {
+          if (node.path.original === 'each-in') {
+            node.params[0] = b.sexpr(b.path('-each-in'), [node.params[0]]);
+            return b.block(b.path('each'), node.params, node.hash, node.program, node.inverse, node.loc);
+          }
         }
       }
-    });
-
-    return ast;
+    };
   };
 });
 enifed('ember-template-compiler/plugins/transform-has-block-syntax', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformHasBlockSyntax;
+  exports.default = function (env) {
+    var b = env.syntax.builders;
+
+    return {
+      name: 'transform-has-block-syntax',
+
+      visitors: {
+        PathExpression: function (node) {
+          if (TRANSFORMATIONS[node.original]) {
+            return b.sexpr(b.path(TRANSFORMATIONS[node.original]));
+          }
+        },
+        MustacheStatement: function (node) {
+          if (TRANSFORMATIONS[node.path.original]) {
+            return b.mustache(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash, null, node.loc);
+          }
+        },
+        SubExpression: function (node) {
+          if (TRANSFORMATIONS[node.path.original]) {
+            return b.sexpr(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash);
+          }
+        }
+      }
+    };
+  };
   /**
    @module ember
    @submodule ember-glimmer
@@ -15665,102 +15587,59 @@ enifed('ember-template-compiler/plugins/transform-has-block-syntax', ['exports']
     @class TransformHasBlockSyntax
   */
 
-  function TransformHasBlockSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
-
   var TRANSFORMATIONS = {
     hasBlock: 'has-block',
     hasBlockParams: 'has-block-params'
-  };
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformHasBlockSyntax.prototype.transform = function (ast) {
-    var _syntax = this.syntax,
-        traverse = _syntax.traverse,
-        b = _syntax.builders;
-
-    traverse(ast, {
-      PathExpression: function (node) {
-        if (TRANSFORMATIONS[node.original]) {
-          return b.sexpr(b.path(TRANSFORMATIONS[node.original]));
-        }
-      },
-      MustacheStatement: function (node) {
-        if (TRANSFORMATIONS[node.path.original]) {
-          return b.mustache(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash, null, node.loc);
-        }
-      },
-      SubExpression: function (node) {
-        if (TRANSFORMATIONS[node.path.original]) {
-          return b.sexpr(b.path(TRANSFORMATIONS[node.path.original]), node.params, node.hash);
-        }
-      }
-    });
-
-    return ast;
   };
 });
 enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformInlineLinkTo;
-  function TransformInlineLinkTo(options) {
-    this.options = options;
-    this.syntax = null;
-  }
+  exports.default = function (env) {
+    var b = env.syntax.builders;
 
-  TransformInlineLinkTo.prototype.transform = function (ast) {
-    var _syntax = this.syntax,
-        traverse = _syntax.traverse,
-        b = _syntax.builders;
+    return {
+      name: 'transform-inline-link-to',
 
-    function buildProgram(content, loc) {
-      return b.program([buildStatement(content, loc)], null, loc);
-    }
+      visitors: {
+        MustacheStatement: function (node) {
+          var content;
 
-    function buildStatement(content, loc) {
-      switch (content.type) {
-        case 'PathExpression':
-          return b.mustache(content, null, null, null, loc);
+          if (node.path.original === 'link-to') {
+            content = node.escaped ? node.params[0] : unsafeHtml(b, node.params[0]);
 
-        case 'SubExpression':
-          return b.mustache(content.path, content.params, content.hash, null, loc);
-
-        // The default case handles literals.
-        default:
-          return b.text('' + content.value, loc);
-      }
-    }
-
-    function unsafeHtml(expr) {
-      return b.sexpr('-html-safe', [expr]);
-    }
-
-    traverse(ast, {
-      MustacheStatement: function (node) {
-        var content;
-
-        if (node.path.original === 'link-to') {
-          content = node.escaped ? node.params[0] : unsafeHtml(node.params[0]);
-
-          return b.block('link-to', node.params.slice(1), node.hash, buildProgram(content, node.loc), null, node.loc);
+            return b.block('link-to', node.params.slice(1), node.hash, buildProgram(b, content, node.loc), null, node.loc);
+          }
         }
       }
-    });
-
-    return ast;
+    };
   };
+  function buildProgram(b, content, loc) {
+    return b.program([buildStatement(b, content, loc)], null, loc);
+  }
+
+  function buildStatement(b, content, loc) {
+    switch (content.type) {
+      case 'PathExpression':
+        return b.mustache(content, null, null, null, loc);
+
+      case 'SubExpression':
+        return b.mustache(content.path, content.params, content.hash, null, loc);
+
+      // The default case handles literals.
+      default:
+        return b.text('' + content.value, loc);
+    }
+  }
+
+  function unsafeHtml(b, expr) {
+    return b.sexpr('-html-safe', [expr]);
+  }
 });
 enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
-  exports.default = TransformInputOnToOnEvent;
+  exports.default =
 
   /**
    @module ember
@@ -15785,78 +15664,65 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
     @private
     @class TransformInputOnToOnEvent
   */
-  function TransformInputOnToOnEvent() {
-    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  function (env) {
+    var b = env.syntax.builders;
+    var moduleName = env.meta.moduleName;
 
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-    this.options = options;
-  }
+    return {
+      name: 'transform-input-on-to-onEvent',
 
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformInputOnToOnEvent.prototype.transform = function (ast) {
-    var pluginContext = this;
-    var b = pluginContext.syntax.builders;
-    var walker = new pluginContext.syntax.Walker();
-    var moduleName = pluginContext.options.meta.moduleName;
+      visitors: {
+        MustacheStatement: function (node) {
+          if (node.path.original !== 'input') {
+            return;
+          }
 
-    walker.visit(ast, function (node) {
-      var action, on, onEvent, normalizedOn, moduleInfo, specifiedOn, expected;
+          var action = hashPairForKey(node.hash, 'action');
+          var on = hashPairForKey(node.hash, 'on');
+          var onEvent = hashPairForKey(node.hash, 'onEvent');
 
-      if (pluginContext.validate(node)) {
-        action = hashPairForKey(node.hash, 'action');
-        on = hashPairForKey(node.hash, 'on');
-        onEvent = hashPairForKey(node.hash, 'onEvent');
-        normalizedOn = on || onEvent;
-        moduleInfo = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
+          if (!action && !on && !onEvent) {
+            return;
+          }
 
+          var normalizedOn = on || onEvent;
+          var moduleInfo = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
 
-        if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
-          true && !false && (0, _emberDebug.deprecate)('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' });
+          if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
+            true && !false && (0, _emberDebug.deprecate)('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' });
 
-          normalizedOn.key = 'onEvent';
-          return; // exit early, as we cannot transform further
+            normalizedOn.key = 'onEvent';
+            return; // exit early, as we cannot transform further
+          }
+
+          removeFromHash(node.hash, normalizedOn);
+          removeFromHash(node.hash, action);
+
+          if (!action) {
+            true && !false && (0, _emberDebug.deprecate)('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' });
+
+            return; // exit early, if no action was available there is nothing to do
+          }
+
+          var specifiedOn = normalizedOn ? normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
+          if (normalizedOn && normalizedOn.value.value === 'keyPress') {
+            // using `keyPress` in the root of the component will
+            // clobber the keyPress event handler
+            normalizedOn.value.value = 'key-press';
+          }
+
+          var expected = (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
+
+          true && !false && (0, _emberDebug.deprecate)('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' });
+
+          if (!normalizedOn) {
+            normalizedOn = b.pair('onEvent', b.string('enter'));
+          }
+
+          node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
         }
-
-        removeFromHash(node.hash, normalizedOn);
-        removeFromHash(node.hash, action);
-
-        if (!action) {
-          true && !false && (0, _emberDebug.deprecate)('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' });
-
-          return; // exit early, if no action was available there is nothing to do
-        }
-
-        specifiedOn = normalizedOn ? normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
-
-        if (normalizedOn && normalizedOn.value.value === 'keyPress') {
-          // using `keyPress` in the root of the component will
-          // clobber the keyPress event handler
-          normalizedOn.value.value = 'key-press';
-        }
-
-        expected = (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
-
-
-        true && !false && (0, _emberDebug.deprecate)('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' });
-
-        if (!normalizedOn) {
-          normalizedOn = b.pair('onEvent', b.string('enter'));
-        }
-
-        node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
       }
-    });
-
-    return ast;
-  };
-
-  TransformInputOnToOnEvent.prototype.validate = function (node) {
-    return node.type === 'MustacheStatement' && node.path.original === 'input' && (hashPairForKey(node.hash, 'action') || hashPairForKey(node.hash, 'on') || hashPairForKey(node.hash, 'onEvent'));
+    };
   };
 
   function hashPairForKey(hash, key) {
@@ -15892,7 +15758,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
 enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformInputTypeSyntax;
+  exports.default =
   /**
    @module ember
    @submodule ember-glimmer
@@ -15919,30 +15785,20 @@ enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'
     @class TransformInputTypeSyntax
   */
 
-  function TransformInputTypeSyntax() {
-    // set later within Glimmer2 to the syntax package
-    this.syntax = null;
-  }
+  function (env) {
+    var b = env.syntax.builders;
 
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformInputTypeSyntax.prototype.transform = function (ast) {
-    var _syntax = this.syntax,
-        traverse = _syntax.traverse,
-        b = _syntax.builders;
+    return {
+      name: 'transform-input-type-syntax',
 
-    traverse(ast, {
-      MustacheStatement: function (node) {
-        if (isInput(node)) {
-          insertTypeHelperParameter(node, b);
+      visitors: {
+        MustacheStatement: function (node) {
+          if (isInput(node)) {
+            insertTypeHelperParameter(node, b);
+          }
         }
       }
-    });
-
-    return ast;
+    };
   };
 
   function isInput(node) {
@@ -15964,109 +15820,56 @@ enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'
     }
   }
 });
-enifed('ember-template-compiler/plugins/transform-item-class', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = TransformItemClass;
-  function TransformItemClass() {
-    this.syntax = null;
-  }
-
-  TransformItemClass.prototype.transform = function (ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      var i, pair, key, value, propName, params, sexprParams, sexpr;
-
-      if (!validate(node)) {
-        return;
-      }
-
-      for (i = 0; i < node.hash.pairs.length; i++) {
-        pair = node.hash.pairs[i];
-        key = pair.key, value = pair.value;
-
-
-        if (key !== 'itemClass') {
-          return;
-        }
-        if (value.type === 'StringLiteral') {
-          return;
-        }
-
-        propName = value.original;
-        params = [value];
-        sexprParams = [b.string(propName), b.path(propName)];
-
-
-        params.push(b.sexpr(b.string('-normalize-class'), sexprParams));
-        sexpr = b.sexpr(b.string('if'), params);
-
-
-        pair.value = sexpr;
-      }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'collection';
-  }
-});
 enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
   'use strict';
 
-  exports.default = TransformOldBindingSyntax;
-  function TransformOldBindingSyntax(options) {
-    this.syntax = null;
-    this.options = options;
-  }
+  exports.default = function (env) {
+    var moduleName = env.meta.moduleName;
 
-  TransformOldBindingSyntax.prototype.transform = function (ast) {
-    var moduleName = this.options.meta.moduleName;
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
+    var b = env.syntax.builders;
 
-    walker.visit(ast, function (node) {
-      var i, pair, key, value, sourceInformation, newKey;
+    return {
+      name: 'transform-old-binding-syntax',
 
-      if (!validate(node)) {
+      visitors: {
+        BlockStatement: function (node) {
+          processHash(b, node, moduleName);
+        },
+        MustacheStatement: function (node) {
+          processHash(b, node, moduleName);
+        }
+      }
+    };
+  };
+
+
+  function processHash(b, node, moduleName) {
+    var i, pair, key, value, sourceInformation, newKey;
+
+    for (i = 0; i < node.hash.pairs.length; i++) {
+      pair = node.hash.pairs[i];
+      key = pair.key, value = pair.value;
+      sourceInformation = (0, _calculateLocationDisplay.default)(moduleName, pair.loc);
+
+
+      if (key === 'classBinding') {
         return;
       }
 
-      for (i = 0; i < node.hash.pairs.length; i++) {
-        pair = node.hash.pairs[i];
-        key = pair.key, value = pair.value;
-        sourceInformation = (0, _calculateLocationDisplay.default)(moduleName, pair.loc);
+      true && !(key !== 'attributeBindings') && (0, _emberDebug.assert)('Setting \'attributeBindings\' via template helpers is not allowed ' + sourceInformation, key !== 'attributeBindings');
+
+      if (key.substr(-7) === 'Binding') {
+        newKey = key.slice(0, -7);
 
 
-        if (key === 'classBinding') {
-          return;
-        }
+        true && !false && (0, _emberDebug.deprecate)('You\'re using legacy binding syntax: ' + key + '=' + exprToString(value) + ' ' + sourceInformation + '. Please replace with ' + newKey + '=' + value.original, false, { id: 'ember-template-compiler.transform-old-binding-syntax', until: '3.0.0' });
 
-        true && !(key !== 'attributeBindings') && (0, _emberDebug.assert)('Setting \'attributeBindings\' via template helpers is not allowed ' + sourceInformation, key !== 'attributeBindings');
-
-        if (key.substr(-7) === 'Binding') {
-          newKey = key.slice(0, -7);
-
-
-          true && !false && (0, _emberDebug.deprecate)('You\'re using legacy binding syntax: ' + key + '=' + exprToString(value) + ' ' + sourceInformation + '. Please replace with ' + newKey + '=' + value.original, false, { id: 'ember-template-compiler.transform-old-binding-syntax', until: '3.0.0' });
-
-          pair.key = newKey;
-          if (value.type === 'StringLiteral') {
-            pair.value = b.path(value.original);
-          }
+        pair.key = newKey;
+        if (value.type === 'StringLiteral') {
+          pair.value = b.path(value.original);
         }
       }
-    });
-
-    return ast;
-  };
-
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
+    }
   }
 
   function exprToString(expr) {
@@ -16081,79 +15884,80 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
 enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformOldClassBindingSyntax;
-  function TransformOldClassBindingSyntax(options) {
-    this.syntax = null;
-    this.options = options;
-  }
+  exports.default = function (env) {
+    var b = env.syntax.builders;
 
-  TransformOldClassBindingSyntax.prototype.transform = function (ast) {
-    var b = this.syntax.builders;
-    var walker = new this.syntax.Walker();
+    return {
+      name: 'transform-old-class-binding-syntax',
 
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
-      }
-
-      var allOfTheMicrosyntaxes = [];
-      var allOfTheMicrosyntaxIndexes = [];
-      var classPair = void 0;
-
-      each(node.hash.pairs, function (pair, index) {
-        var key = pair.key;
-
-        if (key === 'classBinding' || key === 'classNameBindings') {
-          allOfTheMicrosyntaxIndexes.push(index);
-          allOfTheMicrosyntaxes.push(pair);
-        } else if (key === 'class') {
-          classPair = pair;
+      visitors: {
+        MustacheStatement: function (node) {
+          process(b, node);
+        },
+        BlockStatement: function (node) {
+          process(b, node);
         }
-      });
-
-      if (allOfTheMicrosyntaxes.length === 0) {
-        return;
       }
+    };
+  };
 
-      var classValue = [];
 
-      if (classPair) {
-        classValue.push(classPair.value);
-        classValue.push(b.string(' '));
-      } else {
-        classPair = b.pair('class', null);
-        node.hash.pairs.push(classPair);
+  function process(b, node) {
+    var allOfTheMicrosyntaxes = [];
+    var allOfTheMicrosyntaxIndexes = [];
+    var classPair = void 0;
+
+    each(node.hash.pairs, function (pair, index) {
+      var key = pair.key;
+
+      if (key === 'classBinding' || key === 'classNameBindings') {
+        allOfTheMicrosyntaxIndexes.push(index);
+        allOfTheMicrosyntaxes.push(pair);
+      } else if (key === 'class') {
+        classPair = pair;
       }
-
-      each(allOfTheMicrosyntaxIndexes, function (index) {
-        node.hash.pairs.splice(index, 1);
-      });
-
-      each(allOfTheMicrosyntaxes, function (_ref) {
-        var value = _ref.value,
-            loc = _ref.loc,
-            microsyntax;
-
-        var sexprs = [];
-        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
-        // be removed.
-
-        if (value.type === 'StringLiteral') {
-          microsyntax = parseMicrosyntax(value.original);
-
-
-          buildSexprs(microsyntax, sexprs, b);
-
-          classValue.push.apply(classValue, sexprs);
-        }
-      });
-
-      var hash = b.hash();
-      classPair.value = b.sexpr(b.path('concat'), classValue, hash);
     });
 
-    return ast;
-  };
+    if (allOfTheMicrosyntaxes.length === 0) {
+      return;
+    }
+
+    var classValue = [];
+
+    if (classPair) {
+      classValue.push(classPair.value);
+      classValue.push(b.string(' '));
+    } else {
+      classPair = b.pair('class', null);
+      node.hash.pairs.push(classPair);
+    }
+
+    each(allOfTheMicrosyntaxIndexes, function (index) {
+      node.hash.pairs.splice(index, 1);
+    });
+
+    each(allOfTheMicrosyntaxes, function (_ref) {
+      var value = _ref.value,
+          loc = _ref.loc,
+          microsyntax;
+
+      var sexprs = [];
+      // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
+      // be removed.
+
+      if (value.type === 'StringLiteral') {
+        microsyntax = parseMicrosyntax(value.original);
+
+
+        buildSexprs(microsyntax, sexprs, b);
+
+        classValue.push.apply(classValue, sexprs);
+      }
+    });
+
+    var hash = b.hash();
+    classPair.value = b.sexpr(b.path('concat'), classValue, hash);
+  }
 
   function buildSexprs(microsyntax, sexprs, b) {
     var i, _microsyntax$i, propName, activeClass, inactiveClass, sexpr, params, sexprParams, hash;
@@ -16199,10 +16003,6 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     }
   }
 
-  function validate(node) {
-    return node.type === 'BlockStatement' || node.type === 'MustacheStatement';
-  }
-
   function each(list, callback) {
     var i;
 
@@ -16225,40 +16025,25 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
 enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformQuotedBindingsIntoJustBindings;
-  function TransformQuotedBindingsIntoJustBindings() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
+  exports.default = function () {
 
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformQuotedBindingsIntoJustBindings.prototype.transform = function (ast) {
-    var walker = new this.syntax.Walker();
+    return {
+      name: 'transform-quoted-bindings-into-just-bindings',
 
-    walker.visit(ast, function (node) {
-      if (!validate(node)) {
-        return;
+      visitors: {
+        ElementNode: function (node) {
+          var styleAttr = getStyleAttr(node);
+
+          if (!validStyleAttr(styleAttr)) {
+            return;
+          }
+
+          styleAttr.value = styleAttr.value.parts[0];
+        }
       }
-
-      var styleAttr = getStyleAttr(node);
-
-      if (!validStyleAttr(styleAttr)) {
-        return;
-      }
-
-      styleAttr.value = styleAttr.value.parts[0];
-    });
-
-    return ast;
+    };
   };
 
-  function validate(node) {
-    return node.type === 'ElementNode';
-  }
 
   function validStyleAttr(attr) {
     if (!attr) {
@@ -16290,25 +16075,21 @@ enifed('ember-template-compiler/plugins/transform-quoted-bindings-into-just-bind
 enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports'], function (exports) {
   'use strict';
 
-  exports.default = TransformTopLevelComponents;
-  function TransformTopLevelComponents() {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-  }
+  exports.default = function () {
+    return {
+      name: 'transform-top-level-component',
 
-  /**
-    @private
-    @method transform
-    @param {AST} The AST to be transformed.
-  */
-  TransformTopLevelComponents.prototype.transform = function (ast) {
-    hasSingleComponentNode(ast, function (component) {
-      component.tag = '@' + component.tag;
-      component.isStatic = true;
-    });
-
-    return ast;
+      visitors: {
+        Program: function (node) {
+          hasSingleComponentNode(node, function (component) {
+            component.tag = '@' + component.tag;
+            component.isStatic = true;
+          });
+        }
+      }
+    };
   };
+
 
   function hasSingleComponentNode(program, componentCallback) {
     var loc = program.loc,
@@ -16474,14 +16255,33 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
 
     return options;
   };
-  exports.registerPlugin = function (type, PluginClass) {
+  exports.registerPlugin = function (type, _plugin) {
     if (type !== 'ast') {
-      throw new Error('Attempting to register ' + PluginClass + ' as "' + type + '" which is not a valid Glimmer plugin type.');
+      throw new Error('Attempting to register ' + _plugin + ' as "' + type + '" which is not a valid Glimmer plugin type.');
     }
 
-    if (USER_PLUGINS.indexOf(PluginClass) === -1) {
-      USER_PLUGINS = [PluginClass].concat(USER_PLUGINS);
+    var plugin = void 0;
+    if (_plugin.prototype && _plugin.prototype.transform) {
+      plugin = function (env) {
+        return {
+          name: _plugin.constructor && _plugin.constructor.name,
+
+          visitors: {
+            Program: function (node) {
+              var plugin = new _plugin(env);
+
+              plugin.syntax = env.syntax;
+
+              return plugin.transform(node);
+            }
+          }
+        };
+      };
+    } else {
+      plugin = _plugin;
     }
+
+    USER_PLUGINS = [plugin].concat(USER_PLUGINS);
   };
   exports.removePlugin = function (type, PluginClass) {
     if (type !== 'ast') {
@@ -17300,7 +17100,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+74cfead2";
+  exports.default = "2.15.0-alpha.1-null+17235982";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
