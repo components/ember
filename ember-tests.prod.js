@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+6d1361cf
+ * @version   2.15.0-alpha.1-null+9537d068
  */
 
 var enifed, requireModule, Ember;
@@ -65451,472 +65451,530 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
   });
 });
-enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['ember-metal', 'ember-runtime', 'ember-routing', 'ember-template-compiler', 'ember-application', 'ember-views', 'ember-glimmer'], function (_emberMetal, _emberRuntime, _emberRouting, _emberTemplateCompiler, _emberApplication, _emberViews, _emberGlimmer) {
+enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['ember-babel', 'ember-runtime', 'ember-routing', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberRouting, _internalTestHelpers) {
   'use strict';
 
-  var Router = void 0,
-      App = void 0,
-      router = void 0,
-      registry = void 0,
-      container = void 0;
+  (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper: invoking with query params', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  function bootApplication() {
-    router = container.lookup('router:main');
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-  }
+    function _class() {
 
-  function shouldNotBeActive(selector) {
-    checkActive(selector, false);
-  }
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
 
-  function shouldBeActive(selector) {
-    checkActive(selector, true);
-  }
-
-  function checkActive(selector, active) {
-    var classList = (0, _emberViews.jQuery)(selector, '#qunit-fixture')[0].className;
-    equal(classList.indexOf('active') > -1, active, selector + ' active should be ' + active.toString());
-  }
-
-  var updateCount = void 0,
-      replaceCount = void 0;
-
-  function sharedSetup() {
-    App = _emberApplication.Application.create({
-      name: 'App',
-      rootElement: '#qunit-fixture'
-    });
-
-    App.deferReadiness();
-
-    updateCount = replaceCount = 0;
-    App.Router.reopen({
-      location: _emberRouting.NoneLocation.create({
-        setURL: function (path) {
-          updateCount++;
-          (0, _emberMetal.set)(this, 'path', path);
-        },
-        replaceURL: function (path) {
-          replaceCount++;
-          (0, _emberMetal.set)(this, 'path', path);
-        }
-      })
-    });
-
-    Router = App.Router;
-    registry = App.__registry__;
-    container = App.__container__;
-  }
-
-  QUnit.module('The {{link-to}} helper: invoking with query params', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        sharedSetup();
-
-        App.IndexController = _emberRuntime.Controller.extend({
-          queryParams: ['foo', 'bar', 'abool'],
-          foo: '123',
-          bar: 'abc',
-          boundThing: 'OMG',
-          abool: true
-        });
-
-        App.AboutController = _emberRuntime.Controller.extend({
-          queryParams: ['baz', 'bat'],
-          baz: 'alex',
-          bat: 'borf'
-        });
-
-        registry.unregister('router:main');
-        registry.register('router:main', Router);
-      });
-    },
-
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        return App.destroy();
-      });
-      (0, _emberGlimmer.setTemplates)({});
+      var indexProperties = {
+        foo: '123',
+        bar: 'abc'
+      };
+      _this.add('controller:index', _emberRuntime.Controller.extend({
+        queryParams: ['foo', 'bar', 'abool'],
+        foo: indexProperties.foo,
+        bar: indexProperties.bar,
+        boundThing: 'OMG',
+        abool: true
+      }));
+      _this.add('controller:about', _emberRuntime.Controller.extend({
+        queryParams: ['baz', 'bat'],
+        baz: 'alex',
+        bat: 'borf'
+      }));
+      _this.indexProperties = indexProperties;
+      return _this;
     }
-  });
 
-  QUnit.test('doesn\'t update controller QP properties on current route when invoked', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}'));
-    bootApplication();
+    _class.prototype.shouldNotBeActive = function (assert, selector) {
+      this.checkActive(assert, selector, false);
+    };
 
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#the-link'), 'click');
-    var indexController = container.lookup('controller:index');
-    deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
-  });
+    _class.prototype.shouldBeActive = function (assert, selector) {
+      this.checkActive(assert, selector, true);
+    };
 
-  QUnit.test('doesn\'t update controller QP properties on current route when invoked (empty query-params obj)', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}'));
-    bootApplication();
+    _class.prototype.getController = function (name) {
+      return this.applicationInstance.lookup('controller:' + name);
+    };
 
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#the-link'), 'click');
-    var indexController = container.lookup('controller:index');
-    deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
-  });
+    _class.prototype.checkActive = function (assert, selector, active) {
+      var classList = this.$(selector)[0].className;
+      assert.equal(classList.indexOf('active') > -1, active, selector + ' active should be ' + active.toString());
+    };
 
-  QUnit.test('link-to with no params throws', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to id=\'the-link\'}}Index{{/link-to}}'));
-    expectAssertion(function () {
-      return bootApplication();
-    }, /one or more/);
-  });
+    _class.prototype['@test doesn\'t update controller QP properties on current route when invoked'] = function (assert) {
+      var _this2 = this;
 
-  QUnit.test('doesn\'t update controller QP properties on current route when invoked (empty query-params obj, inferred route)', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to (query-params) id=\'the-link\'}}Index{{/link-to}}'));
-    bootApplication();
+      this.addTemplate('index', '\n      {{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}\n    ');
 
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#the-link'), 'click');
-    var indexController = container.lookup('controller:index');
-    deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
-  });
+      return this.visit('/').then(function () {
+        _this2.click('#the-link');
+        var indexController = _this2.getController('index');
 
-  QUnit.test('updates controller QP properties on current route when invoked', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}'));
-    bootApplication();
-
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#the-link'), 'click');
-    var indexController = container.lookup('controller:index');
-    deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
-  });
-
-  QUnit.test('updates controller QP properties on current route when invoked (inferred route)', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}'));
-    bootApplication();
-
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#the-link'), 'click');
-    var indexController = container.lookup('controller:index');
-    deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
-  });
-
-  QUnit.test('updates controller QP properties on other route after transitioning to that route', function () {
-    Router.map(function () {
-      this.route('about');
-    });
-
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to \'about\' (query-params baz=\'lol\') id=\'the-link\'}}About{{/link-to}}'));
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/about?baz=lol');
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#the-link'), 'click');
-    var aboutController = container.lookup('controller:about');
-    deepEqual(aboutController.getProperties('baz', 'bat'), { baz: 'lol', bat: 'borf' }, 'about controller QP properties updated');
-
-    equal(container.lookup('controller:application').get('currentPath'), 'about');
-  });
-
-  QUnit.test('supplied QP properties can be bound', function () {
-    var indexController = container.lookup('controller:index');
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to (query-params foo=boundThing) id=\'the-link\'}}Index{{/link-to}}'));
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?foo=OMG');
-    (0, _emberMetal.run)(indexController, 'set', 'boundThing', 'ASL');
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?foo=ASL');
-  });
-
-  QUnit.test('supplied QP properties can be bound (booleans)', function () {
-    var indexController = container.lookup('controller:index');
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to (query-params abool=boundThing) id=\'the-link\'}}Index{{/link-to}}'));
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?abool=OMG');
-    (0, _emberMetal.run)(indexController, 'set', 'boundThing', false);
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?abool=false');
-
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#the-link'), 'click');
-
-    deepEqual(indexController.getProperties('foo', 'bar', 'abool'), { foo: '123', bar: 'abc', abool: false });
-  });
-
-  QUnit.test('href updates when unsupplied controller QP props change', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('{{#link-to (query-params foo=\'lol\') id=\'the-link\'}}Index{{/link-to}}'));
-
-    bootApplication();
-    var indexController = container.lookup('controller:index');
-
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?foo=lol');
-    (0, _emberMetal.run)(indexController, 'set', 'bar', 'BORF');
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?bar=BORF&foo=lol');
-    (0, _emberMetal.run)(indexController, 'set', 'foo', 'YEAH');
-    equal((0, _emberViews.jQuery)('#the-link').attr('href'), '/?bar=BORF&foo=lol');
-  });
-
-  QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
-    // Test harness for bug #12033
-
-    (0, _emberGlimmer.setTemplate)('cars', (0, _emberTemplateCompiler.compile)('\n    {{#link-to \'cars.create\' id=\'create-link\'}}Create new car{{/link-to}}\n    {{#link-to (query-params page=\'2\') id=\'page2-link\'}}Page 2{{/link-to}}\n    {{outlet}}\n  '));
-
-    (0, _emberGlimmer.setTemplate)('cars/create', (0, _emberTemplateCompiler.compile)('{{#link-to \'cars\' id=\'close-link\'}}Close create form{{/link-to}}'));
-
-    Router.map(function () {
-      this.route('cars', function () {
-        this.route('create');
+        assert.deepEqual(indexController.getProperties('foo', 'bar'), _this2.indexProperties, 'controller QP properties do not update');
       });
-    });
+    };
 
-    App.CarsController = _emberRuntime.Controller.extend({
-      queryParams: ['page'],
-      page: 1
-    });
+    _class.prototype['@test doesn\'t update controller QP properties on current route when invoked (empty query-params obj)'] = function (assert) {
+      var _this3 = this;
 
-    bootApplication();
+      this.addTemplate('index', '\n      {{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}\n    ');
 
-    var carsController = container.lookup('controller:cars');
+      return this.visit('/').then(function () {
+        _this3.click('#the-link');
+        var indexController = _this3.getController('index');
 
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/cars/create');
-    });
-
-    (0, _emberMetal.run)(function () {
-      equal(router.currentRouteName, 'cars.create');
-      (0, _emberViews.jQuery)('#close-link').click();
-    });
-
-    (0, _emberMetal.run)(function () {
-      equal(router.currentRouteName, 'cars.index');
-      equal(router.get('url'), '/cars');
-      equal(carsController.get('page'), 1, 'The page query-param is 1');
-      (0, _emberViews.jQuery)('#page2-link').click();
-    });
-
-    (0, _emberMetal.run)(function () {
-      equal(router.currentRouteName, 'cars.index', 'The active route is still cars');
-      equal(router.get('url'), '/cars?page=2', 'The url has been updated');
-      equal(carsController.get('page'), 2, 'The query params have been updated');
-    });
-  });
-
-  QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('\n    {{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}}\n    {{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}}\n    {{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}\n  '));
-
-    (0, _emberGlimmer.setTemplate)('search', (0, _emberTemplateCompiler.compile)('\n    {{#link-to (query-params search=\'same\') id=\'same-search\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'change\') id=\'change-search\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'same\' archive=true) id=\'same-search-add-archive\'}}Index{{/link-to}}\n    {{#link-to (query-params archive=true) id=\'only-add-archive\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'same\' archive=true) id=\'both-same\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'different\' archive=true) id=\'change-one\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'different\' archive=false) id=\'remove-one\'}}Index{{/link-to}}\n    {{outlet}}\n  '));
-
-    (0, _emberGlimmer.setTemplate)('search/results', (0, _emberTemplateCompiler.compile)('\n    {{#link-to (query-params sort=\'title\') id=\'same-sort-child-only\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'same\') id=\'same-search-parent-only\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'change\') id=\'change-search-parent-only\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'same\' sort=\'title\') id=\'same-search-same-sort-child-and-parent\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'same\' sort=\'author\') id=\'same-search-different-sort-child-and-parent\'}}Index{{/link-to}}\n    {{#link-to (query-params search=\'change\' sort=\'title\') id=\'change-search-same-sort-child-and-parent\'}}Index{{/link-to}}\n    {{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}}\n  '));
-
-    Router.map(function () {
-      this.route('search', function () {
-        this.route('results');
+        assert.deepEqual(indexController.getProperties('foo', 'bar'), _this3.indexProperties, 'controller QP properties do not update');
       });
-    });
+    };
 
-    App.SearchController = _emberRuntime.Controller.extend({
-      queryParams: ['search', 'archive'],
-      search: '',
-      archive: false
-    });
+    _class.prototype['@test doesn\'t update controller QP properties on current route when invoked (empty query-params obj, inferred route)'] = function (assert) {
+      var _this4 = this;
 
-    App.SearchResultsController = _emberRuntime.Controller.extend({
-      queryParams: ['sort', 'showDetails'],
-      sort: 'title',
-      showDetails: true
-    });
+      this.addTemplate('index', '\n      {{#link-to (query-params) id=\'the-link\'}}Index{{/link-to}}\n    ');
 
-    bootApplication();
+      return this.visit('/').then(function () {
+        _this4.click('#the-link');
+        var indexController = _this4.getController('index');
 
-    //Basic tests
-    shouldNotBeActive('#cat-link');
-    shouldNotBeActive('#dog-link');
-    (0, _emberMetal.run)(router, 'handleURL', '/?foo=cat');
-    shouldBeActive('#cat-link');
-    shouldNotBeActive('#dog-link');
-    (0, _emberMetal.run)(router, 'handleURL', '/?foo=dog');
-    shouldBeActive('#dog-link');
-    shouldNotBeActive('#cat-link');
-    shouldBeActive('#change-nothing');
-
-    //Multiple params
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/search?search=same');
-    });
-    shouldBeActive('#same-search');
-    shouldNotBeActive('#change-search');
-    shouldNotBeActive('#same-search-add-archive');
-    shouldNotBeActive('#only-add-archive');
-    shouldNotBeActive('#remove-one');
-
-    (0, _emberMetal.run)(function () {
-      return router.handleURL('/search?search=same&archive=true');
-    });
-
-    shouldBeActive('#both-same');
-    shouldNotBeActive('#change-one');
-
-    //Nested Controllers
-    (0, _emberMetal.run)(function () {
-      // Note: this is kind of a strange case; sort's default value is 'title',
-      // so this URL shouldn't have been generated in the first place, but
-      // we should also be able to gracefully handle these cases.
-      router.handleURL('/search/results?search=same&sort=title&showDetails=true');
-    });
-    //shouldBeActive('#same-sort-child-only');
-    shouldBeActive('#same-search-parent-only');
-    shouldNotBeActive('#change-search-parent-only');
-    shouldBeActive('#same-search-same-sort-child-and-parent');
-    shouldNotBeActive('#same-search-different-sort-child-and-parent');
-    shouldNotBeActive('#change-search-same-sort-child-and-parent');
-  });
-
-  QUnit.test('The {{link-to}} applies active class when query-param is number', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('\n    {{#link-to (query-params page=pageNumber) id=\'page-link\'}}Index{{/link-to}}\n  '));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      queryParams: ['page'],
-      page: 1,
-      pageNumber: 5
-    });
-
-    bootApplication();
-
-    shouldNotBeActive('#page-link');
-    (0, _emberMetal.run)(router, 'handleURL', '/?page=5');
-    shouldBeActive('#page-link');
-  });
-
-  QUnit.test('The {{link-to}} applies active class when query-param is array', function () {
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('\n    {{#link-to (query-params pages=pagesArray) id=\'array-link\'}}Index{{/link-to}}\n    {{#link-to (query-params pages=biggerArray) id=\'bigger-link\'}}Index{{/link-to}}\n    {{#link-to (query-params pages=emptyArray) id=\'empty-link\'}}Index{{/link-to}}\n  '));
-
-    App.IndexController = _emberRuntime.Controller.extend({
-      queryParams: ['pages'],
-      pages: [],
-      pagesArray: [1, 2],
-      biggerArray: [1, 2, 3],
-      emptyArray: []
-    });
-
-    bootApplication();
-
-    shouldNotBeActive('#array-link');
-    (0, _emberMetal.run)(router, 'handleURL', '/?pages=%5B1%2C2%5D');
-    shouldBeActive('#array-link');
-    shouldNotBeActive('#bigger-link');
-    shouldNotBeActive('#empty-link');
-    (0, _emberMetal.run)(router, 'handleURL', '/?pages=%5B2%2C1%5D');
-    shouldNotBeActive('#array-link');
-    shouldNotBeActive('#bigger-link');
-    shouldNotBeActive('#empty-link');
-    (0, _emberMetal.run)(router, 'handleURL', '/?pages=%5B1%2C2%2C3%5D');
-    shouldBeActive('#bigger-link');
-    shouldNotBeActive('#array-link');
-    shouldNotBeActive('#empty-link');
-  });
-
-  QUnit.test('The {{link-to}} helper applies active class to parent route', function () {
-    App.Router.map(function () {
-      this.route('parent', function () {
-        this.route('child');
+        assert.deepEqual(indexController.getProperties('foo', 'bar'), _this4.indexProperties, 'controller QP properties do not update');
       });
-    });
+    };
 
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('\n    {{#link-to \'parent\' id=\'parent-link\'}}Parent{{/link-to}}\n    {{#link-to \'parent.child\' id=\'parent-child-link\'}}Child{{/link-to}}\n    {{#link-to \'parent\' (query-params foo=cat) id=\'parent-link-qp\'}}Parent{{/link-to}}\n    {{outlet}}\n  '));
+    _class.prototype['@test updates controller QP properties on current route when invoked'] = function (assert) {
+      var _this5 = this;
 
-    App.ParentChildController = _emberRuntime.Controller.extend({
-      queryParams: ['foo'],
-      foo: 'bar'
-    });
+      this.addTemplate('index', '\n      {{#link-to \'index\' (query-params foo=\'456\') id="the-link"}}\n        Index\n      {{/link-to}}\n    ');
 
-    bootApplication();
-    shouldNotBeActive('#parent-link');
-    shouldNotBeActive('#parent-child-link');
-    shouldNotBeActive('#parent-link-qp');
-    (0, _emberMetal.run)(router, 'handleURL', '/parent/child?foo=dog');
-    shouldBeActive('#parent-link');
-    shouldNotBeActive('#parent-link-qp');
-  });
+      return this.visit('/').then(function () {
+        _this5.click('#the-link');
+        var indexController = _this5.getController('index');
 
-  QUnit.test('The {{link-to}} helper disregards query-params in activeness computation when current-when specified', function () {
-    App.Router.map(function () {
-      this.route('parent');
-    });
+        assert.deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
+      });
+    };
 
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('\n    {{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'app-link\'}}Parent{{/link-to}} {{outlet}}\n  '));
-    (0, _emberGlimmer.setTemplate)('parent', (0, _emberTemplateCompiler.compile)('\n    {{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'parent-link\'}}Parent{{/link-to}} {{outlet}}\n  '));
+    _class.prototype['@test updates controller QP properties on current route when invoked (inferred route)'] = function (assert) {
+      var _this6 = this;
 
-    App.ParentController = _emberRuntime.Controller.extend({
-      queryParams: ['page'],
-      page: 1
-    });
+      this.addTemplate('index', '\n      {{#link-to (query-params foo=\'456\') id="the-link"}}\n        Index\n      {{/link-to}}\n    ');
 
-    bootApplication();
-    equal((0, _emberViews.jQuery)('#app-link').attr('href'), '/parent');
-    shouldNotBeActive('#app-link');
+      return this.visit('/').then(function () {
+        _this6.click('#the-link');
+        var indexController = _this6.getController('index');
 
-    (0, _emberMetal.run)(router, 'handleURL', '/parent?page=2');
-    equal((0, _emberViews.jQuery)('#app-link').attr('href'), '/parent');
-    shouldBeActive('#app-link');
-    equal((0, _emberViews.jQuery)('#parent-link').attr('href'), '/parent');
-    shouldBeActive('#parent-link');
+        assert.deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
+      });
+    };
 
-    var parentController = container.lookup('controller:parent');
-    equal(parentController.get('page'), 2);
-    (0, _emberMetal.run)(parentController, 'set', 'page', 3);
-    equal(router.get('location.path'), '/parent?page=3');
-    shouldBeActive('#app-link');
-    shouldBeActive('#parent-link');
+    _class.prototype['@test updates controller QP properties on other route after transitioning to that route'] = function (assert) {
+      var _this7 = this;
 
-    (0, _emberViews.jQuery)('#app-link').click();
-    equal(router.get('location.path'), '/parent');
-  });
+      this.router.map(function () {
+        this.route('about');
+      });
 
-  QUnit.test('link-to default query params while in active transition regression test', function () {
-    App.Router.map(function () {
-      this.route('foos');
-      this.route('bars');
-    });
-    var foos = _emberRuntime.RSVP.defer();
-    var bars = _emberRuntime.RSVP.defer();
+      this.addTemplate('index', '\n      {{#link-to \'about\' (query-params baz=\'lol\') id=\'the-link\'}}\n        About\n      {{/link-to}}\n    ');
 
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('\n    {{link-to \'Foos\' \'foos\' id=\'foos-link\'}}\n    {{link-to \'Baz Foos\' \'foos\' (query-params baz=true) id=\'baz-foos-link\'}}\n    {{link-to \'Quux Bars\' \'bars\' (query-params quux=true) id=\'bars-link\'}}\n  '));
+      return this.visit('/').then(function () {
+        var theLink = _this7.$('#the-link');
+        assert.equal(theLink.attr('href'), '/about?baz=lol');
 
-    App.FoosController = _emberRuntime.Controller.extend({
-      queryParams: ['status'],
-      baz: false
-    });
+        _this7.click('#the-link');
+        var aboutController = _this7.getController('about');
 
-    App.FoosRoute = _emberRouting.Route.extend({
-      model: function () {
-        return foos.promise;
-      }
-    });
+        assert.deepEqual(aboutController.getProperties('baz', 'bat'), { baz: 'lol', bat: 'borf' }, 'about controller QP properties updated');
+      });
+    };
 
-    App.BarsController = _emberRuntime.Controller.extend({
-      queryParams: ['status'],
-      quux: false
-    });
+    _class.prototype['@test supplied QP properties can be bound'] = function (assert) {
+      var _this8 = this;
 
-    App.BarsRoute = _emberRouting.Route.extend({
-      model: function () {
-        return bars.promise;
-      }
-    });
+      this.addTemplate('index', '\n      {{#link-to (query-params foo=boundThing) id=\'the-link\'}}Index{{/link-to}}\n    ');
 
-    bootApplication();
-    equal((0, _emberViews.jQuery)('#foos-link').attr('href'), '/foos');
-    equal((0, _emberViews.jQuery)('#baz-foos-link').attr('href'), '/foos?baz=true');
-    equal((0, _emberViews.jQuery)('#bars-link').attr('href'), '/bars?quux=true');
+      return this.visit('/').then(function () {
+        var indexController = _this8.getController('index');
+        var theLink = _this8.$('#the-link');
 
-    equal(router.get('location.path'), '');
+        assert.equal(theLink.attr('href'), '/?foo=OMG');
 
-    shouldNotBeActive('#foos-link');
-    shouldNotBeActive('#baz-foos-link');
-    shouldNotBeActive('#bars-link');
+        _this8.runTask(function () {
+          return indexController.set('boundThing', 'ASL');
+        });
 
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#bars-link'), 'click');
-    shouldNotBeActive('#bars-link');
+        assert.equal(theLink.attr('href'), '/?foo=ASL');
+      });
+    };
 
-    (0, _emberMetal.run)((0, _emberViews.jQuery)('#foos-link'), 'click');
-    shouldNotBeActive('#foos-link');
+    _class.prototype['@test supplied QP properties can be bound (booleans)'] = function (assert) {
+      var _this9 = this;
 
-    (0, _emberMetal.run)(foos, 'resolve');
+      this.addTemplate('index', '\n      {{#link-to (query-params abool=boundThing) id=\'the-link\'}}\n        Index\n      {{/link-to}}\n    ');
 
-    equal(router.get('location.path'), '/foos');
-    shouldBeActive('#foos-link');
-  });
+      return this.visit('/').then(function () {
+        var indexController = _this9.getController('index');
+        var theLink = _this9.$('#the-link');
+
+        assert.equal(theLink.attr('href'), '/?abool=OMG');
+
+        _this9.runTask(function () {
+          return indexController.set('boundThing', false);
+        });
+
+        assert.equal(theLink.attr('href'), '/?abool=false');
+
+        _this9.click('#the-link');
+
+        assert.deepEqual(indexController.getProperties('foo', 'bar', 'abool'), { foo: '123', bar: 'abc', abool: false }, 'bound bool QP properties update');
+      });
+    };
+
+    _class.prototype['@test href updates when unsupplied controller QP props change'] = function (assert) {
+      var _this10 = this;
+
+      this.addTemplate('index', '\n      {{#link-to (query-params foo=\'lol\') id=\'the-link\'}}Index{{/link-to}}\n    ');
+
+      return this.visit('/').then(function () {
+        var indexController = _this10.getController('index');
+        var theLink = _this10.$('#the-link');
+
+        assert.equal(theLink.attr('href'), '/?foo=lol');
+
+        _this10.runTask(function () {
+          return indexController.set('bar', 'BORF');
+        });
+
+        assert.equal(theLink.attr('href'), '/?bar=BORF&foo=lol');
+
+        _this10.runTask(function () {
+          return indexController.set('foo', 'YEAH');
+        });
+
+        assert.equal(theLink.attr('href'), '/?bar=BORF&foo=lol');
+      });
+    };
+
+    _class.prototype['@test The {{link-to}} with only query params always transitions to the current route with the query params applied'] = function (assert) {
+      var _this11 = this;
+
+      // Test harness for bug #12033
+      this.addTemplate('cars', '\n      {{#link-to \'cars.create\' id=\'create-link\'}}Create new car{{/link-to}}\n      {{#link-to (query-params page=\'2\') id=\'page2-link\'}}Page 2{{/link-to}}\n      {{outlet}}\n    ');
+      this.addTemplate('cars.create', '{{#link-to \'cars\' id=\'close-link\'}}Close create form{{/link-to}}');
+
+      this.router.map(function () {
+        this.route('cars', function () {
+          this.route('create');
+        });
+      });
+
+      this.add('controller:cars', _emberRuntime.Controller.extend({
+        queryParams: ['page'],
+        page: 1
+      }));
+
+      return this.visit('/cars/create').then(function () {
+        var router = _this11.appRouter;
+        var carsController = _this11.getController('cars');
+
+        assert.equal(router.currentRouteName, 'cars.create');
+
+        _this11.click('#close-link');
+
+        assert.equal(router.currentRouteName, 'cars.index');
+        assert.equal(router.get('url'), '/cars');
+        assert.equal(carsController.get('page'), 1, 'The page query-param is 1');
+
+        _this11.click('#page2-link');
+
+        assert.equal(router.currentRouteName, 'cars.index', 'The active route is still cars');
+        assert.equal(router.get('url'), '/cars?page=2', 'The url has been updated');
+        assert.equal(carsController.get('page'), 2, 'The query params have been updated');
+      });
+    };
+
+    _class.prototype['@test the {{link-to}} applies activeClass when query params are not changed'] = function (assert) {
+      var _this12 = this;
+
+      this.addTemplate('index', '\n      {{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}}\n      {{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}}\n      {{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}\n    ');
+      this.addTemplate('search', '\n      {{#link-to (query-params search=\'same\') id=\'same-search\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'change\') id=\'change-search\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'same\' archive=true) id=\'same-search-add-archive\'}}Index{{/link-to}}\n      {{#link-to (query-params archive=true) id=\'only-add-archive\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'same\' archive=true) id=\'both-same\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'different\' archive=true) id=\'change-one\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'different\' archive=false) id=\'remove-one\'}}Index{{/link-to}}\n      {{outlet}}\n    ');
+      this.addTemplate('search.results', '\n      {{#link-to (query-params sort=\'title\') id=\'same-sort-child-only\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'same\') id=\'same-search-parent-only\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'change\') id=\'change-search-parent-only\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'same\' sort=\'title\') id=\'same-search-same-sort-child-and-parent\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'same\' sort=\'author\') id=\'same-search-different-sort-child-and-parent\'}}Index{{/link-to}}\n      {{#link-to (query-params search=\'change\' sort=\'title\') id=\'change-search-same-sort-child-and-parent\'}}Index{{/link-to}}\n      {{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}}\n    ');
+
+      this.router.map(function () {
+        this.route('search', function () {
+          this.route('results');
+        });
+      });
+
+      this.add('controller:search', _emberRuntime.Controller.extend({
+        queryParams: ['search', 'archive'],
+        search: '',
+        archive: false
+      }));
+
+      this.add('controller:search.results', _emberRuntime.Controller.extend({
+        queryParams: ['sort', 'showDetails'],
+        sort: 'title',
+        showDetails: true
+      }));
+
+      return this.visit('/').then(function () {
+        _this12.shouldNotBeActive(assert, '#cat-link');
+        _this12.shouldNotBeActive(assert, '#dog-link');
+
+        return _this12.visit('/?foo=cat');
+      }).then(function () {
+        _this12.shouldBeActive(assert, '#cat-link');
+        _this12.shouldNotBeActive(assert, '#dog-link');
+
+        return _this12.visit('/?foo=dog');
+      }).then(function () {
+        _this12.shouldBeActive(assert, '#dog-link');
+        _this12.shouldNotBeActive(assert, '#cat-link');
+        _this12.shouldBeActive(assert, '#change-nothing');
+
+        return _this12.visit('/search?search=same');
+      }).then(function () {
+        _this12.shouldBeActive(assert, '#same-search');
+        _this12.shouldNotBeActive(assert, '#change-search');
+        _this12.shouldNotBeActive(assert, '#same-search-add-archive');
+        _this12.shouldNotBeActive(assert, '#only-add-archive');
+        _this12.shouldNotBeActive(assert, '#remove-one');
+
+        return _this12.visit('/search?search=same&archive=true');
+      }).then(function () {
+        _this12.shouldBeActive(assert, '#both-same');
+        _this12.shouldNotBeActive(assert, '#change-one');
+
+        return _this12.visit('/search/results?search=same&sort=title&showDetails=true');
+      }).then(function () {
+        _this12.shouldBeActive(assert, '#same-sort-child-only');
+        _this12.shouldBeActive(assert, '#same-search-parent-only');
+        _this12.shouldNotBeActive(assert, '#change-search-parent-only');
+        _this12.shouldBeActive(assert, '#same-search-same-sort-child-and-parent');
+        _this12.shouldNotBeActive(assert, '#same-search-different-sort-child-and-parent');
+        _this12.shouldNotBeActive(assert, '#change-search-same-sort-child-and-parent');
+      });
+    };
+
+    _class.prototype['@test the {{link-to}} applies active class when query-param is a number'] = function (assert) {
+      var _this13 = this;
+
+      this.addTemplate('index', '\n      {{#link-to (query-params page=pageNumber) id=\'page-link\'}}\n        Index\n      {{/link-to}}\n    ');
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        queryParams: ['page'],
+        page: 1,
+        pageNumber: 5
+      }));
+
+      return this.visit('/').then(function () {
+        _this13.shouldNotBeActive(assert, '#page-link');
+        return _this13.visit('/?page=5');
+      }).then(function () {
+        _this13.shouldBeActive(assert, '#page-link');
+      });
+    };
+
+    _class.prototype['@test the {{link-to}} applies active class when query-param is an array'] = function (assert) {
+      var _this14 = this;
+
+      this.addTemplate('index', '\n      {{#link-to (query-params pages=pagesArray) id=\'array-link\'}}Index{{/link-to}}\n      {{#link-to (query-params pages=biggerArray) id=\'bigger-link\'}}Index{{/link-to}}\n      {{#link-to (query-params pages=emptyArray) id=\'empty-link\'}}Index{{/link-to}}\n    ');
+
+      this.add('controller:index', _emberRuntime.Controller.extend({
+        queryParams: ['pages'],
+        pages: [],
+        pagesArray: [1, 2],
+        biggerArray: [1, 2, 3],
+        emptyArray: []
+      }));
+
+      return this.visit('/').then(function () {
+        _this14.shouldNotBeActive(assert, '#array-link');
+
+        return _this14.visit('/?pages=%5B1%2C2%5D');
+      }).then(function () {
+        _this14.shouldBeActive(assert, '#array-link');
+        _this14.shouldNotBeActive(assert, '#bigger-link');
+        _this14.shouldNotBeActive(assert, '#empty-link');
+
+        return _this14.visit('/?pages=%5B2%2C1%5D');
+      }).then(function () {
+        _this14.shouldNotBeActive(assert, '#array-link');
+        _this14.shouldNotBeActive(assert, '#bigger-link');
+        _this14.shouldNotBeActive(assert, '#empty-link');
+
+        return _this14.visit('/?pages=%5B1%2C2%2C3%5D');
+      }).then(function () {
+        _this14.shouldBeActive(assert, '#bigger-link');
+        _this14.shouldNotBeActive(assert, '#array-link');
+        _this14.shouldNotBeActive(assert, '#empty-link');
+      });
+    };
+
+    _class.prototype['@test the {{link-to}} helper applies active class to the parent route'] = function (assert) {
+      var _this15 = this;
+
+      this.router.map(function () {
+        this.route('parent', function () {
+          this.route('child');
+        });
+      });
+
+      this.addTemplate('application', '\n      {{#link-to \'parent\' id=\'parent-link\'}}Parent{{/link-to}}\n      {{#link-to \'parent.child\' id=\'parent-child-link\'}}Child{{/link-to}}\n      {{#link-to \'parent\' (query-params foo=cat) id=\'parent-link-qp\'}}Parent{{/link-to}}\n      {{outlet}}\n    ');
+
+      this.add('controller:parent.child', _emberRuntime.Controller.extend({
+        queryParams: ['foo'],
+        foo: 'bar'
+      }));
+
+      return this.visit('/').then(function () {
+        _this15.shouldNotBeActive(assert, '#parent-link');
+        _this15.shouldNotBeActive(assert, '#parent-child-link');
+        _this15.shouldNotBeActive(assert, '#parent-link-qp');
+        return _this15.visit('/parent/child?foo=dog');
+      }).then(function () {
+        _this15.shouldBeActive(assert, '#parent-link');
+        _this15.shouldNotBeActive(assert, '#parent-link-qp');
+      });
+    };
+
+    _class.prototype['@test The {{link-to}} helper disregards query-params in activeness computation when current-when is specified'] = function (assert) {
+      var _this16 = this;
+
+      var appLink = void 0;
+
+      this.router.map(function () {
+        this.route('parent');
+      });
+      this.addTemplate('application', '\n      {{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'app-link\'}}\n        Parent\n      {{/link-to}}\n      {{outlet}}\n    ');
+      this.addTemplate('parent', '\n      {{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'parent-link\'}}\n        Parent\n      {{/link-to}}\n      {{outlet}}\n    ');
+      this.add('controller:parent', _emberRuntime.Controller.extend({
+        queryParams: ['page'],
+        page: 1
+      }));
+
+      return this.visit('/').then(function () {
+        appLink = _this16.$('#app-link');
+
+        assert.equal(appLink.attr('href'), '/parent');
+        _this16.shouldNotBeActive(assert, '#app-link');
+
+        return _this16.visit('/parent?page=2');
+      }).then(function () {
+        appLink = _this16.$('#app-link');
+        var router = _this16.appRouter;
+
+        assert.equal(appLink.attr('href'), '/parent');
+        _this16.shouldBeActive(assert, '#app-link');
+        assert.equal(_this16.$('#parent-link').attr('href'), '/parent');
+        _this16.shouldBeActive(assert, '#parent-link');
+
+        var parentController = _this16.getController('parent');
+
+        assert.equal(parentController.get('page'), 2);
+
+        _this16.runTask(function () {
+          return parentController.set('page', 3);
+        });
+
+        assert.equal(router.get('location.path'), '/parent?page=3');
+        _this16.shouldBeActive(assert, '#app-link');
+        _this16.shouldBeActive(assert, '#parent-link');
+
+        _this16.click('#app-link');
+
+        assert.equal(router.get('location.path'), '/parent');
+      });
+    };
+
+    _class.prototype['@test link-to default query params while in active transition regression test'] = function (assert) {
+      var _this17 = this;
+
+      this.router.map(function () {
+        this.route('foos');
+        this.route('bars');
+      });
+      var foos = _emberRuntime.RSVP.defer();
+      var bars = _emberRuntime.RSVP.defer();
+
+      this.addTemplate('application', '\n      {{link-to \'Foos\' \'foos\' id=\'foos-link\'}}\n      {{link-to \'Baz Foos\' \'foos\' (query-params baz=true) id=\'baz-foos-link\'}}\n      {{link-to \'Quux Bars\' \'bars\' (query-params quux=true) id=\'bars-link\'}}\n    ');
+      this.add('controller:foos', _emberRuntime.Controller.extend({
+        queryParams: ['status'],
+        baz: false
+      }));
+      this.add('route:foos', _emberRouting.Route.extend({
+        model: function () {
+          return foos.promise;
+        }
+      }));
+      this.add('controller:bars', _emberRuntime.Controller.extend({
+        queryParams: ['status'],
+        quux: false
+      }));
+      this.add('route:bars', _emberRouting.Route.extend({
+        model: function () {
+          return bars.promise;
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var router = _this17.appRouter;
+        var foosLink = _this17.$('#foos-link');
+        var barsLink = _this17.$('#bars-link');
+        var bazLink = _this17.$('#baz-foos-link');
+
+        assert.equal(foosLink.attr('href'), '/foos');
+        assert.equal(bazLink.attr('href'), '/foos?baz=true');
+        assert.equal(barsLink.attr('href'), '/bars?quux=true');
+        assert.equal(router.get('location.path'), '/');
+        _this17.shouldNotBeActive(assert, '#foos-link');
+        _this17.shouldNotBeActive(assert, '#baz-foos-link');
+        _this17.shouldNotBeActive(assert, '#bars-link');
+
+        _this17.runTask(function () {
+          return barsLink.click();
+        });
+        _this17.shouldNotBeActive(assert, '#bars-link');
+
+        _this17.runTask(function () {
+          return foosLink.click();
+        });
+        _this17.shouldNotBeActive(assert, '#foos-link');
+
+        _this17.runTask(function () {
+          return foos.resolve();
+        });
+
+        assert.equal(router.get('location.path'), '/foos');
+        _this17.shouldBeActive(assert, '#foos-link');
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('The {{link-to}} helper + query params - globals mode app', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class2, _AutobootApplicationT);
+
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
+    }
+
+    _class2.prototype['@test the {{link-to}} helper throws a useful error if you invoke it wrong'] = function (assert) {
+      var _this19 = this;
+
+      assert.expect(1);
+
+      assert.throws(function () {
+        _this19.runTask(function () {
+          _this19.createApplication();
+
+          _this19.add('router:main', _emberRouting.Router.extend({
+            location: 'none'
+          }));
+
+          _this19.addTemplate('application', '{{#link-to id=\'the-link\'}}Index{{/link-to}}');
+        });
+      }, /(You must provide one or more parameters to the link-to component.|undefined is not an object)/);
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 enifed('ember/tests/homepage_example_test', ['ember-babel', 'ember-routing', 'ember-metal', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberRouting, _emberMetal, _emberRuntime, _internalTestHelpers) {
   'use strict';
