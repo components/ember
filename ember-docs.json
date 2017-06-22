@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.28f64f02"
+        "version": "2.15.0-alpha.1.6d1361cf"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -10714,7 +10714,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_get.js",
-            "line": 106,
+            "line": 103,
             "description": "Retrieves the value of a property from an Object, or a default value in the\ncase that the property returns `undefined`.\n\n```javascript\nEmber.getWithDefault(person, 'lastName', 'Doe');\n```",
             "itemtype": "method",
             "name": "getWithDefault",
