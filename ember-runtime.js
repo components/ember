@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+6e9acf91
+ * @version   2.15.0-alpha.1-null+c4996831
  */
 
 var enifed, requireModule, Ember;
@@ -2129,10 +2129,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     var watching = meta$$1 && meta$$1.peekWatching(keyName) > 0;
     var possibleDesc = obj[keyName];
-    var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-    if (desc && desc.willChange) {
-      desc.willChange(obj, keyName);
+    if (isDescriptor && possibleDesc.willChange) {
+      possibleDesc.willChange(obj, keyName);
     }
 
     if (watching) {
@@ -2168,11 +2168,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var possibleDesc = obj[keyName];
-    var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
     // shouldn't this mean that we're watching this key?
-    if (desc && desc.didChange) {
-      desc.didChange(obj, keyName);
+    if (isDescriptor && possibleDesc.didChange) {
+      possibleDesc.didChange(obj, keyName);
     }
 
     if (hasMeta && meta$$1.peekWatching(keyName) > 0) {
@@ -2241,7 +2241,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function iterDeps(method, obj, depKey, seen, meta$$1) {
     var possibleDesc = void 0,
-        desc = void 0;
+        isDescriptor = void 0;
     var guid = emberUtils.guidFor(obj);
     var current = seen[guid];
 
@@ -2261,9 +2261,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       possibleDesc = obj[key];
-      desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+      isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-      if (desc && desc._suspended === obj) {
+      if (isDescriptor && possibleDesc._suspended === obj) {
         return;
       }
 
@@ -2613,9 +2613,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       m.writeWatching(keyName, 1);
 
       var possibleDesc = obj[keyName];
-      var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
-      if (desc && desc.willWatch) {
-        desc.willWatch(obj, keyName);
+      var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
+      if (isDescriptor && possibleDesc.willWatch) {
+        possibleDesc.willWatch(obj, keyName);
       }
 
       if ('function' === typeof obj.willWatchProperty) {
@@ -2692,10 +2692,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.writeWatching(keyName, 0);
 
       var possibleDesc = obj[keyName];
-      var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+      var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-      if (desc && desc.didUnwatch) {
-        desc.didUnwatch(obj, keyName);
+      if (isDescriptor && possibleDesc.didUnwatch) {
+        possibleDesc.didUnwatch(obj, keyName);
       }
 
       if ('function' === typeof obj.didUnwatchProperty) {
@@ -2711,7 +2711,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         // for mutation, will bypass observation. This code exists to assert when
         // that occurs, and attempt to provide more helpful feedback. The alternative
         // is tricky to debug partially observable properties.
-        if (!desc && keyName in obj) {
+        if (!isDescriptor && keyName in obj) {
           var maybeMandatoryDescriptor = emberUtils.lookupDescriptor(obj, keyName);
 
           if (maybeMandatoryDescriptor.set && maybeMandatoryDescriptor.set.isMandatorySetter) {

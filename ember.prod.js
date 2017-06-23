@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+6e9acf91
+ * @version   2.15.0-alpha.1-null+c4996831
  */
 
 var enifed, requireModule, Ember;
@@ -22550,10 +22550,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     var watching = meta$$1 && meta$$1.peekWatching(keyName) > 0;
     var possibleDesc = obj[keyName];
-    var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-    if (desc && desc.willChange) {
-      desc.willChange(obj, keyName);
+    if (isDescriptor && possibleDesc.willChange) {
+      possibleDesc.willChange(obj, keyName);
     }
 
     if (watching) {
@@ -22589,11 +22589,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var possibleDesc = obj[keyName];
-    var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
     // shouldn't this mean that we're watching this key?
-    if (desc && desc.didChange) {
-      desc.didChange(obj, keyName);
+    if (isDescriptor && possibleDesc.didChange) {
+      possibleDesc.didChange(obj, keyName);
     }
 
     if (hasMeta && meta$$1.peekWatching(keyName) > 0) {
@@ -22661,7 +22661,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function iterDeps(method, obj, depKey, seen, meta$$1) {
     var possibleDesc = void 0,
-        desc = void 0;
+        isDescriptor = void 0;
     var guid = emberUtils.guidFor(obj);
     var current = seen[guid];
 
@@ -22681,9 +22681,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       possibleDesc = obj[key];
-      desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+      isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-      if (desc && desc._suspended === obj) {
+      if (isDescriptor && possibleDesc._suspended === obj) {
         return;
       }
 
@@ -22953,17 +22953,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
     var m = meta$$1 || meta(obj),
         possibleDesc,
-        desc;
+        isDescriptor;
 
     // activate watching first time
     if (!m.peekWatching(keyName)) {
       m.writeWatching(keyName, 1);
 
       possibleDesc = obj[keyName];
-      desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+      isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-      if (desc && desc.willWatch) {
-        desc.willWatch(obj, keyName);
+      if (isDescriptor && possibleDesc.willWatch) {
+        possibleDesc.willWatch(obj, keyName);
       }
 
       if ('function' === typeof obj.willWatchProperty) {
@@ -22980,7 +22980,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
     var meta$$1 = _meta || meta(obj),
         possibleDesc,
-        desc;
+        isDescriptor;
 
     // do nothing of this object has already been destroyed
     if (meta$$1.isSourceDestroyed()) {
@@ -22992,11 +22992,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.writeWatching(keyName, 0);
 
       possibleDesc = obj[keyName];
-      desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+      isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
 
-      if (desc && desc.didUnwatch) {
-        desc.didUnwatch(obj, keyName);
+      if (isDescriptor && possibleDesc.didUnwatch) {
+        possibleDesc.didUnwatch(obj, keyName);
       }
 
       if ('function' === typeof obj.didUnwatchProperty) {
@@ -39728,10 +39728,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
             j,
             keyName,
             value,
-            possibleDesc,
-            desc,
             baseValue,
-            originalValue;
+            originalValue,
+            possibleDesc,
+            isDescriptor;
         var proto = m.proto;
         m.proto = this;
 
@@ -39772,10 +39772,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
                 m.writeBindings(keyName, value);
               }
 
-              possibleDesc = this[keyName];
-              desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
-
-
               false && !!(value instanceof _emberMetal.ComputedProperty) && (0, _emberDebug.assert)('Ember.Object.create no longer supports defining computed ' + 'properties. Define computed properties using extend() or reopen() ' + 'before calling create().', !(value instanceof _emberMetal.ComputedProperty));
               false && !!(typeof value === 'function' && value.toString().indexOf('._super') !== -1) && (0, _emberDebug.assert)('Ember.Object.create no longer supports defining methods that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
               false && !!(keyName === 'actions' && _action_handler.default.detect(this)) && (0, _emberDebug.assert)('`actions` must be provided at extend time, not at create time, ' + 'when Ember.ActionHandler is used (i.e. views, controllers & routes).', !(keyName === 'actions' && _action_handler.default.detect(this)));
@@ -39798,8 +39794,12 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
                 value = (0, _emberUtils.assign)({}, originalValue, value);
               }
 
-              if (desc) {
-                desc.set(this, keyName, value);
+              possibleDesc = this[keyName];
+              isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
+
+
+              if (isDescriptor) {
+                possibleDesc.set(this, keyName, value);
               } else {
                 if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                   this.setUnknownProperty(keyName, value);
@@ -44191,7 +44191,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+6e9acf91";
+  exports.default = "2.15.0-alpha.1-null+c4996831";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
