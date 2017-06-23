@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d3d36275
+ * @version   2.15.0-alpha.1-null+6e9acf91
  */
 
 var enifed, requireModule, Ember;
@@ -43726,13 +43726,16 @@ enifed('ember-testing/helpers/current_route_name', ['exports', 'ember-metal'], f
 
   /**
     Returns the currently active route name.
+  
   Example:
+  
   ```javascript
   function validateRouteName() {
     equal(currentRouteName(), 'some.path', "correct route was transitioned into.");
   }
   visit('/some/path').then(validateRouteName)
   ```
+  
   @method currentRouteName
   @return {Object} The name of the currently active route.
   @since 1.5.0
@@ -47968,7 +47971,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+d3d36275";
+  exports.default = "2.15.0-alpha.1-null+6e9acf91";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

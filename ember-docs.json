@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.d3d36275"
+        "version": "2.15.0-alpha.1.6e9acf91"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -19058,7 +19058,7 @@
         {
             "file": "packages/ember-testing/lib/helpers/current_route_name.js",
             "line": 6,
-            "description": "Returns the currently active route name.\nExample:\n```javascript\nfunction validateRouteName() {\nequal(currentRouteName(), 'some.path', \"correct route was transitioned into.\");\n}\nvisit('/some/path').then(validateRouteName)\n```",
+            "description": "Returns the currently active route name.\n\nExample:\n\n```javascript\nfunction validateRouteName() {\nequal(currentRouteName(), 'some.path', \"correct route was transitioned into.\");\n}\nvisit('/some/path').then(validateRouteName)\n```",
             "itemtype": "method",
             "name": "currentRouteName",
             "return": {
