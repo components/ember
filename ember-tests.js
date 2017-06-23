@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+9537d068
+ * @version   2.15.0-alpha.1-null+d3d36275
  */
 
 var enifed, requireModule, Ember;
@@ -68626,7 +68626,10 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
         var theLink = _this7.$('#the-link');
         assert.equal(theLink.attr('href'), '/about?baz=lol');
 
-        _this7.click('#the-link');
+        _this7.runTask(function () {
+          return _this7.click('#the-link');
+        });
+
         var aboutController = _this7.getController('about');
 
         assert.deepEqual(aboutController.getProperties('baz', 'bat'), { baz: 'lol', bat: 'borf' }, 'about controller QP properties updated');
@@ -68724,13 +68727,17 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
 
         assert.equal(router.currentRouteName, 'cars.create');
 
-        _this11.click('#close-link');
+        _this11.runTask(function () {
+          return _this11.click('#close-link');
+        });
 
         assert.equal(router.currentRouteName, 'cars.index');
         assert.equal(router.get('url'), '/cars');
         assert.equal(carsController.get('page'), 1, 'The page query-param is 1');
 
-        _this11.click('#page2-link');
+        _this11.runTask(function () {
+          return _this11.click('#page2-link');
+        });
 
         assert.equal(router.currentRouteName, 'cars.index', 'The active route is still cars');
         assert.equal(router.get('url'), '/cars?page=2', 'The url has been updated');
@@ -68926,7 +68933,9 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
         _this16.shouldBeActive(assert, '#app-link');
         _this16.shouldBeActive(assert, '#parent-link');
 
-        _this16.click('#app-link');
+        _this16.runTask(function () {
+          return _this16.click('#app-link');
+        });
 
         assert.equal(router.get('location.path'), '/parent');
       });
@@ -77990,68 +77999,59 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember/tests/routing/toplevel_dom_test.js should pass ESLint\n\n');
 });
 
-enifed('ember/tests/view_instrumentation_test', ['ember-metal', 'ember-views', 'ember-application', 'ember-template-compiler', 'ember-glimmer'], function (_emberMetal, _emberViews, _emberApplication, _emberTemplateCompiler, _emberGlimmer) {
+enifed('ember/tests/view_instrumentation_test', ['ember-babel', 'ember-metal', 'internal-test-helpers'], function (_emberBabel, _emberMetal, _internalTestHelpers) {
   'use strict';
 
-  var App = void 0,
-      $fixture = void 0;
+  (0, _internalTestHelpers.moduleFor)('View Instrumentation', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-  function setupExample() {
-    // setup templates
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('{{outlet}}'));
-    (0, _emberGlimmer.setTemplate)('index', (0, _emberTemplateCompiler.compile)('<h1>Index</h1>'));
-    (0, _emberGlimmer.setTemplate)('posts', (0, _emberTemplateCompiler.compile)('<h1>Posts</h1>'));
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
 
-    App.Router.map(function () {
-      this.route('posts');
-    });
-  }
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
 
-  function handleURL(path) {
-    var router = App.__container__.lookup('router:main');
-    return (0, _emberMetal.run)(router, 'handleURL', path);
-  }
+      _this.addTemplate('application', '{{outlet}}');
+      _this.addTemplate('index', '<h1>Index</h1>');
+      _this.addTemplate('posts', '<h1>Posts</h1>');
 
-  QUnit.module('View Instrumentation', {
-    setup: function () {
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create({
-          rootElement: '#qunit-fixture'
-        });
-        App.deferReadiness();
+      _this.router.map(function () {
+        this.route('posts');
+      });
+      return _this;
+    }
 
-        App.Router.reopen({
-          location: 'none'
-        });
+    _class.prototype.teardown = function teardown() {
+      (0, _emberMetal.instrumentationReset)();
+      _ApplicationTestCase.prototype.teardown.call(this);
+    };
+
+    _class.prototype['@test Nodes without view instances are instrumented'] = function testNodesWithoutViewInstancesAreInstrumented(assert) {
+      var _this2 = this;
+
+      var called = false;
+
+      (0, _emberMetal.instrumentationSubscribe)('render', {
+        before: function () {
+          called = true;
+        },
+        after: function () {}
       });
 
-      $fixture = (0, _emberViews.jQuery)('#qunit-fixture');
-      setupExample();
-    },
-    teardown: function () {
-      (0, _emberMetal.instrumentationReset)();
-      (0, _emberMetal.run)(App, 'destroy');
-      App = null;
-      (0, _emberGlimmer.setTemplates)({});
-    }
-  });
+      return this.visit('/').then(function () {
+        assert.equal(_this2.textValue(), 'Index', 'It rendered the correct template');
 
-  QUnit.test('Nodes without view instances are instrumented', function (assert) {
-    var called = false;
-    (0, _emberMetal.instrumentationSubscribe)('render', {
-      before: function () {
-        called = true;
-      },
-      after: function () {}
-    });
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-    assert.equal($fixture.text(), 'Index', 'It rendered the right template');
-    assert.ok(called, 'Instrumentation called on first render');
-    called = false;
-    handleURL('/posts');
-    assert.equal($fixture.text(), 'Posts', 'It rendered the right template');
-    assert.ok(called, 'instrumentation called on transition to non-view backed route');
-  });
+        assert.ok(called, 'Instrumentation called on first render');
+        called = false;
+
+        return _this2.visit('/posts');
+      }).then(function () {
+        assert.equal(_this2.textValue(), 'Posts', 'It rendered the correct template');
+        assert.ok(called, 'Instrumentation called on transition to non-view backed route');
+      });
+    };
+
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 QUnit.module('ESLint | ember/tests/view_instrumentation_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -79073,11 +79073,7 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     };
 
     AbstractTestCase.prototype.click = function click(selector) {
-      var _this = this;
-
-      this.runTask(function () {
-        return _this.$(selector).click();
-      });
+      return this.$(selector).click();
     };
 
     AbstractTestCase.prototype.textValue = function textValue() {
@@ -79162,11 +79158,11 @@ enifed('internal-test-helpers/test-cases/abstract', ['exports', 'ember-babel', '
     };
 
     AbstractTestCase.prototype.assertStableRerender = function assertStableRerender() {
-      var _this2 = this;
+      var _this = this;
 
       this.takeSnapshot();
       this.runTask(function () {
-        return _this2.rerender();
+        return _this.rerender();
       });
       this.assertInvariants();
     };
