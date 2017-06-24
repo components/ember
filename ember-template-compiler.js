@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d4fef065
+ * @version   2.15.0-alpha.1-null+a8c5ef8b
  */
 
 var enifed, requireModule, Ember;
@@ -7613,7 +7613,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   var protoMethods = {
     addToListeners: function (eventName, target, method, flags) {
-      if (!this._listeners) {
+      if (this._listeners === undefined) {
         this._listeners = [];
       }
       this._listeners.push(eventName, target, method, flags);
@@ -7622,15 +7622,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (this._listenersFinalized) {
         return;
       }
-      if (!this._listeners) {
+      if (this._listeners === undefined) {
         this._listeners = [];
       }
       var pointer = this.parent,
           listeners;
-      while (pointer) {
+      while (pointer !== undefined) {
         listeners = pointer._listeners;
 
-        if (listeners) {
+        if (listeners !== undefined) {
           this._listeners = this._listeners.concat(listeners);
         }
         if (pointer._listenersFinalized) {
@@ -7644,10 +7644,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var pointer = this,
           listeners,
           index;
-      while (pointer) {
+      while (pointer !== undefined) {
         listeners = pointer._listeners;
 
-        if (listeners) {
+        if (listeners !== undefined) {
           for (index = listeners.length - 4; index >= 0; index -= 4) {
             if (listeners[index] === eventName && (!method || listeners[index + 1] === target && listeners[index + 2] === method)) {
               if (pointer === this) {
@@ -7738,10 +7738,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           listeners,
           index;
       var names = {};
-      while (pointer) {
+      while (pointer !== undefined) {
         listeners = pointer._listeners;
 
-        if (listeners) {
+        if (listeners !== undefined) {
           for (index = 0; index < listeners.length - 3; index += 4) {
             names[listeners[index]] = true;
           }
@@ -8094,7 +8094,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function tagFor(object, _meta) {
     var meta$$1;
 
-    if (typeof object === 'object' && object) {
+    if (typeof object === 'object' && object !== null) {
       meta$$1 = _meta || meta(object);
 
       return meta$$1.writableTag(makeTag);
@@ -9951,14 +9951,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     exports.peekMeta = function (obj) {
-      {
-        counters.peekCalls++;
-      }
-
-      return metaStore.get(obj);
-    };
-
-    exports.peekMeta = function (obj) {
       var pointer = obj;
       var meta = void 0;
       while (pointer !== undefined && pointer !== null) {
@@ -10236,17 +10228,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var value = obj[keyName];
     var isDescriptor = value !== null && typeof value === 'object' && value.isDescriptor;
 
-    if (!isDescriptor && isPath(keyName)) {
-      return _getPath(obj, keyName);
-    }
-
     if (isDescriptor) {
       return value.get(obj, keyName);
+    } else if (isPath(keyName)) {
+      return _getPath(obj, keyName);
+    } else if (value === undefined && 'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
+      return obj.unknownProperty(keyName);
     } else {
-      if (value === undefined && 'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
-        return obj.unknownProperty(keyName);
-      }
-
       return value;
     }
   }
@@ -10272,11 +10260,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function isGettable(obj) {
-    if (obj === undefined || obj === null) {
-      return false;
-    }
-
-    return ALLOWABLE_TYPES[typeof obj];
+    return obj !== undefined && obj !== null && ALLOWABLE_TYPES[typeof obj];
   }
 
   /**
@@ -10326,19 +10310,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return setPath(obj, keyName, value, tolerant);
     }
 
-    var desc = void 0,
-        currentValue = void 0,
+    var currentValue = obj[keyName],
         meta$$1;
-    var possibleDesc = obj[keyName];
-    if (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) {
-      desc = possibleDesc;
-    } else {
-      currentValue = possibleDesc;
-    }
+    var isDescriptor = currentValue !== null && typeof currentValue === 'object' && currentValue.isDescriptor;
 
-    if (desc) {
+    if (isDescriptor) {
       /* computed property */
-      desc.set(obj, keyName, value);
+      currentValue.set(obj, keyName, value);
     } else if (obj.setUnknownProperty && currentValue === undefined && !(keyName in obj)) {
       /* unknown property */
       true && !(typeof obj.setUnknownProperty === 'function') && emberDebug.assert('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
@@ -10708,23 +10686,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       this._getter = config;
     } else {
       true && !(typeof config === 'object' && !Array.isArray(config)) && emberDebug.assert('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
-      true && !function () {
-        var keys = Object.keys(config),
-            i;
-        for (i = 0; i < keys.length; i++) {
-          if (keys[i] !== 'get' && keys[i] !== 'set') {
-            return false;
-          }
-        }
-        return true;
-      }() && emberDebug.assert('Config object passed to an Ember.computed can only contain `get` or `set` keys.', function () {
-        var keys = Object.keys(config),
-            i;for (i = 0; i < keys.length; i++) {
-          if (keys[i] !== 'get' && keys[i] !== 'set') {
-            return false;
-          }
-        }return true;
-      }());
+      true && !Object.keys(config).every(function (key) {
+        return key === 'get' || key === 'set';
+      }) && emberDebug.assert('Config object passed to an Ember.computed can only contain `get` or `set` keys.', Object.keys(config).every(function (key) {
+        return key === 'get' || key === 'set';
+      }));
 
       this._getter = config.get;
       this._setter = config.set;
@@ -15005,7 +14971,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.isProxy = function (value) {
     var meta$$1;
 
-    if (typeof value === 'object' && value) {
+    if (typeof value === 'object' && value !== null) {
       meta$$1 = exports.peekMeta(value);
 
       return meta$$1 && meta$$1.isProxy();
@@ -17096,7 +17062,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+d4fef065";
+  exports.default = "2.15.0-alpha.1-null+a8c5ef8b";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
