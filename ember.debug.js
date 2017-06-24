@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a8c5ef8b
+ * @version   2.15.0-alpha.1-null+e7df1fd8
  */
 
 var enifed, requireModule, Ember;
@@ -31174,7 +31174,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-babel', 'ember-utils', 'em
         this.explicitIndex = true;
       }
 
-      this.matches.push([url, name, callback]);
+      this.matches.push(url, name, callback);
     };
 
     DSL.prototype.resource = function resource(name) {
@@ -31200,9 +31200,8 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-babel', 'ember-utils', 'em
       }
 
       return function (match) {
-        for (var i = 0; i < dslMatches.length; i++) {
-          var dslMatch = dslMatches[i];
-          match(dslMatch[0]).to(dslMatch[1], dslMatch[2]);
+        for (var i = 0; i < dslMatches.length; i += 3) {
+          match(dslMatches[i]).to(dslMatches[i + 1], dslMatches[i + 2]);
         }
       };
     };
@@ -31288,7 +31287,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-babel', 'ember-utils', 'em
 
 
   function canNest(dsl) {
-    return dsl.parent && dsl.parent !== 'application';
+    return dsl.parent !== 'application';
   }
 
   function getFullName(dsl, name, resetNamespace) {
@@ -47937,7 +47936,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+a8c5ef8b";
+  exports.default = "2.15.0-alpha.1-null+e7df1fd8";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
