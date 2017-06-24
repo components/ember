@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+c4996831
+ * @version   2.15.0-alpha.1-null+d4fef065
  */
 
 var enifed, requireModule, Ember;
@@ -22881,14 +22881,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (!meta$$1) {
       meta$$1 = meta(obj);
     }
+
     var watchEntry = meta$$1.peekWatching(keyName);
-    var possibleDesc = obj[keyName];
-    var existingDesc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
-
     var watching = watchEntry !== undefined && watchEntry > 0;
+    var possibleDesc = obj[keyName];
+    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-    if (existingDesc) {
-      existingDesc.teardown(obj, keyName);
+    if (isDescriptor) {
+      possibleDesc.teardown(obj, keyName);
     }
 
     var value = void 0;
@@ -22903,19 +22903,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (typeof desc.setup === 'function') {
         desc.setup(obj, keyName);
       }
-    } else {
-      if (desc == null) {
-        value = data;
+    } else if (desc === undefined || desc === null) {
+      value = data;
 
-        {
-          obj[keyName] = data;
-        }
-      } else {
-        value = desc;
-
-        // fallback to ES5
-        Object.defineProperty(obj, keyName, desc);
+      {
+        obj[keyName] = data;
       }
+    } else {
+      value = desc;
+
+      // fallback to ES5
+      Object.defineProperty(obj, keyName, desc);
     }
 
     // if key is being watched, override chains that
@@ -44191,7 +44189,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+c4996831";
+  exports.default = "2.15.0-alpha.1-null+d4fef065";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
