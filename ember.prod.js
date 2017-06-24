@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+e7df1fd8
+ * @version   2.15.0-alpha.1-null+a7a91fca
  */
 
 var enifed, requireModule, Ember;
@@ -39688,6 +39688,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
             props,
             concatenatedProperties,
             mergedProperties,
+            hasConcatenatedProps,
+            hasMergedProps,
             i,
             properties,
             keyNames,
@@ -39695,8 +39697,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
             keyName,
             value,
             baseValue,
-            originalValue,
-            possibleDesc,
             isDescriptor;
         var proto = m.proto;
         m.proto = this;
@@ -39713,6 +39713,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
           concatenatedProperties = this.concatenatedProperties;
           mergedProperties = this.mergedProperties;
+          hasConcatenatedProps = concatenatedProperties && concatenatedProperties.length > 0;
+          hasMergedProps = mergedProperties && mergedProperties.length > 0;
 
 
           for (i = 0; i < props.length; i++) {
@@ -39742,10 +39744,11 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
               false && !!(typeof value === 'function' && value.toString().indexOf('._super') !== -1) && (0, _emberDebug.assert)('Ember.Object.create no longer supports defining methods that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
               false && !!(keyName === 'actions' && _action_handler.default.detect(this)) && (0, _emberDebug.assert)('`actions` must be provided at extend time, not at create time, ' + 'when Ember.ActionHandler is used (i.e. views, controllers & routes).', !(keyName === 'actions' && _action_handler.default.detect(this)));
 
-              if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) > -1) {
-                baseValue = this[keyName];
+              baseValue = this[keyName];
+              isDescriptor = baseValue !== null && typeof baseValue === 'object' && baseValue.isDescriptor;
 
 
+              if (hasConcatenatedProps && concatenatedProperties.indexOf(keyName) > -1) {
                 if (baseValue) {
                   value = (0, _emberUtils.makeArray)(baseValue).concat(value);
                 } else {
@@ -39753,25 +39756,16 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
                 }
               }
 
-              if (mergedProperties && mergedProperties.length > 0 && mergedProperties.indexOf(keyName) > -1) {
-                originalValue = this[keyName];
-
-
-                value = (0, _emberUtils.assign)({}, originalValue, value);
+              if (hasMergedProps && mergedProperties.indexOf(keyName) > -1) {
+                value = (0, _emberUtils.assign)({}, baseValue, value);
               }
 
-              possibleDesc = this[keyName];
-              isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
-
-
               if (isDescriptor) {
-                possibleDesc.set(this, keyName, value);
+                baseValue.set(this, keyName, value);
+              } else if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
+                this.setUnknownProperty(keyName, value);
               } else {
-                if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
-                  this.setUnknownProperty(keyName, value);
-                } else {
-                  this[keyName] = value;
-                }
+                this[keyName] = value;
               }
             }
           }
@@ -44157,7 +44151,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+e7df1fd8";
+  exports.default = "2.15.0-alpha.1-null+a7a91fca";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

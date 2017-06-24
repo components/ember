@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+e7df1fd8
+ * @version   2.15.0-alpha.1-null+a7a91fca
  */
 
 var enifed, requireModule, Ember;
@@ -40516,6 +40516,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
           var concatenatedProperties = this.concatenatedProperties;
           var mergedProperties = this.mergedProperties;
+          var hasConcatenatedProps = concatenatedProperties && concatenatedProperties.length > 0;
+          var hasMergedProps = mergedProperties && mergedProperties.length > 0;
 
           for (var i = 0; i < props.length; i++) {
             var properties = props[i];
@@ -40543,9 +40545,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
               (true && !(!(keyName === 'actions' && _action_handler.default.detect(this))) && (0, _emberDebug.assert)('`actions` must be provided at extend time, not at create time, ' + 'when Ember.ActionHandler is used (i.e. views, controllers & routes).', !(keyName === 'actions' && _action_handler.default.detect(this))));
 
 
-              if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) > -1) {
-                var baseValue = this[keyName];
+              var baseValue = this[keyName];
+              var isDescriptor = baseValue !== null && typeof baseValue === 'object' && baseValue.isDescriptor;
 
+              if (hasConcatenatedProps && concatenatedProperties.indexOf(keyName) > -1) {
                 if (baseValue) {
                   value = (0, _emberUtils.makeArray)(baseValue).concat(value);
                 } else {
@@ -40553,26 +40556,19 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
                 }
               }
 
-              if (mergedProperties && mergedProperties.length > 0 && mergedProperties.indexOf(keyName) > -1) {
-                var originalValue = this[keyName];
-
-                value = (0, _emberUtils.assign)({}, originalValue, value);
+              if (hasMergedProps && mergedProperties.indexOf(keyName) > -1) {
+                value = (0, _emberUtils.assign)({}, baseValue, value);
               }
 
-              var possibleDesc = this[keyName];
-              var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
-
               if (isDescriptor) {
-                possibleDesc.set(this, keyName, value);
+                baseValue.set(this, keyName, value);
+              } else if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
+                this.setUnknownProperty(keyName, value);
               } else {
-                if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
-                  this.setUnknownProperty(keyName, value);
+                if (_features.MANDATORY_SETTER) {
+                  (0, _emberMetal.defineProperty)(this, keyName, null, value); // setup mandatory setter
                 } else {
-                  if (_features.MANDATORY_SETTER) {
-                    (0, _emberMetal.defineProperty)(this, keyName, null, value); // setup mandatory setter
-                  } else {
-                    this[keyName] = value;
-                  }
+                  this[keyName] = value;
                 }
               }
             }
@@ -47936,7 +47932,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+e7df1fd8";
+  exports.default = "2.15.0-alpha.1-null+a7a91fca";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
