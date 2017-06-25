@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a7a91fca
+ * @version   2.15.0-alpha.1-null+4f92c3bc
  */
 
 var enifed, requireModule, Ember;
@@ -23988,7 +23988,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     ChainWatchers.prototype.remove = function remove(key, node) {
       var nodes = this.chains[key];
-      if (nodes) {
+      if (nodes !== undefined) {
         for (var i = 0; i < nodes.length; i++) {
           if (nodes[i] === node) {
             nodes.splice(i, 1);
@@ -24000,7 +24000,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     ChainWatchers.prototype.has = function has(key, node) {
       var nodes = this.chains[key];
-      if (nodes) {
+      if (nodes !== undefined) {
         for (var i = 0; i < nodes.length; i++) {
           if (nodes[i] === node) {
             return true;
@@ -24112,10 +24112,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       this._value = value;
       this._paths = undefined;
-      if (isWatching === true) {
+      if (isWatching) {
         var obj = parent.value();
 
-        if (!isObject(obj) === true) {
+        if (!isObject(obj)) {
           return;
         }
 
@@ -24126,7 +24126,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     ChainNode.prototype.value = function value() {
-      if (this._value === undefined && this._watching === true) {
+      if (this._value === undefined && this._watching) {
         var obj = this._parent.value();
         this._value = lazyGet(obj, this._key);
       }
@@ -24134,7 +24134,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     ChainNode.prototype.destroy = function destroy() {
-      if (this._watching === true) {
+      if (this._watching) {
         removeChainWatcher(this._object, this._key, this);
         this._watching = false; // so future calls do nothing
       }
@@ -24235,7 +24235,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     ChainNode.prototype.notify = function notify(revalidate, affected) {
-      if (revalidate && this._watching === true) {
+      if (revalidate && this._watching) {
         var parentValue = this._parent.value();
 
         if (parentValue !== this._object) {
@@ -24298,7 +24298,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     // Use `get` if the return value is an EachProxy or an uncacheable value.
-    if (isVolatile(obj[key]) === true) {
+    if (isVolatile(obj[key])) {
       return get(obj, key);
       // Otherwise attempt to get the cached value of the computed property
     } else {
@@ -47932,7 +47932,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+a7a91fca";
+  exports.default = "2.15.0-alpha.1-null+4f92c3bc";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
