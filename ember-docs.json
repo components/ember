@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.d50ca063"
+        "version": "2.15.0-alpha.1.b0f0d358"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2996,7 +2996,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 409,
+            "line": 408,
             "description": "The `Ember.Mixin` class allows you to create mixins, whose properties can be\nadded to other classes. For instance,\n\n```javascript\nconst EditableMixin = Ember.Mixin.create({\n  edit() {\n    console.log('starting to edit');\n    this.set('isEditing', true);\n  },\n  isEditing: false\n});\n\n// Mix mixins into classes by passing them as the first arguments to\n// `.extend.`\nconst Comment = Ember.Object.extend(EditableMixin, {\n  post: null\n});\n\nlet comment = Comment.create({\n  post: somePost\n});\n\ncomment.edit(); // outputs 'starting to edit'\n```\n\nNote that Mixins are created with `Ember.Mixin.create`, not\n`Ember.Mixin.extend`.\n\nNote that mixins extend a constructor's prototype so arrays and object literals\ndefined as properties will be shared amongst objects that implement the mixin.\nIf you want to define a property in a mixin that is not shared, you can define\nit either as a computed property or have it be created on initialization of the object.\n\n```javascript\n// filters array will be shared amongst any object implementing mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.A()\n});\n\n// filters will be a separate array for every object implementing the mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.computed(function() {\n    return Ember.A();\n  })\n});\n\n// filters will be created as a separate array during the object's initialization\nconst Filterable = Ember.Mixin.create({\n  init() {\n    this._super(...arguments);\n    this.set(\"filters\", Ember.A());\n  }\n});\n```",
             "access": "public",
             "tagname": ""
@@ -10165,7 +10165,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 396,
+            "line": 395,
             "itemtype": "method",
             "name": "mixin",
             "params": [
@@ -10190,7 +10190,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 502,
+            "line": 501,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -10210,7 +10210,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 547,
+            "line": 546,
             "itemtype": "method",
             "name": "reopen",
             "params": [
@@ -10229,7 +10229,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 584,
+            "line": 583,
             "itemtype": "method",
             "name": "apply",
             "params": [
@@ -10250,7 +10250,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 615,
+            "line": 614,
             "itemtype": "method",
             "name": "detect",
             "params": [
@@ -10272,7 +10272,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 664,
+            "line": 663,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -10284,7 +10284,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 687,
+            "line": 686,
             "description": "Makes a method available via an additional name.\n\n```javascript\nApp.Person = Ember.Object.extend({\n  name: function() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: Ember.aliasMethod('name')\n});\n\nlet goodGuy = App.Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -10303,7 +10303,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 717,
+            "line": 716,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -10331,7 +10331,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 769,
+            "line": 768,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "_immediateObserver",
@@ -10361,7 +10361,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 808,
+            "line": 807,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",
@@ -18300,7 +18300,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 885,
+            "line": 884,
             "description": "Iterate over each computed property for the class, passing its name\nand any associated metadata (see `metaForProperty`) to the callback.",
             "static": 1,
             "itemtype": "method",
@@ -18326,7 +18326,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 913,
+            "line": 912,
             "description": "Provides lookup-time type validation for injected properties.",
             "access": "private",
             "tagname": "",
@@ -18339,7 +18339,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 922,
+            "line": 921,
             "description": "Returns a hash of property names and container names that injected\nproperties will lookup on the container lazily.",
             "itemtype": "method",
             "name": "_lazyInjections",

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d50ca063
+ * @version   2.15.0-alpha.1-null+b0f0d358
  */
 
 var enifed, requireModule, Ember;
@@ -28340,7 +28340,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       args[_key5] = arguments[_key5];
     }
 
-    var func = args.slice(-1)[0],
+    var func = args[args.length - 1],
         _len5,
         args,
         _key5,
@@ -28783,7 +28783,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       args[_key6] = arguments[_key6];
     }
 
-    var func = args.slice(-1)[0],
+    var func = args[args.length - 1],
         _len6,
         args,
         _key6,
@@ -40009,9 +40009,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
   }, _ClassMixinProps.metaForProperty = function (key) {
     var proto = this.proto();
     var possibleDesc = proto[key];
-    var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
-    false && !(isDescriptor && possibleDesc instanceof _emberMetal.ComputedProperty) && (0, _emberDebug.assert)('metaForProperty() could not find a computed property with key \'' + key + '\'.', isDescriptor && possibleDesc instanceof _emberMetal.ComputedProperty);
+    false && !(possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) && (0, _emberDebug.assert)('metaForProperty() could not find a computed property with key \'' + key + '\'.', possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor);
 
     return possibleDesc._meta || {};
   }, _ClassMixinProps._computedProperties = (0, _emberMetal.computed)(function () {
@@ -44166,7 +44165,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+d50ca063";
+  exports.default = "2.15.0-alpha.1-null+b0f0d358";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

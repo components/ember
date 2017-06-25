@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d50ca063
+ * @version   2.15.0-alpha.1-null+b0f0d358
  */
 
 var enifed, requireModule, Ember;
@@ -8281,7 +8281,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       args[_key5] = arguments[_key5];
     }
 
-    var func = args.slice(-1)[0];
+    var func = args[args.length - 1];
     var paths = void 0;
 
     var addWatchedProperty = function (path) {
@@ -8368,7 +8368,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       args[_key6] = arguments[_key6];
     }
 
-    var func = args.slice(-1)[0];
+    var func = args[args.length - 1];
     var paths = void 0;
 
     var addWatchedProperty = function (path) {
