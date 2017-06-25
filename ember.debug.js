@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+bd96516b
+ * @version   2.15.0-alpha.1-null+d50ca063
  */
 
 var enifed, requireModule, Ember;
@@ -47686,28 +47686,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
     enumerable: false
   });
 
-  /**
-   @class Backburner
-   @for Ember
-   @private
-   */
-  _emberMetal.default.Backburner = function () {
-    (true && !(false) && (0, _emberDebug.deprecate)('Usage of Ember.Backburner is deprecated.', false, {
-      id: 'ember-metal.ember-backburner',
-      until: '2.8.0',
-      url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-backburner'
-    }));
-
-
-    function BackburnerAlias(args) {
-      return _backburner.default.apply(this, args);
-    }
-
-    BackburnerAlias.prototype = _backburner.default.prototype;
-
-    return new BackburnerAlias(arguments);
-  };
-
   _emberMetal.default._Backburner = _backburner.default;
 
   _emberMetal.default.Logger = _emberConsole.default;
@@ -47966,7 +47944,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+bd96516b";
+  exports.default = "2.15.0-alpha.1-null+d50ca063";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

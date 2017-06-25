@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+bd96516b
+ * @version   2.15.0-alpha.1-null+d50ca063
  */
 
 var enifed, requireModule, Ember;
@@ -41295,12 +41295,6 @@ enifed('ember-metal/tests/main_test', ['ember-metal'], function (_emberMetal) {
     // Negative test cases
     validateVersionString('1.11.3.aba18a', false);
     validateVersionString('1.11', false);
-  });
-
-  QUnit.test('Ember.Backburner is deprecated', function () {
-    expectDeprecation(function () {
-      new _emberMetal.default.Backburner(['foo']);
-    }, 'Usage of Ember.Backburner is deprecated.');
   });
 
   QUnit.test('Ember.K is deprecated', function (assert) {

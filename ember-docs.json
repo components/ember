@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.bd96516b"
+        "version": "2.15.0-alpha.1.d50ca063"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -1889,8 +1889,7 @@
                 "ember": 1
             },
             "classes": {
-                "Ember.Debug": 1,
-                "Backburner": 1
+                "Ember.Debug": 1
             },
             "fors": {
                 "Ember": 1
@@ -1997,8 +1996,7 @@
                 "Ember.EventDispatcher": 1,
                 "Ember.CoreView": 1,
                 "Ember.View": 1,
-                "Ember.Debug": 1,
-                "Backburner": 1
+                "Ember.Debug": 1
             },
             "fors": {
                 "Ember": 1,
@@ -2021,7 +2019,7 @@
             },
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 262
+            "line": 52
         },
         "ember-application": {
             "name": "ember-application",
@@ -3974,21 +3972,6 @@
             "file": "packages/ember/lib/index.js",
             "line": 52,
             "access": "public",
-            "tagname": ""
-        },
-        "Backburner": {
-            "name": "Backburner",
-            "shortname": "Backburner",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "namespace": "",
-            "file": "packages/ember/lib/index.js",
-            "line": 262,
-            "access": "private",
             "tagname": ""
         }
     },
@@ -20842,7 +20825,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 446,
+            "line": 420,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -20854,7 +20837,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 462,
+            "line": 436,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -20866,7 +20849,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 528,
+            "line": 502,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -20878,7 +20861,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 548,
+            "line": 522,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -20890,7 +20873,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 561,
+            "line": 535,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
