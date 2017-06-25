@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+4476664c
+ * @version   2.15.0-alpha.1-null+bd96516b
  */
 
 var enifed, requireModule, Ember;
@@ -20824,7 +20824,7 @@ enifed('ember-glimmer/utils/debug-stack', ['exports'], function (exports) {
 
   exports.default = void 0;
 });
-enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', '@glimmer/reference'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _references, _eachIn, _reference) {
+enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', '@glimmer/reference'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberRuntime, _references, _eachIn, _reference) {
   'use strict';
 
   exports.default = function (ref, keyPath) {
@@ -20882,7 +20882,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
   function ensureUniqueKey(seen, key) {
     var seenCount = seen[key];
 
-    if (seenCount) {
+    if (seenCount > 0) {
       seen[key]++;
       return '' + key + 'be277757-bbbe-4620-9fcb-213ef433cca2' + seenCount;
     } else {
@@ -20906,9 +20906,16 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
       return false;
     };
 
+    ArrayIterator.prototype.getMemo = function (position) {
+      return position;
+    };
+
+    ArrayIterator.prototype.getValue = function (position) {
+      return this.array[position];
+    };
+
     ArrayIterator.prototype.next = function () {
-      var array = this.array,
-          length = this.length,
+      var length = this.length,
           keyFor = this.keyFor,
           position = this.position,
           seen = this.seen;
@@ -20917,8 +20924,8 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
         return null;
       }
 
-      var value = array[position];
-      var memo = position;
+      var value = this.getValue(position);
+      var memo = this.getMemo(position);
       var key = ensureUniqueKey(seen, keyFor(value, memo));
 
       this.position++;
@@ -20929,79 +20936,46 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-utils', 'ember-metal',
     return ArrayIterator;
   }();
 
-  var EmberArrayIterator = function () {
+  var EmberArrayIterator = function (_ArrayIterator) {
+    (0, _emberBabel.inherits)(EmberArrayIterator, _ArrayIterator);
+
     function EmberArrayIterator(array, keyFor) {
 
-      this.array = array;
-      this.length = (0, _emberMetal.get)(array, 'length');
-      this.keyFor = keyFor;
-      this.position = 0;
-      this.seen = Object.create(null);
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator.call(this, array, keyFor));
+
+      _this.length = (0, _emberMetal.get)(array, 'length');
+      return _this;
     }
 
-    EmberArrayIterator.prototype.isEmpty = function () {
-      return this.length === 0;
-    };
-
-    EmberArrayIterator.prototype.next = function () {
-      var array = this.array,
-          length = this.length,
-          keyFor = this.keyFor,
-          position = this.position,
-          seen = this.seen;
-
-      if (position >= length) {
-        return null;
-      }
-
-      var value = (0, _emberRuntime.objectAt)(array, position);
-      var memo = position;
-      var key = ensureUniqueKey(seen, keyFor(value, memo));
-
-      this.position++;
-
-      return { key: key, value: value, memo: memo };
+    EmberArrayIterator.prototype.getValue = function (position) {
+      return (0, _emberRuntime.objectAt)(this.array, position);
     };
 
     return EmberArrayIterator;
-  }();
+  }(ArrayIterator);
 
-  var ObjectKeysIterator = function () {
+  var ObjectKeysIterator = function (_ArrayIterator2) {
+    (0, _emberBabel.inherits)(ObjectKeysIterator, _ArrayIterator2);
+
     function ObjectKeysIterator(keys, values, keyFor) {
 
-      this.keys = keys;
-      this.values = values;
-      this.keyFor = keyFor;
-      this.position = 0;
-      this.seen = Object.create(null);
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, keyFor));
+
+      _this2.keys = keys;
+      _this2.length = keys.length;
+      return _this2;
     }
 
-    ObjectKeysIterator.prototype.isEmpty = function () {
-      return this.keys.length === 0;
+    ObjectKeysIterator.prototype.getMemo = function (position) {
+      return this.keys[position];
     };
 
-    ObjectKeysIterator.prototype.next = function () {
-      var keys = this.keys,
-          values = this.values,
-          keyFor = this.keyFor,
-          position = this.position,
-          seen = this.seen;
-
-      if (position >= keys.length) {
-        return null;
-      }
-
-      var value = values[position];
-      var memo = keys[position];
-      var key = ensureUniqueKey(seen, keyFor(value, memo));
-
-      this.position++;
-
-      return { key: key, value: value, memo: memo };
+    ObjectKeysIterator.prototype.getValue = function (position) {
+      return this.array[position];
     };
 
     return ObjectKeysIterator;
-  }();
+  }(ArrayIterator);
 
   var EmptyIterator = function () {
     function EmptyIterator() {}
@@ -44213,7 +44187,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+4476664c";
+  exports.default = "2.15.0-alpha.1-null+bd96516b";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

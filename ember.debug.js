@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+4476664c
+ * @version   2.15.0-alpha.1-null+bd96516b
  */
 
 var enifed, requireModule, Ember;
@@ -21428,7 +21428,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
   function ensureUniqueKey(seen, key) {
     var seenCount = seen[key];
 
-    if (seenCount) {
+    if (seenCount > 0) {
       seen[key]++;
       return '' + key + ITERATOR_KEY_GUID + seenCount;
     } else {
@@ -21453,9 +21453,16 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
       return false;
     };
 
+    ArrayIterator.prototype.getMemo = function getMemo(position) {
+      return position;
+    };
+
+    ArrayIterator.prototype.getValue = function getValue(position) {
+      return this.array[position];
+    };
+
     ArrayIterator.prototype.next = function next() {
-      var array = this.array,
-          length = this.length,
+      var length = this.length,
           keyFor = this.keyFor,
           position = this.position,
           seen = this.seen;
@@ -21465,8 +21472,8 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
         return null;
       }
 
-      var value = array[position];
-      var memo = position;
+      var value = this.getValue(position);
+      var memo = this.getMemo(position);
       var key = ensureUniqueKey(seen, keyFor(value, memo));
 
       this.position++;
@@ -21477,83 +21484,48 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
     return ArrayIterator;
   }();
 
-  var EmberArrayIterator = function () {
+  var EmberArrayIterator = function (_ArrayIterator) {
+    (0, _emberBabel.inherits)(EmberArrayIterator, _ArrayIterator);
+
     function EmberArrayIterator(array, keyFor) {
       (0, _emberBabel.classCallCheck)(this, EmberArrayIterator);
 
-      this.array = array;
-      this.length = (0, _emberMetal.get)(array, 'length');
-      this.keyFor = keyFor;
-      this.position = 0;
-      this.seen = Object.create(null);
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator.call(this, array, keyFor));
+
+      _this.length = (0, _emberMetal.get)(array, 'length');
+      return _this;
     }
 
-    EmberArrayIterator.prototype.isEmpty = function isEmpty() {
-      return this.length === 0;
-    };
-
-    EmberArrayIterator.prototype.next = function next() {
-      var array = this.array,
-          length = this.length,
-          keyFor = this.keyFor,
-          position = this.position,
-          seen = this.seen;
-
-
-      if (position >= length) {
-        return null;
-      }
-
-      var value = (0, _emberRuntime.objectAt)(array, position);
-      var memo = position;
-      var key = ensureUniqueKey(seen, keyFor(value, memo));
-
-      this.position++;
-
-      return { key: key, value: value, memo: memo };
+    EmberArrayIterator.prototype.getValue = function getValue(position) {
+      return (0, _emberRuntime.objectAt)(this.array, position);
     };
 
     return EmberArrayIterator;
-  }();
+  }(ArrayIterator);
 
-  var ObjectKeysIterator = function () {
+  var ObjectKeysIterator = function (_ArrayIterator2) {
+    (0, _emberBabel.inherits)(ObjectKeysIterator, _ArrayIterator2);
+
     function ObjectKeysIterator(keys, values, keyFor) {
       (0, _emberBabel.classCallCheck)(this, ObjectKeysIterator);
 
-      this.keys = keys;
-      this.values = values;
-      this.keyFor = keyFor;
-      this.position = 0;
-      this.seen = Object.create(null);
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, keyFor));
+
+      _this2.keys = keys;
+      _this2.length = keys.length;
+      return _this2;
     }
 
-    ObjectKeysIterator.prototype.isEmpty = function isEmpty() {
-      return this.keys.length === 0;
+    ObjectKeysIterator.prototype.getMemo = function getMemo(position) {
+      return this.keys[position];
     };
 
-    ObjectKeysIterator.prototype.next = function next() {
-      var keys = this.keys,
-          values = this.values,
-          keyFor = this.keyFor,
-          position = this.position,
-          seen = this.seen;
-
-
-      if (position >= keys.length) {
-        return null;
-      }
-
-      var value = values[position];
-      var memo = keys[position];
-      var key = ensureUniqueKey(seen, keyFor(value, memo));
-
-      this.position++;
-
-      return { key: key, value: value, memo: memo };
+    ObjectKeysIterator.prototype.getValue = function getValue(position) {
+      return this.array[position];
     };
 
     return ObjectKeysIterator;
-  }();
+  }(ArrayIterator);
 
   var EmptyIterator = function () {
     function EmptyIterator() {
@@ -47994,7 +47966,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+4476664c";
+  exports.default = "2.15.0-alpha.1-null+bd96516b";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
