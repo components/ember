@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+2d9e3aa1
+ * @version   2.15.0-alpha.1-null+20a6c69d
  */
 
 var enifed, requireModule, Ember;
@@ -565,21 +565,22 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
 
 
   // These are the default production build versions:
-  var assert = function () {};
-  var info = function () {};
-  var warn = function () {};
-  var debug = function () {};
-  var deprecate = function () {};
-  var debugSeal = function () {};
-  var debugFreeze = function () {};
-  var runInDebug = function () {};
+  var noop = function () {};
+
+  var assert = noop;
+  var info = noop;
+  var warn = noop;
+  var debug = noop;
+  var deprecate = noop;
+  var debugSeal = noop;
+  var debugFreeze = noop;
+  var runInDebug = noop;
+  var setDebugFunction = noop;
+  var getDebugFunction = noop;
 
   var deprecateFunc = function () {
     return arguments[arguments.length - 1];
   };
-
-  var setDebugFunction = function () {};
-  var getDebugFunction = function () {};
 
   if (true) {
     exports.setDebugFunction = setDebugFunction = function (type, callback) {
@@ -1487,7 +1488,7 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], fun
     var $el = void 0,
         el = void 0,
         context = void 0;
-    if (typeof text === 'undefined') {
+    if (text === undefined) {
       text = contextOrText;
     } else {
       context = contextOrText;
@@ -1585,8 +1586,8 @@ enifed('ember-testing/helpers/find_with_assert', ['exports'], function (exports)
     return $el;
   }
 });
-enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
-  'use strict';
+enifed("ember-testing/helpers/key_event", ["exports"], function (exports) {
+  "use strict";
 
   exports.default = keyEvent;
   /**
@@ -1613,7 +1614,7 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     var context = void 0,
         type = void 0;
 
-    if (typeof keyCode === 'undefined') {
+    if (keyCode === undefined) {
       context = null;
       keyCode = typeOrKeyCode;
       type = contextOrType;

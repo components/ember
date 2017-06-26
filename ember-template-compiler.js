@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+2d9e3aa1
+ * @version   2.15.0-alpha.1-null+20a6c69d
  */
 
 var enifed, requireModule, Ember;
@@ -7002,21 +7002,22 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
       isChrome;
 
   // These are the default production build versions:
-  var assert = function () {};
-  var info = function () {};
-  var warn = function () {};
-  var debug = function () {};
-  var deprecate = function () {};
-  var debugSeal = function () {};
-  var debugFreeze = function () {};
-  var runInDebug = function () {};
+  var noop = function () {};
+
+  var assert = noop;
+  var info = noop;
+  var warn = noop;
+  var debug = noop;
+  var deprecate = noop;
+  var debugSeal = noop;
+  var debugFreeze = noop;
+  var runInDebug = noop;
+  var setDebugFunction = noop;
+  var getDebugFunction = noop;
 
   var deprecateFunc = function () {
     return arguments[arguments.length - 1];
   };
-
-  var setDebugFunction = function () {};
-  var getDebugFunction = function () {};
 
   exports.setDebugFunction = setDebugFunction = function (type, callback) {
     switch (type) {
@@ -17062,7 +17063,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+2d9e3aa1";
+  exports.default = "2.15.0-alpha.1-null+20a6c69d";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

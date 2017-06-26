@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+2d9e3aa1
+ * @version   2.15.0-alpha.1-null+20a6c69d
  */
 
 var enifed, requireModule, Ember;
@@ -13876,21 +13876,21 @@ enifed('ember-debug/index', ['exports', 'ember-debug/warn', 'ember-debug/depreca
       FEATURES = _features2.FEATURES;
 
   // These are the default production build versions:
+  var noop = function () {};
 
-
-  exports.assert = function () {};
-  exports.info = function () {};
-  exports.warn = function () {};
-  exports.debug = function () {};
-  exports.deprecate = function () {};
-  exports.debugSeal = function () {};
-  exports.debugFreeze = function () {};
-  exports.runInDebug = function () {};
+  exports.assert = noop;
+  exports.info = noop;
+  exports.warn = noop;
+  exports.debug = noop;
+  exports.deprecate = noop;
+  exports.debugSeal = noop;
+  exports.debugFreeze = noop;
+  exports.runInDebug = noop;
   exports.deprecateFunc = function () {
     return arguments[arguments.length - 1];
   };
-  exports.setDebugFunction = function () {};
-  exports.getDebugFunction = function () {};
+  exports.setDebugFunction = noop;
+  exports.getDebugFunction = noop;
   exports._warnIfUsingStrippedFeatureFlags = void 0;
 });
 enifed("ember-debug/testing", ["exports"], function (exports) {
@@ -18949,7 +18949,7 @@ enifed('ember-glimmer/modifiers/action', ['exports', 'ember-utils', 'ember-metal
   function isAllowedEvent(event, allowedKeys) {
     var i;
 
-    if (allowedKeys === null || typeof allowedKeys === 'undefined') {
+    if (allowedKeys === null || allowedKeys === undefined) {
       if (POINTER_EVENT_TYPE_REGEX.test(event.type)) {
         return (0, _emberViews.isSimpleClick)(event);
       } else {
@@ -39331,26 +39331,14 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
           ret,
           _target,
           _target2;
+      var action = opts.action,
+          target = opts.target,
+          actionContext = opts.actionContext;
 
-      var action = opts.action || (0, _emberMetal.get)(this, 'action');
-      var target = opts.target;
+      action = action || (0, _emberMetal.get)(this, 'action');
+      target = target || getTarget(this);
 
-      if (!target) {
-        target = getTarget(this);
-      }
-
-      var actionContext = opts.actionContext;
-
-      function args(options, actionName) {
-        var ret = [];
-        if (actionName) {
-          ret.push(actionName);
-        }
-
-        return ret.concat(options);
-      }
-
-      if (typeof actionContext === 'undefined') {
+      if (actionContext === undefined) {
         actionContext = (0, _emberMetal.get)(this, 'actionContextObject') || this;
       }
 
@@ -39360,22 +39348,20 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
 
         if (target.send) {
 
-          ret = (_target = target).send.apply(_target, args(actionContext, action));
+          ret = (_target = target).send.apply(_target, [action].concat(actionContext));
         } else {
 
           false && !(typeof target[action] === 'function') && (0, _emberDebug.assert)('The action \'' + action + '\' did not exist on ' + target, typeof target[action] === 'function');
 
-          ret = (_target2 = target)[action].apply(_target2, args(actionContext));
+          ret = (_target2 = target)[action].apply(_target2, [].concat(actionContext));
         }
 
         if (ret !== false) {
-          ret = true;
+          return true;
         }
-
-        return ret;
-      } else {
-        return false;
       }
+
+      return false;
     }
   });
 
@@ -44266,7 +44252,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+2d9e3aa1";
+  exports.default = "2.15.0-alpha.1-null+20a6c69d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
