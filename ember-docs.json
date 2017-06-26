@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.20a6c69d"
+        "version": "2.15.0-alpha.1.cbe7626f"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -1955,6 +1955,7 @@
                 "Ember.HashLocation": 1,
                 "Ember.HistoryLocation": 1,
                 "Ember.NoneLocation": 1,
+                "RouterService": 1,
                 "RoutingService": 1,
                 "BucketCache": 1,
                 "Ember.Route": 1,
@@ -2175,6 +2176,7 @@
                 "Ember.HashLocation": 1,
                 "Ember.HistoryLocation": 1,
                 "Ember.NoneLocation": 1,
+                "RouterService": 1,
                 "RoutingService": 1,
                 "Ember.Route": 1,
                 "Ember.Router": 1
@@ -3152,6 +3154,26 @@
             "extends": "Ember.Object",
             "access": "private",
             "tagname": ""
+        },
+        "RouterService": {
+            "name": "RouterService",
+            "shortname": "RouterService",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "submodule": "ember-routing",
+            "namespace": "",
+            "file": "packages/ember-routing/lib/services/router.js",
+            "line": 25,
+            "description": "The Router service is the public API that provides component/view layer\naccess to the router.",
+            "access": "public",
+            "tagname": "",
+            "category": [
+                "ember-routing-router-service"
+            ]
         },
         "RoutingService": {
             "name": "RoutingService",
