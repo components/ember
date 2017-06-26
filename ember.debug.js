@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+8d371237
+ * @version   2.15.0-alpha.1-null+2d9e3aa1
  */
 
 var enifed, requireModule, Ember;
@@ -12090,7 +12090,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
 
     if (_features.EMBER_ROUTING_ROUTER_SERVICE) {
       registry.register('service:router', _emberRouting.RouterService);
-      registry.injection('service:router', 'router', 'router:main');
+      registry.injection('service:router', '_router', 'router:main');
     }
   }
 
@@ -30949,8 +30949,23 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
     location.replace(getOrigin(location) + path);
   }
 });
-enifed('ember-routing/services/router', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
+enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-utils', 'ember-routing/system/dsl'], function (exports, _emberRuntime, _emberUtils, _dsl) {
   'use strict';
+
+  function shallowEqual(a, b) {
+    var k = void 0;
+    for (k in a) {
+      if (a.hasOwnProperty(k) && a[k] !== b[k]) {
+        return false;
+      }
+    }
+    for (k in b) {
+      if (b.hasOwnProperty(k) && a[k] !== b[k]) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   /**
      The Router service is the public API that provides component/view layer
@@ -30960,32 +30975,92 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime'], function (
      @class RouterService
      @category ember-routing-router-service
    */
+  /**
+  @module ember
+  @submodule ember-routing
+  */
+
   var RouterService = _emberRuntime.Service.extend({
-    currentRouteName: (0, _emberRuntime.readOnly)('router.currentRouteName'),
-    currentURL: (0, _emberRuntime.readOnly)('router.currentURL'),
-    location: (0, _emberRuntime.readOnly)('router.location'),
-    rootURL: (0, _emberRuntime.readOnly)('router.rootURL'),
-    router: null,
+    currentRouteName: (0, _emberRuntime.readOnly)('_router.currentRouteName'),
+    currentURL: (0, _emberRuntime.readOnly)('_router.currentURL'),
+    location: (0, _emberRuntime.readOnly)('_router.location'),
+    rootURL: (0, _emberRuntime.readOnly)('_router.rootURL'),
+    _router: null,
 
-    transitionTo: function () /* routeNameOrUrl, ...models, options */{
-      var _router;
+    transitionTo: function () {
+      var queryParams = void 0;
 
-      return (_router = this.router).transitionTo.apply(_router, arguments);
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      var arg = args[0];
+      if (resemblesURL(arg)) {
+        return this._router._doURLTransition('transitionTo', arg);
+      }
+
+      var possibleQueryParams = args[args.length - 1];
+      if (possibleQueryParams && possibleQueryParams.hasOwnProperty('queryParams')) {
+        queryParams = args.pop().queryParams;
+      } else {
+        queryParams = {};
+      }
+
+      var targetRouteName = args.shift();
+      var transition = this._router._doTransition(targetRouteName, args, queryParams, true);
+      transition._keepDefaultQueryParamValues = true;
+
+      return transition;
     },
     replaceWith: function () /* routeNameOrUrl, ...models, options */{
-      var _router2;
-
-      return (_router2 = this.router).replaceWith.apply(_router2, arguments);
+      return this.transitionTo.apply(this, arguments).method('replace');
     },
     urlFor: function () /* routeName, ...models, options */{
-      var _router3;
+      var _router;
 
-      return (_router3 = this.router).generate.apply(_router3, arguments);
+      return (_router = this._router).generate.apply(_router, arguments);
+    },
+    isActive: function () /* routeName, ...models, options */{
+      var _extractArguments = this._extractArguments.apply(this, arguments),
+          routeName = _extractArguments.routeName,
+          models = _extractArguments.models,
+          queryParams = _extractArguments.queryParams;
+
+      var routerMicrolib = this._router._routerMicrolib;
+      var state = routerMicrolib.state;
+
+      if (!routerMicrolib.isActiveIntent(routeName, models, null)) {
+        return false;
+      }
+      var hasQueryParams = Object.keys(queryParams).length > 0;
+
+      if (hasQueryParams) {
+        this._router._prepareQueryParams(routeName, models, queryParams, true /* fromRouterService */);
+        return shallowEqual(queryParams, state.queryParams);
+      }
+
+      return true;
+    },
+    _extractArguments: function (routeName) {
+      for (var _len2 = arguments.length, models = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        models[_key2 - 1] = arguments[_key2];
+      }
+
+      var possibleQueryParams = models[models.length - 1];
+      var queryParams = {};
+
+      if (possibleQueryParams && possibleQueryParams.hasOwnProperty('queryParams')) {
+        var options = models.pop();
+        queryParams = options.queryParams;
+      }
+
+      return { routeName: routeName, models: models, queryParams: queryParams };
     }
-  }); /**
-      @module ember
-      @submodule ember-routing
-      */
+  });
+
+  function resemblesURL(str) {
+    return typeof str === 'string' && (str === '' || str[0] === '/');
+  }
 
   exports.default = RouterService;
 });
@@ -32091,7 +32166,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           qp.serializedValue = svalue;
 
           var thisQueryParamHasDefaultValue = qp.serializedDefaultValue === svalue;
-          if (!thisQueryParamHasDefaultValue) {
+          if (!thisQueryParamHasDefaultValue || transition._keepDefaultQueryParamValues) {
             finalParams.push({
               value: svalue,
               visible: true,
@@ -33355,7 +33430,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         }
       }
     },
-    _doTransition: function (_targetRouteName, models, _queryParams) {
+    _doTransition: function (_targetRouteName, models, _queryParams, _keepDefaultQueryParamValues) {
       var _routerMicrolib5;
 
       var targetRouteName = _targetRouteName || (0, _utils.getActiveTargetName)(this._routerMicrolib);
@@ -33367,7 +33442,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this._processActiveTransitionQueryParams(targetRouteName, models, queryParams, _queryParams);
 
       (0, _emberUtils.assign)(queryParams, _queryParams);
-      this._prepareQueryParams(targetRouteName, models, queryParams);
+      this._prepareQueryParams(targetRouteName, models, queryParams, _keepDefaultQueryParamValues);
 
       var transitionArgs = (0, _utils.routeArgs)(targetRouteName, models, queryParams);
       var transition = (_routerMicrolib5 = this._routerMicrolib).transitionTo.apply(_routerMicrolib5, transitionArgs);
@@ -33399,11 +33474,14 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       this._fullyScopeQueryParams(targetRouteName, models, unchangedQPs);
       (0, _emberUtils.assign)(queryParams, unchangedQPs);
     },
-    _prepareQueryParams: function (targetRouteName, models, queryParams) {
+    _prepareQueryParams: function (targetRouteName, models, queryParams, _fromRouterService) {
       var state = calculatePostTransitionState(this, targetRouteName, models);
-      this._hydrateUnsuppliedQueryParams(state, queryParams);
+      this._hydrateUnsuppliedQueryParams(state, queryParams, _fromRouterService);
       this._serializeQueryParams(state.handlerInfos, queryParams);
-      this._pruneDefaultQueryParamValues(state.handlerInfos, queryParams);
+
+      if (!_fromRouterService) {
+        this._pruneDefaultQueryParamValues(state.handlerInfos, queryParams);
+      }
     },
     _getQPMeta: function (handlerInfo) {
       var route = handlerInfo.handler;
@@ -33481,7 +33559,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         }
       }
     },
-    _hydrateUnsuppliedQueryParams: function (state, queryParams) {
+    _hydrateUnsuppliedQueryParams: function (state, queryParams, _fromRouterService) {
       var handlerInfos = state.handlerInfos;
       var appCache = this._bucketCache;
 
@@ -33496,6 +33574,25 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           var qp = qpMeta.qps[j];
 
           var presentProp = qp.prop in queryParams && qp.prop || qp.scopedPropertyName in queryParams && qp.scopedPropertyName || qp.urlKey in queryParams && qp.urlKey;
+
+          (true && !(function () {
+            if (qp.urlKey === presentProp) {
+              return true;
+            }
+
+            if (_fromRouterService) {
+              return false;
+            }
+
+            return true;
+          }()) && (0, _emberDebug.assert)('You passed the `' + presentProp + '` query parameter during a transition into ' + qp.route.routeName + ', please update to ' + qp.urlKey, function () {
+            if (qp.urlKey === presentProp) {
+              return true;
+            }if (_fromRouterService) {
+              return false;
+            }return true;
+          }()));
+
 
           if (presentProp) {
             if (presentProp !== qp.scopedPropertyName) {
@@ -47942,7 +48039,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+8d371237";
+  exports.default = "2.15.0-alpha.1-null+2d9e3aa1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.8d371237"
+        "version": "2.15.0-alpha.1.2d9e3aa1"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -12035,7 +12035,7 @@
         },
         {
             "file": "packages/ember-routing/lib/services/router.js",
-            "line": 26,
+            "line": 40,
             "description": "Transition the application into another route. The route may\nbe either a single route or route path:\n\nSee [Route.transitionTo](https://emberjs.com/api/classes/Ember.Route.html#method_transitionTo) for more info.",
             "itemtype": "method",
             "name": "transitionTo",
@@ -12072,7 +12072,7 @@
         },
         {
             "file": "packages/ember-routing/lib/services/router.js",
-            "line": 47,
+            "line": 78,
             "description": "Transition into another route while replacing the current URL, if possible.\nThe route may be either a single route or route path:\n\nSee [Route.replaceWith](https://emberjs.com/api/classes/Ember.Route.html#method_replaceWith) for more info.",
             "itemtype": "method",
             "name": "replaceWith",
@@ -12109,10 +12109,13 @@
         },
         {
             "file": "packages/ember-routing/lib/services/router.js",
-            "line": 68,
+            "line": 99,
             "description": "Generate a URL based on the supplied route name.",
             "itemtype": "method",
             "name": "urlFor",
+            "category": [
+                "ember-routing-router-service"
+            ],
             "params": [
                 {
                     "name": "routeName",
@@ -12134,6 +12137,43 @@
             "return": {
                 "description": "the string representing the generated URL",
                 "type": "String"
+            },
+            "access": "public",
+            "tagname": "",
+            "class": "RouterService",
+            "module": "ember",
+            "submodule": "ember-routing"
+        },
+        {
+            "file": "packages/ember-routing/lib/services/router.js",
+            "line": 116,
+            "description": "Determines whether a route is active.",
+            "itemtype": "method",
+            "name": "isActive",
+            "category": [
+                "ember-routing-router-service"
+            ],
+            "params": [
+                {
+                    "name": "routeName",
+                    "description": "the name of the route",
+                    "type": "String"
+                },
+                {
+                    "name": "models",
+                    "description": "the model(s) or identifier(s) to be used while\n  transitioning to the route.",
+                    "type": "...Object"
+                },
+                {
+                    "name": "options",
+                    "description": "optional hash with a queryParams property\n  containing a mapping of query parameters",
+                    "type": "Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "true if the provided routeName/models/queryParams are active",
+                "type": "Boolean"
             },
             "access": "public",
             "tagname": "",
@@ -13655,6 +13695,11 @@
                     "name": "queryParams",
                     "description": "",
                     "type": "Object"
+                },
+                {
+                    "name": "keepDefaultQueryParamValues",
+                    "description": "",
+                    "type": "Boolean"
                 }
             ],
             "return": {
@@ -13668,7 +13713,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 829,
+            "line": 833,
             "description": "Returns the meta information for the query params of a given route. This\nwill be overridden to allow support for lazy routes.",
             "access": "private",
             "tagname": "",
@@ -13692,7 +13737,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 843,
+            "line": 847,
             "description": "Returns a merged query params meta object for a given set of handlerInfos.\nUseful for knowing what query params are available for a given route hierarchy.",
             "access": "private",
             "tagname": "",
@@ -13716,7 +13761,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 900,
+            "line": 904,
             "description": "Maps all query param keys to their fully scoped property name of the form\n`controllerName:propName`.",
             "access": "private",
             "tagname": "",
@@ -13750,7 +13795,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 937,
+            "line": 941,
             "description": "Hydrates (adds/restores) any query params that have pre-existing values into\nthe given queryParams hash. This is what allows query params to be \"sticky\"\nand restore their last known values for their scope.",
             "access": "private",
             "tagname": "",
@@ -13779,7 +13824,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1178,
+            "line": 1197,
             "description": "Finds the name of the substate route if it exists for the given route. A\nsubstate route is of the form `route_state`, such as `foo_loading`.",
             "access": "private",
             "tagname": "",
@@ -13806,7 +13851,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1199,
+            "line": 1218,
             "description": "Finds the name of the state route if it exists for the given route. A state\nroute is of the form `route.state`, such as `foo.loading`. Properly Handles\n`application` named routes.",
             "access": "private",
             "tagname": "",
@@ -13833,7 +13878,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1221,
+            "line": 1240,
             "description": "Determines whether or not a route has been defined by checking that the route\nis in the Router's map and the owner has a registration for that route.",
             "access": "private",
             "tagname": "",
@@ -13870,7 +13915,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 1332,
+            "line": 1351,
             "description": "The `Router.map` function allows you to define mappings from URLs to routes\nin your application. These mappings are defined within the\nsupplied callback function using `this.route`.\n\nThe first parameter is the name of the route which is used by default as the\npath name as well.\n\nThe second parameter is the optional options hash. Available options are:\n\n  * `path`: allows you to provide your own path as well as mark dynamic\n    segments.\n  * `resetNamespace`: false by default; when nesting routes, ember will\n    combine the route names to form the fully-qualified route name, which is\n    used with `{{link-to}}` or manually transitioning to routes. Setting\n    `resetNamespace: true` will cause the route not to inherit from its\n    parent route's names. This is handy for preventing extremely long route names.\n    Keep in mind that the actual URL path behavior is still retained.\n\nThe third parameter is a function, which can be used to nest routes.\nNested routes, by default, will have the parent route tree's route name and\npath prepended to it's own.\n\n```javascript\nApp.Router.map(function(){\n  this.route('post', { path: '/post/:post_id' }, function() {\n    this.route('edit');\n    this.route('comments', { resetNamespace: true }, function() {\n      this.route('new');\n    });\n  });\n});\n```\n\nFor more detailed documentation and examples please see\n[the guides](https://emberjs.com/guides/routing/defining-your-routes/).",
             "itemtype": "method",
             "name": "map",
@@ -21042,15 +21087,15 @@
         },
         {
             "message": "Missing item type\nFinds the name of the substate route if it exists for the given route. A\nsubstate route is of the form `route_state`, such as `foo_loading`.",
-            "line": " packages/ember-routing/lib/system/router.js:1178"
+            "line": " packages/ember-routing/lib/system/router.js:1197"
         },
         {
             "message": "Missing item type\nFinds the name of the state route if it exists for the given route. A state\nroute is of the form `route.state`, such as `foo.loading`. Properly Handles\n`application` named routes.",
-            "line": " packages/ember-routing/lib/system/router.js:1199"
+            "line": " packages/ember-routing/lib/system/router.js:1218"
         },
         {
             "message": "Missing item type\nDetermines whether or not a route has been defined by checking that the route\nis in the Router's map and the owner has a registration for that route.",
-            "line": " packages/ember-routing/lib/system/router.js:1221"
+            "line": " packages/ember-routing/lib/system/router.js:1240"
         },
         {
             "message": "Missing item type",
