@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b0f0d358
+ * @version   2.15.0-alpha.1-null+8d371237
  */
 
 var enifed, requireModule, Ember;
@@ -19726,7 +19726,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
 
         // override .render function after initial render
         _this.render = function () {
-          result.rerender(options);
+          return result.rerender(options);
         };
       };
     }
@@ -35744,9 +35744,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function setDiff(setAProperty, setBProperty) {
-    if (arguments.length !== 2) {
-      throw new _emberDebug.Error('setDiff requires exactly two dependent arrays.');
-    }
+    (true && !(arguments.length === 2) && (0, _emberDebug.assert)('Ember.computed.setDiff requires exactly two dependent arrays.', arguments.length === 2));
+
 
     return (0, _emberMetal.computed)(setAProperty + '.[]', setBProperty + '.[]', function () {
       var setA = this.get(setAProperty);
@@ -35801,7 +35800,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       var res = (0, _native_array.A)();
       for (var key in properties) {
         if (properties.hasOwnProperty(key)) {
-          if ((0, _emberMetal.isNone)(properties[key])) {
+          if (properties[key] === undefined) {
             res.push(null);
           } else {
             res.push(properties[key]);
@@ -47943,7 +47942,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+b0f0d358";
+  exports.default = "2.15.0-alpha.1-null+8d371237";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

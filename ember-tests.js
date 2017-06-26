@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+b0f0d358
+ * @version   2.15.0-alpha.1-null+8d371237
  */
 
 var enifed, requireModule, Ember;
@@ -50052,17 +50052,17 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     }, /Cannot set read-only property "diff" on object:/);
   });
 
-  QUnit.test('it throws an error if given fewer or more than two dependent properties', function () {
-    throws(function () {
+  QUnit.test('it asserts if given fewer or more than two dependent properties', function () {
+    expectAssertion(function () {
       _object.default.extend({
         diff: (0, _reduce_computed_macros.setDiff)('array')
       }).create({
         array: (0, _native_array.A)([1, 2, 3, 4, 5, 6, 7]),
         array2: (0, _native_array.A)([3, 4, 5])
       });
-    }, /requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
 
-    throws(function () {
+    expectAssertion(function () {
       _object.default.extend({
         diff: (0, _reduce_computed_macros.setDiff)('array', 'array2', 'array3')
       }).create({
@@ -50070,7 +50070,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array2: (0, _native_array.A)([3, 4, 5]),
         array3: (0, _native_array.A)([7])
       });
-    }, /requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
   });
 
   QUnit.test('it has set-diff semantics', function () {
