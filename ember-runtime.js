@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+cbe7626f
+ * @version   2.15.0-alpha.1-null+e21dfa8c
  */
 
 var enifed, requireModule, Ember;
@@ -1898,14 +1898,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function markObjectAsDirty(meta$$1, propertyKey) {
     var objectTag = meta$$1.readableTag();
 
-    if (objectTag) {
+    if (objectTag !== undefined) {
       objectTag.dirty();
     }
 
     var tags = meta$$1.readableTags();
-    var propertyTag = tags && tags[propertyKey];
+    var propertyTag = tags !== undefined ? tags[propertyKey] : undefined;
 
-    if (propertyTag) {
+    if (propertyTag !== undefined) {
       propertyTag.dirty();
     }
 
@@ -1913,22 +1913,19 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.getTag().contentDidChange();
     }
 
-    if (objectTag || propertyTag) {
+    if (objectTag !== undefined || propertyTag !== undefined) {
       ensureRunloop();
     }
   }
 
   var run = void 0;
-
-  function K() {}
-
   function ensureRunloop() {
-    if (!run) {
+    if (run === undefined) {
       run = require('ember-metal').run;
     }
 
-    if (hasViews() && !run.backburner.currentInstance) {
-      run.schedule('actions', K);
+    if (hasViews()) {
+      run.backburner.ensureInstance();
     }
   }
 

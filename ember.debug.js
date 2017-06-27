@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+cbe7626f
+ * @version   2.15.0-alpha.1-null+e21dfa8c
  */
 
 var enifed, requireModule, Ember;
@@ -9060,12 +9060,6 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
     'use strict';
 
     var NUMBER = /\d+/;
-    var now = Date.now;
-    function each(collection, callback) {
-        for (var i = 0; i < collection.length; i++) {
-            callback(collection[i]);
-        }
-    }
     function isString(suspect) {
         return typeof suspect === 'string';
     }
@@ -9087,19 +9081,21 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
     function getOnError(options) {
         return options.onError || options.onErrorTarget && options.onErrorTarget[options.onErrorMethod];
     }
-    function findDebouncee(target, method, debouncees) {
-        return findItem(target, method, debouncees);
-    }
-    function findThrottler(target, method, throttlers) {
-        return findItem(target, method, throttlers);
-    }
     function findItem(target, method, collection) {
-        var item = void 0;
         var index = -1;
-        for (var i = 0, l = collection.length; i < l; i++) {
-            item = collection[i];
-            if (item[0] === target && item[1] === method) {
+        for (var i = 0, l = collection.length; i < l; i += 3) {
+            if (collection[i] === target && collection[i + 1] === method) {
                 index = i;
+                break;
+            }
+        }
+        return index;
+    }
+    function findTimer(timer, collection) {
+        var index = -1;
+        for (var i = 2; i < collection.length; i += 3) {
+            if (collection[i] === timer) {
+                index = i - 2;
                 break;
             }
         }
@@ -9241,11 +9237,13 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             var currentMethod = void 0;
             var i = void 0;
             var l = void 0;
+            var t = void 0;
             var guid = this.guidForTarget(target);
-            var targetQueue = this.targetQueues[guid];
-            if (targetQueue) {
-                for (i = 0, l = targetQueue.length; i < l; i++) {
-                    if (targetQueue[i] === method) {
+            var targetQueue = guid ? this.targetQueues[guid] : undefined;
+            if (targetQueue !== undefined) {
+                for (i = 0, l = targetQueue.length; i < l; i += 2) {
+                    t = targetQueue[i];
+                    if (t === method) {
                         targetQueue.splice(i, 1);
                     }
                 }
@@ -9356,12 +9354,11 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
             this.queues = {};
             this.queueNameIndex = 0;
-            this.options = options;
             this.queueNames = queueNames;
-            var queues = this.queues;
-            each(queueNames, function (queueName) {
+            queueNames.reduce(function (queues, queueName) {
                 queues[queueName] = new Queue(queueName, options[queueName], options);
-            });
+                return queues;
+            }, this.queues);
         }
         /*
           @method schedule
@@ -9424,6 +9421,9 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         }
     };
 
+    var now = Date.now;
+    var noop = function () {};
+
     var Backburner = function () {
         function Backburner(queueNames) {
             var _this = this;
@@ -9432,40 +9432,37 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             (0, _emberBabel.classCallCheck)(this, Backburner);
 
             this.DEBUG = false;
+            this.currentInstance = null;
+            this._timerTimeoutId = null;
             this._autorun = null;
             this.queueNames = queueNames;
             this.options = options;
             if (!this.options.defaultQueue) {
                 this.options.defaultQueue = queueNames[0];
             }
-            this.currentInstance = null;
             this.instanceStack = [];
+            this._timers = [];
             this._debouncees = [];
             this._throttlers = [];
             this._eventCallbacks = {
                 end: [],
                 begin: []
             };
-            this._boundClearItems = function (item) {
-                _this._platform.clearTimeout(item[2]);
+            this._onBegin = this.options.onBegin || noop;
+            this._onEnd = this.options.onEnd || noop;
+            var _platform = this.options._platform || {};
+            var platform = Object.create(null);
+            platform.setTimeout = _platform.setTimeout || function (fn, ms) {
+                return setTimeout(fn, ms);
             };
-            this._timerTimeoutId = undefined;
-            this._timers = [];
-            this._platform = this.options._platform || {
-                setTimeout: function (fn, ms) {
-                    return setTimeout(fn, ms);
-                },
-                clearTimeout: function (id) {
-                    clearTimeout(id);
-                },
-                next: function (fn) {
-                    // TODO: asap
-                    return setTimeout(fn, 0);
-                },
-                clearNext: function (fn) {
-                    clearTimeout(fn);
-                }
+            platform.clearTimeout = _platform.clearTimeout || function (id) {
+                return clearTimeout(id);
             };
+            platform.next = _platform.next || function (fn) {
+                return platform.setTimeout(fn, 0);
+            };
+            platform.clearNext = _platform.clearNext || platform.clearTimeout;
+            this._platform = platform;
             this._boundRunExpiredTimers = function () {
                 _this._runExpiredTimers();
             };
@@ -9482,32 +9479,26 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
         Backburner.prototype.begin = function begin() {
             var options = this.options;
-            var onBegin = options.onBegin;
-
             var previousInstance = this.currentInstance;
             var current = void 0;
             if (this._autorun !== null) {
                 current = previousInstance;
                 this._cancelAutorun();
             } else {
-                if (previousInstance) {
+                if (previousInstance !== null) {
                     this.instanceStack.push(previousInstance);
                 }
                 current = this.currentInstance = new DeferredActionQueues(this.queueNames, options);
                 this._trigger('begin', current, previousInstance);
             }
-            if (onBegin) {
-                onBegin(current, previousInstance);
-            }
+            this._onBegin(current, previousInstance);
             return current;
         };
 
         Backburner.prototype.end = function end() {
-            var onEnd = this.options.onEnd;
-
             var currentInstance = this.currentInstance;
             var nextInstance = null;
-            if (!currentInstance) {
+            if (currentInstance === null) {
                 throw new Error('end called without begin');
             }
             // Prevent double-finally bug in Safari 6.0.2 and iOS 6
@@ -9529,9 +9520,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                             this.currentInstance = nextInstance;
                         }
                         this._trigger('end', currentInstance, nextInstance);
-                        if (onEnd) {
-                            onEnd(currentInstance, nextInstance);
-                        }
+                        this._onEnd(currentInstance, nextInstance);
                     }
                 }
             }
@@ -9607,7 +9596,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype.join = function join() {
-            if (this.currentInstance === null || this.currentInstance === undefined) {
+            if (this.currentInstance === null) {
                 return this.run.apply(this, arguments);
             }
             var length = arguments.length;
@@ -9630,10 +9619,13 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                     }
                 }
             }
-            if (length === 1) {
-                return method();
-            } else if (length === 2) {
-                return method.call(target);
+            var onError = getOnError(this.options);
+            if (onError) {
+                try {
+                    return method.apply(target, args);
+                } catch (error) {
+                    onError(error);
+                }
             } else {
                 return method.apply(target, args);
             }
@@ -9754,8 +9746,8 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                     method = args.shift();
                 }
             }
-            var executeAt = now() + wait;
             var onError = getOnError(this.options);
+            var executeAt = now() + wait;
             var fn = void 0;
             if (onError) {
                 fn = function () {
@@ -9783,7 +9775,6 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             var immediate = args.pop();
             var isImmediate = void 0;
             var wait = void 0;
-            var throttler = void 0;
             var index = void 0;
             var timer = void 0;
             if (isCoercableNumber(immediate)) {
@@ -9794,25 +9785,24 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 isImmediate = immediate === true;
             }
             wait = parseInt(wait, 10);
-            index = findThrottler(target, method, this._throttlers);
+            index = findItem(target, method, this._throttlers);
             if (index > -1) {
-                return this._throttlers[index];
+                return this._throttlers[index + 2];
             } // throttled
             timer = this._platform.setTimeout(function () {
                 if (isImmediate === false) {
                     _this2.run.apply(_this2, args);
                 }
-                index = findThrottler(target, method, _this2._throttlers);
+                index = findTimer(timer, _this2._throttlers);
                 if (index > -1) {
-                    _this2._throttlers.splice(index, 1);
+                    _this2._throttlers.splice(index, 3);
                 }
             }, wait);
             if (isImmediate) {
                 this.join.apply(this, args);
             }
-            throttler = [target, method, timer];
-            this._throttlers.push(throttler);
-            return throttler;
+            this._throttlers.push(target, method, timer);
+            return timer;
         };
 
         Backburner.prototype.debounce = function debounce(target, method /* , args, wait, [immediate] */) {
@@ -9826,7 +9816,6 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             var isImmediate = void 0;
             var wait = void 0;
             var index = void 0;
-            var debouncee = void 0;
             var timer = void 0;
             if (isCoercableNumber(immediate)) {
                 wait = immediate;
@@ -9837,40 +9826,39 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             }
             wait = parseInt(wait, 10);
             // Remove debouncee
-            index = findDebouncee(target, method, this._debouncees);
+            index = findItem(target, method, this._debouncees);
             if (index > -1) {
-                debouncee = this._debouncees[index];
-                this._debouncees.splice(index, 1);
-                this._platform.clearTimeout(debouncee[2]);
+                var timerId = this._debouncees[index + 2];
+                this._debouncees.splice(index, 3);
+                this._platform.clearTimeout(timerId);
             }
             timer = this._platform.setTimeout(function () {
                 if (isImmediate === false) {
                     _this3.run.apply(_this3, args);
                 }
-                index = findDebouncee(target, method, _this3._debouncees);
+                index = findTimer(timer, _this3._debouncees);
                 if (index > -1) {
-                    _this3._debouncees.splice(index, 1);
+                    _this3._debouncees.splice(index, 3);
                 }
             }, wait);
             if (isImmediate && index === -1) {
-                this.run.apply(this, args);
+                this.join.apply(this, args);
             }
-            debouncee = [target, method, timer];
-            this._debouncees.push(debouncee);
-            return debouncee;
+            this._debouncees.push(target, method, timer);
+            return timer;
         };
 
         Backburner.prototype.cancelTimers = function cancelTimers() {
-            each(this._throttlers, this._boundClearItems);
+            for (var i = 2; i < this._throttlers.length; i += 3) {
+                this._platform.clearTimeout(this._throttlers[i]);
+            }
             this._throttlers = [];
-            each(this._debouncees, this._boundClearItems);
+            for (var t = 2; t < this._debouncees.length; t += 3) {
+                this._platform.clearTimeout(this._debouncees[t]);
+            }
             this._debouncees = [];
             this._clearTimerTimeout();
             this._timers = [];
-            if (this._autorun !== null) {
-                this._platform.clearNext(this._autorun);
-                this._autorun = null;
-            }
             this._cancelAutorun();
         };
 
@@ -9883,29 +9871,23 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 return false;
             }
             var timerType = typeof timer;
-            if (timerType === 'object') {
-                if (timer.queue && timer.method) {
-                    return timer.queue.cancel(timer);
-                } else if (Array.isArray(timer)) {
-                    return this._cancelItem(findThrottler, this._throttlers, timer) || this._cancelItem(findDebouncee, this._debouncees, timer);
-                }
+            if (timerType === 'number' || timerType === 'string') {
+                return this._cancelItem(timer, this._throttlers) || this._cancelItem(timer, this._debouncees);
             } else if (timerType === 'function') {
-                for (var i = 0, l = this._timers.length; i < l; i += 2) {
-                    if (this._timers[i + 1] === timer) {
-                        this._timers.splice(i, 2); // remove the two elements
-                        if (i === 0) {
-                            this._reinstallTimerTimeout();
-                        }
-                        return true;
-                    }
-                }
+                return this._cancelLaterTimer(timer);
+            } else if (timerType === 'object' && timer.queue && timer.method) {
+                return timer.queue.cancel(timer);
             }
             return false;
         };
 
+        Backburner.prototype.ensureInstance = function ensureInstance() {
+            this._ensureInstance();
+        };
+
         Backburner.prototype._cancelAutorun = function _cancelAutorun() {
             if (this._autorun !== null) {
-                this._platform.clearTimeout(this._autorun);
+                this._platform.clearNext(this._autorun);
                 this._autorun = null;
             }
         };
@@ -9926,20 +9908,26 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             return fn;
         };
 
-        Backburner.prototype._cancelItem = function _cancelItem(findMethod, array, timer) {
-            var item = void 0;
-            var index = void 0;
-            if (timer.length < 3) {
-                return false;
-            }
-            index = findMethod(timer[0], timer[1], array);
-            if (index > -1) {
-                item = array[index];
-                if (item[2] === timer[2]) {
-                    array.splice(index, 1);
-                    this._platform.clearTimeout(timer[2]);
+        Backburner.prototype._cancelLaterTimer = function _cancelLaterTimer(timer) {
+            for (var i = 1; i < this._timers.length; i += 2) {
+                if (this._timers[i] === timer) {
+                    i = i - 1;
+                    this._timers.splice(i, 2); // remove the two elements
+                    if (i === 0) {
+                        this._reinstallTimerTimeout();
+                    }
                     return true;
                 }
+            }
+            return false;
+        };
+
+        Backburner.prototype._cancelItem = function _cancelItem(timer, array) {
+            var index = findTimer(timer, array);
+            if (index > -1) {
+                array.splice(index, 3);
+                this._platform.clearTimeout(timer);
+                return true;
             }
             return false;
         };
@@ -9954,20 +9942,26 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype._runExpiredTimers = function _runExpiredTimers() {
-            this._timerTimeoutId = undefined;
-            this.run(this, this._scheduleExpiredTimers);
+            this._timerTimeoutId = null;
+            if (this._timers.length === 0) {
+                return;
+            }
+            this.begin();
+            this._scheduleExpiredTimers();
+            this.end();
         };
 
         Backburner.prototype._scheduleExpiredTimers = function _scheduleExpiredTimers() {
-            var n = now();
             var timers = this._timers;
-            var i = 0;
             var l = timers.length;
+            var i = 0;
+            var defaultQueue = this.options.defaultQueue;
+            var n = now();
             for (; i < l; i += 2) {
                 var executeAt = timers[i];
-                var fn = timers[i + 1];
                 if (executeAt <= n) {
-                    this.schedule(this.options.defaultQueue, null, fn);
+                    var fn = timers[i + 1];
+                    this.schedule(defaultQueue, null, fn);
                 } else {
                     break;
                 }
@@ -9982,11 +9976,11 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype._clearTimerTimeout = function _clearTimerTimeout() {
-            if (this._timerTimeoutId === undefined) {
+            if (this._timerTimeoutId === null) {
                 return;
             }
             this._platform.clearTimeout(this._timerTimeoutId);
-            this._timerTimeoutId = undefined;
+            this._timerTimeoutId = null;
         };
 
         Backburner.prototype._installTimerTimeout = function _installTimerTimeout() {
@@ -10001,9 +9995,9 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
         Backburner.prototype._ensureInstance = function _ensureInstance() {
             var currentInstance = this.currentInstance;
-            if (currentInstance === undefined || currentInstance === null) {
-                var next = this._platform.next || this._platform.setTimeout; // TODO: remove the fallback
+            if (currentInstance === null) {
                 currentInstance = this.begin();
+                var next = this._platform.next;
                 this._autorun = next(this._boundAutorunEnd);
             }
             return currentInstance;
@@ -23109,14 +23103,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function markObjectAsDirty(meta$$1, propertyKey) {
     var objectTag = meta$$1.readableTag();
 
-    if (objectTag) {
+    if (objectTag !== undefined) {
       objectTag.dirty();
     }
 
     var tags = meta$$1.readableTags();
-    var propertyTag = tags && tags[propertyKey];
+    var propertyTag = tags !== undefined ? tags[propertyKey] : undefined;
 
-    if (propertyTag) {
+    if (propertyTag !== undefined) {
       propertyTag.dirty();
     }
 
@@ -23124,22 +23118,19 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       meta$$1.getTag().contentDidChange();
     }
 
-    if (objectTag || propertyTag) {
+    if (objectTag !== undefined || propertyTag !== undefined) {
       ensureRunloop();
     }
   }
 
   var run = void 0;
-
-  function K() {}
-
   function ensureRunloop() {
-    if (!run) {
+    if (run === undefined) {
       run = require('ember-metal').run;
     }
 
-    if (hasViews() && !run.backburner.currentInstance) {
-      run.schedule('actions', K);
+    if (hasViews()) {
+      run.backburner.ensureInstance();
     }
   }
 
@@ -46591,7 +46582,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
 
       (true && !(false) && (0, _emberDebug.deprecate)('`eventManager` has been deprecated in ' + this + '.', false, {
         id: 'ember-views.event-dispatcher.canDispatchToEventManager',
-        until: '2.16.0'
+        until: '2.17.0'
       }));
 
 
@@ -46755,7 +46746,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       (true && !(_emberEnvironment.environment.hasDOM) && (0, _emberDebug.assert)('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', _emberEnvironment.environment.hasDOM));
       (true && !(!('canDispatchToEventManager' in this)) && (0, _emberDebug.deprecate)('`canDispatchToEventManager` has been deprecated in ' + this + '.', !('canDispatchToEventManager' in this), {
         id: 'ember-views.event-dispatcher.canDispatchToEventManager',
-        until: '2.16.0'
+        until: '2.17.0'
       }));
     },
 
@@ -48026,7 +48017,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+cbe7626f";
+  exports.default = "2.15.0-alpha.1-null+e21dfa8c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
