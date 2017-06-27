@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+bd6c5d31
+ * @version   2.15.0-alpha.1-null+1a99da7b
  */
 
 var enifed, requireModule, Ember;
@@ -43235,8 +43235,6 @@ enifed('ember-template-compiler/system/compile-options', ['exports', 'ember-util
     return options;
   }
 
-  function ensurePlugin(FunctionOrPlugin) {}
-
   function registerPlugin(type, _plugin) {
     if (type !== 'ast') {
       throw new Error('Attempting to register ' + _plugin + ' as "' + type + '" which is not a valid Glimmer plugin type.');
@@ -48017,7 +48015,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+bd6c5d31";
+  exports.default = "2.15.0-alpha.1-null+1a99da7b";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
