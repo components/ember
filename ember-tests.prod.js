@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+e21dfa8c
+ * @version   2.15.0-alpha.1-null+bd6c5d31
  */
 
 var enifed, requireModule, Ember;
@@ -2552,66 +2552,78 @@ enifed('ember-application/tests/system/dependency_injection/normalization_test',
     });
   });
 });
-enifed('ember-application/tests/system/dependency_injection/to_string_test', ['ember-utils', 'ember-environment', 'ember-metal', 'ember-application/system/application', 'ember-runtime', 'ember-application/system/resolver'], function (_emberUtils, _emberEnvironment, _emberMetal, _application, _emberRuntime, _resolver) {
+enifed('ember-application/tests/system/dependency_injection/to_string_test', ['ember-babel', 'ember-utils', 'ember-runtime', 'ember-application', 'internal-test-helpers'], function (_emberBabel, _emberUtils, _emberRuntime, _emberApplication, _internalTestHelpers) {
   'use strict';
 
-  // lookup, etc
+  (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection - DefaultResolver#toString', function (_DefaultResolverAppli) {
+    (0, _emberBabel.inherits)(_class, _DefaultResolverAppli);
 
-  var originalLookup = void 0,
-      App = void 0;
+    function _class() {
 
-  QUnit.module('Ember.Application Dependency Injection – toString', {
-    setup: function () {
-      originalLookup = _emberEnvironment.context.lookup;
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
 
-      (0, _emberMetal.run)(function () {
-        App = _application.default.create();
-        _emberEnvironment.context.lookup = {
-          App: App
-        };
-      });
-
-      App.Post = _emberRuntime.Object.extend();
-    },
-    teardown: function () {
-      _emberEnvironment.context.lookup = originalLookup;
-      (0, _emberMetal.run)(App, 'destroy');
+      _this.createApplication();
+      _this.application.Post = _emberRuntime.Object.extend();
+      _this.visit('/');
+      return _this;
     }
-  });
 
-  QUnit.test('factories', function () {
-    var PostFactory = void 0;
-    PostFactory = App.__container__.factoryFor('model:post').class;
-    equal(PostFactory.toString(), 'App.Post', 'expecting the model to be post');
-  });
+    _class.prototype['@test factories'] = function (assert) {
+      var PostFactory = this.applicationInstance.factoryFor('model:post').class;
+      assert.equal(PostFactory.toString(), '.Post', 'expecting the model to be post');
+    };
 
-  QUnit.test('instances', function () {
-    var post = App.__container__.lookup('model:post');
-    var guid = (0, _emberUtils.guidFor)(post);
+    _class.prototype['@test instances'] = function (assert) {
+      var post = this.applicationInstance.lookup('model:post');
+      var guid = (0, _emberUtils.guidFor)(post);
 
-    equal(post.toString(), '<App.Post:' + guid + '>', 'expecting the model to be post');
-  });
+      assert.equal(post.toString(), '<.Post:' + guid + '>', 'expecting the model to be post');
+    };
 
-  QUnit.test('with a custom resolver', function () {
-    (0, _emberMetal.run)(App, 'destroy');
+    return _class;
+  }(_internalTestHelpers.DefaultResolverApplicationTestCase));
 
-    (0, _emberMetal.run)(function () {
-      App = _application.default.create({
-        Resolver: _resolver.default.extend({
-          makeToString: function (factory, fullName) {
-            return fullName;
-          }
-        })
-      });
-    });
+  (0, _internalTestHelpers.moduleFor)('Ember.Application Dependency Injection - Resolver#toString', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class2, _ApplicationTestCase);
 
-    App.register('model:peter', _emberRuntime.Object.extend());
+    function _class2() {
 
-    var peter = App.__container__.lookup('model:peter');
-    var guid = (0, _emberUtils.guidFor)(peter);
+      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
 
-    equal(peter.toString(), '<model:peter:' + guid + '>', 'expecting the supermodel to be peter');
-  });
+      _this2.visit('/');
+      return _this2;
+    }
+
+    _class2.prototype['@test toString called on a resolver'] = function (assert) {
+      this.add('model:peter', _emberRuntime.Object.extend());
+
+      var peter = this.applicationInstance.lookup('model:peter');
+      var guid = (0, _emberUtils.guidFor)(peter);
+      assert.equal(peter.toString(), '<model:peter:' + guid + '>', 'expecting the supermodel to be peter');
+    };
+
+    (0, _emberBabel.createClass)(_class2, [{
+      key: 'applicationOptions',
+      get: function () {
+        return (0, _emberUtils.assign)(_ApplicationTestCase.prototype.applicationOptions, {
+          Resolver: function (_ModuleBasedTestResol) {
+            (0, _emberBabel.inherits)(Resolver, _ModuleBasedTestResol);
+
+            function Resolver() {
+              return (0, _emberBabel.possibleConstructorReturn)(this, _ModuleBasedTestResol.apply(this, arguments));
+            }
+
+            Resolver.prototype.makeToString = function (_, fullName) {
+              return fullName;
+            };
+
+            return Resolver;
+          }(_internalTestHelpers.ModuleBasedTestResolver)
+        });
+      }
+    }]);
+    return _class2;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 enifed('ember-application/tests/system/dependency_injection_test', ['ember-environment', 'ember-metal', 'ember-runtime', 'ember-application/system/application'], function (_emberEnvironment, _emberMetal, _emberRuntime, _application) {
   'use strict';
