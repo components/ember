@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+1a99da7b
+ * @version   2.15.0-alpha.1-null+0a15e425
  */
 
 var enifed, requireModule, Ember;
@@ -22978,14 +22978,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
+
     var m = meta$$1 || meta(obj),
         possibleDesc,
         isDescriptor;
+    var count = m.peekWatching(keyName) || 0;
+    m.writeWatching(keyName, count + 1);
 
-    // activate watching first time
-    if (!m.peekWatching(keyName)) {
-      m.writeWatching(keyName, 1);
-
+    if (count === 0) {
+      // activate watching first time
       possibleDesc = obj[keyName];
       isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
@@ -22996,8 +22997,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if ('function' === typeof obj.willWatchProperty) {
         obj.willWatchProperty(keyName);
       }
-    } else {
-      m.writeWatching(keyName, (m.peekWatching(keyName) || 0) + 1);
     }
   }
 
@@ -23005,12 +23004,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var meta$$1 = _meta || meta(obj),
+    var meta$$1 = _meta || exports.peekMeta(obj),
         possibleDesc,
         isDescriptor;
 
     // do nothing of this object has already been destroyed
-    if (meta$$1.isSourceDestroyed()) {
+    if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
       return;
     }
 
@@ -23051,12 +23050,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
     var m = meta$$1 || meta(obj);
     var counter = m.peekWatching(keyPath) || 0;
-    if (!counter) {
+
+    m.writeWatching(keyPath, counter + 1);
+    if (counter === 0) {
       // activate watching first time
-      m.writeWatching(keyPath, 1);
       chainsFor(obj, m).add(keyPath);
-    } else {
-      m.writeWatching(keyPath, counter + 1);
     }
   }
 
@@ -23064,7 +23062,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var m = meta$$1 || meta(obj);
+    var m = meta$$1 || exports.peekMeta(obj);
+    if (m === undefined) {
+      return;
+    }
     var counter = m.peekWatching(keyPath) || 0;
 
     if (counter === 1) {
@@ -44245,7 +44246,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+1a99da7b";
+  exports.default = "2.15.0-alpha.1-null+0a15e425";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
