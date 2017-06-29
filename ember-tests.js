@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+cc6ded7d
+ * @version   2.15.0-alpha.1-null+98cc07f7
  */
 
 var enifed, requireModule, Ember;
@@ -66629,205 +66629,212 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember/tests/component_context_test.js should pass ESLint\n\n');
 });
 
-enifed('ember/tests/component_registration_test', ['ember-runtime', 'ember-metal', 'ember-application', 'ember-routing', 'ember-template-compiler', 'ember-glimmer', 'ember-views'], function (_emberRuntime, _emberMetal, _emberApplication, _emberRouting, _emberTemplateCompiler, _emberGlimmer, _emberViews) {
+enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime', 'ember-glimmer', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberGlimmer, _internalTestHelpers) {
   'use strict';
 
-  var App = void 0,
-      appInstance = void 0;
+  (0, _internalTestHelpers.moduleFor)('Application Lifecycle - Component Registration', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class, _AutobootApplicationT);
 
-  function prepare() {
-    (0, _emberGlimmer.setTemplate)('components/expand-it', (0, _emberTemplateCompiler.compile)('<p>hello {{yield}}</p>'));
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('Hello world {{#expand-it}}world{{/expand-it}}'));
-  }
+    function _class() {
+      (0, _emberBabel.classCallCheck)(this, _class);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
+    }
 
-  function cleanup() {
-    (0, _emberMetal.run)(function () {
-      try {
-        if (App) {
-          App.destroy();
-        }
-        App = appInstance = null;
-      } finally {
-        (0, _emberGlimmer.setTemplates)({});
-      }
-    });
-  }
+    _class.prototype['@test The helper becomes the body of the component'] = function testTheHelperBecomesTheBodyOfTheComponent(assert) {
+      var _this2 = this;
 
-  QUnit.module('Application Lifecycle - Component Registration', {
-    setup: prepare,
-    teardown: cleanup
-  });
+      this.runTask(function () {
+        _this2.createApplication();
 
-  function boot(callback) {
-    var startURL = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '/';
-
-    (0, _emberMetal.run)(function () {
-      App = _emberApplication.Application.create({
-        name: 'App',
-        rootElement: '#qunit-fixture'
+        _this2.addTemplate('components/expand-it', '<p>hello {{yield}}</p>');
+        _this2.addTemplate('application', 'Hello world {{#expand-it}}world{{/expand-it}}');
       });
 
-      App.deferReadiness();
+      var text = this.$('div.ember-view > div.ember-view').text().trim();
+      assert.equal(text, 'hello world', 'The component is composed correctly');
+    };
 
-      App.Router = _emberRouting.Router.extend({
-        location: 'none'
-      });
+    _class.prototype['@test If a component is registered, it is used'] = function testIfAComponentIsRegisteredItIsUsed(assert) {
+      var _this3 = this;
 
-      appInstance = App.__deprecatedInstance__;
+      this.runTask(function () {
+        _this3.createApplication();
 
-      if (callback) {
-        callback();
-      }
-    });
+        _this3.addTemplate('components/expand-it', '<p>hello {{yield}}</p>');
+        _this3.addTemplate('application', 'Hello world {{#expand-it}}world{{/expand-it}}');
 
-    var router = appInstance.lookup('router:main');
-
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-    (0, _emberMetal.run)(function () {
-      return router.handleURL(startURL);
-    });
-  }
-
-  QUnit.test('The helper becomes the body of the component', function () {
-    boot();
-    equal((0, _emberViews.jQuery)('div.ember-view > div.ember-view', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
-  });
-
-  QUnit.test('If a component is registered, it is used', function () {
-    boot(function () {
-      appInstance.register('component:expand-it', _emberGlimmer.Component.extend({
-        classNames: 'testing123'
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('div.testing123', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
-  });
-
-  QUnit.test('Late-registered components can be rendered with custom `layout` property', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>there goes {{my-hero}}</div>'));
-
-    boot(function () {
-      appInstance.register('component:my-hero', _emberGlimmer.Component.extend({
-        classNames: 'testing123',
-        layout: (0, _emberTemplateCompiler.compile)('watch him as he GOES')
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'there goes watch him as he GOES', 'The component is composed correctly');
-  });
-
-  QUnit.test('Late-registered components can be rendered with template registered on the container', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>'));
-
-    boot(function () {
-      appInstance.register('template:components/sally-rutherford', (0, _emberTemplateCompiler.compile)('funkytowny{{yield}}'));
-      appInstance.register('component:sally-rutherford', _emberGlimmer.Component);
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'hello world funkytowny-funkytowny!!!', 'The component is composed correctly');
-  });
-
-  QUnit.test('Late-registered components can be rendered with ONLY the template registered on the container', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>'));
-
-    boot(function () {
-      appInstance.register('template:components/borf-snorlax', (0, _emberTemplateCompiler.compile)('goodfreakingTIMES{{yield}}'));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'hello world goodfreakingTIMES-goodfreakingTIMES!!!', 'The component is composed correctly');
-  });
-
-  QUnit.test('Assigning layoutName to a component should setup the template as a layout', function () {
-    expect(1);
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    (0, _emberGlimmer.setTemplate)('foo-bar-baz', (0, _emberTemplateCompiler.compile)('{{text}}-{{yield}}'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        text: 'inner',
-        layoutName: 'foo-bar-baz'
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
-  });
-
-  QUnit.test('Assigning layoutName and layout to a component should use the `layout` value', function () {
-    expect(1);
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    (0, _emberGlimmer.setTemplate)('foo-bar-baz', (0, _emberTemplateCompiler.compile)('No way!'));
-
-    boot(function () {
-      appInstance.register('controller:application', _emberRuntime.Controller.extend({
-        'text': 'outer'
-      }));
-
-      appInstance.register('component:my-component', _emberGlimmer.Component.extend({
-        text: 'inner',
-        layoutName: 'foo-bar-baz',
-        layout: (0, _emberTemplateCompiler.compile)('{{text}}-{{yield}}')
-      }));
-    });
-
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
-  });
-
-  QUnit.test('Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]', function () {
-    expect(2);
-
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-
-    expectDeprecation(function () {
-      boot(function () {
-        appInstance.register('controller:application', _emberRuntime.Controller.extend({
-          'text': 'outer'
+        _this3.applicationInstance.register('component:expand-it', _emberGlimmer.Component.extend({
+          classNames: 'testing123'
         }));
+      });
 
-        appInstance.register('component:my-component', _emberGlimmer.Component.extend({
+      var text = this.$('div.testing123').text().trim();
+      assert.equal(text, 'hello world', 'The component is composed correctly');
+    };
+
+    _class.prototype['@test Late-registered components can be rendered with custom `layout` property'] = function testLateRegisteredComponentsCanBeRenderedWithCustomLayoutProperty(assert) {
+      var _this4 = this;
+
+      this.runTask(function () {
+        _this4.createApplication();
+
+        _this4.addTemplate('application', '<div id=\'wrapper\'>there goes {{my-hero}}</div>');
+
+        _this4.applicationInstance.register('component:my-hero', _emberGlimmer.Component.extend({
+          classNames: 'testing123',
+          layout: _this4.compile('watch him as he GOES')
+        }));
+      });
+
+      var text = this.$('#wrapper').text().trim();
+      assert.equal(text, 'there goes watch him as he GOES', 'The component is composed correctly');
+    };
+
+    _class.prototype['@test Late-registered components can be rendered with template registered on the container'] = function testLateRegisteredComponentsCanBeRenderedWithTemplateRegisteredOnTheContainer(assert) {
+      var _this5 = this;
+
+      this.runTask(function () {
+        _this5.createApplication();
+
+        _this5.addTemplate('application', '<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>');
+
+        _this5.applicationInstance.register('template:components/sally-rutherford', _this5.compile('funkytowny{{yield}}'));
+        _this5.applicationInstance.register('component:sally-rutherford', _emberGlimmer.Component);
+      });
+
+      var text = this.$('#wrapper').text().trim();
+      assert.equal(text, 'hello world funkytowny-funkytowny!!!', 'The component is composed correctly');
+    };
+
+    _class.prototype['@test Late-registered components can be rendered with ONLY the template registered on the container'] = function testLateRegisteredComponentsCanBeRenderedWithONLYTheTemplateRegisteredOnTheContainer(assert) {
+      var _this6 = this;
+
+      this.runTask(function () {
+        _this6.createApplication();
+
+        _this6.addTemplate('application', '<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>');
+
+        _this6.applicationInstance.register('template:components/borf-snorlax', _this6.compile('goodfreakingTIMES{{yield}}'));
+      });
+
+      var text = this.$('#wrapper').text().trim();
+      assert.equal(text, 'hello world goodfreakingTIMES-goodfreakingTIMES!!!', 'The component is composed correctly');
+    };
+
+    _class.prototype['@test Assigning layoutName to a component should setup the template as a layout'] = function testAssigningLayoutNameToAComponentShouldSetupTheTemplateAsALayout(assert) {
+      var _this7 = this;
+
+      assert.expect(1);
+
+      this.runTask(function () {
+        _this7.createApplication();
+
+        _this7.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+        _this7.addTemplate('foo-bar-baz', '{{text}}-{{yield}}');
+
+        _this7.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
+          text: 'outer'
+        }));
+        _this7.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
           text: 'inner',
-          defaultLayout: (0, _emberTemplateCompiler.compile)('{{text}}-{{yield}}')
+          layoutName: 'foo-bar-baz'
         }));
       });
-    }, /Specifying `defaultLayout` to .+ is deprecated\./);
 
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
-  });
+      var text = this.$('#wrapper').text().trim();
+      assert.equal(text, 'inner-outer', 'The component is composed correctly');
+    };
 
-  QUnit.test('Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]', function () {
-    expect(2);
+    _class.prototype['@test Assigning layoutName and layout to a component should use the `layout` value'] = function testAssigningLayoutNameAndLayoutToAComponentShouldUseTheLayoutValue(assert) {
+      var _this8 = this;
 
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>'));
-    (0, _emberGlimmer.setTemplate)('components/my-component', (0, _emberTemplateCompiler.compile)('{{text}}-{{yield}}'));
+      assert.expect(1);
 
-    expectDeprecation(function () {
-      boot(function () {
-        appInstance.register('controller:application', _emberRuntime.Controller.extend({
-          'text': 'outer'
+      this.runTask(function () {
+        _this8.createApplication();
+
+        _this8.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+        _this8.addTemplate('foo-bar-baz', 'No way!');
+
+        _this8.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
+          text: 'outer'
         }));
-
-        appInstance.register('component:my-component', _emberGlimmer.Component.extend({
+        _this8.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
           text: 'inner',
-          defaultLayout: (0, _emberTemplateCompiler.compile)('should not see this!')
+          layoutName: 'foo-bar-baz',
+          layout: _this8.compile('{{text}}-{{yield}}')
         }));
       });
-    }, /Specifying `defaultLayout` to .+ is deprecated\./);
 
-    equal((0, _emberViews.jQuery)('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
-  });
+      var text = this.$('#wrapper').text().trim();
+      assert.equal(text, 'inner-outer', 'The component is composed correctly');
+    };
 
-  QUnit.test('Using name of component that does not exist', function () {
-    (0, _emberGlimmer.setTemplate)('application', (0, _emberTemplateCompiler.compile)('<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>'));
+    _class.prototype['@test Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]'] = function testAssigningDefaultLayoutToAComponentShouldSetItUpAsALayoutIfNoLayoutWasFoundDEPRECATED(assert) {
+      var _this9 = this;
 
-    expectAssertion(function () {
-      return boot();
-    }, /.* named "no-good" .*/);
-  });
+      assert.expect(2);
+
+      expectDeprecation(function () {
+        _this9.runTask(function () {
+          _this9.createApplication();
+
+          _this9.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+
+          _this9.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
+            text: 'outer'
+          }));
+          _this9.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
+            text: 'inner',
+            defaultLayout: _this9.compile('{{text}}-{{yield}}')
+          }));
+        });
+      });
+
+      var text = this.$('#wrapper').text().trim();
+      assert.equal(text, 'inner-outer', 'The component is composed correctly');
+    };
+
+    _class.prototype['@test Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]'] = function testAssigningDefaultLayoutToAComponentShouldSetItUpAsALayoutIfLayoutWasFoundDEPRECATED(assert) {
+      var _this10 = this;
+
+      assert.expect(2);
+
+      expectDeprecation(function () {
+        _this10.runTask(function () {
+          _this10.createApplication();
+
+          _this10.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+          _this10.addTemplate('components/my-component', '{{text}}-{{yield}}');
+
+          _this10.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
+            text: 'outer'
+          }));
+          _this10.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
+            text: 'inner',
+            defaultLayout: _this10.compile('should not see this!')
+          }));
+        });
+      }, /Specifying `defaultLayout` to .+ is deprecated\./);
+
+      var text = this.$('#wrapper').text().trim();
+      assert.equal(text, 'inner-outer', 'The component is composed correctly');
+    };
+
+    _class.prototype['@test Using name of component that does not exist'] = function testUsingNameOfComponentThatDoesNotExist() {
+      var _this11 = this;
+
+      expectAssertion(function () {
+        _this11.runTask(function () {
+          _this11.createApplication();
+
+          _this11.addTemplate('application', '<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>');
+        });
+      }, /.* named "no-good" .*/);
+    };
+
+    return _class;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
 });
 QUnit.module('ESLint | ember/tests/component_registration_test.js');
 QUnit.test('should pass ESLint', function(assert) {
