@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+0a15e425
+ * @version   2.15.0-alpha.1-null+144b998e
  */
 
 var enifed, requireModule, Ember;
@@ -4445,7 +4445,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
     true && !(!!this._getter || !!this._setter) && emberDebug.assert('Computed properties must receive a getter or a setter, you passed none.', !!this._getter || !!this._setter);
 
-    this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
     this._volatile = false;
@@ -4711,9 +4710,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     if (hadCachedValue) {
       cache[keyName] = undefined;
-    }
-
-    if (!hadCachedValue) {
+    } else {
       addDependentKeys(this, obj, keyName, meta$$1);
     }
 
@@ -4826,17 +4823,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Ember.ComputedProperty} property descriptor instance
     @public
   */
-  function computed(func) {
-    var args = void 0;
-
-    if (arguments.length > 1) {
-      args = [].slice.call(arguments);
-      func = args.pop();
+  function computed() {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
     }
+
+    var func = args.pop();
 
     var cp = new ComputedProperty(func);
 
-    if (args) {
+    if (args.length > 0) {
       cp.property.apply(cp, args);
     }
 
