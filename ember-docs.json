@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.144b998e"
+        "version": "2.15.0-alpha.1.3b0461cb"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -10353,7 +10353,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 768,
+            "line": 764,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "_immediateObserver",
@@ -10383,7 +10383,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 807,
+            "line": 803,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",

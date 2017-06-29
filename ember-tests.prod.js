@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+144b998e
+ * @version   2.15.0-alpha.1-null+3b0461cb
  */
 
 var enifed, requireModule, Ember;
@@ -41086,6 +41086,18 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
   //
 
   QUnit.module('addObserver');
+
+  (0, _internalTestHelpers.testBoth)('observer should assert to invalid input', function () {
+    expectAssertion(function () {
+      (0, _emberMetal.observer)(function () {});
+    }, 'Ember.observer called without valid path');
+
+    expectDeprecation('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.');
+
+    expectAssertion(function () {
+      (0, _emberMetal.observer)(null);
+    }, 'Ember.observer called without a function');
+  });
 
   (0, _internalTestHelpers.testBoth)('observer should fire when property is modified', function (get, set) {
     var obj = {};

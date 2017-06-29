@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+144b998e
+ * @version   2.15.0-alpha.1-null+3b0461cb
  */
 
 var enifed, requireModule, Ember;
@@ -8271,34 +8271,38 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function observer() {
+    var _paths = void 0,
+        func = void 0;
+
     for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
       args[_key5] = arguments[_key5];
     }
 
-    var func = args[args.length - 1];
-    var paths = void 0;
-
-    var addWatchedProperty = function (path) {
-      paths.push(path);
-    };
-    var _paths = args.slice(0, -1);
-
-    if (typeof func !== 'function') {
+    if (typeof args[args.length - 1] !== 'function') {
       // revert to old, soft-deprecated argument ordering
       true && !false && emberDebug.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
 
-      func = args[0];
-      _paths = args.slice(1);
+      func = args.shift();
+      _paths = args;
+    } else {
+      func = args.pop();
+      _paths = args;
     }
 
-    paths = [];
+    true && !(typeof func === 'function') && emberDebug.assert('Ember.observer called without a function', typeof func === 'function');
+    true && !(_paths.length > 0 && _paths.every(function (p) {
+      return typeof p === 'string' && p.length;
+    })) && emberDebug.assert('Ember.observer called without valid path', _paths.length > 0 && _paths.every(function (p) {
+      return typeof p === 'string' && p.length;
+    }));
+
+    var paths = [];
+    var addWatchedProperty = function (path) {
+      return paths.push(path);
+    };
 
     for (var i = 0; i < _paths.length; ++i) {
       expandProperties(_paths[i], addWatchedProperty);
-    }
-
-    if (typeof func !== 'function') {
-      throw new emberDebug.EmberError('Ember.observer called without a function');
     }
 
     func.__ember_observes__ = paths;
