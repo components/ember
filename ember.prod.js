@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+3b0461cb
+ * @version   2.15.0-alpha.1-null+a654f5b6
  */
 
 var enifed, requireModule, Ember;
@@ -22216,11 +22216,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       target = null;
     }
 
-    meta(obj).removeFromListeners(eventName, target, method, function () {
-      if ('function' === typeof obj.didRemoveListener) {
-        obj.didRemoveListener.apply(obj, arguments);
-      }
-    });
+    var func = 'function' === typeof obj.didRemoveListener ? obj.didRemoveListener.bind(obj) : function () {};
+    meta(obj).removeFromListeners(eventName, target, method, func);
   }
 
   /**
@@ -22302,7 +22299,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     if (actions === undefined || actions.length === 0) {
-      return;
+      return false;
     }
 
     for (i = actions.length - 3; i >= 0; i -= 3) {
@@ -23009,7 +23006,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         isDescriptor;
 
     // do nothing of this object has already been destroyed
-    if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
+    if (!meta$$1 || meta$$1.isSourceDestroyed()) {
       return;
     }
 
@@ -24280,10 +24277,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       false && !(typeof obj.setUnknownProperty === 'function') && emberDebug.assert('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
 
       obj.setUnknownProperty(keyName, value);
-    } else if (currentValue === value) {
-      /* no change */
-      return value;
-    } else {
+    } else if (!(currentValue === value)) {
       meta$$1 = exports.peekMeta(obj);
 
       propertyWillChange(obj, keyName, meta$$1);
@@ -28653,7 +28647,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.suspendListener = suspendListener;
   exports.suspendListeners = suspendListeners;
   exports.watchedEvents = function (obj) {
-    return meta(obj).watchedEvents();
+    var meta$$1 = exports.peekMeta(obj);
+    return meta$$1 && meta$$1.watchedEvents() || [];
   };
   exports.isNone = isNone;
   exports.isEmpty = isEmpty;
@@ -44249,7 +44244,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+3b0461cb";
+  exports.default = "2.15.0-alpha.1-null+a654f5b6";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

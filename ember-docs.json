@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.3b0461cb"
+        "version": "2.15.0-alpha.1.a654f5b6"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -9184,7 +9184,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 66,
+            "line": 64,
             "description": "Add an event listener",
             "itemtype": "method",
             "name": "addListener",
@@ -9222,7 +9222,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 108,
+            "line": 106,
             "description": "Remove an event listener\n\nArguments should match those passed to `Ember.addListener`.",
             "itemtype": "method",
             "name": "removeListener",
@@ -9255,7 +9255,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 136,
+            "line": 132,
             "description": "Suspend listener during callback.\n\nThis should only be used by the target of the event listener\nwhen it is taking an action that would cause the event, e.g.\nan object might suspend its property change listener while it is\nsetting that property.",
             "itemtype": "method",
             "name": "suspendListener",
@@ -9293,7 +9293,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 158,
+            "line": 154,
             "description": "Suspends multiple listeners during a callback.",
             "itemtype": "method",
             "name": "suspendListeners",
@@ -9331,7 +9331,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 179,
+            "line": 175,
             "description": "Return a list of currently watched events",
             "access": "private",
             "tagname": "",
@@ -9349,7 +9349,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 191,
+            "line": 188,
             "description": "Send an event. The execution of suspended listeners\nis skipped, and once listeners are removed. A listener without\na target is executed on the passed object. If an array of actions\nis not passed, the actions stored on the passed object are invoked.",
             "itemtype": "method",
             "name": "sendEvent",
@@ -9390,7 +9390,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 243,
+            "line": 240,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -9412,7 +9412,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 257,
+            "line": 254,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -9434,7 +9434,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 280,
+            "line": 277,
             "description": "Define a property as a function that should be executed when\na specified event or events are triggered.\n\n\n``` javascript\nlet Job = Ember.Object.extend({\n  logCompleted: Ember.on('completed', function() {\n    console.log('Job completed!');\n  })\n});\n\nlet job = Job.create();\n\nEmber.sendEvent(job, 'completed'); // Logs 'Job completed!'\n ```",
             "itemtype": "method",
             "name": "on",
@@ -10158,7 +10158,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 562,
+            "line": 560,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -10771,7 +10771,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_set.js",
-            "line": 124,
+            "line": 123,
             "description": "Error-tolerant form of `Ember.set`. Will not blow up if any part of the\nchain is `undefined`, `null`, or destroyed.\n\nThis is primarily used when syncing bindings, which may try to update after\nan object has been destroyed.",
             "itemtype": "method",
             "name": "trySet",
@@ -13265,7 +13265,7 @@
         {
             "file": "packages/ember-routing/lib/system/route.js",
             "line": 1926,
-            "description": "`render` is used to render a template into a region of another template\n(indicated by an `{{outlet}}`). `render` is used both during the entry\nphase of routing (via the `renderTemplate` hook) and later in response to\nuser interaction.\n\nFor example, given the following minimal router and templates:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('photos');\n});\n\nexport default Router;\n```\n\n```handlebars\n<!-- application.hbs -->\n<div class='something-in-the-app-hbs'>\n  {{outlet \"anOutletName\"}}\n</div>\n```\n\n```handlebars\n<!-- photos.hbs -->\n<h1>Photos</h1>\n```\n\nYou can render `photos.hbs` into the `\"anOutletName\"` outlet of\n`application.hbs` by calling `render`:\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render('photos', {\n      into: 'application',\n      outlet: 'anOutletName'\n    })\n  }\n});\n```\n\n`render` additionally allows you to supply which `controller` and\n`model` objects should be loaded and associated with the rendered template.\n\n\n```app/routes/posts.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate(controller, model){\n    this.render('posts', {    // the template to render, referenced by name\n      into: 'application',    // the template to render into, referenced by name\n      outlet: 'anOutletName', // the outlet inside `options.template` to render into.\n      controller: 'someControllerName', // the controller to use for this template, referenced by name\n      model: model            // the model to set on `options.controller`.\n    })\n  }\n});\n```\n\nThe string values provided for the template name, and controller\nwill eventually pass through to the resolver for lookup. See\nEmber.Resolver for how these are mapped to JavaScript objects in your\napplication. The template to render into needs to be related to  either the\ncurrent route or one of its ancestors.\n\nNot all options need to be passed to `render`. Default values will be used\nbased on the name of the route specified in the router or the Route's\n`controllerName` and `templateName` properties.\n\nFor example:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n  this.route('post', { path: '/posts/:post_id' });\n});\n\nexport default Router;\n```\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render(); // all defaults apply\n  }\n});\n```\n\nThe name of the route, defined by the router, is `post`.\n\nThe following equivalent default options will be applied when\nthe Route calls `render`:\n\n```javascript\nthis.render('post', {  // the template name associated with 'post' Route\n  into: 'application', // the parent route to 'post' Route\n  outlet: 'main',      // {{outlet}} and {{outlet 'main'}} are synonymous,\n  controller: 'post',  // the controller associated with the 'post' Route\n})\n```\n\nBy default the controller's `model` will be the route's model, so it does not\nneed to be passed unless you wish to change which model is being used.",
+            "description": "`render` is used to render a template into a region of another template\n(indicated by an `{{outlet}}`). `render` is used both during the entry\nphase of routing (via the `renderTemplate` hook) and later in response to\nuser interaction.\n\nFor example, given the following minimal router and templates:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('photos');\n});\n\nexport default Router;\n```\n\n```handlebars\n<!-- application.hbs -->\n<div class='something-in-the-app-hbs'>\n  {{outlet \"anOutletName\"}}\n</div>\n```\n\n```handlebars\n<!-- photos.hbs -->\n<h1>Photos</h1>\n```\n\nYou can render `photos.hbs` into the `\"anOutletName\"` outlet of\n`application.hbs` by calling `render`:\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render('photos', {\n      into: 'application',\n      outlet: 'anOutletName'\n    })\n  }\n});\n```\n\n`render` additionally allows you to supply which `controller` and\n`model` objects should be loaded and associated with the rendered template.\n\n\n```app/routes/posts.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate(controller, model){\n    this.render('posts', {    // the template to render, referenced by name\n      into: 'application',    // the template to render into, referenced by name\n      outlet: 'anOutletName', // the outlet inside `options.into` to render into.\n      controller: 'someControllerName', // the controller to use for this template, referenced by name\n      model: model            // the model to set on `options.controller`.\n    })\n  }\n});\n```\n\nThe string values provided for the template name, and controller\nwill eventually pass through to the resolver for lookup. See\nEmber.Resolver for how these are mapped to JavaScript objects in your\napplication. The template to render into needs to be related to  either the\ncurrent route or one of its ancestors.\n\nNot all options need to be passed to `render`. Default values will be used\nbased on the name of the route specified in the router or the Route's\n`controllerName` and `templateName` properties.\n\nFor example:\n\n```app/router.js\n// ...\n\nRouter.map(function() {\n  this.route('index');\n  this.route('post', { path: '/posts/:post_id' });\n});\n\nexport default Router;\n```\n\n```app/routes/post.js\nimport Ember from 'ember';\n\nexport default Ember.Route.extend({\n  renderTemplate() {\n    this.render(); // all defaults apply\n  }\n});\n```\n\nThe name of the route, defined by the router, is `post`.\n\nThe following equivalent default options will be applied when\nthe Route calls `render`:\n\n```javascript\nthis.render('post', {  // the template name associated with 'post' Route\n  into: 'application', // the parent route to 'post' Route\n  outlet: 'main',      // {{outlet}} and {{outlet 'main'}} are synonymous,\n  controller: 'post',  // the controller associated with the 'post' Route\n})\n```\n\nBy default the controller's `model` will be the route's model, so it does not\nneed to be passed unless you wish to change which model is being used.",
             "itemtype": "method",
             "name": "render",
             "params": [
@@ -13288,7 +13288,7 @@
                         },
                         {
                             "name": "outlet",
-                            "description": "the outlet inside `options.template` to render into.\n                Defaults to 'main'",
+                            "description": "the outlet inside `options.into` to render into.\n                Defaults to 'main'",
                             "type": "String",
                             "optional": true
                         },

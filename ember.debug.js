@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+3b0461cb
+ * @version   2.15.0-alpha.1-null+a654f5b6
  */
 
 var enifed, requireModule, Ember;
@@ -22861,11 +22861,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       target = null;
     }
 
-    meta(obj).removeFromListeners(eventName, target, method, function () {
-      if ('function' === typeof obj.didRemoveListener) {
-        obj.didRemoveListener.apply(obj, arguments);
-      }
-    });
+    var func = 'function' === typeof obj.didRemoveListener ? obj.didRemoveListener.bind(obj) : function () {};
+    meta(obj).removeFromListeners(eventName, target, method, func);
   }
 
   /**
@@ -22920,7 +22917,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param obj
   */
   function watchedEvents(obj) {
-    return meta(obj).watchedEvents();
+    var meta$$1 = exports.peekMeta(obj);
+    return meta$$1 && meta$$1.watchedEvents() || [];
   }
 
   /**
@@ -22946,7 +22944,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     if (actions === undefined || actions.length === 0) {
-      return;
+      return false;
     }
 
     for (var i = actions.length - 3; i >= 0; i -= 3) {
@@ -23844,10 +23842,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     // ember strip this entire block out
     handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
       var descriptor = emberUtils.lookupDescriptor(obj, keyName);
-      var configurable = descriptor ? descriptor.configurable : true;
-      var isWritable = descriptor ? descriptor.writable : true;
-      var hasValue = descriptor ? 'value' in descriptor : true;
-      var possibleDesc = descriptor && descriptor.value;
+      var hasDescriptor = descriptor !== null;
+      var configurable = hasDescriptor ? descriptor.configurable : true;
+      var isWritable = hasDescriptor ? descriptor.writable : true;
+      var hasValue = hasDescriptor ? 'value' in descriptor : true;
+      var possibleDesc = hasDescriptor && descriptor.value;
       var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
       if (isDescriptor) {
@@ -23882,7 +23881,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var meta$$1 = _meta || exports.peekMeta(obj);
 
     // do nothing of this object has already been destroyed
-    if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
+    if (!meta$$1 || meta$$1.isSourceDestroyed()) {
       return;
     }
 
@@ -24858,7 +24857,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     Meta.prototype.writeValue = function (obj, key, value) {
       var descriptor = emberUtils.lookupDescriptor(obj, key);
-      var isMandatorySetter = descriptor !== undefined && descriptor !== null && descriptor.set && descriptor.set.isMandatorySetter;
+      var isMandatorySetter = descriptor !== null && descriptor.set && descriptor.set.isMandatorySetter;
 
       if (isMandatorySetter) {
         this.writeValues(key, value);
@@ -25263,9 +25262,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       true && !(typeof obj.setUnknownProperty === 'function') && emberDebug.assert('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
 
       obj.setUnknownProperty(keyName, value);
-    } else if (currentValue === value) {
-      /* no change */
-      return value;
+    } else if (currentValue === value) {/* no change */
     } else {
       var meta$$1 = exports.peekMeta(obj);
       propertyWillChange(obj, keyName, meta$$1);
@@ -47682,7 +47679,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
         (true && !(false) && (0, _emberDebug.deprecate)('Ember.MODEL_FACTORY_INJECTIONS is no longer required', false, {
           id: 'ember-metal.model_factory_injections',
           until: '2.17.0',
-          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-model-em-factory-em-injections-removed'
+          url: 'https://emberjs.com/deprecations/v2.x/#toc_id-ember-metal-model_factory_injections'
         }));
       },
 
@@ -48016,7 +48013,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+3b0461cb";
+  exports.default = "2.15.0-alpha.1-null+a654f5b6";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
