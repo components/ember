@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+a654f5b6
+ * @version   2.15.0-alpha.1-null+beea6c86
  */
 
 var enifed, requireModule, Ember;
@@ -22663,23 +22663,23 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       while (pointer !== undefined) {
         var listeners = pointer._listeners;
         if (listeners !== undefined) {
-          for (var index = 0; index < listeners.length - 3; index += 4) {
+          for (var index = 0; index < listeners.length; index += 4) {
             if (listeners[index] === eventName) {
               result = result || [];
               pushUniqueListener(result, listeners, index);
             }
           }
         }
-        if (pointer._listenersFinalized === true) {
+        if (pointer._listenersFinalized) {
           break;
         }
         pointer = pointer.parent;
       }
       var sus = this._suspendedListeners;
       if (sus !== undefined && result !== undefined) {
-        for (var susIndex = 0; susIndex < sus.length - 2; susIndex += 3) {
+        for (var susIndex = 0; susIndex < sus.length; susIndex += 3) {
           if (eventName === sus[susIndex]) {
-            for (var resultIndex = 0; resultIndex < result.length - 2; resultIndex += 3) {
+            for (var resultIndex = 0; resultIndex < result.length; resultIndex += 3) {
               if (result[resultIndex] === sus[susIndex + 1] && result[resultIndex + 1] === sus[susIndex + 2]) {
                 result[resultIndex + 2] |= SUSPENDED;
               }
@@ -22691,7 +22691,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     },
     suspendListeners: function (eventNames, target, method, callback) {
       var sus = this._suspendedListeners;
-      if (!sus) {
+      if (sus === undefined) {
         sus = this._suspendedListeners = [];
       }
       for (var i = 0; i < eventNames.length; i++) {
@@ -22717,7 +22717,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       while (pointer !== undefined) {
         var listeners = pointer._listeners;
         if (listeners !== undefined) {
-          for (var index = 0; index < listeners.length - 3; index += 4) {
+          for (var index = 0; index < listeners.length; index += 4) {
             names[listeners[index]] = true;
           }
         }
@@ -22733,7 +22733,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function pushUniqueListener(destination, source, index) {
     var target = source[index + 1];
     var method = source[index + 2];
-    for (var destinationIndex = 0; destinationIndex < destination.length - 2; destinationIndex += 3) {
+    for (var destinationIndex = 0; destinationIndex < destination.length; destinationIndex += 3) {
       if (destination[destinationIndex] === target && destination[destinationIndex + 1] === method) {
         return;
       }
@@ -24423,7 +24423,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       this._listeners = undefined;
-      this._listenersFinalized = undefined;
+      this._listenersFinalized = false;
       this._suspendedListeners = undefined;
     }
 
@@ -48013,7 +48013,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+a654f5b6";
+  exports.default = "2.15.0-alpha.1-null+beea6c86";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
