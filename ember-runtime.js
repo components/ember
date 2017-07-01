@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+16a9ede4
+ * @version   2.15.0-alpha.1-null+d807315f
  */
 
 var enifed, requireModule, Ember;
@@ -112,7 +112,7 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug) {
+enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember/features', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug, _features) {
   'use strict';
 
   exports.Container = exports.privatize = exports.Registry = undefined;
@@ -171,6 +171,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
     },
+    _resolverCacheKey: function (name, options) {
+      return this.registry.resolverCacheKey(name, options);
+    },
     factoryFor: function (fullName) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -180,20 +183,30 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
 
       if (options.source) {
-        normalizedName = this.registry.expandLocalLookup(fullName, options);
+        var expandedFullName = this.registry.expandLocalLookup(fullName, options);
         // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!normalizedName) {
-          return;
+        if (!_features.EMBER_MODULE_UNIFICATION) {
+          if (!expandedFullName) {
+            return;
+          }
+
+          normalizedName = expandedFullName;
+        } else if (expandedFullName) {
+          // with ember-module-unification, if expandLocalLookup returns something,
+          // pass it to the resolve without the source
+          normalizedName = expandedFullName;
+          options = {};
         }
       }
 
-      var cached = this.factoryManagerCache[normalizedName];
+      var cacheKey = this._resolverCacheKey(normalizedName, options);
+      var cached = this.factoryManagerCache[cacheKey];
 
       if (cached !== undefined) {
         return cached;
       }
 
-      var factory = this.registry.resolve(normalizedName);
+      var factory = _features.EMBER_MODULE_UNIFICATION ? this.registry.resolve(normalizedName, options) : this.registry.resolve(normalizedName);
 
       if (factory === undefined) {
         return;
@@ -209,7 +222,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         manager = wrapManagerInDeprecationProxy(manager);
       }
 
-      this.factoryManagerCache[normalizedName] = manager;
+      this.factoryManagerCache[cacheKey] = manager;
       return manager;
     }
   };
@@ -255,15 +268,25 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     if (options.source) {
-      fullName = container.registry.expandLocalLookup(fullName, options);
+      var expandedFullName = container.registry.expandLocalLookup(fullName, options);
 
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!fullName) {
-        return;
+      if (!_features.EMBER_MODULE_UNIFICATION) {
+        // if expandLocalLookup returns falsey, we do not support local lookup
+        if (!expandedFullName) {
+          return;
+        }
+
+        fullName = expandedFullName;
+      } else if (expandedFullName) {
+        // with ember-module-unification, if expandLocalLookup returns something,
+        // pass it to the resolve without the source
+        fullName = expandedFullName;
+        options = {};
       }
     }
 
-    var cached = container.cache[fullName];
+    var cacheKey = container._resolverCacheKey(fullName, options);
+    var cached = container.cache[cacheKey];
     if (cached !== undefined && options.singleton !== false) {
       return cached;
     }
@@ -300,16 +323,18 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }
 
   function instantiateFactory(container, fullName, options) {
-    var factoryManager = container.factoryFor(fullName);
+    var factoryManager = _features.EMBER_MODULE_UNIFICATION && options && options.source ? container.factoryFor(fullName, options) : container.factoryFor(fullName);
 
     if (factoryManager === undefined) {
       return;
     }
 
+    var cacheKey = container._resolverCacheKey(fullName, options);
+
     // SomeClass { singleton: true, instantiate: true } | { singleton: true } | { instantiate: true } | {}
     // By default majority of objects fall into this case
     if (isSingletonInstance(container, fullName, options)) {
-      return container.cache[fullName] = factoryManager.create();
+      return container.cache[cacheKey] = factoryManager.create();
     }
 
     // SomeClass { singleton: false, instantiate: true }
@@ -816,6 +841,13 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         injections = injections.concat(this.fallback.getTypeInjections(type));
       }
       return injections;
+    },
+    resolverCacheKey: function (name, options) {
+      if (!_features.EMBER_MODULE_UNIFICATION) {
+        return name;
+      }
+
+      return options && options.source ? options.source + ':' + name : name;
     }
   };
 
@@ -902,26 +934,36 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     if (options && options.source) {
       // when `source` is provided expand normalizedName
       // and source into the full normalizedName
-      normalizedName = registry.expandLocalLookup(normalizedName, options);
+      var expandedNormalizedName = registry.expandLocalLookup(normalizedName, options);
 
       // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!normalizedName) {
-        return;
+      if (!_features.EMBER_MODULE_UNIFICATION) {
+        if (!expandedNormalizedName) {
+          return;
+        }
+
+        normalizedName = expandedNormalizedName;
+      } else if (expandedNormalizedName) {
+        // with ember-module-unification, if expandLocalLookup returns something,
+        // pass it to the resolve without the source
+        normalizedName = expandedNormalizedName;
+        options = {};
       }
     }
 
-    var cached = registry._resolveCache[normalizedName];
+    var cacheKey = registry.resolverCacheKey(normalizedName, options);
+    var cached = registry._resolveCache[cacheKey];
     if (cached !== undefined) {
       return cached;
     }
-    if (registry._failCache[normalizedName]) {
+    if (registry._failCache[cacheKey]) {
       return;
     }
 
     var resolved = void 0;
 
     if (registry.resolver) {
-      resolved = registry.resolver.resolve(normalizedName);
+      resolved = registry.resolver.resolve(normalizedName, options && options.source);
     }
 
     if (resolved === undefined) {
@@ -929,9 +971,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     }
 
     if (resolved === undefined) {
-      registry._failCache[normalizedName] = true;
+      registry._failCache[cacheKey] = true;
     } else {
-      registry._resolveCache[normalizedName] = resolved;
+      registry._resolveCache[cacheKey] = resolved;
     }
 
     return resolved;

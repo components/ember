@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+16a9ede4
+ * @version   2.15.0-alpha.1-null+d807315f
  */
 
 var enifed, requireModule, Ember;
@@ -10379,7 +10379,7 @@ enifed('backburner', ['exports'], function (exports) {
 
     exports.default = Backburner;
 });
-enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment'], function (exports, _emberUtils, _emberDebug) {
+enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features', 'ember-environment'], function (exports, _emberUtils, _emberDebug, _features) {
   'use strict';
 
   exports.Container = exports.privatize = exports.Registry = undefined;
@@ -10433,28 +10433,43 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
       return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
     },
+    _resolverCacheKey: function (name, options) {
+      return this.registry.resolverCacheKey(name, options);
+    },
     factoryFor: function (fullName) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          expandedFullName;
 
       var normalizedName = this.registry.normalize(fullName);
 
       false && !this.registry.validateFullName(normalizedName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName));
 
       if (options.source) {
-        normalizedName = this.registry.expandLocalLookup(fullName, options);
+        expandedFullName = this.registry.expandLocalLookup(fullName, options);
         // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!normalizedName) {
-          return;
+
+        if (!_features.EMBER_MODULE_UNIFICATION) {
+          if (!expandedFullName) {
+            return;
+          }
+
+          normalizedName = expandedFullName;
+        } else if (expandedFullName) {
+          // with ember-module-unification, if expandLocalLookup returns something,
+          // pass it to the resolve without the source
+          normalizedName = expandedFullName;
+          options = {};
         }
       }
 
-      var cached = this.factoryManagerCache[normalizedName];
+      var cacheKey = this._resolverCacheKey(normalizedName, options);
+      var cached = this.factoryManagerCache[cacheKey];
 
       if (cached !== undefined) {
         return cached;
       }
 
-      var factory = this.registry.resolve(normalizedName);
+      var factory = _features.EMBER_MODULE_UNIFICATION ? this.registry.resolve(normalizedName, options) : this.registry.resolve(normalizedName);
 
       if (factory === undefined) {
         return;
@@ -10462,7 +10477,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
 
       var manager = new FactoryManager(this, factory, fullName, normalizedName);
 
-      this.factoryManagerCache[normalizedName] = manager;
+      this.factoryManagerCache[cacheKey] = manager;
       return manager;
     }
   };
@@ -10482,18 +10497,30 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
   }
 
   function lookup(container, fullName) {
-    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+        expandedFullName;
 
     if (options.source) {
-      fullName = container.registry.expandLocalLookup(fullName, options);
+      expandedFullName = container.registry.expandLocalLookup(fullName, options);
 
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!fullName) {
-        return;
+
+      if (!_features.EMBER_MODULE_UNIFICATION) {
+        // if expandLocalLookup returns falsey, we do not support local lookup
+        if (!expandedFullName) {
+          return;
+        }
+
+        fullName = expandedFullName;
+      } else if (expandedFullName) {
+        // with ember-module-unification, if expandLocalLookup returns something,
+        // pass it to the resolve without the source
+        fullName = expandedFullName;
+        options = {};
       }
     }
 
-    var cached = container.cache[fullName];
+    var cacheKey = container._resolverCacheKey(fullName, options);
+    var cached = container.cache[cacheKey];
     if (cached !== undefined && options.singleton !== false) {
       return cached;
     }
@@ -10530,16 +10557,18 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
   }
 
   function instantiateFactory(container, fullName, options) {
-    var factoryManager = container.factoryFor(fullName);
+    var factoryManager = _features.EMBER_MODULE_UNIFICATION && options && options.source ? container.factoryFor(fullName, options) : container.factoryFor(fullName);
 
     if (factoryManager === undefined) {
       return;
     }
 
+    var cacheKey = container._resolverCacheKey(fullName, options);
+
     // SomeClass { singleton: true, instantiate: true } | { singleton: true } | { instantiate: true } | {}
     // By default majority of objects fall into this case
     if (isSingletonInstance(container, fullName, options)) {
-      return container.cache[fullName] = factoryManager.create();
+      return container.cache[cacheKey] = factoryManager.create();
     }
 
     // SomeClass { singleton: false, instantiate: true }
@@ -11039,6 +11068,13 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
         injections = injections.concat(this.fallback.getTypeInjections(type));
       }
       return injections;
+    },
+    resolverCacheKey: function (name, options) {
+      if (!_features.EMBER_MODULE_UNIFICATION) {
+        return name;
+      }
+
+      return options && options.source ? options.source + ':' + name : name;
     }
   };
 
@@ -11111,26 +11147,38 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     if (options && options.source) {
       // when `source` is provided expand normalizedName
       // and source into the full normalizedName
-      normalizedName = registry.expandLocalLookup(normalizedName, options);
+      expandedNormalizedName = registry.expandLocalLookup(normalizedName, options);
 
       // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!normalizedName) {
-        return;
+
+      if (!_features.EMBER_MODULE_UNIFICATION) {
+        if (!expandedNormalizedName) {
+          return;
+        }
+
+        normalizedName = expandedNormalizedName;
+      } else if (expandedNormalizedName) {
+        // with ember-module-unification, if expandLocalLookup returns something,
+        // pass it to the resolve without the source
+        normalizedName = expandedNormalizedName;
+        options = {};
       }
     }
 
-    var cached = registry._resolveCache[normalizedName];
+    var cacheKey = registry.resolverCacheKey(normalizedName, options),
+        expandedNormalizedName;
+    var cached = registry._resolveCache[cacheKey];
     if (cached !== undefined) {
       return cached;
     }
-    if (registry._failCache[normalizedName]) {
+    if (registry._failCache[cacheKey]) {
       return;
     }
 
     var resolved = void 0;
 
     if (registry.resolver) {
-      resolved = registry.resolver.resolve(normalizedName);
+      resolved = registry.resolver.resolve(normalizedName, options && options.source);
     }
 
     if (resolved === undefined) {
@@ -11138,9 +11186,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember-environment
     }
 
     if (resolved === undefined) {
-      registry._failCache[normalizedName] = true;
+      registry._failCache[cacheKey] = true;
     } else {
-      registry._resolveCache[normalizedName] = resolved;
+      registry._resolveCache[cacheKey] = resolved;
     }
 
     return resolved;
@@ -17058,7 +17106,7 @@ enifed('ember-glimmer/dom', ['exports', '@glimmer/runtime', '@glimmer/node'], fu
     }
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views', '@glimmer/runtime', 'ember-glimmer/component-managers/curly', 'ember-glimmer/syntax', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'ember-glimmer/modifiers/action', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberDebug, _emberViews, _runtime, _curly, _syntax, _iterable, _references, _debugStack, _ifUnless, _action, _component, _concat, _get, _hash, _loc, _log, _mut, _readonly, _unbound, _class, _inputType, _queryParam, _eachIn, _normalizeClass, _htmlSafe, _protocolForUrl, _action2, _features) {
+enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-debug', 'ember/features', 'ember-views', '@glimmer/runtime', 'ember-glimmer/component-managers/curly', 'ember-glimmer/syntax', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'ember-glimmer/modifiers/action'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberDebug, _features, _emberViews, _runtime, _curly, _syntax, _iterable, _references, _debugStack, _ifUnless, _action, _component, _concat, _get, _hash, _loc, _log, _mut, _readonly, _unbound, _class, _inputType, _queryParam, _eachIn, _normalizeClass, _htmlSafe, _protocolForUrl, _action2) {
   'use strict';
 
   function instrumentationPayload(name) {
@@ -17114,7 +17162,8 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
             source = _ref3.source,
             owner = _ref3.owner;
 
-        var expandedName = source && owner._resolveLocalLookupName(name, source) || name;
+        var expandedName = source && _this._resolveLocalLookupName(name, source, owner) || name;
+
         var ownerGuid = (0, _emberUtils.guidFor)(owner);
 
         return ownerGuid + '|' + expandedName;
@@ -17178,6 +17227,10 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
 
       return _this;
     }
+
+    Environment.prototype._resolveLocalLookupName = function (name, source, owner) {
+      return _features.EMBER_MODULE_UNIFICATION ? source + ':' + name : owner._resolveLocalLookupName(name, source);
+    };
 
     Environment.prototype.macros = function () {
       var macros = _GlimmerEnvironment.prototype.macros.call(this);
@@ -43438,7 +43491,7 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
     return range;
   }var elMatches = exports.elMatches = typeof Element !== 'undefined' && (Element.prototype.matches || Element.prototype.matchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector || Element.prototype.webkitMatchesSelector);
 });
-enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'container'], function (exports, _emberBabel, _container) {
+enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'container', 'ember/features'], function (exports, _emberBabel, _container, _features) {
   'use strict';
 
   exports.default = function (owner, name, options) {
@@ -43461,7 +43514,38 @@ enifed('ember-views/utils/lookup-component', ['exports', 'ember-babel', 'contain
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['component:-default'], ['component:-default']);
 
+  function lookupModuleUnificationComponentPair(componentLookup, owner, name, options) {
+    var localComponent = componentLookup.componentFor(name, owner, options);
+    var localLayout = componentLookup.layoutFor(name, owner, options);
+
+    var globalComponent = componentLookup.componentFor(name, owner);
+    var globalLayout = componentLookup.layoutFor(name, owner);
+
+    var localAndUniqueComponent = !!localComponent && (!globalComponent || localComponent.class !== globalComponent.class);
+    var localAndUniqueLayout = !!localLayout && (!globalLayout || localLayout.meta.moduleName !== globalLayout.meta.moduleName);
+
+    if (localAndUniqueComponent && localAndUniqueLayout) {
+      return { layout: localLayout, component: localComponent };
+    }
+
+    if (localAndUniqueComponent && !localAndUniqueLayout) {
+      return { layout: null, component: localComponent };
+    }
+
+    var defaultComponentFactory = owner.factoryFor((0, _container.privatize)(_templateObject));
+
+    if (!localAndUniqueComponent && localAndUniqueLayout) {
+      return { layout: localLayout, component: defaultComponentFactory };
+    }
+
+    return { layout: globalLayout, component: globalComponent || globalLayout && defaultComponentFactory };
+  }
+
   function lookupComponentPair(componentLookup, owner, name, options) {
+    if (_features.EMBER_MODULE_UNIFICATION) {
+      return lookupModuleUnificationComponentPair(componentLookup, owner, name, options);
+    }
+
     var component = componentLookup.componentFor(name, owner, options);
     var layout = componentLookup.layoutFor(name, owner, options);
 
@@ -43714,8 +43798,8 @@ enifed("ember-views/views/view", [], function () {
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": true, "ember-engines-mount-params": true, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
@@ -43725,6 +43809,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     var EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-allow-backtracking-rerender"];
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
     var EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ENGINES_MOUNT_PARAMS = FEATURES["ember-engines-mount-params"];
+    var EMBER_MODULE_UNIFICATION = exports.EMBER_MODULE_UNIFICATION = FEATURES["ember-module-unification"];
     var GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = FEATURES["glimmer-custom-component-manager"];
     var MANDATORY_SETTER = exports.MANDATORY_SETTER = FEATURES["mandatory-setter"];
     var EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-detect-backtracking-rerender"];
@@ -44244,7 +44329,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+16a9ede4";
+  exports.default = "2.15.0-alpha.1-null+d807315f";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
