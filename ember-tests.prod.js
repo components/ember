@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+98cc07f7
+ * @version   2.15.0-alpha.1-null+16a9ede4
  */
 
 var enifed, requireModule, Ember;
@@ -2614,11 +2614,16 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
 
       var _this = (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
 
-      _this.createApplication();
+      _this.runTask(function () {
+        return _this.createApplication();
+      });
       _this.application.Post = _emberRuntime.Object.extend();
-      _this.visit('/');
       return _this;
     }
+
+    _class.prototype.beforeEach = function () {
+      return this.visit('/');
+    };
 
     _class.prototype['@test factories'] = function (assert) {
       var PostFactory = this.applicationInstance.factoryFor('model:post').class;
@@ -2639,12 +2644,12 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
     (0, _emberBabel.inherits)(_class2, _ApplicationTestCase);
 
     function _class2() {
-
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
-
-      _this2.visit('/');
-      return _this2;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
+
+    _class2.prototype.beforeEach = function () {
+      return this.visit('/');
+    };
 
     _class2.prototype['@test toString called on a resolver'] = function (assert) {
       this.add('model:peter', _emberRuntime.Object.extend());
@@ -5040,407 +5045,351 @@ enifed('ember-application/tests/system/reset_test', ['ember-babel', 'ember-metal
     return _class;
   }(_internalTestHelpers.AutobootApplicationTestCase));
 });
-enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing', 'ember-glimmer', 'ember-template-compiler', 'ember-views'], function (_emberRuntime, _emberMetal, _application, _applicationInstance, _engine, _emberRouting, _emberGlimmer, _emberTemplateCompiler, _emberViews) {
+enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-test-helpers', 'ember-runtime', 'ember-metal', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-routing', 'ember-glimmer', 'ember-template-compiler', 'ember-views'], function (_emberBabel, _internalTestHelpers, _emberRuntime, _emberMetal, _application, _applicationInstance, _engine, _emberRouting, _emberGlimmer, _emberTemplateCompiler, _emberViews) {
   'use strict';
-
-  var App = null;
-  var instance = null;
-  var instances = [];
-
-  function createApplication(integration) {
-    App = _application.default.extend().create({
-      autoboot: false,
-      rootElement: '#qunit-fixture',
-      LOG_TRANSITIONS: true,
-      LOG_TRANSITIONS_INTERNAL: true,
-      LOG_ACTIVE_GENERATION: true
-    });
-
-    App.Router = _emberRouting.Router.extend({
-      location: 'none'
-    });
-
-    if (integration) {
-      App.instanceInitializer({
-        name: 'auto-cleanup',
-        initialize: function (_instance) {
-          instances.push(_instance);
-        }
-      });
-    } else {
-      App.instanceInitializer({
-        name: 'auto-cleanup',
-        initialize: function (_instance) {
-          if (instance) {
-            (0, _emberMetal.run)(instance, 'destroy');
-          }
-
-          instance = _instance;
-        }
-      });
-    }
-
-    return App;
-  }
 
   function expectAsyncError() {
     _emberRuntime.RSVP.off('error');
   }
 
-  QUnit.module('Ember.Application - visit()', {
-    teardown: function () {
-      _emberRuntime.RSVP.on('error', _emberRuntime.onerrorDefault);
+  (0, _internalTestHelpers.moduleFor)('Ember.Application - visit()', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-      if (instance) {
-        (0, _emberMetal.run)(instance, 'destroy');
-        instance = null;
-      }
-
-      if (App) {
-        (0, _emberMetal.run)(App, 'destroy');
-        App = null;
-      }
+    function _class() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.apply(this, arguments));
     }
-  });
 
-  // This tests whether the application is "autobooted" by registering an
-  // instance initializer and asserting it never gets run. Since this is
-  // inherently testing that async behavior *doesn't* happen, we set a
-  // 500ms timeout to verify that when autoboot is set to false, the
-  // instance initializer that would normally get called on DOM ready
-  // does not fire.
-  QUnit.test('Applications with autoboot set to false do not autoboot', function (assert) {
+    _class.prototype.teardown = function () {
+      _emberRuntime.RSVP.on('error', _emberRuntime.onerrorDefault);
+      _ApplicationTestCase.prototype.teardown.call(this);
+    };
 
-    var appBooted = 0;
-    var instanceBooted = 0;
+    _class.prototype.createApplication = function (options) {
+      return _ApplicationTestCase.prototype.createApplication.call(this, options, _application.default.extend());
+    };
 
-    (0, _emberMetal.run)(function () {
-      createApplication();
+    _class.prototype['@test Applications with autoboot set to false do not autoboot'] = function (assert) {
+      var _this2 = this;
 
-      App.initializer({
+      var appBooted = 0;
+      var instanceBooted = 0;
+
+      this.application.initializer({
         name: 'assert-no-autoboot',
         initialize: function () {
           appBooted++;
         }
       });
 
-      App.instanceInitializer({
+      this.application.instanceInitializer({
         name: 'assert-no-autoboot',
         initialize: function () {
           instanceBooted++;
         }
       });
-    });
 
-    // Continue after 500ms
-    return function (time) {
-      return new _emberRuntime.RSVP.Promise(function (resolve) {
-        return _emberMetal.run.later(resolve, time);
+      assert.ok(!this.applicationInstance, 'precond - no instance');
+      assert.ok(appBooted === 0, 'precond - not booted');
+      assert.ok(instanceBooted === 0, 'precond - not booted');
+
+      // Continue after 500ms
+      return function (time) {
+        return new _emberRuntime.RSVP.Promise(function (resolve) {
+          return _emberMetal.run.later(resolve, time);
+        });
+      }(500).then(function () {
+        assert.ok(appBooted === 0, '500ms elapsed without app being booted');
+        assert.ok(instanceBooted === 0, '500ms elapsed without instances being booted');
+
+        return _this2.runTask(function () {
+          return _this2.application.boot();
+        });
+      }).then(function () {
+        assert.ok(appBooted === 1, 'app should boot when manually calling `app.boot()`');
+        assert.ok(instanceBooted === 0, 'no instances should be booted automatically when manually calling `app.boot()');
       });
-    }(500).then(function () {
-      assert.ok(appBooted === 0, '500ms elapsed without app being booted');
-      assert.ok(instanceBooted === 0, '500ms elapsed without instances being booted');
+    };
 
-      return (0, _emberMetal.run)(App, 'boot');
-    }).then(function () {
-      assert.ok(appBooted === 1, 'app should boot when manually calling `app.boot()`');
-      assert.ok(instanceBooted === 0, 'no instances should be booted automatically when manually calling `app.boot()');
-    });
-  });
+    _class.prototype['@test calling visit() on an app without first calling boot() should boot the app'] = function (assert) {
+      var appBooted = 0;
+      var instanceBooted = 0;
 
-  QUnit.test('calling visit() on an app without first calling boot() should boot the app', function (assert) {
-    var appBooted = 0;
-    var instanceBooted = 0;
-
-    (0, _emberMetal.run)(function () {
-      createApplication();
-
-      App.initializer({
+      this.application.initializer({
         name: 'assert-no-autoboot',
         initialize: function () {
           appBooted++;
         }
       });
 
-      App.instanceInitializer({
+      this.application.instanceInitializer({
         name: 'assert-no-autoboot',
         initialize: function () {
           instanceBooted++;
         }
       });
-    });
 
-    return (0, _emberMetal.run)(App, 'visit', '/').then(function () {
-      assert.ok(appBooted === 1, 'the app should be booted`');
-      assert.ok(instanceBooted === 1, 'an instances should be booted');
-    });
-  });
+      return this.visit('/').then(function () {
+        assert.ok(appBooted === 1, 'the app should be booted`');
+        assert.ok(instanceBooted === 1, 'an instances should be booted');
+      });
+    };
 
-  QUnit.test('calling visit() on an already booted app should not boot it again', function (assert) {
-    var appBooted = 0;
-    var instanceBooted = 0;
+    _class.prototype['@test calling visit() on an already booted app should not boot it again'] = function (assert) {
+      var _this3 = this;
 
-    (0, _emberMetal.run)(function () {
-      createApplication();
+      var appBooted = 0;
+      var instanceBooted = 0;
 
-      App.initializer({
+      this.application.initializer({
         name: 'assert-no-autoboot',
         initialize: function () {
           appBooted++;
         }
       });
 
-      App.instanceInitializer({
+      this.application.instanceInitializer({
         name: 'assert-no-autoboot',
         initialize: function () {
           instanceBooted++;
         }
       });
-    });
 
-    return (0, _emberMetal.run)(App, 'boot').then(function () {
-      assert.ok(appBooted === 1, 'the app should be booted');
-      assert.ok(instanceBooted === 0, 'no instances should be booted');
+      return this.runTask(function () {
+        return _this3.application.boot();
+      }).then(function () {
+        assert.ok(appBooted === 1, 'the app should be booted');
+        assert.ok(instanceBooted === 0, 'no instances should be booted');
 
-      return (0, _emberMetal.run)(App, 'visit', '/');
-    }).then(function () {
-      assert.ok(appBooted === 1, 'the app should not be booted again');
-      assert.ok(instanceBooted === 1, 'an instance should be booted');
+        return _this3.visit('/');
+      }).then(function () {
+        assert.ok(appBooted === 1, 'the app should not be booted again');
+        assert.ok(instanceBooted === 1, 'an instance should be booted');
 
-      return (0, _emberMetal.run)(App, 'visit', '/');
-    }).then(function () {
-      assert.ok(appBooted === 1, 'the app should not be booted again');
-      assert.ok(instanceBooted === 2, 'another instance should be booted');
-    });
-  });
+        /*
+         * Destroy the instance.
+         */
+        return _this3.runTask(function () {
+          _this3.applicationInstance.destroy();
+          _this3.applicationInstance = null;
+        });
+      }).then(function () {
+        /*
+         * Visit on the application a second time. The application should remain
+         * booted, but a new instance will be created.
+         */
+        return _this3.visit('/');
+      }).then(function () {
+        assert.ok(appBooted === 1, 'the app should not be booted again');
+        assert.ok(instanceBooted === 2, 'another instance should be booted');
+      });
+    };
 
-  QUnit.test('visit() rejects on application boot failure', function (assert) {
-    (0, _emberMetal.run)(function () {
-      createApplication();
-
-      App.initializer({
+    _class.prototype['@test visit() rejects on application boot failure'] = function (assert) {
+      this.application.initializer({
         name: 'error',
         initialize: function () {
           throw new Error('boot failure');
         }
       });
-    });
 
-    expectAsyncError();
+      expectAsyncError();
 
-    return (0, _emberMetal.run)(App, 'visit', '/').then(function () {
-      assert.ok(false, 'It should not resolve the promise');
-    }, function (error) {
-      assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
-      assert.equal(error.message, 'boot failure');
-    });
-  });
+      return this.visit('/').then(function () {
+        assert.ok(false, 'It should not resolve the promise');
+      }, function (error) {
+        assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
+        assert.equal(error.message, 'boot failure');
+      });
+    };
 
-  QUnit.test('visit() rejects on instance boot failure', function (assert) {
-    (0, _emberMetal.run)(function () {
-      createApplication();
-
-      App.instanceInitializer({
+    _class.prototype['@test visit() rejects on instance boot failure'] = function (assert) {
+      this.application.instanceInitializer({
         name: 'error',
         initialize: function () {
           throw new Error('boot failure');
         }
       });
-    });
 
-    expectAsyncError();
+      expectAsyncError();
 
-    return (0, _emberMetal.run)(App, 'visit', '/').then(function () {
-      assert.ok(false, 'It should not resolve the promise');
-    }, function (error) {
-      assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
-      assert.equal(error.message, 'boot failure');
-    });
-  });
+      return this.visit('/').then(function () {
+        assert.ok(false, 'It should not resolve the promise');
+      }, function (error) {
+        assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
+        assert.equal(error.message, 'boot failure');
+      });
+    };
 
-  QUnit.test('visit() follows redirects', function (assert) {
-    (0, _emberMetal.run)(function () {
-      createApplication();
-
-      App.Router.map(function () {
+    _class.prototype['@test visit() follows redirects'] = function (assert) {
+      this.router.map(function () {
         this.route('a');
         this.route('b', { path: '/b/:b' });
         this.route('c', { path: '/c/:c' });
       });
 
-      App.register('route:a', _emberRouting.Route.extend({
+      this.add('route:a', _emberRouting.Route.extend({
         afterModel: function () {
           this.replaceWith('b', 'zomg');
         }
       }));
 
-      App.register('route:b', _emberRouting.Route.extend({
+      this.add('route:b', _emberRouting.Route.extend({
         afterModel: function (params) {
           this.transitionTo('c', params.b);
         }
       }));
-    });
 
-    return (0, _emberMetal.run)(App, 'visit', '/a').then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.equal(instance.getURL(), '/c/zomg', 'It should follow all redirects');
-    });
-  });
+      /*
+       * First call to `visit` is `this.application.visit` and returns the
+       * applicationInstance.
+       */
+      return this.visit('/a').then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/c/zomg', 'It should follow all redirects');
+      });
+    };
 
-  QUnit.test('visit() rejects if an error occurred during a transition', function (assert) {
-    (0, _emberMetal.run)(function () {
-      createApplication();
-
-      App.Router.map(function () {
+    _class.prototype['@test visit() rejects if an error occurred during a transition'] = function (assert) {
+      this.router.map(function () {
         this.route('a');
         this.route('b', { path: '/b/:b' });
         this.route('c', { path: '/c/:c' });
       });
 
-      App.register('route:a', _emberRouting.Route.extend({
+      this.add('route:a', _emberRouting.Route.extend({
         afterModel: function () {
           this.replaceWith('b', 'zomg');
         }
       }));
 
-      App.register('route:b', _emberRouting.Route.extend({
+      this.add('route:b', _emberRouting.Route.extend({
         afterModel: function (params) {
           this.transitionTo('c', params.b);
         }
       }));
 
-      App.register('route:c', _emberRouting.Route.extend({
+      this.add('route:c', _emberRouting.Route.extend({
         afterModel: function () {
           throw new Error('transition failure');
         }
       }));
-    });
 
-    expectAsyncError();
+      expectAsyncError();
 
-    return (0, _emberMetal.run)(App, 'visit', '/a').then(function () {
-      assert.ok(false, 'It should not resolve the promise');
-    }, function (error) {
-      assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
-      assert.equal(error.message, 'transition failure');
-    });
-  });
+      return this.visit('/a').then(function () {
+        assert.ok(false, 'It should not resolve the promise');
+      }, function (error) {
+        assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
+        assert.equal(error.message, 'transition failure');
+      });
+    };
 
-  QUnit.test('visit() chain', function (assert) {
-    (0, _emberMetal.run)(function () {
-      createApplication();
-
-      App.Router.map(function () {
+    _class.prototype['@test visit() chain'] = function (assert) {
+      this.router.map(function () {
         this.route('a');
         this.route('b');
         this.route('c');
       });
-    });
 
-    return (0, _emberMetal.run)(App, 'visit', '/').then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.equal(instance.getURL(), '/');
+      return this.visit('/').then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/');
 
-      return instance.visit('/a');
-    }).then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.equal(instance.getURL(), '/a');
+        return instance.visit('/a');
+      }).then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/a');
 
-      return instance.visit('/b');
-    }).then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.equal(instance.getURL(), '/b');
+        return instance.visit('/b');
+      }).then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/b');
 
-      return instance.visit('/c');
-    }).then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.equal(instance.getURL(), '/c');
-    });
-  });
+        return instance.visit('/c');
+      }).then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/c');
+      });
+    };
 
-  QUnit.test('visit() returns a promise that resolves when the view has rendered', function (assert) {
-    (0, _emberMetal.run)(function () {
-      createApplication();
+    _class.prototype['@test visit() returns a promise that resolves when the view has rendered'] = function (assert) {
+      var _this4 = this;
 
-      App.register('template:application', (0, _emberTemplateCompiler.compile)('<h1>Hello world</h1>'));
-    });
+      this.addTemplate('application', '<h1>Hello world</h1>');
 
-    assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
 
-    return (0, _emberMetal.run)(App, 'visit', '/').then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.equal((0, _emberViews.jQuery)('#qunit-fixture > .ember-view h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
-    });
-  });
+      return this.visit('/').then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(_this4.$('.ember-view h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
+      });
+    };
 
-  QUnit.test('visit() returns a promise that resolves without rendering when shouldRender is set to false', function (assert) {
-    assert.expect(3);
+    _class.prototype['@test visit() returns a promise that resolves without rendering when shouldRender is set to false'] = function (assert) {
+      var _this5 = this;
 
-    (0, _emberMetal.run)(function () {
-      createApplication();
+      assert.expect(3);
 
-      App.register('template:application', (0, _emberTemplateCompiler.compile)('<h1>Hello world</h1>'));
-    });
+      this.addTemplate('application', '<h1>Hello world</h1>');
 
-    assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
 
-    return (0, _emberMetal.run)(App, 'visit', '/', { shouldRender: false }).then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are still no elements in the fixture element after visit');
-    });
-  });
+      return this.visit('/', { shouldRender: false }).then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.strictEqual(_this5.$().children().length, 0, 'there are still no elements in the fixture element after visit');
+      });
+    };
 
-  QUnit.test('visit() renders a template when shouldRender is set to true', function (assert) {
-    assert.expect(3);
+    _class.prototype['@test visit() renders a template when shouldRender is set to true'] = function (assert) {
+      var _this6 = this;
 
-    (0, _emberMetal.run)(function () {
-      createApplication();
+      assert.expect(3);
 
-      App.register('template:application', (0, _emberTemplateCompiler.compile)('<h1>Hello world</h1>'));
-    });
+      this.addTemplate('application', '<h1>Hello world</h1>');
 
-    assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
 
-    return (0, _emberMetal.run)(App, 'visit', '/', { shouldRender: true }).then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 1, 'there is 1 element in the fixture element after visit');
-    });
-  });
+      return this.visit('/', { shouldRender: true }).then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.strictEqual(_this6.$().children().length, 1, 'there is 1 element in the fixture element after visit');
+      });
+    };
 
-  QUnit.test('visit() returns a promise that resolves without rendering when shouldRender is set to false with Engines', function (assert) {
-    assert.expect(3);
+    _class.prototype['@test visit() returns a promise that resolves without rendering when shouldRender is set to false with Engines'] = function (assert) {
+      var _this7 = this;
 
-    (0, _emberMetal.run)(function () {
-      createApplication();
+      assert.expect(3);
 
-      App.register('template:application', (0, _emberTemplateCompiler.compile)('<h1>Hello world</h1>'));
+      this.router.map(function () {
+        this.mount('blog');
+      });
+
+      this.addTemplate('application', '<h1>Hello world</h1>');
 
       // Register engine
       var BlogEngine = _engine.default.extend();
-      App.register('engine:blog', BlogEngine);
+      this.add('engine:blog', BlogEngine);
 
       // Register engine route map
 
-      App.register('route-map:blog', function () {});
+      this.add('route-map:blog', function () {});
 
-      App.Router.map(function () {
+      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+      return this.visit('/blog', { shouldRender: false }).then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.strictEqual(_this7.$().children().length, 0, 'there are still no elements in the fixture element after visit');
+      });
+    };
+
+    _class.prototype['@test visit() on engine resolves engine component'] = function (assert) {
+      var _this8 = this;
+
+      assert.expect(2);
+
+      this.router.map(function () {
         this.mount('blog');
       });
-    });
-
-    assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-
-    return (0, _emberMetal.run)(App, 'visit', '/blog', { shouldRender: false }).then(function (instance) {
-      assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
-      assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are still no elements in the fixture element after visit');
-    });
-  });
-
-  QUnit.test('visit() on engine resolves engine component', function (assert) {
-    assert.expect(2);
-
-    (0, _emberMetal.run)(function () {
-      createApplication();
 
       // Register engine
       var BlogEngine = _engine.default.extend({
@@ -5457,29 +5406,27 @@ enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-met
           this.register('component:cache-money', _emberGlimmer.Component.extend({}));
         }
       });
-      App.register('engine:blog', BlogEngine);
+      this.add('engine:blog', BlogEngine);
 
       // Register engine route map
 
-      App.register('route-map:blog', function () {});
+      this.add('route-map:blog', function () {});
 
-      App.Router.map(function () {
+      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+
+      return this.visit('/blog', { shouldRender: true }).then(function () {
+        assert.strictEqual(_this8.$().find('p').text(), 'Dis cache money', 'Engine component is resolved');
+      });
+    };
+
+    _class.prototype['@test visit() on engine resolves engine helper'] = function (assert) {
+      var _this9 = this;
+
+      assert.expect(2);
+
+      this.router.map(function () {
         this.mount('blog');
       });
-    });
-
-    assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-
-    return (0, _emberMetal.run)(App, 'visit', '/blog', { shouldRender: true }).then(function () {
-      assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').find('p').text(), 'Dis cache money', 'Engine component is resolved');
-    });
-  });
-
-  QUnit.test('visit() on engine resolves engine helper', function (assert) {
-    assert.expect(2);
-
-    (0, _emberMetal.run)(function () {
-      createApplication();
 
       // Register engine
       var BlogEngine = _engine.default.extend({
@@ -5497,55 +5444,33 @@ enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-met
           }));
         }
       });
-      App.register('engine:blog', BlogEngine);
+      this.add('engine:blog', BlogEngine);
 
       // Register engine route map
 
-      App.register('route-map:blog', function () {});
+      this.add('route-map:blog', function () {});
 
-      App.Router.map(function () {
-        this.mount('blog');
+      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+
+      return this.visit('/blog', { shouldRender: true }).then(function () {
+        assert.strictEqual(_this9.$().text(), 'turnt up', 'Engine component is resolved');
       });
-    });
+    };
 
-    assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+    _class.prototype['@test Ember Islands-style setup'] = function (assert) {
+      var _this10 = this;
 
-    return (0, _emberMetal.run)(App, 'visit', '/blog', { shouldRender: true }).then(function () {
-      assert.strictEqual((0, _emberViews.jQuery)('#qunit-fixture').text(), 'turnt up', 'Engine component is resolved');
-    });
-  });
+      var xFooInitCalled = false;
+      var xFooDidInsertElementCalled = false;
 
-  QUnit.module('Ember.Application - visit() Integration Tests', {
-    teardown: function () {
-      if (instances) {
-        (0, _emberMetal.run)(instances, 'forEach', function (i) {
-          return i.destroy();
-        });
-        instances = [];
-      }
+      var xBarInitCalled = false;
+      var xBarDidInsertElementCalled = false;
 
-      if (App) {
-        (0, _emberMetal.run)(App, 'destroy');
-        App = null;
-      }
-    }
-  });
-
-  QUnit.test('Ember Islands-style setup', function (assert) {
-    var xFooInitCalled = false;
-    var xFooDidInsertElementCalled = false;
-
-    var xBarInitCalled = false;
-    var xBarDidInsertElementCalled = false;
-
-    (0, _emberMetal.run)(function () {
-      createApplication(true);
-
-      App.Router.map(function () {
+      this.router.map(function () {
         this.route('show', { path: '/:component_name' });
       });
 
-      App.register('route:show', _emberRouting.Route.extend({
+      this.add('route:show', _emberRouting.Route.extend({
         queryParams: {
           data: { refreshModel: true }
         },
@@ -5566,14 +5491,15 @@ enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-met
         }
       });
 
-      App.register('service:isolated-counter', Counter);
-      App.register('service:shared-counter', Counter.create(), { instantiate: false });
+      this.add('service:isolatedCounter', Counter);
+      this.add('service:sharedCounter', Counter.create());
+      this.application.registerOptions('service:sharedCounter', { instantiate: false });
 
-      App.register('template:show', (0, _emberTemplateCompiler.compile)('{{component model.componentName model=model.componentData}}'));
+      this.addTemplate('show', '{{component model.componentName model=model.componentData}}');
 
-      App.register('template:components/x-foo', (0, _emberTemplateCompiler.compile)('\n      <h1>X-Foo</h1>\n      <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n    '));
+      this.addTemplate('components/x-foo', '\n      <h1>X-Foo</h1>\n      <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n    ');
 
-      App.register('component:x-foo', _emberGlimmer.Component.extend({
+      this.add('component:x-foo', _emberGlimmer.Component.extend({
         tagName: 'x-foo',
 
         isolatedCounter: _emberRuntime.inject.service(),
@@ -5592,10 +5518,10 @@ enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-met
         }
       }));
 
-      App.register('template:components/x-bar', (0, _emberTemplateCompiler.compile)('\n      <h1>X-Bar</h1>\n      <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n    '));
+      this.addTemplate('components/x-bar', '\n      <h1>X-Bar</h1>\n      <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n    ');
 
-      App.register('component:x-bar', _emberGlimmer.Component.extend({
-        counter: _emberRuntime.inject.service('shared-counter'),
+      this.add('component:x-bar', _emberGlimmer.Component.extend({
+        counter: _emberRuntime.inject.service('sharedCounter'),
 
         actions: {
           incrementCounter: function () {
@@ -5611,48 +5537,59 @@ enifed('ember-application/tests/system/visit_test', ['ember-runtime', 'ember-met
           xBarDidInsertElementCalled = true;
         }
       }));
-    });
 
-    var $foo = (0, _emberViews.jQuery)('<div />').appendTo('#qunit-fixture');
-    var $bar = (0, _emberViews.jQuery)('<div />').appendTo('#qunit-fixture');
+      var $foo = (0, _emberViews.jQuery)('<div />').appendTo(this.$());
+      var $bar = (0, _emberViews.jQuery)('<div />').appendTo(this.$());
 
-    var data = encodeURIComponent(JSON.stringify({ name: 'Godfrey' }));
+      var data = encodeURIComponent(JSON.stringify({ name: 'Godfrey' }));
+      var instances = [];
 
-    return _emberRuntime.RSVP.all([(0, _emberMetal.run)(App, 'visit', '/x-foo?data=' + data, { rootElement: $foo[0] }), (0, _emberMetal.run)(App, 'visit', '/x-bar', { rootElement: $bar[0] })]).then(function () {
-      assert.ok(xFooInitCalled);
-      assert.ok(xFooDidInsertElementCalled);
+      return _emberRuntime.RSVP.all([this.runTask(function () {
+        return _this10.application.visit('/x-foo?data=' + data, { rootElement: $foo[0] });
+      }), this.runTask(function () {
+        return _this10.application.visit('/x-bar', { rootElement: $bar[0] });
+      })]).then(function (_instances) {
+        instances = _instances;
 
-      assert.ok(xBarInitCalled);
-      assert.ok(xBarDidInsertElementCalled);
+        assert.ok(xFooInitCalled);
+        assert.ok(xFooDidInsertElementCalled);
 
-      assert.equal($foo.find('h1').text(), 'X-Foo');
-      assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 0 times (0 times combined)!');
-      assert.ok($foo.text().indexOf('X-Bar') === -1);
+        assert.ok(xBarInitCalled);
+        assert.ok(xBarDidInsertElementCalled);
 
-      assert.equal($bar.find('h1').text(), 'X-Bar');
-      assert.equal($bar.find('button').text(), 'Join 0 others in clicking me!');
-      assert.ok($bar.text().indexOf('X-Foo') === -1);
+        assert.equal($foo.find('h1').text(), 'X-Foo');
+        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 0 times (0 times combined)!');
+        assert.ok($foo.text().indexOf('X-Bar') === -1);
 
-      (0, _emberMetal.run)(function () {
-        return $foo.find('x-foo').click();
+        assert.equal($bar.find('h1').text(), 'X-Bar');
+        assert.equal($bar.find('button').text(), 'Join 0 others in clicking me!');
+        assert.ok($bar.text().indexOf('X-Foo') === -1);
+
+        _this10.runTask(function () {
+          $foo.find('x-foo').click();
+        });
+
+        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
+        assert.equal($bar.find('button').text(), 'Join 1 others in clicking me!');
+
+        _this10.runTask(function () {
+          $bar.find('button').click();
+          $bar.find('button').click();
+        });
+
+        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
+        assert.equal($bar.find('button').text(), 'Join 3 others in clicking me!');
+      }).finally(function () {
+        _this10.runTask(function () {
+          instances.forEach(function (instance) {
+            instance.destroy();
+          });
+        });
       });
+    };
 
-      assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
-      assert.equal($bar.find('button').text(), 'Join 1 others in clicking me!');
-
-      (0, _emberMetal.run)(function () {
-        $bar.find('button').click();
-        $bar.find('button').click();
-      });
-
-      assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
-      assert.equal($bar.find('button').text(), 'Join 3 others in clicking me!');
-    });
-  });
-
-  QUnit.skip('Test setup', function () {});
-
-  QUnit.skip('iframe setup', function () {});
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 enifed('ember-application/tests/test-helpers/registry-check', ['exports'], function (exports) {
   'use strict';
@@ -76186,7 +76123,7 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
       var applicationOptions = _this.applicationOptions;
 
       _this.application = _this.runTask(function () {
-        return _emberApplication.Application.create(applicationOptions);
+        return _this.createApplication(applicationOptions);
       });
 
       _this.resolver = applicationOptions.Resolver.lastInstance;
@@ -76196,6 +76133,13 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
       }
       return _this;
     }
+
+    ApplicationTestCase.prototype.createApplication = function () {
+      var myOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var MyApplication = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _emberApplication.Application;
+
+      return MyApplication.create(myOptions);
+    };
 
     ApplicationTestCase.prototype.teardown = function () {
       (0, _run.runDestroy)(this.applicationInstance);
@@ -76215,6 +76159,7 @@ enifed('internal-test-helpers/test-cases/application', ['exports', 'ember-babel'
         return this.runTask(function () {
           return _this2.application.visit(url, options).then(function (instance) {
             _this2.applicationInstance = instance;
+            return instance;
           });
         });
       }
@@ -76304,7 +76249,7 @@ enifed('internal-test-helpers/test-cases/default-resolver-application', ['export
 
     ApplicationTestCase.prototype.createApplication = function () {
       var application = this.application = _emberApplication.Application.create(this.applicationOptions);
-      application.Router = _emberRouting.Router.extend({ location: 'none' });
+      application.Router = _emberRouting.Router.extend(this.routerOptions);
       return application;
     };
 
