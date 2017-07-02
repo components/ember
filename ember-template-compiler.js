@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+053d55f1
+ * @version   2.15.0-alpha.1-null+74bda322
  */
 
 var enifed, requireModule, Ember;
@@ -15500,7 +15500,7 @@ enifed('ember-template-compiler/plugins/transform-dot-component-invocation', ['e
           }
         },
         BlockStatement: function (node) {
-          if (isMulipartPath(node.path)) {
+          if (isMultipartPath(node.path)) {
             wrapInComponent(node, b);
           }
         }
@@ -15508,12 +15508,12 @@ enifed('ember-template-compiler/plugins/transform-dot-component-invocation', ['e
     };
   };
 
-  function isMulipartPath(path) {
+  function isMultipartPath(path) {
     return path.parts.length > 1;
   }
 
   function isInlineInvocation(path, params, hash) {
-    if (isMulipartPath(path)) {
+    if (isMultipartPath(path)) {
       if (params.length > 0 || hash.pairs.length > 0) {
         return true;
       }
@@ -17135,7 +17135,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+053d55f1";
+  exports.default = "2.15.0-alpha.1-null+74bda322";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
