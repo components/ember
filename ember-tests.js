@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+d807315f
+ * @version   2.15.0-alpha.1-null+053d55f1
  */
 
 var enifed, requireModule, Ember;
@@ -62919,6 +62919,12 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-template-compiler/index.js should pass ESLint\n\n');
 });
 
+QUnit.module('ESLint | ember-template-compiler/plugins/assert-input-helper-without-block.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/plugins/assert-input-helper-without-block.js should pass ESLint\n\n');
+});
+
 QUnit.module('ESLint | ember-template-compiler/plugins/assert-reserved-named-arguments.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -63055,6 +63061,29 @@ QUnit.module('ESLint | ember-template-compiler/system/precompile.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-template-compiler/system/precompile.js should pass ESLint\n\n');
+});
+
+enifed('ember-template-compiler/tests/plugins/assert-input-helper-without-block-test', ['ember-template-compiler/index'], function (_index) {
+  'use strict';
+
+  QUnit.module('ember-template-compiler: assert-input-helper-without-block');
+
+  QUnit.test('Using {{#input}}{{/input}} is not valid', function () {
+    expect(1);
+
+    var expectedMessage = 'The {{input}} helper cannot be used in block form. (\'baz/foo-bar\' @ L1:C0) ';
+
+    expectAssertion(function () {
+      (0, _index.compile)('{{#input value="123"}}Completely invalid{{/input}}', {
+        moduleName: 'baz/foo-bar'
+      });
+    }, expectedMessage);
+  });
+});
+QUnit.module('ESLint | ember-template-compiler/tests/plugins/assert-input-helper-without-block-test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-template-compiler/tests/plugins/assert-input-helper-without-block-test.js should pass ESLint\n\n');
 });
 
 enifed('ember-template-compiler/tests/plugins/assert-reserved-named-arguments-test', ['ember-template-compiler/index'], function (_index) {
