@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+74bda322
+ * @version   2.15.0-alpha.1-null+22324783
  */
 
 var enifed, requireModule, Ember;
@@ -22967,7 +22967,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
     if (isDescriptor) {
-      possibleDesc.teardown(obj, keyName);
+      possibleDesc.teardown(obj, keyName, meta$$1);
     }
 
     var value = void 0;
@@ -24963,13 +24963,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   /* called before property is overridden */
-  ComputedPropertyPrototype.teardown = function (obj, keyName) {
+  ComputedPropertyPrototype.teardown = function (obj, keyName, meta$$1) {
     if (this._volatile) {
       return;
     }
-    var meta$$1 = meta(obj);
     var cache = meta$$1.readableCache();
-    if (cache && cache[keyName] !== undefined) {
+    if (cache !== undefined && cache[keyName] !== undefined) {
       removeDependentKeys(this, obj, keyName, meta$$1);
       cache[keyName] = undefined;
     }
@@ -25131,9 +25130,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
     };
 
-    AliasedProperty.prototype.teardown = function (obj, keyName) {
-      var meta$$1 = meta(obj);
-      if (meta$$1.peekWatching(keyName)) {
+    AliasedProperty.prototype.teardown = function (obj, keyName, meta$$1) {
+      if (meta$$1 && meta$$1.peekWatching(keyName)) {
         removeDependentKeys(this, obj, keyName, meta$$1);
       }
     };
@@ -44329,7 +44327,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+74bda322";
+  exports.default = "2.15.0-alpha.1-null+22324783";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
