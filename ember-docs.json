@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.22324783"
+        "version": "2.15.0-alpha.1.f5af4e59"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -4439,7 +4439,7 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/promise/all.js",
-            "line": 3,
+            "line": 4,
             "description": "`RSVP.Promise.all` accepts an array of promises, and returns a new promise which\nis fulfilled with an array of fulfillment values for the passed promises, or\nrejected with the reason of the first passed promise to be rejected. It casts all\nelements of the passed iterable to promises as it runs this algorithm.\n\nExample:\n\n```javascript\nlet promise1 = RSVP.resolve(1);\nlet promise2 = RSVP.resolve(2);\nlet promise3 = RSVP.resolve(3);\nlet promises = [ promise1, promise2, promise3 ];\n\nRSVP.Promise.all(promises).then(function(array){\n  // The array here would be [ 1, 2, 3 ];\n});\n```\n\nIf any of the `promises` given to `RSVP.all` are rejected, the first promise\nthat is rejected will be given as an argument to the returned promises's\nrejection handler. For example:\n\nExample:\n\n```javascript\nlet promise1 = RSVP.resolve(1);\nlet promise2 = RSVP.reject(new Error(\"2\"));\nlet promise3 = RSVP.reject(new Error(\"3\"));\nlet promises = [ promise1, promise2, promise3 ];\n\nRSVP.Promise.all(promises).then(function(array){\n  // Code here never runs because there are rejected promises!\n}, function(error) {\n  // error.message === \"2\"\n});\n```",
             "itemtype": "method",
             "name": "all",
@@ -4539,7 +4539,7 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/all-settled.js",
-            "line": 19,
+            "line": 16,
             "description": "`RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing\na fail-fast method, it waits until all the promises have returned and\nshows you all the results. This is useful if you want to handle multiple\npromises' failure states together as a set.\n\nReturns a promise that is fulfilled when all the given promises have been\nsettled. The return promise is fulfilled with an array of the states of\nthe promises passed into the `promises` array argument.\n\nEach state object will either indicate fulfillment or rejection, and\nprovide the corresponding value or reason. The states will take one of\nthe following formats:\n\n```javascript\n{ state: 'fulfilled', value: value }\n  or\n{ state: 'rejected', reason: reason }\n```\n\nExample:\n\n```javascript\nlet promise1 = RSVP.Promise.resolve(1);\nlet promise2 = RSVP.Promise.reject(new Error('2'));\nlet promise3 = RSVP.Promise.reject(new Error('3'));\nlet promises = [ promise1, promise2, promise3 ];\n\nRSVP.allSettled(promises).then(function(array){\n  // array == [\n  //   { state: 'fulfilled', value: 1 },\n  //   { state: 'rejected', reason: Error },\n  //   { state: 'rejected', reason: Error }\n  // ]\n  // Note that for the second item, reason.message will be '2', and for the\n  // third item, reason.message will be '3'.\n}, function(error) {\n  // Not run. (This block would only be called if allSettled had failed,\n  // for instance if passed an incorrect argument type.)\n});\n```",
             "itemtype": "method",
             "name": "allSettled",
@@ -4688,7 +4688,7 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/filter.js",
-            "line": 7,
+            "line": 8,
             "description": "`RSVP.filter` is similar to JavaScript's native `filter` method, except that it\n waits for all promises to become fulfilled before running the `filterFn` on\n each item in given to `promises`. `RSVP.filter` returns a promise that will\n become fulfilled with the result of running `filterFn` on the values the\n promises become fulfilled with.\n\n For example:\n\n ```javascript\n\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.resolve(2);\n let promise3 = RSVP.resolve(3);\n\n let promises = [promise1, promise2, promise3];\n\n let filterFn = function(item){\n   return item > 1;\n };\n\n RSVP.filter(promises, filterFn).then(function(result){\n   // result is [ 2, 3 ]\n });\n ```\n\n If any of the `promises` given to `RSVP.filter` are rejected, the first promise\n that is rejected will be given as an argument to the returned promise's\n rejection handler. For example:\n\n ```javascript\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.reject(new Error('2'));\n let promise3 = RSVP.reject(new Error('3'));\n let promises = [ promise1, promise2, promise3 ];\n\n let filterFn = function(item){\n   return item > 1;\n };\n\n RSVP.filter(promises, filterFn).then(function(array){\n   // Code here never runs because there are rejected promises!\n }, function(reason) {\n   // reason.message === '2'\n });\n ```\n\n `RSVP.filter` will also wait for any promises returned from `filterFn`.\n For instance, you may want to fetch a list of users then return a subset\n of those users based on some asynchronous operation:\n\n ```javascript\n\n let alice = { name: 'alice' };\n let bob   = { name: 'bob' };\n let users = [ alice, bob ];\n\n let promises = users.map(function(user){\n   return RSVP.resolve(user);\n });\n\n let filterFn = function(user){\n   // Here, Alice has permissions to create a blog post, but Bob does not.\n   return getPrivilegesForUser(user).then(function(privs){\n     return privs.can_create_blog_post === true;\n   });\n };\n RSVP.filter(promises, filterFn).then(function(users){\n   // true, because the server told us only Alice can create a blog post.\n   users.length === 1;\n   // false, because Alice is the only user present in `users`\n   users[0] === bob;\n });\n ```",
             "itemtype": "method",
             "name": "filter",
@@ -4718,7 +4718,7 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/hash-settled.js",
-            "line": 23,
+            "line": 14,
             "description": "`RSVP.hashSettled` is similar to `RSVP.allSettled`, but takes an object\ninstead of an array for its `promises` argument.\n\nUnlike `RSVP.all` or `RSVP.hash`, which implement a fail-fast method,\nbut like `RSVP.allSettled`, `hashSettled` waits until all the\nconstituent promises have returned and then shows you all the results\nwith their states and values/reasons. This is useful if you want to\nhandle multiple promises' failure states together as a set.\n\nReturns a promise that is fulfilled when all the given promises have been\nsettled, or rejected if the passed parameters are invalid.\n\nThe returned promise is fulfilled with a hash that has the same key names as\nthe `promises` object argument. If any of the values in the object are not\npromises, they will be copied over to the fulfilled object and marked with state\n'fulfilled'.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.Promise.resolve(1),\n  yourPromise: RSVP.Promise.resolve(2),\n  theirPromise: RSVP.Promise.resolve(3),\n  notAPromise: 4\n};\n\nRSVP.hashSettled(promises).then(function(hash){\n  // hash here is an object that looks like:\n  // {\n  //   myPromise: { state: 'fulfilled', value: 1 },\n  //   yourPromise: { state: 'fulfilled', value: 2 },\n  //   theirPromise: { state: 'fulfilled', value: 3 },\n  //   notAPromise: { state: 'fulfilled', value: 4 }\n  // }\n});\n```\n\nIf any of the `promises` given to `RSVP.hash` are rejected, the state will\nbe set to 'rejected' and the reason for rejection provided.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.Promise.resolve(1),\n  rejectedPromise: RSVP.Promise.reject(new Error('rejection')),\n  anotherRejectedPromise: RSVP.Promise.reject(new Error('more rejection')),\n};\n\nRSVP.hashSettled(promises).then(function(hash){\n  // hash here is an object that looks like:\n  // {\n  //   myPromise:              { state: 'fulfilled', value: 1 },\n  //   rejectedPromise:        { state: 'rejected', reason: Error },\n  //   anotherRejectedPromise: { state: 'rejected', reason: Error },\n  // }\n  // Note that for rejectedPromise, reason.message == 'rejection',\n  // and for anotherRejectedPromise, reason.message == 'more rejection'.\n});\n```\n\nAn important note: `RSVP.hashSettled` is intended for plain JavaScript objects that\nare just a set of keys and values. `RSVP.hashSettled` will NOT preserve prototype\nchains.\n\nExample:\n\n```javascript\nfunction MyConstructor(){\n  this.example = RSVP.Promise.resolve('Example');\n}\n\nMyConstructor.prototype = {\n  protoProperty: RSVP.Promise.resolve('Proto Property')\n};\n\nlet myObject = new MyConstructor();\n\nRSVP.hashSettled(myObject).then(function(hash){\n  // protoProperty will not be present, instead you will just have an\n  // object that looks like:\n  // {\n  //   example: { state: 'fulfilled', value: 'Example' }\n  // }\n  //\n  // hash.hasOwnProperty('protoProperty'); // false\n  // 'undefined' === typeof hash.protoProperty\n});\n```",
             "itemtype": "method",
             "name": "hashSettled",
@@ -4743,7 +4743,7 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/hash.js",
-            "line": 4,
+            "line": 5,
             "description": "`RSVP.hash` is similar to `RSVP.all`, but takes an object instead of an array\nfor its `promises` argument.\n\nReturns a promise that is fulfilled when all the given promises have been\nfulfilled, or rejected if any of them become rejected. The returned promise\nis fulfilled with a hash that has the same key names as the `promises` object\nargument. If any of the values in the object are not promises, they will\nsimply be copied over to the fulfilled object.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.resolve(1),\n  yourPromise: RSVP.resolve(2),\n  theirPromise: RSVP.resolve(3),\n  notAPromise: 4\n};\n\nRSVP.hash(promises).then(function(hash){\n  // hash here is an object that looks like:\n  // {\n  //   myPromise: 1,\n  //   yourPromise: 2,\n  //   theirPromise: 3,\n  //   notAPromise: 4\n  // }\n});\n````\n\nIf any of the `promises` given to `RSVP.hash` are rejected, the first promise\nthat is rejected will be given as the reason to the rejection handler.\n\nExample:\n\n```javascript\nlet promises = {\n  myPromise: RSVP.resolve(1),\n  rejectedPromise: RSVP.reject(new Error('rejectedPromise')),\n  anotherRejectedPromise: RSVP.reject(new Error('anotherRejectedPromise')),\n};\n\nRSVP.hash(promises).then(function(hash){\n  // Code here never runs because there are rejected promises!\n}, function(reason) {\n  // reason.message === 'rejectedPromise'\n});\n```\n\nAn important note: `RSVP.hash` is intended for plain JavaScript objects that\nare just a set of keys and values. `RSVP.hash` will NOT preserve prototype\nchains.\n\nExample:\n\n```javascript\nfunction MyConstructor(){\n  this.example = RSVP.resolve('Example');\n}\n\nMyConstructor.prototype = {\n  protoProperty: RSVP.resolve('Proto Property')\n};\n\nlet myObject = new MyConstructor();\n\nRSVP.hash(myObject).then(function(hash){\n  // protoProperty will not be present, instead you will just have an\n  // object that looks like:\n  // {\n  //   example: 'Example'\n  // }\n  //\n  // hash.hasOwnProperty('protoProperty'); // false\n  // 'undefined' === typeof hash.protoProperty\n});\n```",
             "itemtype": "method",
             "name": "hash",
@@ -4768,7 +4768,7 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/map.js",
-            "line": 6,
+            "line": 8,
             "description": "`RSVP.map` is similar to JavaScript's native `map` method, except that it\n waits for all promises to become fulfilled before running the `mapFn` on\n each item in given to `promises`. `RSVP.map` returns a promise that will\n become fulfilled with the result of running `mapFn` on the values the promises\n become fulfilled with.\n\n For example:\n\n ```javascript\n\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.resolve(2);\n let promise3 = RSVP.resolve(3);\n let promises = [ promise1, promise2, promise3 ];\n\n let mapFn = function(item){\n   return item + 1;\n };\n\n RSVP.map(promises, mapFn).then(function(result){\n   // result is [ 2, 3, 4 ]\n });\n ```\n\n If any of the `promises` given to `RSVP.map` are rejected, the first promise\n that is rejected will be given as an argument to the returned promise's\n rejection handler. For example:\n\n ```javascript\n let promise1 = RSVP.resolve(1);\n let promise2 = RSVP.reject(new Error('2'));\n let promise3 = RSVP.reject(new Error('3'));\n let promises = [ promise1, promise2, promise3 ];\n\n let mapFn = function(item){\n   return item + 1;\n };\n\n RSVP.map(promises, mapFn).then(function(array){\n   // Code here never runs because there are rejected promises!\n }, function(reason) {\n   // reason.message === '2'\n });\n ```\n\n `RSVP.map` will also wait if a promise is returned from `mapFn`. For example,\n say you want to get all comments from a set of blog posts, but you need\n the blog posts first because they contain a url to those comments.\n\n ```javscript\n\n let mapFn = function(blogPost){\n   // getComments does some ajax and returns an RSVP.Promise that is fulfilled\n   // with some comments data\n   return getComments(blogPost.comments_url);\n };\n\n // getBlogPosts does some ajax and returns an RSVP.Promise that is fulfilled\n // with some blog post data\n RSVP.map(getBlogPosts(), mapFn).then(function(comments){\n   // comments is the result of asking the server for the comments\n   // of all blog posts returned from getBlogPosts()\n });\n ```",
             "itemtype": "method",
             "name": "map",
@@ -4824,36 +4824,7 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/promise.js",
-            "line": 169,
-            "description": "The primary way of interacting with a promise is through its `then` method,\nwhich registers callbacks to receive either a promise's eventual value or the\nreason why the promise cannot be fulfilled.\n\n```js\nfindUser().then(function(user){\n  // user is available\n}, function(reason){\n  // user is unavailable, and you are given the reason why\n});\n```\n\nChaining\n--------\n\nThe return value of `then` is itself a promise.  This second, 'downstream'\npromise is resolved with the return value of the first promise's fulfillment\nor rejection handler, or rejected if the handler throws an exception.\n\n```js\nfindUser().then(function (user) {\n  return user.name;\n}, function (reason) {\n  return 'default name';\n}).then(function (userName) {\n  // If `findUser` fulfilled, `userName` will be the user's name, otherwise it\n  // will be `'default name'`\n});\n\nfindUser().then(function (user) {\n  throw new Error('Found user, but still unhappy');\n}, function (reason) {\n  throw new Error('`findUser` rejected and we\\'re unhappy');\n}).then(function (value) {\n  // never reached\n}, function (reason) {\n  // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.\n  // If `findUser` rejected, `reason` will be '`findUser` rejected and we\\'re unhappy'.\n});\n```\nIf the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.\n\n```js\nfindUser().then(function (user) {\n  throw new PedagogicalException('Upstream error');\n}).then(function (value) {\n  // never reached\n}).then(function (value) {\n  // never reached\n}, function (reason) {\n  // The `PedgagocialException` is propagated all the way down to here\n});\n```\n\nAssimilation\n------------\n\nSometimes the value you want to propagate to a downstream promise can only be\nretrieved asynchronously. This can be achieved by returning a promise in the\nfulfillment or rejection handler. The downstream promise will then be pending\nuntil the returned promise is settled. This is called *assimilation*.\n\n```js\nfindUser().then(function (user) {\n  return findCommentsByAuthor(user);\n}).then(function (comments) {\n  // The user's comments are now available\n});\n```\n\nIf the assimliated promise rejects, then the downstream promise will also reject.\n\n```js\nfindUser().then(function (user) {\n  return findCommentsByAuthor(user);\n}).then(function (comments) {\n  // If `findCommentsByAuthor` fulfills, we'll have the value here\n}, function (reason) {\n  // If `findCommentsByAuthor` rejects, we'll have the reason here\n});\n```\n\nSimple Example\n--------------\n\nSynchronous Example\n\n```javascript\nlet result;\n\ntry {\n  result = findResult();\n  // success\n} catch(reason) {\n  // failure\n}\n```\n\nErrback Example\n\n```js\nfindResult(function(result, err){\n  if (err) {\n    // failure\n  } else {\n    // success\n  }\n});\n```\n\nPromise Example;\n\n```javascript\nfindResult().then(function(result){\n  // success\n}, function(reason){\n  // failure\n});\n```\n\nAdvanced Example\n--------------\n\nSynchronous Example\n\n```javascript\nlet author, books;\n\ntry {\n  author = findAuthor();\n  books  = findBooksByAuthor(author);\n  // success\n} catch(reason) {\n  // failure\n}\n```\n\nErrback Example\n\n```js\n\nfunction foundBooks(books) {\n\n}\n\nfunction failure(reason) {\n\n}\n\nfindAuthor(function(author, err){\n  if (err) {\n    failure(err);\n    // failure\n  } else {\n    try {\n      findBoooksByAuthor(author, function(books, err) {\n        if (err) {\n          failure(err);\n        } else {\n          try {\n            foundBooks(books);\n          } catch(reason) {\n            failure(reason);\n          }\n        }\n      });\n    } catch(error) {\n      failure(err);\n    }\n    // success\n  }\n});\n```\n\nPromise Example;\n\n```javascript\nfindAuthor().\n  then(findBooksByAuthor).\n  then(function(books){\n    // found books\n}).catch(function(reason){\n  // something went wrong\n});\n```",
-            "itemtype": "method",
-            "name": "then",
-            "params": [
-                {
-                    "name": "onFulfillment",
-                    "description": "",
-                    "type": "Function"
-                },
-                {
-                    "name": "onRejection",
-                    "description": "",
-                    "type": "Function"
-                },
-                {
-                    "name": "label",
-                    "description": "optional string for labeling the promise.\nUseful for tooling.",
-                    "type": "String"
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Promise"
-            },
-            "class": "RSVP.Promise"
-        },
-        {
-            "file": "node_modules/rsvp/lib/rsvp/promise.js",
-            "line": 365,
+            "line": 157,
             "description": "`catch` is simply sugar for `then(undefined, onRejection)` which makes it the same\nas the catch block of a try/catch statement.\n\n```js\nfunction findAuthor(){\n  throw new Error('couldn\\'t find that author');\n}\n\n// synchronous\ntry {\n  findAuthor();\n} catch(reason) {\n  // something went wrong\n}\n\n// async with promises\nfindAuthor().catch(function(reason){\n  // something went wrong\n});\n```",
             "itemtype": "method",
             "name": "catch",
@@ -4877,13 +4848,42 @@
         },
         {
             "file": "node_modules/rsvp/lib/rsvp/promise.js",
-            "line": 397,
+            "line": 189,
             "description": "`finally` will be invoked regardless of the promise's fate just as native\ntry/catch/finally behaves\n\nSynchronous example:\n\n```js\nfindAuthor() {\n  if (Math.random() > 0.5) {\n    throw new Error();\n  }\n  return new Author();\n}\n\ntry {\n  return findAuthor(); // succeed or fail\n} catch(error) {\n  return findOtherAuthor();\n} finally {\n  // always runs\n  // doesn't affect the return value\n}\n```\n\nAsynchronous example:\n\n```js\nfindAuthor().catch(function(reason){\n  return findOtherAuthor();\n}).finally(function(){\n  // author was either found, or not\n});\n```",
             "itemtype": "method",
             "name": "finally",
             "params": [
                 {
                     "name": "callback",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "label",
+                    "description": "optional string for labeling the promise.\nUseful for tooling.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Promise"
+            },
+            "class": "RSVP.Promise"
+        },
+        {
+            "file": "node_modules/rsvp/lib/rsvp/promise.js",
+            "line": 248,
+            "description": "The primary way of interacting with a promise is through its `then` method,\nwhich registers callbacks to receive either a promise's eventual value or the\nreason why the promise cannot be fulfilled.\n\n```js\nfindUser().then(function(user){\n  // user is available\n}, function(reason){\n  // user is unavailable, and you are given the reason why\n});\n```\n\nChaining\n--------\n\nThe return value of `then` is itself a promise.  This second, 'downstream'\npromise is resolved with the return value of the first promise's fulfillment\nor rejection handler, or rejected if the handler throws an exception.\n\n```js\nfindUser().then(function (user) {\n  return user.name;\n}, function (reason) {\n  return 'default name';\n}).then(function (userName) {\n  // If `findUser` fulfilled, `userName` will be the user's name, otherwise it\n  // will be `'default name'`\n});\n\nfindUser().then(function (user) {\n  throw new Error('Found user, but still unhappy');\n}, function (reason) {\n  throw new Error('`findUser` rejected and we\\'re unhappy');\n}).then(function (value) {\n  // never reached\n}, function (reason) {\n  // if `findUser` fulfilled, `reason` will be 'Found user, but still unhappy'.\n  // If `findUser` rejected, `reason` will be '`findUser` rejected and we\\'re unhappy'.\n});\n```\nIf the downstream promise does not specify a rejection handler, rejection reasons will be propagated further downstream.\n\n```js\nfindUser().then(function (user) {\n  throw new PedagogicalException('Upstream error');\n}).then(function (value) {\n  // never reached\n}).then(function (value) {\n  // never reached\n}, function (reason) {\n  // The `PedgagocialException` is propagated all the way down to here\n});\n```\n\nAssimilation\n------------\n\nSometimes the value you want to propagate to a downstream promise can only be\nretrieved asynchronously. This can be achieved by returning a promise in the\nfulfillment or rejection handler. The downstream promise will then be pending\nuntil the returned promise is settled. This is called *assimilation*.\n\n```js\nfindUser().then(function (user) {\n  return findCommentsByAuthor(user);\n}).then(function (comments) {\n  // The user's comments are now available\n});\n```\n\nIf the assimliated promise rejects, then the downstream promise will also reject.\n\n```js\nfindUser().then(function (user) {\n  return findCommentsByAuthor(user);\n}).then(function (comments) {\n  // If `findCommentsByAuthor` fulfills, we'll have the value here\n}, function (reason) {\n  // If `findCommentsByAuthor` rejects, we'll have the reason here\n});\n```\n\nSimple Example\n--------------\n\nSynchronous Example\n\n```javascript\nlet result;\n\ntry {\n  result = findResult();\n  // success\n} catch(reason) {\n  // failure\n}\n```\n\nErrback Example\n\n```js\nfindResult(function(result, err){\n  if (err) {\n    // failure\n  } else {\n    // success\n  }\n});\n```\n\nPromise Example;\n\n```javascript\nfindResult().then(function(result){\n  // success\n}, function(reason){\n  // failure\n});\n```\n\nAdvanced Example\n--------------\n\nSynchronous Example\n\n```javascript\nlet author, books;\n\ntry {\n  author = findAuthor();\n  books  = findBooksByAuthor(author);\n  // success\n} catch(reason) {\n  // failure\n}\n```\n\nErrback Example\n\n```js\n\nfunction foundBooks(books) {\n\n}\n\nfunction failure(reason) {\n\n}\n\nfindAuthor(function(author, err){\n  if (err) {\n    failure(err);\n    // failure\n  } else {\n    try {\n      findBoooksByAuthor(author, function(books, err) {\n        if (err) {\n          failure(err);\n        } else {\n          try {\n            foundBooks(books);\n          } catch(reason) {\n            failure(reason);\n          }\n        }\n      });\n    } catch(error) {\n      failure(err);\n    }\n    // success\n  }\n});\n```\n\nPromise Example;\n\n```javascript\nfindAuthor().\n  then(findBooksByAuthor).\n  then(function(books){\n    // found books\n}).catch(function(reason){\n  // something went wrong\n});\n```",
+            "itemtype": "method",
+            "name": "then",
+            "params": [
+                {
+                    "name": "onFulfillment",
+                    "description": "",
+                    "type": "Function"
+                },
+                {
+                    "name": "onRejection",
                     "description": "",
                     "type": "Function"
                 },
