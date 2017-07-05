@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.91f549b0"
+        "version": "2.15.0-alpha.1.bbf8bf3c"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -1865,17 +1865,6 @@
                 "Ember": 1
             }
         },
-        "packages/ember-views/lib/views/view.js": {
-            "name": "packages/ember-views/lib/views/view.js",
-            "modules": {},
-            "classes": {
-                "Ember.View": 1
-            },
-            "fors": {},
-            "namespaces": {
-                "Ember": 1
-            }
-        },
         "packages/ember-views/lib/index.js": {
             "name": "packages/ember-views/lib/index.js",
             "modules": {},
@@ -1996,7 +1985,6 @@
                 "Ember.ViewMixin": 1,
                 "Ember.EventDispatcher": 1,
                 "Ember.CoreView": 1,
-                "Ember.View": 1,
                 "Ember.Debug": 1
             },
             "fors": {
@@ -2120,8 +2108,7 @@
                 "Ember.ActionSupport": 1,
                 "Ember.ClassNamesSupport": 1,
                 "Ember.TextSupport": 1,
-                "Ember.EventDispatcher": 1,
-                "Ember.View": 1
+                "Ember.EventDispatcher": 1
             },
             "fors": {},
             "is_submodule": 1,
@@ -2130,8 +2117,8 @@
             },
             "module": "ember",
             "namespace": "",
-            "file": "packages/ember-views/lib/views/view.js",
-            "line": 6,
+            "file": "packages/ember-views/lib/system/event_dispatcher.js",
+            "line": 19,
             "description": "The internal class used to create text inputs when the `{{input}}`\nhelper is used with `type` of `checkbox`.\n\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n\n## Direct manipulation of `checked`\n\nThe `checked` attribute of an `Ember.Checkbox` object should always be set\nthrough the Ember object or by interacting with its rendered element\nrepresentation via the mouse, keyboard, or touch. Updating the value of the\ncheckbox via jQuery will result in the checked value of the object and its\nelement losing synchronization.\n\n## Layout and LayoutName properties\n\nBecause HTML `input` elements are self closing `layout` and `layoutName`\nproperties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s\nlayout section for more information."
         },
         "ember-metal": {
@@ -3866,8 +3853,7 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [
-                "Ember.Component",
-                "Ember.View"
+                "Ember.Component"
             ],
             "module": "ember",
             "submodule": "ember-views",
@@ -3955,28 +3941,6 @@
             "uses": [
                 "Ember.Evented",
                 "Ember.ActionHandler"
-            ],
-            "access": "private",
-            "tagname": ""
-        },
-        "Ember.View": {
-            "name": "Ember.View",
-            "shortname": "Ember.View",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "submodule": "ember-views",
-            "namespace": "Ember",
-            "file": "packages/ember-views/lib/views/view.js",
-            "line": 6,
-            "extends": "Ember.CoreView",
-            "deprecated": true,
-            "deprecationMessage": "See https://emberjs.com/deprecations/v1.x/#toc_ember-view",
-            "uses": [
-                "Ember.ClassNamesSupport"
             ],
             "access": "private",
             "tagname": ""

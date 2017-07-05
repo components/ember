@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+91f549b0
+ * @version   2.15.0-alpha.1-null+bbf8bf3c
  */
 
 var enifed, requireModule, Ember;
@@ -66380,12 +66380,6 @@ QUnit.module('ESLint | ember-views/views/states/pre_render.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-views/views/states/pre_render.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-views/views/view.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-views/views/view.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember/index.js');

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+91f549b0
+ * @version   2.15.0-alpha.1-null+bbf8bf3c
  */
 
 var enifed, requireModule, Ember;
@@ -47552,22 +47552,6 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 
   exports.default = Object.create(_default2.default);
 });
-/**
-@module ember
-@submodule ember-views
-*/
-
-/**
-  @class View
-  @namespace Ember
-  @extends Ember.CoreView
-  @deprecated See https://emberjs.com/deprecations/v1.x/#toc_ember-view
-  @uses Ember.ClassNamesSupport
-  @private
-*/
-enifed("ember-views/views/view", [], function () {
-  "use strict";
-});
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
@@ -48122,7 +48106,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+91f549b0";
+  exports.default = "2.15.0-alpha.1-null+bbf8bf3c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
