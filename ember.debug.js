@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+3c2cf7bb
+ * @version   2.15.0-beta.1
  */
 
 var enifed, requireModule, Ember;
@@ -10083,17 +10083,19 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       if (options.source) {
         var expandedFullName = this.registry.expandLocalLookup(fullName, options);
         // if expandLocalLookup returns falsey, we do not support local lookup
-        if (!_features.EMBER_MODULE_UNIFICATION) {
+        if (_features.EMBER_MODULE_UNIFICATION) {
+          if (expandedFullName) {
+            // with ember-module-unification, if expandLocalLookup returns something,
+            // pass it to the resolve without the source
+            normalizedName = expandedFullName;
+            options = {};
+          }
+        } else {
           if (!expandedFullName) {
             return;
           }
 
           normalizedName = expandedFullName;
-        } else if (expandedFullName) {
-          // with ember-module-unification, if expandLocalLookup returns something,
-          // pass it to the resolve without the source
-          normalizedName = expandedFullName;
-          options = {};
         }
       }
 
@@ -10104,7 +10106,12 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         return cached;
       }
 
-      var factory = _features.EMBER_MODULE_UNIFICATION ? this.registry.resolve(normalizedName, options) : this.registry.resolve(normalizedName);
+      var factory = void 0;
+      if (_features.EMBER_MODULE_UNIFICATION) {
+        factory = this.registry.resolve(normalizedName, options);
+      } else {
+        factory = this.registry.resolve(normalizedName);
+      }
 
       if (factory === undefined) {
         return;
@@ -10168,18 +10175,20 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     if (options.source) {
       var expandedFullName = container.registry.expandLocalLookup(fullName, options);
 
-      if (!_features.EMBER_MODULE_UNIFICATION) {
+      if (_features.EMBER_MODULE_UNIFICATION) {
+        if (expandedFullName) {
+          // with ember-module-unification, if expandLocalLookup returns something,
+          // pass it to the resolve without the source
+          fullName = expandedFullName;
+          options = {};
+        }
+      } else {
         // if expandLocalLookup returns falsey, we do not support local lookup
         if (!expandedFullName) {
           return;
         }
 
         fullName = expandedFullName;
-      } else if (expandedFullName) {
-        // with ember-module-unification, if expandLocalLookup returns something,
-        // pass it to the resolve without the source
-        fullName = expandedFullName;
-        options = {};
       }
     }
 
@@ -10221,7 +10230,17 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }
 
   function instantiateFactory(container, fullName, options) {
-    var factoryManager = _features.EMBER_MODULE_UNIFICATION && options && options.source ? container.factoryFor(fullName, options) : container.factoryFor(fullName);
+
+    var factoryManager = void 0;
+    if (_features.EMBER_MODULE_UNIFICATION) {
+      if (options && options.source) {
+        factoryManager = container.factoryFor(fullName, options);
+      } else {
+        factoryManager = container.factoryFor(fullName);
+      }
+    } else {
+      factoryManager = container.factoryFor(fullName);
+    }
 
     if (factoryManager === undefined) {
       return;
@@ -10741,11 +10760,11 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       return injections;
     },
     resolverCacheKey: function (name, options) {
-      if (!_features.EMBER_MODULE_UNIFICATION) {
+      if (_features.EMBER_MODULE_UNIFICATION) {
+        return options && options.source ? options.source + ':' + name : name;
+      } else {
         return name;
       }
-
-      return options && options.source ? options.source + ':' + name : name;
     }
   };
 
@@ -10834,18 +10853,20 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       // and source into the full normalizedName
       var expandedNormalizedName = registry.expandLocalLookup(normalizedName, options);
 
-      // if expandLocalLookup returns falsey, we do not support local lookup
-      if (!_features.EMBER_MODULE_UNIFICATION) {
+      if (_features.EMBER_MODULE_UNIFICATION) {
+        if (expandedNormalizedName) {
+          // with ember-module-unification, if expandLocalLookup returns something,
+          // pass it to the resolve without the source
+          normalizedName = expandedNormalizedName;
+          options = {};
+        }
+      } else {
+        // if expandLocalLookup returns falsey, we do not support local lookup
         if (!expandedNormalizedName) {
           return;
         }
 
         normalizedName = expandedNormalizedName;
-      } else if (expandedNormalizedName) {
-        // with ember-module-unification, if expandLocalLookup returns something,
-        // pass it to the resolve without the source
-        normalizedName = expandedNormalizedName;
-        options = {};
       }
     }
 
@@ -17595,7 +17616,11 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'e
     }
 
     Environment.prototype._resolveLocalLookupName = function _resolveLocalLookupName(name, source, owner) {
-      return _features.EMBER_MODULE_UNIFICATION ? source + ':' + name : owner._resolveLocalLookupName(name, source);
+      if (_features.EMBER_MODULE_UNIFICATION) {
+        return source + ':' + name;
+      } else {
+        return owner._resolveLocalLookupName(name, source);
+      }
     };
 
     Environment.prototype.macros = function macros() {
@@ -48096,7 +48121,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+3c2cf7bb";
+  exports.default = "2.15.0-beta.1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

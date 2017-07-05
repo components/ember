@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+3c2cf7bb
+ * @version   2.15.0-beta.1
  */
 
 var enifed, requireModule, Ember;
@@ -56837,9 +56837,9 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
 
   QUnit.test('throws if you try to pass anything a string as a parameter', function () {
 
-    throws(function () {
+    expectAssertion(function () {
       return _object.default.create('some-string');
-    }, 'EmberObject.create only accepts an objects.');
+    }, 'Ember.Object.create only accepts objects.');
   });
 
   QUnit.test('EmberObject.create can take undefined as a parameter', function () {
@@ -65656,7 +65656,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
 
       assert.expect(1);
 
-      assert.throws(function () {
+      expectAssertion(function () {
         _this19.runTask(function () {
           _this19.createApplication();
 
@@ -65666,7 +65666,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
 
           _this19.addTemplate('application', '{{#link-to id=\'the-link\'}}Index{{/link-to}}');
         });
-      }, /(You must provide one or more parameters to the link-to component.|undefined is not an object)/);
+      }, /You must provide one or more parameters to the link-to component/);
     };
 
     return _class2;
