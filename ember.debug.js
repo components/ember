@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-beta.3-null+23e22027
+ * @version   2.14.0-beta.3-null+c525a7ef
  */
 
 var enifed, requireModule, Ember;
@@ -17514,7 +17514,7 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'e
           if (pathType === 'string') {
             innerReference = this.innerReference = (0, _reference.referenceFromParts)(this.sourceReference, path.split('.'));
           } else if (pathType === 'number') {
-            innerReference = this.innerReference = this.sourceReference.get(path);
+            innerReference = this.innerReference = this.sourceReference.get('' + path);
           }
 
           innerTag.update(innerReference.tag);
@@ -17593,20 +17593,82 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-babel', 'ember-debu
   }(_references.CachedReference);
 
   /**
+    The `if` helper allows you to conditionally render one of two branches,
+    depending on the "truthiness" of a property.
+    For example the following values are all falsey: `false`, `undefined`, `null`, `""`, `0`, `NaN` or an empty array.
+  
+    This helper has two forms, block and inline.
+  
+    ## Block form
+  
+    You can use the block form of `if` to conditionally render a section of the template.
+  
+    To use it, pass the conditional value to the `if` helper,
+    using the block form to wrap the section of template you want to conditionally render.
+    Like so:
+  
+    ```handlebars
+    {{! will not render if foo is falsey}}
+    {{#if foo}}
+      Welcome to the {{foo.bar}}
+    {{/if}}
+    ```
+  
+    You can also specify a template to show if the property is falsey by using
+    the `else` helper.
+  
+    ```handlebars
+    {{! is it raining outside?}}
+    {{#if isRaining}}
+      Yes, grab an umbrella!
+    {{else}}
+      No, it's lovely outside!
+    {{/if}}
+    ```
+  
+    You are also able to combine `else` and `if` helpers to create more complex
+    conditional logic.
+  
+    ```handlebars
+    {{#if isMorning}}
+      Good morning
+    {{else if isAfternoon}}
+      Good afternoon
+    {{else}}
+      Good night
+    {{/if}}
+    ```
+  
+    ## Inline form
+  
     The inline `if` helper conditionally renders a single property or string.
-    This helper acts like a ternary operator. If the first property is truthy,
-    the second argument will be displayed, otherwise, the third argument will be
-    displayed
+  
+    In this form, the `if` helper receives three arguments, the conditional value,
+    the value to render when truthy, and the value to render when falsey.
+  
+    For example, if `useLongGreeting` is truthy, the following:
   
     ```handlebars
     {{if useLongGreeting "Hello" "Hi"}} Alex
     ```
   
-    You can use the `if` helper inside another helper as a subexpression.
+    Will render:
+  
+    ```html
+    Hello Alex
+    ```
+  
+    ### Nested `if`
+  
+    You can use the `if` helper inside another helper as a nested helper:
   
     ```handlebars
     {{some-component height=(if isBig "100" "10")}}
     ```
+  
+    One detail to keep in mind is that both branches of the `if` helper will be evaluated,
+    so if you have `{{if condition "foo" (expensive-operation "bar")`,
+    `expensive-operation` will always calculate.
   
     @method if
     @for Ember.Templates.helpers
@@ -32154,7 +32216,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       the server that is required to enter a route.
        @method beforeModel
       @param {Transition} transition
-      @return {Promise} if the value returned from this hook is
+      @return {any | Promise<any>} if the value returned from this hook is
         a promise, the transition will pause until the transition
         resolves. Otherwise, non-promise return values are not
         utilized in any way.
@@ -32187,7 +32249,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       @param {Object} resolvedModel the value returned from `model`,
         or its resolved value if it was a promise
       @param {Transition} transition
-      @return {Promise} if the value returned from this hook is
+      @return {any | Promise<any>} if the value returned from this hook is
         a promise, the transition will pause until the transition
         resolves. Otherwise, non-promise return values are not
         utilized in any way.
@@ -43687,7 +43749,7 @@ enifed('ember-testing/helpers/click', ['exports', 'ember-testing/events'], funct
     @method click
     @param {String} selector jQuery selector for finding element on the DOM
     @param {Object} context A DOM Element, Document, or jQuery to use as context
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function click(app, selector, context) {
@@ -43819,7 +43881,7 @@ enifed('ember-testing/helpers/fill_in', ['exports', 'ember-testing/events'], fun
     @param {String} selector jQuery selector finding an input element on the DOM
     to fill text with
     @param {String} text text to place inside the input element
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function fillIn(app, selector, contextOrText, text) {
@@ -43944,7 +44006,7 @@ enifed('ember-testing/helpers/key_event', ['exports'], function (exports) {
     @param {String} selector jQuery selector for finding element on the DOM
     @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
     @param {Number} keyCode the keyCode of the simulated key event
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @since 1.5.0
     @public
   */
@@ -44035,7 +44097,7 @@ enifed('ember-testing/helpers/trigger_event', ['exports', 'ember-testing/events'
                              argument to find only within the context's children
    @param {String} type The event type to be triggered.
    @param {Object} [options] The options to be passed to jQuery.Event.
-   @return {RSVP.Promise}
+   @return {RSVP.Promise<undefined>}
    @since 1.5.0
    @public
   */
@@ -44104,7 +44166,7 @@ enifed('ember-testing/helpers/visit', ['exports', 'ember-metal'], function (expo
   
     @method visit
     @param {String} url the name of the route
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<undefined>}
     @public
   */
   function visit(app, url) {
@@ -44162,7 +44224,7 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
   
     @method wait
     @param {Object} value The value to be returned.
-    @return {RSVP.Promise}
+    @return {RSVP.Promise<any>} Promise that resolves to the passed value.
     @public
     @since 1.0.0
   */
@@ -46173,7 +46235,7 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
   exports.default = _emberMetal.Mixin.create(_emberRuntime.TargetActionSupport, {
     value: '',
 
-    attributeBindings: ['autocapitalize', 'autocorrect', 'autofocus', 'disabled', 'form', 'maxlength', 'placeholder', 'readonly', 'required', 'selectionDirection', 'spellcheck', 'tabindex', 'title'],
+    attributeBindings: ['autocapitalize', 'autocorrect', 'autofocus', 'disabled', 'form', 'maxlength', 'minlength', 'placeholder', 'readonly', 'required', 'selectionDirection', 'spellcheck', 'tabindex', 'title'],
     placeholder: null,
     disabled: false,
     maxlength: null,
@@ -46628,7 +46690,7 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-babel', 'ember-util
 
       (true && !(false) && (0, _emberDebug.deprecate)('`eventManager` has been deprecated in ' + this + '.', false, {
         id: 'ember-views.event-dispatcher.canDispatchToEventManager',
-        until: '2.16.0'
+        until: '2.17.0'
       }));
 
 
@@ -46807,7 +46869,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
       (true && !(_emberEnvironment.environment.hasDOM) && (0, _emberDebug.assert)('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', _emberEnvironment.environment.hasDOM));
       (true && !(!('canDispatchToEventManager' in this)) && (0, _emberDebug.deprecate)('`canDispatchToEventManager` has been deprecated in ' + this + '.', !('canDispatchToEventManager' in this), {
         id: 'ember-views.event-dispatcher.canDispatchToEventManager',
-        until: '2.16.0'
+        until: '2.17.0'
       }));
     },
 
@@ -48098,7 +48160,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-beta.3-null+23e22027";
+  exports.default = "2.14.0-beta.3-null+c525a7ef";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
