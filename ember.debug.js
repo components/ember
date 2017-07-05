@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-alpha.1-null+bbf8bf3c
+ * @version   2.16.0-alpha.1-null+6ccb0954
  */
 
 var enifed, requireModule, Ember;
@@ -13464,6 +13464,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @public
     @static
     @method registerDeprecationHandler
+    @for Ember.Debug
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
@@ -14127,6 +14128,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
        @public
       @static
       @method registerWarnHandler
+      @for Ember.Debug
       @param handler {Function} A function to handle warnings.
       @since 2.1.0
     */
@@ -39942,16 +39944,6 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal', 'ember-
     hasRegistration: registryAlias('has'),
 
     /**
-     Register an option for a particular factory.
-      @public
-     @method registerOption
-     @param {String} fullName
-     @param {String} optionName
-     @param {Object} options
-     */
-    registerOption: registryAlias('option'),
-
-    /**
      Return a specific registered option for a particular factory.
       @public
      @method registeredOption
@@ -48106,7 +48098,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-alpha.1-null+bbf8bf3c";
+  exports.default = "2.16.0-alpha.1-null+6ccb0954";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

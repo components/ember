@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.bbf8bf3c"
+        "version": "2.16.0-alpha.1.6ccb0954"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -289,6 +289,7 @@
             },
             "classes": {},
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "namespaces": {}
@@ -329,6 +330,7 @@
             "modules": {},
             "classes": {},
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "namespaces": {}
@@ -1915,6 +1917,7 @@
                 "Ember": 1,
                 "Ember.Engine": 1,
                 "Ember.DefaultResolver": 1,
+                "Ember.Debug": 1,
                 "Ember.Error": 1,
                 "Ember.FEATURES": 1,
                 "Ember.ContainerDebugAdapter": 1,
@@ -1984,11 +1987,11 @@
                 "Ember.TextSupport": 1,
                 "Ember.ViewMixin": 1,
                 "Ember.EventDispatcher": 1,
-                "Ember.CoreView": 1,
-                "Ember.Debug": 1
+                "Ember.CoreView": 1
             },
             "fors": {
                 "Ember": 1,
+                "Ember.Debug": 1,
                 "Ember.FEATURES": 1,
                 "Ember.Templates.helpers": 1,
                 "Ember.String": 1,
@@ -2007,8 +2010,8 @@
                 "Ember.Test": 1
             },
             "tag": "module",
-            "file": "packages/ember/lib/index.js",
-            "line": 52
+            "file": "packages/ember-views/lib/views/core_view.js",
+            "line": 10
         },
         "ember-application": {
             "name": "ember-application",
@@ -2038,16 +2041,19 @@
             "name": "ember-debug",
             "submodules": {},
             "elements": {},
-            "classes": {},
+            "classes": {
+                "Ember.Debug": 1
+            },
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "is_submodule": 1,
             "namespaces": {},
             "module": "ember",
             "namespace": "",
-            "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 11
+            "file": "packages/ember/lib/index.js",
+            "line": 52
         },
         "ember-extension-support": {
             "name": "ember-extension-support",
@@ -2505,6 +2511,22 @@
             "line": 35,
             "description": "The DefaultResolver defines the default lookup rules to resolve\ncontainer lookups before consulting the container for registered\nitems:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after converting\n  the name. For example, `controller:post` looks up\n  `App.PostController` by default.\n* there are some nuances (see examples below)\n\n### How Resolving Works\n\nThe container calls this object's `resolve` method with the\n`fullName` argument.\n\nIt first parses the fullName into an object using `parseName`.\n\nThen it checks for the presence of a type-specific instance\nmethod of the form `resolve[Type]` and calls it if it exists.\nFor example if it was resolving 'template:post', it would call\nthe `resolveTemplate` method.\n\nIts last resort is to call the `resolveOther` method.\n\nThe methods of this object are designed to be easy to override\nin a subclass. For example, you could enhance how a template\nis resolved like so:\n\n```javascript\nApp = Ember.Application.create({\n  Resolver: Ember.DefaultResolver.extend({\n    resolveTemplate: function(parsedName) {\n      let resolvedTemplate = this._super(parsedName);\n      if (resolvedTemplate) { return resolvedTemplate; }\n      return Ember.TEMPLATES['not_found'];\n    }\n  })\n});\n```\n\nSome examples of how names are resolved:\n\n```\n'template:post'           //=> Ember.TEMPLATES['post']\n'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:blogPost'       //=> Ember.TEMPLATES['blogPost']\n                          //   OR\n                          //   Ember.TEMPLATES['blog_post']\n'controller:post'         //=> App.PostController\n'controller:posts.index'  //=> App.PostsIndexController\n'controller:blog/post'    //=> Blog.PostController\n'controller:basic'        //=> Ember.Controller\n'route:post'              //=> App.PostRoute\n'route:posts.index'       //=> App.PostsIndexRoute\n'route:blog/post'         //=> Blog.PostRoute\n'route:basic'             //=> Ember.Route\n'view:post'               //=> App.PostView\n'view:posts.index'        //=> App.PostsIndexView\n'view:blog/post'          //=> Blog.PostView\n'view:basic'              //=> Ember.View\n'foo:post'                //=> App.PostFoo\n'model:post'              //=> App.Post\n```",
             "extends": "Ember.Object",
+            "access": "public",
+            "tagname": ""
+        },
+        "Ember.Debug": {
+            "name": "Ember.Debug",
+            "shortname": "Ember.Debug",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "submodule": "ember-debug",
+            "namespace": "",
+            "file": "packages/ember/lib/index.js",
+            "line": 52,
             "access": "public",
             "tagname": ""
         },
@@ -3943,21 +3965,6 @@
                 "Ember.ActionHandler"
             ],
             "access": "private",
-            "tagname": ""
-        },
-        "Ember.Debug": {
-            "name": "Ember.Debug",
-            "shortname": "Ember.Debug",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "namespace": "",
-            "file": "packages/ember/lib/index.js",
-            "line": 52,
-            "access": "public",
             "tagname": ""
         }
     },
@@ -6833,13 +6840,13 @@
                 }
             ],
             "since": "2.1.0",
-            "class": "Ember",
+            "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 135,
+            "line": 136,
             "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only).\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "deprecate",
@@ -7052,13 +7059,13 @@
                 }
             ],
             "since": "2.1.0",
-            "class": "Ember",
+            "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 61,
+            "line": 62,
             "description": "Display a warning with the provided message.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "warn",
@@ -17719,35 +17726,6 @@
         {
             "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
             "line": 122,
-            "description": "Register an option for a particular factory.",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "registerOption",
-            "params": [
-                {
-                    "name": "fullName",
-                    "description": "",
-                    "type": "String"
-                },
-                {
-                    "name": "optionName",
-                    "description": "",
-                    "type": "String"
-                },
-                {
-                    "name": "options",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "class": "RegistryProxyMixin",
-            "module": "ember",
-            "submodule": "ember-runtime"
-        },
-        {
-            "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
-            "line": 133,
             "description": "Return a specific registered option for a particular factory.",
             "access": "public",
             "tagname": "",
@@ -17775,7 +17753,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
-            "line": 144,
+            "line": 133,
             "description": "Register options for a particular factory.",
             "access": "public",
             "tagname": "",
@@ -17799,7 +17777,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
-            "line": 154,
+            "line": 143,
             "description": "Return registered options for a particular factory.",
             "access": "public",
             "tagname": "",
@@ -17822,7 +17800,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
-            "line": 164,
+            "line": 153,
             "description": "Allow registering options for all factories of a type.\n\n```javascript\nlet App = Ember.Application.create();\nlet appInstance = App.buildInstance();\n\n// if all of type `connection` must not be singletons\nappInstance.registerOptionsForType('connection', { singleton: false });\n\nappInstance.register('connection:twitter', TwitterConnection);\nappInstance.register('connection:facebook', FacebookConnection);\n\nlet twitter = appInstance.lookup('connection:twitter');\nlet twitter2 = appInstance.lookup('connection:twitter');\n\ntwitter === twitter2; // => false\n\nlet facebook = appInstance.lookup('connection:facebook');\nlet facebook2 = appInstance.lookup('connection:facebook');\n\nfacebook === facebook2; // => false\n```",
             "access": "public",
             "tagname": "",
@@ -17846,7 +17824,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
-            "line": 195,
+            "line": 184,
             "description": "Return the registered options for all factories of a type.",
             "access": "public",
             "tagname": "",
@@ -17869,7 +17847,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/registry_proxy.js",
-            "line": 205,
+            "line": 194,
             "description": "Define a dependency injection onto a specific factory or all factories\nof a type.\n\nWhen Ember instantiates a controller, view, or other framework component\nit can attach a dependency to that component. This is often used to\nprovide services to a set of framework components.\n\nAn example of providing a session object to all controllers:\n\n```javascript\nlet App = Ember.Application.create();\nlet Session = Ember.Object.extend({ isAuthenticated: false });\n\n// A factory must be registered before it can be injected\nApp.register('session:main', Session);\n\n// Inject 'session:main' onto all factories of the type 'controller'\n// with the name 'session'\nApp.inject('controller', 'session', 'session:main');\n\nApp.IndexController = Ember.Controller.extend({\n  isLoggedIn: Ember.computed.alias('session.isAuthenticated')\n});\n```\n\nInjections can also be performed on specific factories.\n\n```javascript\nApp.inject(<full_name or type>, <property name>, <full_name>)\nApp.inject('route', 'source', 'source:main')\nApp.inject('route:application', 'email', 'model:email')\n```\n\nIt is important to note that injections can only be performed on\nclasses that are instantiated by Ember itself. Instantiating a class\ndirectly (via `create` or `new`) bypasses the dependency injection\nsystem.",
             "access": "public",
             "tagname": "",
