@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.3-release+02b4995f
+ * @version   2.13.4
  */
 
 var enifed, requireModule, Ember;
@@ -3229,7 +3229,14 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
       var _ret = (function () {
         var validator = {
           get: function (obj, prop) {
-            if (prop !== 'class' && prop !== 'create') {
+            if (typeof prop === 'symbol') {
+              return obj[prop];
+            }
+            if (prop === 'inspect') {
+              return undefined; /* for nodes formatter */
+            }
+
+            if (prop !== 'class' && prop !== 'create' && prop !== 'toString') {
               throw new Error('You attempted to access "' + prop + '" on a factory manager created by container#factoryFor. "' + prop + '" is not a member of a factory manager."');
             }
 
@@ -12814,63 +12821,6 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-debug', 'ember-glim
   exports.inlineIf = inlineIf;
   exports.inlineUnless = inlineUnless;
 
-  /**
-    Use the `if` block helper to conditionally render a block depending on a
-    property. If the property is "falsey", for example: `false`, `undefined`,
-    `null`, `""`, `0`, `NaN` or an empty array, the block will not be rendered.
-  
-    ```handlebars
-    {{! will not render if foo is falsey}}
-    {{#if foo}}
-      Welcome to the {{foo.bar}}
-    {{/if}}
-    ```
-  
-    You can also specify a template to show if the property is falsey by using
-    the `else` helper.
-  
-    ```handlebars
-    {{! is it raining outside?}}
-    {{#if isRaining}}
-      Yes, grab an umbrella!
-    {{else}}
-      No, it's lovely outside!
-    {{/if}}
-    ```
-  
-    You are also able to combine `else` and `if` helpers to create more complex
-    conditional logic.
-  
-    ```handlebars
-    {{#if isMorning}}
-      Good morning
-    {{else if isAfternoon}}
-      Good afternoon
-    {{else}}
-      Good night
-    {{/if}}
-    ```
-  
-    You can use `if` inline to conditionally render a single property or string.
-    This helper acts like a ternary operator. If the first property is truthy,
-    the second argument will be displayed, if not, the third argument will be
-    displayed
-  
-    ```handlebars
-    {{if useLongGreeting "Hello" "Hi"}} Dave
-    ```
-  
-    Finally, you can use the `if` helper inside another helper as a subexpression.
-  
-    ```handlebars
-    {{some-component height=(if isBig "100" "10")}}
-    ```
-  
-    @method if
-    @for Ember.Templates.helpers
-    @public
-  */
-
   var ConditionalHelperReference = (function (_CachedReference) {
     babelHelpers.inherits(ConditionalHelperReference, _CachedReference);
 
@@ -12900,20 +12850,82 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-debug', 'ember-glim
     }
 
     /**
+      The `if` helper allows you to conditionally render one of two branches,
+      depending on the "truthiness" of a property.
+      For example the following values are all falsey: `false`, `undefined`, `null`, `""`, `0`, `NaN` or an empty array.
+    
+      This helper has two forms, block and inline.
+    
+      ## Block form
+    
+      You can use the block form of `if` to conditionally render a section of the template.
+    
+      To use it, pass the conditional value to the `if` helper,
+      using the block form to wrap the section of template you want to conditionally render.
+      Like so:
+    
+      ```handlebars
+      {{! will not render if foo is falsey}}
+      {{#if foo}}
+        Welcome to the {{foo.bar}}
+      {{/if}}
+      ```
+    
+      You can also specify a template to show if the property is falsey by using
+      the `else` helper.
+    
+      ```handlebars
+      {{! is it raining outside?}}
+      {{#if isRaining}}
+        Yes, grab an umbrella!
+      {{else}}
+        No, it's lovely outside!
+      {{/if}}
+      ```
+    
+      You are also able to combine `else` and `if` helpers to create more complex
+      conditional logic.
+    
+      ```handlebars
+      {{#if isMorning}}
+        Good morning
+      {{else if isAfternoon}}
+        Good afternoon
+      {{else}}
+        Good night
+      {{/if}}
+      ```
+    
+      ## Inline form
+    
       The inline `if` helper conditionally renders a single property or string.
-      This helper acts like a ternary operator. If the first property is truthy,
-      the second argument will be displayed, otherwise, the third argument will be
-      displayed
+    
+      In this form, the `if` helper receives three arguments, the conditional value,
+      the value to render when truthy, and the value to render when falsey.
+    
+      For example, if `useLongGreeting` is truthy, the following:
     
       ```handlebars
       {{if useLongGreeting "Hello" "Hi"}} Alex
       ```
     
-      You can use the `if` helper inside another helper as a subexpression.
+      Will render:
+    
+      ```html
+      Hello Alex
+      ```
+    
+      ### Nested `if`
+    
+      You can use the `if` helper inside another helper as a nested helper:
     
       ```handlebars
       {{some-component height=(if isBig "100" "10")}}
       ```
+    
+      One detail to keep in mind is that both branches of the `if` helper will be evaluated,
+      so if you have `{{if condition "foo" (expensive-operation "bar")`,
+      `expensive-operation` will always calculate.
     
       @method if
       @for Ember.Templates.helpers
@@ -35717,7 +35729,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
 
     /**
       Returns `true` if the passed function returns true for any item in the
-      enumeration. This corresponds with the `some()` method in JavaScript 1.6.
+      enumeration.
        The callback method you provide should have the following signature (all
       parameters are optional):
        ```javascript
@@ -35726,7 +35738,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
        - `item` is the current item in the iteration.
       - `index` is the current index in the iteration.
       - `enumerable` is the enumerable object itself.
-       It should return the `true` to include the item in the results, `false`
+       It should return `true` to include the item in the results, `false`
       otherwise.
        Note that in addition to a callback, you can also pass an optional target
       object that will be set as `this` on the context. This is a good way
@@ -45583,7 +45595,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'ember-utils',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.3-release+02b4995f";
+  exports.default = "2.13.4";
 });
 enifed('internal-test-helpers/apply-mixins', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';

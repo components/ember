@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.13.3-release+02b4995f
+ * @version   2.13.4
  */
 
 var enifed, requireModule, Ember;
@@ -1609,7 +1609,14 @@ enifed('container/container', ['exports', 'ember-debug', 'ember-utils', 'ember-e
       var _ret = (function () {
         var validator = {
           get: function (obj, prop) {
-            if (prop !== 'class' && prop !== 'create') {
+            if (typeof prop === 'symbol') {
+              return obj[prop];
+            }
+            if (prop === 'inspect') {
+              return undefined; /* for nodes formatter */
+            }
+
+            if (prop !== 'class' && prop !== 'create' && prop !== 'toString') {
               throw new Error('You attempted to access "' + prop + '" on a factory manager created by container#factoryFor. "' + prop + '" is not a member of a factory manager."');
             }
 
@@ -15184,7 +15191,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
 
     /**
       Returns `true` if the passed function returns true for any item in the
-      enumeration. This corresponds with the `some()` method in JavaScript 1.6.
+      enumeration.
        The callback method you provide should have the following signature (all
       parameters are optional):
        ```javascript
@@ -15193,7 +15200,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
        - `item` is the current item in the iteration.
       - `index` is the current index in the iteration.
       - `enumerable` is the enumerable object itself.
-       It should return the `true` to include the item in the results, `false`
+       It should return `true` to include the item in the results, `false`
       otherwise.
        Note that in addition to a callback, you can also pass an optional target
       object that will be set as `this` on the context. This is a good way
@@ -19943,7 +19950,7 @@ enifed("ember/features", ["exports"], function (exports) {
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.13.3-release+02b4995f";
+  exports.default = "2.13.4";
 });
 enifed('rsvp', ['exports'], function (exports) {
   'use strict';
