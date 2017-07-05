@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-alpha.1.f5af4e59"
+        "version": "2.15.0-alpha.1.91f549b0"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -8391,6 +8391,8 @@
             },
             "access": "public",
             "tagname": "",
+            "deprecated": true,
+            "deprecationMessage": "Use a component instead",
             "class": "Ember.Templates.helpers",
             "module": "ember",
             "submodule": "ember-glimmer"
@@ -20887,12 +20889,13 @@
             },
             "access": "public",
             "tagname": "",
+            "deprecated": true,
             "class": "Ember",
             "module": "ember"
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 420,
+            "line": 421,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -20904,7 +20907,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 436,
+            "line": 437,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -20916,7 +20919,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 502,
+            "line": 503,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -20928,7 +20931,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 522,
+            "line": 523,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -20940,7 +20943,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 535,
+            "line": 536,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
