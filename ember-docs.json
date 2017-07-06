@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.e32073b7"
+        "version": "2.16.0-alpha.1.050bbc82"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -3197,7 +3197,7 @@
             "namespace": "",
             "file": "packages/ember-routing/lib/services/routing.js",
             "line": 15,
-            "description": "The Routing service is used by LinkComponent, and provides facilities for\nthe component/view layer to interact with the router.\n\nWhile still private, this service can eventually be opened up, and provides\nthe set of API needed for components to control routing without interacting\nwith router internals.",
+            "description": "The Routing service is used by LinkComponent, and provides facilities for\nthe component/view layer to interact with the router.\n\nThis is a private service for internal usage only. For public usage,\nrefer to the `Router` service.",
             "access": "private",
             "tagname": ""
         },
