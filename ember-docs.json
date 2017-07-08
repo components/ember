@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.17a96bc4"
+        "version": "2.16.0-alpha.1.eda83335"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -9157,7 +9157,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 64,
+            "line": 28,
             "description": "Add an event listener",
             "itemtype": "method",
             "name": "addListener",
@@ -9195,7 +9195,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 106,
+            "line": 70,
             "description": "Remove an event listener\n\nArguments should match those passed to `Ember.addListener`.",
             "itemtype": "method",
             "name": "removeListener",
@@ -9228,7 +9228,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 132,
+            "line": 96,
             "description": "Suspend listener during callback.\n\nThis should only be used by the target of the event listener\nwhen it is taking an action that would cause the event, e.g.\nan object might suspend its property change listener while it is\nsetting that property.",
             "itemtype": "method",
             "name": "suspendListener",
@@ -9266,7 +9266,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 154,
+            "line": 118,
             "description": "Suspends multiple listeners during a callback.",
             "itemtype": "method",
             "name": "suspendListeners",
@@ -9304,7 +9304,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 175,
+            "line": 139,
             "description": "Return a list of currently watched events",
             "access": "private",
             "tagname": "",
@@ -9322,7 +9322,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 188,
+            "line": 152,
             "description": "Send an event. The execution of suspended listeners\nis skipped, and once listeners are removed. A listener without\na target is executed on the passed object. If an array of actions\nis not passed, the actions stored on the passed object are invoked.",
             "itemtype": "method",
             "name": "sendEvent",
@@ -9363,7 +9363,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 240,
+            "line": 204,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -9385,7 +9385,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 254,
+            "line": 218,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -9407,7 +9407,7 @@
         },
         {
             "file": "packages/ember-metal/lib/events.js",
-            "line": 277,
+            "line": 241,
             "description": "Define a property as a function that should be executed when\na specified event or events are triggered.\n\n\n``` javascript\nlet Job = Ember.Object.extend({\n  logCompleted: Ember.on('completed', function() {\n    console.log('Job completed!');\n  })\n});\n\nlet job = Job.create();\n\nEmber.sendEvent(job, 'completed'); // Logs 'Job completed!'\n ```",
             "itemtype": "method",
             "name": "on",
@@ -10550,7 +10550,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 29,
+            "line": 28,
             "description": "This function is called just before an object property is about to change.\nIt will notify any before observers and prepare caches among other things.\n\nNormally you will not need to call this method directly but if for some\nreason you can't directly watch a property you can invoke this method\nmanually along with `Ember.propertyDidChange()` which you should call just\nafter the property value changes.",
             "itemtype": "method",
             "name": "propertyWillChange",
@@ -10577,7 +10577,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 67,
+            "line": 66,
             "description": "This function is called just after an object property has changed.\nIt will notify any observers and clear caches among other things.\n\nNormally you will not need to call this method directly but if for some\nreason you can't directly watch a property you can invoke this method\nmanually along with `Ember.propertyWillChange()` which you should call just\nbefore the property value changes.",
             "itemtype": "method",
             "name": "propertyDidChange",
@@ -10609,7 +10609,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 209,
+            "line": 208,
             "itemtype": "method",
             "name": "beginPropertyChanges",
             "chainable": 1,
@@ -10620,7 +10620,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 218,
+            "line": 217,
             "itemtype": "method",
             "name": "endPropertyChanges",
             "access": "private",
@@ -10630,7 +10630,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 230,
+            "line": 229,
             "description": "Make a series of property changes together in an\nexception-safe way.\n\n```javascript\nEmber.changeProperties(function() {\n  obj1.set('foo', mayBlowUpWhenSet);\n  obj2.set('bar', baz);\n});\n```",
             "itemtype": "method",
             "name": "changeProperties",
@@ -20794,7 +20794,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 152,
+            "line": 151,
             "description": "The context that Ember searches for namespace instances on.",
             "access": "private",
             "tagname": "",
@@ -20803,7 +20803,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 202,
+            "line": 201,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -20821,7 +20821,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 229,
+            "line": 228,
             "description": "An empty function useful for some operations. Always returns `this`.",
             "itemtype": "method",
             "name": "K",
@@ -20837,7 +20837,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 421,
+            "line": 420,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -20849,7 +20849,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 437,
+            "line": 436,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -20861,7 +20861,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 503,
+            "line": 502,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -20873,7 +20873,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 523,
+            "line": 522,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -20885,7 +20885,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 536,
+            "line": 535,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
@@ -21090,7 +21090,7 @@
         },
         {
             "message": "Missing item type\nThe context that Ember searches for namespace instances on.",
-            "line": " packages/ember/lib/index.js:152"
+            "line": " packages/ember/lib/index.js:151"
         }
     ]
 }

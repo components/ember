@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+17a96bc4
+ * @version   2.16.0-alpha.1-null+eda83335
  */
 
 var enifed, requireModule, Ember;
@@ -1600,46 +1600,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
   */
 
-  function indexOf(array, target, method) {
-    var index = -1;
-    // hashes are added to the end of the event array
-    // so it makes sense to start searching at the end
-    // of the array and search in reverse
-    for (var i = array.length - 3; i >= 0; i -= 3) {
-      if (target === array[i] && method === array[i + 1]) {
-        index = i;
-        break;
-      }
-    }
-    return index;
-  }
-
-  function accumulateListeners(obj, eventName, otherActions) {
-    var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1) {
-      return;
-    }
-    var actions = meta$$1.matchingListeners(eventName);
-    if (actions === undefined) {
-      return;
-    }
-    var newActions = [];
-
-    for (var i = actions.length - 3; i >= 0; i -= 3) {
-      var target = actions[i];
-      var method = actions[i + 1];
-      var flags = actions[i + 2];
-      var actionIndex = indexOf(otherActions, target, method);
-
-      if (actionIndex === -1) {
-        otherActions.push(target, method, flags);
-        newActions.push(target, method, flags);
-      }
-    }
-
-    return newActions;
-  }
-
   /**
     Add an event listener
   
@@ -2375,6 +2335,42 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
+  function indexOf(array, target, method) {
+    var index = -1;
+    // hashes are added to the end of the event array
+    // so it makes sense to start searching at the end
+    // of the array and search in reverse
+    for (var i = array.length - 3; i >= 0; i -= 3) {
+      if (target === array[i] && method === array[i + 1]) {
+        index = i;
+        break;
+      }
+    }
+    return index;
+  }
+
+  function accumulateListeners(obj, eventName, otherActions, meta$$1) {
+    var actions = meta$$1.matchingListeners(eventName);
+    if (actions === undefined) {
+      return;
+    }
+    var newActions = [];
+
+    for (var i = actions.length - 3; i >= 0; i -= 3) {
+      var target = actions[i];
+      var method = actions[i + 1];
+      var flags = actions[i + 2];
+      var actionIndex = indexOf(otherActions, target, method);
+
+      if (actionIndex === -1) {
+        otherActions.push(target, method, flags);
+        newActions.push(target, method, flags);
+      }
+    }
+
+    return newActions;
+  }
+
   function notifyBeforeObservers(obj, keyName, meta$$1) {
     if (meta$$1.isSourceDestroying()) {
       return;
@@ -2385,7 +2381,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         added = void 0;
     if (deferred) {
       listeners = beforeObserverSet.add(obj, keyName, eventName);
-      added = accumulateListeners(obj, eventName, listeners);
+      added = accumulateListeners(obj, eventName, listeners, meta$$1);
       sendEvent(obj, eventName, [obj, keyName], added);
     } else {
       sendEvent(obj, eventName, [obj, keyName]);
@@ -2401,7 +2397,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var listeners = void 0;
     if (deferred) {
       listeners = observerSet.add(obj, keyName, eventName);
-      accumulateListeners(obj, eventName, listeners);
+      accumulateListeners(obj, eventName, listeners, meta$$1);
     } else {
       sendEvent(obj, eventName, [obj, keyName]);
     }
@@ -8577,7 +8573,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.set = set;
   exports.trySet = trySet;
   exports.WeakMap = WeakMap$1;
-  exports.accumulateListeners = accumulateListeners;
   exports.addListener = addListener;
   exports.hasListeners = hasListeners;
   exports.listenersFor = listenersFor;
