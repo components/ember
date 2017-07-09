@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+eda83335
+ * @version   2.16.0-alpha.1-null+054b149a
  */
 
 var enifed, requireModule, Ember;
@@ -12273,7 +12273,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
 
       var parent = (0, _engineParent.getEngineParent)(this);
 
-      var registrations = ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'];
+      var registrations = ['route:basic', 'service:-routing', 'service:-glimmer-environment'];
 
       registrations.forEach(function (key) {
         return _this2.register(key, parent.resolveRegistration(key));
@@ -12282,7 +12282,7 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
       var env = parent.lookup('-environment:main');
       this.register('-environment:main', env, { instantiate: false });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document'];
+      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document', 'event_dispatcher:main'];
 
       singletons.forEach(function (key) {
         return _this2.register(key, parent.lookup(key), { instantiate: false });
@@ -48092,7 +48092,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+eda83335";
+  exports.default = "2.16.0-alpha.1-null+054b149a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
