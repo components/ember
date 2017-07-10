@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+bab0485d
+ * @version   2.16.0-alpha.1-null+765e0333
  */
 
 var enifed, requireModule, Ember;
@@ -1910,7 +1910,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     if (propertyKey === 'content' && meta$$1.isProxy()) {
-      meta$$1.getTag().contentDidChange();
+      objectTag.contentDidChange();
     }
 
     if (objectTag !== undefined || propertyTag !== undefined) {
@@ -1918,14 +1918,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  var run = void 0;
+  var backburner = void 0;
   function ensureRunloop() {
-    if (run === undefined) {
-      run = require('ember-metal').run;
+    if (backburner === undefined) {
+      backburner = require('ember-metal').run.backburner;
     }
 
     if (hasViews()) {
-      run.backburner.ensureInstance();
+      backburner.ensureInstance();
     }
   }
 
@@ -3262,14 +3262,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     Meta.prototype.isInitialized = function isInitialized(obj) {
       return this.proto !== obj;
-    };
-
-    Meta.prototype.setTag = function setTag(tag) {
-      this._tag = tag;
-    };
-
-    Meta.prototype.getTag = function getTag(tag) {
-      return this._tag;
     };
 
     Meta.prototype.destroy = function destroy() {
@@ -5655,11 +5647,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function onBegin(current) {
-    run$1.currentRunLoop = current;
+    run.currentRunLoop = current;
   }
 
   function onEnd(current, next) {
-    run$1.currentRunLoop = next;
+    run.currentRunLoop = next;
   }
 
   var onErrorTarget = {
@@ -5671,7 +5663,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   };
 
-  var backburner = new Backburner(['sync', 'actions', 'destroy'], {
+  var backburner$1 = new Backburner(['sync', 'actions', 'destroy'], {
     GUID_KEY: emberUtils.GUID_KEY,
     sync: {
       before: beginPropertyChanges,
@@ -5716,8 +5708,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} return value from invoking the passed function.
     @public
   */
-  function run$1() {
-    return backburner.run.apply(backburner, arguments);
+  function run() {
+    return backburner$1.run.apply(backburner$1, arguments);
   }
 
   /**
@@ -5758,8 +5750,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     when called within an existing loop, no return value is possible.
     @public
   */
-  run$1.join = function () {
-    return backburner.join.apply(backburner, arguments);
+  run.join = function () {
+    return backburner$1.join.apply(backburner$1, arguments);
   };
 
   /**
@@ -5812,7 +5804,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @since 1.4.0
     @public
   */
-  run$1.bind = function () {
+  run.bind = function () {
     for (var _len = arguments.length, curried = Array(_len), _key = 0; _key < _len; _key++) {
       curried[_key] = arguments[_key];
     }
@@ -5822,13 +5814,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         args[_key2] = arguments[_key2];
       }
 
-      return run$1.join.apply(run$1, curried.concat(args));
+      return run.join.apply(run, curried.concat(args));
     };
   };
 
-  run$1.backburner = backburner;
-  run$1.currentRunLoop = null;
-  run$1.queues = backburner.queueNames;
+  run.backburner = backburner$1;
+  run.currentRunLoop = null;
+  run.queues = backburner$1.queueNames;
 
   /**
     Begins a new RunLoop. Any deferred actions invoked after the begin will
@@ -5845,8 +5837,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {void}
     @public
   */
-  run$1.begin = function () {
-    backburner.begin();
+  run.begin = function () {
+    backburner$1.begin();
   };
 
   /**
@@ -5864,8 +5856,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {void}
     @public
   */
-  run$1.end = function () {
-    backburner.end();
+  run.end = function () {
+    backburner$1.end();
   };
 
   /**
@@ -5918,20 +5910,20 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.schedule = function () /* queue, target, method */{
-    true && !(run$1.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
+  run.schedule = function () /* queue, target, method */{
+    true && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
 
-    return backburner.schedule.apply(backburner, arguments);
+    return backburner$1.schedule.apply(backburner$1, arguments);
   };
 
   // Used by global test teardown
-  run$1.hasScheduledTimers = function () {
-    return backburner.hasTimers();
+  run.hasScheduledTimers = function () {
+    return backburner$1.hasTimers();
   };
 
   // Used by global test teardown
-  run$1.cancelTimers = function () {
-    backburner.cancelTimers();
+  run.cancelTimers = function () {
+    backburner$1.cancelTimers();
   };
 
   /**
@@ -5951,9 +5943,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {void}
     @private
   */
-  run$1.sync = function () {
-    if (backburner.currentInstance) {
-      backburner.currentInstance.queues.sync.flush();
+  run.sync = function () {
+    if (backburner$1.currentInstance) {
+      backburner$1.currentInstance.queues.sync.flush();
     }
   };
 
@@ -5983,8 +5975,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.later = function () /*target, method*/{
-    return backburner.later.apply(backburner, arguments);
+  run.later = function () /*target, method*/{
+    return backburner$1.later.apply(backburner$1, arguments);
   };
 
   /**
@@ -6000,15 +5992,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.once = function () {
-    true && !(run$1.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
+  run.once = function () {
+    true && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
 
     for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
     }
 
     args.unshift('actions');
-    return backburner.scheduleOnce.apply(backburner, args);
+    return backburner$1.scheduleOnce.apply(backburner$1, args);
   };
 
   /**
@@ -6063,10 +6055,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.scheduleOnce = function () /*queue, target, method*/{
-    true && !(run$1.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
+  run.scheduleOnce = function () /*queue, target, method*/{
+    true && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
 
-    return backburner.scheduleOnce.apply(backburner, arguments);
+    return backburner$1.scheduleOnce.apply(backburner$1, arguments);
   };
 
   /**
@@ -6132,13 +6124,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.next = function () {
+  run.next = function () {
     for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
       args[_key4] = arguments[_key4];
     }
 
     args.push(1);
-    return backburner.later.apply(backburner, args);
+    return backburner$1.later.apply(backburner$1, args);
   };
 
   /**
@@ -6196,8 +6188,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Boolean} true if canceled or false/undefined if it wasn't found
     @public
   */
-  run$1.cancel = function (timer) {
-    return backburner.cancel(timer);
+  run.cancel = function (timer) {
+    return backburner$1.cancel(timer);
   };
 
   /**
@@ -6269,8 +6261,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.debounce = function () {
-    return backburner.debounce.apply(backburner, arguments);
+  run.debounce = function () {
+    return backburner$1.debounce.apply(backburner$1, arguments);
   };
 
   /**
@@ -6312,8 +6304,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.throttle = function () {
-    return backburner.throttle.apply(backburner, arguments);
+  run.throttle = function () {
+    return backburner$1.throttle.apply(backburner$1, arguments);
   };
 
   /**
@@ -6326,9 +6318,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {String} after the name of the queue to add after.
     @private
   */
-  run$1._addQueue = function (name, after) {
-    if (run$1.queues.indexOf(name) === -1) {
-      run$1.queues.splice(run$1.queues.indexOf(after) + 1, 0, name);
+  run._addQueue = function (name, after) {
+    if (run.queues.indexOf(name) === -1) {
+      run.queues.splice(run.queues.indexOf(after) + 1, 0, name);
     }
   };
 
@@ -7278,7 +7270,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       // If we haven't scheduled the binding yet, schedule it.
       if (existingDir === undefined) {
-        run$1.schedule('sync', this, '_sync');
+        run.schedule('sync', this, '_sync');
         this._direction = dir;
       }
 
@@ -8586,7 +8578,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.isEmpty = isEmpty;
   exports.isBlank = isBlank;
   exports.isPresent = isPresent;
-  exports.run = run$1;
+  exports.run = run;
   exports.ObserverSet = ObserverSet;
   exports.beginPropertyChanges = beginPropertyChanges;
   exports.changeProperties = changeProperties;
