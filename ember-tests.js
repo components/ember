@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+765e0333
+ * @version   2.16.0-alpha.1-null+0a42565f
  */
 
 var enifed, requireModule, Ember;
@@ -62529,6 +62529,13 @@ enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-environment'
     deepEqual((0, _string.capitalize)('private-docs/owner-invoice'), 'Private-docs/Owner-invoice');
     if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
       deepEqual('private-docs/owner-invoice'.capitalize(), 'Private-docs/Owner-invoice');
+    }
+  });
+
+  QUnit.test('capitalize string with accent character', function () {
+    deepEqual((0, _string.capitalize)('šabc'), 'Šabc');
+    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+      deepEqual('šabc'.capitalize(), 'Šabc');
     }
   });
 });

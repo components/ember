@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+765e0333
+ * @version   2.16.0-alpha.1-null+0a42565f
  */
 
 var enifed, requireModule, Ember;
@@ -40811,7 +40811,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     return str.replace(STRING_UNDERSCORE_REGEXP_1, '$1_$2').replace(STRING_UNDERSCORE_REGEXP_2, '_').toLowerCase();
   });
 
-  var STRING_CAPITALIZE_REGEXP = /(^|\/)([a-z])/g;
+  var STRING_CAPITALIZE_REGEXP = /(^|\/)([a-z\u00C0-\u024F])/g;
 
   var CAPITALIZE_CACHE = new _emberMetal.Cache(1000, function (str) {
     return str.replace(STRING_CAPITALIZE_REGEXP, function (match) {
@@ -44292,7 +44292,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+765e0333";
+  exports.default = "2.16.0-alpha.1-null+0a42565f";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
