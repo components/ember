@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+da1de485
+ * @version   2.16.0-alpha.1-null+470ce3e3
  */
 
 var enifed, requireModule, Ember;
@@ -25054,12 +25054,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return DefaultStore;
   }();
 
-  var IS_GLOBAL = /^[A-Z$]/;
   var IS_GLOBAL_PATH = /^[A-Z$].*[\.]/;
 
-  var isGlobalCache = new Cache(1000, function (key) {
-    return IS_GLOBAL.test(key);
-  });
   var isGlobalPathCache = new Cache(1000, function (key) {
     return IS_GLOBAL_PATH.test(key);
   });
@@ -25069,18 +25065,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   var firstKeyCache = new Cache(1000, function (path) {
     var index = firstDotIndexCache.get(path);
-    if (index === -1) {
-      return path;
-    } else {
-      return path.slice(0, index);
-    }
+    return index === -1 ? path : path.slice(0, index);
   });
 
   var tailPathCache = new Cache(1000, function (path) {
     var index = firstDotIndexCache.get(path);
-    if (index !== -1) {
-      return path.slice(index + 1);
-    }
+    return index === -1 ? undefined : path.slice(index + 1);
   });
 
   function isGlobalPath(path) {
@@ -48021,7 +48011,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+da1de485";
+  exports.default = "2.16.0-alpha.1-null+470ce3e3";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
