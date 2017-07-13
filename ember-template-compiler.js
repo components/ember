@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+ad62d29f
+ * @version   2.16.0-alpha.1-null+576678d1
  */
 
 var enifed, requireModule, Ember;
@@ -8688,7 +8688,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function DEFAULT_GETTER_FUNCTION(name) {
     return function () {
       var meta$$1 = exports.peekMeta(this);
-      return meta$$1 && meta$$1.peekValues(name);
+      if (meta$$1 !== null && meta$$1 !== undefined) {
+        return meta$$1.peekValues(name);
+      }
     };
   }
 
@@ -8696,7 +8698,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     function IGETTER_FUNCTION() {
       var meta$$1 = exports.peekMeta(this),
           proto;
-      var val = meta$$1 && meta$$1.readInheritedValue('values', name);
+      var val = void 0;
+      if (meta$$1 !== null && meta$$1 !== undefined) {
+        val = meta$$1.readInheritedValue('values', name);
+      }
 
       if (val === UNDEFINED) {
         proto = Object.getPrototypeOf(this);
@@ -8757,7 +8762,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       become the explicit value of this property.
   */
   function defineProperty(obj, keyName, desc, data, meta$$1) {
-    if (!meta$$1) {
+    if (meta$$1 === null || meta$$1 === undefined) {
       meta$$1 = meta(obj);
     }
 
@@ -17081,7 +17086,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+ad62d29f";
+  exports.default = "2.16.0-alpha.1-null+576678d1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

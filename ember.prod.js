@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+ad62d29f
+ * @version   2.16.0-alpha.1-null+576678d1
  */
 
 var enifed, requireModule, Ember;
@@ -21200,22 +21200,10 @@ enifed('ember-glimmer/utils/process-args', ['exports', 'ember-utils', 'ember-gli
     return MutableCell;
   }();
 });
-enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-babel', 'ember-utils', 'ember-metal', '@glimmer/reference', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper'], function (exports, _runtime, _emberBabel, _emberUtils, _emberMetal, _reference, _toBool, _helper) {
+enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', '@glimmer/reference', '@glimmer/runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper'], function (exports, _emberBabel, _emberUtils, _emberMetal, _reference, _runtime, _toBool, _helper) {
   'use strict';
 
-  exports.UnboundReference = exports.InternalHelperReference = exports.ClassBasedHelperReference = exports.SimpleHelperReference = exports.ConditionalReference = exports.UpdatablePrimitiveReference = exports.UpdatableReference = exports.NestedPropertyReference = exports.RootPropertyReference = exports.PropertyReference = exports.RootReference = exports.CachedReference = exports.UNDEFINED_REFERENCE = exports.NULL_REFERENCE = exports.UPDATE = undefined;
-  Object.defineProperty(exports, 'NULL_REFERENCE', {
-    enumerable: true,
-    get: function () {
-      return _runtime.NULL_REFERENCE;
-    }
-  });
-  Object.defineProperty(exports, 'UNDEFINED_REFERENCE', {
-    enumerable: true,
-    get: function () {
-      return _runtime.UNDEFINED_REFERENCE;
-    }
-  });
+  exports.UnboundReference = exports.InternalHelperReference = exports.ClassBasedHelperReference = exports.SimpleHelperReference = exports.ConditionalReference = exports.UpdatablePrimitiveReference = exports.UpdatableReference = exports.NestedPropertyReference = exports.RootPropertyReference = exports.PropertyReference = exports.RootReference = exports.CachedReference = exports.UPDATE = undefined;
   var UPDATE = exports.UPDATE = (0, _emberUtils.symbol)('UPDATE');
 
   // @abstract
@@ -22925,7 +22913,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   function defineProperty(obj, keyName, desc, data, meta$$1) {
-    if (!meta$$1) {
+    if (meta$$1 === null || meta$$1 === undefined) {
       meta$$1 = meta(obj);
     }
 
@@ -44201,7 +44189,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+ad62d29f";
+  exports.default = "2.16.0-alpha.1-null+576678d1";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
