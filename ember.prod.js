@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+9352f8ab
+ * @version   2.16.0-alpha.1-null+da1de485
  */
 
 var enifed, requireModule, Ember;
@@ -35422,12 +35422,10 @@ enifed('ember-runtime/copy', ['exports', 'ember-debug', 'ember-runtime/system/ob
 enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember-debug'], function (_emberEnvironment, _emberMetal, _emberDebug) {
   'use strict';
 
-  var a_slice = Array.prototype.slice; /**
-                                       @module ember
-                                       @submodule ember-runtime
-                                       */
-
-  var FunctionPrototype = Function.prototype;
+  var FunctionPrototype = Function.prototype; /**
+                                              @module ember
+                                              @submodule ember-runtime
+                                              */
 
   if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
     /**
@@ -35477,10 +35475,7 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       @public
     */
     FunctionPrototype.property = function () {
-      var ret = (0, _emberMetal.computed)(this);
-      // ComputedProperty.prototype.property expands properties; no need for us to
-      // do so here.
-      return ret.property.apply(ret, arguments);
+      return _emberMetal.computed.apply(undefined, Array.prototype.slice.call(arguments).concat([this]));
     };
 
     /**
@@ -35504,14 +35499,7 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       @public
     */
     FunctionPrototype.observes = function () {
-      var _len, args, _key;
-
-      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      args.push(this);
-      return _emberMetal.observer.apply(this, args);
+      return _emberMetal.observer.apply(undefined, Array.prototype.slice.call(arguments).concat([this]));
     };
 
     FunctionPrototype._observesImmediately = function () {
@@ -35580,10 +35568,7 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       @public
     */
     FunctionPrototype.on = function () {
-      var events = a_slice.call(arguments);
-      this.__ember_listens__ = events;
-
-      return this;
+      return _emberMetal.on.apply(undefined, Array.prototype.slice.call(arguments).concat([this]));
     };
   }
 });
@@ -44243,7 +44228,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+9352f8ab";
+  exports.default = "2.16.0-alpha.1-null+da1de485";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

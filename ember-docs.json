@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.9352f8ab"
+        "version": "2.16.0-alpha.1.da1de485"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -14819,7 +14819,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/ext/function.js",
-            "line": 83,
+            "line": 80,
             "description": "The `observes` extension of Javascript's Function prototype is available\nwhen `EmberENV.EXTEND_PROTOTYPES` or `EmberENV.EXTEND_PROTOTYPES.Function` is\ntrue, which is the default.\n\nYou can observe property changes simply by adding the `observes`\ncall to the end of your method declarations in classes that you write.\nFor example:\n\n```javascript\nEmber.Object.extend({\n  valueObserver: function() {\n    // Executes whenever the \"value\" property changes\n  }.observes('value')\n});\n```\n\nIn the future this method may become asynchronous.\n\nSee `Ember.observer`.",
             "itemtype": "method",
             "name": "observes",
@@ -14831,7 +14831,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/ext/function.js",
-            "line": 131,
+            "line": 127,
             "description": "The `observesImmediately` extension of Javascript's Function prototype is\navailable when `EmberENV.EXTEND_PROTOTYPES` or\n`EmberENV.EXTEND_PROTOTYPES.Function` is true, which is the default.\n\nYou can observe property changes simply by adding the `observesImmediately`\ncall to the end of your method declarations in classes that you write.\nFor example:\n\n```javascript\nEmber.Object.extend({\n  valueObserver: function() {\n    // Executes immediately after the \"value\" property changes\n  }.observesImmediately('value')\n});\n```\n\nIn the future, `observes` may become asynchronous. In this event,\n`observesImmediately` will maintain the synchronous behavior.\n\nSee `Ember.immediateObserver`.",
             "itemtype": "method",
             "name": "observesImmediately",
@@ -14844,7 +14844,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/ext/function.js",
-            "line": 164,
+            "line": 160,
             "description": "The `on` extension of Javascript's Function prototype is available\nwhen `EmberENV.EXTEND_PROTOTYPES` or `EmberENV.EXTEND_PROTOTYPES.Function` is\ntrue, which is the default.\n\nYou can listen for events simply by adding the `on` call to the end of\nyour method declarations in classes or mixins that you write. For example:\n\n```javascript\nEmber.Mixin.create({\n  doSomethingWithElement: function() {\n    // Executes whenever the \"didInsertElement\" event fires\n  }.on('didInsertElement')\n});\n```\n\nSee `Ember.on`.",
             "itemtype": "method",
             "name": "on",
