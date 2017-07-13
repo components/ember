@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+7d63b97d
+ * @version   2.16.0-alpha.1-null+37ef8e50
  */
 
 var enifed, requireModule, Ember;
@@ -3725,7 +3725,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
         pointer = getPrototypeOf(pointer);
         {
-          counters.peakPrototypeWalks++;
+          counters.peekPrototypeWalks++;
         }
       }
     };
