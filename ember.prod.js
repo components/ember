@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+37ef8e50
+ * @version   2.16.0-alpha.1-null+d0264dc5
  */
 
 var enifed, requireModule, Ember;
@@ -21297,7 +21297,7 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
     RootReference.prototype.get = function (propertyKey) {
       var ref = this.children[propertyKey];
 
-      if (!ref) {
+      if (ref === undefined) {
         ref = this.children[propertyKey] = new RootPropertyReference(this.inner, propertyKey);
       }
 
@@ -21503,11 +21503,7 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
         result = helper(positionalValue, namedValue);
 
 
-        if (result === null) {
-          return _runtime.NULL_REFERENCE;
-        } else if (result === undefined) {
-          return _runtime.UNDEFINED_REFERENCE;
-        } else if (typeof result === 'object') {
+        if (typeof result === 'object' && result !== null) {
           return new RootReference(result);
         } else {
           return _runtime.PrimitiveReference.create(result);
@@ -21607,11 +21603,7 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
     }
 
     UnboundReference.create = function (value) {
-      if (value === null) {
-        return _runtime.NULL_REFERENCE;
-      } else if (value === undefined) {
-        return _runtime.UNDEFINED_REFERENCE;
-      } else if (typeof value === 'object') {
+      if (typeof value === 'object' && value !== null) {
         return new UnboundReference(value);
       } else {
         return _runtime.PrimitiveReference.create(value);
@@ -44286,7 +44278,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+37ef8e50";
+  exports.default = "2.16.0-alpha.1-null+d0264dc5";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
