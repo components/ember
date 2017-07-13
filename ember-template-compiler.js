@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+470ce3e3
+ * @version   2.16.0-alpha.1-null+9025ccc1
  */
 
 var enifed, requireModule, Ember;
@@ -8339,7 +8339,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function propertyWillChange(obj, keyName, _meta) {
     var meta$$1 = _meta || exports.peekMeta(obj);
-
     if (meta$$1 && !meta$$1.isInitialized(obj)) {
       return;
     }
@@ -8493,21 +8492,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function chainsWillChange(obj, keyName, meta$$1) {
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.notify(keyName, false, propertyWillChange);
     }
   }
 
   function chainsDidChange(obj, keyName, meta$$1) {
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.notify(keyName, true, propertyDidChange);
     }
   }
 
   function overrideChains(obj, keyName, meta$$1) {
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.revalidate(keyName);
     }
   }
@@ -8609,7 +8608,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var eventName = keyName + ':before';
     var listeners = void 0,
         added = void 0;
-    if (deferred) {
+    if (deferred > 0) {
       listeners = beforeObserverSet.add(obj, keyName, eventName);
       added = accumulateListeners(obj, eventName, listeners, meta$$1);
       sendEvent(obj, eventName, [obj, keyName], added);
@@ -8625,7 +8624,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     var eventName = keyName + ':change';
     var listeners = void 0;
-    if (deferred) {
+    if (deferred > 0) {
       listeners = observerSet.add(obj, keyName, eventName);
       accumulateListeners(obj, eventName, listeners, meta$$1);
     } else {
@@ -10018,17 +10017,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
   }
 
-  function deleteMeta(obj) {
-    {
-      counters.deleteCalls++;
-    }
-
-    var meta = exports.peekMeta(obj);
-    if (meta !== undefined) {
-      meta.destroy();
-    }
-  }
-
   /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
     hash is writable for this object as well.
@@ -10500,32 +10488,20 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {String} _keyPath
   */
   function watch(obj, _keyPath, m) {
-    if (!isPath(_keyPath)) {
-      watchKey(obj, _keyPath, m);
-    } else {
+    if (isPath(_keyPath)) {
       watchPath(obj, _keyPath, m);
+    } else {
+      watchKey(obj, _keyPath, m);
     }
   }
 
   function unwatch(obj, _keyPath, m) {
-    if (!isPath(_keyPath)) {
-      unwatchKey(obj, _keyPath, m);
-    } else {
+    if (isPath(_keyPath)) {
       unwatchPath(obj, _keyPath, m);
+    } else {
+      unwatchKey(obj, _keyPath, m);
     }
   }
-
-  /**
-    Tears down the meta on an object so that it can be garbage collected.
-    Multiple calls will have no effect.
-  
-    @method destroy
-    @for Ember
-    @param {Object} obj  the object to destroy
-    @return {void}
-    @private
-  */
-
 
   /**
   @module ember
@@ -14777,7 +14753,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.watchPath = watchPath;
   exports.unwatchPath = unwatchPath;
   exports.destroy = function (obj) {
-    deleteMeta(obj);
+    {
+      counters.deleteCalls++;
+    }
+
+    var meta = exports.peekMeta(obj);
+    if (meta !== undefined) {
+      meta.destroy();
+    }
   };
   exports.isWatching = function (obj, key) {
     if (typeof obj !== 'object' || obj === null) {
@@ -17098,7 +17081,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+470ce3e3";
+  exports.default = "2.16.0-alpha.1-null+9025ccc1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
