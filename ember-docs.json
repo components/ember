@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.fee279e1"
+        "version": "2.16.0-alpha.1.7d63b97d"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -13929,7 +13929,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 58,
+            "line": 59,
             "description": "A computed property that returns true if the value of the dependent\nproperty is null, an empty string, empty array, or empty function.\n\nExample\n\n```javascript\nlet ToDoList = Ember.Object.extend({\n  isDone: Ember.computed.empty('todos')\n});\n\nlet todoList = ToDoList.create({\n  todos: ['Unit Test', 'Documentation', 'Release']\n});\n\ntodoList.get('isDone'); // false\ntodoList.get('todos').clear();\ntodoList.get('isDone'); // true\n```",
             "since": "1.6.0",
             "itemtype": "method",
@@ -13954,7 +13954,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 92,
+            "line": 93,
             "description": "A computed property that returns true if the value of the dependent\nproperty is NOT null, an empty string, empty array, or empty function.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasStuff: Ember.computed.notEmpty('backpack')\n});\n\nlet hamster = Hamster.create({ backpack: ['Food', 'Sleeping Bag', 'Tent'] });\n\nhamster.get('hasStuff');         // true\nhamster.get('backpack').clear(); // []\nhamster.get('hasStuff');         // false\n```",
             "itemtype": "method",
             "name": "notEmpty",
@@ -13978,7 +13978,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 123,
+            "line": 124,
             "description": "A computed property that returns true if the value of the dependent\nproperty is null or undefined. This avoids errors from JSLint complaining\nabout use of ==, which can be technically confusing.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  isHungry: Ember.computed.none('food')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('isHungry'); // true\nhamster.set('food', 'Banana');\nhamster.get('isHungry'); // false\nhamster.set('food', null);\nhamster.get('isHungry'); // true\n```",
             "itemtype": "method",
             "name": "none",
@@ -14002,7 +14002,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 157,
+            "line": 158,
             "description": "A computed property that returns the inverse boolean value\nof the original value for the dependent property.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  isAnonymous: Ember.computed.not('loggedIn')\n});\n\nlet user = User.create({loggedIn: false});\n\nuser.get('isAnonymous'); // true\nuser.set('loggedIn', true);\nuser.get('isAnonymous'); // false\n```",
             "itemtype": "method",
             "name": "not",
@@ -14026,7 +14026,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 188,
+            "line": 189,
             "description": "A computed property that converts the provided dependent property\ninto a boolean value.\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasBananas: Ember.computed.bool('numBananas')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('hasBananas'); // false\nhamster.set('numBananas', 0);\nhamster.get('hasBananas'); // false\nhamster.set('numBananas', 1);\nhamster.get('hasBananas'); // true\nhamster.set('numBananas', null);\nhamster.get('hasBananas'); // false\n```",
             "itemtype": "method",
             "name": "bool",
@@ -14050,7 +14050,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 221,
+            "line": 222,
             "description": "A computed property which matches the original value for the\ndependent property against a given RegExp, returning `true`\nif the value matches the RegExp and `false` if it does not.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  hasValidEmail: Ember.computed.match('email', /^.+@.+\\..+$/)\n});\n\nlet user = User.create({loggedIn: false});\n\nuser.get('hasValidEmail'); // false\nuser.set('email', '');\nuser.get('hasValidEmail'); // false\nuser.set('email', 'ember_hamster@example.com');\nuser.get('hasValidEmail'); // true\n```",
             "itemtype": "method",
             "name": "match",
@@ -14079,7 +14079,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 258,
+            "line": 259,
             "description": "A computed property that returns true if the provided dependent property\nis equal to the given value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  satisfied: Ember.computed.equal('percentCarrotsEaten', 100)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('satisfied'); // false\nhamster.set('percentCarrotsEaten', 100);\nhamster.get('satisfied'); // true\nhamster.set('percentCarrotsEaten', 50);\nhamster.get('satisfied'); // false\n```",
             "itemtype": "method",
             "name": "equal",
@@ -14108,7 +14108,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 292,
+            "line": 293,
             "description": "A computed property that returns true if the provided dependent property\nis greater than the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasTooManyBananas: Ember.computed.gt('numBananas', 10)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 3);\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 11);\nhamster.get('hasTooManyBananas'); // true\n```",
             "itemtype": "method",
             "name": "gt",
@@ -14137,7 +14137,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 326,
+            "line": 327,
             "description": "A computed property that returns true if the provided dependent property\nis greater than or equal to the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasTooManyBananas: Ember.computed.gte('numBananas', 10)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 3);\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 10);\nhamster.get('hasTooManyBananas'); // true\n```",
             "itemtype": "method",
             "name": "gte",
@@ -14166,7 +14166,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 360,
+            "line": 361,
             "description": "A computed property that returns true if the provided dependent property\nis less than the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  needsMoreBananas: Ember.computed.lt('numBananas', 3)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('needsMoreBananas'); // true\nhamster.set('numBananas', 3);\nhamster.get('needsMoreBananas'); // false\nhamster.set('numBananas', 2);\nhamster.get('needsMoreBananas'); // true\n```",
             "itemtype": "method",
             "name": "lt",
@@ -14195,7 +14195,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 394,
+            "line": 395,
             "description": "A computed property that returns true if the provided dependent property\nis less than or equal to the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  needsMoreBananas: Ember.computed.lte('numBananas', 3)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('needsMoreBananas'); // true\nhamster.set('numBananas', 5);\nhamster.get('needsMoreBananas'); // false\nhamster.set('numBananas', 3);\nhamster.get('needsMoreBananas'); // true\n```",
             "itemtype": "method",
             "name": "lte",
@@ -14224,7 +14224,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 428,
+            "line": 429,
             "description": "A computed property that performs a logical `and` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturn the first falsy value or last truthy value\njust like JavaScript's `&&` operator.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  readyForCamp: Ember.computed.and('hasTent', 'hasBackpack'),\n  readyForHike: Ember.computed.and('hasWalkingStick', 'hasBackpack')\n});\n\nlet tomster = Hamster.create();\n\ntomster.get('readyForCamp'); // false\ntomster.set('hasTent', true);\ntomster.get('readyForCamp'); // false\ntomster.set('hasBackpack', true);\ntomster.get('readyForCamp'); // true\ntomster.set('hasBackpack', 'Yes');\ntomster.get('readyForCamp'); // 'Yes'\ntomster.set('hasWalkingStick', null);\ntomster.get('readyForHike'); // null\n```",
             "itemtype": "method",
             "name": "and",
@@ -14249,7 +14249,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 467,
+            "line": 468,
             "description": "A computed property which performs a logical `or` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturn the first truthy value or last falsy value just\nlike JavaScript's `||` operator.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella'),\n  readyForBeach: Ember.computed.or('{hasSunscreen,hasUmbrella}')\n});\n\nlet tomster = Hamster.create();\n\ntomster.get('readyForRain'); // undefined\ntomster.set('hasUmbrella', true);\ntomster.get('readyForRain'); // true\ntomster.set('hasJacket', 'Yes');\ntomster.get('readyForRain'); // 'Yes'\ntomster.set('hasSunscreen', 'Check');\ntomster.get('readyForBeach'); // 'Check'\n```",
             "itemtype": "method",
             "name": "or",
@@ -14274,7 +14274,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 504,
+            "line": 505,
             "description": "Creates a new property that is an alias for another property\non an object. Calls to `get` or `set` this property behave as\nthough they were called on the original property.\n\n```javascript\nlet Person = Ember.Object.extend({\n  name: 'Alex Matchneer',\n  nomen: Ember.computed.alias('name')\n});\n\nlet alex = Person.create();\n\nalex.get('nomen'); // 'Alex Matchneer'\nalex.get('name');  // 'Alex Matchneer'\n\nalex.set('nomen', '@machty');\nalex.get('name');  // '@machty'\n```",
             "itemtype": "method",
             "name": "alias",
@@ -14298,7 +14298,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 532,
+            "line": 533,
             "description": "Where `computed.alias` aliases `get` and `set`, and allows for bidirectional\ndata flow, `computed.oneWay` only provides an aliased `get`. The `set` will\nnot mutate the upstream property, rather causes the current property to\nbecome the value set. This causes the downstream property to permanently\ndiverge from the upstream property.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  firstName: null,\n  lastName: null,\n  nickName: Ember.computed.oneWay('firstName')\n});\n\nlet teddy = User.create({\n  firstName: 'Teddy',\n  lastName:  'Zeenny'\n});\n\nteddy.get('nickName');              // 'Teddy'\nteddy.set('nickName', 'TeddyBear'); // 'TeddyBear'\nteddy.get('firstName');             // 'Teddy'\n```",
             "itemtype": "method",
             "name": "oneWay",
@@ -14322,7 +14322,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 569,
+            "line": 570,
             "description": "This is a more semantically meaningful alias of `computed.oneWay`,\nwhose name is somewhat ambiguous as to which direction the data flows.",
             "itemtype": "method",
             "name": "reads",
@@ -14346,7 +14346,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 581,
+            "line": 582,
             "description": "Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides\na readOnly one way binding. Very often when using `computed.oneWay` one does\nnot also want changes to propagate back up, as they will replace the value.\n\nThis prevents the reverse flow, and also throws an exception when it occurs.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  firstName: null,\n  lastName: null,\n  nickName: Ember.computed.readOnly('firstName')\n});\n\nlet teddy = User.create({\n  firstName: 'Teddy',\n  lastName:  'Zeenny'\n});\n\nteddy.get('nickName');              // 'Teddy'\nteddy.set('nickName', 'TeddyBear'); // throws Exception\n// throw new Ember.Error('Cannot Set: nickName on: <User:ember27288>' );`\nteddy.get('firstName');             // 'Teddy'\n```",
             "itemtype": "method",
             "name": "readOnly",
@@ -14371,7 +14371,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 620,
+            "line": 621,
             "description": "Creates a new property that is an alias for another property\non an object. Calls to `get` or `set` this property behave as\nthough they were called on the original property, but also\nprint a deprecation warning.\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  bananaCount: Ember.computed.deprecatingAlias('cavendishCount', {\n    id: 'hamster.deprecate-banana',\n    until: '3.0.0'\n  })\n});\n\nlet hamster = Hamster.create();\n\nhamster.set('bananaCount', 5); // Prints a deprecation warning.\nhamster.get('cavendishCount'); // 5\n```",
             "itemtype": "method",
             "name": "deprecatingAlias",
@@ -14401,7 +14401,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 64,
+            "line": 62,
             "description": "A computed property that returns the sum of the values\nin the dependent array.",
             "itemtype": "method",
             "name": "sum",
@@ -14426,7 +14426,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 79,
+            "line": 77,
             "description": "A computed property that calculates the maximum value in the\ndependent array. This will return `-Infinity` when the dependent\narray is empty.\n\n```javascript\nlet Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age'),\n  maxChildAge: Ember.computed.max('childAges')\n});\n\nlet lordByron = Person.create({ children: [] });\n\nlordByron.get('maxChildAge'); // -Infinity\nlordByron.get('children').pushObject({\n  name: 'Augusta Ada Byron', age: 7\n});\nlordByron.get('maxChildAge'); // 7\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('maxChildAge'); // 8\n```\n\nIf the types of the arguments are not numbers,\nthey will be converted to numbers and the type\nof the return value will always be `Number`.\nFor example, the max of a list of Date objects will be\nthe highest timestamp as a `Number`.\nThis behavior is consistent with `Math.max`.",
             "itemtype": "method",
             "name": "max",
@@ -14450,7 +14450,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 124,
+            "line": 122,
             "description": "A computed property that calculates the minimum value in the\ndependent array. This will return `Infinity` when the dependent\narray is empty.\n\n```javascript\nlet Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age'),\n  minChildAge: Ember.computed.min('childAges')\n});\n\nlet lordByron = Person.create({ children: [] });\n\nlordByron.get('minChildAge'); // Infinity\nlordByron.get('children').pushObject({\n  name: 'Augusta Ada Byron', age: 7\n});\nlordByron.get('minChildAge'); // 7\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('minChildAge'); // 5\n```\n\nIf the types of the arguments are not numbers,\nthey will be converted to numbers and the type\nof the return value will always be `Number`.\nFor example, the min of a list of Date objects will be\nthe lowest timestamp as a `Number`.\nThis behavior is consistent with `Math.min`.",
             "itemtype": "method",
             "name": "min",
@@ -14474,7 +14474,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 169,
+            "line": 167,
             "description": "Returns an array mapped via the callback\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n\n```javascript\nfunction(item, index);\n```\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  excitingChores: Ember.computed.map('chores', function(chore, index) {\n    return chore.toUpperCase() + '!';\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: ['clean', 'write more unit tests']\n});\n\nhamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']\n```",
             "itemtype": "method",
             "name": "map",
@@ -14503,7 +14503,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 209,
+            "line": 207,
             "description": "Returns an array mapped to the specified key.\n\n```javascript\nlet Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age')\n});\n\nlet lordByron = Person.create({ children: [] });\n\nlordByron.get('childAges'); // []\nlordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });\nlordByron.get('childAges'); // [7]\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('childAges'); // [7, 5, 8]\n```",
             "itemtype": "method",
             "name": "mapBy",
@@ -14532,7 +14532,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 249,
+            "line": 247,
             "description": "Filters the array by the callback.\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n`array` is the dependant array itself.\n\n```javascript\nfunction(item, index, array);\n```\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores', function(chore, index, array) {\n    return !chore.done;\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\n```\n\nYou can also use `@each.property` in your dependent key, the callback will still use the underlying array:\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores.@each.done', function(chore, index, array) {\n    return !chore.get('done');\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: Ember.A([\n    Ember.Object.create({ name: 'cook', done: true }),\n    Ember.Object.create({ name: 'clean', done: true }),\n    Ember.Object.create({ name: 'write more unit tests', done: false })\n  ])\n});\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\nhamster.get('chores').objectAt(2).set('done', true);\nhamster.get('remainingChores'); // []\n```",
             "itemtype": "method",
             "name": "filter",
@@ -14561,7 +14561,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 314,
+            "line": 312,
             "description": "Filters the array by the property and value\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filterBy('chores', 'done', false)\n});\n\nlet hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]\n```",
             "itemtype": "method",
             "name": "filterBy",
@@ -14595,7 +14595,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 353,
+            "line": 351,
             "description": "A computed property which returns a new array with all the unique\nelements from one or more dependent arrays.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.uniq('fruits')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'banana',\n    'grape',\n    'kale',\n    'banana'\n  ]\n});\n\nhamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']\n```",
             "itemtype": "method",
             "name": "uniq",
@@ -14620,7 +14620,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 402,
+            "line": 400,
             "description": "A computed property which returns a new array with all the unique\nelements from an array, with uniqueness determined by specific key.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.uniqBy('fruits', 'id')\n});\nlet hamster = Hamster.create({\n  fruits: [\n    { id: 1, 'banana' },\n    { id: 2, 'grape' },\n    { id: 3, 'peach' },\n    { id: 1, 'banana' }\n  ]\n});\nhamster.get('uniqueFruits'); // [ { id: 1, 'banana' }, { id: 2, 'grape' }, { id: 3, 'peach' }]\n```",
             "itemtype": "method",
             "name": "uniqBy",
@@ -14649,7 +14649,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 449,
+            "line": 447,
             "description": "A computed property which returns a new array with all the unique\nelements from one or more dependent arrays.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.union('fruits', 'vegetables')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'banana',\n    'grape',\n    'kale',\n    'banana',\n    'tomato'\n  ],\n  vegetables: [\n    'tomato',\n    'carrot',\n    'lettuce'\n  ]\n});\n\nhamster.get('uniqueFruits'); // ['banana', 'grape', 'kale', 'tomato', 'carrot', 'lettuce']\n```",
             "itemtype": "method",
             "name": "union",
@@ -14674,7 +14674,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 487,
+            "line": 485,
             "description": "A computed property which returns a new array with all the elements\ntwo or more dependent arrays have in common.\n\nExample\n\n```javascript\nlet obj = Ember.Object.extend({\n  friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')\n}).create({\n  adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],\n  charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']\n});\n\nobj.get('friendsInCommon'); // ['William King', 'Mary Somerville']\n```",
             "itemtype": "method",
             "name": "intersect",
@@ -14699,7 +14699,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 542,
+            "line": 539,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array that are not in the second\ndependent array.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  likes: ['banana', 'grape', 'kale'],\n  wants: Ember.computed.setDiff('likes', 'fruits')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'grape',\n    'kale',\n  ]\n});\n\nhamster.get('wants'); // ['banana']\n```",
             "itemtype": "method",
             "name": "setDiff",
@@ -14728,7 +14728,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 590,
+            "line": 587,
             "description": "A computed property that returns the array of values\nfor the provided dependent properties.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  clothes: Ember.computed.collect('hat', 'shirt')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('clothes'); // [null, null]\nhamster.set('hat', 'Camp Hat');\nhamster.set('shirt', 'Camp Shirt');\nhamster.get('clothes'); // ['Camp Hat', 'Camp Shirt']\n```",
             "itemtype": "method",
             "name": "collect",
@@ -14753,7 +14753,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 633,
+            "line": 630,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array sorted based on a property\nor sort function.\n\nThe callback method you provide should have the following signature:\n\n```javascript\nfunction(itemA, itemB);\n```\n\n- `itemA` the first item to compare.\n- `itemB` the second item to compare.\n\nThis function should return negative number (e.g. `-1`) when `itemA` should come before\n`itemB`. It should return positive number (e.g. `1`) when `itemA` should come after\n`itemB`. If the `itemA` and `itemB` are equal this function should return `0`.\n\nTherefore, if this function is comparing some numeric values, simple `itemA - itemB` or\n`itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.\n\nExample\n\n```javascript\nlet ToDoList = Ember.Object.extend({\n  // using standard ascending sort\n  todosSorting: ['name'],\n  sortedTodos: Ember.computed.sort('todos', 'todosSorting'),\n\n  // using descending sort\n  todosSortingDesc: ['name:desc'],\n  sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),\n\n  // using a custom sort function\n  priorityTodos: Ember.computed.sort('todos', function(a, b){\n    if (a.priority > b.priority) {\n      return 1;\n    } else if (a.priority < b.priority) {\n      return -1;\n    }\n\n    return 0;\n  })\n});\n\nlet todoList = ToDoList.create({todos: [\n  { name: 'Unit Test', priority: 2 },\n  { name: 'Documentation', priority: 3 },\n  { name: 'Release', priority: 1 }\n]});\n\ntodoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]\ntodoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]\ntodoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]\n```",
             "itemtype": "method",
             "name": "sort",

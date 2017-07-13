@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+fee279e1
+ * @version   2.16.0-alpha.1-null+7d63b97d
  */
 
 var enifed, requireModule, Ember;
@@ -34404,7 +34404,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
           properties,
           _key;
 
-      var computedFunc = (0, _emberMetal.computed)(function () {
+      var computedFunc = new _emberMetal.ComputedProperty(function () {
         var lastIdx = expandedProperties.length - 1,
             i,
             value;
@@ -34418,9 +34418,9 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
         }
 
         return (0, _emberMetal.get)(this, expandedProperties[lastIdx]);
-      });
+      }, { dependentKeys: expandedProperties });
 
-      return computedFunc.property.apply(computedFunc, expandedProperties);
+      return computedFunc;
     };
   }exports.and = generateComputedWithPredicate('and', function (value) {
     return value;
@@ -34919,11 +34919,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     }
 
     return multiArrayMacro(args, function (dependentKeys) {
-      var _this3 = this;
+      var _this2 = this;
 
       var arrays = dependentKeys.map(function (dependentKey) {
-        var array = (0, _emberMetal.get)(_this3, dependentKey);
-
+        var array = (0, _emberMetal.get)(_this2, dependentKey);
         return (0, _utils.isArray)(array) ? array : [];
       });
 
@@ -35138,17 +35137,13 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
   function reduceMacro(dependentKey, callback, initialValue) {
     return (0, _emberMetal.computed)(dependentKey + '.[]', function () {
-      var _this = this;
-
       var arr = (0, _emberMetal.get)(this, dependentKey);
 
       if (arr === null || typeof arr !== 'object') {
         return initialValue;
       }
 
-      return arr.reduce(function (previousValue, currentValue, index, array) {
-        return callback.call(_this, previousValue, currentValue, index, array);
-      }, initialValue);
+      return arr.reduce(callback, initialValue, this);
     }).readOnly();
   }
 
@@ -35198,12 +35193,12 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     }
 
     return multiArrayMacro(args, function (dependentKeys) {
-      var _this2 = this;
+      var _this = this;
 
       var uniq = (0, _native_array.A)();
 
       dependentKeys.forEach(function (dependentKey) {
-        var value = (0, _emberMetal.get)(_this2, dependentKey);
+        var value = (0, _emberMetal.get)(_this, dependentKey);
         if ((0, _utils.isArray)(value)) {
           value.forEach(function (item) {
             if (uniq.indexOf(item) === -1) {
@@ -35220,10 +35215,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
   function customSort(itemsKey, comparator) {
     return arrayMacro(itemsKey, function (value) {
-      var _this4 = this;
+      var _this3 = this;
 
       return value.slice().sort(function (x, y) {
-        return comparator.call(_this4, x, y);
+        return comparator.call(_this3, x, y);
       });
     });
   }
@@ -35232,7 +35227,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   // depending on the sortProperties
   function propertySort(itemsKey, sortPropertiesKey) {
     var cp = new _emberMetal.ComputedProperty(function (key) {
-      var _this5 = this;
+      var _this4 = this;
 
       var itemsKeyIsAtThis = itemsKey === '@this';
       var sortProperties = (0, _emberMetal.get)(this, sortPropertiesKey);
@@ -35263,7 +35258,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
         var prop = _ref[0];
 
         var path = itemsKeyIsAtThis ? '@each.' + prop : itemsKey + '.@each.' + prop;
-        var args = [_this5, path, sortPropertyDidChange];
+        var args = [_this4, path, sortPropertyDidChange];
         _emberMetal.addObserver.apply(undefined, args);
         return args;
       });
@@ -44291,7 +44286,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+fee279e1";
+  exports.default = "2.16.0-alpha.1-null+7d63b97d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
