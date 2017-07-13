@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+9be6c0c3
+ * @version   2.16.0-alpha.1-null+9352f8ab
  */
 
 var enifed, requireModule, Ember;
@@ -2177,7 +2177,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         dependentKeysDidChange(obj, keyName, meta$$1);
       }
 
-      chainsDidChange(obj, keyName, meta$$1, false);
+      chainsDidChange(obj, keyName, meta$$1);
       notifyObservers(obj, keyName, meta$$1);
     }
 
