@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+576678d1
+ * @version   2.16.0-alpha.1-null+6e6aa15d
  */
 
 var enifed, requireModule, Ember;
@@ -25447,15 +25447,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function addDependentKeys(desc, obj, keyName, meta) {
     // the descriptor has a list of dependent keys, so
     // add all of its dependent keys.
-    var idx = void 0,
-        depKey = void 0;
     var depKeys = desc._dependentKeys;
-    if (!depKeys) {
+    if (depKeys === null || depKeys === undefined) {
       return;
     }
 
-    for (idx = 0; idx < depKeys.length; idx++) {
-      depKey = depKeys[idx];
+    for (var idx = 0; idx < depKeys.length; idx++) {
+      var depKey = depKeys[idx];
       // Increment the number of times depKey depends on keyName.
       meta.writeDeps(depKey, keyName, (meta.peekDeps(depKey, keyName) || 0) + 1);
       // Watch the depKey
@@ -25467,7 +25465,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     // the descriptor has a list of dependent keys, so
     // remove all of its dependent keys.
     var depKeys = desc._dependentKeys;
-    if (!depKeys) {
+    if (depKeys === null || depKeys === undefined) {
       return;
     }
 
@@ -47990,7 +47988,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+576678d1";
+  exports.default = "2.16.0-alpha.1-null+6e6aa15d";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
