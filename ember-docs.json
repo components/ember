@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.cc044a37"
+        "version": "2.16.0-alpha.1.cb97ca5f"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -8119,7 +8119,7 @@
         {
             "file": "packages/ember-glimmer/lib/helpers/hash.js",
             "line": 6,
-            "description": "Use the `{{hash}}` helper to create a hash to pass as an option to your\ncomponents. This is specially useful for contextual components where you can\njust yield a hash:\n\n```handlebars\n{{yield (hash\n   name='Sarah'\n   title=office\n)}}\n```\n\nWould result in an object such as:\n\n```js\n{ name: 'Sarah', title: this.get('office') }\n```\n\nWhere the `title` is bound to updates of the `office` property.",
+            "description": "Use the `{{hash}}` helper to create a hash to pass as an option to your\ncomponents. This is specially useful for contextual components where you can\njust yield a hash:\n\n```handlebars\n{{yield (hash\n   name='Sarah'\n   title=office\n)}}\n```\n\nWould result in an object such as:\n\n```js\n{ name: 'Sarah', title: this.get('office') }\n```\n\nWhere the `title` is bound to updates of the `office` property.\n\nNote that the hash is an empty object with no prototype chain, therefore\ncommon methods like `toString` are not available in the resulting hash.\nIf you need to use such a method, you can use the `call` or `apply`\napproach:\n\n```js\nfunction toString(obj) {\n  return Object.prototype.toString.apply(obj);\n}\n```",
             "itemtype": "method",
             "name": "hash",
             "params": [
