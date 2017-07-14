@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.1-null+e63fb49e
+ * @version   2.15.0-beta.1-null+c5ed0f68
  */
 
 var enifed, requireModule, Ember;
@@ -12563,14 +12563,14 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
 
       var parent = (0, _engineParent.getEngineParent)(this);
 
-      ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
+      ['route:basic', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
         return _this2.register(key, parent.resolveRegistration(key));
       });
 
       var env = parent.lookup('-environment:main');
       this.register('-environment:main', env, { instantiate: false });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document'];
+      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document', 'event_dispatcher:main'];
 
       singletons.forEach(function (key) {
         return _this2.register(key, parent.lookup(key), { instantiate: false });
@@ -13729,6 +13729,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @public
     @static
     @method registerDeprecationHandler
+    @for Ember.Debug
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
@@ -44228,7 +44229,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.1-null+e63fb49e";
+  exports.default = "2.15.0-beta.1-null+c5ed0f68";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

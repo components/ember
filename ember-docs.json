@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.15.0-beta.1.e63fb49e"
+        "version": "2.15.0-beta.1.c5ed0f68"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -289,6 +289,7 @@
             },
             "classes": {},
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "namespaces": {}
@@ -329,6 +330,7 @@
             "modules": {},
             "classes": {},
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "namespaces": {}
@@ -1915,6 +1917,7 @@
                 "Ember": 1,
                 "Ember.Engine": 1,
                 "Ember.DefaultResolver": 1,
+                "Ember.Debug": 1,
                 "Ember.Error": 1,
                 "Ember.FEATURES": 1,
                 "Ember.ContainerDebugAdapter": 1,
@@ -1984,11 +1987,11 @@
                 "Ember.TextSupport": 1,
                 "Ember.ViewMixin": 1,
                 "Ember.EventDispatcher": 1,
-                "Ember.CoreView": 1,
-                "Ember.Debug": 1
+                "Ember.CoreView": 1
             },
             "fors": {
                 "Ember": 1,
+                "Ember.Debug": 1,
                 "Ember.FEATURES": 1,
                 "Ember.Templates.helpers": 1,
                 "Ember.String": 1,
@@ -2007,8 +2010,8 @@
                 "Ember.Test": 1
             },
             "tag": "module",
-            "file": "packages/ember/lib/index.js",
-            "line": 52
+            "file": "packages/ember-views/lib/views/core_view.js",
+            "line": 10
         },
         "ember-application": {
             "name": "ember-application",
@@ -2038,16 +2041,19 @@
             "name": "ember-debug",
             "submodules": {},
             "elements": {},
-            "classes": {},
+            "classes": {
+                "Ember.Debug": 1
+            },
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "is_submodule": 1,
             "namespaces": {},
             "module": "ember",
             "namespace": "",
-            "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 11
+            "file": "packages/ember/lib/index.js",
+            "line": 52
         },
         "ember-extension-support": {
             "name": "ember-extension-support",
@@ -2505,6 +2511,22 @@
             "line": 35,
             "description": "The DefaultResolver defines the default lookup rules to resolve\ncontainer lookups before consulting the container for registered\nitems:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after converting\n  the name. For example, `controller:post` looks up\n  `App.PostController` by default.\n* there are some nuances (see examples below)\n\n### How Resolving Works\n\nThe container calls this object's `resolve` method with the\n`fullName` argument.\n\nIt first parses the fullName into an object using `parseName`.\n\nThen it checks for the presence of a type-specific instance\nmethod of the form `resolve[Type]` and calls it if it exists.\nFor example if it was resolving 'template:post', it would call\nthe `resolveTemplate` method.\n\nIts last resort is to call the `resolveOther` method.\n\nThe methods of this object are designed to be easy to override\nin a subclass. For example, you could enhance how a template\nis resolved like so:\n\n```javascript\nApp = Ember.Application.create({\n  Resolver: Ember.DefaultResolver.extend({\n    resolveTemplate: function(parsedName) {\n      let resolvedTemplate = this._super(parsedName);\n      if (resolvedTemplate) { return resolvedTemplate; }\n      return Ember.TEMPLATES['not_found'];\n    }\n  })\n});\n```\n\nSome examples of how names are resolved:\n\n```\n'template:post'           //=> Ember.TEMPLATES['post']\n'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:blogPost'       //=> Ember.TEMPLATES['blogPost']\n                          //   OR\n                          //   Ember.TEMPLATES['blog_post']\n'controller:post'         //=> App.PostController\n'controller:posts.index'  //=> App.PostsIndexController\n'controller:blog/post'    //=> Blog.PostController\n'controller:basic'        //=> Ember.Controller\n'route:post'              //=> App.PostRoute\n'route:posts.index'       //=> App.PostsIndexRoute\n'route:blog/post'         //=> Blog.PostRoute\n'route:basic'             //=> Ember.Route\n'view:post'               //=> App.PostView\n'view:posts.index'        //=> App.PostsIndexView\n'view:blog/post'          //=> Blog.PostView\n'view:basic'              //=> Ember.View\n'foo:post'                //=> App.PostFoo\n'model:post'              //=> App.Post\n```",
             "extends": "Ember.Object",
+            "access": "public",
+            "tagname": ""
+        },
+        "Ember.Debug": {
+            "name": "Ember.Debug",
+            "shortname": "Ember.Debug",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "submodule": "ember-debug",
+            "namespace": "",
+            "file": "packages/ember/lib/index.js",
+            "line": 52,
             "access": "public",
             "tagname": ""
         },
@@ -3175,7 +3197,7 @@
             "namespace": "",
             "file": "packages/ember-routing/lib/services/routing.js",
             "line": 15,
-            "description": "The Routing service is used by LinkComponent, and provides facilities for\nthe component/view layer to interact with the router.\n\nWhile still private, this service can eventually be opened up, and provides\nthe set of API needed for components to control routing without interacting\nwith router internals.",
+            "description": "The Routing service is used by LinkComponent, and provides facilities for\nthe component/view layer to interact with the router.\n\nThis is a private service for internal usage only. For public usage,\nrefer to the `Router` service.",
             "access": "private",
             "tagname": ""
         },
@@ -3943,21 +3965,6 @@
                 "Ember.ActionHandler"
             ],
             "access": "private",
-            "tagname": ""
-        },
-        "Ember.Debug": {
-            "name": "Ember.Debug",
-            "shortname": "Ember.Debug",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "namespace": "",
-            "file": "packages/ember/lib/index.js",
-            "line": 52,
-            "access": "public",
             "tagname": ""
         }
     },
@@ -6833,13 +6840,13 @@
                 }
             ],
             "since": "2.1.0",
-            "class": "Ember",
+            "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 135,
+            "line": 136,
             "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only).\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "deprecate",
@@ -7052,13 +7059,13 @@
                 }
             ],
             "since": "2.1.0",
-            "class": "Ember",
+            "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 61,
+            "line": 62,
             "description": "Display a warning with the provided message.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "warn",
