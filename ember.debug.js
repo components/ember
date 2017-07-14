@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+6e6aa15d
+ * @version   2.16.0-alpha.1-null+960abbcb
  */
 
 var enifed, requireModule, Ember;
@@ -23131,12 +23131,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var observers = this.observers;
       var senderGuid = emberUtils.guidFor(sender);
       var keySet = observerSet[senderGuid];
-      var index = void 0;
 
-      if (!keySet) {
+      if (keySet === undefined) {
         observerSet[senderGuid] = keySet = {};
       }
-      index = keySet[keyName];
+
+      var index = keySet[keyName];
       if (index === undefined) {
         index = observers.push({
           sender: sender,
@@ -23151,11 +23151,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     ObserverSet.prototype.flush = function flush() {
       var observers = this.observers;
-      var i = void 0,
-          observer = void 0,
+      var observer = void 0,
           sender = void 0;
       this.clear();
-      for (i = 0; i < observers.length; ++i) {
+      for (var i = 0; i < observers.length; ++i) {
         observer = observers[i];
         sender = observer.sender;
         if (sender.isDestroying || sender.isDestroyed) {
@@ -23343,10 +23342,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     if (hasMeta && meta$$1.peekWatching(keyName) > 0) {
-      if (meta$$1.hasDeps(keyName) && !meta$$1.isSourceDestroying()) {
-        dependentKeysDidChange(obj, keyName, meta$$1);
-      }
-
+      dependentKeysDidChange(obj, keyName, meta$$1);
       chainsDidChange(obj, keyName, meta$$1);
       notifyObservers(obj, keyName, meta$$1);
     }
@@ -23371,27 +23367,28 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var DID_SEEN = void 0;
   // called whenever a property is about to change to clear the cache of any dependent keys (and notify those properties of changes, etc...)
   function dependentKeysWillChange(obj, depKey, meta$$1) {
-    if (meta$$1.isSourceDestroying()) {
+    if (meta$$1.isSourceDestroying() || !meta$$1.hasDeps(depKey)) {
       return;
     }
-    if (meta$$1.hasDeps(depKey)) {
-      var seen = WILL_SEEN;
-      var top = !seen;
+    var seen = WILL_SEEN;
+    var top = !seen;
 
-      if (top) {
-        seen = WILL_SEEN = {};
-      }
+    if (top) {
+      seen = WILL_SEEN = {};
+    }
 
-      iterDeps(propertyWillChange, obj, depKey, seen, meta$$1);
+    iterDeps(propertyWillChange, obj, depKey, seen, meta$$1);
 
-      if (top) {
-        WILL_SEEN = null;
-      }
+    if (top) {
+      WILL_SEEN = null;
     }
   }
 
   // called whenever a property has just changed to update dependent keys
   function dependentKeysDidChange(obj, depKey, meta$$1) {
+    if (meta$$1.isSourceDestroying() || !meta$$1.hasDeps(depKey)) {
+      return;
+    }
     var seen = DID_SEEN;
     var top = !seen;
 
@@ -23501,7 +23498,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     try {
       callback.call(binding);
     } finally {
-      endPropertyChanges.call(binding);
+      endPropertyChanges();
     }
   }
 
@@ -23552,10 +23549,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (deferred > 0) {
       listeners = beforeObserverSet.add(obj, keyName, eventName);
       added = accumulateListeners(obj, eventName, listeners, meta$$1);
-      sendEvent(obj, eventName, [obj, keyName], added);
-    } else {
-      sendEvent(obj, eventName, [obj, keyName]);
     }
+    sendEvent(obj, eventName, [obj, keyName], added);
   }
 
   function notifyObservers(obj, keyName, meta$$1) {
@@ -47988,7 +47983,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+6e6aa15d";
+  exports.default = "2.16.0-alpha.1-null+960abbcb";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
