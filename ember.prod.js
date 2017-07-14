@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+2adb0fd4
+ * @version   2.16.0-alpha.1-null+cc044a37
  */
 
 var enifed, requireModule, Ember;
@@ -23761,10 +23761,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var ret = this._chains;
       if (ret === undefined) {
         if (this.parent) {
-          ret = this._chains = this.parent.writableChains(create).copy(this.source);
+          ret = this.parent.writableChains(create).copy(this.source);
         } else {
-          ret = this._chains = create(this.source);
+          ret = create(this.source);
         }
+        this._chains = ret;
       }
       return ret;
     };
@@ -23774,7 +23775,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeWatching = function (subkey, value) {
-      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot update watchers for `hello` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
+      false && !!this.isMetaDestroyed() && emberDebug.assert('Cannot update watchers for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap('_watching');
       map[subkey] = value;
@@ -44167,7 +44168,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+2adb0fd4";
+  exports.default = "2.16.0-alpha.1-null+cc044a37";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
