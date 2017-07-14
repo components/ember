@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-null+0299c701
+ * @version   2.14.0-null+6cafe38e
  */
 
 var enifed, requireModule, Ember;
@@ -1803,11 +1803,11 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     return chatEngineInstance.boot().then(function () {
       assert.ok(true, 'boot successful');
 
-      ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
+      ['route:basic', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
         assert.strictEqual(chatEngineInstance.resolveRegistration(key), appInstance.resolveRegistration(key), 'Engine and parent app share registrations for \'' + key + '\'');
       });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main', 'service:-document'];
+      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', '-environment:main', 'service:-document', 'event_dispatcher:main'];
 
       var env = appInstance.lookup('-environment:main');
       singletons.push(env.isInteractive ? 'renderer:-dom' : 'renderer:-inert');
@@ -30897,6 +30897,50 @@ enifed('ember-glimmer/tests/integration/mount-test', ['ember-babel', 'ember-util
         });
 
         _this9.assertComponentElement(_this9.firstChild, { content: '<!---->' });
+      });
+    };
+
+    _class2.prototype['@test it declares the event dispatcher as a singleton'] = function () {
+      var _this10 = this;
+
+      this.router.map(function () {
+        this.route('engine-event-dispatcher-singleton');
+      });
+
+      var controller = void 0;
+      var component = void 0;
+
+      this.add('controller:engine-event-dispatcher-singleton', _emberRuntime.Controller.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          controller = this;
+        }
+      }));
+      this.addTemplate('engine-event-dispatcher-singleton', '{{mount "foo"}}');
+
+      this.add('engine:foo', _emberApplication.Engine.extend({
+        router: null,
+        init: function () {
+          this._super.apply(this, arguments);
+          this.register('template:application', (0, _helpers.compile)('<h2>Foo Engine: {{tagless-component}}</h2>', { moduleName: 'application' }));
+          this.register('component:tagless-component', _helpers.Component.extend({
+            tagName: "",
+            init: function () {
+              this._super.apply(this, arguments);
+              component = this;
+            }
+          }));
+          this.register('template:components/tagless-component', (0, _helpers.compile)('Tagless Component', { moduleName: 'components/tagless-component' }));
+        }
+      }));
+
+      return this.visit('/engine-event-dispatcher-singleton').then(function () {
+        _this10.assertComponentElement(_this10.firstChild, { content: '<h2>Foo Engine: Tagless Component</h2>' });
+
+        var controllerOwnerEventDispatcher = (0, _emberUtils.getOwner)(controller).lookup('event_dispatcher:main');
+        var taglessComponentOwnerEventDispatcher = (0, _emberUtils.getOwner)(component).lookup('event_dispatcher:main');
+
+        _this10.assert.strictEqual(controllerOwnerEventDispatcher, taglessComponentOwnerEventDispatcher);
       });
     };
 

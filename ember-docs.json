@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "2.14.0.0299c701"
+        "version": "2.14.0.6cafe38e"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -289,6 +289,7 @@
             },
             "classes": {},
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "namespaces": {}
@@ -329,6 +330,7 @@
             "modules": {},
             "classes": {},
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "namespaces": {}
@@ -1842,17 +1844,6 @@
                 "Ember": 1
             }
         },
-        "packages/ember-views/lib/views/view.js": {
-            "name": "packages/ember-views/lib/views/view.js",
-            "modules": {},
-            "classes": {
-                "Ember.View": 1
-            },
-            "fors": {},
-            "namespaces": {
-                "Ember": 1
-            }
-        },
         "packages/ember-views/lib/index.js": {
             "name": "packages/ember-views/lib/index.js",
             "modules": {},
@@ -1904,6 +1895,7 @@
                 "Ember": 1,
                 "Ember.Engine": 1,
                 "Ember.DefaultResolver": 1,
+                "Ember.Debug": 1,
                 "Ember.Error": 1,
                 "Ember.FEATURES": 1,
                 "Ember.ContainerDebugAdapter": 1,
@@ -1972,12 +1964,11 @@
                 "Ember.ViewMixin": 1,
                 "Ember.EventDispatcher": 1,
                 "Ember.CoreView": 1,
-                "Ember.View": 1,
-                "Ember.Debug": 1,
                 "Backburner": 1
             },
             "fors": {
                 "Ember": 1,
+                "Ember.Debug": 1,
                 "Ember.FEATURES": 1,
                 "Ember.Templates.helpers": 1,
                 "Ember.String": 1,
@@ -2027,16 +2018,19 @@
             "name": "ember-debug",
             "submodules": {},
             "elements": {},
-            "classes": {},
+            "classes": {
+                "Ember.Debug": 1
+            },
             "fors": {
+                "Ember.Debug": 1,
                 "Ember": 1
             },
             "is_submodule": 1,
             "namespaces": {},
             "module": "ember",
             "namespace": "",
-            "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 11
+            "file": "packages/ember/lib/index.js",
+            "line": 52
         },
         "ember-extension-support": {
             "name": "ember-extension-support",
@@ -2067,8 +2061,7 @@
                 "Ember.ActionSupport": 1,
                 "Ember.ClassNamesSupport": 1,
                 "Ember.TextSupport": 1,
-                "Ember.EventDispatcher": 1,
-                "Ember.View": 1
+                "Ember.EventDispatcher": 1
             },
             "fors": {},
             "is_submodule": 1,
@@ -2077,8 +2070,8 @@
             },
             "module": "ember",
             "namespace": "",
-            "file": "packages/ember-views/lib/views/view.js",
-            "line": 6,
+            "file": "packages/ember-views/lib/system/event_dispatcher.js",
+            "line": 19,
             "description": "The internal class used to create text inputs when the `{{input}}`\nhelper is used with `type` of `checkbox`.\n\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n\n## Direct manipulation of `checked`\n\nThe `checked` attribute of an `Ember.Checkbox` object should always be set\nthrough the Ember object or by interacting with its rendered element\nrepresentation via the mouse, keyboard, or touch. Updating the value of the\ncheckbox via jQuery will result in the checked value of the object and its\nelement losing synchronization.\n\n## Layout and LayoutName properties\n\nBecause HTML `input` elements are self closing `layout` and `layoutName`\nproperties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s\nlayout section for more information."
         },
         "ember-glimmer": {
@@ -2493,6 +2486,22 @@
             "line": 35,
             "description": "The DefaultResolver defines the default lookup rules to resolve\ncontainer lookups before consulting the container for registered\nitems:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after converting\n  the name. For example, `controller:post` looks up\n  `App.PostController` by default.\n* there are some nuances (see examples below)\n\n### How Resolving Works\n\nThe container calls this object's `resolve` method with the\n`fullName` argument.\n\nIt first parses the fullName into an object using `parseName`.\n\nThen it checks for the presence of a type-specific instance\nmethod of the form `resolve[Type]` and calls it if it exists.\nFor example if it was resolving 'template:post', it would call\nthe `resolveTemplate` method.\n\nIts last resort is to call the `resolveOther` method.\n\nThe methods of this object are designed to be easy to override\nin a subclass. For example, you could enhance how a template\nis resolved like so:\n\n```javascript\nApp = Ember.Application.create({\n  Resolver: Ember.DefaultResolver.extend({\n    resolveTemplate: function(parsedName) {\n      let resolvedTemplate = this._super(parsedName);\n      if (resolvedTemplate) { return resolvedTemplate; }\n      return Ember.TEMPLATES['not_found'];\n    }\n  })\n});\n```\n\nSome examples of how names are resolved:\n\n```\n'template:post'           //=> Ember.TEMPLATES['post']\n'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:blogPost'       //=> Ember.TEMPLATES['blogPost']\n                          //   OR\n                          //   Ember.TEMPLATES['blog_post']\n'controller:post'         //=> App.PostController\n'controller:posts.index'  //=> App.PostsIndexController\n'controller:blog/post'    //=> Blog.PostController\n'controller:basic'        //=> Ember.Controller\n'route:post'              //=> App.PostRoute\n'route:posts.index'       //=> App.PostsIndexRoute\n'route:blog/post'         //=> Blog.PostRoute\n'route:basic'             //=> Ember.Route\n'view:post'               //=> App.PostView\n'view:posts.index'        //=> App.PostsIndexView\n'view:blog/post'          //=> Blog.PostView\n'view:basic'              //=> Ember.View\n'foo:post'                //=> App.PostFoo\n'model:post'              //=> App.Post\n```",
             "extends": "Ember.Object",
+            "access": "public",
+            "tagname": ""
+        },
+        "Ember.Debug": {
+            "name": "Ember.Debug",
+            "shortname": "Ember.Debug",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "ember",
+            "submodule": "ember-debug",
+            "namespace": "",
+            "file": "packages/ember/lib/index.js",
+            "line": 52,
             "access": "public",
             "tagname": ""
         },
@@ -3804,8 +3813,7 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [
-                "Ember.Component",
-                "Ember.View"
+                "Ember.Component"
             ],
             "module": "ember",
             "submodule": "ember-views",
@@ -3895,43 +3903,6 @@
                 "Ember.ActionHandler"
             ],
             "access": "private",
-            "tagname": ""
-        },
-        "Ember.View": {
-            "name": "Ember.View",
-            "shortname": "Ember.View",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "submodule": "ember-views",
-            "namespace": "Ember",
-            "file": "packages/ember-views/lib/views/view.js",
-            "line": 6,
-            "extends": "Ember.CoreView",
-            "deprecated": true,
-            "deprecationMessage": "See http://emberjs.com/deprecations/v1.x/#toc_ember-view",
-            "uses": [
-                "Ember.ClassNamesSupport"
-            ],
-            "access": "private",
-            "tagname": ""
-        },
-        "Ember.Debug": {
-            "name": "Ember.Debug",
-            "shortname": "Ember.Debug",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "namespace": "",
-            "file": "packages/ember/lib/index.js",
-            "line": 52,
-            "access": "public",
             "tagname": ""
         },
         "Backburner": {
@@ -6941,13 +6912,13 @@
                 }
             ],
             "since": "2.1.0",
-            "class": "Ember",
+            "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 135,
+            "line": 136,
             "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only).\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "deprecate",
@@ -7160,13 +7131,13 @@
                 }
             ],
             "since": "2.1.0",
-            "class": "Ember",
+            "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 61,
+            "line": 62,
             "description": "Display a warning with the provided message.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "warn",
@@ -8220,7 +8191,7 @@
         {
             "file": "packages/ember-glimmer/lib/helpers/hash.js",
             "line": 6,
-            "description": "Use the `{{hash}}` helper to create a hash to pass as an option to your\ncomponents. This is specially useful for contextual components where you can\njust yield a hash:\n\n```handlebars\n{{yield (hash\n   name='Sarah'\n   title=office\n)}}\n```\n\nWould result in an object such as:\n\n```js\n{ name: 'Sarah', title: this.get('office') }\n```\n\nWhere the `title` is bound to updates of the `office` property.",
+            "description": "Use the `{{hash}}` helper to create a hash to pass as an option to your\ncomponents. This is specially useful for contextual components where you can\njust yield a hash:\n\n```handlebars\n{{yield (hash\n   name='Sarah'\n   title=office\n)}}\n```\n\nWould result in an object such as:\n\n```js\n{ name: 'Sarah', title: this.get('office') }\n```\n\nWhere the `title` is bound to updates of the `office` property.\n\nNote that the hash is an empty object with no prototype chain, therefore\ncommon methods like `toString` are not available in the resulting hash.\nIf you need to use such a method, you can use the `call` or `apply`\napproach:\n\n```js\nfunction toString(obj) {\n  return Object.prototype.toString.apply(obj);\n}\n```",
             "itemtype": "method",
             "name": "hash",
             "params": [

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.14.0-null+0299c701
+ * @version   2.14.0-null+6cafe38e
  */
 
 var enifed, requireModule, Ember;
@@ -12093,14 +12093,14 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
 
       var parent = (0, _engineParent.getEngineParent)(this);
 
-      ['route:basic', 'event_dispatcher:main', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
+      ['route:basic', 'service:-routing', 'service:-glimmer-environment'].forEach(function (key) {
         return _this2.register(key, parent.resolveRegistration(key));
       });
 
       var env = parent.lookup('-environment:main');
       this.register('-environment:main', env, { instantiate: false });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document'];
+      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document', 'event_dispatcher:main'];
 
       singletons.forEach(function (key) {
         return _this2.register(key, parent.lookup(key), { instantiate: false });
@@ -13259,6 +13259,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @public
     @static
     @method registerDeprecationHandler
+    @for Ember.Debug
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
@@ -16948,11 +16949,11 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'e
   }(_references.CachedReference);
 });
 enifed("ember-glimmer/helpers/hash", ["exports"], function (exports) {
-   "use strict";
+  "use strict";
 
-   exports.default = function (vm, args) {
-      return args.named;
-   };
+  exports.default = function (vm, args) {
+    return args.named;
+  };
 });
 enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-babel', 'ember-debug', 'ember-glimmer/utils/references', '@glimmer/reference'], function (exports, _emberBabel, _emberDebug, _references, _reference) {
   'use strict';
@@ -43318,22 +43319,6 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 
   exports.default = Object.create(_default2.default);
 });
-/**
-@module ember
-@submodule ember-views
-*/
-
-/**
-  @class View
-  @namespace Ember
-  @extends Ember.CoreView
-  @deprecated See http://emberjs.com/deprecations/v1.x/#toc_ember-view
-  @uses Ember.ClassNamesSupport
-  @private
-*/
-enifed("ember-views/views/view", [], function () {
-  "use strict";
-});
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
@@ -43882,7 +43867,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.14.0-null+0299c701";
+  exports.default = "2.14.0-null+6cafe38e";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
