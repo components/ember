@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+960abbcb
+ * @version   2.16.0-alpha.1-null+b4b9600e
  */
 
 var enifed, requireModule, Ember;
@@ -30890,23 +30890,8 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
     location.replace(getOrigin(location) + path);
   }
 });
-enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-utils', 'ember-routing/system/dsl'], function (exports, _emberRuntime, _emberUtils, _dsl) {
+enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-utils', 'ember-routing/utils', 'ember-routing/system/dsl'], function (exports, _emberRuntime, _emberUtils, _utils, _dsl) {
   'use strict';
-
-  function shallowEqual(a, b) {
-    var k = void 0;
-    for (k in a) {
-      if (a.hasOwnProperty(k) && a[k] !== b[k]) {
-        return false;
-      }
-    }
-    for (k in b) {
-      if (b.hasOwnProperty(k) && a[k] !== b[k]) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   /**
      The Router service is the public API that provides component/view layer
@@ -30977,7 +30962,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-util
 
       if (hasQueryParams) {
         this._router._prepareQueryParams(routeName, models, queryParams, true /* fromRouterService */);
-        return shallowEqual(queryParams, state.queryParams);
+        return (0, _utils.shallowEqual)(queryParams, state.queryParams);
       }
 
       return true;
@@ -34103,7 +34088,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
   exports.default = EmberRouter;
 });
-enifed('ember-routing/system/router_state', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime'], function (exports, _emberUtils, _emberMetal, _emberRuntime) {
+enifed('ember-routing/system/router_state', ['exports', 'ember-utils', 'ember-routing/utils', 'ember-runtime'], function (exports, _emberUtils, _utils, _emberRuntime) {
   'use strict';
 
   exports.default = _emberRuntime.Object.extend({
@@ -34117,35 +34102,16 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-utils', 'ember-me
         return false;
       }
 
-      var emptyQueryParams = (0, _emberMetal.isEmpty)(Object.keys(queryParams));
-
-      if (queryParamsMustMatch && !emptyQueryParams) {
-        var visibleQueryParams = {};
-        (0, _emberUtils.assign)(visibleQueryParams, queryParams);
+      if (queryParamsMustMatch && Object.keys(queryParams).length > 0) {
+        var visibleQueryParams = (0, _emberUtils.assign)({}, queryParams);
 
         this.emberRouter._prepareQueryParams(routeName, models, visibleQueryParams);
-        return shallowEqual(visibleQueryParams, state.queryParams);
+        return (0, _utils.shallowEqual)(visibleQueryParams, state.queryParams);
       }
 
       return true;
     }
   });
-
-
-  function shallowEqual(a, b) {
-    var k = void 0;
-    for (k in a) {
-      if (a.hasOwnProperty(k) && a[k] !== b[k]) {
-        return false;
-      }
-    }
-    for (k in b) {
-      if (b.hasOwnProperty(k) && a[k] !== b[k]) {
-        return false;
-      }
-    }
-    return true;
-  }
 });
 enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _emberDebug) {
   'use strict';
@@ -34156,6 +34122,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
   exports.calculateCacheKey = calculateCacheKey;
   exports.normalizeControllerQueryParams = normalizeControllerQueryParams;
   exports.prefixRouteNameArg = prefixRouteNameArg;
+  exports.shallowEqual = shallowEqual;
 
 
   var ALL_PERIODS_REGEX = /\./g;
@@ -34352,6 +34319,28 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
     }
 
     return args;
+  }
+
+  function shallowEqual(a, b) {
+    var k = void 0;
+    var aCount = 0;
+    var bCount = 0;
+    for (k in a) {
+      if (a.hasOwnProperty(k)) {
+        if (a[k] !== b[k]) {
+          return false;
+        }
+        aCount++;
+      }
+    }
+
+    for (k in b) {
+      if (b.hasOwnProperty(k)) {
+        bCount++;
+      }
+    }
+
+    return aCount === bCount;
   }
 });
 enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtime/mixins/comparable'], function (exports, _utils, _comparable) {
@@ -47983,7 +47972,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+960abbcb";
+  exports.default = "2.16.0-alpha.1-null+b4b9600e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
