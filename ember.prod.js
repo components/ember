@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.1
+ * @version   2.15.0-beta.1-null+13226895
  */
 
 var enifed, requireModule, Ember;
@@ -23953,7 +23953,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       while (pointer !== undefined && pointer !== null) {
         meta = metaStore.get(pointer);
         // jshint loopfunc:true
-        if (meta === null || meta !== undefined) {
+        if (meta !== undefined) {
           return meta;
         }
 
@@ -23962,14 +23962,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
   } else {
     setMeta = function (obj, meta) {
-      // if `null` already, just set it to the new value
-      // otherwise define property first
-      if (obj[META_FIELD] !== null) {
-        if (obj.__defineNonEnumerable) {
-          obj.__defineNonEnumerable(EMBER_META_PROPERTY);
-        } else {
-          Object.defineProperty(obj, META_FIELD, META_DESC);
-        }
+      if (obj.__defineNonEnumerable) {
+        obj.__defineNonEnumerable(EMBER_META_PROPERTY);
+      } else {
+        Object.defineProperty(obj, META_FIELD, META_DESC);
       }
 
       obj[META_FIELD] = meta;
@@ -24010,7 +24006,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var parent = void 0;
 
     // remove this code, in-favor of explicit parent
-    if (maybeMeta !== undefined && maybeMeta !== null) {
+    if (maybeMeta !== undefined) {
       if (maybeMeta.source === obj) {
         return maybeMeta;
       }
@@ -36923,7 +36919,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   function EachProxy(content) {
     this._content = content;
     this._keys = undefined;
-    this.__ember_meta__ = null;
+    (0, _emberMetal.meta)(this);
   }
 
   EachProxy.prototype = {
@@ -44232,7 +44228,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.1";
+  exports.default = "2.15.0-beta.1-null+13226895";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
