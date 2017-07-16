@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+cb97ca5f
+ * @version   2.16.0-alpha.1-null+75db545a
  */
 
 var enifed, requireModule, Ember;
@@ -12843,7 +12843,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       this._parseNameCache = (0, _emberUtils.dictionary)(null);
     },
     normalize: function (fullName) {
-      var _fullName$split = fullName.split(':', 2),
+      var _fullName$split = fullName.split(':'),
           type = _fullName$split[0],
           name = _fullName$split[1];
 
@@ -12851,25 +12851,9 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
 
       if (type !== 'template') {
-        var result = name;
-
-        if (result.indexOf('.') > -1) {
-          result = result.replace(/\.(.)/g, function (m) {
-            return m.charAt(1).toUpperCase();
-          });
-        }
-
-        if (name.indexOf('_') > -1) {
-          result = result.replace(/_(.)/g, function (m) {
-            return m.charAt(1).toUpperCase();
-          });
-        }
-
-        if (name.indexOf('-') > -1) {
-          result = result.replace(/-(.)/g, function (m) {
-            return m.charAt(1).toUpperCase();
-          });
-        }
+        var result = name.replace(/(\.|_|-)./g, function (m) {
+          return m.charAt(1).toUpperCase();
+        });
 
         return type + ':' + result;
       } else {
@@ -13001,9 +12985,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       @protected
     */
     useRouterNaming: function (parsedName) {
-      parsedName.name = parsedName.name.replace(/\./g, '_');
       if (parsedName.name === 'basic') {
         parsedName.name = '';
+      } else {
+        parsedName.name = parsedName.name.replace(/\./g, '_');
       }
     },
 
@@ -13111,15 +13096,9 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
      @private
     */
     _logLookup: function (found, parsedName) {
-      var symbol = void 0,
-          padding = void 0;
+      var symbol = found ? '[✓]' : '[ ]';
 
-      if (found) {
-        symbol = '[✓]';
-      } else {
-        symbol = '[ ]';
-      }
-
+      var padding = void 0;
       if (parsedName.fullName.length > 60) {
         padding = '.';
       } else {
@@ -47966,7 +47945,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+cb97ca5f";
+  exports.default = "2.16.0-alpha.1-null+75db545a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
