@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+cfabfc31
+ * @version   2.16.0-alpha.1-null+8dcb2e33
  */
 
 var enifed, requireModule, Ember;
@@ -64265,7 +64265,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-testing/tests/adapters_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-metal', 'ember-debug'], function (_rsvp, _adapter, _emberMetal, _emberDebug) {
+enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-testing/test/promise', 'ember-metal', 'ember-debug'], function (_rsvp, _adapter, _promise, _emberMetal, _emberDebug) {
   'use strict';
 
   var originalTestAdapter = (0, _adapter.getAdapter)();
@@ -64348,6 +64348,34 @@ enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-te
       equal(asyncStarted, 2);
       equal(asyncEnded, 2);
     });
+  });
+
+  QUnit.module('TestPromise');
+
+  QUnit.test('does not throw error when falsy value passed to then', function () {
+    expect(1);
+    return new _promise.default(function (resolve) {
+      resolve();
+    }).then(null).then(function () {
+      ok(true);
+    });
+  });
+
+  QUnit.test('able to get last Promise', function () {
+    expect(2);
+
+    var p1 = new _promise.default(function (resolve) {
+      resolve();
+    }).then(function () {
+      ok(true);
+    });
+
+    var p2 = new _promise.default(function (resolve) {
+      resolve();
+    });
+
+    deepEqual((0, _promise.getLastPromise)(), p2);
+    return p1;
   });
 });
 QUnit.module('ESLint | ember-testing/tests/ext/rsvp_test.js');

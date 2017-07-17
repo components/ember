@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.cfabfc31"
+        "version": "2.16.0-alpha.1.8dcb2e33"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -19406,7 +19406,7 @@
         },
         {
             "file": "packages/ember-testing/lib/test/promise.js",
-            "line": 17,
+            "line": 19,
             "description": "This returns a thenable tailored for testing.  It catches failed\n`onSuccess` callbacks and invokes the `Ember.Test.adapter.exception`\ncallback in the last chained then.\n\nThis method should be returned by async helpers such as `wait`.",
             "access": "public",
             "tagname": "",
@@ -19429,7 +19429,7 @@
         },
         {
             "file": "packages/ember-testing/lib/test/promise.js",
-            "line": 35,
+            "line": 37,
             "description": "Replacement for `Ember.RSVP.resolve`\nThe only difference is this uses\nan instance of `Ember.Test.Promise`",
             "access": "public",
             "tagname": "",

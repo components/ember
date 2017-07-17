@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+cfabfc31
+ * @version   2.16.0-alpha.1-null+8dcb2e33
  */
 
 var enifed, requireModule, Ember;
@@ -44612,16 +44612,18 @@ enifed('ember-testing/test/promise', ['exports', 'ember-babel', 'ember-runtime',
       return _this;
     }
 
-    TestPromise.prototype.then = function then(onFulfillment) {
+    TestPromise.prototype.then = function then(_onFulfillment) {
       var _RSVP$Promise$prototy;
+
+      var onFulfillment = typeof _onFulfillment === 'function' ? function (result) {
+        return isolate(_onFulfillment, result);
+      } : undefined;
 
       for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         args[_key - 1] = arguments[_key];
       }
 
-      return (_RSVP$Promise$prototy = _RSVP$Promise.prototype.then).call.apply(_RSVP$Promise$prototy, [this, function (result) {
-        return isolate(onFulfillment, result);
-      }].concat(args));
+      return (_RSVP$Promise$prototy = _RSVP$Promise.prototype.then).call.apply(_RSVP$Promise$prototy, [this, onFulfillment].concat(args));
     };
 
     return TestPromise;
@@ -47935,7 +47937,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+cfabfc31";
+  exports.default = "2.16.0-alpha.1-null+8dcb2e33";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
