@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.58c0faa0"
+        "version": "2.16.0-alpha.1.c5fa813e"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -10744,7 +10744,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_set.js",
-            "line": 115,
+            "line": 111,
             "description": "Error-tolerant form of `Ember.set`. Will not blow up if any part of the\nchain is `undefined`, `null`, or destroyed.\n\nThis is primarily used when syncing bindings, which may try to update after\nan object has been destroyed.",
             "itemtype": "method",
             "name": "trySet",

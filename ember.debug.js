@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+58c0faa0
+ * @version   2.16.0-alpha.1-null+c5fa813e
  */
 
 var enifed, requireModule, Ember;
@@ -25246,21 +25246,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var parts = path.split('.');
     var keyName = parts.pop();
 
-    true && !(keyName && keyName.length > 0) && emberDebug.assert('Property set failed: You passed an empty path', keyName && keyName.length > 0);
+    true && !(keyName.trim().length > 0) && emberDebug.assert('Property set failed: You passed an empty path', keyName.trim().length > 0);
 
-    var newPath = parts.length > 0 ? parts.join('.') : keyName;
+    var newPath = parts.join('.');
 
     var newRoot = _getPath(root, newPath);
 
-    if (!newRoot) {
-      if (tolerant) {
-        return;
-      } else {
-        throw new emberDebug.Error('Property set failed: object in path "' + newPath + '" could not be found or was destroyed.');
-      }
+    if (newRoot) {
+      return set(newRoot, keyName, value);
+    } else if (!tolerant) {
+      throw new emberDebug.Error('Property set failed: object in path "' + newPath + '" could not be found or was destroyed.');
     }
-
-    return set(newRoot, keyName, value);
   }
 
   /**
@@ -26581,7 +26577,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
    */
   WeakMap$1.prototype.delete = function (obj) {
     if (this.has(obj)) {
-      delete meta(obj).writableWeak()[this._id];
+      delete exports.peekMeta(obj).writableWeak()[this._id];
       return true;
     } else {
       return false;
@@ -47938,7 +47934,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+58c0faa0";
+  exports.default = "2.16.0-alpha.1-null+c5fa813e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
