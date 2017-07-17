@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+c5fa813e
+ * @version   2.16.0-alpha.1-null+dd884ab7
  */
 
 var enifed, requireModule, Ember;
@@ -24126,7 +24126,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return value.get(obj, keyName);
     } else if (isPath(keyName)) {
       return _getPath(obj, keyName);
-    } else if (value === undefined && 'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
+    } else if (value === undefined && 'object' === typeof obj && !(keyName in obj) && typeof obj.unknownProperty === 'function') {
       return obj.unknownProperty(keyName);
     } else {
       return value;
@@ -24211,10 +24211,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (isDescriptor) {
       /* computed property */
       currentValue.set(obj, keyName, value);
-    } else if (obj.setUnknownProperty && currentValue === undefined && !(keyName in obj)) {
+    } else if (currentValue === undefined && 'object' === typeof obj && !(keyName in obj) && typeof obj.setUnknownProperty === 'function') {
       /* unknown property */
-      false && !(typeof obj.setUnknownProperty === 'function') && emberDebug.assert('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
-
       obj.setUnknownProperty(keyName, value);
     } else if (!(currentValue === value)) {
       meta$$1 = exports.peekMeta(obj);
@@ -44136,7 +44134,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+c5fa813e";
+  exports.default = "2.16.0-alpha.1-null+dd884ab7";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
