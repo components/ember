@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+dd884ab7
+ * @version   2.16.0-alpha.1-null+4a9e90d0
  */
 
 var enifed, requireModule, Ember;
@@ -8488,7 +8488,6 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
     // import Logger from './logger';
     // let alreadyWarned = false;
-    // import Logger from './logger';
     function debugAssert(test, msg) {
         // if (!alreadyWarned) {
         //   alreadyWarned = true;
@@ -17856,7 +17855,17 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
     recompute: function () {
       this[RECOMPUTE_TAG].dirty();
     }
-  });
+  }
+
+  /**
+    Override this function when writing a class-based helper.
+     @method compute
+    @param {Array} params The positional arguments to the helper
+    @param {Object} hash The named arguments to the helper
+    @public
+    @since 1.13.0
+  */
+  );
 
   Helper.reopenClass({
     isHelperFactory: true
@@ -47932,12 +47941,12 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+dd884ab7";
+  exports.default = "2.16.0-alpha.1-null+4a9e90d0";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
 
-  /* istanbul ignore next */
+  // File ignored in coverage tests via setting in .istanbul.yml
   /* Jison generated parser */
   var handlebars = function () {
     var parser = { trace: function trace() {},
@@ -48700,7 +48709,10 @@ enifed("handlebars", ["exports"], function (exports) {
         // Work around issue under safari where we can't directly set the column value
         /* istanbul ignore next */
         if (Object.defineProperty) {
-          Object.defineProperty(this, 'column', { value: column });
+          Object.defineProperty(this, 'column', {
+            value: column,
+            enumerable: true
+          });
         } else {
           this.column = column;
         }

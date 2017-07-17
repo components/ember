@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+dd884ab7
+ * @version   2.16.0-alpha.1-null+4a9e90d0
  */
 
 var enifed, requireModule, Ember;
@@ -8800,7 +8800,6 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
     // import Logger from './logger';
     // let alreadyWarned = false;
-    // import Logger from './logger';
 
 
     function _classCallCheck(instance, Constructor) {
@@ -17466,6 +17465,15 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
     recompute: function () {
       this[RECOMPUTE_TAG].dirty();
     }
+
+    /**
+      Override this function when writing a class-based helper.
+       @method compute
+      @param {Array} params The positional arguments to the helper
+      @param {Object} hash The named arguments to the helper
+      @public
+      @since 1.13.0
+    */
   });
 
   Helper.reopenClass({
@@ -43603,7 +43611,7 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
     var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": false, "ember-glimmer-detect-backtracking-rerender": false };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
@@ -43611,13 +43619,13 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
     var EMBER_METAL_WEAKMAP = exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
-    var EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-allow-backtracking-rerender"];
-    var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
-    var EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ENGINES_MOUNT_PARAMS = FEATURES["ember-engines-mount-params"];
+    false;
+    true;
+    true;
     var EMBER_MODULE_UNIFICATION = exports.EMBER_MODULE_UNIFICATION = FEATURES["ember-module-unification"];
     var GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = FEATURES["glimmer-custom-component-manager"];
-    var MANDATORY_SETTER = exports.MANDATORY_SETTER = FEATURES["mandatory-setter"];
-    var EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-detect-backtracking-rerender"];
+    false;
+    false;
 });
 enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module', 'ember-utils', 'container', 'ember-metal', 'ember/features', 'ember-debug', 'backburner', 'ember-console', 'ember-runtime', 'ember-glimmer', 'ember/version', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support'], function (exports, _require2, _emberEnvironment, _nodeModule, _emberUtils, _container, _emberMetal, _features, _emberDebug, _backburner, _emberConsole, _emberRuntime, _emberGlimmer, _version, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport) {
   'use strict';
@@ -44134,7 +44142,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+dd884ab7";
+  exports.default = "2.16.0-alpha.1-null+4a9e90d0";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
@@ -47191,10 +47199,12 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
   exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = exports.asap = undefined;
 
-  var _rsvp;
+  var _rsvp, callbacks;
 
   function indexOf(callbacks, callback) {
-    for (var i = 0, l = callbacks.length; i < l; i++) {
+    var i, l;
+
+    for (i = 0, l = callbacks.length; i < l; i++) {
       if (callbacks[i] === callback) {
         return i;
       }
@@ -47263,11 +47273,12 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     trigger: function (eventName, options, label) {
       var allCallbacks = callbacksFor(this),
           callbacks = void 0,
-          callback = void 0;
+          callback = void 0,
+          i;
 
       if (callbacks = allCallbacks[eventName]) {
         // Don't cache the callbacks.length since it may grow
-        for (var i = 0; i < callbacks.length; i++) {
+        for (i = 0; i < callbacks.length; i++) {
           callback = callbacks[i];
 
           callback(options, label);
@@ -47328,10 +47339,12 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
   function scheduleFlush() {
     setTimeout(function () {
-      for (var i = 0; i < queue.length; i++) {
-        var entry = queue[i];
+      var i, entry, payload;
 
-        var payload = entry.payload;
+      for (i = 0; i < queue.length; i++) {
+        entry = queue[i];
+        payload = entry.payload;
+
 
         payload.guid = payload.key + payload.id;
         payload.childGuid = payload.key + payload.childId;
@@ -47559,7 +47572,8 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   }
 
   function publish(promise) {
-    var subscribers = promise._subscribers;
+    var subscribers = promise._subscribers,
+        i;
     var settled = promise._state;
 
     if (config.instrument) {
@@ -47574,7 +47588,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
         callback = void 0,
         result = promise._result;
 
-    for (var i = 0; i < subscribers.length; i += 3) {
+    for (i = 0; i < subscribers.length; i += 3) {
       child = subscribers[i];
       callback = subscribers[i + settled];
 
@@ -47657,7 +47671,8 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   }
 
   function then(onFulfillment, onRejection, label) {
-    var parent = this;
+    var parent = this,
+        callback;
     var state = parent._state;
 
     if (state === FULFILLED && !onFulfillment || state === REJECTED && !onRejection) {
@@ -47675,7 +47690,8 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     if (state === PENDING) {
       subscribe(parent, child, onFulfillment, onRejection);
     } else {
-      var callback = state === FULFILLED ? onFulfillment : onRejection;
+      callback = state === FULFILLED ? onFulfillment : onRejection;
+
       config.async(function () {
         return invokeCallback(state, child, callback, result);
       });
@@ -47705,20 +47721,24 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   };
 
   Enumerator.prototype._enumerate = function (input) {
-    var length = this.length;
+    var length = this.length,
+        i;
     var promise = this.promise;
 
-    for (var i = 0; promise._state === PENDING && i < length; i++) {
+    for (i = 0; promise._state === PENDING && i < length; i++) {
       this._eachEntry(input[i], i);
     }
   };
 
   Enumerator.prototype._settleMaybeThenable = function (entry, i) {
-    var c = this._instanceConstructor;
+    var c = this._instanceConstructor,
+        then$$1,
+        promise;
     var resolve$$1 = c.resolve;
 
     if (resolve$$1 === resolve$1) {
-      var then$$1 = getThen(entry);
+      then$$1 = getThen(entry);
+
 
       if (then$$1 === then && entry._state !== PENDING) {
         entry._onError = null;
@@ -47727,7 +47747,8 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
         this._remaining--;
         this._result[i] = this._makeResult(FULFILLED, i, entry);
       } else if (c === Promise) {
-        var promise = new c(noop);
+        promise = new c(noop);
+
         handleMaybeThenable(promise, entry, then$$1);
         this._willSettleAt(promise, i);
       } else {
@@ -47840,12 +47861,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     fulfilled, or rejected if any of them become rejected.
     @static
   */
-  function all(entries, label) {
-    if (!isArray(entries)) {
-      return this.reject(new TypeError("Promise.all must be called with an array"), label);
-    }
-    return new Enumerator(this, entries, true /* abort on reject */, label).promise;
-  }
+
 
   /**
     `RSVP.Promise.race` returns a new promise which is settled in the same way as the
@@ -47913,27 +47929,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     @return {Promise} a promise which settles in the same way as the first passed
     promise to settle.
   */
-  function race(entries, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
 
-    var promise = new Constructor(noop, label);
-
-    if (!isArray(entries)) {
-      reject(promise, new TypeError('Promise.race must be called with an array'));
-      return promise;
-    }
-
-    for (var i = 0; promise._state === PENDING && i < entries.length; i++) {
-      subscribe(Constructor.resolve(entries[i]), undefined, function (value) {
-        return resolve(promise, value);
-      }, function (reason) {
-        return reject(promise, reason);
-      });
-    }
-
-    return promise;
-  }
 
   /**
     `RSVP.Promise.reject` returns a promise rejected with the passed `reason`.
@@ -47970,13 +47966,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     Useful for tooling.
     @return {Promise} a promise rejected with the given `reason`.
   */
-  function reject$1(reason, label) {
-    /*jshint validthis:true */
-    var Constructor = this;
-    var promise = new Constructor(noop, label);
-    reject(promise, reason);
-    return promise;
-  }
+
 
   var guidKey = 'rsvp_' + now() + '-';
   var counter = 0;
@@ -48206,10 +48196,42 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   };
 
   Promise.cast = resolve$1; // deprecated
-  Promise.all = all;
-  Promise.race = race;
+  Promise.all = function (entries, label) {
+    if (!isArray(entries)) {
+      return this.reject(new TypeError("Promise.all must be called with an array"), label);
+    }
+    return new Enumerator(this, entries, true /* abort on reject */, label).promise;
+  };
+  Promise.race = function (entries, label) {
+    /*jshint validthis:true */
+    var Constructor = this,
+        i;
+
+    var promise = new Constructor(noop, label);
+
+    if (!isArray(entries)) {
+      reject(promise, new TypeError('Promise.race must be called with an array'));
+      return promise;
+    }
+
+    for (i = 0; promise._state === PENDING && i < entries.length; i++) {
+      subscribe(Constructor.resolve(entries[i]), undefined, function (value) {
+        return resolve(promise, value);
+      }, function (reason) {
+        return reject(promise, reason);
+      });
+    }
+
+    return promise;
+  };
   Promise.resolve = resolve$1;
-  Promise.reject = reject$1;
+  Promise.reject = function (reason, label) {
+    /*jshint validthis:true */
+    var Constructor = this;
+    var promise = new Constructor(noop, label);
+    reject(promise, reason);
+    return promise;
+  };
 
   Promise.prototype._guidKey = guidKey;
 
@@ -48435,16 +48457,20 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   }
 
   function makeObject(_, argumentNames) {
-    var obj = {};
+    var obj = {},
+        x,
+        i,
+        name;
     var length = _.length;
     var args = new Array(length);
 
-    for (var x = 0; x < length; x++) {
+    for (x = 0; x < length; x++) {
       args[x] = _[x];
     }
 
-    for (var i = 0; i < argumentNames.length; i++) {
-      var name = argumentNames[i];
+    for (i = 0; i < argumentNames.length; i++) {
+      name = argumentNames[i];
+
       obj[name] = args[i + 1];
     }
 
@@ -48452,10 +48478,11 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   }
 
   function arrayResult(_) {
-    var length = _.length;
+    var length = _.length,
+        i;
     var args = new Array(length - 1);
 
-    for (var i = 1; i < length; i++) {
+    for (i = 1; i < length; i++) {
       args[i - 1] = _[i];
     }
 
@@ -48600,19 +48627,24 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   */
   function denodeify(nodeFunc, options) {
     var fn = function () {
-      var self = this;
+      var self = this,
+          i,
+          arg,
+          p;
       var l = arguments.length;
       var args = new Array(l + 1);
       var promiseInput = false;
 
-      for (var i = 0; i < l; ++i) {
-        var arg = arguments[i];
+      for (i = 0; i < l; ++i) {
+        arg = arguments[i];
+
 
         if (!promiseInput) {
           // TODO: clean this up
           promiseInput = needsPromiseInput(arg);
           if (promiseInput === GET_THEN_ERROR$1) {
-            var p = new Promise(noop);
+            p = new Promise(noop);
+
             reject(p, GET_THEN_ERROR$1.value);
             return p;
           } else if (promiseInput && promiseInput !== true) {
@@ -48636,7 +48668,6 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     };
 
     (0, _emberBabel.defaults)(fn, nodeFunc);
-
 
     return fn;
   }
@@ -48689,7 +48720,6 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     (0, _emberBabel.inherits)(AllSettled, _Enumerator);
 
     function AllSettled(Constructor, entries, label) {
-      (0, _emberBabel.classCallCheck)(this, AllSettled);
       return (0, _emberBabel.possibleConstructorReturn)(this, _Enumerator.call(this, Constructor, entries, false /* don't abort on reject */, label));
     }
 
@@ -48773,11 +48803,11 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     function PromiseHash(Constructor, object) {
       var abortOnReject = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
       var label = arguments[3];
-      (0, _emberBabel.classCallCheck)(this, PromiseHash);
+
       return (0, _emberBabel.possibleConstructorReturn)(this, _Enumerator2.call(this, Constructor, object, abortOnReject, label));
     }
 
-    PromiseHash.prototype._init = function _init(Constructor, object) {
+    PromiseHash.prototype._init = function (Constructor, object) {
       this._result = {};
 
       this._enumerate(object);
@@ -48786,8 +48816,9 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       }
     };
 
-    PromiseHash.prototype._enumerate = function _enumerate(input) {
-      var promise = this.promise;
+    PromiseHash.prototype._enumerate = function (input) {
+      var promise = this.promise,
+          i;
       var results = [];
 
       for (var key in input) {
@@ -48803,7 +48834,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       this._remaining = length;
       var result = void 0;
 
-      for (var i = 0; promise._state === PENDING && i < length; i++) {
+      for (i = 0; promise._state === PENDING && i < length; i++) {
         result = results[i];
         this._eachEntry(result.entry, result.position);
       }
@@ -48912,7 +48943,6 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     (0, _emberBabel.inherits)(HashSettled, _PromiseHash);
 
     function HashSettled(Constructor, object, label) {
-      (0, _emberBabel.classCallCheck)(this, HashSettled);
       return (0, _emberBabel.possibleConstructorReturn)(this, _PromiseHash.call(this, Constructor, object, false, label));
     }
 
@@ -49210,10 +49240,11 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     }
 
     return Promise.all(promises, label).then(function (values) {
-      var length = values.length;
+      var length = values.length,
+          i;
       var results = new Array(length);
 
-      for (var i = 0; i < length; i++) {
+      for (i = 0; i < length; i++) {
         results[i] = mapFn(values[i]);
       }
 
@@ -49359,18 +49390,20 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
     var promise = isArray(promises) ? resolveAll(promises, label) : resolveSingle(promises, label);
     return promise.then(function (values) {
-      var length = values.length;
+      var length = values.length,
+          i;
       var filtered = new Array(length);
 
-      for (var i = 0; i < length; i++) {
+      for (i = 0; i < length; i++) {
         filtered[i] = filterFn(values[i]);
       }
 
       return resolveAll(filtered, label).then(function (filtered) {
-        var results = new Array(length);
+        var results = new Array(length),
+            _i;
         var newLength = 0;
 
-        for (var _i = 0; _i < length; _i++) {
+        for (_i = 0; _i < length; _i++) {
           if (filtered[_i]) {
             results[newLength] = values[_i];
             newLength++;
@@ -49459,9 +49492,12 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   var queue$1 = new Array(1000);
 
   function flush() {
-    for (var i = 0; i < len; i += 2) {
-      var callback = queue$1[i];
-      var arg = queue$1[i + 1];
+    var i, callback, arg;
+
+    for (i = 0; i < len; i += 2) {
+      callback = queue$1[i];
+      arg = queue$1[i + 1];
+
 
       callback(arg);
 
@@ -49473,9 +49509,12 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   }
 
   function attemptVertex() {
+    var r, vertx;
+
     try {
-      var r = _nodeModule.require;
-      var vertx = r('vertx');
+      r = _nodeModule.require;
+      vertx = r('vertx');
+
       vertxNext = vertx.runOnLoop || vertx.runOnContext;
       return useVertxTimer();
     } catch (e) {
@@ -49497,15 +49536,13 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     scheduleFlush$1 = useSetTimeout();
   }
 
-  var platform = void 0;
-
   /* global self */
   if (typeof self === 'object') {
-    platform = self;
+    self;
 
     /* global global */
   } else if (typeof global === 'object') {
-    platform = global;
+    global;
   } else {
     throw new Error('no global: `self` or `global` found');
   }
@@ -49531,7 +49568,8 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
   // Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
   if (typeof window !== 'undefined' && typeof window['__PROMISE_INSTRUMENTATION__'] === 'object') {
-    var callbacks = window['__PROMISE_INSTRUMENTATION__'];
+    callbacks = window['__PROMISE_INSTRUMENTATION__'];
+
     configure('instrument', true);
     for (var eventName in callbacks) {
       if (callbacks.hasOwnProperty(eventName)) {
