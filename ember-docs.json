@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.23a8c925"
+        "version": "2.16.0-alpha.1.734f8bb4"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2187,7 +2187,7 @@
             "namespace": "",
             "file": "packages/ember-routing/lib/system/router.js",
             "line": 54,
-            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`) to force a\nparticular implementation to be used in your application.\n\n### HashLocation\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\nThis relies upon the `hashchange` event existing in the browser.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.\n\n### HistoryLocation\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.\n\n### AutoLocation\n\nUsing `AutoLocation`, the router will use the best Location class supported by\nthe browser it is running in.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\n### NoneLocation\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks.\n\n## Custom implementation\n\nEmber scans `app/locations/*` for extending the Location API.\n\nExample:\n\n```javascript\nimport Ember from 'ember';\n\nexport default Ember.HistoryLocation.extend({\n  implementation: 'history-url-logging',\n\n  pushState: function (path) {\n    console.log(path);\n    this._super.apply(this, arguments);\n  }\n});\n```"
+            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`, `auto`) to force a\nparticular implementation to be used in your application.\n\nSee [Ember.Location.HashLocation](/api/classes/Ember.Location.HashLocation).\nSee [Ember.Location.HistoryLocation](/api/classes/Ember.Location.HistoryLocation).\nSee [Ember.Location.NoneLocation](/api/classes/Ember.Location.NoneLocation).\nSee [Ember.Location.AutoLocation](/api/classes/Ember.Location.AutoLocation).\n\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks.\n\n## Custom implementation\n\nEmber scans `app/locations/*` for extending the Location API.\n\nExample:\n\n```javascript\nimport Ember from 'ember';\n\nconst { HistoryLocation } = Ember;\n\nexport default class MyHistory {\n  implementation: 'my-custom-history',\n  constructor() {\n    this._history = HistoryLocation.create(...arguments);\n  }\n  create() {\n    return new this(...arguments);\n  }\n  pushState(path) {\n     this._history.pushState(path);\n  }\n}\n```"
         },
         "ember-runtime": {
             "name": "ember-runtime",
@@ -2744,7 +2744,7 @@
             "namespace": "Ember",
             "file": "packages/ember-glimmer/lib/component.js",
             "line": 36,
-            "description": "An `Ember.Component` is a view that is completely\nisolated. Properties accessed in its templates go\nto the view object and actions are targeted at\nthe view object. There is no access to the\nsurrounding context or outer controller; all\ncontextual information must be passed in.\n\nThe easiest way to create an `Ember.Component` is via\na template. If you name a template\n`app/components/my-foo.hbs`, you will be able to use\n`{{my-foo}}` in other templates, which will make\nan instance of the isolated component.\n\n```app/components/my-foo.hbs\n{{person-profile person=currentUser}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n<img src={{person.avatar}}>\n<p class='signature'>{{person.signature}}</p>\n```\n\nYou can use `yield` inside a template to\ninclude the **contents** of any block attached to\nthe component. The block will be executed in the\ncontext of the surrounding context or outer controller:\n\n```handlebars\n{{#person-profile person=currentUser}}\n  <p>Admin mode</p>\n  {{! Executed in the controller's context. }}\n{{/person-profile}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{! Executed in the component's context. }}\n{{yield}} {{! block contents }}\n```\n\nIf you want to customize the component, in order to\nhandle events or actions, you implement a subclass\nof `Ember.Component` named after the name of the\ncomponent.\n\nFor example, you could implement the action\n`hello` for the `person-profile` component:\n\n```app/components/person-profile.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  actions: {\n    hello(name) {\n      console.log(\"Hello\", name);\n    }\n  }\n});\n```\n\nAnd then use it in the component's template:\n\n```app/templates/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{yield}} <!-- block contents -->\n<button {{action 'hello' person.name}}>\n  Say Hello to {{person.name}}\n</button>\n```\n\nComponents must have a `-` in their name to avoid\nconflicts with built-in controls that wrap HTML\nelements. This is consistent with the same\nrequirement in web components.\n\n\n## HTML Tag\n\nThe default HTML tag name used for a component's DOM representation is `div`.\nThis can be customized by setting the `tagName` property.\nThe following component class:\n\n```app/components/emphasized-paragraph.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'em'\n});\n```\n\nWould result in instances with the following HTML:\n\n```html\n<em id=\"ember1\" class=\"ember-view\"></em>\n```\n\n\n## HTML `class` Attribute\n\nThe HTML `class` attribute of a component's tag can be set by providing a\n`classNames` property that is set to an array of strings:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNames: ['my-class', 'my-other-class']\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view my-class my-other-class\"></div>\n```\n\n`class` attribute values can also be set by providing a `classNameBindings`\nproperty set to an array of properties names for the component. The return value\nof these properties will be added as part of the value for the components's `class`\nattribute. These properties can be computed properties:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['propertyA', 'propertyB'],\n  propertyA: 'from-a',\n  propertyB: Ember.computed(function() {\n    if (someLogic) { return 'from-b'; }\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view from-a from-b\"></div>\n```\n\nIf the value of a class name binding returns a boolean the property name\nitself will be used as the class name if the property is true.\nThe class name will not be added if the value is `false` or `undefined`.\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['hovered'],\n  hovered: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view hovered\"></div>\n```\n\nWhen using boolean class name bindings you can supply a string value other\nthan the property name for use as the `class` HTML attribute by appending the\npreferred value after a \":\" character when defining the binding:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['awesome:so-very-cool'],\n  awesome: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view so-very-cool\"></div>\n```\n\nBoolean value class name bindings whose property names are in a\ncamelCase-style format will be converted to a dasherized format:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['isUrgent'],\n  isUrgent: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view is-urgent\"></div>\n```\n\nClass name bindings can also refer to object values that are found by\ntraversing a path relative to the component itself:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['messages.empty'],\n  messages: Ember.Object.create({\n    empty: true\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view empty\"></div>\n```\n\nIf you want to add a class name for a property which evaluates to true and\nand a different class name if it evaluates to false, you can pass a binding\nlike this:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['isEnabled:enabled:disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view enabled\"></div>\n```\n\nWhen isEnabled is `false`, the resulting HTML representation looks like\nthis:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nThis syntax offers the convenience to add a class if a property is `false`:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\n// Applies no class when isEnabled is true and class 'disabled' when isEnabled is false\nexport default Ember.Component.extend({\n  classNameBindings: ['isEnabled::disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\"></div>\n```\n\nWhen the `isEnabled` property on the component is set to `false`, it will result\nin component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nUpdates to the value of a class name binding will result in automatic\nupdate of the  HTML `class` attribute in the component's rendered HTML\nrepresentation. If the value becomes `false` or `undefined` the class name\nwill be removed.\nBoth `classNames` and `classNameBindings` are concatenated properties. See\n[Ember.Object](/api/classes/Ember.Object.html) documentation for more\ninformation about concatenated properties.\n\n\n## HTML Attributes\n\nThe HTML attribute section of a component's tag can be set by providing an\n`attributeBindings` property set to an array of property names on the component.\nThe return value of these properties will be used as the value of the component's\nHTML associated attribute:\n\n```app/components/my-anchor.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'a',\n  attributeBindings: ['href'],\n  href: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nOne property can be mapped on to another by placing a \":\" between\nthe source property and the destination property:\n\n```app/components/my-anchor.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'a',\n  attributeBindings: ['url:href'],\n  url: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nNamespaced attributes (e.g. `xlink:href`) are supported, but have to be\nmapped, since `:` is not a valid character for properties in Javascript:\n\n```app/components/my-use.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'use',\n  attributeBindings: ['xlinkHref:xlink:href'],\n  xlinkHref: '#triangle'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<use xlink:href=\"#triangle\"></use>\n```\n\nIf the return value of an `attributeBindings` monitored property is a boolean\nthe attribute will be present or absent depending on the value:\n\n```app/components/my-text-input.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n  disabled: false\n});\n```\n\nWill result in a component instance with an HTML representation of:\n\n```html\n<input id=\"ember1\" class=\"ember-view\" />\n```\n\n`attributeBindings` can refer to computed properties:\n\n```app/components/my-text-input.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n  disabled: Ember.computed(function() {\n    if (someLogic) {\n      return true;\n    } else {\n      return false;\n    }\n  })\n});\n```\n\nTo prevent setting an attribute altogether, use `null` or `undefined` as the\nreturn value of the `attributeBindings` monitored property:\n\n```app/components/my-text-input.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'form',\n  attributeBindings: ['novalidate'],\n  novalidate: null\n});\n```\n\nUpdates to the property of an attribute binding will result in automatic\nupdate of the  HTML attribute in the component's rendered HTML representation.\n`attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)\ndocumentation for more information about concatenated properties.\n\n\n## Layouts\n\nSee [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)\nfor more information.\n\n\n## Responding to Browser Events\n\nComponents can respond to user-initiated events in one of three ways: method\nimplementation, through an event manager, and through `{{action}}` helper use\nin their template or layout.\n\n\n### Method Implementation\n\nComponents can respond to user-initiated events by implementing a method that\nmatches the event name. A `jQuery.Event` object will be passed as the\nargument to this method.\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  click(event) {\n    // will be called when an instance's\n    // rendered element is clicked\n  }\n});\n```\n\n\n### `{{action}}` Helper\n\nSee [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).\n\n\n### Event Names\n\nAll of the event handling approaches described above respond to the same set\nof events. The names of the built-in events are listed below. (The hash of\nbuilt-in events exists in `Ember.EventDispatcher`.) Additional, custom events\ncan be registered by using `Ember.Application.customEvents`.\n\nTouch events:\n\n* `touchStart`\n* `touchMove`\n* `touchEnd`\n* `touchCancel`\n\nKeyboard events:\n\n* `keyDown`\n* `keyUp`\n* `keyPress`\n\nMouse events:\n\n* `mouseDown`\n* `mouseUp`\n* `contextMenu`\n* `click`\n* `doubleClick`\n* `mouseMove`\n* `focusIn`\n* `focusOut`\n* `mouseEnter`\n* `mouseLeave`\n\nForm events:\n\n* `submit`\n* `change`\n* `focusIn`\n* `focusOut`\n* `input`\n\nHTML5 drag and drop events:\n\n* `dragStart`\n* `drag`\n* `dragEnter`\n* `dragLeave`\n* `dragOver`\n* `dragEnd`\n* `drop`",
+            "description": "An `Ember.Component` is a view that is completely\nisolated. Properties accessed in its templates go\nto the view object and actions are targeted at\nthe view object. There is no access to the\nsurrounding context or outer controller; all\ncontextual information must be passed in.\n\nThe easiest way to create an `Ember.Component` is via\na template. If you name a template\n`app/components/my-foo.hbs`, you will be able to use\n`{{my-foo}}` in other templates, which will make\nan instance of the isolated component.\n\n```app/components/my-foo.hbs\n{{person-profile person=currentUser}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n<img src={{person.avatar}}>\n<p class='signature'>{{person.signature}}</p>\n```\n\nYou can use `yield` inside a template to\ninclude the **contents** of any block attached to\nthe component. The block will be executed in the\ncontext of the surrounding context or outer controller:\n\n```handlebars\n{{#person-profile person=currentUser}}\n  <p>Admin mode</p>\n  {{! Executed in the controller's context. }}\n{{/person-profile}}\n```\n\n```app/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{! Executed in the component's context. }}\n{{yield}} {{! block contents }}\n```\n\nIf you want to customize the component, in order to\nhandle events or actions, you implement a subclass\nof `Ember.Component` named after the name of the\ncomponent.\n\nFor example, you could implement the action\n`hello` for the `person-profile` component:\n\n```app/components/person-profile.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  actions: {\n    hello(name) {\n      console.log(\"Hello\", name);\n    }\n  }\n});\n```\n\nAnd then use it in the component's template:\n\n```app/templates/components/person-profile.hbs\n<h1>{{person.title}}</h1>\n{{yield}} <!-- block contents -->\n<button {{action 'hello' person.name}}>\n  Say Hello to {{person.name}}\n</button>\n```\n\nComponents must have a `-` in their name to avoid\nconflicts with built-in controls that wrap HTML\nelements. This is consistent with the same\nrequirement in web components.\n\n\n## HTML Tag\n\nThe default HTML tag name used for a component's DOM representation is `div`.\nThis can be customized by setting the `tagName` property.\nThe following component class:\n\n```app/components/emphasized-paragraph.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'em'\n});\n```\n\nWould result in instances with the following HTML:\n\n```html\n<em id=\"ember1\" class=\"ember-view\"></em>\n```\n\n\n## HTML `class` Attribute\n\nThe HTML `class` attribute of a component's tag can be set by providing a\n`classNames` property that is set to an array of strings:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNames: ['my-class', 'my-other-class']\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view my-class my-other-class\"></div>\n```\n\n`class` attribute values can also be set by providing a `classNameBindings`\nproperty set to an array of properties names for the component. The return value\nof these properties will be added as part of the value for the components's `class`\nattribute. These properties can be computed properties:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['propertyA', 'propertyB'],\n  propertyA: 'from-a',\n  propertyB: Ember.computed(function() {\n    if (someLogic) { return 'from-b'; }\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view from-a from-b\"></div>\n```\n\nIf the value of a class name binding returns a boolean the property name\nitself will be used as the class name if the property is true.\nThe class name will not be added if the value is `false` or `undefined`.\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['hovered'],\n  hovered: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view hovered\"></div>\n```\n\nWhen using boolean class name bindings you can supply a string value other\nthan the property name for use as the `class` HTML attribute by appending the\npreferred value after a \":\" character when defining the binding:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['awesome:so-very-cool'],\n  awesome: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view so-very-cool\"></div>\n```\n\nBoolean value class name bindings whose property names are in a\ncamelCase-style format will be converted to a dasherized format:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['isUrgent'],\n  isUrgent: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view is-urgent\"></div>\n```\n\nClass name bindings can also refer to object values that are found by\ntraversing a path relative to the component itself:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['messages.empty'],\n  messages: Ember.Object.create({\n    empty: true\n  })\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view empty\"></div>\n```\n\nIf you want to add a class name for a property which evaluates to true and\nand a different class name if it evaluates to false, you can pass a binding\nlike this:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  classNameBindings: ['isEnabled:enabled:disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view enabled\"></div>\n```\n\nWhen isEnabled is `false`, the resulting HTML representation looks like\nthis:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nThis syntax offers the convenience to add a class if a property is `false`:\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\n// Applies no class when isEnabled is true and class 'disabled' when isEnabled is false\nexport default Ember.Component.extend({\n  classNameBindings: ['isEnabled::disabled'],\n  isEnabled: true\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view\"></div>\n```\n\nWhen the `isEnabled` property on the component is set to `false`, it will result\nin component instances with an HTML representation of:\n\n```html\n<div id=\"ember1\" class=\"ember-view disabled\"></div>\n```\n\nUpdates to the value of a class name binding will result in automatic\nupdate of the  HTML `class` attribute in the component's rendered HTML\nrepresentation. If the value becomes `false` or `undefined` the class name\nwill be removed.\nBoth `classNames` and `classNameBindings` are concatenated properties. See\n[Ember.Object](/api/classes/Ember.Object.html) documentation for more\ninformation about concatenated properties.\n\n\n## HTML Attributes\n\nThe HTML attribute section of a component's tag can be set by providing an\n`attributeBindings` property set to an array of property names on the component.\nThe return value of these properties will be used as the value of the component's\nHTML associated attribute:\n\n```app/components/my-anchor.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'a',\n  attributeBindings: ['href'],\n  href: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nOne property can be mapped on to another by placing a \":\" between\nthe source property and the destination property:\n\n```app/components/my-anchor.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'a',\n  attributeBindings: ['url:href'],\n  url: 'http://google.com'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<a id=\"ember1\" class=\"ember-view\" href=\"http://google.com\"></a>\n```\n\nNamespaced attributes (e.g. `xlink:href`) are supported, but have to be\nmapped, since `:` is not a valid character for properties in Javascript:\n\n```app/components/my-use.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'use',\n  attributeBindings: ['xlinkHref:xlink:href'],\n  xlinkHref: '#triangle'\n});\n```\n\nWill result in component instances with an HTML representation of:\n\n```html\n<use xlink:href=\"#triangle\"></use>\n```\n\nIf the return value of an `attributeBindings` monitored property is a boolean\nthe attribute will be present or absent depending on the value:\n\n```app/components/my-text-input.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n  disabled: false\n});\n```\n\nWill result in a component instance with an HTML representation of:\n\n```html\n<input id=\"ember1\" class=\"ember-view\" />\n```\n\n`attributeBindings` can refer to computed properties:\n\n```app/components/my-text-input.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'input',\n  attributeBindings: ['disabled'],\n  disabled: Ember.computed(function() {\n    if (someLogic) {\n      return true;\n    } else {\n      return false;\n    }\n  })\n});\n```\n\nTo prevent setting an attribute altogether, use `null` or `undefined` as the\nreturn value of the `attributeBindings` monitored property:\n\n```app/components/my-text-input.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  tagName: 'form',\n  attributeBindings: ['novalidate'],\n  novalidate: null\n});\n```\n\nUpdates to the property of an attribute binding will result in automatic\nupdate of the  HTML attribute in the component's rendered HTML representation.\n`attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)\ndocumentation for more information about concatenated properties.\n\n\n## Layouts\n\nSee [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)\nfor more information.\n\nLayout can be used to wrap content in a component. In addition\nto wrapping content in a Component's template, you can also use\nthe public layout API in your Component JavaScript.\n\n```app/templates/components/person-profile.hbs\n  <h1>Person's Title</h1>\n  <div class='details'>{{yield}}</div>\n```\n\n```app/components/person-profile.js\n  import Ember from 'ember';\n  import layout from '../templates/components/person-profile';\n\n  export default Ember.Component.extend({\n    layout\n  });\n```\n\nThe above will result in the following HTML output:\n\n```html\n  <h1>Person's Title</h1>\n  <div class=\"details\">\n    <h2>Chief Basket Weaver</h2>\n    <h3>Fisherman Industries</h3>\n  </div>\n```\n\n\n## Responding to Browser Events\n\nComponents can respond to user-initiated events in one of three ways: method\nimplementation, through an event manager, and through `{{action}}` helper use\nin their template or layout.\n\n\n### Method Implementation\n\nComponents can respond to user-initiated events by implementing a method that\nmatches the event name. A `jQuery.Event` object will be passed as the\nargument to this method.\n\n```app/components/my-widget.js\nimport Ember from 'ember';\n\nexport default Ember.Component.extend({\n  click(event) {\n    // will be called when an instance's\n    // rendered element is clicked\n  }\n});\n```\n\n\n### `{{action}}` Helper\n\nSee [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).\n\n\n### Event Names\n\nAll of the event handling approaches described above respond to the same set\nof events. The names of the built-in events are listed below. (The hash of\nbuilt-in events exists in `Ember.EventDispatcher`.) Additional, custom events\ncan be registered by using `Ember.Application.customEvents`.\n\nTouch events:\n\n* `touchStart`\n* `touchMove`\n* `touchEnd`\n* `touchCancel`\n\nKeyboard events:\n\n* `keyDown`\n* `keyUp`\n* `keyPress`\n\nMouse events:\n\n* `mouseDown`\n* `mouseUp`\n* `contextMenu`\n* `click`\n* `doubleClick`\n* `mouseMove`\n* `focusIn`\n* `focusOut`\n* `mouseEnter`\n* `mouseLeave`\n\nForm events:\n\n* `submit`\n* `change`\n* `focusIn`\n* `focusOut`\n* `input`\n\nHTML5 drag and drop events:\n\n* `dragStart`\n* `drag`\n* `dragEnter`\n* `dragLeave`\n* `dragOver`\n* `dragEnd`\n* `drop`",
             "extends": "Ember.CoreView",
             "uses": [
                 "Ember.TargetActionSupport",
@@ -3087,7 +3087,7 @@
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/location/api.js",
             "line": 10,
-            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`) to force a\nparticular implementation to be used in your application.\n\n### HashLocation\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\nThis relies upon the `hashchange` event existing in the browser.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.\n\n### HistoryLocation\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.\n\n### AutoLocation\n\nUsing `AutoLocation`, the router will use the best Location class supported by\nthe browser it is running in.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\n### NoneLocation\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks.\n\n## Custom implementation\n\nEmber scans `app/locations/*` for extending the Location API.\n\nExample:\n\n```javascript\nimport Ember from 'ember';\n\nexport default Ember.HistoryLocation.extend({\n  implementation: 'history-url-logging',\n\n  pushState: function (path) {\n    console.log(path);\n    this._super.apply(this, arguments);\n  }\n});\n```",
+            "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`, `auto`) to force a\nparticular implementation to be used in your application.\n\nSee [Ember.Location.HashLocation](/api/classes/Ember.Location.HashLocation).\nSee [Ember.Location.HistoryLocation](/api/classes/Ember.Location.HistoryLocation).\nSee [Ember.Location.NoneLocation](/api/classes/Ember.Location.NoneLocation).\nSee [Ember.Location.AutoLocation](/api/classes/Ember.Location.AutoLocation).\n\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks.\n\n## Custom implementation\n\nEmber scans `app/locations/*` for extending the Location API.\n\nExample:\n\n```javascript\nimport Ember from 'ember';\n\nconst { HistoryLocation } = Ember;\n\nexport default class MyHistory {\n  implementation: 'my-custom-history',\n  constructor() {\n    this._history = HistoryLocation.create(...arguments);\n  }\n  create() {\n    return new this(...arguments);\n  }\n  pushState(path) {\n     this._history.pushState(path);\n  }\n}\n```",
             "static": 1,
             "access": "private",
             "tagname": ""
@@ -3104,10 +3104,10 @@
             "submodule": "ember-routing",
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 22,
-            "description": "Ember.AutoLocation will select the best location option based off browser\nsupport with the priority order: history, hash, none.\n\nClean pushState paths accessed by hashchange-only browsers will be redirected\nto the hash-equivalent and vice versa so future transitions are consistent.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.",
+            "line": 23,
+            "description": "Ember.AutoLocation will select the best location option based off browser\nsupport with the priority order: history, hash, none.\n\nClean pushState paths accessed by hashchange-only browsers will be redirected\nto the hash-equivalent and vice versa so future transitions are consistent.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.",
             "static": 1,
-            "access": "private",
+            "access": "protected",
             "tagname": ""
         },
         "Ember.HashLocation": {
@@ -3123,9 +3123,9 @@
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/location/hash_location.js",
             "line": 15,
-            "description": "`Ember.HashLocation` implements the location API using the browser's\nhash. At present, it relies on a `hashchange` event existing in the\nbrowser.",
+            "description": "`Ember.HashLocation` implements the location API using the browser's\nhash. At present, it relies on a `hashchange` event existing in the\nbrowser.\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.",
             "extends": "Ember.Object",
-            "access": "private",
+            "access": "protected",
             "tagname": ""
         },
         "Ember.HistoryLocation": {
@@ -3141,9 +3141,9 @@
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/location/history_location.js",
             "line": 26,
-            "description": "Ember.HistoryLocation implements the location API using the browser's\nhistory.pushState API.",
+            "description": "Ember.HistoryLocation implements the location API using the browser's\nhistory.pushState API.\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.",
             "extends": "Ember.Object",
-            "access": "private",
+            "access": "protected",
             "tagname": ""
         },
         "Ember.NoneLocation": {
@@ -3159,9 +3159,9 @@
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/location/none_location.js",
             "line": 13,
-            "description": "Ember.NoneLocation does not interact with the browser. It is useful for\ntesting, or when you need to manage state with your Router, but temporarily\ndon't want it to muck with the URL (for example when you embed your\napplication in a larger page).",
+            "description": "Ember.NoneLocation does not interact with the browser. It is useful for\ntesting, or when you need to manage state with your Router, but temporarily\ndon't want it to muck with the URL (for example when you embed your\napplication in a larger page).\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.",
             "extends": "Ember.Object",
-            "access": "private",
+            "access": "protected",
             "tagname": ""
         },
         "RouterService": {
@@ -8404,7 +8404,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 606,
+            "line": 634,
             "description": "Normally, Ember's component model is \"write-only\". The component takes a\nbunch of attributes that it got passed in, and uses them to render its\ntemplate.\n\nOne nice thing about this model is that if you try to set a value to the\nsame thing as last time, Ember (through HTMLBars) will avoid doing any\nwork on the DOM.\n\nThis is not just a performance optimization. If an attribute has not\nchanged, it is important not to clobber the element's \"hidden state\".\nFor example, if you set an input's `value` to the same value as before,\nit will clobber selection state and cursor position. In other words,\nsetting an attribute is not **always** idempotent.\n\nThis method provides a way to read an element's attribute and also\nupdate the last value Ember knows about at the same time. This makes\nsetting an attribute idempotent.\n\nIn particular, what this means is that if you get an `<input>` element's\n`value` attribute and then re-render the template with the same value,\nit will avoid clobbering the cursor and selection position.\nSince most attribute sets are idempotent in the browser, you typically\ncan get away with reading attributes using jQuery, but the most reliable\nway to do so is through this method.",
             "itemtype": "method",
             "name": "readDOMAttr",
@@ -8427,7 +8427,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 642,
+            "line": 670,
             "description": "The WAI-ARIA role of the control represented by this view. For example, a\nbutton may have a role of type 'button', or a pane may have a role of\ntype 'alertdialog'. This property is used by assistive software to help\nvisually challenged users navigate rich web applications.\n\nThe full list of valid WAI-ARIA roles is available at:\n[http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)",
             "itemtype": "property",
             "name": "ariaRole",
@@ -8442,7 +8442,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 657,
+            "line": 685,
             "description": "Enables components to take a list of parameters as arguments.\nFor example, a component that takes two parameters with the names\n`name` and `age`:\n\n```javascript\nlet MyComponent = Ember.Component.extend;\n\nMyComponent.reopenClass({\n  positionalParams: ['name', 'age']\n});\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" 38}}\n```\n\nThe parameters can be referred to just like named parameters:\n\n```hbs\nName: {{name}}, Age: {{age}}.\n```\n\nUsing a string instead of an array allows for an arbitrary number of\nparameters:\n\n```javascript\nlet MyComponent = Ember.Component.extend;\n\nMyComponent.reopenClass({\n  positionalParams: 'names'\n});\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" \"Michael\" \"Scott\"}}\n```\nThe parameters can then be referred to by enumerating over the list:\n\n```hbs\n{{#each names as |name|}}{{name}}{{/each}}\n```",
             "static": 1,
             "access": "public",
@@ -8457,49 +8457,49 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 711,
-            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
-            "itemtype": "method",
-            "name": "didReceiveAttrs",
-            "access": "public",
-            "tagname": "",
-            "since": "1.13.0",
-            "class": "Ember.Component",
-            "module": "ember",
-            "submodule": "ember-glimmer",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-glimmer/lib/component.js",
-            "line": 721,
-            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
-            "itemtype": "event",
-            "name": "didReceiveAttrs",
-            "access": "public",
-            "tagname": "",
-            "since": "1.13.0",
-            "class": "Ember.Component",
-            "module": "ember",
-            "submodule": "ember-glimmer",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-glimmer/lib/component.js",
-            "line": 731,
-            "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
-            "itemtype": "method",
-            "name": "didRender",
-            "access": "public",
-            "tagname": "",
-            "since": "1.13.0",
-            "class": "Ember.Component",
-            "module": "ember",
-            "submodule": "ember-glimmer",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-glimmer/lib/component.js",
             "line": 739,
+            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
+            "itemtype": "method",
+            "name": "didReceiveAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-glimmer",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.js",
+            "line": 749,
+            "description": "Called when the attributes passed into the component have been updated.\nCalled both during the initial render of a container and during a rerender.\nCan be used in place of an observer; code placed here will be executed\nevery time any attribute updates.",
+            "itemtype": "event",
+            "name": "didReceiveAttrs",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-glimmer",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.js",
+            "line": 759,
+            "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
+            "itemtype": "method",
+            "name": "didRender",
+            "access": "public",
+            "tagname": "",
+            "since": "1.13.0",
+            "class": "Ember.Component",
+            "module": "ember",
+            "submodule": "ember-glimmer",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-glimmer/lib/component.js",
+            "line": 767,
             "description": "Called after a component has been rendered, both on initial render and\nin subsequent rerenders.",
             "itemtype": "event",
             "name": "didRender",
@@ -8513,7 +8513,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 747,
+            "line": 775,
             "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
             "itemtype": "method",
             "name": "willRender",
@@ -8527,7 +8527,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 755,
+            "line": 783,
             "description": "Called before a component has been rendered, both on initial render and\nin subsequent rerenders.",
             "itemtype": "event",
             "name": "willRender",
@@ -8541,7 +8541,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 763,
+            "line": 791,
             "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "method",
             "name": "didUpdateAttrs",
@@ -8555,7 +8555,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 771,
+            "line": 799,
             "description": "Called when the attributes passed into the component have been changed.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "event",
             "name": "didUpdateAttrs",
@@ -8569,7 +8569,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 779,
+            "line": 807,
             "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "method",
             "name": "willUpdate",
@@ -8583,7 +8583,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 787,
+            "line": 815,
             "description": "Called when the component is about to update and rerender itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "event",
             "name": "willUpdate",
@@ -8597,7 +8597,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 795,
+            "line": 823,
             "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "method",
             "name": "didUpdate",
@@ -8611,7 +8611,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 803,
+            "line": 831,
             "description": "Called when the component has updated and rerendered itself.\nCalled only during a rerender, not during an initial render.",
             "itemtype": "event",
             "name": "didUpdate",
@@ -8625,8 +8625,8 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 811,
-            "description": "A component may contain a layout. A layout is a regular template but\nsupersedes the `template` property during rendering. It is the\nresponsibility of the layout template to retrieve the `template`\nproperty from the component (or alternatively, call `Handlebars.helpers.yield`,\n`{{yield}}`) to render it in the correct location.\nThis is useful for a component that has a shared wrapper, but which delegates\nthe rendering of the contents of the wrapper to the `template` property\non a subclass.",
+            "line": 839,
+            "description": "Layout can be used to wrap content in a component.",
             "itemtype": "property",
             "name": "layout",
             "type": "Function",
@@ -8639,7 +8639,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 825,
+            "line": 846,
             "description": "The name of the layout to lookup if no layout is provided.\nBy default `Ember.Component` will lookup a template with this name in\n`Ember.TEMPLATES` (a shared global object).",
             "itemtype": "property",
             "name": "layoutName",
@@ -8654,7 +8654,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 835,
+            "line": 856,
             "description": "Returns a jQuery object for this component's element. If you pass in a selector\nstring, this method will return a jQuery object, using the current element\nas its buffer.\nFor example, calling `component.$('li')` will return a jQuery object containing\nall of the `li` elements inside the DOM element of this component.",
             "itemtype": "method",
             "name": "$",
@@ -8679,7 +8679,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 847,
+            "line": 868,
             "description": "The HTML `id` of the component's element in the DOM. You can provide this\nvalue yourself but it must be unique (just as in HTML):\n\n```handlebars\n{{my-component elementId=\"a-really-cool-id\"}}\n```\nIf not manually set a default value will be provided by the framework.\nOnce rendered an element's `elementId` is considered immutable and you\nshould never change it. If you need to compute a dynamic value for the\n`elementId`, you should do this when the component or element is being\ninstantiated:\n\n```javascript\nexport default Ember.Component.extend({\n  init() {\n    this._super(...arguments);\n\n    var index = this.get('index');\n    this.set('elementId', `component-id${index}`);\n  }\n});\n```",
             "itemtype": "property",
             "name": "elementId",
@@ -8693,7 +8693,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/component.js",
-            "line": 876,
+            "line": 897,
             "description": "If `false`, the view will appear hidden in DOM.",
             "itemtype": "property",
             "name": "isVisible",
@@ -11393,7 +11393,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/api.js",
-            "line": 147,
+            "line": 73,
             "description": "This is deprecated in favor of using the container to lookup the location\nimplementation as desired.\n\nFor example:\n\n```javascript\n// Given a location registered as follows:\ncontainer.register('location:history-test', HistoryTestLocation);\n\n// You could create a new instance via:\ncontainer.lookup('location:history-test');\n```",
             "itemtype": "method",
             "name": "create",
@@ -11419,7 +11419,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/api.js",
-            "line": 181,
+            "line": 107,
             "description": "Returns the current `location.hash` by parsing location.href since browsers\ninconsistently URL-decode `location.hash`.\n\nhttps://bugzilla.mozilla.org/show_bug.cgi?id=483304",
             "access": "private",
             "tagname": "",
@@ -11433,7 +11433,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 38,
+            "line": 68,
             "access": "private",
             "tagname": "The browser's `location` object. This is typically equivalent to\n`window.location`, but may be overridden for testing.",
             "itemtype": "property",
@@ -11446,7 +11446,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 49,
+            "line": 79,
             "access": "private",
             "tagname": "The browser's `history` object. This is typically equivalent to\n`window.history`, but may be overridden for testing.",
             "since": "1.5.1",
@@ -11460,7 +11460,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 61,
+            "line": 91,
             "access": "private",
             "tagname": "The user agent's global variable. In browsers, this will be `window`.",
             "since": "1.11",
@@ -11474,7 +11474,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 72,
+            "line": 102,
             "access": "private",
             "tagname": "The browser's `userAgent`. This is typically equivalent to\n`navigator.userAgent`, but may be overridden for testing.",
             "since": "1.5.1",
@@ -11488,7 +11488,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 84,
+            "line": 114,
             "access": "private",
             "tagname": "This property is used by the router to know whether to cancel the routing\nsetup process, which is needed while we redirect the browser.",
             "since": "1.5.1",
@@ -11502,7 +11502,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 96,
+            "line": 126,
             "access": "private",
             "tagname": "Will be pre-pended to path upon state change.",
             "since": "1.5.1",
@@ -11516,7 +11516,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 107,
+            "line": 137,
             "description": "Called by the router to instruct the location to do any feature detection\nnecessary. In the case of AutoLocation, we detect whether to use history\nor hash concrete implementations.",
             "access": "private",
             "tagname": "",
@@ -11527,7 +11527,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 231,
+            "line": 261,
             "access": "private",
             "tagname": "Returns the current path as it should appear for HistoryLocation supported\nbrowsers. This may very well differ from the real current path (e.g. if it\nstarts off as a hashed URL)",
             "class": "Ember.AutoLocation",
@@ -11537,7 +11537,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 275,
+            "line": 305,
             "access": "private",
             "tagname": "Returns the current path as it should appear for HashLocation supported\nbrowsers. This may very well differ from the real current path.",
             "itemtype": "method",
@@ -11549,7 +11549,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 34,
+            "line": 53,
             "access": "private",
             "tagname": "Returns normalized location.hash",
             "since": "1.5.1",
@@ -11562,7 +11562,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 44,
+            "line": 63,
             "description": "Returns the normalized URL, constructed from `location.hash`.\n\ne.g. `#/foo` => `/foo` as well as `#/foo#bar` => `/foo#bar`.\n\nBy convention, hashed paths must begin with a forward slash, otherwise they\nare not treated as a path so we can distinguish intent.",
             "access": "private",
             "tagname": "",
@@ -11575,7 +11575,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 74,
+            "line": 93,
             "description": "Set the `location.hash` and remembers what was set. This prevents\n`onUpdateURL` callbacks from triggering when the hash was set by\n`HashLocation`.",
             "access": "private",
             "tagname": "",
@@ -11595,7 +11595,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 88,
+            "line": 107,
             "description": "Uses location.replace to update the url without a page reload\nor history modification.",
             "access": "private",
             "tagname": "",
@@ -11615,7 +11615,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 101,
+            "line": 120,
             "description": "Register a callback to be invoked when the hash changes. These\ncallbacks will execute when the user presses the back or forward\nbutton, but not after `setURL` is invoked.",
             "access": "private",
             "tagname": "",
@@ -11635,7 +11635,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 125,
+            "line": 144,
             "description": "Given a URL, formats it to be placed into the page as part\nof an element's `href` attribute.\n\nThis is used, for example, when using the {{action}} helper\nto generate a URL based on an event.",
             "access": "private",
             "tagname": "",
@@ -11655,7 +11655,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/hash_location.js",
-            "line": 140,
+            "line": 159,
             "description": "Cleans up the HashLocation event listener.",
             "access": "private",
             "tagname": "",
@@ -11668,7 +11668,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 53,
+            "line": 75,
             "description": "Used to set state on first call to setURL",
             "access": "private",
             "tagname": "",
@@ -11681,7 +11681,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 70,
+            "line": 92,
             "description": "Will be pre-pended to path upon state change",
             "itemtype": "property",
             "name": "rootURL",
@@ -11695,7 +11695,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 79,
+            "line": 101,
             "description": "Returns the current `location.pathname` without `rootURL` or `baseURL`",
             "access": "private",
             "tagname": "",
@@ -11712,7 +11712,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 109,
+            "line": 131,
             "description": "Uses `history.pushState` to update the url without a page reload.",
             "access": "private",
             "tagname": "",
@@ -11732,7 +11732,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 125,
+            "line": 147,
             "description": "Uses `history.replaceState` to update the url without a page reload\nor history modification.",
             "access": "private",
             "tagname": "",
@@ -11752,7 +11752,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 142,
+            "line": 164,
             "description": "Get the current `history.state`. Checks for if a polyfill is\nrequired and if so fetches this._historyState. The state returned\nfrom getState may be null if an iframe has changed a window's\nhistory.\n\nThe object returned will contain a `path` for the given state as well\nas a unique state `id`. The state index will allow the app to distinguish\nbetween two states with similar paths but should be unique from one another.",
             "access": "private",
             "tagname": "",
@@ -11769,7 +11769,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 164,
+            "line": 186,
             "description": "Pushes a new state.",
             "access": "private",
             "tagname": "",
@@ -11789,7 +11789,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 182,
+            "line": 204,
             "description": "Replaces the current state.",
             "access": "private",
             "tagname": "",
@@ -11809,7 +11809,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 200,
+            "line": 222,
             "description": "Register a callback to be invoked whenever the browser\nhistory changes, including using forward and back buttons.",
             "access": "private",
             "tagname": "",
@@ -11829,7 +11829,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 223,
+            "line": 245,
             "description": "Used when using `{{action}}` helper.  The url is always appended to the rootURL.",
             "access": "private",
             "tagname": "",
@@ -11853,7 +11853,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 248,
+            "line": 270,
             "description": "Cleans up the HistoryLocation event listener.",
             "access": "private",
             "tagname": "",
@@ -11866,7 +11866,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 258,
+            "line": 280,
             "access": "private",
             "tagname": "Returns normalized location.hash",
             "itemtype": "method",
@@ -11878,7 +11878,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/none_location.js",
-            "line": 35,
+            "line": 39,
             "description": "Will be pre-pended to path.",
             "access": "private",
             "tagname": "",
@@ -11892,7 +11892,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/none_location.js",
-            "line": 44,
+            "line": 48,
             "description": "Returns the current path without `rootURL`.",
             "access": "private",
             "tagname": "",
@@ -11909,7 +11909,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/none_location.js",
-            "line": 62,
+            "line": 66,
             "description": "Set the path and remembers what was set. Using this method\nto change the path will not invoke the `updateURL` callback.",
             "access": "private",
             "tagname": "",
@@ -11929,7 +11929,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/none_location.js",
-            "line": 74,
+            "line": 78,
             "description": "Register a callback to be invoked when the path changes. These\ncallbacks will execute when the user presses the back or forward\nbutton, but not after `setURL` is invoked.",
             "access": "private",
             "tagname": "",
@@ -11949,7 +11949,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/none_location.js",
-            "line": 87,
+            "line": 91,
             "description": "Sets the path and calls the `updateURL` callback.",
             "access": "private",
             "tagname": "",
@@ -11969,7 +11969,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/none_location.js",
-            "line": 99,
+            "line": 103,
             "description": "Given a URL, formats it to be placed into the page as part\nof an element's `href` attribute.\n\nThis is used, for example, when using the {{action}} helper\nto generate a URL based on an event.",
             "access": "private",
             "tagname": "",
@@ -21030,11 +21030,11 @@
         },
         {
             "message": "Missing item type\nCalled by the router to instruct the location to do any feature detection\nnecessary. In the case of AutoLocation, we detect whether to use history\nor hash concrete implementations.",
-            "line": " packages/ember-routing/lib/location/auto_location.js:107"
+            "line": " packages/ember-routing/lib/location/auto_location.js:137"
         },
         {
             "message": "Missing item type",
-            "line": " packages/ember-routing/lib/location/auto_location.js:231"
+            "line": " packages/ember-routing/lib/location/auto_location.js:261"
         },
         {
             "message": "Missing item type",

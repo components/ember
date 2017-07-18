@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+23a8c925
+ * @version   2.16.0-alpha.1-null+734f8bb4
  */
 
 var enifed, requireModule, Ember;
@@ -16290,6 +16290,34 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     See [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)
     for more information.
   
+    Layout can be used to wrap content in a component. In addition
+    to wrapping content in a Component's template, you can also use
+    the public layout API in your Component JavaScript.
+  
+    ```app/templates/components/person-profile.hbs
+      <h1>Person's Title</h1>
+      <div class='details'>{{yield}}</div>
+    ```
+  
+    ```app/components/person-profile.js
+      import Ember from 'ember';
+      import layout from '../templates/components/person-profile';
+  
+      export default Ember.Component.extend({
+        layout
+      });
+    ```
+  
+    The above will result in the following HTML output:
+  
+    ```html
+      <h1>Person's Title</h1>
+      <div class="details">
+        <h2>Chief Basket Weaver</h2>
+        <h3>Fisherman Industries</h3>
+      </div>
+    ```
+  
   
     ## Responding to Browser Events
   
@@ -30391,10 +30419,32 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     Ember.HistoryLocation implements the location API using the browser's
     history.pushState API.
   
+    Using `HistoryLocation` results in URLs that are indistinguishable from a
+    standard URL. This relies upon the browser's `history` API.
+  
+    Example:
+  
+    ```javascript
+    App.Router.map(function() {
+      this.route('posts', function() {
+        this.route('new');
+      });
+    });
+  
+    App.Router.reopen({
+      location: 'history'
+    });
+    ```
+  
+    This will result in a posts.new url of `/posts/new`.
+  
+    Keep in mind that your server must serve the Ember app at all the routes you
+    define.
+  
     @class HistoryLocation
     @namespace Ember
     @extends Ember.Object
-    @private
+    @protected
   */
   exports.default = _emberRuntime.Object.extend({
     implementation: 'history',
@@ -47949,7 +47999,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+23a8c925";
+  exports.default = "2.16.0-alpha.1-null+734f8bb4";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
