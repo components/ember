@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+8dcb2e33
+ * @version   2.16.0-alpha.1-null+23a8c925
  */
 
 var enifed, requireModule, Ember;
@@ -36610,7 +36610,12 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     var adding = void 0,
         lim,
-        idx;
+        idx,
+        length,
+        addedAmount,
+        removedAmount,
+        previousLength,
+        normalStartIdx;
     if (startIdx >= 0 && addAmt >= 0 && (0, _emberMetal.get)(array, 'hasEnumerableObservers')) {
       adding = [];
       lim = startIdx + addAmt;
@@ -36633,17 +36638,26 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     var meta = (0, _emberMetal.peekMeta)(array);
     var cache = meta && meta.readableCache();
+    if (cache !== undefined) {
+      length = (0, _emberMetal.get)(array, 'length');
+      addedAmount = addAmt === -1 ? 0 : addAmt;
+      removedAmount = removeAmt === -1 ? 0 : removeAmt;
+      previousLength = length - (addedAmount - removedAmount);
+      normalStartIdx = startIdx < 0 ? previousLength + startIdx : startIdx;
 
-    if (cache) {
-      if (cache.firstObject !== undefined && objectAt(array, 0) !== _emberMetal.cacheFor.get(cache, 'firstObject')) {
-        (0, _emberMetal.propertyWillChange)(array, 'firstObject', meta);
-        (0, _emberMetal.propertyDidChange)(array, 'firstObject', meta);
+      if (cache.firstObject !== undefined && normalStartIdx === 0) {
+        (0, _emberMetal.propertyWillChange)(array, 'firstObject');
+        (0, _emberMetal.propertyDidChange)(array, 'firstObject');
       }
-      if (cache.lastObject !== undefined && objectAt(array, (0, _emberMetal.get)(array, 'length') - 1) !== _emberMetal.cacheFor.get(cache, 'lastObject')) {
-        (0, _emberMetal.propertyWillChange)(array, 'lastObject', meta);
-        (0, _emberMetal.propertyDidChange)(array, 'lastObject', meta);
+
+      if (cache.lastObject !== undefined) {
+        if (previousLength - 1 < normalStartIdx + removedAmount) {
+          (0, _emberMetal.propertyWillChange)(array, 'lastObject');
+          (0, _emberMetal.propertyDidChange)(array, 'lastObject');
+        }
       }
     }
+
     return array;
   }
 
@@ -44136,7 +44150,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+8dcb2e33";
+  exports.default = "2.16.0-alpha.1-null+23a8c925";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
