@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+f7f80ca8
+ * @version   2.16.0-alpha.1-null+8e7443f5
  */
 
 var enifed, requireModule, Ember;
@@ -44152,6 +44152,33 @@ enifed('ember-routing/tests/ext/controller_test', ['ember-utils', 'internal-test
 
     var queryParams = {};
     strictEqual(controller.transitionToRoute(queryParams), queryParams, 'passes query param only transitions through');
+  });
+
+  QUnit.test('replaceRoute considers an engine\'s mountPoint', function () {
+    expect(4);
+
+    var engineInstance = (0, _internalTestHelpers.buildOwner)({
+      ownerOptions: {
+        routable: true,
+        mountPoint: 'foo.bar'
+      }
+    });
+
+    var controller = _emberRuntime.Controller.create({ target: {
+        replaceWith: function (route) {
+          return route;
+        }
+      } });
+    (0, _emberUtils.setOwner)(controller, engineInstance);
+
+    strictEqual(controller.replaceRoute('application'), 'foo.bar.application', 'properly prefixes application route');
+    strictEqual(controller.replaceRoute('posts'), 'foo.bar.posts', 'properly prefixes child routes');
+    throws(function () {
+      return controller.replaceRoute('/posts');
+    }, 'throws when trying to use a url');
+
+    var queryParams = {};
+    strictEqual(controller.replaceRoute(queryParams), queryParams, 'passes query param only transitions through');
   });
 });
 enifed('ember-routing/tests/location/auto_location_test', ['ember-utils', 'ember-environment', 'ember-metal', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'internal-test-helpers'], function (_emberUtils, _emberEnvironment, _emberMetal, _auto_location, _history_location, _hash_location, _none_location, _internalTestHelpers) {
