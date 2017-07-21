@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.1-null+4dd60a57
+ * @version   2.15.0-beta.1-null+9568aa2e
  */
 
 var enifed, requireModule, Ember;
@@ -57864,10 +57864,20 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     var after = [before[0], item, before[1], before[2]];
     var obj = this.newObject(before);
     var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
+    var objectAtCalls = [];
+
+    var objectAt = obj.objectAt;
+    obj.objectAt = function (ix) {
+      objectAtCalls.push(ix);
+      return objectAt.call(obj, ix);
+    };
 
     obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
 
+    objectAtCalls.splice(0, objectAtCalls.length);
+
     obj.insertAt(1, item);
+    deepEqual(objectAtCalls, [], 'objectAt is not called when only inserting items');
 
     deepEqual(this.toArray(obj), after, 'post item results');
     equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
@@ -58051,6 +58061,28 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObject', ['exports', 'ember
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+  });
+
+  suite.test('[A,B,C,C].pushObject(A) => [A,B,C,C] + notify', function () {
+    var before = this.newFixture(3);
+    var item = before[2]; // note same object as current tail. should end up twice
+    var after = [before[0], before[1], before[2], item];
+    var obj = this.newObject(before);
+    var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
+
+    obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
+
+    obj.pushObject(item);
+
+    deepEqual(this.toArray(obj), after, 'post item results');
+    equal((0, _emberMetal.get)(obj, 'length'), after.length, 'length');
+
+    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+
+    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    equal(observer.validate('lastObject'), true, 'should have notified lastObject');
   });
 
   exports.default = suite;
@@ -58430,6 +58462,27 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
   });
 
+  suite.test('[A,B,C,D].replace(-1,1) => [A,B,C] + notify', function () {
+    var before = this.newFixture(4);
+    var after = [before[0], before[1], before[2]];
+
+    var obj = this.newObject(before);
+    var observer = this.newObserver(obj, '[]', '@each', 'length', 'firstObject', 'lastObject');
+
+    obj.getProperties('firstObject', 'lastObject'); /* Prime the cache */
+
+    obj.replace(-1, 1);
+
+    deepEqual(this.toArray(obj), after, 'post item results');
+
+    equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
+    equal(observer.timesCalled('length'), 1, 'should have notified length once');
+    equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
+
+    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
+  });
+
   suite.test('Adding object should notify enumerable observer', function () {
     var fixtures = this.newFixture(4);
     var obj = this.newObject(fixtures);
@@ -58704,7 +58757,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
     equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
-    equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
+    equal(observer.validate('firstObject'), true, 'should have notified firstObject');
     equal(observer.validate('lastObject'), false, 'should NOT have notified lastObject');
   });
 

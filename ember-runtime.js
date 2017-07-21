@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.1-null+4dd60a57
+ * @version   2.15.0-beta.1-null+9568aa2e
  */
 
 var enifed, requireModule, Ember;
@@ -9167,100 +9167,106 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return child;
   }
 
-  function Enumerator(Constructor, input, abortOnReject, label) {
-    this._instanceConstructor = Constructor;
-    this.promise = new Constructor(noop, label);
-    this._abortOnReject = abortOnReject;
+  var Enumerator = function () {
+    function Enumerator(Constructor, input, abortOnReject, label) {
+      (0, _emberBabel.classCallCheck)(this, Enumerator);
 
-    this._init.apply(this, arguments);
-  }
+      this._instanceConstructor = Constructor;
+      this.promise = new Constructor(noop, label);
+      this._abortOnReject = abortOnReject;
 
-  Enumerator.prototype._init = function (Constructor, input) {
-    var len = input.length || 0;
-    this.length = len;
-    this._remaining = len;
-    this._result = new Array(len);
-
-    this._enumerate(input);
-    if (this._remaining === 0) {
-      fulfill(this.promise, this._result);
+      this._init.apply(this, arguments);
     }
-  };
 
-  Enumerator.prototype._enumerate = function (input) {
-    var length = this.length;
-    var promise = this.promise;
+    Enumerator.prototype._init = function _init(Constructor, input) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+      this._result = new Array(len);
 
-    for (var i = 0; promise._state === PENDING && i < length; i++) {
-      this._eachEntry(input[i], i);
-    }
-  };
+      this._enumerate(input);
+      if (this._remaining === 0) {
+        fulfill(this.promise, this._result);
+      }
+    };
 
-  Enumerator.prototype._settleMaybeThenable = function (entry, i) {
-    var c = this._instanceConstructor;
-    var resolve$$1 = c.resolve;
+    Enumerator.prototype._enumerate = function _enumerate(input) {
+      var length = this.length;
+      var promise = this.promise;
 
-    if (resolve$$1 === resolve$1) {
-      var then$$1 = getThen(entry);
+      for (var i = 0; promise._state === PENDING && i < length; i++) {
+        this._eachEntry(input[i], i);
+      }
+    };
 
-      if (then$$1 === then && entry._state !== PENDING) {
-        entry._onError = null;
-        this._settledAt(entry._state, i, entry._result);
-      } else if (typeof then$$1 !== 'function') {
+    Enumerator.prototype._settleMaybeThenable = function _settleMaybeThenable(entry, i) {
+      var c = this._instanceConstructor;
+      var resolve$$1 = c.resolve;
+
+      if (resolve$$1 === resolve$1) {
+        var then$$1 = getThen(entry);
+
+        if (then$$1 === then && entry._state !== PENDING) {
+          entry._onError = null;
+          this._settledAt(entry._state, i, entry._result);
+        } else if (typeof then$$1 !== 'function') {
+          this._remaining--;
+          this._result[i] = this._makeResult(FULFILLED, i, entry);
+        } else if (c === Promise) {
+          var promise = new c(noop);
+          handleMaybeThenable(promise, entry, then$$1);
+          this._willSettleAt(promise, i);
+        } else {
+          this._willSettleAt(new c(function (resolve$$1) {
+            return resolve$$1(entry);
+          }), i);
+        }
+      } else {
+        this._willSettleAt(resolve$$1(entry), i);
+      }
+    };
+
+    Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
+      if (isMaybeThenable(entry)) {
+        this._settleMaybeThenable(entry, i);
+      } else {
         this._remaining--;
         this._result[i] = this._makeResult(FULFILLED, i, entry);
-      } else if (c === Promise) {
-        var promise = new c(noop);
-        handleMaybeThenable(promise, entry, then$$1);
-        this._willSettleAt(promise, i);
-      } else {
-        this._willSettleAt(new c(function (resolve$$1) {
-          return resolve$$1(entry);
-        }), i);
       }
-    } else {
-      this._willSettleAt(resolve$$1(entry), i);
-    }
-  };
+    };
 
-  Enumerator.prototype._eachEntry = function (entry, i) {
-    if (isMaybeThenable(entry)) {
-      this._settleMaybeThenable(entry, i);
-    } else {
-      this._remaining--;
-      this._result[i] = this._makeResult(FULFILLED, i, entry);
-    }
-  };
+    Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
+      var promise = this.promise;
 
-  Enumerator.prototype._settledAt = function (state, i, value) {
-    var promise = this.promise;
-
-    if (promise._state === PENDING) {
-      if (this._abortOnReject && state === REJECTED) {
-        reject(promise, value);
-      } else {
-        this._remaining--;
-        this._result[i] = this._makeResult(state, i, value);
-        if (this._remaining === 0) {
-          fulfill(promise, this._result);
+      if (promise._state === PENDING) {
+        if (this._abortOnReject && state === REJECTED) {
+          reject(promise, value);
+        } else {
+          this._remaining--;
+          this._result[i] = this._makeResult(state, i, value);
+          if (this._remaining === 0) {
+            fulfill(promise, this._result);
+          }
         }
       }
-    }
-  };
+    };
 
-  Enumerator.prototype._makeResult = function (state, i, value) {
-    return value;
-  };
+    Enumerator.prototype._makeResult = function _makeResult(state, i, value) {
+      return value;
+    };
 
-  Enumerator.prototype._willSettleAt = function (promise, i) {
-    var enumerator = this;
+    Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
+      var enumerator = this;
 
-    subscribe(promise, undefined, function (value) {
-      return enumerator._settledAt(FULFILLED, i, value);
-    }, function (reason) {
-      return enumerator._settledAt(REJECTED, i, reason);
-    });
-  };
+      subscribe(promise, undefined, function (value) {
+        return enumerator._settledAt(FULFILLED, i, value);
+      }, function (reason) {
+        return enumerator._settledAt(REJECTED, i, reason);
+      });
+    };
+
+    return Enumerator;
+  }();
 
   function makeSettledResult(state, position, value) {
     if (state === FULFILLED) {
@@ -9576,117 +9582,56 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     Useful for tooling.
     @constructor
   */
-  function Promise(resolver, label) {
-    this._id = counter++;
-    this._label = label;
-    this._state = undefined;
-    this._result = undefined;
-    this._subscribers = [];
 
-    config.instrument && instrument('created', this);
+  var Promise = function () {
+    function Promise(resolver, label) {
+      (0, _emberBabel.classCallCheck)(this, Promise);
 
-    if (noop !== resolver) {
-      typeof resolver !== 'function' && needsResolver();
-      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-    }
-  }
+      this._id = counter++;
+      this._label = label;
+      this._state = undefined;
+      this._result = undefined;
+      this._subscribers = [];
 
-  Promise.prototype._onError = function (reason) {
-    var _this = this;
+      config.instrument && instrument('created', this);
 
-    config.after(function () {
-      if (_this._onError) {
-        config.trigger('error', reason, _this._label);
+      if (noop !== resolver) {
+        typeof resolver !== 'function' && needsResolver();
+        this instanceof Promise ? initializePromise(this, resolver) : needsNew();
       }
-    });
-  };
+    }
 
-  /**
-    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-    as the catch block of a try/catch statement.
-  
-    ```js
-    function findAuthor(){
-      throw new Error('couldn\'t find that author');
-    }
-  
-    // synchronous
-    try {
-      findAuthor();
-    } catch(reason) {
-      // something went wrong
-    }
-  
-    // async with promises
-    findAuthor().catch(function(reason){
-      // something went wrong
-    });
-    ```
-  
-    @method catch
-    @param {Function} onRejection
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.catch = function (onRejection, label) {
-    return this.then(undefined, onRejection, label);
-  };
+    Promise.prototype._onError = function _onError(reason) {
+      var _this = this;
 
-  /**
-    `finally` will be invoked regardless of the promise's fate just as native
-    try/catch/finally behaves
-  
-    Synchronous example:
-  
-    ```js
-    findAuthor() {
-      if (Math.random() > 0.5) {
-        throw new Error();
-      }
-      return new Author();
-    }
-  
-    try {
-      return findAuthor(); // succeed or fail
-    } catch(error) {
-      return findOtherAuthor();
-    } finally {
-      // always runs
-      // doesn't affect the return value
-    }
-    ```
-  
-    Asynchronous example:
-  
-    ```js
-    findAuthor().catch(function(reason){
-      return findOtherAuthor();
-    }).finally(function(){
-      // author was either found, or not
-    });
-    ```
-  
-    @method finally
-    @param {Function} callback
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.finally = function (callback, label) {
-    var promise = this;
-    var constructor = promise.constructor;
-
-    return promise.then(function (value) {
-      return constructor.resolve(callback()).then(function () {
-        return value;
+      config.after(function () {
+        if (_this._onError) {
+          config.trigger('error', reason, _this._label);
+        }
       });
-    }, function (reason) {
-      return constructor.resolve(callback()).then(function () {
-        throw reason;
-      });
-    }, label);
-  };
+    };
+
+    Promise.prototype.catch = function _catch(onRejection, label) {
+      return this.then(undefined, onRejection, label);
+    };
+
+    Promise.prototype.finally = function _finally(callback, label) {
+      var promise = this;
+      var constructor = promise.constructor;
+
+      return promise.then(function (value) {
+        return constructor.resolve(callback()).then(function () {
+          return value;
+        });
+      }, function (reason) {
+        return constructor.resolve(callback()).then(function () {
+          throw reason;
+        });
+      }, label);
+    };
+
+    return Promise;
+  }();
 
   Promise.cast = resolve$1; // deprecated
   Promise.all = all;

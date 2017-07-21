@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.1-null+4dd60a57
+ * @version   2.15.0-beta.1-null+9568aa2e
  */
 
 var enifed, requireModule, Ember;
@@ -3974,7 +3974,6 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
     // import Logger from './logger';
     // let alreadyWarned = false;
-    // import Logger from './logger';
 
 
     function _classCallCheck(instance, Constructor) {
@@ -17143,12 +17142,12 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.1-null+4dd60a57";
+  exports.default = "2.15.0-beta.1-null+9568aa2e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
 
-  /* istanbul ignore next */
+  // File ignored in coverage tests via setting in .istanbul.yml
   /* Jison generated parser */
 
   var handlebars = function () {
@@ -17913,7 +17912,10 @@ enifed("handlebars", ["exports"], function (exports) {
         // Work around issue under safari where we can't directly set the column value
         /* istanbul ignore next */
         if (Object.defineProperty) {
-          Object.defineProperty(this, 'column', { value: column });
+          Object.defineProperty(this, 'column', {
+            value: column,
+            enumerable: true
+          });
         } else {
           this.column = column;
         }

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.1-null+4dd60a57
+ * @version   2.15.0-beta.1-null+9568aa2e
  */
 
 var enifed, requireModule, Ember;
@@ -8488,7 +8488,6 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
     // import Logger from './logger';
     // let alreadyWarned = false;
-    // import Logger from './logger';
     function debugAssert(test, msg) {
         // if (!alreadyWarned) {
         //   alreadyWarned = true;
@@ -16333,6 +16332,34 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     See [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)
     for more information.
   
+    Layout can be used to wrap content in a component. In addition
+    to wrapping content in a Component's template, you can also use
+    the public layout API in your Component JavaScript.
+  
+    ```app/templates/components/person-profile.hbs
+      <h1>Person's Title</h1>
+      <div class='details'>{{yield}}</div>
+    ```
+  
+    ```app/components/person-profile.js
+      import Ember from 'ember';
+      import layout from '../templates/components/person-profile';
+  
+      export default Ember.Component.extend({
+        layout
+      });
+    ```
+  
+    The above will result in the following HTML output:
+  
+    ```html
+      <h1>Person's Title</h1>
+      <div class="details">
+        <h2>Chief Basket Weaver</h2>
+        <h3>Fisherman Industries</h3>
+      </div>
+    ```
+  
   
     ## Responding to Browser Events
   
@@ -17895,7 +17922,17 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
     recompute: function () {
       this[RECOMPUTE_TAG].dirty();
     }
-  });
+  }
+
+  /**
+    Override this function when writing a class-based helper.
+     @method compute
+    @param {Array} params The positional arguments to the helper
+    @param {Object} hash The named arguments to the helper
+    @public
+    @since 1.13.0
+  */
+  );
 
   Helper.reopenClass({
     isHelperFactory: true
@@ -30537,10 +30574,32 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     Ember.HistoryLocation implements the location API using the browser's
     history.pushState API.
   
+    Using `HistoryLocation` results in URLs that are indistinguishable from a
+    standard URL. This relies upon the browser's `history` API.
+  
+    Example:
+  
+    ```javascript
+    App.Router.map(function() {
+      this.route('posts', function() {
+        this.route('new');
+      });
+    });
+  
+    App.Router.reopen({
+      location: 'history'
+    });
+    ```
+  
+    This will result in a posts.new url of `/posts/new`.
+  
+    Keep in mind that your server must serve the Ember app at all the routes you
+    define.
+  
     @class HistoryLocation
     @namespace Ember
     @extends Ember.Object
-    @private
+    @protected
   */
   exports.default = _emberRuntime.Object.extend({
     implementation: 'history',
@@ -37548,17 +37607,29 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     var meta = (0, _emberMetal.peekMeta)(array);
     var cache = meta && meta.readableCache();
+    if (cache !== undefined) {
+      var length = (0, _emberMetal.get)(array, 'length');
+      var addedAmount = addAmt === -1 ? 0 : addAmt;
+      var removedAmount = removeAmt === -1 ? 0 : removeAmt;
+      var delta = addedAmount - removedAmount;
+      var previousLength = length - delta;
 
-    if (cache) {
-      if (cache.firstObject !== undefined && objectAt(array, 0) !== _emberMetal.cacheFor.get(cache, 'firstObject')) {
-        (0, _emberMetal.propertyWillChange)(array, 'firstObject', meta);
-        (0, _emberMetal.propertyDidChange)(array, 'firstObject', meta);
+      var normalStartIdx = startIdx < 0 ? previousLength + startIdx : startIdx;
+      if (cache.firstObject !== undefined && normalStartIdx === 0) {
+        (0, _emberMetal.propertyWillChange)(array, 'firstObject');
+        (0, _emberMetal.propertyDidChange)(array, 'firstObject');
       }
-      if (cache.lastObject !== undefined && objectAt(array, (0, _emberMetal.get)(array, 'length') - 1) !== _emberMetal.cacheFor.get(cache, 'lastObject')) {
-        (0, _emberMetal.propertyWillChange)(array, 'lastObject', meta);
-        (0, _emberMetal.propertyDidChange)(array, 'lastObject', meta);
+
+      if (cache.lastObject !== undefined) {
+        var previousLastIndex = previousLength - 1;
+        var lastAffectedIndex = normalStartIdx + removedAmount;
+        if (previousLastIndex < lastAffectedIndex) {
+          (0, _emberMetal.propertyWillChange)(array, 'lastObject');
+          (0, _emberMetal.propertyDidChange)(array, 'lastObject');
+        }
       }
     }
+
     return array;
   }
 
@@ -44785,16 +44856,18 @@ enifed('ember-testing/test/promise', ['exports', 'ember-babel', 'ember-runtime',
       return _this;
     }
 
-    TestPromise.prototype.then = function then(onFulfillment) {
+    TestPromise.prototype.then = function then(_onFulfillment) {
       var _RSVP$Promise$prototy;
+
+      var onFulfillment = typeof _onFulfillment === 'function' ? function (result) {
+        return isolate(_onFulfillment, result);
+      } : undefined;
 
       for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         args[_key - 1] = arguments[_key];
       }
 
-      return (_RSVP$Promise$prototy = _RSVP$Promise.prototype.then).call.apply(_RSVP$Promise$prototy, [this, function (result) {
-        return isolate(onFulfillment, result);
-      }].concat(args));
+      return (_RSVP$Promise$prototy = _RSVP$Promise.prototype.then).call.apply(_RSVP$Promise$prototy, [this, onFulfillment].concat(args));
     };
 
     return TestPromise;
@@ -48110,12 +48183,12 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.1-null+4dd60a57";
+  exports.default = "2.15.0-beta.1-null+9568aa2e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
 
-  /* istanbul ignore next */
+  // File ignored in coverage tests via setting in .istanbul.yml
   /* Jison generated parser */
   var handlebars = function () {
     var parser = { trace: function trace() {},
@@ -48878,7 +48951,10 @@ enifed("handlebars", ["exports"], function (exports) {
         // Work around issue under safari where we can't directly set the column value
         /* istanbul ignore next */
         if (Object.defineProperty) {
-          Object.defineProperty(this, 'column', { value: column });
+          Object.defineProperty(this, 'column', {
+            value: column,
+            enumerable: true
+          });
         } else {
           this.column = column;
         }
@@ -52913,100 +52989,106 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return child;
   }
 
-  function Enumerator(Constructor, input, abortOnReject, label) {
-    this._instanceConstructor = Constructor;
-    this.promise = new Constructor(noop, label);
-    this._abortOnReject = abortOnReject;
+  var Enumerator = function () {
+    function Enumerator(Constructor, input, abortOnReject, label) {
+      (0, _emberBabel.classCallCheck)(this, Enumerator);
 
-    this._init.apply(this, arguments);
-  }
+      this._instanceConstructor = Constructor;
+      this.promise = new Constructor(noop, label);
+      this._abortOnReject = abortOnReject;
 
-  Enumerator.prototype._init = function (Constructor, input) {
-    var len = input.length || 0;
-    this.length = len;
-    this._remaining = len;
-    this._result = new Array(len);
-
-    this._enumerate(input);
-    if (this._remaining === 0) {
-      fulfill(this.promise, this._result);
+      this._init.apply(this, arguments);
     }
-  };
 
-  Enumerator.prototype._enumerate = function (input) {
-    var length = this.length;
-    var promise = this.promise;
+    Enumerator.prototype._init = function _init(Constructor, input) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+      this._result = new Array(len);
 
-    for (var i = 0; promise._state === PENDING && i < length; i++) {
-      this._eachEntry(input[i], i);
-    }
-  };
+      this._enumerate(input);
+      if (this._remaining === 0) {
+        fulfill(this.promise, this._result);
+      }
+    };
 
-  Enumerator.prototype._settleMaybeThenable = function (entry, i) {
-    var c = this._instanceConstructor;
-    var resolve$$1 = c.resolve;
+    Enumerator.prototype._enumerate = function _enumerate(input) {
+      var length = this.length;
+      var promise = this.promise;
 
-    if (resolve$$1 === resolve$1) {
-      var then$$1 = getThen(entry);
+      for (var i = 0; promise._state === PENDING && i < length; i++) {
+        this._eachEntry(input[i], i);
+      }
+    };
 
-      if (then$$1 === then && entry._state !== PENDING) {
-        entry._onError = null;
-        this._settledAt(entry._state, i, entry._result);
-      } else if (typeof then$$1 !== 'function') {
+    Enumerator.prototype._settleMaybeThenable = function _settleMaybeThenable(entry, i) {
+      var c = this._instanceConstructor;
+      var resolve$$1 = c.resolve;
+
+      if (resolve$$1 === resolve$1) {
+        var then$$1 = getThen(entry);
+
+        if (then$$1 === then && entry._state !== PENDING) {
+          entry._onError = null;
+          this._settledAt(entry._state, i, entry._result);
+        } else if (typeof then$$1 !== 'function') {
+          this._remaining--;
+          this._result[i] = this._makeResult(FULFILLED, i, entry);
+        } else if (c === Promise) {
+          var promise = new c(noop);
+          handleMaybeThenable(promise, entry, then$$1);
+          this._willSettleAt(promise, i);
+        } else {
+          this._willSettleAt(new c(function (resolve$$1) {
+            return resolve$$1(entry);
+          }), i);
+        }
+      } else {
+        this._willSettleAt(resolve$$1(entry), i);
+      }
+    };
+
+    Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
+      if (isMaybeThenable(entry)) {
+        this._settleMaybeThenable(entry, i);
+      } else {
         this._remaining--;
         this._result[i] = this._makeResult(FULFILLED, i, entry);
-      } else if (c === Promise) {
-        var promise = new c(noop);
-        handleMaybeThenable(promise, entry, then$$1);
-        this._willSettleAt(promise, i);
-      } else {
-        this._willSettleAt(new c(function (resolve$$1) {
-          return resolve$$1(entry);
-        }), i);
       }
-    } else {
-      this._willSettleAt(resolve$$1(entry), i);
-    }
-  };
+    };
 
-  Enumerator.prototype._eachEntry = function (entry, i) {
-    if (isMaybeThenable(entry)) {
-      this._settleMaybeThenable(entry, i);
-    } else {
-      this._remaining--;
-      this._result[i] = this._makeResult(FULFILLED, i, entry);
-    }
-  };
+    Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
+      var promise = this.promise;
 
-  Enumerator.prototype._settledAt = function (state, i, value) {
-    var promise = this.promise;
-
-    if (promise._state === PENDING) {
-      if (this._abortOnReject && state === REJECTED) {
-        reject(promise, value);
-      } else {
-        this._remaining--;
-        this._result[i] = this._makeResult(state, i, value);
-        if (this._remaining === 0) {
-          fulfill(promise, this._result);
+      if (promise._state === PENDING) {
+        if (this._abortOnReject && state === REJECTED) {
+          reject(promise, value);
+        } else {
+          this._remaining--;
+          this._result[i] = this._makeResult(state, i, value);
+          if (this._remaining === 0) {
+            fulfill(promise, this._result);
+          }
         }
       }
-    }
-  };
+    };
 
-  Enumerator.prototype._makeResult = function (state, i, value) {
-    return value;
-  };
+    Enumerator.prototype._makeResult = function _makeResult(state, i, value) {
+      return value;
+    };
 
-  Enumerator.prototype._willSettleAt = function (promise, i) {
-    var enumerator = this;
+    Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
+      var enumerator = this;
 
-    subscribe(promise, undefined, function (value) {
-      return enumerator._settledAt(FULFILLED, i, value);
-    }, function (reason) {
-      return enumerator._settledAt(REJECTED, i, reason);
-    });
-  };
+      subscribe(promise, undefined, function (value) {
+        return enumerator._settledAt(FULFILLED, i, value);
+      }, function (reason) {
+        return enumerator._settledAt(REJECTED, i, reason);
+      });
+    };
+
+    return Enumerator;
+  }();
 
   function makeSettledResult(state, position, value) {
     if (state === FULFILLED) {
@@ -53322,117 +53404,56 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     Useful for tooling.
     @constructor
   */
-  function Promise(resolver, label) {
-    this._id = counter++;
-    this._label = label;
-    this._state = undefined;
-    this._result = undefined;
-    this._subscribers = [];
 
-    config.instrument && instrument('created', this);
+  var Promise = function () {
+    function Promise(resolver, label) {
+      (0, _emberBabel.classCallCheck)(this, Promise);
 
-    if (noop !== resolver) {
-      typeof resolver !== 'function' && needsResolver();
-      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-    }
-  }
+      this._id = counter++;
+      this._label = label;
+      this._state = undefined;
+      this._result = undefined;
+      this._subscribers = [];
 
-  Promise.prototype._onError = function (reason) {
-    var _this = this;
+      config.instrument && instrument('created', this);
 
-    config.after(function () {
-      if (_this._onError) {
-        config.trigger('error', reason, _this._label);
+      if (noop !== resolver) {
+        typeof resolver !== 'function' && needsResolver();
+        this instanceof Promise ? initializePromise(this, resolver) : needsNew();
       }
-    });
-  };
+    }
 
-  /**
-    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-    as the catch block of a try/catch statement.
-  
-    ```js
-    function findAuthor(){
-      throw new Error('couldn\'t find that author');
-    }
-  
-    // synchronous
-    try {
-      findAuthor();
-    } catch(reason) {
-      // something went wrong
-    }
-  
-    // async with promises
-    findAuthor().catch(function(reason){
-      // something went wrong
-    });
-    ```
-  
-    @method catch
-    @param {Function} onRejection
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.catch = function (onRejection, label) {
-    return this.then(undefined, onRejection, label);
-  };
+    Promise.prototype._onError = function _onError(reason) {
+      var _this = this;
 
-  /**
-    `finally` will be invoked regardless of the promise's fate just as native
-    try/catch/finally behaves
-  
-    Synchronous example:
-  
-    ```js
-    findAuthor() {
-      if (Math.random() > 0.5) {
-        throw new Error();
-      }
-      return new Author();
-    }
-  
-    try {
-      return findAuthor(); // succeed or fail
-    } catch(error) {
-      return findOtherAuthor();
-    } finally {
-      // always runs
-      // doesn't affect the return value
-    }
-    ```
-  
-    Asynchronous example:
-  
-    ```js
-    findAuthor().catch(function(reason){
-      return findOtherAuthor();
-    }).finally(function(){
-      // author was either found, or not
-    });
-    ```
-  
-    @method finally
-    @param {Function} callback
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.finally = function (callback, label) {
-    var promise = this;
-    var constructor = promise.constructor;
-
-    return promise.then(function (value) {
-      return constructor.resolve(callback()).then(function () {
-        return value;
+      config.after(function () {
+        if (_this._onError) {
+          config.trigger('error', reason, _this._label);
+        }
       });
-    }, function (reason) {
-      return constructor.resolve(callback()).then(function () {
-        throw reason;
-      });
-    }, label);
-  };
+    };
+
+    Promise.prototype.catch = function _catch(onRejection, label) {
+      return this.then(undefined, onRejection, label);
+    };
+
+    Promise.prototype.finally = function _finally(callback, label) {
+      var promise = this;
+      var constructor = promise.constructor;
+
+      return promise.then(function (value) {
+        return constructor.resolve(callback()).then(function () {
+          return value;
+        });
+      }, function (reason) {
+        return constructor.resolve(callback()).then(function () {
+          throw reason;
+        });
+      }, label);
+    };
+
+    return Promise;
+  }();
 
   Promise.cast = resolve$1; // deprecated
   Promise.all = all;
