@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+8e7443f5
+ * @version   2.16.0-alpha.1-null+37f6af1a
  */
 
 var enifed, requireModule, Ember;
@@ -21608,6 +21608,29 @@ enifed('ember-glimmer/tests/integration/content-test', ['ember-babel', 'ember-gl
 
       this.assertContent('hello');
       this.assertInvariants();
+    };
+
+    DynamicContentTest.prototype['@test it can render a property on a function'] = function testItCanRenderAPropertyOnAFunction() {
+      var func = function () {};
+      func.aProp = 'this is a property on a function';
+
+      this.renderPath('func.aProp', { func: func });
+
+      this.assertContent('this is a property on a function');
+
+      this.assertStableRerender();
+
+      // this.runTask(() => set(func, 'aProp', 'still a property on a function'));
+      // this.assertContent('still a property on a function');
+      // this.assertInvariants();
+
+      // func = () => {};
+      // func.aProp = 'a prop on a new function';
+
+      // this.runTask(() => set(this.context, 'func', func));
+
+      // this.assertContent('a prop on a new function');
+      // this.assertInvariants();
     };
 
     return DynamicContentTest;

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+8e7443f5
+ * @version   2.16.0-alpha.1-null+37f6af1a
  */
 
 var enifed, requireModule, Ember;
@@ -21362,11 +21362,13 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
 
       _parentObjectTag.update((0, _emberMetal.tagForProperty)(parentValue, _propertyKey));
 
-      if (typeof parentValue === 'string' && _propertyKey === 'length') {
+      var parentValueType = typeof parentValue;
+
+      if (parentValueType === 'string' && _propertyKey === 'length') {
         return parentValue.length;
       }
 
-      if (typeof parentValue === 'object' && parentValue) {
+      if (parentValueType === 'object' && parentValue !== null || parentValueType === 'function') {
 
         return (0, _emberMetal.get)(parentValue, _propertyKey);
       } else {
@@ -21470,19 +21472,19 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
     (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
 
     SimpleHelperReference.create = function (helper, args) {
-      var positional, named, positionalValue, namedValue, result;
+      var positional, named, positionalValue, namedValue, _result;
 
       if ((0, _reference.isConst)(args)) {
         positional = args.positional, named = args.named;
         positionalValue = positional.value();
         namedValue = named.value();
-        result = helper(positionalValue, namedValue);
+        _result = helper(positionalValue, namedValue);
 
 
-        if (typeof result === 'object' && result !== null) {
-          return new RootReference(result);
+        if (typeof _result === 'object' && _result !== null || typeof _result === 'function') {
+          return new RootReference(_result);
         } else {
-          return _runtime.PrimitiveReference.create(result);
+          return _runtime.PrimitiveReference.create(_result);
         }
       } else {
         return new SimpleHelperReference(helper, args);
@@ -21579,7 +21581,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
     }
 
     UnboundReference.create = function (value) {
-      if (typeof value === 'object' && value !== null) {
+      if (typeof value === 'object' && value !== null || typeof result === 'function') {
         return new UnboundReference(value);
       } else {
         return _runtime.PrimitiveReference.create(value);
@@ -44200,7 +44202,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+8e7443f5";
+  exports.default = "2.16.0-alpha.1-null+37f6af1a";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
