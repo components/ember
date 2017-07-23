@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+37f6af1a
+ * @version   2.16.0-alpha.1-null+d8637d78
  */
 
 var enifed, requireModule, Ember;
@@ -10445,7 +10445,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
   @module ember-metal
   */
-
   /**
     Starts watching a property on an object. Whenever the property changes,
     invokes `Ember.propertyWillChange` and `Ember.propertyDidChange`. This is the
@@ -10465,6 +10464,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else {
       watchKey(obj, _keyPath, m);
     }
+  }
+
+  function watcherCount(obj, key) {
+    var meta$$1 = exports.peekMeta(obj);
+    return meta$$1 && meta$$1.peekWatching(key) || 0;
   }
 
   function unwatch(obj, _keyPath, m) {
@@ -14736,18 +14740,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   };
   exports.isWatching = function (obj, key) {
-    if (typeof obj !== 'object' || obj === null) {
-      return false;
-    }
-    var meta$$1 = exports.peekMeta(obj);
-    return (meta$$1 && meta$$1.peekWatching(key)) > 0;
+    return watcherCount(obj, key) > 0;
   };
   exports.unwatch = unwatch;
   exports.watch = watch;
-  exports.watcherCount = function (obj, key) {
-    var meta$$1 = exports.peekMeta(obj);
-    return meta$$1 && meta$$1.peekWatching(key) || 0;
-  };
+  exports.watcherCount = watcherCount;
   exports.libraries = libraries;
   exports.Libraries = Libraries;
   exports.Map = Map;
@@ -17054,7 +17051,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+37f6af1a";
+  exports.default = "2.16.0-alpha.1-null+d8637d78";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
