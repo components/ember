@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+d8637d78
+ * @version   2.16.0-alpha.1-null+1ade5c75
  */
 
 var enifed, requireModule, Ember;
@@ -27535,6 +27535,13 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.triggerEvent('keyup', {
         keyCode: 65
       });
+    };
+
+    _class.prototype['@test GH#14727 can render a file input after having had render an input of other type'] = function () {
+      this.render('{{input type="text"}}{{input type="file"}}');
+
+      this.assert.equal(this.$input()[0].type, 'text');
+      this.assert.equal(this.$input()[1].type, 'file');
     };
 
     return _class;

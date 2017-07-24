@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.d8637d78"
+        "version": "2.16.0-alpha.1.1ade5c75"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2687,7 +2687,7 @@
             "submodule": "ember-views",
             "namespace": "Ember",
             "file": "packages/ember-glimmer/lib/components/text_field.js",
-            "line": 39,
+            "line": 36,
             "description": "The internal class used to create text inputs when the `{{input}}`\n  helper is used with `type` of `text`.\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n## Layout and LayoutName properties\nBecause HTML `input` elements are self closing `layout` and `layoutName`\n  properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s\n  layout section for more information.",
             "extends": "Ember.Component",
             "uses": [
@@ -7950,7 +7950,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/text_field.js",
-            "line": 88,
+            "line": 85,
             "description": "The `value` attribute of the input element. As the user inputs text, this\nproperty is updated live.",
             "itemtype": "property",
             "name": "value",
@@ -7965,7 +7965,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/text_field.js",
-            "line": 99,
+            "line": 96,
             "description": "The `type` attribute of the input element.",
             "itemtype": "property",
             "name": "type",
@@ -7980,7 +7980,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/text_field.js",
-            "line": 123,
+            "line": 120,
             "description": "The `size` of the text field in characters.",
             "itemtype": "property",
             "name": "size",
@@ -7995,7 +7995,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/text_field.js",
-            "line": 133,
+            "line": 130,
             "description": "The `pattern` attribute of input element.",
             "itemtype": "property",
             "name": "pattern",
@@ -8010,7 +8010,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/text_field.js",
-            "line": 143,
+            "line": 140,
             "description": "The `min` attribute of input element used with `type=\"number\"` or `type=\"range\"`.",
             "itemtype": "property",
             "name": "min",
@@ -8026,7 +8026,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/text_field.js",
-            "line": 154,
+            "line": 151,
             "description": "The `max` attribute of input element used with `type=\"number\"` or `type=\"range\"`.",
             "itemtype": "property",
             "name": "max",

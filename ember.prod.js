@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+d8637d78
+ * @version   2.16.0-alpha.1-null+1ade5c75
  */
 
 var enifed, requireModule, Ember;
@@ -16958,12 +16958,11 @@ enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/componen
 enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/templates/empty', 'ember-views'], function (exports, _emberMetal, _emberEnvironment, _component, _empty, _emberViews) {
   'use strict';
 
-  var inputTypeTestElement = void 0; /**
-                                     @module ember
-                                     @submodule ember-views
-                                     */
+  var inputTypes = Object.create(null); /**
+                                        @module ember
+                                        @submodule ember-views
+                                        */
 
-  var inputTypes = Object.create(null);
   function canSetTypeOfInput(type) {
     if (type in inputTypes) {
       return inputTypes[type];
@@ -16977,9 +16976,7 @@ enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-
       return type;
     }
 
-    if (!inputTypeTestElement) {
-      inputTypeTestElement = document.createElement('input');
-    }
+    var inputTypeTestElement = document.createElement('input');
 
     try {
       inputTypeTestElement.type = type;
@@ -44198,7 +44195,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+d8637d78";
+  exports.default = "2.16.0-alpha.1-null+1ade5c75";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
