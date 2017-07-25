@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+22a61c8e
+ * @version   2.16.0-alpha.1-null+9a9585fc
  */
 
 var enifed, requireModule, Ember;
@@ -44167,6 +44167,7 @@ enifed('ember-testing/helpers/wait', ['exports', 'ember-testing/test/waiters', '
         .fillIn('#password', password)
         .click('.submit');
     });
+    ```
   
     @method wait
     @param {Object} value The value to be returned.
@@ -47992,7 +47993,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+22a61c8e";
+  exports.default = "2.16.0-alpha.1-null+9a9585fc";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

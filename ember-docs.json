@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.22a61c8e"
+        "version": "2.16.0-alpha.1.9a9585fc"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -19295,7 +19295,7 @@
         {
             "file": "packages/ember-testing/lib/helpers/wait.js",
             "line": 10,
-            "description": "Causes the run loop to process any pending events. This is used to ensure that\nany async operations from other helpers (or your assertions) have been processed.\n\nThis is most often used as the return value for the helper functions (see 'click',\n'fillIn','visit',etc). However, there is a method to register a test helper which\nutilizes this method without the need to actually call `wait()` in your helpers.\n\nThe `wait` helper is built into `registerAsyncHelper` by default. You will not need\nto `return app.testHelpers.wait();` - the wait behavior is provided for you.\n\nExample:\n\n```javascript\nEmber.Test.registerAsyncHelper('loginUser', function(app, username, password) {\n  visit('secured/path/here')\n    .fillIn('#username', username)\n    .fillIn('#password', password)\n    .click('.submit');\n});",
+            "description": "Causes the run loop to process any pending events. This is used to ensure that\nany async operations from other helpers (or your assertions) have been processed.\n\nThis is most often used as the return value for the helper functions (see 'click',\n'fillIn','visit',etc). However, there is a method to register a test helper which\nutilizes this method without the need to actually call `wait()` in your helpers.\n\nThe `wait` helper is built into `registerAsyncHelper` by default. You will not need\nto `return app.testHelpers.wait();` - the wait behavior is provided for you.\n\nExample:\n\n```javascript\nEmber.Test.registerAsyncHelper('loginUser', function(app, username, password) {\n  visit('secured/path/here')\n    .fillIn('#username', username)\n    .fillIn('#password', password)\n    .click('.submit');\n});\n```",
             "itemtype": "method",
             "name": "wait",
             "params": [
