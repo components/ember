@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+be324a29
+ * @version   2.16.0-alpha.1-null+39161dc7
  */
 
 var enifed, requireModule, Ember;
@@ -34309,26 +34309,26 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
         properties[_key] = arguments[_key];
       }
 
-      var expandedProperties = expandPropertiesToArray(name, properties),
+      var dependentKeys = expandPropertiesToArray(name, properties),
           _len,
           properties,
           _key;
 
       var computedFunc = new _emberMetal.ComputedProperty(function () {
-        var lastIdx = expandedProperties.length - 1,
+        var lastIdx = dependentKeys.length - 1,
             i,
             value;
 
         for (i = 0; i < lastIdx; i++) {
-          value = (0, _emberMetal.get)(this, expandedProperties[i]);
+          value = (0, _emberMetal.get)(this, dependentKeys[i]);
 
           if (!predicate(value)) {
             return value;
           }
         }
 
-        return (0, _emberMetal.get)(this, expandedProperties[lastIdx]);
-      }, { dependentKeys: expandedProperties });
+        return (0, _emberMetal.get)(this, dependentKeys[lastIdx]);
+      }, { dependentKeys: dependentKeys });
 
       return computedFunc;
     };
@@ -35046,15 +35046,15 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   */
 
   function reduceMacro(dependentKey, callback, initialValue) {
-    return (0, _emberMetal.computed)(dependentKey + '.[]', function () {
+    var cp = new _emberMetal.ComputedProperty(function () {
       var arr = (0, _emberMetal.get)(this, dependentKey);
-
       if (arr === null || typeof arr !== 'object') {
         return initialValue;
       }
-
       return arr.reduce(callback, initialValue, this);
-    }).readOnly();
+    }, { dependentKeys: [dependentKey + '.[]'] });
+
+    return cp.readOnly();
   }
 
   function arrayMacro(dependentKey, callback) {
@@ -35067,26 +35067,28 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       dependentKey += '.[]';
     }
 
-    return (0, _emberMetal.computed)(dependentKey, function () {
+    var cp = new _emberMetal.ComputedProperty(function () {
       var value = (0, _emberMetal.get)(this, propertyName);
       if ((0, _utils.isArray)(value)) {
         return (0, _native_array.A)(callback.call(this, value));
       } else {
         return (0, _native_array.A)();
       }
-    }).readOnly();
+    }, { dependentKeys: [dependentKey] });
+
+    return cp.readOnly();
   }
 
-  function multiArrayMacro(dependentKeys, callback) {
-    var args = dependentKeys.map(function (key) {
+  function multiArrayMacro(_dependentKeys, callback) {
+    var dependentKeys = _dependentKeys.map(function (key) {
       return key + '.[]';
     });
 
-    args.push(function () {
-      return (0, _native_array.A)(callback.call(this, dependentKeys));
-    });
+    var cp = new _emberMetal.ComputedProperty(function () {
+      return (0, _native_array.A)(callback.call(this, _dependentKeys));
+    }, { dependentKeys: dependentKeys });
 
-    return _emberMetal.computed.apply(this, args).readOnly();
+    return cp.readOnly();
   }function map(dependentKey, callback) {
     return arrayMacro(dependentKey, function (value) {
       return value.map(callback, this);
@@ -35139,7 +35141,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     var cp = new _emberMetal.ComputedProperty(function (key) {
       var _this4 = this;
 
-      var itemsKeyIsAtThis = itemsKey === '@this';
       var sortProperties = (0, _emberMetal.get)(this, sortPropertiesKey);
 
       false && !((0, _utils.isArray)(sortProperties) && sortProperties.every(function (s) {
@@ -35148,46 +35149,43 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
         return typeof s === 'string';
       }));
 
-      var normalizedSortProperties = normalizeSortProperties(sortProperties);
-
       // Add/remove property observers as required.
       var activeObserversMap = cp._activeObserverMap || (cp._activeObserverMap = new _emberMetal.WeakMap());
       var activeObservers = activeObserversMap.get(this);
 
-      if (activeObservers) {
+      if (activeObservers !== undefined) {
         activeObservers.forEach(function (args) {
           return _emberMetal.removeObserver.apply(undefined, args);
         });
+      }
+
+      var itemsKeyIsAtThis = itemsKey === '@this';
+      var items = itemsKeyIsAtThis ? this : (0, _emberMetal.get)(this, itemsKey);
+      if (!(0, _utils.isArray)(items)) {
+        return (0, _native_array.A)();
       }
 
       function sortPropertyDidChange() {
         this.notifyPropertyChange(key);
       }
 
+      var normalizedSortProperties = normalizeSortProperties(sortProperties);
       activeObservers = normalizedSortProperties.map(function (_ref) {
         var prop = _ref[0];
 
         var path = itemsKeyIsAtThis ? '@each.' + prop : itemsKey + '.@each.' + prop;
-        var args = [_this4, path, sortPropertyDidChange];
-        _emberMetal.addObserver.apply(undefined, args);
-        return args;
+        (0, _emberMetal.addObserver)(_this4, path, sortPropertyDidChange);
+        return [_this4, path, sortPropertyDidChange];
       });
 
       activeObserversMap.set(this, activeObservers);
 
-      // Sort and return the array.
-      var items = itemsKeyIsAtThis ? this : (0, _emberMetal.get)(this, itemsKey);
-
-      if ((0, _utils.isArray)(items)) {
-        return sortByNormalizedSortProperties(items, normalizedSortProperties);
-      } else {
-        return (0, _native_array.A)();
-      }
-    });
+      return sortByNormalizedSortProperties(items, normalizedSortProperties);
+    }, { dependentKeys: [sortPropertiesKey + '.[]'] });
 
     cp._activeObserverMap = undefined;
 
-    return cp.property(sortPropertiesKey + '.[]').readOnly();
+    return cp.readOnly();
   }
 
   function normalizeSortProperties(sortProperties) {
@@ -44195,7 +44193,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+be324a29";
+  exports.default = "2.16.0-alpha.1-null+39161dc7";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
