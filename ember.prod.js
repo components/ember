@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+9a9585fc
+ * @version   2.16.0-alpha.1-null+be324a29
  */
 
 var enifed, requireModule, Ember;
@@ -36937,7 +36937,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       item = objectAt(content, loc);
 
       if (item) {
-        false && !(typeof item === 'object') && (0, _emberDebug.assert)('When using @each to observe the array ' + content + ', the array must return an object', typeof item === 'object');
+        false && !(typeof item === 'object') && (0, _emberDebug.assert)('When using @each to observe the array `' + (0, _emberUtils.toString)(content) + '`, the array must return an object', typeof item === 'object');
 
         (0, _emberMetal._addBeforeObserver)(item, keyName, proxy, 'contentKeyWillChange');
         (0, _emberMetal.addObserver)(item, keyName, proxy, 'contentKeyDidChange');
@@ -44195,7 +44195,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+9a9585fc";
+  exports.default = "2.16.0-alpha.1-null+be324a29";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
