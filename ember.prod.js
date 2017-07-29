@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+9e0c5a71
+ * @version   2.16.0-alpha.1-null+6569e68b
  */
 
 var enifed, requireModule, Ember;
@@ -16355,8 +16355,12 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
           i;
       var models = (0, _emberMetal.get)(this, 'models');
       var resolvedQueryParams = (0, _emberMetal.get)(this, 'resolvedQueryParams');
-
       var currentWhen = (0, _emberMetal.get)(this, 'current-when');
+
+      if (typeof currentWhen === 'boolean') {
+        return currentWhen ? (0, _emberMetal.get)(this, 'activeClass') : false;
+      }
+
       var isCurrentWhenSpecified = !!currentWhen;
       currentWhen = currentWhen || (0, _emberMetal.get)(this, 'qualifiedRouteName');
       currentWhen = currentWhen.split(' ');
@@ -37148,7 +37152,10 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
   //
 
   function emberA() {
-    return (_emberA || (_emberA = (0, _require2.default)('ember-runtime/system/native_array').A))();
+    if (_emberA === undefined) {
+      _emberA = (0, _require2.default)('ember-runtime/system/native_array').A;
+    }
+    return _emberA();
   }
 
   var contexts = [];
@@ -37322,9 +37329,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       return found !== undefined;
     },
     forEach: function (callback, target) {
-      if (typeof callback !== 'function') {
-        throw new TypeError();
-      }
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#forEach expects a function as first argument.', typeof callback === 'function');
 
       var context = popCtx(),
           idx,
@@ -37364,6 +37369,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       });
     },
     map: function (callback, target) {
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#map expects a function as first argument.', typeof callback === 'function');
+
       var ret = emberA();
 
       this.forEach(function (x, idx, i) {
@@ -37378,6 +37385,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       });
     },
     filter: function (callback, target) {
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#filter expects a function as first argument.', typeof callback === 'function');
+
       var ret = emberA();
 
       this.forEach(function (x, idx, i) {
@@ -37389,6 +37398,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       return ret;
     },
     reject: function (callback, target) {
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#reject expects a function as first argument.', typeof callback === 'function');
+
       return this.filter(function () {
         return !callback.apply(target, arguments);
       });
@@ -37406,6 +37417,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       return this.reject(use);
     },
     find: function (callback, target) {
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#find expects a function as first argument.', typeof callback === 'function');
+
       var len = (0, _emberMetal.get)(this, 'length'),
           idx;
 
@@ -37439,6 +37452,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       return this.find(iter.apply(this, arguments));
     },
     every: function (callback, target) {
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#every expects a function as first argument.', typeof callback === 'function');
+
       return !this.find(function (x, idx, i) {
         return !callback.call(target, x, idx, i);
       });
@@ -37447,6 +37462,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       return this.every(iter.apply(this, arguments));
     },
     any: function (callback, target) {
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#any expects a function as first argument.', typeof callback === 'function');
+
       var len = (0, _emberMetal.get)(this, 'length'),
           idx;
       var context = popCtx();
@@ -37472,9 +37489,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       return this.any(iter.apply(this, arguments));
     },
     reduce: function (callback, initialValue, reducerProperty) {
-      if (typeof callback !== 'function') {
-        throw new TypeError();
-      }
+      false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#reduce expects a function as first argument.', typeof callback === 'function');
 
       var ret = initialValue;
 
@@ -44193,7 +44208,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+9e0c5a71";
+  exports.default = "2.16.0-alpha.1-null+6569e68b";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

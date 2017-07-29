@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+9e0c5a71
+ * @version   2.16.0-alpha.1-null+6569e68b
  */
 
 var enifed, requireModule, Ember;
@@ -67839,6 +67839,22 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       this.visit('/foo');
 
       assert.equal(this.$('#link3.active').length, 0, 'The link is not active since current-when does not contain the active route');
+    };
+
+    _class4.prototype['@test The {{link-to}} helper supports boolean values for current-when'] = function testTheLinkToHelperSupportsBooleanValuesForCurrentWhen(assert) {
+      this.router.map(function (match) {
+        this.route('index', { path: '/' }, function () {
+          this.route('about');
+        });
+        this.route('item');
+      });
+
+      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
+      this.addTemplate('index.about', '{{#link-to \'item\' id=\'other-link\' current-when=true}}ITEM{{/link-to}}');
+
+      this.visit('/about');
+
+      assert.equal(this.$('#other-link').length, 1, 'The link is active since current-when is true');
     };
 
     _class4.prototype['@test The {{link-to}} helper defaults to bubbling'] = function testTheLinkToHelperDefaultsToBubbling(assert) {
