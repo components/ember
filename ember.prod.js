@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+22c458e5
+ * @version   2.16.0-alpha.1-null+9e0c5a71
  */
 
 var enifed, requireModule, Ember;
@@ -36689,14 +36689,14 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       normalStartIdx = startIdx < 0 ? previousLength + startIdx : startIdx;
 
       if (cache.firstObject !== undefined && normalStartIdx === 0) {
-        (0, _emberMetal.propertyWillChange)(array, 'firstObject');
-        (0, _emberMetal.propertyDidChange)(array, 'firstObject');
+        (0, _emberMetal.propertyWillChange)(array, 'firstObject', meta);
+        (0, _emberMetal.propertyDidChange)(array, 'firstObject', meta);
       }
 
       if (cache.lastObject !== undefined) {
         if (previousLength - 1 < normalStartIdx + removedAmount) {
-          (0, _emberMetal.propertyWillChange)(array, 'lastObject');
-          (0, _emberMetal.propertyDidChange)(array, 'lastObject');
+          (0, _emberMetal.propertyWillChange)(array, 'lastObject', meta);
+          (0, _emberMetal.propertyDidChange)(array, 'lastObject', meta);
         }
       }
     }
@@ -44193,7 +44193,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+22c458e5";
+  exports.default = "2.16.0-alpha.1-null+9e0c5a71";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
