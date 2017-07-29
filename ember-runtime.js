@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+39161dc7
+ * @version   2.16.0-alpha.1-null+22c458e5
  */
 
 var enifed, requireModule, Ember;
@@ -4154,7 +4154,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     @method expandProperties
     @for Ember
-    @private
+    @public
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
     expansion, and is passed the expansion.

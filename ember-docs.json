@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.39161dc7"
+        "version": "2.16.0-alpha.1.22c458e5"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -9439,7 +9439,7 @@
             "description": "Expands `pattern`, invoking `callback` for each expansion.\n\nThe only pattern supported is brace-expansion, anything else will be passed\nonce to `callback` directly.\n\nExample\n\n```js\nfunction echo(arg){ console.log(arg); }\n\nEmber.expandProperties('foo.bar', echo);              //=> 'foo.bar'\nEmber.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'\nEmber.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'\nEmber.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'\nEmber.expandProperties('foo.{bar,baz}.[]', echo)      //=> 'foo.bar.[]', 'foo.baz.[]'\nEmber.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'\nEmber.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'\n```",
             "itemtype": "method",
             "name": "expandProperties",
-            "access": "private",
+            "access": "public",
             "tagname": "",
             "params": [
                 {
