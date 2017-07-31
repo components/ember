@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.19eec050"
+        "version": "2.16.0-alpha.1.c7c04952"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -9607,7 +9607,7 @@
         {
             "file": "packages/ember-metal/lib/is_empty.js",
             "line": 4,
-            "description": "Verifies that a value is `null` or an empty string, empty array,\nor empty function.\n\nConstrains the rules on `Ember.isNone` by returning true for empty\nstring and empty arrays.\n\n```javascript\nEmber.isEmpty();                // true\nEmber.isEmpty(null);            // true\nEmber.isEmpty(undefined);       // true\nEmber.isEmpty('');              // true\nEmber.isEmpty([]);              // true\nEmber.isEmpty({});              // false\nEmber.isEmpty('Adam Hawkins');  // false\nEmber.isEmpty([0,1,2]);         // false\nEmber.isEmpty('\\n\\t');          // false\nEmber.isEmpty('  ');            // false\n```",
+            "description": "Verifies that a value is `null` or `undefined`, an empty string, or an empty\narray.\n\nConstrains the rules on `Ember.isNone` by returning true for empty strings and\nempty arrays.\n\n```javascript\nEmber.isEmpty();                // true\nEmber.isEmpty(null);            // true\nEmber.isEmpty(undefined);       // true\nEmber.isEmpty('');              // true\nEmber.isEmpty([]);              // true\nEmber.isEmpty({});              // false\nEmber.isEmpty('Adam Hawkins');  // false\nEmber.isEmpty([0,1,2]);         // false\nEmber.isEmpty('\\n\\t');          // false\nEmber.isEmpty('  ');            // false\n```",
             "itemtype": "method",
             "name": "isEmpty",
             "params": [
