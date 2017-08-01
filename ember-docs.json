@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.4696366e"
+        "version": "2.16.0-alpha.1.df2368b4"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -18432,7 +18432,7 @@
         {
             "file": "packages/ember-runtime/lib/system/service.js",
             "line": 5,
-            "description": "Creates a property that lazily looks up a service in the container. There\nare no restrictions as to what objects a service can be injected into.\n\nExample:\n\n```javascript\nApp.ApplicationRoute = Ember.Route.extend({\n  authManager: Ember.inject.service('auth'),\n\n  model: function() {\n    return this.get('authManager').findCurrentUser();\n  }\n});\n```\n\nThis example will create an `authManager` property on the application route\nthat looks up the `auth` service in the container, making it easily\naccessible in the `model` hook.",
+            "description": "Creates a property that lazily looks up a service in the container. There\nare no restrictions as to what objects a service can be injected into.\n\nExample:\n\n```javascript\nApp.ApplicationRoute = Ember.Route.extend({\n  authManager: Ember.inject.service('auth'),\n\n  model() {\n    return this.get('authManager').findCurrentUser();\n  }\n});\n```\n\nThis example will create an `authManager` property on the application route\nthat looks up the `auth` service in the container, making it easily\naccessible in the `model` hook.",
             "itemtype": "method",
             "name": "service",
             "since": "1.10.0",

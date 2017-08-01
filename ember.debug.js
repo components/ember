@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+4696366e
+ * @version   2.16.0-alpha.1-null+df2368b4
  */
 
 var enifed, requireModule, Ember;
@@ -41450,7 +41450,7 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
     App.ApplicationRoute = Ember.Route.extend({
       authManager: Ember.inject.service('auth'),
   
-      model: function() {
+      model() {
         return this.get('authManager').findCurrentUser();
       }
     });
@@ -48013,7 +48013,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+4696366e";
+  exports.default = "2.16.0-alpha.1-null+df2368b4";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
