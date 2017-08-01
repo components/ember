@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+c7c04952
+ * @version   2.16.0-alpha.1-null+4696366e
  */
 
 var enifed, requireModule, Ember;
@@ -37937,12 +37937,11 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
   function iter(key, value) {
     var valueProvided = arguments.length === 2;
 
-    function i(item) {
-      var cur = (0, _emberMetal.get)(item, key);
-      return valueProvided ? value === cur : !!cur;
-    }
-
-    return i;
+    return valueProvided ? function (item) {
+      return value === (0, _emberMetal.get)(item, key);
+    } : function (item) {
+      return !!(0, _emberMetal.get)(item, key);
+    };
   }
 
   /**
@@ -38284,7 +38283,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
         var method = x && x[methodName];
 
         if ('function' === typeof method) {
-          ret[idx] = args ? method.apply(x, args) : x[methodName]();
+          ret[idx] = args.length ? method.apply(x, args) : x[methodName]();
         }
       }, this);
 
@@ -48014,7 +48013,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+c7c04952";
+  exports.default = "2.16.0-alpha.1-null+4696366e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
