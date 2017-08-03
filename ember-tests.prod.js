@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+df2368b4
+ * @version   2.16.0-alpha.1-null+9b8f04d6
  */
 
 var enifed, requireModule, Ember;
@@ -48483,16 +48483,18 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
 
   QUnit.module('Controller Content -> Model Alias');
 
-  QUnit.test('`model` is aliased as `content`', function () {
-    expect(1);
+  QUnit.test('`content` is a deprecated alias of `model`', function () {
+    expect(2);
     var controller = _controller.default.extend({
       model: 'foo-bar'
     }).create();
 
-    equal(controller.get('content'), 'foo-bar', 'content is an alias of model');
+    expectDeprecation(function () {
+      equal(controller.get('content'), 'foo-bar', 'content is an alias of model');
+    });
   });
 
-  QUnit.test('`content` is moved to `model` when `model` is unset', function () {
+  QUnit.test('`content` is not moved to `model` when `model` is unset', function () {
     expect(2);
     var controller = void 0;
 
@@ -48502,18 +48504,19 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
       }).create();
     });
 
-    equal(controller.get('model'), 'foo-bar', 'model is set properly');
-    equal(controller.get('content'), 'foo-bar', 'content is set properly');
+    notEqual(controller.get('model'), 'foo-bar', 'model is set properly');
+    equal(controller.get('content'), 'foo-bar', 'content is not set properly');
   });
 
-  QUnit.test('specifying `content` (without `model` specified) results in deprecation', function () {
-    expect(1);
+  QUnit.test('specifying `content` (without `model` specified) does not result in deprecation', function () {
+    expect(2);
+    expectNoDeprecation();
 
-    expectDeprecation(function () {
-      _controller.default.extend({
-        content: 'foo-bar'
-      }).create();
-    }, 'Do not specify `content` on a Controller, use `model` instead.');
+    var controller = _controller.default.extend({
+      content: 'foo-bar'
+    }).create();
+
+    equal((0, _emberMetal.get)(controller, 'content'), 'foo-bar');
   });
 
   QUnit.test('specifying `content` (with `model` specified) does not result in deprecation', function () {

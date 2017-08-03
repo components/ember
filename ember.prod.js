@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+df2368b4
+ * @version   2.16.0-alpha.1-null+9b8f04d6
  */
 
 var enifed, requireModule, Ember;
@@ -23281,16 +23281,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
     ChainNode.prototype.copy = function (obj) {
-      var ret = new ChainNode(null, null, obj);
+      var ret = new ChainNode(null, null, obj),
+          path;
       var paths = this._paths;
-      var path = void 0;
       if (paths !== undefined) {
+        path = void 0;
+
         for (path in paths) {
-          // this check will also catch non-number vals.
-          if (paths[path] <= 0) {
-            continue;
+          if (paths[path] > 0) {
+            ret.add(path);
           }
-          ret.add(path);
         }
       }
       return ret;
@@ -23394,9 +23394,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       // then notify chains...
       var chains = this._chains,
-          parentValue;
-      var node = void 0;
+          parentValue,
+          node;
       if (chains !== undefined) {
+        node = void 0;
+
         for (var key in chains) {
           node = chains[key];
           if (node !== undefined) {
@@ -23417,10 +23419,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       if (this._parent) {
         this._parent.populateAffected(path, depth + 1, affected);
-      } else {
-        if (depth > 1) {
-          affected.push(this.value(), path);
-        }
+      } else if (depth > 1) {
+        affected.push(this.value(), path);
       }
     };
 
@@ -23521,14 +23521,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           nodeObject = void 0,
           foreignMeta;
       var node = this.readableChains();
-      if (node) {
+      if (node !== undefined) {
         NODE_STACK.push(node);
         // process tree
         while (NODE_STACK.length > 0) {
           node = NODE_STACK.pop();
           // push children
           nodes = node._chains;
-          if (nodes) {
+          if (nodes !== undefined) {
             for (key in nodes) {
               if (nodes[key] !== undefined) {
                 NODE_STACK.push(nodes[key]);
@@ -23539,7 +23539,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           // remove chainWatcher in node object
           if (node._watching) {
             nodeObject = node._object;
-            if (nodeObject) {
+            if (nodeObject !== undefined) {
               foreignMeta = exports.peekMeta(nodeObject);
               // avoid cleaning up chain watchers when both current and
               // foreign objects are being destroyed
@@ -23772,10 +23772,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       var ret = this._chains;
       if (ret === undefined) {
-        if (this.parent) {
-          ret = this.parent.writableChains(create).copy(this.source);
-        } else {
+        if (this.parent === undefined) {
           ret = create(this.source);
+        } else {
+          ret = this.parent.writableChains(create).copy(this.source);
         }
         this._chains = ret;
       }
@@ -37032,10 +37032,10 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], funct
     }
   });
 });
-enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/controller_content_model_alias_deprecation'], function (exports, _emberMetal, _action_handler, _controller_content_model_alias_deprecation) {
+enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal', 'ember-runtime/computed/computed_macros', 'ember-runtime/mixins/action_handler'], function (exports, _emberMetal, _computed_macros, _action_handler) {
   'use strict';
 
-  exports.default = _emberMetal.Mixin.create(_action_handler.default, _controller_content_model_alias_deprecation.default, {
+  exports.default = _emberMetal.Mixin.create(_action_handler.default, {
     /* ducktype as a controller */
     isController: true,
 
@@ -37061,43 +37061,17 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal', 'ember-runt
       model, this property should be used instead of the `content` property.
        @property model
       @public
-     */
+    */
     model: null,
 
     /**
       @private
     */
-    content: (0, _emberMetal.alias)('model')
-
-  });
-});
-enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
-  'use strict';
-
-  exports.default = _emberMetal.Mixin.create({
-    /**
-      @private
-       Moves `content` to `model`  at extend time if a `model` is not also specified.
-       Note that this currently modifies the mixin themselves, which is technically
-      dubious but is practically of little consequence. This may change in the
-      future.
-       @method willMergeMixin
-      @since 1.4.0
-    */
-    willMergeMixin: function (props) {
-      // Calling super is only OK here since we KNOW that
-      // there is another Mixin loaded first.
-      this._super.apply(this, arguments);
-
-      var modelSpecified = !!props.model;
-
-      if (props.content && !modelSpecified) {
-        props.model = props.content;
-        delete props['content'];
-
-        false && !false && (0, _emberDebug.deprecate)('Do not specify `content` on a Controller, use `model` instead.', false, { id: 'ember-runtime.will-merge-mixin', until: '3.0.0' });
-      }
-    }
+    content: (0, _computed_macros.deprecatingAlias)('model', {
+      id: 'ember-runtime.controller.content-alias',
+      until: '2.17.0',
+      url: 'https://emberjs.com/deprecations/v2.x/#toc_controller-content-alias'
+    })
   });
 });
 enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime/mixins/freezable'], function (exports, _emberMetal, _emberDebug, _freezable) {
@@ -44209,7 +44183,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+df2368b4";
+  exports.default = "2.16.0-alpha.1-null+9b8f04d6";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

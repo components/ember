@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.df2368b4"
+        "version": "2.16.0-alpha.1.9b8f04d6"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -1196,13 +1196,6 @@
             "namespaces": {
                 "Ember": 1
             }
-        },
-        "packages/ember-runtime/lib/mixins/controller_content_model_alias_deprecation.js": {
-            "name": "packages/ember-runtime/lib/mixins/controller_content_model_alias_deprecation.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
         },
         "packages/ember-runtime/lib/mixins/copyable.js": {
             "name": "packages/ember-runtime/lib/mixins/copyable.js",
@@ -15520,18 +15513,6 @@
             "access": "private",
             "tagname": "",
             "class": "Ember.ControllerMixin",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-runtime/lib/mixins/controller_content_model_alias_deprecation.js",
-            "line": 19,
-            "access": "private",
-            "tagname": "Moves `content` to `model`  at extend time if a `model` is not also specified.\n\nNote that this currently modifies the mixin themselves, which is technically\ndubious but is practically of little consequence. This may change in the\nfuture.",
-            "itemtype": "method",
-            "name": "willMergeMixin",
-            "since": "1.4.0",
-            "class": "Ember.Copyable",
             "module": "ember",
             "namespace": "Ember"
         },

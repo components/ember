@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+df2368b4
+ * @version   2.16.0-alpha.1-null+9b8f04d6
  */
 
 var enifed, requireModule, Ember;
@@ -9240,16 +9240,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
     ChainNode.prototype.copy = function (obj) {
-      var ret = new ChainNode(null, null, obj);
+      var ret = new ChainNode(null, null, obj),
+          path;
       var paths = this._paths;
-      var path = void 0;
       if (paths !== undefined) {
+        path = void 0;
+
         for (path in paths) {
-          // this check will also catch non-number vals.
-          if (paths[path] <= 0) {
-            continue;
+          if (paths[path] > 0) {
+            ret.add(path);
           }
-          ret.add(path);
         }
       }
       return ret;
@@ -9353,9 +9353,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       // then notify chains...
       var chains = this._chains,
-          parentValue;
-      var node = void 0;
+          parentValue,
+          node;
       if (chains !== undefined) {
+        node = void 0;
+
         for (var key in chains) {
           node = chains[key];
           if (node !== undefined) {
@@ -9376,10 +9378,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       if (this._parent) {
         this._parent.populateAffected(path, depth + 1, affected);
-      } else {
-        if (depth > 1) {
-          affected.push(this.value(), path);
-        }
+      } else if (depth > 1) {
+        affected.push(this.value(), path);
       }
     };
 
@@ -9505,14 +9505,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           nodeObject = void 0,
           foreignMeta;
       var node = this.readableChains();
-      if (node) {
+      if (node !== undefined) {
         NODE_STACK.push(node);
         // process tree
         while (NODE_STACK.length > 0) {
           node = NODE_STACK.pop();
           // push children
           nodes = node._chains;
-          if (nodes) {
+          if (nodes !== undefined) {
             for (key in nodes) {
               if (nodes[key] !== undefined) {
                 NODE_STACK.push(nodes[key]);
@@ -9523,7 +9523,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           // remove chainWatcher in node object
           if (node._watching) {
             nodeObject = node._object;
-            if (nodeObject) {
+            if (nodeObject !== undefined) {
               foreignMeta = exports.peekMeta(nodeObject);
               // avoid cleaning up chain watchers when both current and
               // foreign objects are being destroyed
@@ -9756,10 +9756,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       var ret = this._chains;
       if (ret === undefined) {
-        if (this.parent) {
-          ret = this.parent.writableChains(create).copy(this.source);
-        } else {
+        if (this.parent === undefined) {
           ret = create(this.source);
+        } else {
+          ret = this.parent.writableChains(create).copy(this.source);
         }
         this._chains = ret;
       }
@@ -17051,7 +17051,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+df2368b4";
+  exports.default = "2.16.0-alpha.1-null+9b8f04d6";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
