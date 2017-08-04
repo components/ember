@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.9b8f04d6"
+        "version": "2.16.0-alpha.1.90d6becf"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -8761,7 +8761,7 @@
         {
             "file": "packages/ember-glimmer/lib/index.js",
             "line": 79,
-            "description": "Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful\nfor semantic clarity as it allows you to retain default scope or to reference a property from another\n`{{with}}` block.\n\nIf the aliased property is \"falsey\", for example: `false`, `undefined` `null`, `\"\"`, `0`, NaN or\nan empty array, the block will not be rendered.\n\n```handlebars\n{{! Will only render if user.posts contains items}}\n{{#with user.posts as |blogPosts|}}\n  <div class=\"notice\">\n    There are {{blogPosts.length}} blog posts written by {{user.name}}.\n  </div>\n  {{#each blogPosts as |post|}}\n    <li>{{post.title}}</li>\n  {{/each}}\n{{/with}}\n```\n\nWithout the `as` operator, it would be impossible to reference `user.name` in the example above.\n\nNOTE: The alias should not reuse a name from the bound property path.\n\nFor example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using\nthe first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.",
+            "description": "Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful\nfor semantic clarity as it allows you to retain default scope or to reference a property from another\n`{{with}}` block.\n\nIf the aliased property is \"falsey\", for example: `false`, `undefined` `null`, `\"\"`, `0`, `NaN` or\nan empty array, the block will not be rendered.\n\n```handlebars\n{{! Will only render if user.posts contains items}}\n{{#with user.posts as |blogPosts|}}\n  <div class=\"notice\">\n    There are {{blogPosts.length}} blog posts written by {{user.name}}.\n  </div>\n  {{#each blogPosts as |post|}}\n    <li>{{post.title}}</li>\n  {{/each}}\n{{/with}}\n```\n\nWithout the `as` operator, it would be impossible to reference `user.name` in the example above.\n\nNOTE: The alias should not reuse a name from the bound property path.\n\nFor example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using\nthe first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.",
             "itemtype": "method",
             "name": "with",
             "params": [
