@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+12f41704
+ * @version   2.16.0-alpha.1-null+81baec76
  */
 
 var enifed, requireModule, Ember;
@@ -9611,18 +9611,35 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
         return _this5.component.destroy();
       });
 
-      if (this.isHTMLBars) {
-        // Bug in Glimmer – component should not have .element at this point
-        assert.ok(!this.component.element, 'It should not have an element');
-      }
-
+      assert.ok(!this.component.element, 'It should not have an element');
       assert.ok(!componentElement.parentElement, 'The component element should be detached');
 
       this.assert.equal(willDestroyCalled, 1);
     };
 
-    AbstractAppendTest.prototype['@test appending, updating and destroying multiple components'] = function testAppendingUpdatingAndDestroyingMultipleComponents(assert) {
+    AbstractAppendTest.prototype['@test releasing a root component after it has been destroy'] = function testReleasingARootComponentAfterItHasBeenDestroy(assert) {
       var _this6 = this;
+
+      var renderer = this.owner.lookup('renderer:-dom');
+
+      this.registerComponent('x-component', {
+        ComponentClass: _helpers.Component.extend()
+      });
+
+      this.component = this.owner.factoryFor('component:x-component').create();
+      this.append(this.component);
+
+      assert.equal(renderer._roots.length, 1, 'added a root component');
+
+      this.runTask(function () {
+        return _this6.component.destroy();
+      });
+
+      assert.equal(renderer._roots.length, 0, 'released the root component');
+    };
+
+    AbstractAppendTest.prototype['@test appending, updating and destroying multiple components'] = function testAppendingUpdatingAndDestroyingMultipleComponents(assert) {
+      var _this7 = this;
 
       var willDestroyCalled = 0;
 
@@ -9666,10 +9683,10 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
           wrapper2 = void 0;
 
       this.runTask(function () {
-        return wrapper1 = _this6.append(first);
+        return wrapper1 = _this7.append(first);
       });
       this.runTask(function () {
-        return wrapper2 = _this6.append(second);
+        return wrapper2 = _this7.append(second);
       });
 
       var componentElement1 = first.element;
@@ -9717,11 +9734,8 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
         second.destroy();
       });
 
-      if (this.isHTMLBars) {
-        // Bug in Glimmer – component should not have .element at this point
-        assert.ok(!first.element, 'The first component should not have an element');
-        assert.ok(!second.element, 'The second component should not have an element');
-      }
+      assert.ok(!first.element, 'The first component should not have an element');
+      assert.ok(!second.element, 'The second component should not have an element');
 
       assert.ok(!componentElement1.parentElement, 'The first component element should be detached');
       assert.ok(!componentElement2.parentElement, 'The second component element should be detached');
@@ -9730,12 +9744,12 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test can appendTo while rendering'] = function testCanAppendToWhileRendering(assert) {
-      var _this7 = this;
+      var _this8 = this;
 
       var owner = this.owner;
 
       var append = function (component) {
-        return _this7.append(component);
+        return _this8.append(component);
       };
 
       var element1 = void 0,
@@ -9775,12 +9789,12 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     AbstractAppendTest.prototype['@test can appendTo and remove while rendering'] = function testCanAppendToAndRemoveWhileRendering(assert) {
-      var _this8 = this;
+      var _this9 = this;
 
       var owner = this.owner;
 
       var append = function (component) {
-        return _this8.append(component);
+        return _this9.append(component);
       };
 
       var element1 = void 0,
@@ -9868,7 +9882,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
       this.assertStableRerender();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this8.context, 'showFooBar', false);
+        return (0, _emberMetal.set)(_this9.context, 'showFooBar', false);
       });
 
       assert.equal(instantiatedRoots, 2);
@@ -9925,7 +9939,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
     };
 
     _class2.prototype['@test raises an assertion when the target does not exist in the DOM'] = function testRaisesAnAssertionWhenTheTargetDoesNotExistInTheDOM(assert) {
-      var _this11 = this;
+      var _this12 = this;
 
       this.registerComponent('foo-bar', {
         ComponentClass: _helpers.Component.extend({
@@ -9942,7 +9956,7 @@ enifed('ember-glimmer/tests/integration/components/append-test', ['ember-babel',
 
       this.runTask(function () {
         expectAssertion(function () {
-          _this11.component.appendTo('#does-not-exist-in-dom');
+          _this12.component.appendTo('#does-not-exist-in-dom');
         }, /You tried to append to \(#does-not-exist-in-dom\) but that isn't in the DOM/);
       });
 
