@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+81baec76
+ * @version   2.16.0-alpha.1-null+580e0ddd
  */
 
 var enifed, requireModule, Ember;
@@ -18249,8 +18249,8 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
   
     If you need the default handler to trigger you should either register your
     own event handler, or use event methods on your view class. See
-    ["Responding to Browser Events"](/api/classes/Ember.View.html#toc_responding-to-browser-events)
-    in the documentation for Ember.View for more information.
+    ["Responding to Browser Events"](/api/classes/Ember.Component#responding-to-browser-events)
+    in the documentation for Ember.Component for more information.
   
     ### Specifying DOM event type
   
@@ -18264,7 +18264,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     </div>
     ```
   
-    See ["Event Names"](/api/classes/Ember.View.html#toc_event-names) for a list of
+    See ["Event Names"](/api/classes/Ember.Component#event-names) for a list of
     acceptable DOM event names.
   
     ### Specifying whitelisted modifier keys
@@ -47994,7 +47994,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+81baec76";
+  exports.default = "2.16.0-alpha.1-null+580e0ddd";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
