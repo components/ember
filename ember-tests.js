@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+90d6becf
+ * @version   2.16.0-alpha.1-null+12f41704
  */
 
 var enifed, requireModule, Ember;
@@ -46407,8 +46407,8 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
   QUnit.module('Ember.WeakMap');
 
   QUnit.test('has weakMap like qualities', function (assert) {
-    var map = new _emberMetal.WeakMap();
-    var map2 = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
+    var map2 = new _emberMetal.WeakMapPolyfill();
 
     var a = {};
     var b = {};
@@ -46451,20 +46451,11 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
     assert.strictEqual(map.get(b), undefined);
   });
 
-  QUnit.test('WeakMap constructor requres new', function (assert) {
-    var expectedError = new TypeError('Constructor WeakMap requires \'new\'');
-
-    assert.throws(function () {
-      // jshint newcap: false
-      (0, _emberMetal.WeakMap)();
-    }, expectedError);
-  });
-
   QUnit.test('constructing a WeakMap with an invalid iterator throws an error', function (assert) {
     var expectedError = new TypeError('The weak map constructor polyfill only supports an array argument');
 
     assert.throws(function () {
-      new _emberMetal.WeakMap({ a: 1 });
+      new _emberMetal.WeakMapPolyfill({ a: 1 });
     }, expectedError);
   });
 
@@ -46473,7 +46464,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
     var b = {};
     var c = {};
 
-    var map = new _emberMetal.WeakMap([[a, 1], [b, 2], [c, 3]]);
+    var map = new _emberMetal.WeakMapPolyfill([[a, 1], [b, 2], [c, 3]]);
 
     assert.strictEqual(map.get(a), 1);
     assert.strictEqual(map.get(b), 2);
@@ -46482,7 +46473,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
 
   QUnit.test('that error is thrown when using a primitive key', function (assert) {
     var expectedError = new TypeError('Invalid value used as weak map key');
-    var map = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
 
     assert.throws(function () {
       return map.set('a', 1);
@@ -46502,7 +46493,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
   });
 
   QUnit.test('that .has and .delete work as expected', function (assert) {
-    var map = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
     var a = {};
     var b = {};
     var foo = { id: 1, name: 'My file', progress: 0 };
@@ -46522,7 +46513,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
   });
 
   QUnit.test('that .toString works as expected', function (assert) {
-    var map = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
 
     assert.strictEqual(map.toString(), '[object WeakMap]');
   });

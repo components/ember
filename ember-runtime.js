@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+90d6becf
+ * @version   2.16.0-alpha.1-null+12f41704
  */
 
 var enifed, requireModule, Ember;
@@ -5323,113 +5323,122 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
    * practice, most use cases satisfy this limitation which is why it is included
    * in ember-metal.
    */
-  function WeakMap$1(iterable) {
-    if (!(this instanceof WeakMap$1)) {
-      throw new TypeError('Constructor WeakMap requires \'new\'');
-    }
+  var WeakMapPolyfill = function () {
+    function WeakMapPolyfill(iterable) {
+      emberBabel.classCallCheck(this, WeakMapPolyfill);
 
-    this._id = emberUtils.GUID_KEY + id++;
+      this._id = emberUtils.GUID_KEY + id++;
 
-    if (iterable === null || iterable === undefined) {
-      return;
-    } else if (Array.isArray(iterable)) {
-      for (var i = 0; i < iterable.length; i++) {
-        var _iterable$i = iterable[i],
-            key = _iterable$i[0],
-            value = _iterable$i[1];
+      if (iterable === null || iterable === undefined) {
+        return;
+      } else if (Array.isArray(iterable)) {
+        for (var i = 0; i < iterable.length; i++) {
+          var _iterable$i = iterable[i],
+              key = _iterable$i[0],
+              value = _iterable$i[1];
 
-        this.set(key, value);
-      }
-    } else {
-      throw new TypeError('The weak map constructor polyfill only supports an array argument');
-    }
-  }
-
-  /*
-   * @method get
-   * @param key {Object | Function}
-   * @return {Any} stored value
-   */
-  WeakMap$1.prototype.get = function (obj) {
-    if (!isObject$1(obj)) {
-      return undefined;
-    }
-
-    var meta$$1 = exports.peekMeta(obj);
-    if (meta$$1) {
-      var map = meta$$1.readableWeak();
-      if (map) {
-        if (map[this._id] === UNDEFINED) {
-          return undefined;
+          this.set(key, value);
         }
-
-        return map[this._id];
-      }
-    }
-  };
-
-  /*
-   * @method set
-   * @param key {Object | Function}
-   * @param value {Any}
-   * @return {WeakMap} the weak map
-   */
-  WeakMap$1.prototype.set = function (obj, value) {
-    if (!isObject$1(obj)) {
-      throw new TypeError('Invalid value used as weak map key');
-    }
-
-    if (value === undefined) {
-      value = UNDEFINED;
-    }
-
-    meta(obj).writableWeak()[this._id] = value;
-
-    return this;
-  };
-
-  /*
-   * @method has
-   * @param key {Object | Function}
-   * @return {boolean} if the key exists
-   */
-  WeakMap$1.prototype.has = function (obj) {
-    if (!isObject$1(obj)) {
-      return false;
-    }
-
-    var meta$$1 = exports.peekMeta(obj);
-    if (meta$$1) {
-      var map = meta$$1.readableWeak();
-      if (map) {
-        return map[this._id] !== undefined;
+      } else {
+        throw new TypeError('The weak map constructor polyfill only supports an array argument');
       }
     }
 
-    return false;
-  };
+    /*
+     * @method get
+     * @param key {Object | Function}
+     * @return {Any} stored value
+     */
 
-  /*
-   * @method delete
-   * @param key {Object | Function}
-   * @return {boolean} if the key was deleted
-   */
-  WeakMap$1.prototype.delete = function (obj) {
-    if (this.has(obj)) {
-      delete exports.peekMeta(obj).writableWeak()[this._id];
-      return true;
-    } else {
+    WeakMapPolyfill.prototype.get = function get(obj) {
+      if (!isObject$1(obj)) {
+        return undefined;
+      }
+
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1) {
+        var map = meta$$1.readableWeak();
+        if (map !== undefined) {
+          var val = map[this._id];
+          if (val === UNDEFINED) {
+            return undefined;
+          }
+          return val;
+        }
+      }
+    };
+
+    /*
+     * @method set
+     * @param key {Object | Function}
+     * @param value {Any}
+     * @return {WeakMap} the weak map
+     */
+
+    WeakMapPolyfill.prototype.set = function set(obj, value) {
+      if (!isObject$1(obj)) {
+        throw new TypeError('Invalid value used as weak map key');
+      }
+
+      if (value === undefined) {
+        value = UNDEFINED;
+      }
+
+      meta(obj).writableWeak()[this._id] = value;
+
+      return this;
+    };
+
+    /*
+     * @method has
+     * @param key {Object | Function}
+     * @return {boolean} if the key exists
+     */
+
+    WeakMapPolyfill.prototype.has = function has(obj) {
+      if (!isObject$1(obj)) {
+        return false;
+      }
+
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1) {
+        var map = meta$$1.readableWeak();
+        if (map !== undefined) {
+          return map[this._id] !== undefined;
+        }
+      }
+
       return false;
-    }
-  };
+    };
 
-  /*
-   * @method toString
-   * @return {String}
-   */
-  WeakMap$1.prototype.toString = function () {
-    return '[object WeakMap]';
-  };
+    /*
+     * @method delete
+     * @param key {Object | Function}
+     * @return {boolean} if the key was deleted
+     */
+
+    WeakMapPolyfill.prototype.delete = function _delete(obj) {
+      if (this.has(obj)) {
+        delete exports.peekMeta(obj).writableWeak()[this._id];
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    /*
+     * @method toString
+     * @return {String}
+     */
+
+    WeakMapPolyfill.prototype.toString = function toString$$1() {
+      return '[object WeakMap]';
+    };
+
+    return WeakMapPolyfill;
+  }();
+
+  var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
 
   /**
     Returns true if the passed value is null or undefined. This avoids errors
@@ -8494,7 +8503,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.getWithDefault = getWithDefault;
   exports.set = set;
   exports.trySet = trySet;
-  exports.WeakMap = WeakMap$1;
+  exports.WeakMap = weak_map;
+  exports.WeakMapPolyfill = WeakMapPolyfill;
   exports.addListener = addListener;
   exports.hasListeners = hasListeners;
   exports.listenersFor = listenersFor;
