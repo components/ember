@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.2
+ * @version   2.15.0-beta.2-null+964af73a
  */
 
 var enifed, requireModule, Ember;
@@ -3974,6 +3974,7 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
     // import Logger from './logger';
     // let alreadyWarned = false;
+    // import Logger from './logger';
 
 
     function _classCallCheck(instance, Constructor) {
@@ -17142,7 +17143,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.2";
+  exports.default = "2.15.0-beta.2-null+964af73a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

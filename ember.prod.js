@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.2
+ * @version   2.15.0-beta.2-null+964af73a
  */
 
 var enifed, requireModule, Ember;
@@ -1785,9 +1785,12 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 stack.push(PrimitiveReference.create(value));
                 break;
             case 1:
-                stack.push(PrimitiveReference.create(vm.constants.getString(value)));
+                stack.push(PrimitiveReference.create(vm.constants.getFloat(value)));
                 break;
             case 2:
+                stack.push(PrimitiveReference.create(vm.constants.getString(value)));
+                break;
+            case 3:
                 switch (value) {
                     case 0:
                         stack.push(FALSE_REFERENCE);
@@ -4754,24 +4757,29 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             var primitive = void 0;
             switch (typeof _primitive) {
                 case 'number':
-                    primitive = _primitive;
+                    if (_primitive % 1 === 0 && _primitive > 0) {
+                        primitive = _primitive;
+                    } else {
+                        primitive = this.float(_primitive);
+                        flag = 1;
+                    }
                     break;
                 case 'string':
                     primitive = this.string(_primitive);
-                    flag = 1;
+                    flag = 2;
                     break;
                 case 'boolean':
                     primitive = _primitive | 0;
-                    flag = 2;
+                    flag = 3;
                     break;
                 case 'object':
                     // assume null
                     primitive = 2;
-                    flag = 2;
+                    flag = 3;
                     break;
                 case 'undefined':
                     primitive = 3;
-                    flag = 2;
+                    flag = 3;
                     break;
                 default:
                     throw new Error('Invalid primitive passed to pushPrimitive');
@@ -4876,6 +4884,10 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
         BasicOpcodeBuilder.prototype.string = function (_string) {
             return this.constants.string(_string);
+        };
+
+        BasicOpcodeBuilder.prototype.float = function (num) {
+            return this.constants.float(num);
         };
 
         BasicOpcodeBuilder.prototype.names = function (_names) {
@@ -6059,6 +6071,7 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
             this.references = [];
             this.strings = [];
             this.expressions = [];
+            this.floats = [];
             this.arrays = [];
             this.blocks = [];
             this.functions = [];
@@ -6077,6 +6090,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
         Constants.prototype.getString = function (value) {
             return this.strings[value - 1];
+        };
+
+        Constants.prototype.getFloat = function (value) {
+            return this.floats[value - 1];
+        };
+
+        Constants.prototype.float = function (value) {
+            return this.floats.push(value);
         };
 
         Constants.prototype.string = function (value) {
@@ -8800,6 +8821,7 @@ enifed('@glimmer/util', ['exports'], function (exports) {
 
     // import Logger from './logger';
     // let alreadyWarned = false;
+    // import Logger from './logger';
 
 
     function _classCallCheck(instance, Constructor) {
@@ -44295,7 +44317,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.2";
+  exports.default = "2.15.0-beta.2-null+964af73a";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
