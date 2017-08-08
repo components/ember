@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.2-null+964af73a
+ * @version   2.15.0-beta.2-null+9bb72ebe
  */
 
 var enifed, requireModule, Ember;
@@ -11706,11 +11706,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-    Verifies that a value is `null` or an empty string, empty array,
-    or empty function.
+    Verifies that a value is `null` or `undefined`, an empty string, or an empty
+    array.
   
-    Constrains the rules on `Ember.isNone` by returning true for empty
-    string and empty arrays.
+    Constrains the rules on `Ember.isNone` by returning true for empty strings and
+    empty arrays.
   
     ```javascript
     Ember.isEmpty();                // true
@@ -17143,7 +17143,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.2-null+964af73a";
+  exports.default = "2.15.0-beta.2-null+9bb72ebe";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

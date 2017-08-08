@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.2-null+964af73a
+ * @version   2.15.0-beta.2-null+9bb72ebe
  */
 
 var enifed, requireModule, Ember;
@@ -16378,8 +16378,12 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
           i;
       var models = (0, _emberMetal.get)(this, 'models');
       var resolvedQueryParams = (0, _emberMetal.get)(this, 'resolvedQueryParams');
-
       var currentWhen = (0, _emberMetal.get)(this, 'current-when');
+
+      if (typeof currentWhen === 'boolean') {
+        return currentWhen ? (0, _emberMetal.get)(this, 'activeClass') : false;
+      }
+
       var isCurrentWhenSpecified = !!currentWhen;
       currentWhen = currentWhen || (0, _emberMetal.get)(this, 'qualifiedRouteName');
       currentWhen = currentWhen.split(' ');
@@ -16980,12 +16984,11 @@ enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/componen
 enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/templates/empty', 'ember-views'], function (exports, _emberMetal, _emberEnvironment, _component, _empty, _emberViews) {
   'use strict';
 
-  var inputTypeTestElement = void 0; /**
-                                     @module ember
-                                     @submodule ember-views
-                                     */
+  var inputTypes = Object.create(null); /**
+                                        @module ember
+                                        @submodule ember-views
+                                        */
 
-  var inputTypes = Object.create(null);
   function canSetTypeOfInput(type) {
     if (type in inputTypes) {
       return inputTypes[type];
@@ -16999,9 +17002,7 @@ enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-
       return type;
     }
 
-    if (!inputTypeTestElement) {
-      inputTypeTestElement = document.createElement('input');
-    }
+    var inputTypeTestElement = document.createElement('input');
 
     try {
       inputTypeTestElement.type = type;
@@ -17843,8 +17844,8 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
   
     If you need the default handler to trigger you should either register your
     own event handler, or use event methods on your view class. See
-    ["Responding to Browser Events"](/api/classes/Ember.View.html#toc_responding-to-browser-events)
-    in the documentation for Ember.View for more information.
+    ["Responding to Browser Events"](/api/classes/Ember.Component#responding-to-browser-events)
+    in the documentation for Ember.Component for more information.
   
     ### Specifying DOM event type
   
@@ -17858,7 +17859,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     </div>
     ```
   
-    See ["Event Names"](/api/classes/Ember.View.html#toc_event-names) for a list of
+    See ["Event Names"](/api/classes/Ember.Component#event-names) for a list of
     acceptable DOM event names.
   
     ### Specifying whitelisted modifier keys
@@ -19549,6 +19550,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils
 
         if (root.isFor(view)) {
           root.destroy();
+          roots.splice(i, 1);
         }
       }
     };
@@ -21409,11 +21411,13 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
 
       _parentObjectTag.update((0, _emberMetal.tagForProperty)(parentValue, _propertyKey));
 
-      if (typeof parentValue === 'string' && _propertyKey === 'length') {
+      var parentValueType = typeof parentValue;
+
+      if (parentValueType === 'string' && _propertyKey === 'length') {
         return parentValue.length;
       }
 
-      if (typeof parentValue === 'object' && parentValue) {
+      if (parentValueType === 'object' && parentValue !== null || parentValueType === 'function') {
 
         return (0, _emberMetal.get)(parentValue, _propertyKey);
       } else {
@@ -21517,23 +21521,23 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
     (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
 
     SimpleHelperReference.create = function (helper, args) {
-      var positional, named, positionalValue, namedValue, result;
+      var positional, named, positionalValue, namedValue, _result;
 
       if ((0, _reference.isConst)(args)) {
         positional = args.positional, named = args.named;
         positionalValue = positional.value();
         namedValue = named.value();
-        result = helper(positionalValue, namedValue);
+        _result = helper(positionalValue, namedValue);
 
 
-        if (result === null) {
+        if (_result === null) {
           return _runtime.NULL_REFERENCE;
-        } else if (result === undefined) {
+        } else if (_result === undefined) {
           return _runtime.UNDEFINED_REFERENCE;
-        } else if (typeof result === 'object') {
-          return new RootReference(result);
+        } else if (typeof _result === 'object' || typeof _result === 'function') {
+          return new RootReference(_result);
         } else {
-          return _runtime.PrimitiveReference.create(result);
+          return _runtime.PrimitiveReference.create(_result);
         }
       } else {
         return new SimpleHelperReference(helper, args);
@@ -21634,7 +21638,7 @@ enifed('ember-glimmer/utils/references', ['exports', '@glimmer/runtime', 'ember-
         return _runtime.NULL_REFERENCE;
       } else if (value === undefined) {
         return _runtime.UNDEFINED_REFERENCE;
-      } else if (typeof value === 'object') {
+      } else if (typeof value === 'object' || typeof result === 'function') {
         return new UnboundReference(value);
       } else {
         return _runtime.PrimitiveReference.create(value);
@@ -25640,11 +25644,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-    Verifies that a value is `null` or an empty string, empty array,
-    or empty function.
+    Verifies that a value is `null` or `undefined`, an empty string, or an empty
+    array.
   
-    Constrains the rules on `Ember.isNone` by returning true for empty
-    string and empty arrays.
+    Constrains the rules on `Ember.isNone` by returning true for empty strings and
+    empty arrays.
   
     ```javascript
     Ember.isEmpty();                // true
@@ -29050,7 +29054,7 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
         args[_key2] = arguments[_key2];
       }
 
-      return method.apply(target, (0, _utils.prefixRouteNameArg)(target, args));
+      return method.apply(target, (0, _utils.prefixRouteNameArg)(this, args));
     }
   });
 
@@ -40780,7 +40784,7 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
     App.ApplicationRoute = Ember.Route.extend({
       authManager: Ember.inject.service('auth'),
   
-      model: function() {
+      model() {
         return this.get('authManager').findCurrentUser();
       }
     });
@@ -44317,7 +44321,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.2-null+964af73a";
+  exports.default = "2.15.0-beta.2-null+9bb72ebe";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
