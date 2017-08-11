@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.2852a948"
+        "version": "2.16.0-alpha.1.481df88c"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2816,7 +2816,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 437,
+            "line": 439,
             "description": "This helper returns a new property descriptor that wraps the passed\ncomputed property function. You can use this helper to define properties\nwith mixins or via `Ember.defineProperty()`.\n\nIf you pass a function as an argument, it will be used as a getter. A computed\nproperty defined in this way might look like this:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', function() {\n    return `${this.get('firstName')} ${this.get('lastName')}`;\n  })\n});\n\nlet client = Person.create();\n\nclient.get('fullName'); // 'Betty Jones'\n\nclient.set('lastName', 'Fuller');\nclient.get('fullName'); // 'Betty Fuller'\n```\n\nYou can pass a hash with two functions, `get` and `set`, as an\nargument to provide both a getter and setter:\n\n```js\nlet Person = Ember.Object.extend({\n  init() {\n    this._super(...arguments);\n\n    this.firstName = 'Betty';\n    this.lastName = 'Jones';\n  },\n\n  fullName: Ember.computed('firstName', 'lastName', {\n    get(key) {\n      return `${this.get('firstName')} ${this.get('lastName')}`;\n    },\n    set(key, value) {\n      let [firstName, lastName] = value.split(/\\s+/);\n      this.setProperties({ firstName, lastName });\n      return value;\n    }\n  })\n});\n\nlet client = Person.create();\nclient.get('firstName'); // 'Betty'\n\nclient.set('fullName', 'Carroll Fuller');\nclient.get('firstName'); // 'Carroll'\n```\n\nThe `set` function should accept two parameters, `key` and `value`. The value\nreturned from `set` will be the new value of the property.\n\n_Note: This is the preferred way to define computed properties when writing third-party\nlibraries that depend on or use Ember, since there is no guarantee that the user\nwill have [prototype Extensions](https://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._\n\nThe alternative syntax, with prototype extensions, might look like:\n\n```js\nfullName: function() {\n  return this.get('firstName') + ' ' + this.get('lastName');\n}.property('firstName', 'lastName')\n```",
             "is_constructor": 1,
             "static": 1,
@@ -9009,7 +9009,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 153,
+            "line": 155,
             "description": "Call on a computed property to set it into non-cached mode. When in this\nmode the computed property will not automatically cache the return value.\n\nIt also does not automatically fire any change events. You must manually notify\nany changes if you want to observe this property.\n\nDependency keys have no effect on volatile properties as they are for cache\ninvalidation and notification when cached value is invalidated.\n\n```javascript\nlet outsideService = Ember.Object.extend({\n  value: Ember.computed(function() {\n    return OutsideService.getValue();\n  }).volatile()\n}).create();\n```",
             "itemtype": "method",
             "name": "volatile",
@@ -9027,7 +9027,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 181,
+            "line": 183,
             "description": "Call on a computed property to set it into read-only mode. When in this\nmode the computed property will throw an error when set.\n\n```javascript\nlet Person = Ember.Object.extend({\n  guid: Ember.computed(function() {\n    return 'guid-guid-guid';\n  }).readOnly()\n});\n\nlet person = Person.create();\n\nperson.set('guid', 'new-guid'); // will throw an exception\n```",
             "itemtype": "method",
             "name": "readOnly",
@@ -9045,7 +9045,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 208,
+            "line": 210,
             "description": "Sets the dependent keys on this computed property. Pass any number of\narguments containing key paths that this computed property depends on.\n\n```javascript\nlet President = Ember.Object.extend({\n  fullName: Ember.computed(function() {\n    return this.get('firstName') + ' ' + this.get('lastName');\n\n    // Tell Ember that this computed property depends on firstName\n    // and lastName\n  }).property('firstName', 'lastName')\n});\n\nlet president = President.create({\n  firstName: 'Barack',\n  lastName: 'Obama'\n});\n\npresident.get('fullName'); // 'Barack Obama'\n```",
             "itemtype": "method",
             "name": "property",
@@ -9071,7 +9071,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 258,
+            "line": 260,
             "description": "In some cases, you may want to annotate computed properties with additional\nmetadata about how they function or what values they operate on. For example,\ncomputed property functions may close over variables that are then no longer\navailable for introspection.\n\nYou can pass a hash of these values to a computed property like this:\n\n```\nperson: Ember.computed(function() {\n  let personId = this.get('personId');\n  return App.Person.create({ id: personId });\n}).meta({ type: App.Person })\n```\n\nThe hash that you pass to the `meta()` function will be saved on the\ncomputed property descriptor under the `_meta` key. Ember runtime\nexposes a public API for retrieving these values from classes,\nvia the `metaForProperty()` function.",
             "itemtype": "method",
             "name": "meta",
@@ -9092,7 +9092,7 @@
         },
         {
             "file": "packages/ember-metal/lib/computed.js",
-            "line": 534,
+            "line": 536,
             "description": "Returns the cached value for a property, if one exists.\nThis can be useful for peeking at the value of a computed\nproperty that is generated lazily, without accidentally causing\nit to be created.",
             "itemtype": "method",
             "name": "cacheFor",
@@ -14642,7 +14642,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 449,
+            "line": 451,
             "description": "A computed property which returns a new array with all the unique\nelements from one or more dependent arrays.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.union('fruits', 'vegetables')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'banana',\n    'grape',\n    'kale',\n    'banana',\n    'tomato'\n  ],\n  vegetables: [\n    'tomato',\n    'carrot',\n    'lettuce'\n  ]\n});\n\nhamster.get('uniqueFruits'); // ['banana', 'grape', 'kale', 'tomato', 'carrot', 'lettuce']\n```",
             "itemtype": "method",
             "name": "union",
@@ -14667,7 +14667,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 487,
+            "line": 489,
             "description": "A computed property which returns a new array with all the elements\ntwo or more dependent arrays have in common.\n\nExample\n\n```javascript\nlet obj = Ember.Object.extend({\n  friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')\n}).create({\n  adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],\n  charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']\n});\n\nobj.get('friendsInCommon'); // ['William King', 'Mary Somerville']\n```",
             "itemtype": "method",
             "name": "intersect",
@@ -14692,7 +14692,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 541,
+            "line": 543,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array that are not in the second\ndependent array.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  likes: ['banana', 'grape', 'kale'],\n  wants: Ember.computed.setDiff('likes', 'fruits')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'grape',\n    'kale',\n  ]\n});\n\nhamster.get('wants'); // ['banana']\n```",
             "itemtype": "method",
             "name": "setDiff",
@@ -14721,7 +14721,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 589,
+            "line": 596,
             "description": "A computed property that returns the array of values\nfor the provided dependent properties.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  clothes: Ember.computed.collect('hat', 'shirt')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('clothes'); // [null, null]\nhamster.set('hat', 'Camp Hat');\nhamster.set('shirt', 'Camp Shirt');\nhamster.get('clothes'); // ['Camp Hat', 'Camp Shirt']\n```",
             "itemtype": "method",
             "name": "collect",
@@ -14746,7 +14746,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 632,
+            "line": 639,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array sorted based on a property\nor sort function.\n\nThe callback method you provide should have the following signature:\n\n```javascript\nfunction(itemA, itemB);\n```\n\n- `itemA` the first item to compare.\n- `itemB` the second item to compare.\n\nThis function should return negative number (e.g. `-1`) when `itemA` should come before\n`itemB`. It should return positive number (e.g. `1`) when `itemA` should come after\n`itemB`. If the `itemA` and `itemB` are equal this function should return `0`.\n\nTherefore, if this function is comparing some numeric values, simple `itemA - itemB` or\n`itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.\n\nExample\n\n```javascript\nlet ToDoList = Ember.Object.extend({\n  // using standard ascending sort\n  todosSorting: ['name'],\n  sortedTodos: Ember.computed.sort('todos', 'todosSorting'),\n\n  // using descending sort\n  todosSortingDesc: ['name:desc'],\n  sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),\n\n  // using a custom sort function\n  priorityTodos: Ember.computed.sort('todos', function(a, b){\n    if (a.priority > b.priority) {\n      return 1;\n    } else if (a.priority < b.priority) {\n      return -1;\n    }\n\n    return 0;\n  })\n});\n\nlet todoList = ToDoList.create({todos: [\n  { name: 'Unit Test', priority: 2 },\n  { name: 'Documentation', priority: 3 },\n  { name: 'Release', priority: 1 }\n]});\n\ntodoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]\ntodoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]\ntodoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]\n```",
             "itemtype": "method",
             "name": "sort",

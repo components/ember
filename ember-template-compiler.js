@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+2852a948
+ * @version   2.16.0-alpha.1-null+481df88c
  */
 
 var enifed, requireModule, Ember;
@@ -10642,7 +10642,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
-    if (typeof config === 'function') {
+    var hasGetterOnly = typeof config === 'function';
+    if (hasGetterOnly) {
       this._getter = config;
     } else {
       true && !(typeof config === 'object' && !Array.isArray(config)) && emberDebug.assert('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
@@ -10660,8 +10661,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     this._suspended = undefined;
     this._meta = undefined;
     this._volatile = false;
+
     this._dependentKeys = opts && opts.dependentKeys;
-    this._readOnly = false;
+    this._readOnly = opts && hasGetterOnly && opts.readOnly === true;
   }
 
   ComputedProperty.prototype = new Descriptor();
@@ -17062,7 +17064,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+2852a948";
+  exports.default = "2.16.0-alpha.1-null+481df88c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
