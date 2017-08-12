@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+465194ea
+ * @version   2.16.0-alpha.1-null+514dcd05
  */
 
 var enifed, requireModule, Ember;
@@ -36553,7 +36553,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   exports.arrayContentWillChange = arrayContentWillChange;
   exports.arrayContentDidChange = arrayContentDidChange;
   exports.isEmberArray = function (obj) {
-    return obj && !!obj[EMBER_ARRAY];
+    return obj && obj[EMBER_ARRAY];
   }
 
   // ..........................................................
@@ -36628,11 +36628,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
   }
 
   function objectAt(content, idx) {
-    if (content.objectAt) {
-      return content.objectAt(idx);
-    }
-
-    return content[idx];
+    return typeof content.objectAt === 'function' ? content.objectAt(idx) : content[idx];
   }
 
   function arrayContentWillChange(array, startIdx, removeAmt, addAmt) {
@@ -36782,17 +36778,13 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
 
     if ((0, _emberMetal.isNone)(beginIndex)) {
       beginIndex = 0;
+    } else if (beginIndex < 0) {
+      beginIndex = length + beginIndex;
     }
 
     if ((0, _emberMetal.isNone)(endIndex) || endIndex > length) {
       endIndex = length;
-    }
-
-    if (beginIndex < 0) {
-      beginIndex = length + beginIndex;
-    }
-
-    if (endIndex < 0) {
+    } else if (endIndex < 0) {
       endIndex = length + endIndex;
     }
 
@@ -41850,7 +41842,7 @@ enifed('ember-utils', ['exports'], function (exports) {
   exports.canInvoke = canInvoke;
   exports.tryInvoke = function (obj, methodName, args) {
     if (canInvoke(obj, methodName)) {
-      return args ? applyStr(obj, methodName, args) : applyStr(obj, methodName);
+      return applyStr(obj, methodName, args);
     }
   };
   exports.makeArray = function (obj) {
@@ -44219,7 +44211,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+465194ea";
+  exports.default = "2.16.0-alpha.1-null+514dcd05";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
