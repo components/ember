@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+481df88c
+ * @version   2.16.0-alpha.1-null+465194ea
  */
 
 var enifed, requireModule, Ember;
@@ -1788,7 +1788,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function hasListeners(obj, eventName) {
     var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1) {
+    if (meta$$1 === undefined) {
       return false;
     }
     var matched = meta$$1.matchingListeners(eventName);
@@ -2453,7 +2453,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function DEFAULT_GETTER_FUNCTION(name) {
     return function GETTER_FUNCTION() {
       var meta$$1 = exports.peekMeta(this);
-      if (meta$$1 !== null && meta$$1 !== undefined) {
+      if (meta$$1 !== undefined) {
         return meta$$1.peekValues(name);
       }
     };
@@ -2463,7 +2463,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     function IGETTER_FUNCTION() {
       var meta$$1 = exports.peekMeta(this);
       var val = void 0;
-      if (meta$$1 !== null && meta$$1 !== undefined) {
+      if (meta$$1 !== undefined) {
         val = meta$$1.readInheritedValue('values', name);
       }
 
@@ -2525,7 +2525,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       become the explicit value of this property.
   */
   function defineProperty(obj, keyName, desc, data, meta$$1) {
-    if (meta$$1 === null || meta$$1 === undefined) {
+    if (meta$$1 === undefined) {
       meta$$1 = meta(obj);
     }
 
@@ -2713,7 +2713,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var meta$$1 = _meta || exports.peekMeta(obj);
 
     // do nothing of this object has already been destroyed
-    if (!meta$$1 || meta$$1.isSourceDestroyed()) {
+    if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
       return;
     }
 
@@ -2924,9 +2924,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
 
-    var meta$$1 = _meta || exports.peekMeta(obj);
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
 
-    if (!meta$$1 || !meta$$1.readableChainWatchers()) {
+    if (meta$$1 === undefined || meta$$1.readableChainWatchers() === undefined) {
       return;
     }
 
@@ -4561,12 +4561,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     // don't create objects just to invalidate
     var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1 || meta$$1.source !== obj) {
+    if (meta$$1 === undefined || meta$$1.source !== obj) {
       return;
     }
 
     var cache = meta$$1.readableCache();
-    if (cache && cache[keyName] !== undefined) {
+    if (cache !== undefined && cache[keyName] !== undefined) {
       cache[keyName] = undefined;
       removeDependentKeys(this, obj, keyName, meta$$1);
     }
@@ -4588,14 +4588,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var ret = this._getter.call(obj, keyName);
-    if (ret === undefined) {
-      cache[keyName] = UNDEFINED;
-    } else {
-      cache[keyName] = ret;
-    }
+    cache[keyName] = ret === undefined ? UNDEFINED : ret;
 
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.revalidate(keyName);
     }
     addDependentKeys(this, obj, keyName, meta$$1);
@@ -4645,15 +4641,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
-    // cache requires own meta
     var meta$$1 = meta(obj);
-    // either there is a writable cache or we need one to update
     var cache = meta$$1.writableCache();
     var hadCachedValue = false;
     var cachedValue = void 0;
-    if (cache[keyName] !== undefined) {
-      if (cache[keyName] !== UNDEFINED) {
-        cachedValue = cache[keyName];
+    var val = cache[keyName];
+    if (val !== undefined) {
+      if (val !== UNDEFINED) {
+        cachedValue = val;
       }
       hadCachedValue = true;
     }
@@ -5358,7 +5353,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1) {
+      if (meta$$1 !== undefined) {
         var map = meta$$1.readableWeak();
         if (map !== undefined) {
           var val = map[this._id];
@@ -5403,7 +5398,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1) {
+      if (meta$$1 !== undefined) {
         var map = meta$$1.readableWeak();
         if (map !== undefined) {
           return map[this._id] !== undefined;
@@ -7996,7 +7991,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Mixin.mixins = function mixins(obj) {
       var meta$$1 = exports.peekMeta(obj);
       var ret = [];
-      if (!meta$$1) {
+      if (meta$$1 === undefined) {
         return ret;
       }
 
@@ -8113,7 +8108,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return _detect(obj, this, {});
     }
     var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1) {
+    if (meta$$1 === undefined) {
       return false;
     }
     return !!meta$$1.peekMixins(emberUtils.guidFor(this));
@@ -8435,7 +8430,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function isProxy(value) {
     if (typeof value === 'object' && value !== null) {
       var meta$$1 = exports.peekMeta(value);
-      return meta$$1 && meta$$1.isProxy();
+      return meta$$1 === undefined ? false : meta$$1.isProxy();
     }
 
     return false;
