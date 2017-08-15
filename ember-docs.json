@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.a20857a7"
+        "version": "2.16.0-alpha.1.48d5d462"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -18177,7 +18177,7 @@
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
             "line": 499,
-            "description": "Returns a string representation which attempts to provide more information\nthan Javascript's `toString` typically does, in a generic way for all Ember\nobjects.\n\n```javascript\nconst Person = Ember.Object.extend()\nperson = Person.create()\nperson.toString() //=> \"<Person:ember1024>\"\n```\n\nIf the object's class is not defined on an Ember namespace, it will\nindicate it is a subclass of the registered superclass:\n\n   ```javascript\nconst Student = Person.extend()\nlet student = Student.create()\nstudent.toString() //=> \"<(subclass of Person):ember1025>\"\n```\n\nIf the method `toStringExtension` is defined, its return value will be\nincluded in the output.\n\n```javascript\nconst Teacher = Person.extend({\n  toStringExtension() {\n    return this.get('fullName');\n  }\n});\nteacher = Teacher.create()\nteacher.toString(); //=> \"<Teacher:ember1026:Tom Dale>\"\n```",
+            "description": "Returns a string representation which attempts to provide more information\nthan Javascript's `toString` typically does, in a generic way for all Ember\nobjects.\n\n```javascript\nconst Person = Ember.Object.extend()\nperson = Person.create()\nperson.toString() //=> \"<Person:ember1024>\"\n```\n\nIf the object's class is not defined on an Ember namespace, it will\nindicate it is a subclass of the registered superclass:\n\n```javascript\nconst Student = Person.extend()\nlet student = Student.create()\nstudent.toString() //=> \"<(subclass of Person):ember1025>\"\n```\n\nIf the method `toStringExtension` is defined, its return value will be\nincluded in the output.\n\n```javascript\nconst Teacher = Person.extend({\n  toStringExtension() {\n    return this.get('fullName');\n  }\n});\nteacher = Teacher.create()\nteacher.toString(); //=> \"<Teacher:ember1026:Tom Dale>\"\n```",
             "itemtype": "method",
             "name": "toString",
             "return": {
