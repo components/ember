@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+b8a56897
+ * @version   2.16.0-alpha.1-null+d0de6ae3
  */
 
 var enifed, requireModule, Ember;
@@ -10413,7 +10413,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       if (typeof this.class._initFactory === 'function') {
         this.class._initFactory(this);
       } else {
-        // in the non-Ember.Object case we need to still setOwner
+        // in the non-EmberObject case we need to still setOwner
         // this is required for supporting glimmer environment and
         // template instantiation which rely heavily on
         // `options[OWNER]` being passed into `create`
@@ -12499,65 +12499,83 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
        * `name` allows you to specify under which name the initializer is registered.
       This must be a unique name, as trying to register two initializers with the
       same name will result in an error.
-       ```javascript
-      Ember.Application.initializer({
-        name: 'namedInitializer',
-         initialize: function(application) {
-          Ember.debug('Running namedInitializer!');
-        }
-      });
+       ```app/initializer/named-initializer.js
+      import { debug } from '@ember/debug';
+       export function initialize() {
+        debug('Running namedInitializer!');
+      }
+       export default {
+        name: 'named-initializer',
+        initialize
+      };
       ```
        * `before` and `after` are used to ensure that this initializer is ran prior
       or after the one identified by the value. This value can be a single string
       or an array of strings, referencing the `name` of other initializers.
        An example of ordering initializers, we create an initializer named `first`:
-       ```javascript
-      Ember.Application.initializer({
+       ```app/initializer/first.js
+      import { debug } from '@ember/debug';
+       export function initialize() {
+        debug('First initializer!');
+      }
+       export default {
         name: 'first',
-         initialize: function(application) {
-          Ember.debug('First initializer!');
-        }
-      });
-       // DEBUG: First initializer!
+        initialize
+      };
+      ```
+       ```bash
+      // DEBUG: First initializer!
       ```
        We add another initializer named `second`, specifying that it should run
       after the initializer named `first`:
-       ```javascript
-      Ember.Application.initializer({
+       ```app/initializer/second.js
+      import { debug } from '@ember/debug';
+       export function initialize() {
+        debug('Second initializer!');
+      }
+       export default {
         name: 'second',
         after: 'first',
-         initialize: function(application) {
-          Ember.debug('Second initializer!');
-        }
-      });
-       // DEBUG: First initializer!
+        initialize
+      };
+      ```
+       ```
+      // DEBUG: First initializer!
       // DEBUG: Second initializer!
       ```
        Afterwards we add a further initializer named `pre`, this time specifying
       that it should run before the initializer named `first`:
-       ```javascript
-      Ember.Application.initializer({
+       ```app/initializer/pre.js
+      import { debug } from '@ember/debug';
+       export function initialize() {
+        debug('Pre initializer!');
+      }
+       export default {
         name: 'pre',
         before: 'first',
-         initialize: function(application) {
-          Ember.debug('Pre initializer!');
-        }
-      });
-       // DEBUG: Pre initializer!
+        initialize
+      };
+      ```
+       ```bash
+      // DEBUG: Pre initializer!
       // DEBUG: First initializer!
       // DEBUG: Second initializer!
       ```
        Finally we add an initializer named `post`, specifying it should run after
       both the `first` and the `second` initializers:
-       ```javascript
-      Ember.Application.initializer({
+       ```app/initializer/post.js
+      import { debug } from '@ember/debug';
+       export function initialize() {
+        debug('Post initializer!');
+      }
+       export default {
         name: 'post',
         after: ['first', 'second'],
-         initialize: function(application) {
-          Ember.debug('Post initializer!');
-        }
-      });
-       // DEBUG: Pre initializer!
+        initialize
+      };
+      ```
+       ```bash
+      // DEBUG: Pre initializer!
       // DEBUG: First initializer!
       // DEBUG: Second initializer!
       // DEBUG: Post initializer!
@@ -12565,13 +12583,16 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
        * `initialize` is a callback function that receives one argument,
         `application`, on which you can operate.
        Example of using `application` to register an adapter:
-       ```javascript
-      Ember.Application.initializer({
-        name: 'api-adapter',
-         initialize: function(application) {
-          application.register('api-adapter:main', ApiAdapter);
-        }
-      });
+       ```app/initializer/api-adapter.js
+      import ApiAdapter from '../utils/api-adapter';
+       export function initialize(application) {
+        application.register('api-adapter:main', ApiAdapter);
+      }
+       export default {
+        name: 'post',
+        after: ['first', 'second'],
+        initialize
+      };
       ```
        @method initializer
       @param initializer {Object}
@@ -12591,13 +12612,15 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
        * `name` allows you to specify under which name the instanceInitializer is
       registered. This must be a unique name, as trying to register two
       instanceInitializer with the same name will result in an error.
-       ```javascript
-      Ember.Application.instanceInitializer({
-        name: 'namedinstanceInitializer',
-         initialize: function(application) {
-          Ember.debug('Running namedInitializer!');
-        }
-      });
+       ```app/initializer/named-instance-initializer.js
+      import { debug } from '@ember/debug';
+       export function initialize() {
+        debug('Running named-instance-initializer!');
+      }
+       export default {
+        name: 'named-instance-initializer',
+        initialize
+      };
       ```
        * `before` and `after` are used to ensure that this initializer is ran prior
       or after the one identified by the value. This value can be a single string
@@ -12605,10 +12628,9 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
        * See Ember.Application.initializer for discussion on the usage of before
       and after.
        Example instanceInitializer to preload data into the store.
-       ```javascript
-      Ember.Application.initializer({
-        name: 'preload-data',
-         initialize: function(application) {
+       ```app/initializer/preload-data.js
+      import $ from 'jquery';
+       export function initialize(application) {
           var userConfig, userConfigEncoded, store;
           // We have a HTML escaped JSON representation of the user's basic
           // configuration generated server side and stored in the DOM of the main
@@ -12617,17 +12639,19 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
           // needed for immediate rendering of the page. Keep in mind, this data,
           // like all local models and data can be manipulated by the user, so it
           // should not be relied upon for security or authorization.
-          //
-          // Grab the encoded data from the meta tag
-          userConfigEncoded = Ember.$('head meta[name=app-user-config]').attr('content');
-          // Unescape the text, then parse the resulting JSON into a real object
+           // Grab the encoded data from the meta tag
+          userConfigEncoded = $('head meta[name=app-user-config]').attr('content');
+           // Unescape the text, then parse the resulting JSON into a real object
           userConfig = JSON.parse(unescape(userConfigEncoded));
-          // Lookup the store
+           // Lookup the store
           store = application.lookup('service:store');
-          // Push the encoded JSON into the store
+           // Push the encoded JSON into the store
           store.pushPayload(userConfig);
-        }
-      });
+      }
+       export default {
+        name: 'named-instance-initializer',
+        initialize
+      };
       ```
        @method instanceInitializer
       @param instanceInitializer
@@ -12655,7 +12679,7 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
 
     /**
       Set this to provide an alternate class to `Ember.DefaultResolver`
-        @deprecated Use 'Resolver' instead
+       @deprecated Use 'Resolver' instead
       @property resolver
       @public
     */
@@ -12808,12 +12832,16 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
     in a subclass. For example, you could enhance how a template
     is resolved like so:
   
-    ```javascript
-    App = Ember.Application.create({
-      Resolver: Ember.DefaultResolver.extend({
-        resolveTemplate: function(parsedName) {
+    ```app/app.js
+    import Application from '@ember/application';
+    import GlobalsResolver from '@ember/application/globals-resolver';
+  
+    App = Application.create({
+      Resolver: GlobalsResolver.extend({
+        resolveTemplate(parsedName) {
           let resolvedTemplate = this._super(parsedName);
           if (resolvedTemplate) { return resolvedTemplate; }
+  
           return Ember.TEMPLATES['not_found'];
         }
       })
@@ -13111,10 +13139,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
 
     /**
-     @method _logLookup
-     @param {Boolean} found
-     @param {Object} parsedName
-     @private
+      @method _logLookup
+      @param {Boolean} found
+      @param {Object} parsedName
+      @private
     */
     _logLookup: function (found, parsedName) {
       var symbol = found ? '[✓]' : '[ ]';
@@ -13131,11 +13159,11 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
 
     /**
-     Used to iterate all items of a given type.
-      @method knownForType
-     @param {String} type the type to search for
-     @private
-     */
+      Used to iterate all items of a given type.
+       @method knownForType
+      @param {String} type the type to search for
+      @private
+    */
     knownForType: function (type) {
       var namespace = (0, _emberMetal.get)(this, 'namespace');
       var suffix = _emberRuntime.String.classify(type);
@@ -13158,16 +13186,15 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
 
     /**
-     Converts provided name from the backing namespace into a container lookup name.
-      Examples:
-      App.FooBarHelper -> helper:foo-bar
-     App.THelper -> helper:t
-      @method translateToContainerFullname
-     @param {String} type
-     @param {String} name
-     @private
-     */
-
+      Converts provided name from the backing namespace into a container lookup name.
+       Examples:
+       * App.FooBarHelper -> helper:foo-bar
+      * App.THelper -> helper:t
+       @method translateToContainerFullname
+      @param {String} type
+      @param {String} name
+      @private
+    */
     translateToContainerFullname: function (type, name) {
       var suffix = _emberRuntime.String.classify(type);
       var namePrefix = name.slice(0, suffix.length * -1);
@@ -15964,9 +15991,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     `hello` for the `person-profile` component:
   
     ```app/components/person-profile.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       actions: {
         hello(name) {
           console.log("Hello", name);
@@ -15998,9 +16025,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     The following component class:
   
     ```app/components/emphasized-paragraph.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       tagName: 'em'
     });
     ```
@@ -16018,9 +16045,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     `classNames` property that is set to an array of strings:
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNames: ['my-class', 'my-other-class']
     });
     ```
@@ -16037,9 +16064,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     attribute. These properties can be computed properties:
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNameBindings: ['propertyA', 'propertyB'],
       propertyA: 'from-a',
       propertyB: Ember.computed(function() {
@@ -16059,9 +16086,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     The class name will not be added if the value is `false` or `undefined`.
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNameBindings: ['hovered'],
       hovered: true
     });
@@ -16078,9 +16105,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     preferred value after a ":" character when defining the binding:
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNameBindings: ['awesome:so-very-cool'],
       awesome: true
     });
@@ -16096,9 +16123,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     camelCase-style format will be converted to a dasherized format:
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNameBindings: ['isUrgent'],
       isUrgent: true
     });
@@ -16114,9 +16141,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     traversing a path relative to the component itself:
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNameBindings: ['messages.empty'],
       messages: Ember.Object.create({
         empty: true
@@ -16135,9 +16162,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     like this:
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNameBindings: ['isEnabled:enabled:disabled'],
       isEnabled: true
     });
@@ -16159,10 +16186,10 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     This syntax offers the convenience to add a class if a property is `false`:
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
     // Applies no class when isEnabled is true and class 'disabled' when isEnabled is false
-    export default Ember.Component.extend({
+    export default Component.extend({
       classNameBindings: ['isEnabled::disabled'],
       isEnabled: true
     });
@@ -16198,9 +16225,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     HTML associated attribute:
   
     ```app/components/my-anchor.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       tagName: 'a',
       attributeBindings: ['href'],
       href: 'http://google.com'
@@ -16217,9 +16244,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     the source property and the destination property:
   
     ```app/components/my-anchor.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       tagName: 'a',
       attributeBindings: ['url:href'],
       url: 'http://google.com'
@@ -16236,9 +16263,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     mapped, since `:` is not a valid character for properties in Javascript:
   
     ```app/components/my-use.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       tagName: 'use',
       attributeBindings: ['xlinkHref:xlink:href'],
       xlinkHref: '#triangle'
@@ -16255,9 +16282,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     the attribute will be present or absent depending on the value:
   
     ```app/components/my-text-input.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       tagName: 'input',
       attributeBindings: ['disabled'],
       disabled: false
@@ -16273,9 +16300,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     `attributeBindings` can refer to computed properties:
   
     ```app/components/my-text-input.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       tagName: 'input',
       attributeBindings: ['disabled'],
       disabled: Ember.computed(function() {
@@ -16292,9 +16319,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     return value of the `attributeBindings` monitored property:
   
     ```app/components/my-text-input.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       tagName: 'form',
       attributeBindings: ['novalidate'],
       novalidate: null
@@ -16322,10 +16349,10 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     ```
   
     ```app/components/person-profile.js
-      import Ember from 'ember';
+      import Component from '@ember/component';
       import layout from '../templates/components/person-profile';
   
-      export default Ember.Component.extend({
+      export default Component.extend({
         layout
       });
     ```
@@ -16355,9 +16382,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     argument to this method.
   
     ```app/components/my-widget.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       click(event) {
         // will be called when an instance's
         // rendered element is clicked
@@ -17262,13 +17289,13 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
   
     ### Allowing Default Action
   
-   By default the `{{link-to}}` component prevents the default browser action
-   by calling `preventDefault()` as this sort of action bubbling is normally
-   handled internally and we do not want to take the browser to a new URL (for
-   example).
+    By default the `{{link-to}}` component prevents the default browser action
+    by calling `preventDefault()` as this sort of action bubbling is normally
+    handled internally and we do not want to take the browser to a new URL (for
+    example).
   
-   If you need to override this behavior specify `preventDefault=false` in
-   your template:
+    If you need to override this behavior specify `preventDefault=false` in
+    your template:
   
     ```handlebars
     {{#link-to 'photoGallery' aPhotoId preventDefault=false}}
@@ -17863,8 +17890,10 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
   
     Helpers defined using a class must provide a `compute` function. For example:
   
-    ```js
-    export default Ember.Helper.extend({
+    ```app/helpers/format-currency.js
+    import Helper from '@ember/component/helper';
+  
+    export default Helper.extend({
       compute(params, hash) {
         let cents = params[0];
         let currency = hash.currency;
@@ -17921,9 +17950,10 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
     The `helper` method create pure-function helpers without instances. For
     example:
   
-    ```js
-    // app/helpers/format-currency.js
-    export default Ember.Helper.helper(function(params, hash) {
+    ```app/helpers/format-currency.js
+    import { helper } from '@ember/component/helper';
+  
+    export default helper(function(params, hash) {
       let cents = params[0];
       let currency = hash.currency;
       return `${currency}${cents * 0.01}`;
@@ -18132,10 +18162,10 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
   
     Here is an example action handler on a component:
   
-    ```js
-    import Ember from 'ember';
+    ```app/components/my-component.js
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       actions: {
         save() {
           this.get('model').save();
@@ -18164,8 +18194,10 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     additional arguments are passed to the action function. This has interesting
     properties combined with currying of arguments. For example:
   
-    ```js
-    export default Ember.Component.extend({
+    ```app/components/my-component.js
+    import Component from '@ember/component';
+  
+    export default Component.extend({
       actions: {
         // Usage {{input on-input=(action (action 'setName' model) value="target.value")}}
         setName(model, name) {
@@ -18184,9 +18216,9 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     with `on-input` above. For example:
   
     ```app/components/my-input.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       actions: {
         setName(model, name) {
           model.set('name', name);
@@ -18200,9 +18232,9 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     ```
   
     ```app/components/my-component.js
-    import Ember from 'ember';
+    import Component from '@ember/component';
   
-    export default Ember.Component.extend({
+    export default Component.extend({
       click() {
         // Note that model is not passed, it was curried in the template
         this.sendAction('submit', 'bob');
@@ -18258,7 +18290,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     ```
   
     ```app/helpers/disable-bubbling.js
-    import Ember from 'ember';
+    import { helper } from '@ember/component/helper';
   
     export function disableBubbling([action]) {
       return function(event) {
@@ -18266,7 +18298,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
         return action(event);
       };
     }
-    export default Ember.Helper.helper(disableBubbling);
+    export default helper(disableBubbling);
     ```
   
     If you need the default handler to trigger you should either register your
@@ -18323,10 +18355,11 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     ```
   
     ```app/controllers/application.js
-    import Ember from 'ember';
+    import Controller from '@ember/controller';
+    import { inject as service } from '@ember/service';
   
-    export default Ember.Controller.extend({
-      someService: Ember.inject.service()
+    export default Controller.extend({
+      someService: service()
     });
     ```
   
@@ -20805,9 +20838,10 @@ enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', '@glimmer/refer
     Your routes can then render into a specific one of these `outlet`s by specifying the `outlet`
     attribute in your `renderTemplate` function:
   
-    ```javascript
-    // app/routes/menu.js
-    export default Ember.Route.extend({
+    ```app/routes/menu.js
+    import Route from '@ember/routing/route';
+  
+    export default Route.extend({
       renderTemplate() {
         this.render({ outlet: 'menu' });
       }
@@ -20891,8 +20925,10 @@ enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/reference', 'ember-d
   
     Example:
   
-    ```javascript
-    App.NavigationController = Ember.Controller.extend({
+    ```app/controllers/navigation.js
+    import Controller from '@ember/controller';
+  
+    export default Controller.extend({
       who: "world"
     });
     ```
@@ -25733,10 +25769,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     You can pass a hash of these values to a computed property like this:
   
     ```
-    person: Ember.computed(function() {
+    import { computed } from '@ember/object';
+    import Person from 'my-app/utils/person';
+  
+    person: computed(function() {
       let personId = this.get('personId');
-      return App.Person.create({ id: personId });
-    }).meta({ type: App.Person })
+      return Person.create({ id: personId });
+    }).meta({ type: Person })
     ```
   
     The hash that you pass to the `meta()` function will be saved on the
@@ -26913,16 +26952,26 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     We can use that setup option to do some additional setup for our component.
     The component itself could look something like the following:
   
-    ```javascript
-    App.RichTextEditorComponent = Ember.Component.extend({
+    ```app/components/rich-text-editor.js
+    import Component from '@ember/component';
+    import { bind } from '@ember/runloop';
+  
+    export default Component.extend({
       initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
         });
       }),
+      
+      didInsertElement() {
+        tinymce.init({
+          selector: '#' + this.$().prop('id'),
+          setup: Ember.run.bind(this, this.setupEditor)
+        });
+      }
   
-      setupEditor: function(editor) {
+      setupEditor(editor) {
         this.set('editor', editor);
   
         editor.on('change', function() {
@@ -26933,7 +26982,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     In this example, we use Ember.run.bind to bind the setupEditor method to the
-    context of the App.RichTextEditorComponent and to have the invocation of that
+    context of the RichTextEditor component and to have the invocation of that
     method be safely handled and executed by the Ember run loop.
   
     @method bind
@@ -27230,8 +27279,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     Example:
   
-    ```javascript
-    export default Ember.Component.extend({
+    ```app/components/my-component.js
+    import Component from '@ember/component';
+  
+    export Component.extend({
       didInsertElement() {
         this._super(...arguments);
         run.scheduleOnce('afterRender', this, 'processChildElements');
@@ -29390,15 +29441,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     Makes a method available via an additional name.
   
-    ```javascript
-    App.Person = Ember.Object.extend({
-      name: function() {
+    ```app/utils/person.js
+    import EmberObject, {
+      aliasMethod
+    } from '@ember/object';
+  
+    export default EmberObject.extend({
+      name() {
         return 'Tomhuda Katzdale';
       },
-      moniker: Ember.aliasMethod('name')
+      moniker: aliasMethod('name')
     });
+    ```
   
-    let goodGuy = App.Person.create();
+    ```javascript
+    let goodGuy = Person.create();
   
     goodGuy.name();    // 'Tomhuda Katzdale'
     goodGuy.moniker(); // 'Tomhuda Katzdale'
@@ -30448,14 +30505,14 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
   
     Example:
   
-    ```javascript
-    App.Router.map(function() {
+    ```app/router.js
+    Router.map(function() {
       this.route('posts', function() {
         this.route('new');
       });
     });
   
-    App.Router.reopen({
+    Router.reopen({
       location: 'history'
     });
     ```
@@ -31774,8 +31831,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       A hook you can use to reset controller values either when the model
       changes or the route is exiting.
        ```app/routes/articles.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         resetController(controller, isExiting, transition) {
           if (isExiting) {
             controller.set('page', 1);
@@ -31814,8 +31871,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       The name of the template to use by default when rendering this routes
       template.
        ```app/routes/posts/list.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         templateName: 'posts/list'
       });
       ```
@@ -31861,8 +31918,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
        A good example is preventing navigation when a form is
       half-filled out:
        ```app/routes/contact-form.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         actions: {
           willTransition(transition) {
             if (this.controller.get('userHasEnteredData')) {
@@ -31899,8 +31956,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       however, it can be useful for tracking page views or resetting
       state on the controller.
        ```app/routes/login.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         actions: {
           didTransition() {
             this.controller.get('errors.base').clear();
@@ -31920,7 +31977,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       `Transition` object is the first parameter and the route that
       triggered the loading event is the second parameter.
        ```app/routes/application.js
-      export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         actions: {
           loading(transition, route) {
             let controller = this.controllerFor('foo');
@@ -31949,8 +32007,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       for rejected promises from the various hooks on the route,
       as well as any unhandled errors from child routes:
        ```app/routes/admin.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         beforeModel() {
           return Ember.RSVP.reject('bad things!');
         },
@@ -31974,8 +32032,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       specify your own global default error handler by overriding the
       `error` handler on `ApplicationRoute`:
        ```app/routes/application.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         actions: {
           error(error, transition) {
             this.controllerFor('banner').displayError(error.message);
@@ -31994,8 +32052,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       This event is triggered when the router enters the route. It is
       not executed when the model for the route changes.
        ```app/routes/application.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         collectAnalytics: Ember.on('activate', function(){
           collectAnalytics();
         })
@@ -32010,8 +32068,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       This event is triggered when the router completely exits this
       route. It is not executed when the model for the route changes.
        ```app/routes/index.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         trackPageLeaveAnalytics: Ember.on('deactivate', function(){
           trackPageLeaveAnalytics();
         })
@@ -32026,8 +32084,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       The controller associated with this route.
        Example
        ```app/routes/form.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         actions: {
           willTransition(transition) {
             if (this.controller.get('userHasEnteredData') &&
@@ -32314,8 +32372,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       logic that can only take place after the model has already
       resolved.
        ```app/routes/posts.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         afterModel(posts, transition) {
           if (posts.get('length') === 1) {
             this.transitionTo('post.show', posts.get('firstObject'));
@@ -32455,8 +32513,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       });
        ```
        ```app/routes/post.js
-      import Ember from 'ember';
-       export default Ember.Route.extend({
+      import Route from '@ember/routing/route';
+       export default Route.extend({
         model(params) {
           // the server returns `{ id: 12 }`
           return Ember.$.getJSON('/posts/' + params.post_id);
@@ -36075,9 +36133,13 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
   
     Example:
   
-    ```javascript
-    App.PostController = Ember.Controller.extend({
-      posts: Ember.inject.controller()
+    ```app/controllers/post.js
+    import Controller, {
+      inject as controller
+    } from '@ember/controller';
+  
+    export default Controller.extend({
+      posts: controller()
     });
     ```
   
@@ -36085,10 +36147,13 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
     looks up the `posts` controller in the container, making it easy to
     reference other controllers. This is functionally equivalent to:
   
-    ```javascript
-    App.PostController = Ember.Controller.extend({
+    ```app/controllers/post.js
+    import Controller from '@ember/controller';
+    import { alias } from '@ember/object/computed';
+  
+    export default Controller.extend({
       needs: 'posts',
-      posts: Ember.computed.alias('controllers.posts')
+      posts: alias('controllers.posts')
     });
     ```
   
@@ -36216,15 +36281,18 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       when `EmberENV.EXTEND_PROTOTYPES` or `EmberENV.EXTEND_PROTOTYPES.Function` is
       `true`, which is the default.
        Computed properties allow you to treat a function like a property:
-       ```javascript
-      MyApp.President = Ember.Object.extend({
+       ```app/utils/president.js
+      import EmberObject from '@ember/object';
+       export default EmberObject.extend({
         firstName: '',
         lastName:  '',
          fullName: function() {
           return this.get('firstName') + ' ' + this.get('lastName');
         }.property() // Call this flag to mark the function as a property
       });
-       let president = MyApp.President.create({
+      ```
+       ```javascript
+      let president = President.create({
         firstName: 'Barack',
         lastName: 'Obama'
       });
@@ -36236,8 +36304,9 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       example, in the above example, the `fullName` property depends on
       `firstName` and `lastName` to determine its value. You can tell Ember
       about these dependencies like this:
-       ```javascript
-      MyApp.President = Ember.Object.extend({
+       ```app/utils/president.js
+      import EmberObject from '@ember/object';
+       export default EmberObject.extend({
         firstName: '',
         lastName:  '',
          fullName: function() {
@@ -36269,7 +36338,8 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       call to the end of your method declarations in classes that you write.
       For example:
        ```javascript
-      Ember.Object.extend({
+      import EmberObject from '@ember/object';
+       EmberObject.extend({
         valueObserver: function() {
           // Executes whenever the "value" property changes
         }.observes('value')
@@ -36313,7 +36383,8 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       call to the end of your method declarations in classes that you write.
       For example:
        ```javascript
-      Ember.Object.extend({
+      import EmberObject from '@ember/object';
+       EmberObject.extend({
         valueObserver: function() {
           // Executes immediately after the "value" property changes
         }.observesImmediately('value')
@@ -36336,7 +36407,8 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
        You can listen for events simply by adding the `on` call to the end of
       your method declarations in classes or mixins that you write. For example:
        ```javascript
-      Ember.Mixin.create({
+      import Mixin from '@ember/mixin';
+       Mixin.create({
         doSomethingWithElement: function() {
           // Executes whenever the "didInsertElement" event fires
         }.on('didInsertElement')
@@ -38545,22 +38617,22 @@ enifed('ember-runtime/mixins/evented', ['exports', 'ember-metal'], function (exp
   exports.default = _emberMetal.Mixin.create({
 
     /**
-     Subscribes to a named event with given function.
-      ```javascript
-     person.on('didLoad', function() {
-       // fired once the person has loaded
-     });
-     ```
-      An optional target can be passed in as the 2nd argument that will
-     be set as the "this" for the callback. This is a good way to give your
-     function access to the object triggering the event. When the target
-     parameter is used the callback becomes the third argument.
-      @method on
-     @param {String} name The name of the event
-     @param {Object} [target] The "this" binding for the callback
-     @param {Function} method The callback to execute
-     @return this
-     @public
+      Subscribes to a named event with given function.
+       ```javascript
+      person.on('didLoad', function() {
+        // fired once the person has loaded
+      });
+      ```
+       An optional target can be passed in as the 2nd argument that will
+      be set as the "this" for the callback. This is a good way to give your
+      function access to the object triggering the event. When the target
+      parameter is used the callback becomes the third argument.
+       @method on
+      @param {String} name The name of the event
+      @param {Object} [target] The "this" binding for the callback
+      @param {Function} method The callback to execute
+      @return this
+      @public
     */
     on: function (name, target, method) {
       (0, _emberMetal.addListener)(this, name, target, method);
@@ -39412,8 +39484,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       observer should be prepared to handle that.
        ### Observer Methods
        Observer methods have the following signature:
-       ```javascript
-      export default Ember.Component.extend({
+       ```app/components/my-component.js
+      import Component from '@ember/component';
+       export default Component.extend({
         init() {
           this._super(...arguments);
           this.addObserver('foo', this, 'fooDidChange');
@@ -41310,8 +41383,10 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   
     Example
   
-    ```js
-    export default Ember.Component.extend({
+    ```app/components/my-component.js
+    import Component from '@ember/component';
+  
+    export default Component.extend({
       tagName: 'ul',
       classNames: ['pagination'],
   
@@ -41444,9 +41519,12 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
   
     Example:
   
-    ```javascript
-    App.ApplicationRoute = Ember.Route.extend({
-      authManager: Ember.inject.service('auth'),
+    ```app/routes/application.js
+    import Route from '@ember/routing/route';
+    import { inject as service } from '@ember/service';
+  
+    export default Route.extend({
+      authManager: service('auth'),
   
       model() {
         return this.get('authManager').findCurrentUser();
@@ -45174,17 +45252,20 @@ enifed('ember-utils', ['exports'], function (exports) {
     `audioType` passed as an attribute:
   
     ```app/components/play-audio.js
-    import Ember from 'ember';
-  
+    import Component from '@ember/component';
+    import { computed } from '@ember/object';
+    import { getOwner } from '@ember/application';
+    
     // Usage:
     //
     //   {{play-audio audioType=model.audioType audioFile=model.file}}
     //
-    export default Ember.Component.extend({
-      audioService: Ember.computed('audioType', function() {
-        let owner = Ember.getOwner(this);
+    export default Component.extend({
+      audioService: computed('audioType', function() {
+        let owner = getOwner(this);
         return owner.lookup(`service:${this.get('audioType')}`);
       }),
+  
       click() {
         let player = this.get('audioService');
         player.play(this.get('audioFile'));
@@ -45834,9 +45915,9 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
        For example a component for playing or pausing music may translate click events
       into action notifications of "play" or "stop" depending on some internal state
       of the component:
-       ```javascript
-      // app/components/play-button.js
-      export default Ember.Component.extend({
+       ```app/components/play-button.js
+      import Component from '@ember/component';
+       export default Component.extend({
         click() {
           if (this.get('isPlaying')) {
             this.sendAction('play');
@@ -45854,9 +45935,9 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
        When the component receives a browser `click` event it translate this
       interaction into application-specific semantics ("play" or "stop") and
       calls the specified action.
-       ```javascript
-      // app/controller/application.js
-      export default Ember.Controller.extend({
+       ```app/controller/application.js
+      import Controller from '@ember/controller';
+       export default Controller.extend({
         actions: {
           musicStarted() {
             // called when the play button is clicked
@@ -45871,9 +45952,9 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
       ```
        If no action is passed to `sendAction` a default name of "action"
       is assumed.
-       ```javascript
-      // app/components/next-button.js
-      export default Ember.Component.extend({
+       ```app/components/next-button.js
+      import Component from '@ember/component';
+       export default Component.extend({
         click() {
           this.sendAction();
         }
@@ -45883,9 +45964,9 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
       {{! app/templates/application.hbs }}
       {{next-button action=(action "playNextSongInAlbum")}}
       ```
-       ```javascript
-      // app/controllers/application.js
-      App.ApplicationController = Ember.Controller.extend({
+       ```app/controllers/application.js
+      import Controller from '@ember/controller';
+       export default Controller.extend({
         actions: {
           playNextSongInAlbum() {
             ...
@@ -46425,8 +46506,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
       is a string value, the value of that string will be applied as the value
       for an attribute of the property's name.
        The following example creates a tag like `<div priority="high" />`.
-       ```javascript
-      Ember.Component.extend({
+       ```app/components/my-component.js
+      import Component from '@ember/component';
+       export default Component.extend({
         attributeBindings: ['priority'],
         priority: 'high'
       });
@@ -46435,8 +46517,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
       an HTML Boolean attribute. It will be present if the property is `true`
       and omitted if the property is `false`.
        The following example creates markup like `<div visible />`.
-       ```javascript
-      Ember.Component.extend({
+       ```app/components/my-component.js
+      import Component from '@ember/component';
+       export default Component.extend({
         attributeBindings: ['visible'],
         visible: true
       });
@@ -46444,8 +46527,9 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-utils', 'ember-meta
        If you would prefer to use a custom value instead of the property name,
       you can create the same markup as the last example with a binding like
       this:
-       ```javascript
-      Ember.Component.extend({
+       ```app/components/my-component.js
+      import Component from '@ember/component';
+       export default Component.extend({
         attributeBindings: ['isVisible:visible'],
         isVisible: true
       });
@@ -47833,15 +47917,15 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   computed.collect = _emberRuntime.collect;
 
   /**
-   Defines the hash of localized strings for the current language. Used by
-   the `Ember.String.loc()` helper. To localize, add string values to this
-   hash.
+    Defines the hash of localized strings for the current language. Used by
+    the `Ember.String.loc()` helper. To localize, add string values to this
+    hash.
   
-   @property STRINGS
-   @for Ember
-   @type Object
-   @private
-   */
+    @property STRINGS
+    @for Ember
+    @type Object
+    @private
+  */
   Object.defineProperty(_emberMetal.default, 'STRINGS', {
     configurable: false,
     get: _emberRuntime.getStrings,
@@ -47849,19 +47933,19 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   });
 
   /**
-   Whether searching on the global for new Namespace instances is enabled.
+    Whether searching on the global for new Namespace instances is enabled.
   
-   This is only exported here as to not break any addons.  Given the new
-   visit API, you will have issues if you treat this as a indicator of
-   booted.
+    This is only exported here as to not break any addons.  Given the new
+    visit API, you will have issues if you treat this as a indicator of
+    booted.
   
-   Internally this is only exposing a flag in Namespace.
+    Internally this is only exposing a flag in Namespace.
   
-   @property BOOTED
-   @for Ember
-   @type Boolean
-   @private
-   */
+    @property BOOTED
+    @for Ember
+    @type Boolean
+    @private
+  */
   Object.defineProperty(_emberMetal.default, 'BOOTED', {
     configurable: false,
     enumerable: false,
@@ -47898,15 +47982,15 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberRuntime.String.isHTMLSafe = _emberGlimmer.isHTMLSafe;
 
   /**
-   Global hash of shared templates. This will automatically be populated
-   by the build tools so that you can store your Handlebars templates in
-   separate files that get loaded into JavaScript at buildtime.
+    Global hash of shared templates. This will automatically be populated
+    by the build tools so that you can store your Handlebars templates in
+    separate files that get loaded into JavaScript at buildtime.
   
-   @property TEMPLATES
-   @for Ember
-   @type Object
-   @private
-   */
+    @property TEMPLATES
+    @for Ember
+    @type Object
+    @private
+  */
   Object.defineProperty(_emberMetal.default, 'TEMPLATES', {
     get: _emberGlimmer.getTemplates,
     set: _emberGlimmer.setTemplates,
@@ -47918,11 +48002,12 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 
 
   /**
-   The semantic version
-   @property VERSION
-   @type String
-   @public
-   */
+    The semantic version
+  
+    @property VERSION
+    @type String
+    @public
+  */
   _emberMetal.default.VERSION = _version.default;
 
   _emberMetal.libraries.registerCoreLibrary('Ember', _version.default);
@@ -47930,13 +48015,14 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   // require the main entry points for each of these packages
   // this is so that the global exports occur properly
 
+
   /**
-   Alias for jQuery
+    Alias for jQuery
   
-   @method $
-   @for Ember
-   @public
-   */
+    @method $
+    @for Ember
+    @public
+  */
   _emberMetal.default.$ = _emberViews.jQuery;
 
   _emberMetal.default.ViewTargetActionSupport = _emberViews.ViewTargetActionSupport;
@@ -47996,7 +48082,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   (0, _emberRuntime.runLoadHooks)('Ember');
 
   /**
-  @module ember
+    @module ember
   */
   exports.default = _emberMetal.default;
 
@@ -48011,7 +48097,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+b8a56897";
+  exports.default = "2.16.0-alpha.1-null+d0de6ae3";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+b8a56897
+ * @version   2.16.0-alpha.1-null+d0de6ae3
  */
 
 var enifed, requireModule, Ember;
@@ -494,7 +494,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       if (typeof this.class._initFactory === 'function') {
         this.class._initFactory(this);
       } else {
-        // in the non-Ember.Object case we need to still setOwner
+        // in the non-EmberObject case we need to still setOwner
         // this is required for supporting glimmer environment and
         // template instantiation which rely heavily on
         // `options[OWNER]` being passed into `create`
@@ -4526,10 +4526,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     You can pass a hash of these values to a computed property like this:
   
     ```
-    person: Ember.computed(function() {
+    import { computed } from '@ember/object';
+    import Person from 'my-app/utils/person';
+  
+    person: computed(function() {
       let personId = this.get('personId');
-      return App.Person.create({ id: personId });
-    }).meta({ type: App.Person })
+      return Person.create({ id: personId });
+    }).meta({ type: Person })
     ```
   
     The hash that you pass to the `meta()` function will be saved on the
@@ -5706,16 +5709,26 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     We can use that setup option to do some additional setup for our component.
     The component itself could look something like the following:
   
-    ```javascript
-    App.RichTextEditorComponent = Ember.Component.extend({
+    ```app/components/rich-text-editor.js
+    import Component from '@ember/component';
+    import { bind } from '@ember/runloop';
+  
+    export default Component.extend({
       initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
         });
       }),
+      
+      didInsertElement() {
+        tinymce.init({
+          selector: '#' + this.$().prop('id'),
+          setup: Ember.run.bind(this, this.setupEditor)
+        });
+      }
   
-      setupEditor: function(editor) {
+      setupEditor(editor) {
         this.set('editor', editor);
   
         editor.on('change', function() {
@@ -5726,7 +5739,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     In this example, we use Ember.run.bind to bind the setupEditor method to the
-    context of the App.RichTextEditorComponent and to have the invocation of that
+    context of the RichTextEditor component and to have the invocation of that
     method be safely handled and executed by the Ember run loop.
   
     @method bind
@@ -6023,8 +6036,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     Example:
   
-    ```javascript
-    export default Ember.Component.extend({
+    ```app/components/my-component.js
+    import Component from '@ember/component';
+  
+    export Component.extend({
       didInsertElement() {
         this._super(...arguments);
         run.scheduleOnce('afterRender', this, 'processChildElements');
@@ -8183,15 +8198,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     Makes a method available via an additional name.
   
-    ```javascript
-    App.Person = Ember.Object.extend({
-      name: function() {
+    ```app/utils/person.js
+    import EmberObject, {
+      aliasMethod
+    } from '@ember/object';
+  
+    export default EmberObject.extend({
+      name() {
         return 'Tomhuda Katzdale';
       },
-      moniker: Ember.aliasMethod('name')
+      moniker: aliasMethod('name')
     });
+    ```
   
-    let goodGuy = App.Person.create();
+    ```javascript
+    let goodGuy = Person.create();
   
     goodGuy.name();    // 'Tomhuda Katzdale'
     goodGuy.moniker(); // 'Tomhuda Katzdale'

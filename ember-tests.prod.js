@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+b8a56897
+ * @version   2.16.0-alpha.1-null+d0de6ae3
  */
 
 var enifed, requireModule, Ember;
@@ -57536,17 +57536,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
     }, 'Ember.Object.create no longer supports mixing in other definitions, use .extend & .create separately instead.');
   });
 
-  // This test is for IE8.
-  QUnit.test('property name is the same as own prototype property', function () {
-    var MyClass = _object.default.extend({
-      toString: function () {
-        return 'MyClass';
-      }
-    });
-
-    equal(MyClass.create().toString(), 'MyClass', 'should inherit property from the arguments of `EmberObject.create`');
-  });
-
   QUnit.test('inherits properties from passed in EmberObject', function () {
     var baseObj = _object.default.create({ foo: 'bar' });
     var secondaryObj = _object.default.create(baseObj);
@@ -61520,15 +61509,6 @@ enifed('ember-testing/tests/adapters/adapter_test', ['ember-metal', 'ember-testi
       (0, _emberMetal.run)(adapter, adapter.destroy);
     }
   });
-
-  // Can't test these this way anymore since we have nothing to compare to
-  // test("asyncStart is a noop", function() {
-  //   equal(adapter.asyncStart, K);
-  // });
-
-  // test("asyncEnd is a noop", function() {
-  //   equal(adapter.asyncEnd, K);
-  // });
 
   QUnit.test('exception throws', function () {
     var error = 'Hai';
