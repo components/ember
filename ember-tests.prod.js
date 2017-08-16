@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+d0de6ae3
+ * @version   2.16.0-alpha.1-null+f9c20cdc
  */
 
 var enifed, requireModule, Ember;
@@ -74405,1063 +74405,988 @@ enifed('ember/tests/routing/router_service_test/urlFor_test', ['ember-babel', 'e
     return _class;
   }(_internalTestHelpers.RouterTestCase));
 });
-enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 'ember-metal', 'ember-template-compiler', 'ember-application', 'ember-views', 'ember-glimmer'], function (_emberRuntime, _emberRouting, _emberMetal, _emberTemplateCompiler, _emberApplication, _emberViews, _emberGlimmer) {
+enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'ember-routing', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberRouting, _internalTestHelpers) {
   'use strict';
 
-  var Router = void 0,
-      App = void 0,
-      templates = void 0,
-      router = void 0,
-      container = void 0,
-      counter = void 0;
+  var counter = void 0;
 
   function step(expectedValue, description) {
     equal(counter, expectedValue, 'Step ' + expectedValue + ': ' + description);
     counter++;
   }
 
-  function bootApplication(startingURL) {
-    for (var name in templates) {
-      (0, _emberGlimmer.setTemplate)(name, (0, _emberTemplateCompiler.compile)(templates[name]));
-    }
+  (0, _internalTestHelpers.moduleFor)('Loading/Error Substates', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
 
-    if (startingURL) {
-      _emberRouting.NoneLocation.reopen({
-        path: startingURL
-      });
-    }
+    function _class() {
 
-    startingURL = startingURL || '';
-    router = container.lookup('router:main');
-    (0, _emberMetal.run)(App, 'advanceReadiness');
-  }
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
 
-  QUnit.module('Loading/Error Substates', {
-    setup: function () {
       counter = 1;
 
-      (0, _emberMetal.run)(function () {
-        App = _emberApplication.Application.create({
-          name: 'App',
-          rootElement: '#qunit-fixture',
-          // fake a modules resolver
-          Resolver: _emberApplication.Resolver.extend({ moduleBasedResolver: true })
-        });
-
-        App.deferReadiness();
-
-        App.Router.reopen({
-          location: 'none'
-        });
-
-        Router = App.Router;
-
-        container = App.__container__;
-
-        templates = {
-          application: '<div id="app">{{outlet}}</div>',
-          index: 'INDEX',
-          loading: 'LOADING',
-          bro: 'BRO',
-          sis: 'SIS'
-        };
-      });
-    },
-    teardown: function () {
-      (0, _emberMetal.run)(function () {
-        App.destroy();
-        App = null;
-
-        (0, _emberGlimmer.setTemplates)({});
-      });
-
-      _emberRouting.NoneLocation.reopen({
-        path: ''
-      });
+      _this.addTemplate('application', '<div id="app">{{outlet}}</div>');
+      _this.addTemplate('index', 'INDEX');
+      return _this;
     }
-  });
 
-  QUnit.test('Slow promise from a child route of application enters nested loading state', function () {
-    var broDeferred = _emberRuntime.RSVP.defer();
+    _class.prototype.getController = function (name) {
+      return this.applicationInstance.lookup('controller:' + name);
+    };
 
-    Router.map(function () {
-      this.route('bro');
-    });
+    _class.prototype['@test Slow promise from a child route of application enters nested loading state'] = function (assert) {
+      var _this2 = this;
 
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        step(2, 'ApplicationRoute#setup');
-      }
-    });
+      var turtleDeferred = _emberRuntime.RSVP.defer();
 
-    App.BroRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'BroRoute#model');
-        return broDeferred.promise;
-      }
-    });
-
-    bootApplication('/bro');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'LOADING', 'The Loading template is nested in application template\'s outlet');
-
-    (0, _emberMetal.run)(broDeferred, 'resolve', {});
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'BRO', 'bro template has loaded and replaced loading template');
-  });
-
-  QUnit.test('Slow promises waterfall on startup', function () {
-    expect(7);
-
-    var grandmaDeferred = _emberRuntime.RSVP.defer();
-    var sallyDeferred = _emberRuntime.RSVP.defer();
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-        });
+      this.router.map(function () {
+        this.route('turtle');
       });
-    });
 
-    templates.grandma = 'GRANDMA {{outlet}}';
-    templates.mom = 'MOM {{outlet}}';
-    templates['mom/loading'] = 'MOMLOADING';
-    templates['mom/sally'] = 'SALLY';
-
-    App.GrandmaRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'GrandmaRoute#model');
-        return grandmaDeferred.promise;
-      }
-    });
-
-    App.MomRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(2, 'Mom#model');
-        return {};
-      }
-    });
-
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(3, 'SallyRoute#model');
-        return sallyDeferred.promise;
-      },
-      setupController: function () {
-        step(4, 'SallyRoute#setupController');
-      }
-    });
-
-    bootApplication('/grandma/mom/sally');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'LOADING', 'The Loading template is nested in application template\'s outlet');
-
-    (0, _emberMetal.run)(grandmaDeferred, 'resolve', {});
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'GRANDMA MOM MOMLOADING', 'Mom\'s child loading route is displayed due to sally\'s slow promise');
-
-    (0, _emberMetal.run)(sallyDeferred, 'resolve', {});
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'GRANDMA MOM SALLY', 'Sally template displayed');
-  });
-
-  QUnit.test('ApplicationRoute#currentPath reflects loading state path', function () {
-    expect(4);
-
-    var momDeferred = _emberRuntime.RSVP.defer();
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom');
-      });
-    });
-
-    templates.grandma = 'GRANDMA {{outlet}}';
-    templates['grandma/loading'] = 'GRANDMALOADING';
-    templates['grandma/mom'] = 'MOM';
-
-    App.GrandmaMomRoute = _emberRouting.Route.extend({
-      model: function () {
-        return momDeferred.promise;
-      }
-    });
-
-    bootApplication('/grandma/mom');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'GRANDMA GRANDMALOADING');
-
-    var appController = container.lookup('controller:application');
-    equal(appController.get('currentPath'), 'grandma.loading', 'currentPath reflects loading state');
-
-    (0, _emberMetal.run)(momDeferred, 'resolve', {});
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'GRANDMA MOM');
-    equal(appController.get('currentPath'), 'grandma.mom', 'currentPath reflects final state');
-  });
-
-  QUnit.test('Slow promises returned from ApplicationRoute#model don\'t enter LoadingRoute', function () {
-    expect(2);
-
-    var appDeferred = _emberRuntime.RSVP.defer();
-
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      model: function () {
-        return appDeferred.promise;
-      }
-    });
-
-    App.LoadingRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        ok(false, 'shouldn\'t get here');
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), '', 'nothing has been rendered yet');
-
-    (0, _emberMetal.run)(appDeferred, 'resolve', {});
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'INDEX');
-  });
-
-  QUnit.test('Don\'t enter loading route unless either route or template defined', function () {
-    delete templates.loading;
-
-    expect(2);
-
-    var indexDeferred = _emberRuntime.RSVP.defer();
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.IndexRoute = _emberRouting.Route.extend({
-      model: function () {
-        return indexDeferred.promise;
-      }
-    });
-
-    bootApplication();
-
-    var appController = container.lookup('controller:application');
-    ok(appController.get('currentPath') !== 'loading', 'loading state not entered');
-
-    (0, _emberMetal.run)(indexDeferred, 'resolve', {});
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'INDEX');
-  });
-
-  QUnit.test('Enter loading route if only LoadingRoute defined', function () {
-    delete templates.loading;
-
-    expect(4);
-
-    var indexDeferred = _emberRuntime.RSVP.defer();
-
-    App.IndexRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'IndexRoute#model');
-        return indexDeferred.promise;
-      }
-    });
-
-    App.LoadingRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        step(2, 'LoadingRoute#setupController');
-      }
-    });
-
-    bootApplication();
-
-    var appController = container.lookup('controller:application');
-    equal(appController.get('currentPath'), 'loading', 'loading state entered');
-
-    (0, _emberMetal.run)(indexDeferred, 'resolve', {});
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'INDEX');
-  });
-
-  QUnit.test('Enter child loading state of pivot route', function () {
-    expect(4);
-
-    var deferred = _emberRuntime.RSVP.defer();
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-        });
-        this.route('smells');
-      });
-    });
-
-    templates['grandma/loading'] = 'GMONEYLOADING';
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        step(1, 'SallyRoute#setupController');
-      }
-    });
-
-    App.GrandmaSmellsRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-
-    bootApplication('/grandma/mom/sally');
-
-    var appController = container.lookup('controller:application');
-    equal(appController.get('currentPath'), 'grandma.mom.sally', 'Initial route fully loaded');
-
-    (0, _emberMetal.run)(router, 'transitionTo', 'grandma.smells');
-    equal(appController.get('currentPath'), 'grandma.loading', 'in pivot route\'s child loading state');
-
-    (0, _emberMetal.run)(deferred, 'resolve', {});
-
-    equal(appController.get('currentPath'), 'grandma.smells', 'Finished transition');
-  });
-
-  QUnit.test('Loading actions bubble to root, but don\'t enter substates above pivot', function () {
-    expect(6);
-
-    delete templates.loading;
-
-    var sallyDeferred = _emberRuntime.RSVP.defer();
-    var smellsDeferred = _emberRuntime.RSVP.defer();
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-        });
-        this.route('smells');
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      actions: {
-        loading: function () {
-          ok(true, 'loading action received on ApplicationRoute');
+      this.add('route:application', _emberRouting.Route.extend({
+        setupController: function () {
+          step(2, 'ApplicationRoute#setupController');
         }
-      }
-    });
+      }));
 
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        return sallyDeferred.promise;
-      }
-    });
+      this.add('route:turtle', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'TurtleRoute#model');
+          return turtleDeferred.promise;
+        }
+      }));
+      this.addTemplate('turtle', 'TURTLE');
+      this.addTemplate('loading', 'LOADING');
 
-    App.GrandmaSmellsRoute = _emberRouting.Route.extend({
-      model: function () {
-        return smellsDeferred.promise;
-      }
-    });
+      var promise = this.visit('/turtle').then(function () {
+        text = _this2.$('#app').text();
+        assert.equal(text, 'TURTLE', 'turtle template has loaded and replaced the loading template');
+      });
 
-    bootApplication('/grandma/mom/sally');
+      var text = this.$('#app').text();
+      assert.equal(text, 'LOADING', 'The Loading template is nested in application template\'s outlet');
 
-    var appController = container.lookup('controller:application');
-    ok(!appController.get('currentPath'), 'Initial route fully loaded');
-    (0, _emberMetal.run)(sallyDeferred, 'resolve', {});
+      turtleDeferred.resolve();
+      return promise;
+    };
 
-    equal(appController.get('currentPath'), 'grandma.mom.sally', 'transition completed');
+    _class.prototype['@test Slow promises returned from ApplicationRoute#model don\'t enter LoadingRoute'] = function (assert) {
+      var _this3 = this;
 
-    (0, _emberMetal.run)(router, 'transitionTo', 'grandma.smells');
-    equal(appController.get('currentPath'), 'grandma.mom.sally', 'still in initial state because the only loading state is above the pivot route');
+      var appDeferred = _emberRuntime.RSVP.defer();
 
-    (0, _emberMetal.run)(smellsDeferred, 'resolve', {});
+      this.add('route:application', _emberRouting.Route.extend({
+        model: function () {
+          return appDeferred.promise;
+        }
+      }));
+      this.add('route:loading', _emberRouting.Route.extend({
+        setupController: function () {
+          ok(false, 'shouldn\'t get here');
+        }
+      }));
 
-    equal(appController.get('currentPath'), 'grandma.smells', 'Finished transition');
-  });
+      var promise = this.visit('/').then(function () {
+        text = _this3.$('#app').text();
 
-  QUnit.test('Default error event moves into nested route', function () {
-    expect(6);
+        assert.equal(text, 'INDEX', 'index template has been rendered');
+      });
 
-    templates['grandma'] = 'GRANDMA {{outlet}}';
-    templates['grandma/error'] = 'ERROR: {{model.msg}}';
+      var text = this.$('#app').text();
 
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
+      assert.equal(text, '', 'nothing has been rendered yet');
+      appDeferred.resolve();
+
+      return promise;
+    };
+
+    _class.prototype['@test Don\'t enter loading route unless either route or template defined'] = function (assert) {
+      var _this4 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+
+      this.router.map(function () {
+        this.route('dummy');
+      });
+      this.add('route:dummy', _emberRouting.Route.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      }));
+      this.addTemplate('dummy', 'DUMMY');
+
+      return this.visit('/').then(function () {
+        var promise = _this4.visit('/dummy').then(function () {
+          var text = _this4.$('#app').text();
+
+          assert.equal(text, 'DUMMY', 'dummy template has been rendered');
+        });
+
+        assert.ok(_this4.currentPath !== 'loading', '\n        loading state not entered\n      ');
+        deferred.resolve();
+
+        return promise;
+      });
+    };
+
+    _class.prototype['@test Enter loading route only if loadingRoute is defined'] = function (assert) {
+      var _this5 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+
+      this.router.map(function () {
+        this.route('dummy');
+      });
+
+      this.add('route:dummy', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'DummyRoute#model');
+          return deferred.promise;
+        }
+      }));
+      this.add('route:loading', _emberRouting.Route.extend({
+        setupController: function () {
+          step(2, 'LoadingRoute#setupController');
+        }
+      }));
+      this.addTemplate('dummy', 'DUMMY');
+
+      return this.visit('/').then(function () {
+        var promise = _this5.visit('/dummy').then(function () {
+          var text = _this5.$('#app').text();
+
+          assert.equal(text, 'DUMMY', 'dummy template has been rendered');
+        });
+
+        assert.equal(_this5.currentPath, 'loading', 'loading state entered');
+        deferred.resolve();
+
+        return promise;
+      });
+    };
+
+    _class.prototype['@test Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present'] = function (assert) {
+      var _this6 = this;
+
+      var appDeferred = _emberRuntime.RSVP.defer();
+
+      this.add('route:application', _emberRouting.Route.extend({
+        model: function () {
+          return appDeferred.promise;
+        }
+      }));
+      var loadingRouteEntered = false;
+      this.add('route:application_loading', _emberRouting.Route.extend({
+        setupController: function () {
+          loadingRouteEntered = true;
+        }
+      }));
+
+      var promise = this.visit('/').then(function () {
+        assert.equal(_this6.$('#app').text(), 'INDEX', 'index route loaded');
+      });
+      assert.ok(loadingRouteEntered, 'ApplicationLoadingRoute was entered');
+      appDeferred.resolve();
+
+      return promise;
+    };
+
+    _class.prototype['@test Slow promises returned from ApplicationRoute#model enter application_loading if template present'] = function (assert) {
+      var _this7 = this;
+
+      var appDeferred = _emberRuntime.RSVP.defer();
+
+      this.addTemplate('application_loading', '\n      <div id="toplevel-loading">TOPLEVEL LOADING</div>\n    ');
+      this.add('route:application', _emberRouting.Route.extend({
+        model: function () {
+          return appDeferred.promise;
+        }
+      }));
+
+      var promise = this.visit('/').then(function () {
+        var length = _this7.$('#toplevel-loading').length;
+        text = _this7.$('#app').text();
+
+        assert.equal(length, 0, 'top-level loading view has been entirely removed from the DOM');
+        assert.equal(text, 'INDEX', 'index has fully rendered');
+      });
+      var text = this.$('#toplevel-loading').text();
+
+      assert.equal(text, 'TOPLEVEL LOADING', 'still loading the top level');
+      appDeferred.resolve();
+
+      return promise;
+    };
+
+    _class.prototype['@test Prioritized substate entry works with preserved-namespace nested routes'] = function (assert) {
+      var _this8 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+
+      this.addTemplate('foo.bar_loading', 'FOOBAR LOADING');
+      this.addTemplate('foo.bar.index', 'YAY');
+
+      this.router.map(function () {
+        this.route('foo', function () {
+          this.route('bar', { path: '/bar' }, function () {});
         });
       });
-    });
 
-    App.ApplicationController = _emberRuntime.Controller.extend();
+      this.add('route:foo.bar', _emberRouting.Route.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      }));
 
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
+      return this.visit('/').then(function () {
+        var promise = _this8.visit('/foo/bar').then(function () {
+          text = _this8.$('#app').text();
 
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
+          assert.equal(text, 'YAY', 'foo.bar.index fully loaded');
         });
-      },
+        var text = _this8.$('#app').text();
 
-      actions: {
-        error: function () {
-          step(2, 'MomSallyRoute#actions.error');
+        assert.equal(text, 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
+        deferred.resolve();
+
+        return promise;
+      });
+    };
+
+    _class.prototype['@test Prioritized substate entry works with reset-namespace nested routes'] = function (assert) {
+      var _this9 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+
+      this.addTemplate('bar_loading', 'BAR LOADING');
+      this.addTemplate('bar.index', 'YAY');
+
+      this.router.map(function () {
+        this.route('foo', function () {
+          this.route('bar', { path: '/bar', resetNamespace: true }, function () {});
+        });
+      });
+
+      this.add('route:bar', _emberRouting.Route.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var promise = _this9.visit('/foo/bar').then(function () {
+          text = _this9.$('#app').text();
+
+          assert.equal(text, 'YAY', 'bar.index fully loaded');
+        });
+
+        var text = _this9.$('#app').text();
+
+        assert.equal(text, 'BAR LOADING', 'foo.bar_loading was entered (as opposed to something likefoo/foo/bar_loading)');
+        deferred.resolve();
+
+        return promise;
+      });
+    };
+
+    _class.prototype['@test Prioritized loading substate entry works with preserved-namespace nested routes'] = function (assert) {
+      var _this10 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+
+      this.addTemplate('foo.bar_loading', 'FOOBAR LOADING');
+      this.addTemplate('foo.bar', 'YAY');
+
+      this.router.map(function () {
+        this.route('foo', function () {
+          this.route('bar');
+        });
+      });
+
+      this.add('route:foo.bar', _emberRouting.Route.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      }));
+
+      var promise = this.visit('/foo/bar').then(function () {
+        text = _this10.$('#app').text();
+
+        assert.equal(text, 'YAY', 'foo.bar has rendered');
+      });
+      var text = this.$('#app').text();
+
+      assert.equal(text, 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
+      deferred.resolve();
+
+      return promise;
+    };
+
+    _class.prototype['@test Prioritized error substate entry works with preserved-namespaec nested routes'] = function (assert) {
+      var _this11 = this;
+
+      this.addTemplate('foo.bar_error', 'FOOBAR ERROR: {{model.msg}}');
+      this.addTemplate('foo.bar', 'YAY');
+
+      this.router.map(function () {
+        this.route('foo', function () {
+          this.route('bar');
+        });
+      });
+
+      this.add('route:foo.bar', _emberRouting.Route.extend({
+        model: function () {
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        assert.throws(function () {
+          _this11.visit('/foo/bar');
+        }, function (err) {
+          return err.msg === "did it broke?";
+        }, 'it broke');
+        var text = _this11.$('#app').text();
+        assert.equal(text, 'FOOBAR ERROR: did it broke?', 'foo.bar_error was entered (as opposed to something like foo/foo/bar_error)');
+      });
+    };
+
+    _class.prototype['@test Prioritized loading substate entry works with auto-generated index routes'] = function (assert) {
+      var _this12 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+      this.addTemplate('foo.index_loading', 'FOO LOADING');
+      this.addTemplate('foo.index', 'YAY');
+      this.addTemplate('foo', '{{outlet}}');
+
+      this.router.map(function () {
+        this.route('foo', function () {
+          this.route('bar');
+        });
+      });
+
+      this.add('route:foo.index', _emberRouting.Route.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      }));
+      this.add('route:foo', _emberRouting.Route.extend({
+        model: function () {
           return true;
         }
-      }
-    });
+      }));
 
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
+      var promise = this.visit('/foo').then(function () {
+        text = _this12.$('#app').text();
 
-    step(3, 'App finished booting');
+        assert.equal(text, 'YAY', 'foo.index was rendered');
+      });
+      var text = this.$('#app').text();
+      assert.equal(text, 'FOO LOADING', 'foo.index_loading was entered');
 
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'GRANDMA ERROR: did it broke?', 'error bubbles');
+      deferred.resolve();
 
-    var appController = container.lookup('controller:application');
-    equal(appController.get('currentPath'), 'grandma.error', 'Initial route fully loaded');
-  });
+      return promise;
+    };
 
-  QUnit.test('Error events that aren\'t bubbled don\t throw application assertions', function () {
-    expect(2);
+    _class.prototype['@test Prioritized error substate entry works with auto-generated index routes'] = function (assert) {
+      var _this13 = this;
 
-    templates['grandma'] = 'GRANDMA {{outlet}}';
+      this.addTemplate('foo.index_error', 'FOO ERROR: {{model.msg}}');
+      this.addTemplate('foo.index', 'YAY');
+      this.addTemplate('foo', '{{outlet}}');
 
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
+      this.router.map(function () {
+        this.route('foo', function () {
+          this.route('bar');
         });
       });
-    });
 
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
-
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
-        });
-      },
-
-      actions: {
-        error: function (err) {
-          equal(err.msg, 'did it broke?');
-          return false;
+      this.add('route:foo.index', _emberRouting.Route.extend({
+        model: function () {
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
         }
-      }
-    });
-
-    bootApplication('/grandma/mom/sally');
-  });
-
-  QUnit.test('Non-bubbled errors that re-throw aren\'t swallowed', function () {
-    expect(2);
-
-    templates['grandma'] = 'GRANDMA {{outlet}}';
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-        });
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
-
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
-        });
-      },
-
-      actions: {
-        error: function (err) {
-          // returns undefined which is falsey
-          throw err;
-        }
-      }
-    });
-
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
-  });
-
-  QUnit.test('Handled errors that re-throw aren\'t swallowed', function () {
-    expect(4);
-
-    var handledError = void 0;
-
-    templates['grandma'] = 'GRANDMA {{outlet}}';
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-          this.route('this-route-throws');
-        });
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
-
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
-        });
-      },
-
-      actions: {
-        error: function (err) {
-          step(2, 'MomSallyRoute#error');
-
-          handledError = err;
-
-          this.transitionTo('mom.this-route-throws');
-
-          // Marks error as handled
-          return false;
-        }
-      }
-    });
-
-    App.MomThisRouteThrowsRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(3, 'MomThisRouteThrows#model');
-
-        throw handledError;
-      }
-    });
-
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
-  });
-
-  QUnit.test('Handled errors that bubble can be handled at a higher level', function () {
-    expect(4);
-
-    var handledError = void 0;
-
-    templates['grandma'] = 'GRANDMA {{outlet}}';
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-        });
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.MomRoute = _emberRouting.Route.extend({
-      actions: {
-        error: function (err) {
-          step(3, 'MomRoute#error');
-
-          equal(err, handledError, 'error handled and rebubbled is handleable at higher route');
-        }
-      }
-    });
-
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
-
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
-        });
-      },
-
-      actions: {
-        error: function (err) {
-          step(2, 'MomSallyRoute#error');
-
-          handledError = err;
-
+      }));
+      this.add('route:foo', _emberRouting.Route.extend({
+        model: function () {
           return true;
         }
-      }
-    });
+      }));
 
-    bootApplication('/grandma/mom/sally');
-  });
+      return this.visit('/').then(function () {
+        assert.throws(function () {
+          _this13.visit('/foo');
+        }, function (err) {
+          return err.msg === 'did it broke?';
+        }, 'it broke');
+        var text = _this13.$('#app').text();
 
-  QUnit.test('errors that are bubbled are thrown at a higher level if not handled', function () {
-    expect(3);
-
-    templates['grandma'] = 'GRANDMA {{outlet}}';
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-        });
+        assert.equal(text, 'FOO ERROR: did it broke?', 'foo.index_error was entered');
       });
-    });
+    };
 
-    App.ApplicationController = _emberRuntime.Controller.extend();
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'currentPath',
+      get: function () {
+        return this.getController('application').get('currentPath');
+      }
+    }]);
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
+  (0, _internalTestHelpers.moduleFor)('Loading/Error Substates - globals mode app', function (_AutobootApplicationT) {
+    (0, _emberBabel.inherits)(_class2, _AutobootApplicationT);
 
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
+    function _class2() {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.apply(this, arguments));
+    }
+
+    _class2.prototype['@test Rejected promises returned from ApplicationRoute transition into top-level application_error'] = function (assert) {
+      var _this15 = this;
+
+      var reject = true;
+
+      assert.throws(function () {
+        _this15.runTask(function () {
+          _this15.createApplication();
+          _this15.addTemplate('index', '<div id="app">INDEX</div>');
+          _this15.add('route:application', _emberRouting.Route.extend({
+            init: function () {
+              this._super.apply(this, arguments);
+            },
+            model: function () {
+              if (reject) {
+                return _emberRuntime.RSVP.reject({ msg: 'BAD NEWS BEARS' });
+              } else {
+                return {};
+              }
+            }
+          }));
+
+          _this15.addTemplate('application_error', '\n          <p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>\n        ');
         });
-      },
+      }, function (err) {
+        return err.msg === 'BAD NEWS BEARS';
+      }, 'it went poorly');
 
-      actions: {
-        error: function () {
-          step(2, 'MomSallyRoute#error');
-          return true;
+      var text = this.$('#toplevel-error').text();
+      assert.equal(text, 'TOPLEVEL ERROR: BAD NEWS BEARS', 'toplevel error rendered');
+
+      reject = false;
+
+      return this.visit('/').then(function () {
+        var text = _this15.$('#app').text();
+
+        assert.equal(text, 'INDEX', 'the index route resolved');
+      });
+    };
+
+    return _class2;
+  }(_internalTestHelpers.AutobootApplicationTestCase));
+
+  (0, _internalTestHelpers.moduleFor)('Loading/Error Substates - nested routes', function (_ApplicationTestCase2) {
+    (0, _emberBabel.inherits)(_class3, _ApplicationTestCase2);
+
+    function _class3() {
+
+      var _this16 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
+
+      counter = 1;
+
+      _this16.addTemplate('application', '<div id="app">{{outlet}}</div>');
+      _this16.addTemplate('index', 'INDEX');
+      _this16.addTemplate('grandma', 'GRANDMA {{outlet}}');
+      _this16.addTemplate('mom', 'MOM');
+
+      _this16.router.map(function () {
+        this.route('grandma', function () {
+          this.route('mom', { resetNamespace: true }, function () {
+            this.route('sally');
+            this.route('this-route-throws');
+          });
+          this.route('puppies');
+        });
+        this.route('memere', { path: '/memere/:seg' }, function () {});
+      });
+
+      _this16.visit('/');
+      return _this16;
+    }
+
+    _class3.prototype.getController = function (name) {
+      return this.applicationInstance.lookup('controller:' + name);
+    };
+
+    _class3.prototype['@test ApplicationRoute#currentPath reflects loading state path'] = function (assert) {
+      var _this17 = this;
+
+      var momDeferred = _emberRuntime.RSVP.defer();
+
+      this.addTemplate('grandma.loading', 'GRANDMALOADING');
+
+      this.add('route:mom', _emberRouting.Route.extend({
+        model: function () {
+          return momDeferred.promise;
         }
-      }
-    });
+      }));
 
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    }, 'Correct error was thrown');
-  });
+      var promise = this.visit('/grandma/mom').then(function () {
+        text = _this17.$('#app').text();
 
-  QUnit.test('Handled errors that are thrown through rejection aren\'t swallowed', function () {
-    expect(4);
-
-    var handledError = void 0;
-
-    templates['grandma'] = 'GRANDMA {{outlet}}';
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-          this.route('this-route-throws');
-        });
+        assert.equal(text, 'GRANDMA MOM', 'Grandma.mom loaded text is displayed');
+        assert.equal(_this17.currentPath, 'grandma.mom.index', 'currentPath reflects final state');
       });
-    });
+      var text = this.$('#app').text();
 
-    App.ApplicationController = _emberRuntime.Controller.extend();
+      assert.equal(text, 'GRANDMA GRANDMALOADING', 'Grandma.mom loading text displayed');
 
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
+      assert.equal(this.currentPath, 'grandma.loading', 'currentPath reflects loading state');
 
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
-        });
-      },
+      momDeferred.resolve();
 
-      actions: {
-        error: function (err) {
-          step(2, 'MomSallyRoute#error');
+      return promise;
+    };
 
-          handledError = err;
+    _class3.prototype['@test Loading actions bubble to root but don\'t enter substates above pivot '] = function (assert) {
+      var _this18 = this;
 
-          this.transitionTo('mom.this-route-throws');
+      var sallyDeferred = _emberRuntime.RSVP.defer();
+      var puppiesDeferred = _emberRuntime.RSVP.defer();
 
-          // Marks error as handled
-          return false;
+      this.add('route:application', _emberRouting.Route.extend({
+        actions: {
+          loading: function () {
+            assert.ok(true, 'loading action received on ApplicationRoute');
+          }
         }
-      }
-    });
+      }));
 
-    App.MomThisRouteThrowsRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(3, 'MomThisRouteThrows#model');
-
-        return _emberRuntime.RSVP.reject(handledError);
-      }
-    });
-
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
-  });
-
-  QUnit.test('Setting a query param during a slow transition should work', function () {
-    var deferred = _emberRuntime.RSVP.defer();
-
-    Router.map(function () {
-      this.route('grandma', { path: '/grandma/:seg' }, function () {});
-    });
-
-    templates['grandma/loading'] = 'GMONEYLOADING';
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.IndexRoute = _emberRouting.Route.extend({
-      beforeModel: function () {
-        this.transitionTo('grandma', 1);
-      }
-    });
-
-    App.GrandmaRoute = _emberRouting.Route.extend({
-      queryParams: {
-        test: { defaultValue: 1 }
-      }
-    });
-
-    App.GrandmaIndexRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-
-    bootApplication('/');
-
-    var appController = container.lookup('controller:application');
-    var grandmaController = container.lookup('controller:grandma');
-
-    equal(appController.get('currentPath'), 'grandma.loading', 'Initial route should be loading');
-
-    (0, _emberMetal.run)(function () {
-      grandmaController.set('test', 3);
-    });
-
-    equal(appController.get('currentPath'), 'grandma.loading', 'Route should still be loading');
-    equal(grandmaController.get('test'), 3, 'Controller query param value should have changed');
-
-    (0, _emberMetal.run)(deferred, 'resolve', {});
-
-    equal(appController.get('currentPath'), 'grandma.index', 'Transition should be complete');
-  });
-
-  QUnit.test('Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present', function () {
-    expect(2);
-
-    var appDeferred = _emberRuntime.RSVP.defer();
-
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      model: function () {
-        return appDeferred.promise;
-      }
-    });
-
-    var loadingRouteEntered = false;
-    App.ApplicationLoadingRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        loadingRouteEntered = true;
-      }
-    });
-
-    bootApplication();
-
-    ok(loadingRouteEntered, 'ApplicationLoadingRoute was entered');
-
-    (0, _emberMetal.run)(appDeferred, 'resolve', {});
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'INDEX');
-  });
-
-  QUnit.test('Slow promises returned from ApplicationRoute#model enter application_loading if template present', function () {
-    expect(3);
-
-    templates['application_loading'] = '<div id="toplevel-loading">TOPLEVEL LOADING</div>';
-
-    var appDeferred = _emberRuntime.RSVP.defer();
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      model: function () {
-        return appDeferred.promise;
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('#qunit-fixture #toplevel-loading').text(), 'TOPLEVEL LOADING');
-
-    (0, _emberMetal.run)(appDeferred, 'resolve', {});
-
-    equal((0, _emberViews.jQuery)('#toplevel-loading', '#qunit-fixture').length, 0, 'top-level loading View has been entirely removed from DOM');
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'INDEX');
-  });
-
-  QUnit.test('Default error event moves into nested route, prioritizing more specifically named error route', function () {
-    expect(6);
-
-    templates['grandma'] = 'GRANDMA {{outlet}}';
-    templates['grandma/error'] = 'ERROR: {{model.msg}}';
-    templates['mom_error'] = 'MOM ERROR: {{model.msg}}';
-
-    Router.map(function () {
-      this.route('grandma', function () {
-        this.route('mom', { resetNamespace: true }, function () {
-          this.route('sally');
-        });
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.MomSallyRoute = _emberRouting.Route.extend({
-      model: function () {
-        step(1, 'MomSallyRoute#model');
-
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
-        });
-      },
-
-      actions: {
-        error: function () {
-          step(2, 'MomSallyRoute#actions.error');
-          return true;
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          return sallyDeferred.promise;
         }
-      }
-    });
+      }));
 
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
+      this.add('route:grandma.puppies', _emberRouting.Route.extend({
+        model: function () {
+          return puppiesDeferred.promise;
+        }
+      }));
 
-    step(3, 'App finished booting');
+      var promise = this.visit('/grandma/mom/sally');
+      assert.equal(this.currentPath, 'index', 'Initial route fully loaded');
 
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'GRANDMA MOM ERROR: did it broke?', 'the more specifically-named mom error substate was entered over the other error route');
+      sallyDeferred.resolve();
 
-    var appController = container.lookup('controller:application');
-    equal(appController.get('currentPath'), 'grandma.mom_error', 'Initial route fully loaded');
-  });
+      promise.then(function () {
+        assert.equal(_this18.currentPath, 'grandma.mom.sally', 'transition completed');
 
-  QUnit.test('Prioritized substate entry works with preserved-namespace nested routes', function () {
-    expect(2);
+        var visit = _this18.visit('/grandma/puppies');
+        assert.equal(_this18.currentPath, 'grandma.mom.sally', 'still in initial state because the only loading state is above the pivot route');
 
-    templates['foo/bar_loading'] = 'FOOBAR LOADING';
-    templates['foo/bar/index'] = 'YAY';
-
-    Router.map(function () {
-      this.route('foo', function () {
-        this.route('bar', { path: '/bar' }, function () {});
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    var deferred = _emberRuntime.RSVP.defer();
-    App.FooBarRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-
-    bootApplication('/foo/bar');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
-
-    (0, _emberMetal.run)(deferred, 'resolve');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'YAY');
-  });
-
-  QUnit.test('Prioritized substate entry works with reset-namespace nested routes', function () {
-    expect(2);
-
-    templates['bar_loading'] = 'BAR LOADING';
-    templates['bar/index'] = 'YAY';
-
-    Router.map(function () {
-      this.route('foo', function () {
-        this.route('bar', { path: '/bar', resetNamespace: true }, function () {});
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    var deferred = _emberRuntime.RSVP.defer();
-    App.BarRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-
-    bootApplication('/foo/bar');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'BAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
-
-    (0, _emberMetal.run)(deferred, 'resolve');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'YAY');
-  });
-
-  QUnit.test('Prioritized loading substate entry works with preserved-namespace nested routes', function () {
-    expect(2);
-
-    templates['foo/bar_loading'] = 'FOOBAR LOADING';
-    templates['foo/bar'] = 'YAY';
-
-    Router.map(function () {
-      this.route('foo', function () {
-        this.route('bar');
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    var deferred = _emberRuntime.RSVP.defer();
-    App.FooBarRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-
-    bootApplication('/foo/bar');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
-
-    (0, _emberMetal.run)(deferred, 'resolve');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'YAY');
-  });
-
-  QUnit.test('Prioritized error substate entry works with preserved-namespace nested routes', function () {
-    expect(2);
-
-    templates['foo/bar_error'] = 'FOOBAR ERROR: {{model.msg}}';
-    templates['foo/bar'] = 'YAY';
-
-    Router.map(function () {
-      this.route('foo', function () {
-        this.route('bar');
-      });
-    });
-
-    App.ApplicationController = _emberRuntime.Controller.extend();
-
-    App.FooBarRoute = _emberRouting.Route.extend({
-      model: function () {
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
+        return visit;
+      }).then(function () {
+        _this18.runTask(function () {
+          return puppiesDeferred.resolve();
         });
-      }
-    });
 
-    throws(function () {
-      bootApplication('/foo/bar');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'FOOBAR ERROR: did it broke?', 'foo.bar_error was entered (as opposed to something like foo/foo/bar_error)');
-  });
-
-  QUnit.test('Prioritized loading substate entry works with auto-generated index routes', function () {
-    expect(2);
-
-    templates['foo/index_loading'] = 'FOO LOADING';
-    templates['foo/index'] = 'YAY';
-    templates['foo'] = '{{outlet}}';
-
-    Router.map(function () {
-      this.route('foo', function () {
-        this.route('bar');
+        assert.equal(_this18.currentPath, 'grandma.puppies', 'Finished transition');
       });
-    });
 
-    App.ApplicationController = _emberRuntime.Controller.extend();
+      return promise;
+    };
 
-    var deferred = _emberRuntime.RSVP.defer();
-    App.FooIndexRoute = _emberRouting.Route.extend({
-      model: function () {
-        return deferred.promise;
-      }
-    });
-    App.FooRoute = _emberRouting.Route.extend({
-      model: function () {
-        return true;
-      }
-    });
+    _class3.prototype['@test Default error event moves into nested route'] = function (assert) {
+      var _this19 = this;
 
-    bootApplication('/foo');
+      this.addTemplate('grandma.error', 'ERROR: {{model.msg}}');
 
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'FOO LOADING', 'foo.index_loading was entered');
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'MomSallyRoute#model');
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
 
-    (0, _emberMetal.run)(deferred, 'resolve');
+        actions: {
+          error: function () {
+            step(2, 'MomSallyRoute#actions.error');
+            return true;
+          }
+        }
+      }));
 
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'YAY');
-  });
+      assert.throws(function () {
+        _this19.visit('/grandma/mom/sally');
+      }, function (err) {
+        return err.msg === "did it broke?";
+      }, 'it broke.');
 
-  QUnit.test('Prioritized error substate entry works with auto-generated index routes', function () {
-    expect(2);
+      step(3, 'App finished loading');
 
-    templates['foo/index_error'] = 'FOO ERROR: {{model.msg}}';
-    templates['foo/index'] = 'YAY';
-    templates['foo'] = '{{outlet}}';
+      var text = this.$('#app').text();
 
-    Router.map(function () {
-      this.route('foo', function () {
-        this.route('bar');
-      });
-    });
+      assert.equal(text, 'GRANDMA ERROR: did it broke?', 'error bubbles');
+      assert.equal(this.currentPath, 'grandma.error', 'Initial route fully loaded');
+    };
 
-    App.ApplicationController = _emberRuntime.Controller.extend();
+    _class3.prototype['@test Non-bubbled errors that re-throw aren\'t swallowed'] = function (assert) {
+      var _this20 = this;
 
-    App.FooIndexRoute = _emberRouting.Route.extend({
-      model: function () {
-        return _emberRuntime.RSVP.reject({
-          msg: 'did it broke?'
-        });
-      }
-    });
-    App.FooRoute = _emberRouting.Route.extend({
-      model: function () {
-        return true;
-      }
-    });
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
 
-    throws(function () {
-      return bootApplication('/foo');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
+        actions: {
+          error: function (err) {
+            // returns undefined which is falsey
+            throw err;
+          }
+        }
+      }));
 
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'FOO ERROR: did it broke?', 'foo.index_error was entered');
-  });
+      assert.throws(function () {
+        _this20.visit('/grandma/mom/sally');
+      }, function (err) {
+        return err.msg === 'did it broke?';
+      }, 'it broke');
+    };
 
-  QUnit.test('Rejected promises returned from ApplicationRoute transition into top-level application_error', function () {
-    expect(3);
+    _class3.prototype['@test Handled errors that re-throw aren\'t swallowed'] = function (assert) {
+      var _this21 = this;
 
-    templates['application_error'] = '<p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>';
+      var handledError = void 0;
 
-    var reject = true;
-    App.ApplicationRoute = _emberRouting.Route.extend({
-      model: function () {
-        if (reject) {
-          return _emberRuntime.RSVP.reject({ msg: 'BAD NEWS BEARS' });
-        } else {
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'MomSallyRoute#model');
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
+
+        actions: {
+          error: function (err) {
+            step(2, 'MomSallyRoute#actions.error');
+            handledError = err;
+            this.transitionTo('mom.this-route-throws');
+
+            return false;
+          }
+        }
+      }));
+
+      this.add('route:mom.this-route-throws', _emberRouting.Route.extend({
+        model: function () {
+          step(3, 'MomThisRouteThrows#model');
+          throw handledError;
+        }
+      }));
+
+      assert.throws(function () {
+        _this21.visit('/grandma/mom/sally');
+      }, function (err) {
+        return err.msg === 'did it broke?';
+      }, 'it broke');
+    };
+
+    _class3.prototype['@test errors that are bubbled are thrown at a higher level if not handled'] = function (assert) {
+      var _this22 = this;
+
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'MomSallyRoute#model');
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
+
+        actions: {
+          error: function () {
+            step(2, 'MomSallyRoute#actions.error');
+            return true;
+          }
+        }
+      }));
+
+      assert.throws(function () {
+        _this22.visit('/grandma/mom/sally');
+      }, function (err) {
+        return err.msg == "did it broke?";
+      }, 'Correct error was thrown');
+    };
+
+    _class3.prototype['@test Handled errors that are thrown through rejection aren\'t swallowed'] = function (assert) {
+      var _this23 = this;
+
+      var handledError = void 0;
+
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'MomSallyRoute#model');
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
+
+        actions: {
+          error: function (err) {
+            step(2, 'MomSallyRoute#actions.error');
+            handledError = err;
+            this.transitionTo('mom.this-route-throws');
+
+            return false;
+          }
+        }
+      }));
+
+      this.add('route:mom.this-route-throws', _emberRouting.Route.extend({
+        model: function () {
+          step(3, 'MomThisRouteThrows#model');
+          return _emberRuntime.RSVP.reject(handledError);
+        }
+      }));
+
+      assert.throws(function () {
+        _this23.visit('/grandma/mom/sally');
+      }, function (err) {
+        return err.msg === 'did it broke?';
+      }, 'it broke');
+    };
+
+    _class3.prototype['@test Default error events move into nested route, prioritizing more specifically named error routes - NEW'] = function (assert) {
+      var _this24 = this;
+
+      this.addTemplate('grandma.error', 'ERROR: {{model.msg}}');
+      this.addTemplate('mom_error', 'MOM ERROR: {{model.msg}}');
+
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'MomSallyRoute#model');
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
+
+        actions: {
+          error: function () {
+            step(2, 'MomSallyRoute#actions.error');
+            return true;
+          }
+        }
+      }));
+
+      assert.throws(function () {
+        _this24.visit('/grandma/mom/sally');
+      }, function (err) {
+        return err.msg === 'did it broke?';
+      }, 'it broke');
+
+      step(3, 'Application finished booting');
+
+      assert.equal(this.$('#app').text(), 'GRANDMA MOM ERROR: did it broke?', 'the more specifically named mome error substate was entered over the other error route');
+
+      assert.equal(this.currentPath, 'grandma.mom_error', 'Initial route fully loaded');
+    };
+
+    _class3.prototype['@test Slow promises waterfall on startup'] = function (assert) {
+      var _this25 = this;
+
+      var grandmaDeferred = _emberRuntime.RSVP.defer();
+      var sallyDeferred = _emberRuntime.RSVP.defer();
+
+      this.addTemplate('loading', 'LOADING');
+      this.addTemplate('mom', 'MOM {{outlet}}');
+      this.addTemplate('mom.loading', 'MOMLOADING');
+      this.addTemplate('mom.sally', 'SALLY');
+
+      this.add('route:grandma', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'GrandmaRoute#model');
+          return grandmaDeferred.promise;
+        }
+      }));
+
+      this.add('route:mom', _emberRouting.Route.extend({
+        model: function () {
+          step(2, 'MomRoute#model');
           return {};
         }
+      }));
+
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(3, 'SallyRoute#model');
+          return sallyDeferred.promise;
+        },
+        setupController: function () {
+          step(4, 'SallyRoute#setupController');
+        }
+      }));
+
+      var promise = this.visit('/grandma/mom/sally').then(function () {
+        text = _this25.$('#app').text();
+
+        assert.equal(text, 'GRANDMA MOM SALLY', 'Sally template displayed');
+      });
+      var text = this.$('#app').text();
+
+      assert.equal(text, 'LOADING', 'The loading template is nested in application template\'s outlet');
+
+      this.runTask(function () {
+        return grandmaDeferred.resolve();
+      });
+      text = this.$('#app').text();
+
+      assert.equal(text, 'GRANDMA MOM MOMLOADING', 'Mom\'s child loading route is displayed due to sally\'s slow promise');
+
+      sallyDeferred.resolve();
+
+      return promise;
+    };
+
+    _class3.prototype['@test Enter child loading state of pivot route'] = function (assert) {
+      var _this26 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+      this.addTemplate('grandma.loading', 'GMONEYLOADING');
+
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        setupController: function () {
+          step(1, 'SallyRoute#setupController');
+        }
+      }));
+
+      this.add('route:grandma.puppies', _emberRouting.Route.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      }));
+
+      return this.visit('/grandma/mom/sally').then(function () {
+        assert.equal(_this26.currentPath, 'grandma.mom.sally', 'Initial route fully loaded');
+
+        var promise = _this26.visit('/grandma/puppies').then(function () {
+          assert.equal(_this26.currentPath, 'grandma.puppies', 'Finished transition');
+        });
+
+        assert.equal(_this26.currentPath, 'grandma.loading', 'in pivot route\'s child loading state');
+        deferred.resolve();
+
+        return promise;
+      });
+    };
+
+    _class3.prototype['@test Error events that aren\'t bubbled don\'t throw application assertions'] = function (assert) {
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'MomSallyRoute#model');
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
+
+        actions: {
+          error: function (err) {
+            step(2, 'MomSallyRoute#actions.error');
+            assert.equal(err.msg, 'did it broke?', 'it didn\'t break');
+            return false;
+          }
+        }
+      }));
+
+      return this.visit('/grandma/mom/sally');
+    };
+
+    _class3.prototype['@test Handled errors that bubble can be handled at a higher level'] = function (assert) {
+      var handledError = void 0;
+
+      this.add('route:mom', _emberRouting.Route.extend({
+        actions: {
+          error: function (err) {
+            step(3, 'MomRoute#actions.error');
+            assert.equal(err, handledError, 'error handled and rebubbled is handleable at higher route');
+          }
+        }
+      }));
+
+      this.add('route:mom.sally', _emberRouting.Route.extend({
+        model: function () {
+          step(1, 'MomSallyRoute#model');
+          return _emberRuntime.RSVP.reject({
+            msg: 'did it broke?'
+          });
+        },
+
+        actions: {
+          error: function (err) {
+            step(2, 'MomSallyRoute#actions.error');
+            handledError = err;
+
+            return true;
+          }
+        }
+      }));
+
+      return this.visit('/grandma/mom/sally');
+    };
+
+    _class3.prototype['@test Setting a query param during a slow transition should work'] = function (assert) {
+      var _this27 = this;
+
+      var deferred = _emberRuntime.RSVP.defer();
+      this.addTemplate('memere.loading', 'MMONEYLOADING');
+
+      this.add('route:grandma', _emberRouting.Route.extend({
+        beforeModel: function () {
+          this.transitionTo('memere', 1);
+        }
+      }));
+
+      this.add('route:memere', _emberRouting.Route.extend({
+        queryParams: {
+          test: { defaultValue: 1 }
+        }
+      }));
+
+      this.add('route:memere.index', _emberRouting.Route.extend({
+        model: function () {
+          return deferred.promise;
+        }
+      }));
+
+      var promise = this.visit('/grandma').then(function () {
+        assert.equal(_this27.currentPath, 'memere.index', 'Transition should be complete');
+      });
+      var memereController = this.getController('memere');
+
+      assert.equal(this.currentPath, 'memere.loading', 'Initial route should be loading');
+
+      memereController.set('test', 3);
+
+      assert.equal(this.currentPath, 'memere.loading', 'Initial route should still be loading');
+
+      assert.equal(memereController.get('test'), 3, 'Controller query param value should have changed');
+      deferred.resolve();
+
+      return promise;
+    };
+
+    (0, _emberBabel.createClass)(_class3, [{
+      key: 'currentPath',
+      get: function () {
+        return this.getController('application').get('currentPath');
       }
-    });
-
-    throws(function () {
-      return bootApplication();
-    }, function (err) {
-      return err.msg === 'BAD NEWS BEARS';
-    });
-
-    equal((0, _emberViews.jQuery)('#toplevel-error', '#qunit-fixture').text(), 'TOPLEVEL ERROR: BAD NEWS BEARS');
-
-    reject = false;
-    (0, _emberMetal.run)(router, 'transitionTo', 'index');
-
-    equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'INDEX');
-  });
+    }]);
+    return _class3;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 enifed('ember/tests/routing/toplevel_dom_test', ['ember-babel', 'internal-test-helpers'], function (_emberBabel, _internalTestHelpers) {
   'use strict';
