@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+f9c20cdc
+ * @version   2.16.0-alpha.1-null+472ffa08
  */
 
 var enifed, requireModule, Ember;
@@ -66806,341 +66806,6 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     }
   });
 
-  QUnit.test('warn on URLs not included in the route set', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    bootApplication();
-
-    expectAssertion(function () {
-      return (0, _emberMetal.run)(function () {
-        return router.handleURL('/what-is-this-i-dont-even');
-      });
-    }, 'The URL \'/what-is-this-i-dont-even\' did not match any routes in your application');
-  });
-
-  QUnit.test('The Homepage', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({});
-
-    var currentPath = void 0;
-
-    App.ApplicationController = _emberRuntime.Controller.extend({
-      currentPathDidChange: (0, _emberMetal.observer)('currentPath', function () {
-        currentPath = (0, _emberMetal.get)(this, 'currentPath');
-      })
-    });
-
-    bootApplication();
-
-    equal(currentPath, 'home');
-    equal((0, _emberViews.jQuery)('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');
-  });
-
-  QUnit.test('The Home page and the Camelot page with multiple Router.map calls', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    Router.map(function () {
-      this.route('camelot', { path: '/camelot' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({});
-
-    App.CamelotRoute = _emberRouting.Route.extend({});
-
-    var currentPath = void 0;
-
-    App.ApplicationController = _emberRuntime.Controller.extend({
-      currentPathDidChange: (0, _emberMetal.observer)('currentPath', function () {
-        currentPath = (0, _emberMetal.get)(this, 'currentPath');
-      })
-    });
-
-    App.CamelotController = _emberRuntime.Controller.extend({
-      currentPathDidChange: (0, _emberMetal.observer)('currentPath', function () {
-        currentPath = (0, _emberMetal.get)(this, 'currentPath');
-      })
-    });
-
-    bootApplication();
-
-    handleURL('/camelot');
-
-    equal(currentPath, 'camelot');
-    equal((0, _emberViews.jQuery)('h3:contains(silly)', '#qunit-fixture').length, 1, 'The camelot template was rendered');
-
-    handleURL('/');
-
-    equal(currentPath, 'home');
-    equal((0, _emberViews.jQuery)('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');
-  });
-
-  QUnit.test('The Homepage with explicit template name in renderTemplate', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      renderTemplate: function () {
-        this.render('homepage');
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('h3:contains(Megatroll)', '#qunit-fixture').length, 1, 'The homepage template was rendered');
-  });
-
-  QUnit.test('An alternate template will pull in an alternate controller', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      renderTemplate: function () {
-        this.render('homepage');
-      }
-    });
-
-    App.HomepageController = _emberRuntime.Controller.extend({
-      model: {
-        home: 'Comes from homepage'
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, 'The homepage template was rendered');
-  });
-
-  QUnit.test('An alternate template will pull in an alternate controller instead of controllerName', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      controllerName: 'foo',
-      renderTemplate: function () {
-        this.render('homepage');
-      }
-    });
-
-    App.FooController = _emberRuntime.Controller.extend({
-      model: {
-        home: 'Comes from Foo'
-      }
-    });
-
-    App.HomepageController = _emberRuntime.Controller.extend({
-      model: {
-        home: 'Comes from homepage'
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, 'The homepage template was rendered');
-  });
-
-  QUnit.test('The template will pull in an alternate controller via key/value', function () {
-    Router.map(function () {
-      this.route('homepage', { path: '/' });
-    });
-
-    App.HomepageRoute = _emberRouting.Route.extend({
-      renderTemplate: function () {
-        this.render({ controller: 'home' });
-      }
-    });
-
-    App.HomeController = _emberRuntime.Controller.extend({
-      model: {
-        home: 'Comes from home.'
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('h3:contains(Megatroll) + p:contains(Comes from home.)', '#qunit-fixture').length, 1, 'The homepage template was rendered from data from the HomeController');
-  });
-
-  QUnit.test('The Homepage with explicit template name in renderTemplate and controller', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeController = _emberRuntime.Controller.extend({
-      model: {
-        home: 'YES I AM HOME'
-      }
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      renderTemplate: function () {
-        this.render('homepage');
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('h3:contains(Megatroll) + p:contains(YES I AM HOME)', '#qunit-fixture').length, 1, 'The homepage template was rendered');
-  });
-
-  QUnit.test('Model passed via renderTemplate model is set as controller\'s model', function () {
-    (0, _emberGlimmer.setTemplate)('bio', (0, _emberTemplateCompiler.compile)('<p>{{model.name}}</p>'));
-
-    App.BioController = _emberRuntime.Controller.extend();
-
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      renderTemplate: function () {
-        this.render('bio', {
-          model: { name: 'emberjs' }
-        });
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('p:contains(emberjs)', '#qunit-fixture').length, 1, 'Passed model was set as controllers model');
-  });
-
-  QUnit.test('render uses templateName from route', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    (0, _emberGlimmer.setTemplate)('the_real_home_template', (0, _emberTemplateCompiler.compile)('<p>THIS IS THE REAL HOME</p>'));
-
-    App.HomeController = _emberRuntime.Controller.extend();
-    App.HomeRoute = _emberRouting.Route.extend({
-      templateName: 'the_real_home_template'
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');
-  });
-
-  QUnit.test('defining templateName allows other templates to be rendered', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    (0, _emberGlimmer.setTemplate)('alert', (0, _emberTemplateCompiler.compile)('<div class=\'alert-box\'>Invader!</div>'));
-    (0, _emberGlimmer.setTemplate)('the_real_home_template', (0, _emberTemplateCompiler.compile)('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));
-
-    App.HomeController = _emberRuntime.Controller.extend();
-    App.HomeRoute = _emberRouting.Route.extend({
-      templateName: 'the_real_home_template',
-      actions: {
-        showAlert: function () {
-          this.render('alert', {
-            into: 'home',
-            outlet: 'alert'
-          });
-        }
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');
-
-    (0, _emberMetal.run)(function () {
-      return router.send('showAlert');
-    });
-
-    equal((0, _emberViews.jQuery)('.alert-box', '#qunit-fixture').text(), 'Invader!', 'Template for alert was render into outlet');
-  });
-
-  QUnit.test('templateName is still used when calling render with no name and options', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    (0, _emberGlimmer.setTemplate)('alert', (0, _emberTemplateCompiler.compile)('<div class=\'alert-box\'>Invader!</div>'));
-    (0, _emberGlimmer.setTemplate)('home', (0, _emberTemplateCompiler.compile)('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}'));
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      templateName: 'alert',
-      renderTemplate: function () {
-        this.render({});
-      }
-    });
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('.alert-box', '#qunit-fixture').text(), 'Invader!', 'default templateName was rendered into outlet');
-  });
-
-  QUnit.test('The Homepage with a `setupController` hook', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      setupController: function (controller) {
-        (0, _emberMetal.set)(controller, 'hours', (0, _emberRuntime.A)(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));
-      }
-    });
-
-    (0, _emberGlimmer.setTemplate)('home', (0, _emberTemplateCompiler.compile)('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>'));
-
-    bootApplication();
-
-    equal((0, _emberViews.jQuery)('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
-  });
-
-  QUnit.test('The route controller is still set when overriding the setupController hook', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      setupController: function () {
-        // no-op
-        // importantly, we are not calling  this._super here
-      }
-    });
-
-    registry.register('controller:home', _emberRuntime.Controller.extend());
-
-    bootApplication();
-
-    deepEqual(container.lookup('route:home').controller, container.lookup('controller:home'), 'route controller is the home controller');
-  });
-
-  QUnit.test('The route controller can be specified via controllerName', function () {
-    Router.map(function () {
-      this.route('home', { path: '/' });
-    });
-
-    (0, _emberGlimmer.setTemplate)('home', (0, _emberTemplateCompiler.compile)('<p>{{myValue}}</p>'));
-
-    App.HomeRoute = _emberRouting.Route.extend({
-      controllerName: 'myController'
-    });
-
-    registry.register('controller:myController', _emberRuntime.Controller.extend({
-      myValue: 'foo'
-    }));
-
-    bootApplication();
-
-    deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');
-    equal((0, _emberViews.jQuery)('p', '#qunit-fixture').text(), 'foo', 'The homepage template was rendered with data from the custom controller');
-  });
-
   QUnit.test('The route controller specified via controllerName is used in render', function () {
     Router.map(function () {
       this.route('home', { path: '/' });
@@ -70500,6 +70165,334 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
     (0, _emberMetal.run)(App, 'destroy');
     equal(router._toplevelView, null, 'the toplevelView was not reinitialized');
   });
+});
+enifed('ember/tests/routing/decoupled_basic_test', ['ember-babel', 'ember-routing', 'ember-runtime', 'internal-test-helpers'], function (_emberBabel, _emberRouting, _emberRuntime, _internalTestHelpers) {
+  'use strict';
+
+  (0, _internalTestHelpers.moduleFor)('Basic Routing - Decoupled from global resovler', function (_ApplicationTestCase) {
+    (0, _emberBabel.inherits)(_class, _ApplicationTestCase);
+
+    function _class() {
+
+      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase.call(this));
+
+      _this.addTemplate('home', '<h3 id="app">Hours</h3>');
+      _this.addTemplate('camelot', '<section id="camelot"><h3>Is a silly place</h3></section>');
+      _this.addTemplate('homepage', '<h3 id="troll">Megatroll</h3><p>{{model.home}}</p>');
+
+      _this.router.map(function () {
+        this.route('home', { path: '/' });
+      });
+      return _this;
+    }
+
+    _class.prototype.getController = function (name) {
+      return this.applicationInstance.lookup('controller:' + name);
+    };
+
+    _class.prototype['@test warn on URLs not included in the route set'] = function () {
+      var _this2 = this;
+
+      return this.visit('/').then(function () {
+        expectAssertion(function () {
+          _this2.visit('/what-is-this-i-dont-even');
+        }, /'\/what-is-this-i-dont-even' did not match any routes/);
+      });
+    };
+
+    _class.prototype['@test The Homepage'] = function (assert) {
+      var _this3 = this;
+
+      return this.visit('/').then(function () {
+        assert.equal(_this3.currentPath, 'home', 'currently on the home route');
+
+        var text = _this3.$('#app').text();
+        assert.equal(text, "Hours", 'the home template was rendered');
+      });
+    };
+
+    _class.prototype['@test The Homepage and the Camelot page with multiple Router.map calls'] = function (assert) {
+      var _this4 = this;
+
+      this.router.map(function () {
+        this.route('camelot', { path: '/camelot' });
+      });
+
+      return this.visit('/camelot').then(function () {
+        assert.equal(_this4.currentPath, 'camelot');
+
+        var text = _this4.$('#camelot').text();
+        assert.equal(text, "Is a silly place", 'the camelot template was rendered');
+
+        return _this4.visit('/');
+      }).then(function () {
+        assert.equal(_this4.currentPath, 'home');
+
+        var text = _this4.$('#app').text();
+        assert.equal(text, "Hours", 'the home template was rendered');
+      });
+    };
+
+    _class.prototype['@test The Homepage with explicit template name in renderTemplate'] = function (assert) {
+      var _this5 = this;
+
+      this.add('route:home', _emberRouting.Route.extend({
+        renderTemplate: function () {
+          this.render('homepage');
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this5.$('#troll').text();
+        assert.equal(text, "Megatroll", 'the homepage template was rendered');
+      });
+    };
+
+    _class.prototype['@test an alternate template will pull in an alternate controller'] = function (assert) {
+      var _this6 = this;
+
+      this.add('route:home', _emberRouting.Route.extend({
+        renderTemplate: function () {
+          this.render('homepage');
+        }
+      }));
+      this.add('controller:homepage', _emberRuntime.Controller.extend({
+        model: {
+          home: 'Comes from homepage'
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this6.$('p').text();
+
+        assert.equal(text, 'Comes from homepage', 'the homepage template was rendered');
+      });
+    };
+
+    _class.prototype['@test An alternate template will pull in an alternate controller instead of controllerName'] = function (assert) {
+      var _this7 = this;
+
+      this.add('route:home', _emberRouting.Route.extend({
+        controllerName: 'foo',
+        renderTemplate: function () {
+          this.render('homepage');
+        }
+      }));
+      this.add('controller:foo', _emberRuntime.Controller.extend({
+        model: {
+          home: 'Comes from foo'
+        }
+      }));
+      this.add('controller:homepage', _emberRuntime.Controller.extend({
+        model: {
+          home: 'Comes from homepage'
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this7.$('p').text();
+
+        assert.equal(text, 'Comes from homepage', 'the homepage template was rendered');
+      });
+    };
+
+    _class.prototype['@test The template will pull in an alternate controller via key/value'] = function (assert) {
+      var _this8 = this;
+
+      this.router.map(function () {
+        this.route('homepage', { path: '/' });
+      });
+
+      this.add('route:homepage', _emberRouting.Route.extend({
+        renderTemplate: function () {
+          this.render({ controller: 'home' });
+        }
+      }));
+      this.add('controller:home', _emberRuntime.Controller.extend({
+        model: {
+          home: 'Comes from home.'
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this8.$('p').text();
+
+        assert.equal(text, 'Comes from home.', 'the homepage template was rendered from data from the HomeController');
+      });
+    };
+
+    _class.prototype['@test The Homepage with explicit template name in renderTemplate and controller'] = function (assert) {
+      var _this9 = this;
+
+      this.add('controller:home', _emberRuntime.Controller.extend({
+        model: {
+          home: 'YES I AM HOME'
+        }
+      }));
+      this.add('route:home', _emberRouting.Route.extend({
+        renderTemplate: function () {
+          this.render('homepage');
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this9.$('p').text();
+
+        assert.equal(text, 'YES I AM HOME', 'The homepage template was rendered');
+      });
+    };
+
+    _class.prototype['@test Model passed via renderTemplate model is set as controller\'s model'] = function (assert) {
+      var _this10 = this;
+
+      this.addTemplate('bio', '<p>{{model.name}}</p>');
+      this.add('route:home', _emberRouting.Route.extend({
+        renderTemplate: function () {
+          this.render('bio', {
+            model: { name: 'emberjs' }
+          });
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this10.$('p').text();
+
+        assert.equal(text, 'emberjs', 'Passed model was set as controller\'s model');
+      });
+    };
+
+    _class.prototype['@test render uses templateName from route'] = function (assert) {
+      var _this11 = this;
+
+      this.addTemplate('the_real_home_template', '<p>THIS IS THE REAL HOME</p>');
+      this.add('route:home', _emberRouting.Route.extend({
+        templateName: 'the_real_home_template'
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this11.$('p').text();
+
+        assert.equal(text, 'THIS IS THE REAL HOME', 'the homepage template was rendered');
+      });
+    };
+
+    _class.prototype['@test defining templateName allows other templates to be rendered'] = function (assert) {
+      var _this12 = this;
+
+      this.addTemplate('alert', '<div class=\'alert-box\'>Invader!</div>');
+      this.addTemplate('the_real_home_template', '<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}');
+      this.add('route:home', _emberRouting.Route.extend({
+        templateName: 'the_real_home_template',
+        actions: {
+          showAlert: function () {
+            this.render('alert', {
+              into: 'home',
+              outlet: 'alert'
+            });
+          }
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this12.$('p').text();
+        assert.equal(text, 'THIS IS THE REAL HOME', 'the homepage template was rendered');
+
+        return _this12.runTask(function () {
+          return _this12.appRouter.send('showAlert');
+        });
+      }).then(function () {
+        var text = _this12.$('.alert-box').text();
+
+        assert.equal(text, 'Invader!', 'Template for alert was rendered into the outlet');
+      });
+    };
+
+    _class.prototype['@test templateName is still used when calling render with no name and options'] = function (assert) {
+      var _this13 = this;
+
+      this.addTemplate('alert', '<div class=\'alert-box\'>Invader!</div>');
+      this.addTemplate('home', '<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}');
+
+      this.add('route:home', _emberRouting.Route.extend({
+        templateName: 'alert',
+        renderTemplate: function () {
+          this.render({});
+        }
+      }));
+
+      return this.visit('/').then(function () {
+        var text = _this13.$('.alert-box').text();
+
+        assert.equal(text, 'Invader!', 'default templateName was rendered into outlet');
+      });
+    };
+
+    _class.prototype['@test The Homepage with a `setupController` hook'] = function (assert) {
+      var _this14 = this;
+
+      this.addTemplate('home', '<ul>{{#each hours as |entry|}}\n        <li>{{entry}}</li>\n      {{/each}}\n      </ul>\n    ');
+
+      this.add('route:home', _emberRouting.Route.extend({
+        setupController: function (controller) {
+          controller.set('hours', (0, _emberRuntime.A)(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));
+        }
+      }));
+      return this.visit('/').then(function () {
+        var text = _this14.$('ul li').eq(2).text();
+
+        assert.equal(text, 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');
+      });
+    };
+
+    _class.prototype['@test The route controller is still set when overriding the setupController hook'] = function (assert) {
+      var _this15 = this;
+
+      this.add('route:home', _emberRouting.Route.extend({
+        setupController: function () {
+          // no-op
+          // importantly, we are not calling this._super
+        }
+      }));
+
+      this.add('controller:home', _emberRuntime.Controller.extend());
+
+      return this.visit('/').then(function () {
+        var homeRoute = _this15.applicationInstance.lookup('route:home');
+        var homeController = _this15.applicationInstance.lookup('controller:home');
+
+        assert.equal(homeRoute.controller, homeController, 'route controller is the home controller');
+      });
+    };
+
+    _class.prototype['@test the route controller can be specified via controllerName'] = function (assert) {
+      var _this16 = this;
+
+      this.addTemplate('home', '<p>{{myValue}}</p>');
+      this.add('route:home', _emberRouting.Route.extend({
+        controllerName: 'myController'
+      }));
+      this.add('controller:myController', _emberRuntime.Controller.extend({
+        myValue: 'foo'
+      }));
+
+      return this.visit('/').then(function () {
+        var homeRoute = _this16.applicationInstance.lookup('route:home');
+        var myController = _this16.applicationInstance.lookup('controller:myController');
+        var text = _this16.$('p').text();
+
+        assert.deepEqual(homeRoute.controller, myController, 'route controller is set by controllerName');
+        assert.equal(text, 'foo', 'The homepage template was rendered with data from the custom controller');
+      });
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'currentPath',
+      get: function () {
+        return this.getController('application').get('currentPath');
+      }
+    }]);
+    return _class;
+  }(_internalTestHelpers.ApplicationTestCase));
 });
 enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime', 'ember-metal', 'ember-routing', 'ember-views', 'internal-test-helpers'], function (_emberBabel, _emberRuntime, _emberMetal, _emberRouting, _emberViews, _internalTestHelpers) {
   'use strict';
