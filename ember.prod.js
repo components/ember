@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+472ffa08
+ * @version   2.16.0-alpha.1-null+f7e1d182
  */
 
 var enifed, requireModule, Ember;
@@ -27700,16 +27700,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     if (baseValue === null || baseValue === undefined) {
       ret = emberUtils.makeArray(value);
-    } else {
-      if (isArray(baseValue)) {
-        if (value === null || value === undefined) {
-          ret = baseValue;
-        } else {
-          ret = a_concat.call(baseValue, value);
-        }
+    } else if (isArray(baseValue)) {
+      if (value === null || value === undefined) {
+        ret = baseValue;
       } else {
-        ret = a_concat.call(emberUtils.makeArray(baseValue), value);
+        ret = a_concat.call(baseValue, value);
       }
+    } else {
+      ret = a_concat.call(emberUtils.makeArray(baseValue), value);
     }
 
     return ret;
@@ -27766,7 +27764,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else {
       if (concats && concats.indexOf(key) >= 0 || key === 'concatenatedProperties' || key === 'mergedProperties') {
         value = applyConcatenatedProperties(base, key, value, values);
-      } else if (mergings && mergings.indexOf(key) >= 0) {
+      } else if (mergings && mergings.indexOf(key) > -1) {
         value = applyMergedProperties(base, key, value, values);
       } else if (isMethod(value)) {
         value = giveMethodSuper(base, key, value, values, descs);
@@ -27882,9 +27880,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return { desc: desc, value: value };
   }
 
-  function updateObserversAndListeners(obj, key, observerOrListener, pathsKey, updateMethod) {
-    var paths = observerOrListener[pathsKey],
-        i;
+  function updateObserversAndListeners(obj, key, paths, updateMethod) {
+    var i;
 
     if (paths) {
       for (i = 0; i < paths.length; i++) {
@@ -27896,16 +27893,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function replaceObserversAndListeners(obj, key, observerOrListener) {
     var prev = obj[key];
 
-    if ('function' === typeof prev) {
-      updateObserversAndListeners(obj, key, prev, '__ember_observesBefore__', _removeBeforeObserver);
-      updateObserversAndListeners(obj, key, prev, '__ember_observes__', removeObserver);
-      updateObserversAndListeners(obj, key, prev, '__ember_listens__', removeListener);
+    if (typeof prev === 'function') {
+      updateObserversAndListeners(obj, key, prev.__ember_observesBefore__, _removeBeforeObserver);
+      updateObserversAndListeners(obj, key, prev.__ember_observes__, removeObserver);
+      updateObserversAndListeners(obj, key, prev.__ember_listens__, removeListener);
     }
 
-    if ('function' === typeof observerOrListener) {
-      updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', _addBeforeObserver);
-      updateObserversAndListeners(obj, key, observerOrListener, '__ember_observes__', addObserver);
-      updateObserversAndListeners(obj, key, observerOrListener, '__ember_listens__', addListener);
+    if (typeof observerOrListener === 'function') {
+      updateObserversAndListeners(obj, key, observerOrListener.__ember_observesBefore__, _addBeforeObserver);
+      updateObserversAndListeners(obj, key, observerOrListener.__ember_observes__, addObserver);
+      updateObserversAndListeners(obj, key, observerOrListener.__ember_listens__, addListener);
     }
   }
 
@@ -28674,8 +28671,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         _len,
         args,
         _key;
+    var events = args;
 
-    func.__ember_listens__ = args;
+    false && !(typeof func === 'function') && emberDebug.assert('Ember.on expects function as last argument', typeof func === 'function');
+    false && !(events.length > 0 && events.every(function (p) {
+      return typeof p === 'string' && p.length;
+    })) && emberDebug.assert('Ember.on called without valid event names', events.length > 0 && events.every(function (p) {
+      return typeof p === 'string' && p.length;
+    }));
+
+    func.__ember_listens__ = events;
     return func;
   };
   exports.removeListener = removeListener;
@@ -44297,7 +44302,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+472ffa08";
+  exports.default = "2.16.0-alpha.1-null+f7e1d182";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

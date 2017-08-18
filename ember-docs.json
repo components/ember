@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.472ffa08"
+        "version": "2.16.0-alpha.1.f7e1d182"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -3000,7 +3000,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 408,
+            "line": 404,
             "description": "The `Ember.Mixin` class allows you to create mixins, whose properties can be\nadded to other classes. For instance,\n\n```javascript\nconst EditableMixin = Ember.Mixin.create({\n  edit() {\n    console.log('starting to edit');\n    this.set('isEditing', true);\n  },\n  isEditing: false\n});\n\n// Mix mixins into classes by passing them as the first arguments to\n// `.extend.`\nconst Comment = Ember.Object.extend(EditableMixin, {\n  post: null\n});\n\nlet comment = Comment.create({\n  post: somePost\n});\n\ncomment.edit(); // outputs 'starting to edit'\n```\n\nNote that Mixins are created with `Ember.Mixin.create`, not\n`Ember.Mixin.extend`.\n\nNote that mixins extend a constructor's prototype so arrays and object literals\ndefined as properties will be shared amongst objects that implement the mixin.\nIf you want to define a property in a mixin that is not shared, you can define\nit either as a computed property or have it be created on initialization of the object.\n\n```javascript\n// filters array will be shared amongst any object implementing mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.A()\n});\n\n// filters will be a separate array for every object implementing the mixin\nconst FilterableMixin = Ember.Mixin.create({\n  filters: Ember.computed(function() {\n    return Ember.A();\n  })\n});\n\n// filters will be created as a separate array during the object's initialization\nconst Filterable = Ember.Mixin.create({\n  init() {\n    this._super(...arguments);\n    this.set(\"filters\", Ember.A());\n  }\n});\n```",
             "access": "public",
             "tagname": ""
@@ -10153,7 +10153,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 395,
+            "line": 391,
             "itemtype": "method",
             "name": "mixin",
             "params": [
@@ -10178,7 +10178,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 501,
+            "line": 497,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -10198,7 +10198,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 546,
+            "line": 542,
             "itemtype": "method",
             "name": "reopen",
             "params": [
@@ -10217,7 +10217,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 583,
+            "line": 579,
             "itemtype": "method",
             "name": "apply",
             "params": [
@@ -10238,7 +10238,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 614,
+            "line": 610,
             "itemtype": "method",
             "name": "detect",
             "params": [
@@ -10260,7 +10260,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 663,
+            "line": 659,
             "description": "Denotes a required property for a mixin",
             "itemtype": "method",
             "name": "required",
@@ -10272,7 +10272,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 686,
+            "line": 682,
             "description": "Makes a method available via an additional name.\n\n```app/utils/person.js\nimport EmberObject, {\n  aliasMethod\n} from '@ember/object';\n\nexport default EmberObject.extend({\n  name() {\n    return 'Tomhuda Katzdale';\n  },\n  moniker: aliasMethod('name')\n});\n```\n\n```javascript\nlet goodGuy = Person.create();\n\ngoodGuy.name();    // 'Tomhuda Katzdale'\ngoodGuy.moniker(); // 'Tomhuda Katzdale'\n```",
             "itemtype": "method",
             "name": "aliasMethod",
@@ -10291,7 +10291,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 722,
+            "line": 718,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
@@ -10319,7 +10319,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 770,
+            "line": 766,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "_immediateObserver",
@@ -10349,7 +10349,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 809,
+            "line": 805,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",

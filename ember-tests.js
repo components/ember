@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+472ffa08
+ * @version   2.16.0-alpha.1-null+f7e1d182
  */
 
 var enifed, requireModule, Ember;
@@ -40883,6 +40883,20 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
 
     (0, _emberMetal.sendEvent)(obj, 'bar');
     equal(triggered, 2, 'should invoke listeners');
+  });
+
+  QUnit.test('Ember.on asserts for invalid arguments', function () {
+    expectAssertion(function () {
+      _emberMetal.Mixin.create({
+        foo1: (0, _emberMetal.on)('bar')
+      });
+    }, 'Ember.on expects function as last argument');
+
+    expectAssertion(function () {
+      _emberMetal.Mixin.create({
+        foo1: (0, _emberMetal.on)(function () {})
+      });
+    }, 'Ember.on called without valid event names');
   });
 
   QUnit.test('a listener added as part of a mixin may be overridden', function () {
