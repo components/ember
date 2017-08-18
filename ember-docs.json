@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-alpha.1.8f68cf0b"
+        "version": "2.16.0-alpha.1.38e9c896"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -12436,7 +12436,7 @@
         {
             "file": "packages/ember-routing/lib/system/route.js",
             "line": 451,
-            "description": "A hook you can use to reset controller values either when the model\nchanges or the route is exiting.\n\n```app/routes/articles.js\nimport Route from '@ember/routing/route';\n\nexport default Route.extend({\n  resetController(controller, isExiting, transition) {\n    if (isExiting) {\n      controller.set('page', 1);\n    }\n  }\n});\n```",
+            "description": "A hook you can use to reset controller values either when the model\nchanges or the route is exiting.\n\n```app/routes/articles.js\nimport Route from '@ember/routing/route';\n\nexport default Route.extend({\n  resetController(controller, isExiting, transition) {\n    if (isExiting && transition.targetName !== 'error') {\n      controller.set('page', 1);\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "resetController",
             "params": [

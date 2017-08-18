@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+8f68cf0b
+ * @version   2.16.0-alpha.1-null+38e9c896
  */
 
 var enifed, requireModule, Ember;
@@ -31838,7 +31838,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       import Route from '@ember/routing/route';
        export default Route.extend({
         resetController(controller, isExiting, transition) {
-          if (isExiting) {
+          if (isExiting && transition.targetName !== 'error') {
             controller.set('page', 1);
           }
         }
@@ -48101,7 +48101,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-alpha.1-null+8f68cf0b";
+  exports.default = "2.16.0-alpha.1-null+38e9c896";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
