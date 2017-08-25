@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-alpha.1-null+c1c8fb7b
+ * @version   2.16.0-alpha.1-null+2de7d135
  */
 
 var enifed, requireModule, Ember;
@@ -55599,7 +55599,6 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
     PromiseSubclass.prototype = Object.create(_rsvp2.Promise.prototype);
     PromiseSubclass.prototype.constructor = PromiseSubclass;
-    PromiseSubclass.cast = _rsvp2.Promise.cast;
 
     var proxy = ObjectPromiseProxy.create({
       promise: new PromiseSubclass(function () {})
