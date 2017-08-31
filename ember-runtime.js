@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.3-null+ded65373
+ * @version   2.16.0-beta.1
  */
 
 var enifed, requireModule, Ember;
@@ -185,19 +185,17 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       if (options.source) {
         var expandedFullName = this.registry.expandLocalLookup(fullName, options);
         // if expandLocalLookup returns falsey, we do not support local lookup
-        if (_features.EMBER_MODULE_UNIFICATION) {
-          if (expandedFullName) {
-            // with ember-module-unification, if expandLocalLookup returns something,
-            // pass it to the resolve without the source
-            normalizedName = expandedFullName;
-            options = {};
-          }
-        } else {
+        if (!_features.EMBER_MODULE_UNIFICATION) {
           if (!expandedFullName) {
             return;
           }
 
           normalizedName = expandedFullName;
+        } else if (expandedFullName) {
+          // with ember-module-unification, if expandLocalLookup returns something,
+          // pass it to the resolve without the source
+          normalizedName = expandedFullName;
+          options = {};
         }
       }
 
@@ -208,12 +206,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         return cached;
       }
 
-      var factory = void 0;
-      if (_features.EMBER_MODULE_UNIFICATION) {
-        factory = this.registry.resolve(normalizedName, options);
-      } else {
-        factory = this.registry.resolve(normalizedName);
-      }
+      var factory = _features.EMBER_MODULE_UNIFICATION ? this.registry.resolve(normalizedName, options) : this.registry.resolve(normalizedName);
 
       if (factory === undefined) {
         return;
@@ -277,20 +270,18 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     if (options.source) {
       var expandedFullName = container.registry.expandLocalLookup(fullName, options);
 
-      if (_features.EMBER_MODULE_UNIFICATION) {
-        if (expandedFullName) {
-          // with ember-module-unification, if expandLocalLookup returns something,
-          // pass it to the resolve without the source
-          fullName = expandedFullName;
-          options = {};
-        }
-      } else {
+      if (!_features.EMBER_MODULE_UNIFICATION) {
         // if expandLocalLookup returns falsey, we do not support local lookup
         if (!expandedFullName) {
           return;
         }
 
         fullName = expandedFullName;
+      } else if (expandedFullName) {
+        // with ember-module-unification, if expandLocalLookup returns something,
+        // pass it to the resolve without the source
+        fullName = expandedFullName;
+        options = {};
       }
     }
 
@@ -332,17 +323,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }
 
   function instantiateFactory(container, fullName, options) {
-
-    var factoryManager = void 0;
-    if (_features.EMBER_MODULE_UNIFICATION) {
-      if (options && options.source) {
-        factoryManager = container.factoryFor(fullName, options);
-      } else {
-        factoryManager = container.factoryFor(fullName);
-      }
-    } else {
-      factoryManager = container.factoryFor(fullName);
-    }
+    var factoryManager = _features.EMBER_MODULE_UNIFICATION && options && options.source ? container.factoryFor(fullName, options) : container.factoryFor(fullName);
 
     if (factoryManager === undefined) {
       return;
@@ -862,11 +843,11 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       return injections;
     },
     resolverCacheKey: function (name, options) {
-      if (_features.EMBER_MODULE_UNIFICATION) {
-        return options && options.source ? options.source + ':' + name : name;
-      } else {
+      if (!_features.EMBER_MODULE_UNIFICATION) {
         return name;
       }
+
+      return options && options.source ? options.source + ':' + name : name;
     }
   };
 
@@ -955,20 +936,18 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       // and source into the full normalizedName
       var expandedNormalizedName = registry.expandLocalLookup(normalizedName, options);
 
-      if (_features.EMBER_MODULE_UNIFICATION) {
-        if (expandedNormalizedName) {
-          // with ember-module-unification, if expandLocalLookup returns something,
-          // pass it to the resolve without the source
-          normalizedName = expandedNormalizedName;
-          options = {};
-        }
-      } else {
-        // if expandLocalLookup returns falsey, we do not support local lookup
+      // if expandLocalLookup returns falsey, we do not support local lookup
+      if (!_features.EMBER_MODULE_UNIFICATION) {
         if (!expandedNormalizedName) {
           return;
         }
 
         normalizedName = expandedNormalizedName;
+      } else if (expandedNormalizedName) {
+        // with ember-module-unification, if expandLocalLookup returns something,
+        // pass it to the resolve without the source
+        normalizedName = expandedNormalizedName;
+        options = {};
       }
     }
 
@@ -1621,46 +1600,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
   */
 
-  function indexOf(array, target, method) {
-    var index = -1;
-    // hashes are added to the end of the event array
-    // so it makes sense to start searching at the end
-    // of the array and search in reverse
-    for (var i = array.length - 3; i >= 0; i -= 3) {
-      if (target === array[i] && method === array[i + 1]) {
-        index = i;
-        break;
-      }
-    }
-    return index;
-  }
-
-  function accumulateListeners(obj, eventName, otherActions) {
-    var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1) {
-      return;
-    }
-    var actions = meta$$1.matchingListeners(eventName);
-    if (actions === undefined) {
-      return;
-    }
-    var newActions = [];
-
-    for (var i = actions.length - 3; i >= 0; i -= 3) {
-      var target = actions[i];
-      var method = actions[i + 1];
-      var flags = actions[i + 2];
-      var actionIndex = indexOf(otherActions, target, method);
-
-      if (actionIndex === -1) {
-        otherActions.push(target, method, flags);
-        newActions.push(target, method, flags);
-      }
-    }
-
-    return newActions;
-  }
-
   /**
     Add an event listener
   
@@ -1971,7 +1910,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     if (propertyKey === 'content' && meta$$1.isProxy()) {
-      meta$$1.getTag().contentDidChange();
+      objectTag.contentDidChange();
     }
 
     if (objectTag !== undefined || propertyTag !== undefined) {
@@ -1979,14 +1918,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  var run = void 0;
+  var backburner = void 0;
   function ensureRunloop() {
-    if (run === undefined) {
-      run = require('ember-metal').run;
+    if (backburner === undefined) {
+      backburner = require('ember-metal').run.backburner;
     }
 
     if (hasViews()) {
-      run.backburner.ensureInstance();
+      backburner.ensureInstance();
     }
   }
 
@@ -2021,12 +1960,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var observers = this.observers;
       var senderGuid = emberUtils.guidFor(sender);
       var keySet = observerSet[senderGuid];
-      var index = void 0;
 
-      if (!keySet) {
+      if (keySet === undefined) {
         observerSet[senderGuid] = keySet = {};
       }
-      index = keySet[keyName];
+
+      var index = keySet[keyName];
       if (index === undefined) {
         index = observers.push({
           sender: sender,
@@ -2041,11 +1980,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     ObserverSet.prototype.flush = function flush() {
       var observers = this.observers;
-      var i = void 0,
-          observer = void 0,
+      var observer = void 0,
           sender = void 0;
       this.clear();
-      for (i = 0; i < observers.length; ++i) {
+      for (var i = 0; i < observers.length; ++i) {
         observer = observers[i];
         sender = observer.sender;
         if (sender.isDestroying || sender.isDestroyed) {
@@ -2180,7 +2118,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function propertyWillChange(obj, keyName, _meta) {
     var meta$$1 = _meta || exports.peekMeta(obj);
-
     if (meta$$1 && !meta$$1.isInitialized(obj)) {
       return;
     }
@@ -2234,11 +2171,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     if (hasMeta && meta$$1.peekWatching(keyName) > 0) {
-      if (meta$$1.hasDeps(keyName) && !meta$$1.isSourceDestroying()) {
-        dependentKeysDidChange(obj, keyName, meta$$1);
-      }
-
-      chainsDidChange(obj, keyName, meta$$1, false);
+      dependentKeysDidChange(obj, keyName, meta$$1);
+      chainsDidChange(obj, keyName, meta$$1);
       notifyObservers(obj, keyName, meta$$1);
     }
 
@@ -2262,27 +2196,28 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var DID_SEEN = void 0;
   // called whenever a property is about to change to clear the cache of any dependent keys (and notify those properties of changes, etc...)
   function dependentKeysWillChange(obj, depKey, meta$$1) {
-    if (meta$$1.isSourceDestroying()) {
+    if (meta$$1.isSourceDestroying() || !meta$$1.hasDeps(depKey)) {
       return;
     }
-    if (meta$$1.hasDeps(depKey)) {
-      var seen = WILL_SEEN;
-      var top = !seen;
+    var seen = WILL_SEEN;
+    var top = !seen;
 
-      if (top) {
-        seen = WILL_SEEN = {};
-      }
+    if (top) {
+      seen = WILL_SEEN = {};
+    }
 
-      iterDeps(propertyWillChange, obj, depKey, seen, meta$$1);
+    iterDeps(propertyWillChange, obj, depKey, seen, meta$$1);
 
-      if (top) {
-        WILL_SEEN = null;
-      }
+    if (top) {
+      WILL_SEEN = null;
     }
   }
 
   // called whenever a property has just changed to update dependent keys
   function dependentKeysDidChange(obj, depKey, meta$$1) {
+    if (meta$$1.isSourceDestroying() || !meta$$1.hasDeps(depKey)) {
+      return;
+    }
     var seen = DID_SEEN;
     var top = !seen;
 
@@ -2331,21 +2266,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function chainsWillChange(obj, keyName, meta$$1) {
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.notify(keyName, false, propertyWillChange);
     }
   }
 
   function chainsDidChange(obj, keyName, meta$$1) {
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.notify(keyName, true, propertyDidChange);
     }
   }
 
   function overrideChains(obj, keyName, meta$$1) {
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.revalidate(keyName);
     }
   }
@@ -2392,8 +2327,44 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     try {
       callback.call(binding);
     } finally {
-      endPropertyChanges.call(binding);
+      endPropertyChanges();
     }
+  }
+
+  function indexOf(array, target, method) {
+    var index = -1;
+    // hashes are added to the end of the event array
+    // so it makes sense to start searching at the end
+    // of the array and search in reverse
+    for (var i = array.length - 3; i >= 0; i -= 3) {
+      if (target === array[i] && method === array[i + 1]) {
+        index = i;
+        break;
+      }
+    }
+    return index;
+  }
+
+  function accumulateListeners(obj, eventName, otherActions, meta$$1) {
+    var actions = meta$$1.matchingListeners(eventName);
+    if (actions === undefined) {
+      return;
+    }
+    var newActions = [];
+
+    for (var i = actions.length - 3; i >= 0; i -= 3) {
+      var target = actions[i];
+      var method = actions[i + 1];
+      var flags = actions[i + 2];
+      var actionIndex = indexOf(otherActions, target, method);
+
+      if (actionIndex === -1) {
+        otherActions.push(target, method, flags);
+        newActions.push(target, method, flags);
+      }
+    }
+
+    return newActions;
   }
 
   function notifyBeforeObservers(obj, keyName, meta$$1) {
@@ -2404,13 +2375,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var eventName = keyName + ':before';
     var listeners = void 0,
         added = void 0;
-    if (deferred) {
+    if (deferred > 0) {
       listeners = beforeObserverSet.add(obj, keyName, eventName);
-      added = accumulateListeners(obj, eventName, listeners);
-      sendEvent(obj, eventName, [obj, keyName], added);
-    } else {
-      sendEvent(obj, eventName, [obj, keyName]);
+      added = accumulateListeners(obj, eventName, listeners, meta$$1);
     }
+    sendEvent(obj, eventName, [obj, keyName], added);
   }
 
   function notifyObservers(obj, keyName, meta$$1) {
@@ -2420,9 +2389,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     var eventName = keyName + ':change';
     var listeners = void 0;
-    if (deferred) {
+    if (deferred > 0) {
       listeners = observerSet.add(obj, keyName, eventName);
-      accumulateListeners(obj, eventName, listeners);
+      accumulateListeners(obj, eventName, listeners, meta$$1);
     } else {
       sendEvent(obj, eventName, [obj, keyName]);
     }
@@ -2484,14 +2453,19 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function DEFAULT_GETTER_FUNCTION(name) {
     return function GETTER_FUNCTION() {
       var meta$$1 = exports.peekMeta(this);
-      return meta$$1 && meta$$1.peekValues(name);
+      if (meta$$1 !== null && meta$$1 !== undefined) {
+        return meta$$1.peekValues(name);
+      }
     };
   }
 
   function INHERITING_GETTER_FUNCTION(name) {
     function IGETTER_FUNCTION() {
       var meta$$1 = exports.peekMeta(this);
-      var val = meta$$1 && meta$$1.readInheritedValue('values', name);
+      var val = void 0;
+      if (meta$$1 !== null && meta$$1 !== undefined) {
+        val = meta$$1.readInheritedValue('values', name);
+      }
 
       if (val === UNDEFINED) {
         var proto = Object.getPrototypeOf(this);
@@ -2551,7 +2525,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       become the explicit value of this property.
   */
   function defineProperty(obj, keyName, desc, data, meta$$1) {
-    if (!meta$$1) {
+    if (meta$$1 === null || meta$$1 === undefined) {
       meta$$1 = meta(obj);
     }
 
@@ -2794,13 +2768,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  // get the chains for the current object. If the current object has
-  // chains inherited from the proto they will be cloned and reconfigured for
-  // the current object.
-  function chainsFor(obj, meta$$1) {
-    return (meta$$1 || meta(obj)).writableChains(makeChainNode);
-  }
-
   function makeChainNode(obj) {
     return new ChainNode(null, null, obj);
   }
@@ -2815,7 +2782,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     m.writeWatching(keyPath, counter + 1);
     if (counter === 0) {
       // activate watching first time
-      chainsFor(obj, m).add(keyPath);
+      m.writableChains(makeChainNode).add(keyPath);
     }
   }
 
@@ -2831,7 +2798,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     if (counter === 1) {
       m.writeWatching(keyPath, 0);
-      chainsFor(obj, m).remove(keyPath);
+      m.readableChains().remove(keyPath);
     } else if (counter > 1) {
       m.writeWatching(keyPath, counter - 1);
     }
@@ -3030,14 +2997,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ChainNode.prototype.copy = function copy(obj) {
       var ret = new ChainNode(null, null, obj);
       var paths = this._paths;
-      var path = void 0;
       if (paths !== undefined) {
+        var path = void 0;
         for (path in paths) {
-          // this check will also catch non-number vals.
-          if (paths[path] <= 0) {
-            continue;
+          if (paths[path] > 0) {
+            ret.add(path);
           }
-          ret.add(path);
         }
       }
       return ret;
@@ -3137,8 +3102,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       // then notify chains...
       var chains = this._chains;
-      var node = void 0;
       if (chains !== undefined) {
+        var node = void 0;
         for (var key in chains) {
           node = chains[key];
           if (node !== undefined) {
@@ -3159,10 +3124,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       if (this._parent) {
         this._parent.populateAffected(path, depth + 1, affected);
-      } else {
-        if (depth > 1) {
-          affected.push(this.value(), path);
-        }
+      } else if (depth > 1) {
+        affected.push(this.value(), path);
       }
     };
 
@@ -3289,14 +3252,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return this.proto !== obj;
     };
 
-    Meta.prototype.setTag = function setTag(tag) {
-      this._tag = tag;
-    };
-
-    Meta.prototype.getTag = function getTag(tag) {
-      return this._tag;
-    };
-
     Meta.prototype.destroy = function destroy() {
       if (this.isMetaDestroyed()) {
         return;
@@ -3307,14 +3262,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           key = void 0,
           nodeObject = void 0;
       var node = this.readableChains();
-      if (node) {
+      if (node !== undefined) {
         NODE_STACK.push(node);
         // process tree
         while (NODE_STACK.length > 0) {
           node = NODE_STACK.pop();
           // push children
           nodes = node._chains;
-          if (nodes) {
+          if (nodes !== undefined) {
             for (key in nodes) {
               if (nodes[key] !== undefined) {
                 NODE_STACK.push(nodes[key]);
@@ -3325,7 +3280,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           // remove chainWatcher in node object
           if (node._watching) {
             nodeObject = node._object;
-            if (nodeObject) {
+            if (nodeObject !== undefined) {
               var foreignMeta = exports.peekMeta(nodeObject);
               // avoid cleaning up chain watchers when both current and
               // foreign objects are being destroyed
@@ -3538,11 +3493,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       var ret = this._chains;
       if (ret === undefined) {
-        if (this.parent) {
-          ret = this._chains = this.parent.writableChains(create).copy(this.source);
+        if (this.parent === undefined) {
+          ret = create(this.source);
         } else {
-          ret = this._chains = create(this.source);
+          ret = this.parent.writableChains(create).copy(this.source);
         }
+        this._chains = ret;
       }
       return ret;
     };
@@ -3552,7 +3508,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     Meta.prototype.writeWatching = function writeWatching(subkey, value) {
-      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot update watchers for `hello` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
+      true && !!this.isMetaDestroyed() && emberDebug.assert('Cannot update watchers for `' + subkey + '` on `' + emberUtils.toString(this.source) + '` after it has been destroyed.', !this.isMetaDestroyed());
 
       var map = this._getOrCreateOwnMap('_watching');
       map[subkey] = value;
@@ -3755,7 +3711,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
         pointer = getPrototypeOf(pointer);
         {
-          counters.peakPrototypeWalks++;
+          counters.peekPrototypeWalks++;
         }
       }
     };
@@ -3905,18 +3861,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return DefaultStore;
   }();
 
-  var IS_GLOBAL = /^[A-Z$]/;
   var IS_GLOBAL_PATH = /^[A-Z$].*[\.]/;
-  var HAS_THIS = 'this.';
 
-  var isGlobalCache = new Cache(1000, function (key) {
-    return IS_GLOBAL.test(key);
-  });
   var isGlobalPathCache = new Cache(1000, function (key) {
     return IS_GLOBAL_PATH.test(key);
-  });
-  var hasThisCache = new Cache(1000, function (key) {
-    return key.lastIndexOf(HAS_THIS, 0) === 0;
   });
   var firstDotIndexCache = new Cache(1000, function (key) {
     return key.indexOf('.');
@@ -3924,26 +3872,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   var firstKeyCache = new Cache(1000, function (path) {
     var index = firstDotIndexCache.get(path);
-    if (index === -1) {
-      return path;
-    } else {
-      return path.slice(0, index);
-    }
+    return index === -1 ? path : path.slice(0, index);
   });
 
   var tailPathCache = new Cache(1000, function (path) {
     var index = firstDotIndexCache.get(path);
-    if (index !== -1) {
-      return path.slice(index + 1);
-    }
+    return index === -1 ? undefined : path.slice(index + 1);
   });
 
   function isGlobalPath(path) {
     return isGlobalPathCache.get(path);
-  }
-
-  function hasThis(path) {
-    return hasThisCache.get(path);
   }
 
   function isPath(path) {
@@ -4008,7 +3946,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     true && !(arguments.length === 2) && emberDebug.assert('Get must be called with two arguments; an object and a property key', arguments.length === 2);
     true && !(obj !== undefined && obj !== null) && emberDebug.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
     true && !(typeof keyName === 'string') && emberDebug.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
-    true && !!hasThis(keyName) && emberDebug.assert('\'this\' in paths is not supported', !hasThis(keyName));
+    true && !(keyName.lastIndexOf('this.', 0) !== 0) && emberDebug.assert('\'this\' in paths is not supported', keyName.lastIndexOf('this.', 0) !== 0);
     true && !(keyName !== '') && emberDebug.assert('Cannot call `Ember.get` with an empty string', keyName !== '');
 
     var value = obj[keyName];
@@ -4018,7 +3956,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return value.get(obj, keyName);
     } else if (isPath(keyName)) {
       return _getPath(obj, keyName);
-    } else if (value === undefined && 'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
+    } else if (value === undefined && 'object' === typeof obj && !(keyName in obj) && typeof obj.unknownProperty === 'function') {
       return obj.unknownProperty(keyName);
     } else {
       return value;
@@ -4095,7 +4033,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     true && !(arguments.length === 3 || arguments.length === 4) && emberDebug.assert('Set must be called with three or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
     true && !(obj && typeof obj === 'object' || typeof obj === 'function') && emberDebug.assert('Cannot call set with \'' + keyName + '\' on an undefined object.', obj && typeof obj === 'object' || typeof obj === 'function');
     true && !(typeof keyName === 'string') && emberDebug.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
-    true && !!hasThis(keyName) && emberDebug.assert('\'this\' in paths is not supported', !hasThis(keyName));
+    true && !(keyName.lastIndexOf('this.', 0) !== 0) && emberDebug.assert('\'this\' in paths is not supported', keyName.lastIndexOf('this.', 0) !== 0);
     true && !!obj.isDestroyed && emberDebug.assert('calling set on destroyed object: ' + emberUtils.toString(obj) + '.' + keyName + ' = ' + emberUtils.toString(value), !obj.isDestroyed);
 
     if (isPath(keyName)) {
@@ -4108,10 +4046,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (isDescriptor) {
       /* computed property */
       currentValue.set(obj, keyName, value);
-    } else if (obj.setUnknownProperty && currentValue === undefined && !(keyName in obj)) {
+    } else if (currentValue === undefined && 'object' === typeof obj && !(keyName in obj) && typeof obj.setUnknownProperty === 'function') {
       /* unknown property */
-      true && !(typeof obj.setUnknownProperty === 'function') && emberDebug.assert('setUnknownProperty must be a function', typeof obj.setUnknownProperty === 'function');
-
       obj.setUnknownProperty(keyName, value);
     } else if (currentValue === value) {/* no change */
     } else {
@@ -4151,31 +4087,20 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function setPath(root, path, value, tolerant) {
-    // get the last part of the path
-    var keyName = path.slice(path.lastIndexOf('.') + 1);
+    var parts = path.split('.');
+    var keyName = parts.pop();
 
-    // get the first part of the part
-    path = path === keyName ? keyName : path.slice(0, path.length - (keyName.length + 1));
+    true && !(keyName.trim().length > 0) && emberDebug.assert('Property set failed: You passed an empty path', keyName.trim().length > 0);
 
-    // unless the path is this, look up the first part to
-    // get the root
-    if (path !== 'this') {
-      root = _getPath(root, path);
+    var newPath = parts.join('.');
+
+    var newRoot = _getPath(root, newPath);
+
+    if (newRoot) {
+      return set(newRoot, keyName, value);
+    } else if (!tolerant) {
+      throw new emberDebug.Error('Property set failed: object in path "' + newPath + '" could not be found or was destroyed.');
     }
-
-    if (!keyName || keyName.length === 0) {
-      throw new emberDebug.Error('Property set failed: You passed an empty path');
-    }
-
-    if (!root) {
-      if (tolerant) {
-        return;
-      } else {
-        throw new emberDebug.Error('Property set failed: object in path "' + path + '" could not be found or was destroyed.');
-      }
-    }
-
-    return set(root, keyName, value);
   }
 
   /**
@@ -4225,7 +4150,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     @method expandProperties
     @for Ember
-    @private
+    @public
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
     expansion, and is passed the expansion.
@@ -4268,7 +4193,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
   @module ember-metal
   */
-
   /**
     Starts watching a property on an object. Whenever the property changes,
     invokes `Ember.propertyWillChange` and `Ember.propertyDidChange`. This is the
@@ -4283,19 +4207,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {String} _keyPath
   */
   function watch(obj, _keyPath, m) {
-    if (!isPath(_keyPath)) {
-      watchKey(obj, _keyPath, m);
-    } else {
+    if (isPath(_keyPath)) {
       watchPath(obj, _keyPath, m);
+    } else {
+      watchKey(obj, _keyPath, m);
     }
   }
 
   function isWatching(obj, key) {
-    if (typeof obj !== 'object' || obj === null) {
-      return false;
-    }
-    var meta$$1 = exports.peekMeta(obj);
-    return (meta$$1 && meta$$1.peekWatching(key)) > 0;
+    return watcherCount(obj, key) > 0;
   }
 
   function watcherCount(obj, key) {
@@ -4304,25 +4224,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function unwatch(obj, _keyPath, m) {
-    if (!isPath(_keyPath)) {
-      unwatchKey(obj, _keyPath, m);
-    } else {
+    if (isPath(_keyPath)) {
       unwatchPath(obj, _keyPath, m);
+    } else {
+      unwatchKey(obj, _keyPath, m);
     }
-  }
-
-  /**
-    Tears down the meta on an object so that it can be garbage collected.
-    Multiple calls will have no effect.
-  
-    @method destroy
-    @for Ember
-    @param {Object} obj  the object to destroy
-    @return {void}
-    @private
-  */
-  function destroy(obj) {
-    deleteMeta(obj);
   }
 
   /**
@@ -4337,15 +4243,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function addDependentKeys(desc, obj, keyName, meta) {
     // the descriptor has a list of dependent keys, so
     // add all of its dependent keys.
-    var idx = void 0,
-        depKey = void 0;
     var depKeys = desc._dependentKeys;
-    if (!depKeys) {
+    if (depKeys === null || depKeys === undefined) {
       return;
     }
 
-    for (idx = 0; idx < depKeys.length; idx++) {
-      depKey = depKeys[idx];
+    for (var idx = 0; idx < depKeys.length; idx++) {
+      var depKey = depKeys[idx];
       // Increment the number of times depKey depends on keyName.
       meta.writeDeps(depKey, keyName, (meta.peekDeps(depKey, keyName) || 0) + 1);
       // Watch the depKey
@@ -4357,7 +4261,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     // the descriptor has a list of dependent keys, so
     // remove all of its dependent keys.
     var depKeys = desc._dependentKeys;
-    if (!depKeys) {
+    if (depKeys === null || depKeys === undefined) {
       return;
     }
 
@@ -5419,113 +5323,122 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
    * practice, most use cases satisfy this limitation which is why it is included
    * in ember-metal.
    */
-  function WeakMap$1(iterable) {
-    if (!(this instanceof WeakMap$1)) {
-      throw new TypeError('Constructor WeakMap requires \'new\'');
-    }
+  var WeakMapPolyfill = function () {
+    function WeakMapPolyfill(iterable) {
+      emberBabel.classCallCheck(this, WeakMapPolyfill);
 
-    this._id = emberUtils.GUID_KEY + id++;
+      this._id = emberUtils.GUID_KEY + id++;
 
-    if (iterable === null || iterable === undefined) {
-      return;
-    } else if (Array.isArray(iterable)) {
-      for (var i = 0; i < iterable.length; i++) {
-        var _iterable$i = iterable[i],
-            key = _iterable$i[0],
-            value = _iterable$i[1];
+      if (iterable === null || iterable === undefined) {
+        return;
+      } else if (Array.isArray(iterable)) {
+        for (var i = 0; i < iterable.length; i++) {
+          var _iterable$i = iterable[i],
+              key = _iterable$i[0],
+              value = _iterable$i[1];
 
-        this.set(key, value);
-      }
-    } else {
-      throw new TypeError('The weak map constructor polyfill only supports an array argument');
-    }
-  }
-
-  /*
-   * @method get
-   * @param key {Object | Function}
-   * @return {Any} stored value
-   */
-  WeakMap$1.prototype.get = function (obj) {
-    if (!isObject$1(obj)) {
-      return undefined;
-    }
-
-    var meta$$1 = exports.peekMeta(obj);
-    if (meta$$1) {
-      var map = meta$$1.readableWeak();
-      if (map) {
-        if (map[this._id] === UNDEFINED) {
-          return undefined;
+          this.set(key, value);
         }
-
-        return map[this._id];
-      }
-    }
-  };
-
-  /*
-   * @method set
-   * @param key {Object | Function}
-   * @param value {Any}
-   * @return {WeakMap} the weak map
-   */
-  WeakMap$1.prototype.set = function (obj, value) {
-    if (!isObject$1(obj)) {
-      throw new TypeError('Invalid value used as weak map key');
-    }
-
-    if (value === undefined) {
-      value = UNDEFINED;
-    }
-
-    meta(obj).writableWeak()[this._id] = value;
-
-    return this;
-  };
-
-  /*
-   * @method has
-   * @param key {Object | Function}
-   * @return {boolean} if the key exists
-   */
-  WeakMap$1.prototype.has = function (obj) {
-    if (!isObject$1(obj)) {
-      return false;
-    }
-
-    var meta$$1 = exports.peekMeta(obj);
-    if (meta$$1) {
-      var map = meta$$1.readableWeak();
-      if (map) {
-        return map[this._id] !== undefined;
+      } else {
+        throw new TypeError('The weak map constructor polyfill only supports an array argument');
       }
     }
 
-    return false;
-  };
+    /*
+     * @method get
+     * @param key {Object | Function}
+     * @return {Any} stored value
+     */
 
-  /*
-   * @method delete
-   * @param key {Object | Function}
-   * @return {boolean} if the key was deleted
-   */
-  WeakMap$1.prototype.delete = function (obj) {
-    if (this.has(obj)) {
-      delete meta(obj).writableWeak()[this._id];
-      return true;
-    } else {
+    WeakMapPolyfill.prototype.get = function get(obj) {
+      if (!isObject$1(obj)) {
+        return undefined;
+      }
+
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1) {
+        var map = meta$$1.readableWeak();
+        if (map !== undefined) {
+          var val = map[this._id];
+          if (val === UNDEFINED) {
+            return undefined;
+          }
+          return val;
+        }
+      }
+    };
+
+    /*
+     * @method set
+     * @param key {Object | Function}
+     * @param value {Any}
+     * @return {WeakMap} the weak map
+     */
+
+    WeakMapPolyfill.prototype.set = function set(obj, value) {
+      if (!isObject$1(obj)) {
+        throw new TypeError('Invalid value used as weak map key');
+      }
+
+      if (value === undefined) {
+        value = UNDEFINED;
+      }
+
+      meta(obj).writableWeak()[this._id] = value;
+
+      return this;
+    };
+
+    /*
+     * @method has
+     * @param key {Object | Function}
+     * @return {boolean} if the key exists
+     */
+
+    WeakMapPolyfill.prototype.has = function has(obj) {
+      if (!isObject$1(obj)) {
+        return false;
+      }
+
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1) {
+        var map = meta$$1.readableWeak();
+        if (map !== undefined) {
+          return map[this._id] !== undefined;
+        }
+      }
+
       return false;
-    }
-  };
+    };
 
-  /*
-   * @method toString
-   * @return {String}
-   */
-  WeakMap$1.prototype.toString = function () {
-    return '[object WeakMap]';
-  };
+    /*
+     * @method delete
+     * @param key {Object | Function}
+     * @return {boolean} if the key was deleted
+     */
+
+    WeakMapPolyfill.prototype.delete = function _delete(obj) {
+      if (this.has(obj)) {
+        delete exports.peekMeta(obj).writableWeak()[this._id];
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    /*
+     * @method toString
+     * @return {String}
+     */
+
+    WeakMapPolyfill.prototype.toString = function toString$$1() {
+      return '[object WeakMap]';
+    };
+
+    return WeakMapPolyfill;
+  }();
+
+  var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
 
   /**
     Returns true if the passed value is null or undefined. This avoids errors
@@ -5673,11 +5586,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function onBegin(current) {
-    run$1.currentRunLoop = current;
+    run.currentRunLoop = current;
   }
 
   function onEnd(current, next) {
-    run$1.currentRunLoop = next;
+    run.currentRunLoop = next;
   }
 
   var onErrorTarget = {
@@ -5689,7 +5602,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   };
 
-  var backburner = new Backburner(['sync', 'actions', 'destroy'], {
+  var backburner$1 = new Backburner(['sync', 'actions', 'destroy'], {
     GUID_KEY: emberUtils.GUID_KEY,
     sync: {
       before: beginPropertyChanges,
@@ -5734,8 +5647,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} return value from invoking the passed function.
     @public
   */
-  function run$1() {
-    return backburner.run.apply(backburner, arguments);
+  function run() {
+    return backburner$1.run.apply(backburner$1, arguments);
   }
 
   /**
@@ -5776,8 +5689,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     when called within an existing loop, no return value is possible.
     @public
   */
-  run$1.join = function () {
-    return backburner.join.apply(backburner, arguments);
+  run.join = function () {
+    return backburner$1.join.apply(backburner$1, arguments);
   };
 
   /**
@@ -5830,7 +5743,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @since 1.4.0
     @public
   */
-  run$1.bind = function () {
+  run.bind = function () {
     for (var _len = arguments.length, curried = Array(_len), _key = 0; _key < _len; _key++) {
       curried[_key] = arguments[_key];
     }
@@ -5840,13 +5753,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         args[_key2] = arguments[_key2];
       }
 
-      return run$1.join.apply(run$1, curried.concat(args));
+      return run.join.apply(run, curried.concat(args));
     };
   };
 
-  run$1.backburner = backburner;
-  run$1.currentRunLoop = null;
-  run$1.queues = backburner.queueNames;
+  run.backburner = backburner$1;
+  run.currentRunLoop = null;
+  run.queues = backburner$1.queueNames;
 
   /**
     Begins a new RunLoop. Any deferred actions invoked after the begin will
@@ -5863,8 +5776,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {void}
     @public
   */
-  run$1.begin = function () {
-    backburner.begin();
+  run.begin = function () {
+    backburner$1.begin();
   };
 
   /**
@@ -5882,8 +5795,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {void}
     @public
   */
-  run$1.end = function () {
-    backburner.end();
+  run.end = function () {
+    backburner$1.end();
   };
 
   /**
@@ -5936,20 +5849,20 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.schedule = function () /* queue, target, method */{
-    true && !(run$1.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
+  run.schedule = function () /* queue, target, method */{
+    true && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
 
-    return backburner.schedule.apply(backburner, arguments);
+    return backburner$1.schedule.apply(backburner$1, arguments);
   };
 
   // Used by global test teardown
-  run$1.hasScheduledTimers = function () {
-    return backburner.hasTimers();
+  run.hasScheduledTimers = function () {
+    return backburner$1.hasTimers();
   };
 
   // Used by global test teardown
-  run$1.cancelTimers = function () {
-    backburner.cancelTimers();
+  run.cancelTimers = function () {
+    backburner$1.cancelTimers();
   };
 
   /**
@@ -5969,9 +5882,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {void}
     @private
   */
-  run$1.sync = function () {
-    if (backburner.currentInstance) {
-      backburner.currentInstance.queues.sync.flush();
+  run.sync = function () {
+    if (backburner$1.currentInstance) {
+      backburner$1.currentInstance.queues.sync.flush();
     }
   };
 
@@ -6001,8 +5914,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {*} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.later = function () /*target, method*/{
-    return backburner.later.apply(backburner, arguments);
+  run.later = function () /*target, method*/{
+    return backburner$1.later.apply(backburner$1, arguments);
   };
 
   /**
@@ -6018,15 +5931,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.once = function () {
-    true && !(run$1.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
+  run.once = function () {
+    true && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
 
     for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
     }
 
     args.unshift('actions');
-    return backburner.scheduleOnce.apply(backburner, args);
+    return backburner$1.scheduleOnce.apply(backburner$1, args);
   };
 
   /**
@@ -6081,10 +5994,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.scheduleOnce = function () /*queue, target, method*/{
-    true && !(run$1.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run$1.currentRunLoop || !emberDebug.isTesting());
+  run.scheduleOnce = function () /*queue, target, method*/{
+    true && !(run.currentRunLoop || !emberDebug.isTesting()) && emberDebug.assert('You have turned on testing mode, which disabled the run-loop\'s autorun. ' + 'You will need to wrap any code with asynchronous side-effects in a run', run.currentRunLoop || !emberDebug.isTesting());
 
-    return backburner.scheduleOnce.apply(backburner, arguments);
+    return backburner$1.scheduleOnce.apply(backburner$1, arguments);
   };
 
   /**
@@ -6150,13 +6063,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Object} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.next = function () {
+  run.next = function () {
     for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
       args[_key4] = arguments[_key4];
     }
 
     args.push(1);
-    return backburner.later.apply(backburner, args);
+    return backburner$1.later.apply(backburner$1, args);
   };
 
   /**
@@ -6214,8 +6127,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Boolean} true if canceled or false/undefined if it wasn't found
     @public
   */
-  run$1.cancel = function (timer) {
-    return backburner.cancel(timer);
+  run.cancel = function (timer) {
+    return backburner$1.cancel(timer);
   };
 
   /**
@@ -6287,8 +6200,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.debounce = function () {
-    return backburner.debounce.apply(backburner, arguments);
+  run.debounce = function () {
+    return backburner$1.debounce.apply(backburner$1, arguments);
   };
 
   /**
@@ -6330,8 +6243,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @return {Array} Timer information for use in canceling, see `run.cancel`.
     @public
   */
-  run$1.throttle = function () {
-    return backburner.throttle.apply(backburner, arguments);
+  run.throttle = function () {
+    return backburner$1.throttle.apply(backburner$1, arguments);
   };
 
   /**
@@ -6344,9 +6257,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {String} after the name of the queue to add after.
     @private
   */
-  run$1._addQueue = function (name, after) {
-    if (run$1.queues.indexOf(name) === -1) {
-      run$1.queues.splice(run$1.queues.indexOf(after) + 1, 0, name);
+  run._addQueue = function (name, after) {
+    if (run.queues.indexOf(name) === -1) {
+      run.queues.splice(run.queues.indexOf(after) + 1, 0, name);
     }
   };
 
@@ -7296,7 +7209,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
       // If we haven't scheduled the binding yet, schedule it.
       if (existingDir === undefined) {
-        run$1.schedule('sync', this, '_sync');
+        run.schedule('sync', this, '_sync');
         this._direction = dir;
       }
 
@@ -8590,8 +8503,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.getWithDefault = getWithDefault;
   exports.set = set;
   exports.trySet = trySet;
-  exports.WeakMap = WeakMap$1;
-  exports.accumulateListeners = accumulateListeners;
+  exports.WeakMap = weak_map;
+  exports.WeakMapPolyfill = WeakMapPolyfill;
   exports.addListener = addListener;
   exports.hasListeners = hasListeners;
   exports.listenersFor = listenersFor;
@@ -8605,7 +8518,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.isEmpty = isEmpty;
   exports.isBlank = isBlank;
   exports.isPresent = isPresent;
-  exports.run = run$1;
+  exports.run = run;
   exports.ObserverSet = ObserverSet;
   exports.beginPropertyChanges = beginPropertyChanges;
   exports.changeProperties = changeProperties;
@@ -8624,7 +8537,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.removeChainWatcher = removeChainWatcher;
   exports.watchPath = watchPath;
   exports.unwatchPath = unwatchPath;
-  exports.destroy = destroy;
+  exports.destroy = deleteMeta;
   exports.isWatching = isWatching;
   exports.unwatch = unwatch;
   exports.watch = watch;
@@ -9167,106 +9080,100 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return child;
   }
 
-  var Enumerator = function () {
-    function Enumerator(Constructor, input, abortOnReject, label) {
-      (0, _emberBabel.classCallCheck)(this, Enumerator);
+  function Enumerator(Constructor, input, abortOnReject, label) {
+    this._instanceConstructor = Constructor;
+    this.promise = new Constructor(noop, label);
+    this._abortOnReject = abortOnReject;
 
-      this._instanceConstructor = Constructor;
-      this.promise = new Constructor(noop, label);
-      this._abortOnReject = abortOnReject;
+    this._init.apply(this, arguments);
+  }
 
-      this._init.apply(this, arguments);
+  Enumerator.prototype._init = function (Constructor, input) {
+    var len = input.length || 0;
+    this.length = len;
+    this._remaining = len;
+    this._result = new Array(len);
+
+    this._enumerate(input);
+    if (this._remaining === 0) {
+      fulfill(this.promise, this._result);
     }
+  };
 
-    Enumerator.prototype._init = function _init(Constructor, input) {
-      var len = input.length || 0;
-      this.length = len;
-      this._remaining = len;
-      this._result = new Array(len);
+  Enumerator.prototype._enumerate = function (input) {
+    var length = this.length;
+    var promise = this.promise;
 
-      this._enumerate(input);
-      if (this._remaining === 0) {
-        fulfill(this.promise, this._result);
-      }
-    };
+    for (var i = 0; promise._state === PENDING && i < length; i++) {
+      this._eachEntry(input[i], i);
+    }
+  };
 
-    Enumerator.prototype._enumerate = function _enumerate(input) {
-      var length = this.length;
-      var promise = this.promise;
+  Enumerator.prototype._settleMaybeThenable = function (entry, i) {
+    var c = this._instanceConstructor;
+    var resolve$$1 = c.resolve;
 
-      for (var i = 0; promise._state === PENDING && i < length; i++) {
-        this._eachEntry(input[i], i);
-      }
-    };
+    if (resolve$$1 === resolve$1) {
+      var then$$1 = getThen(entry);
 
-    Enumerator.prototype._settleMaybeThenable = function _settleMaybeThenable(entry, i) {
-      var c = this._instanceConstructor;
-      var resolve$$1 = c.resolve;
-
-      if (resolve$$1 === resolve$1) {
-        var then$$1 = getThen(entry);
-
-        if (then$$1 === then && entry._state !== PENDING) {
-          entry._onError = null;
-          this._settledAt(entry._state, i, entry._result);
-        } else if (typeof then$$1 !== 'function') {
-          this._remaining--;
-          this._result[i] = this._makeResult(FULFILLED, i, entry);
-        } else if (c === Promise) {
-          var promise = new c(noop);
-          handleMaybeThenable(promise, entry, then$$1);
-          this._willSettleAt(promise, i);
-        } else {
-          this._willSettleAt(new c(function (resolve$$1) {
-            return resolve$$1(entry);
-          }), i);
-        }
-      } else {
-        this._willSettleAt(resolve$$1(entry), i);
-      }
-    };
-
-    Enumerator.prototype._eachEntry = function _eachEntry(entry, i) {
-      if (isMaybeThenable(entry)) {
-        this._settleMaybeThenable(entry, i);
-      } else {
+      if (then$$1 === then && entry._state !== PENDING) {
+        entry._onError = null;
+        this._settledAt(entry._state, i, entry._result);
+      } else if (typeof then$$1 !== 'function') {
         this._remaining--;
         this._result[i] = this._makeResult(FULFILLED, i, entry);
+      } else if (c === Promise) {
+        var promise = new c(noop);
+        handleMaybeThenable(promise, entry, then$$1);
+        this._willSettleAt(promise, i);
+      } else {
+        this._willSettleAt(new c(function (resolve$$1) {
+          return resolve$$1(entry);
+        }), i);
       }
-    };
+    } else {
+      this._willSettleAt(resolve$$1(entry), i);
+    }
+  };
 
-    Enumerator.prototype._settledAt = function _settledAt(state, i, value) {
-      var promise = this.promise;
+  Enumerator.prototype._eachEntry = function (entry, i) {
+    if (isMaybeThenable(entry)) {
+      this._settleMaybeThenable(entry, i);
+    } else {
+      this._remaining--;
+      this._result[i] = this._makeResult(FULFILLED, i, entry);
+    }
+  };
 
-      if (promise._state === PENDING) {
-        if (this._abortOnReject && state === REJECTED) {
-          reject(promise, value);
-        } else {
-          this._remaining--;
-          this._result[i] = this._makeResult(state, i, value);
-          if (this._remaining === 0) {
-            fulfill(promise, this._result);
-          }
+  Enumerator.prototype._settledAt = function (state, i, value) {
+    var promise = this.promise;
+
+    if (promise._state === PENDING) {
+      if (this._abortOnReject && state === REJECTED) {
+        reject(promise, value);
+      } else {
+        this._remaining--;
+        this._result[i] = this._makeResult(state, i, value);
+        if (this._remaining === 0) {
+          fulfill(promise, this._result);
         }
       }
-    };
+    }
+  };
 
-    Enumerator.prototype._makeResult = function _makeResult(state, i, value) {
-      return value;
-    };
+  Enumerator.prototype._makeResult = function (state, i, value) {
+    return value;
+  };
 
-    Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i) {
-      var enumerator = this;
+  Enumerator.prototype._willSettleAt = function (promise, i) {
+    var enumerator = this;
 
-      subscribe(promise, undefined, function (value) {
-        return enumerator._settledAt(FULFILLED, i, value);
-      }, function (reason) {
-        return enumerator._settledAt(REJECTED, i, reason);
-      });
-    };
-
-    return Enumerator;
-  }();
+    subscribe(promise, undefined, function (value) {
+      return enumerator._settledAt(FULFILLED, i, value);
+    }, function (reason) {
+      return enumerator._settledAt(REJECTED, i, reason);
+    });
+  };
 
   function makeSettledResult(state, position, value) {
     if (state === FULFILLED) {
@@ -9582,56 +9489,117 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     Useful for tooling.
     @constructor
   */
+  function Promise(resolver, label) {
+    this._id = counter++;
+    this._label = label;
+    this._state = undefined;
+    this._result = undefined;
+    this._subscribers = [];
 
-  var Promise = function () {
-    function Promise(resolver, label) {
-      (0, _emberBabel.classCallCheck)(this, Promise);
+    config.instrument && instrument('created', this);
 
-      this._id = counter++;
-      this._label = label;
-      this._state = undefined;
-      this._result = undefined;
-      this._subscribers = [];
-
-      config.instrument && instrument('created', this);
-
-      if (noop !== resolver) {
-        typeof resolver !== 'function' && needsResolver();
-        this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-      }
+    if (noop !== resolver) {
+      typeof resolver !== 'function' && needsResolver();
+      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
     }
+  }
 
-    Promise.prototype._onError = function _onError(reason) {
-      var _this = this;
+  Promise.prototype._onError = function (reason) {
+    var _this = this;
 
-      config.after(function () {
-        if (_this._onError) {
-          config.trigger('error', reason, _this._label);
-        }
+    config.after(function () {
+      if (_this._onError) {
+        config.trigger('error', reason, _this._label);
+      }
+    });
+  };
+
+  /**
+    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
+    as the catch block of a try/catch statement.
+  
+    ```js
+    function findAuthor(){
+      throw new Error('couldn\'t find that author');
+    }
+  
+    // synchronous
+    try {
+      findAuthor();
+    } catch(reason) {
+      // something went wrong
+    }
+  
+    // async with promises
+    findAuthor().catch(function(reason){
+      // something went wrong
+    });
+    ```
+  
+    @method catch
+    @param {Function} onRejection
+    @param {String} label optional string for labeling the promise.
+    Useful for tooling.
+    @return {Promise}
+  */
+  Promise.prototype.catch = function (onRejection, label) {
+    return this.then(undefined, onRejection, label);
+  };
+
+  /**
+    `finally` will be invoked regardless of the promise's fate just as native
+    try/catch/finally behaves
+  
+    Synchronous example:
+  
+    ```js
+    findAuthor() {
+      if (Math.random() > 0.5) {
+        throw new Error();
+      }
+      return new Author();
+    }
+  
+    try {
+      return findAuthor(); // succeed or fail
+    } catch(error) {
+      return findOtherAuthor();
+    } finally {
+      // always runs
+      // doesn't affect the return value
+    }
+    ```
+  
+    Asynchronous example:
+  
+    ```js
+    findAuthor().catch(function(reason){
+      return findOtherAuthor();
+    }).finally(function(){
+      // author was either found, or not
+    });
+    ```
+  
+    @method finally
+    @param {Function} callback
+    @param {String} label optional string for labeling the promise.
+    Useful for tooling.
+    @return {Promise}
+  */
+  Promise.prototype.finally = function (callback, label) {
+    var promise = this;
+    var constructor = promise.constructor;
+
+    return promise.then(function (value) {
+      return constructor.resolve(callback()).then(function () {
+        return value;
       });
-    };
-
-    Promise.prototype.catch = function _catch(onRejection, label) {
-      return this.then(undefined, onRejection, label);
-    };
-
-    Promise.prototype.finally = function _finally(callback, label) {
-      var promise = this;
-      var constructor = promise.constructor;
-
-      return promise.then(function (value) {
-        return constructor.resolve(callback()).then(function () {
-          return value;
-        });
-      }, function (reason) {
-        return constructor.resolve(callback()).then(function () {
-          throw reason;
-        });
-      }, label);
-    };
-
-    return Promise;
-  }();
+    }, function (reason) {
+      return constructor.resolve(callback()).then(function () {
+        throw reason;
+      });
+    }, label);
+  };
 
   Promise.cast = resolve$1; // deprecated
   Promise.all = all;
