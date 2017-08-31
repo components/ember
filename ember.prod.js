@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.3
+ * @version   2.15.0-beta.3-null+ded65373
  */
 
 var enifed, requireModule, Ember;
@@ -38959,7 +38959,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-d
     let ObjectPromiseProxy = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
   
     let proxy = ObjectPromiseProxy.create({
-      promise: Ember.RSVP.cast($.getJSON('/some/remote/data.json'))
+      promise: Ember.RSVP.resolve($.getJSON('/some/remote/data.json'))
     });
   
     proxy.then(function(json){
@@ -38982,7 +38982,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-d
     When the $.getJSON completes, and the promise is fulfilled
     with json, the life cycle attributes will update accordingly.
     Note that $.getJSON doesn't return an ECMA specified promise,
-    it is useful to wrap this with an `RSVP.cast` so that it behaves
+    it is useful to wrap this with an `RSVP.resolve` so that it behaves
     as a spec compliant promise.
   
     ```javascript
@@ -44321,7 +44321,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.15.0-beta.3";
+  exports.default = "2.15.0-beta.3-null+ded65373";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
