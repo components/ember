@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0-beta.3-null+ded65373
+ * @version   2.16.0-beta.1
  */
 
 var enifed, requireModule, Ember;
@@ -46421,8 +46421,8 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
   QUnit.module('Ember.WeakMap');
 
   QUnit.test('has weakMap like qualities', function (assert) {
-    var map = new _emberMetal.WeakMap();
-    var map2 = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
+    var map2 = new _emberMetal.WeakMapPolyfill();
 
     var a = {};
     var b = {};
@@ -46465,20 +46465,11 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
     assert.strictEqual(map.get(b), undefined);
   });
 
-  QUnit.test('WeakMap constructor requres new', function (assert) {
-    var expectedError = new TypeError('Constructor WeakMap requires \'new\'');
-
-    assert.throws(function () {
-      // jshint newcap: false
-      (0, _emberMetal.WeakMap)();
-    }, expectedError);
-  });
-
   QUnit.test('constructing a WeakMap with an invalid iterator throws an error', function (assert) {
     var expectedError = new TypeError('The weak map constructor polyfill only supports an array argument');
 
     assert.throws(function () {
-      new _emberMetal.WeakMap({ a: 1 });
+      new _emberMetal.WeakMapPolyfill({ a: 1 });
     }, expectedError);
   });
 
@@ -46487,7 +46478,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
     var b = {};
     var c = {};
 
-    var map = new _emberMetal.WeakMap([[a, 1], [b, 2], [c, 3]]);
+    var map = new _emberMetal.WeakMapPolyfill([[a, 1], [b, 2], [c, 3]]);
 
     assert.strictEqual(map.get(a), 1);
     assert.strictEqual(map.get(b), 2);
@@ -46496,7 +46487,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
 
   QUnit.test('that error is thrown when using a primitive key', function (assert) {
     var expectedError = new TypeError('Invalid value used as weak map key');
-    var map = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
 
     assert.throws(function () {
       return map.set('a', 1);
@@ -46516,7 +46507,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
   });
 
   QUnit.test('that .has and .delete work as expected', function (assert) {
-    var map = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
     var a = {};
     var b = {};
     var foo = { id: 1, name: 'My file', progress: 0 };
@@ -46536,7 +46527,7 @@ enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal
   });
 
   QUnit.test('that .toString works as expected', function (assert) {
-    var map = new _emberMetal.WeakMap();
+    var map = new _emberMetal.WeakMapPolyfill();
 
     assert.strictEqual(map.toString(), '[object WeakMap]');
   });
@@ -49163,12 +49154,6 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/mixins/controller.js should pass ESLint\n\n');
 });
 
-QUnit.module('ESLint | ember-runtime/mixins/controller_content_model_alias_deprecation.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/mixins/controller_content_model_alias_deprecation.js should pass ESLint\n\n');
-});
-
 QUnit.module('ESLint | ember-runtime/mixins/copyable.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
@@ -51352,16 +51337,18 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
 
   QUnit.module('Controller Content -> Model Alias');
 
-  QUnit.test('`model` is aliased as `content`', function () {
-    expect(1);
+  QUnit.test('`content` is a deprecated alias of `model`', function () {
+    expect(2);
     var controller = _controller.default.extend({
       model: 'foo-bar'
     }).create();
 
-    equal(controller.get('content'), 'foo-bar', 'content is an alias of model');
+    expectDeprecation(function () {
+      equal(controller.get('content'), 'foo-bar', 'content is an alias of model');
+    });
   });
 
-  QUnit.test('`content` is moved to `model` when `model` is unset', function () {
+  QUnit.test('`content` is not moved to `model` when `model` is unset', function () {
     expect(2);
     var controller = void 0;
 
@@ -51371,18 +51358,19 @@ enifed('ember-runtime/tests/controllers/controller_test', ['ember-runtime/contro
       }).create();
     });
 
-    equal(controller.get('model'), 'foo-bar', 'model is set properly');
-    equal(controller.get('content'), 'foo-bar', 'content is set properly');
+    notEqual(controller.get('model'), 'foo-bar', 'model is set properly');
+    equal(controller.get('content'), 'foo-bar', 'content is not set properly');
   });
 
-  QUnit.test('specifying `content` (without `model` specified) results in deprecation', function () {
-    expect(1);
+  QUnit.test('specifying `content` (without `model` specified) does not result in deprecation', function () {
+    expect(2);
+    expectNoDeprecation();
 
-    expectDeprecation(function () {
-      _controller.default.extend({
-        content: 'foo-bar'
-      }).create();
-    }, 'Do not specify `content` on a Controller, use `model` instead.');
+    var controller = _controller.default.extend({
+      content: 'foo-bar'
+    }).create();
+
+    equal((0, _emberMetal.get)(controller, 'content'), 'foo-bar');
   });
 
   QUnit.test('specifying `content` (with `model` specified) does not result in deprecation', function () {
@@ -61031,9 +61019,9 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember/f
   });
 
   QUnit.test('throws if you try to pass anything a string as a parameter', function () {
-    var expected = 'Ember.Object.create only accepts objects.';
+    var expected = 'EmberObject.create only accepts an objects.';
 
-    expectAssertion(function () {
+    throws(function () {
       return _object.default.create('some-string');
     }, expected);
   });
@@ -62655,6 +62643,13 @@ enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-environment'
     deepEqual((0, _string.capitalize)('private-docs/owner-invoice'), 'Private-docs/Owner-invoice');
     if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
       deepEqual('private-docs/owner-invoice'.capitalize(), 'Private-docs/Owner-invoice');
+    }
+  });
+
+  QUnit.test('capitalize string with accent character', function () {
+    deepEqual((0, _string.capitalize)('šabc'), 'Šabc');
+    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+      deepEqual('šabc'.capitalize(), 'Šabc');
     }
   });
 });
@@ -64384,7 +64379,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-testing/tests/adapters_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-metal', 'ember-debug'], function (_rsvp, _adapter, _emberMetal, _emberDebug) {
+enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-testing/test/adapter', 'ember-testing/test/promise', 'ember-metal', 'ember-debug'], function (_rsvp, _adapter, _promise, _emberMetal, _emberDebug) {
   'use strict';
 
   var originalTestAdapter = (0, _adapter.getAdapter)();
@@ -64467,6 +64462,34 @@ enifed('ember-testing/tests/ext/rsvp_test', ['ember-testing/ext/rsvp', 'ember-te
       equal(asyncStarted, 2);
       equal(asyncEnded, 2);
     });
+  });
+
+  QUnit.module('TestPromise');
+
+  QUnit.test('does not throw error when falsy value passed to then', function () {
+    expect(1);
+    return new _promise.default(function (resolve) {
+      resolve();
+    }).then(null).then(function () {
+      ok(true);
+    });
+  });
+
+  QUnit.test('able to get last Promise', function () {
+    expect(2);
+
+    var p1 = new _promise.default(function (resolve) {
+      resolve();
+    }).then(function () {
+      ok(true);
+    });
+
+    var p2 = new _promise.default(function (resolve) {
+      resolve();
+    });
+
+    deepEqual((0, _promise.getLastPromise)(), p2);
+    return p1;
   });
 });
 QUnit.module('ESLint | ember-testing/tests/ext/rsvp_test.js');
@@ -69510,7 +69533,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
 
       assert.expect(1);
 
-      expectAssertion(function () {
+      assert.throws(function () {
         _this19.runTask(function () {
           _this19.createApplication();
 
@@ -69520,7 +69543,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
 
           _this19.addTemplate('application', '{{#link-to id=\'the-link\'}}Index{{/link-to}}');
         });
-      }, /You must provide one or more parameters to the link-to component/);
+      }, /(You must provide one or more parameters to the link-to component.|undefined is not an object)/);
     };
 
     return _class2;
@@ -69735,7 +69758,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers', 'e
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['accumulateListeners', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
