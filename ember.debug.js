@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+5367bd35
+ * @version   2.17.0-alpha.1-null+ed32476a
  */
 
 var enifed, requireModule, Ember;
@@ -27224,9 +27224,23 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     });
     ```
   
-    Also note that passing an anonymous function to `run.scheduleOnce` will
-    not prevent additional calls with an identical anonymous function from
-    scheduling the items multiple times, e.g.:
+    Also note that for `run.scheduleOnce` to prevent additional calls, you need to
+    pass the same function instance. The following case works as expected:
+  
+    ```javascript
+    function log() {
+      console.log('Logging only once');
+    }
+  
+    function scheduleIt() {
+      run.scheduleOnce('actions', myContext, log);
+    }
+  
+    scheduleIt();
+    scheduleIt();
+    ```
+  
+    But this other case will schedule the function multiple times:
   
     ```javascript
     function scheduleIt() {
@@ -27239,7 +27253,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     scheduleIt();
   
     // "Closure" will print twice, even though we're using `run.scheduleOnce`,
-    // because the function we pass to it is anonymous and won't match the
+    // because the function we pass to it won't match the
     // previously scheduled operation.
     ```
   
@@ -48101,7 +48115,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+5367bd35";
+  exports.default = "2.17.0-alpha.1-null+ed32476a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
