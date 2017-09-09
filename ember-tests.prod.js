@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+ed32476a
+ * @version   2.17.0-alpha.1-null+bf01ac99
  */
 
 var enifed, requireModule, Ember;
@@ -112,7 +112,7 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container/tests/container_test', ['ember-utils', 'ember-environment', 'ember-metal', 'ember/features', 'container', 'internal-test-helpers'], function (_emberUtils, _emberEnvironment, _emberMetal, _features, _container, _internalTestHelpers) {
+enifed('container/tests/container_test', ['ember-utils', 'ember-metal', 'ember/features', 'container', 'internal-test-helpers'], function (_emberUtils, _emberMetal, _features, _container, _internalTestHelpers) {
   'use strict';
 
   QUnit.module('Container');
