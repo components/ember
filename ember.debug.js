@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c49fcc72
+ * @version   2.17.0-alpha.1-null+7dd70942
  */
 
 var enifed, requireModule, Ember;
@@ -18511,15 +18511,6 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
     var curriedArgs = curryArgs(definition, args);
 
     return new _curly.CurlyComponentDefinition(definition.name, definition.ComponentClass, definition.template, curriedArgs);
-  }
-
-  var EMPTY_BLOCKS = {
-    default: null,
-    inverse: null
-  };
-
-  if (true) {
-    EMPTY_BLOCKS = Object.freeze(EMPTY_BLOCKS);
   }
 
   function curryArgs(definition, newArgs) {
@@ -48090,7 +48081,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+c49fcc72";
+  exports.default = "2.17.0-alpha.1-null+7dd70942";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
