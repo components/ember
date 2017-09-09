@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+bf01ac99
+ * @version   2.17.0-alpha.1-null+c49fcc72
  */
 
 var enifed, requireModule, Ember;
@@ -10997,10 +10997,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
       var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
 
-      injections.push({
-        property: property,
-        fullName: fullName
-      });
+      injections.push({ property: property, fullName: fullName });
     },
     injection: function (fullName, property, injectionName) {
       this.validateFullName(injectionName);
@@ -11016,10 +11013,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
       var injections = this._injections[normalizedName] || (this._injections[normalizedName] = []);
 
-      injections.push({
-        property: property,
-        fullName: normalizedInjectionName
-      });
+      injections.push({ property: property, fullName: normalizedInjectionName });
     },
     knownForType: function (type) {
       var fallbackKnown = void 0,
@@ -11096,6 +11090,25 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       }
 
       return options && options.source ? options.source + ':' + name : name;
+    },
+    expandLocalLookup: function (fullName, options) {
+      var normalizedFullName, normalizedSource;
+
+      if (this.resolver && this.resolver.expandLocalLookup) {
+        false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+        false && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
+        false && !this.validateFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
+
+        normalizedFullName = this.normalize(fullName);
+        normalizedSource = this.normalize(options.source);
+
+
+        return expandLocalLookup(this, normalizedFullName, normalizedSource);
+      } else if (this.fallback) {
+        return this.fallback.expandLocalLookup(fullName, options);
+      } else {
+        return null;
+      }
     }
   };
 
@@ -11106,44 +11119,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       resolve: registry.resolver
     };
   }
-
-  /**
-   Given a fullName and a source fullName returns the fully resolved
-   fullName. Used to allow for local lookup.
-  
-   ```javascript
-   let registry = new Registry();
-  
-   // the twitter factory is added to the module system
-   registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
-   ```
-  
-   @private
-   @method expandLocalLookup
-   @param {String} fullName
-   @param {Object} [options]
-   @param {String} [options.source] the fullname of the request source (used for local lookups)
-   @return {String} fullName
-   */
-  Registry.prototype.expandLocalLookup = function (fullName, options) {
-    var normalizedFullName, normalizedSource;
-
-    if (this.resolver && this.resolver.expandLocalLookup) {
-      false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
-      false && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
-      false && !this.validateFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
-
-      normalizedFullName = this.normalize(fullName);
-      normalizedSource = this.normalize(options.source);
-
-
-      return expandLocalLookup(this, normalizedFullName, normalizedSource);
-    } else if (this.fallback) {
-      return this.fallback.expandLocalLookup(fullName, options);
-    } else {
-      return null;
-    }
-  };
 
   function expandLocalLookup(registry, normalizedName, normalizedSource) {
     var cache = registry._localLookupCache;
@@ -44316,7 +44291,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+bf01ac99";
+  exports.default = "2.17.0-alpha.1-null+c49fcc72";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
