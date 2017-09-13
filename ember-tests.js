@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+8d5c77e6
+ * @version   2.17.0-alpha.1-null+baf03e0d
  */
 
 var enifed, requireModule, Ember;
@@ -52229,14 +52229,16 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
     });
   }
 
-  QUnit.test('factories should return a list of lazy injection full names', function () {
-    var AnObject = _object.default.extend({
-      foo: new _emberMetal.InjectedProperty('foo', 'bar'),
-      bar: new _emberMetal.InjectedProperty('quux')
-    });
+  if (true) {
+    QUnit.test('factories should return a list of lazy injection full names', function () {
+      var AnObject = _object.default.extend({
+        foo: new _emberMetal.InjectedProperty('foo', 'bar'),
+        bar: new _emberMetal.InjectedProperty('quux')
+      });
 
-    deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, 'should return injected container keys');
-  });
+      deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, 'should return injected container keys');
+    });
+  }
 });
 QUnit.module('ESLint | ember-runtime/tests/inject_test.js');
 QUnit.test('should pass ESLint', function(assert) {

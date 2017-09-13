@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.8d5c77e6"
+        "version": "2.17.0-alpha.1.baf03e0d"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -18331,7 +18331,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 921,
+            "line": 919,
             "description": "Returns a hash of property names and container names that injected\nproperties will lookup on the container lazily.",
             "itemtype": "method",
             "name": "_lazyInjections",

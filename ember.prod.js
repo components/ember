@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+8d5c77e6
+ * @version   2.17.0-alpha.1-null+baf03e0d
  */
 
 var enifed, requireModule, Ember;
@@ -40128,30 +40128,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     }
   }, _ClassMixinProps);
 
-  /**
-    Returns a hash of property names and container names that injected
-    properties will lookup on the container lazily.
-  
-    @method _lazyInjections
-    @return {Object} Hash of all lazy injected property keys to container names
-    @private
-  */
-  ClassMixinProps._lazyInjections = function () {
-    var injections = {};
-    var proto = this.proto();
-    var key = void 0;
-    var desc = void 0;
-
-    for (key in proto) {
-      desc = proto[key];
-      if (desc instanceof _emberMetal.InjectedProperty) {
-        injections[key] = desc.type + ':' + (desc.name || key);
-      }
-    }
-
-    return injections;
-  };
-
   var ClassMixin = _emberMetal.Mixin.create(ClassMixinProps);
 
   ClassMixin.ownerConstructor = CoreObject;
@@ -44278,7 +44254,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+8d5c77e6";
+  exports.default = "2.17.0-alpha.1-null+baf03e0d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
