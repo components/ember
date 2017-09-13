@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+5c1c6f81
+ * @version   2.17.0-alpha.1-null+88a9a977
  */
 
 var enifed, requireModule, Ember;
@@ -22126,12 +22126,12 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
           maybeFreeze(namedValue);
         }
 
-        var _result = helper(positionalValue, namedValue);
+        var result = helper(positionalValue, namedValue);
 
-        if (typeof _result === 'object' && _result !== null || typeof _result === 'function') {
-          return new RootReference(_result);
+        if (typeof result === 'object' && result !== null || typeof result === 'function') {
+          return new RootReference(result);
         } else {
-          return _runtime.PrimitiveReference.create(_result);
+          return _runtime.PrimitiveReference.create(result);
         }
       } else {
         return new SimpleHelperReference(helper, args);
@@ -22244,7 +22244,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
     }
 
     UnboundReference.create = function create(value) {
-      if (typeof value === 'object' && value !== null || typeof result === 'function') {
+      if (typeof value === 'object' && value !== null) {
         return new UnboundReference(value);
       } else {
         return _runtime.PrimitiveReference.create(value);
@@ -48065,7 +48065,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+5c1c6f81";
+  exports.default = "2.17.0-alpha.1-null+88a9a977";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

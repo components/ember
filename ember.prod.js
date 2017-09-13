@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+5c1c6f81
+ * @version   2.17.0-alpha.1-null+88a9a977
  */
 
 var enifed, requireModule, Ember;
@@ -21490,19 +21490,19 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
     (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
 
     SimpleHelperReference.create = function (helper, args) {
-      var positional, named, positionalValue, namedValue, _result;
+      var positional, named, positionalValue, namedValue, result;
 
       if ((0, _reference.isConst)(args)) {
         positional = args.positional, named = args.named;
         positionalValue = positional.value();
         namedValue = named.value();
-        _result = helper(positionalValue, namedValue);
+        result = helper(positionalValue, namedValue);
 
 
-        if (typeof _result === 'object' && _result !== null || typeof _result === 'function') {
-          return new RootReference(_result);
+        if (typeof result === 'object' && result !== null || typeof result === 'function') {
+          return new RootReference(result);
         } else {
-          return _runtime.PrimitiveReference.create(_result);
+          return _runtime.PrimitiveReference.create(result);
         }
       } else {
         return new SimpleHelperReference(helper, args);
@@ -21599,7 +21599,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
     }
 
     UnboundReference.create = function (value) {
-      if (typeof value === 'object' && value !== null || typeof result === 'function') {
+      if (typeof value === 'object' && value !== null) {
         return new UnboundReference(value);
       } else {
         return _runtime.PrimitiveReference.create(value);
@@ -44252,7 +44252,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+5c1c6f81";
+  exports.default = "2.17.0-alpha.1-null+88a9a977";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
