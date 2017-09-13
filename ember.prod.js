@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+bc217b9e
+ * @version   2.17.0-alpha.1-null+5c1c6f81
  */
 
 var enifed, requireModule, Ember;
@@ -11517,10 +11517,8 @@ enifed('ember-application/initializers/dom-templates', ['require', 'ember-glimme
     }
   });
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _engineInstance) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _engineInstance) {
   'use strict';
-
-  var BootOptions = void 0;
 
   /**
     The `ApplicationInstance` encapsulates all of the stateful aspects of a
@@ -11667,8 +11665,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
       return dispatcher;
     },
     getURL: function () {
-      var router = (0, _emberMetal.get)(this, 'router');
-      return (0, _emberMetal.get)(router, 'url');
+      return (0, _emberMetal.get)(this, 'router.url');
     },
     visit: function (url) {
       var _this = this;
@@ -11754,7 +11751,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     @namespace Ember.ApplicationInstance
     @public
   */
-  BootOptions = function () {
+  function BootOptions() {
     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     /**
@@ -11896,7 +11893,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     if (options.isInteractive !== undefined) {
       this.isInteractive = !!options.isInteractive;
     }
-  };
+  }
 
   BootOptions.prototype.toEnvironment = function () {
     var env = (0, _emberUtils.assign)({}, _emberEnvironment.environment);
@@ -44255,7 +44252,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+bc217b9e";
+  exports.default = "2.17.0-alpha.1-null+5c1c6f81";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
