@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+baf03e0d
+ * @version   2.17.0-alpha.1-null+bc217b9e
  */
 
 var enifed, requireModule, Ember;
@@ -22911,7 +22911,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function watchedEvents(obj) {
     var meta$$1 = exports.peekMeta(obj);
-    return meta$$1 && meta$$1.watchedEvents() || [];
+    return meta$$1 !== undefined ? meta$$1.watchedEvents() : [];
   }
 
   /**
@@ -22932,7 +22932,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function sendEvent(obj, eventName, params, actions, _meta) {
     if (actions === undefined) {
-      var meta$$1 = _meta || exports.peekMeta(obj);
+      var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
       actions = typeof meta$$1 === 'object' && meta$$1 !== null && meta$$1.matchingListeners(eventName);
     }
 
@@ -23001,9 +23001,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function listenersFor(obj, eventName) {
     var ret = [];
     var meta$$1 = exports.peekMeta(obj);
-    var actions = meta$$1 && meta$$1.matchingListeners(eventName);
+    var actions = meta$$1 !== undefined ? meta$$1.matchingListeners(eventName) : undefined;
 
-    if (!actions) {
+    if (actions === undefined) {
       return ret;
     }
 
@@ -23076,7 +23076,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return _glimmer_reference.CONSTANT_TAG;
     }
 
-    var meta$$1 = _meta || meta(object);
+    var meta$$1 = _meta === undefined ? meta(object) : _meta;
     if (meta$$1.isProxy()) {
       return tagFor(object, meta$$1);
     }
@@ -23092,7 +23092,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function tagFor(object, _meta) {
     if (typeof object === 'object' && object !== null) {
-      var meta$$1 = _meta || meta(object);
+      var meta$$1 = _meta === undefined ? meta(object) : _meta;
       return meta$$1.writableTag(makeTag);
     } else {
       return _glimmer_reference.CONSTANT_TAG;
@@ -23321,12 +23321,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function propertyWillChange(obj, keyName, _meta) {
-    var meta$$1 = _meta || exports.peekMeta(obj);
-    if (meta$$1 && !meta$$1.isInitialized(obj)) {
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    if (meta$$1 !== undefined && !meta$$1.isInitialized(obj)) {
       return;
     }
 
-    var watching = meta$$1 && meta$$1.peekWatching(keyName) > 0;
+    var watching = meta$$1 !== undefined && meta$$1.peekWatching(keyName) > 0;
     var possibleDesc = obj[keyName];
     var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
@@ -23359,8 +23359,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function propertyDidChange(obj, keyName, _meta) {
-    var meta$$1 = _meta || exports.peekMeta(obj);
-    var hasMeta = !!meta$$1;
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    var hasMeta = meta$$1 !== undefined;
 
     if (hasMeta && !meta$$1.isInitialized(obj)) {
       return;
@@ -23841,7 +23841,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
 
-    var m = meta$$1 || meta(obj);
+    var m = meta$$1 === undefined ? meta(obj) : meta$$1;
     var count = m.peekWatching(keyName) || 0;
     m.writeWatching(keyName, count + 1);
 
@@ -23914,7 +23914,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var meta$$1 = _meta || exports.peekMeta(obj);
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
 
     // do nothing of this object has already been destroyed
     if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
@@ -23980,7 +23980,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var m = meta$$1 || meta(obj);
+    var m = meta$$1 === undefined ? meta(obj) : meta$$1;
     var counter = m.peekWatching(keyPath) || 0;
 
     m.writeWatching(keyPath, counter + 1);
@@ -23994,7 +23994,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var m = meta$$1 || exports.peekMeta(obj);
+    var m = meta$$1 === undefined ? exports.peekMeta(obj) : meta$$1;
+
     if (m === undefined) {
       return;
     }
@@ -25272,7 +25273,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   if (ember_features.MANDATORY_SETTER) {
     var setWithMandatorySetter = function (meta$$1, obj, keyName, value) {
-      if (meta$$1 && meta$$1.peekWatching(keyName) > 0) {
+      if (meta$$1 !== undefined && meta$$1.peekWatching(keyName) > 0) {
         makeEnumerable(obj, keyName);
         meta$$1.writeValue(obj, keyName, value);
       } else {
@@ -25424,7 +25425,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function watcherCount(obj, key) {
     var meta$$1 = exports.peekMeta(obj);
-    return meta$$1 && meta$$1.peekWatching(key) || 0;
+    return meta$$1 !== undefined && meta$$1.peekWatching(key) || 0;
   }
 
   function unwatch(obj, _keyPath, m) {
@@ -26015,8 +26016,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function cacheFor(obj, key) {
     var meta$$1 = exports.peekMeta(obj);
-    var cache = meta$$1 && meta$$1.source === obj && meta$$1.readableCache();
-    var ret = cache && cache[key];
+    var cache = meta$$1 !== undefined ? meta$$1.source === obj && meta$$1.readableCache() : undefined;
+    var ret = cache !== undefined ? cache[key] : undefined;
 
     if (ret === UNDEFINED) {
       return undefined;
@@ -26074,7 +26075,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     AliasedProperty.prototype.teardown = function teardown(obj, keyName, meta$$1) {
-      if (meta$$1 && meta$$1.peekWatching(keyName)) {
+      if (meta$$1.peekWatching(keyName)) {
         removeDependentKeys(this, obj, keyName, meta$$1);
       }
     };
@@ -28971,7 +28972,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function finishPartial(obj, meta$$1) {
-    connectBindings(obj, meta$$1 || meta(obj));
+    connectBindings(obj, meta$$1 === undefined ? meta(obj) : meta$$1);
     return obj;
   }
 
@@ -37714,7 +37715,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       var lim = removedCnt > 0 ? idx + removedCnt : -1;
       var meta = void 0;
       for (var key in keys) {
-        meta = meta || (0, _emberMetal.peekMeta)(this);
+        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           removeObserverForContentKey(content, key, this, idx, lim);
         }
@@ -37726,7 +37727,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       var lim = addedCnt > 0 ? idx + addedCnt : -1;
       var meta = void 0;
       for (var key in keys) {
-        meta = meta || (0, _emberMetal.peekMeta)(this);
+        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           addObserverForContentKey(content, key, this, idx, lim);
         }
@@ -48067,7 +48068,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+baf03e0d";
+  exports.default = "2.17.0-alpha.1-null+bc217b9e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
