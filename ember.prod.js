@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+70f73aad
+ * @version   2.17.0-alpha.1-null+8d5c77e6
  */
 
 var enifed, requireModule, Ember;
@@ -12299,7 +12299,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       // boot promise exists for book-keeping purposes: if anything went wrong in
       // the boot process, we need to store the error as a rejection on the boot
       // promise so that a future caller of `boot()` can tell what failed.
-      var defer = this._bootResolver = new _emberRuntime.RSVP.defer();
+      var defer = this._bootResolver = _emberRuntime.RSVP.defer();
       this._bootPromise = defer.promise;
 
       try {
@@ -20123,8 +20123,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
 
   function (name, params, hash, builder) {
     var keys = void 0,
-        typeArg,
-        definition;
+        typeArg;
     var values = void 0;
     var typeIndex = -1;
     var valueIndex = -1;
@@ -20143,32 +20142,24 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     if (typeIndex > -1) {
       typeArg = values[typeIndex];
 
-      if (!Array.isArray(typeArg)) {
-        if (typeArg === 'checkbox') {
-          false && !(valueIndex === -1) && (0, _emberDebug.assert)('{{input type=\'checkbox\'}} does not support setting `value=someBooleanValue`; ' + 'you must use `checked=someBooleanValue` instead.', valueIndex === -1);
+      if (Array.isArray(typeArg)) {
+        return (0, _dynamicComponent.dynamicComponentMacro)(params, hash, null, null, builder);
+      } else if (typeArg === 'checkbox') {
+        false && !(valueIndex === -1) && (0, _emberDebug.assert)('{{input type=\'checkbox\'}} does not support setting `value=someBooleanValue`; ' + 'you must use `checked=someBooleanValue` instead.', valueIndex === -1);
 
-          (0, _bindings.wrapComponentClassAttribute)(hash);
-
-          definition = builder.env.getComponentDefinition('-checkbox', builder.meta.templateMeta);
-
-          builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
-          return true;
-        } else {
-          return buildTextFieldSyntax(params, hash, builder);
-        }
+        (0, _bindings.wrapComponentClassAttribute)(hash);
+        return buildSyntax('-checkbox', params, hash, builder);
       }
-    } else {
-      return buildTextFieldSyntax(params, hash, builder);
     }
 
-    return (0, _dynamicComponent.dynamicComponentMacro)(params, hash, null, null, builder);
+    return buildSyntax('-text-field', params, hash, builder);
   };
   /**
   @module ember
   @submodule ember-glimmer
   */
-  function buildTextFieldSyntax(params, hash, builder) {
-    var definition = builder.env.getComponentDefinition('-text-field', builder.meta.templateMeta);
+  function buildSyntax(type, params, hash, builder) {
+    var definition = builder.env.getComponentDefinition(type, builder.meta.templateMeta);
     builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
     return true;
   }
@@ -21036,16 +21027,11 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
       var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, keyFor));
 
       _this2.keys = keys;
-      _this2.length = keys.length;
       return _this2;
     }
 
     ObjectKeysIterator.prototype.getMemo = function (position) {
       return this.keys[position];
-    };
-
-    ObjectKeysIterator.prototype.getValue = function (position) {
-      return this.array[position];
     };
 
     return ObjectKeysIterator;
@@ -21095,7 +21081,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
 
       var typeofIterable = typeof iterable;
 
-      if (iterable && (typeofIterable === 'object' || typeofIterable === 'function')) {
+      if (iterable !== null && (typeofIterable === 'object' || typeofIterable === 'function')) {
         keys = Object.keys(iterable);
         values = keys.map(function (key) {
           return iterable[key];
@@ -21147,7 +21133,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
 
       valueTag.update((0, _emberMetal.tagForProperty)(iterable, '[]'));
 
-      if (!iterable || typeof iterable !== 'object') {
+      if (iterable === null || typeof iterable !== 'object') {
         return EMPTY_ITERATOR;
       }
 
@@ -28533,7 +28519,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return new AliasedProperty(altKey);
   };
   exports.merge = function (original, updates) {
-    if (!updates || typeof updates !== 'object') {
+    if (updates === null || typeof updates !== 'object') {
       return original;
     }
 
@@ -28751,7 +28737,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return ret;
   };
   exports.setProperties = function (obj, properties) {
-    if (!properties || typeof properties !== 'object') {
+    if (properties === null || typeof properties !== 'object') {
       return properties;
     }
     changeProperties(function () {
@@ -44292,7 +44278,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+70f73aad";
+  exports.default = "2.17.0-alpha.1-null+8d5c77e6";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
