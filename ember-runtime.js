@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+7dd70942
+ * @version   2.17.0-alpha.1-null+70f73aad
  */
 
 var enifed, requireModule, Ember;
@@ -8013,12 +8013,106 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return ret;
     };
 
+    /**
+      @method reopen
+      @param arguments*
+      @private
+    */
+
+    Mixin.prototype.reopen = function reopen() {
+      var currentMixin = void 0;
+
+      if (this.properties) {
+        currentMixin = new Mixin(undefined, this.properties);
+        this.properties = undefined;
+        this.mixins = [currentMixin];
+      } else if (!this.mixins) {
+        this.mixins = [];
+      }
+
+      var mixins = this.mixins;
+      var idx = void 0;
+
+      for (idx = 0; idx < arguments.length; idx++) {
+        currentMixin = arguments[idx];
+        true && !(typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]') && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
+
+        if (currentMixin instanceof Mixin) {
+          mixins.push(currentMixin);
+        } else {
+          mixins.push(new Mixin(undefined, currentMixin));
+        }
+      }
+
+      return this;
+    };
+
+    /**
+      @method apply
+      @param obj
+      @return applied object
+      @private
+    */
+
+    Mixin.prototype.apply = function apply(obj) {
+      return applyMixin(obj, [this], false);
+    };
+
+    Mixin.prototype.applyPartial = function applyPartial(obj) {
+      return applyMixin(obj, [this], true);
+    };
+
+    /**
+      @method detect
+      @param obj
+      @return {Boolean}
+      @private
+    */
+
+    Mixin.prototype.detect = function detect(obj) {
+      if (typeof obj !== 'object' || obj === null) {
+        return false;
+      }
+      if (obj instanceof Mixin) {
+        return _detect(obj, this, {});
+      }
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1 === undefined) {
+        return false;
+      }
+      return !!meta$$1.peekMixins(emberUtils.guidFor(this));
+    };
+
+    Mixin.prototype.without = function without() {
+      var ret = new Mixin([this]);
+
+      for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+        args[_key4] = arguments[_key4];
+      }
+
+      ret._without = args;
+      return ret;
+    };
+
+    Mixin.prototype.keys = function keys() {
+      var keys = {};
+      var seen = {};
+
+      _keys(keys, this, seen);
+      var ret = Object.keys(keys);
+      return ret;
+    };
+
     return Mixin;
   }();
 
   Mixin._apply = applyMixin;
-
   Mixin.finishPartial = finishPartial;
+
+  var MixinPrototype = Mixin.prototype;
+  MixinPrototype.toString = Object.toString;
+
+  emberDebug.debugSeal(MixinPrototype);
 
   var unprocessedFlag = false;
 
@@ -8029,57 +8123,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function clearUnprocessedMixins() {
     unprocessedFlag = false;
   }
-
-  var MixinPrototype = Mixin.prototype;
-
-  /**
-    @method reopen
-    @param arguments*
-    @private
-  */
-  MixinPrototype.reopen = function () {
-    var currentMixin = void 0;
-
-    if (this.properties) {
-      currentMixin = new Mixin(undefined, this.properties);
-      this.properties = undefined;
-      this.mixins = [currentMixin];
-    } else if (!this.mixins) {
-      this.mixins = [];
-    }
-
-    var mixins = this.mixins;
-    var idx = void 0;
-
-    for (idx = 0; idx < arguments.length; idx++) {
-      currentMixin = arguments[idx];
-      true && !(typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]') && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
-
-      if (currentMixin instanceof Mixin) {
-        mixins.push(currentMixin);
-      } else {
-        mixins.push(new Mixin(undefined, currentMixin));
-      }
-    }
-
-    return this;
-  };
-
-  /**
-    @method apply
-    @param obj
-    @return applied object
-    @private
-  */
-  MixinPrototype.apply = function (obj) {
-    return applyMixin(obj, [this], false);
-  };
-
-  MixinPrototype.applyPartial = function (obj) {
-    return applyMixin(obj, [this], true);
-  };
-
-  MixinPrototype.toString = Object.toString;
 
   function _detect(curMixin, targetMixin, seen) {
     var guid = emberUtils.guidFor(curMixin);
@@ -8102,37 +8145,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return false;
   }
 
-  /**
-    @method detect
-    @param obj
-    @return {Boolean}
-    @private
-  */
-  MixinPrototype.detect = function (obj) {
-    if (typeof obj !== 'object' || obj === null) {
-      return false;
-    }
-    if (obj instanceof Mixin) {
-      return _detect(obj, this, {});
-    }
-    var meta$$1 = exports.peekMeta(obj);
-    if (meta$$1 === undefined) {
-      return false;
-    }
-    return !!meta$$1.peekMixins(emberUtils.guidFor(this));
-  };
-
-  MixinPrototype.without = function () {
-    var ret = new Mixin([this]);
-
-    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      args[_key4] = arguments[_key4];
-    }
-
-    ret._without = args;
-    return ret;
-  };
-
   function _keys(ret, mixin, seen) {
     if (seen[emberUtils.guidFor(mixin)]) {
       return;
@@ -8151,17 +8163,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       });
     }
   }
-
-  MixinPrototype.keys = function () {
-    var keys = {};
-    var seen = {};
-
-    _keys(keys, this, seen);
-    var ret = Object.keys(keys);
-    return ret;
-  };
-
-  emberDebug.debugSeal(MixinPrototype);
 
   var REQUIRED = new Descriptor();
   REQUIRED.toString = function () {
