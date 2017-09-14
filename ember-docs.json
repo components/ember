@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.b27344ab"
+        "version": "2.17.0-alpha.1.f692763d"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -8098,7 +8098,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/helpers/get.js",
-            "line": 16,
+            "line": 20,
             "description": "Dynamically look up a property on an object. The second argument to `{{get}}`\nshould have a string value, although it can be bound.\n\nFor example, these two usages are equivalent:\n\n```handlebars\n{{person.height}}\n{{get person \"height\"}}\n```\n\nIf there were several facts about a person, the `{{get}}` helper can dynamically\npick one:\n\n```handlebars\n{{get person factName}}\n```\n\nFor a more complex example, this template would allow the user to switch\nbetween showing the user's height and weight with a click:\n\n```handlebars\n{{get person factName}}\n<button {{action (action (mut factName)) \"height\"}}>Show height</button>\n<button {{action (action (mut factName)) \"weight\"}}>Show weight</button>\n```\n\nThe `{{get}}` helper can also respect mutable values itself. For example:\n\n```handlebars\n{{input value=(mut (get person factName)) type=\"text\"}}\n<button {{action (action (mut factName)) \"height\"}}>Show height</button>\n<button {{action (action (mut factName)) \"weight\"}}>Show weight</button>\n```\n\nWould allow the user to swap what fact is being displayed, and also edit\nthat fact via a two-way mutable binding.",
             "access": "public",
             "tagname": "",

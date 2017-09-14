@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+b27344ab
+ * @version   2.17.0-alpha.1-null+f692763d
  */
 
 var enifed, requireModule, Ember;
@@ -18314,7 +18314,7 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (ex
   */
   var EACH_IN_REFERENCE = (0, _emberUtils.symbol)('EACH_IN');
 });
-enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference'], function (exports, _emberBabel, _emberMetal, _references, _reference) {
+enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference', '@glimmer/runtime'], function (exports, _emberBabel, _emberMetal, _references, _reference, _runtime) {
   'use strict';
 
   exports.default = function (vm, args) {
@@ -18344,7 +18344,7 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'e
       _this.pathReference = pathReference;
 
       _this.lastPath = null;
-      _this.innerReference = null;
+      _this.innerReference = _runtime.NULL_REFERENCE;
 
       var innerTag = _this.innerTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
 
@@ -18366,19 +18366,21 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'e
 
 
           if (pathType === 'string') {
-            innerReference = this.innerReference = (0, _reference.referenceFromParts)(this.sourceReference, path.split('.'));
+            innerReference = (0, _reference.referenceFromParts)(this.sourceReference, path.split('.'));
           } else if (pathType === 'number') {
-            innerReference = this.innerReference = this.sourceReference.get('' + path);
+            innerReference = this.sourceReference.get('' + path);
           }
 
           innerTag.update(innerReference.tag);
         } else {
-          innerReference = this.innerReference = null;
+          innerReference = _runtime.NULL_REFERENCE;
           innerTag.update(_reference.CONSTANT_TAG);
         }
+
+        this.innerReference = innerReference;
       }
 
-      return innerReference ? innerReference.value() : null;
+      return innerReference.value();
     };
 
     GetHelperReference.prototype[_references.UPDATE] = function (value) {
@@ -44260,7 +44262,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+b27344ab";
+  exports.default = "2.17.0-alpha.1-null+f692763d";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
