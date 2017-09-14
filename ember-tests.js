@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+88a9a977
+ * @version   2.17.0-alpha.1-null+b27344ab
  */
 
 var enifed, requireModule, Ember;
@@ -68547,11 +68547,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 
       _this2.aboutDefer = _emberRuntime.RSVP.defer();
       _this2.otherDefer = _emberRuntime.RSVP.defer();
+      _this2.newsDefer = _emberRuntime.RSVP.defer();
       var _this = _this2;
 
       _this2.router.map(function () {
         this.route('about');
         this.route('other');
+        this.route('news');
       });
 
       _this2.add('route:about', _emberRouting.Route.extend({
@@ -68566,7 +68568,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
         }
       }));
 
-      _this2.addTemplate('application', '\n      {{outlet}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{link-to \'About\' \'about\' id=\'about-link\'}}\n      {{link-to \'Other\' \'other\' id=\'other-link\'}}\n    ');
+      _this2.add('route:news', _emberRouting.Route.extend({
+        model: function () {
+          return _this.newsDefer.promise;
+        }
+      }));
+
+      _this2.addTemplate('application', '\n      {{outlet}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{link-to \'About\' \'about\' id=\'about-link\'}}\n      {{link-to \'Other\' \'other\' id=\'other-link\'}}\n      {{link-to \'News\' \'news\' activeClass=false id=\'news-link\'}}\n    ');
 
       _this2.visit('/');
       return _this2;
@@ -68576,6 +68584,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       _ApplicationTestCase.prototype.teardown.call(this);
       this.aboutDefer = null;
       this.otherDefer = null;
+      this.newsDefer = null;
     };
 
     _class.prototype['@test while a transition is underway'] = function testWhileATransitionIsUnderway(assert) {
@@ -68616,6 +68625,44 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       assertHasNoClass(assert, $other, 'ember-transitioning-out');
     };
 
+    _class.prototype['@test while a transition is underway with activeClass is false'] = function testWhileATransitionIsUnderwayWithActiveClassIsFalse(assert) {
+      var _this4 = this;
+
+      var $index = this.$('#index-link');
+      var $news = this.$('#news-link');
+      var $other = this.$('#other-link');
+
+      $news.click();
+
+      assertHasClass(assert, $index, 'active');
+      assertHasNoClass(assert, $news, 'active');
+      assertHasNoClass(assert, $other, 'active');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-in');
+      assertHasClass(assert, $news, 'ember-transitioning-in');
+      assertHasNoClass(assert, $other, 'ember-transitioning-in');
+
+      assertHasClass(assert, $index, 'ember-transitioning-out');
+      assertHasNoClass(assert, $news, 'ember-transitioning-out');
+      assertHasNoClass(assert, $other, 'ember-transitioning-out');
+
+      this.runTask(function () {
+        return _this4.newsDefer.resolve();
+      });
+
+      assertHasNoClass(assert, $index, 'active');
+      assertHasNoClass(assert, $news, 'active');
+      assertHasNoClass(assert, $other, 'active');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-in');
+      assertHasNoClass(assert, $news, 'ember-transitioning-in');
+      assertHasNoClass(assert, $other, 'ember-transitioning-in');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-out');
+      assertHasNoClass(assert, $news, 'ember-transitioning-out');
+      assertHasNoClass(assert, $other, 'ember-transitioning-out');
+    };
+
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 
@@ -68625,51 +68672,51 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     function _class2() {
       (0, _emberBabel.classCallCheck)(this, _class2);
 
-      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
+      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
 
-      _this4.aboutDefer = _emberRuntime.RSVP.defer();
-      _this4.otherDefer = _emberRuntime.RSVP.defer();
-      var _this = _this4;
+      _this5.aboutDefer = _emberRuntime.RSVP.defer();
+      _this5.otherDefer = _emberRuntime.RSVP.defer();
+      var _this = _this5;
 
-      _this4.router.map(function () {
+      _this5.router.map(function () {
         this.route('parent-route', function () {
           this.route('about');
           this.route('other');
         });
       });
-      _this4.add('route:parent-route.about', _emberRouting.Route.extend({
+      _this5.add('route:parent-route.about', _emberRouting.Route.extend({
         model: function () {
           return _this.aboutDefer.promise;
         }
       }));
 
-      _this4.add('route:parent-route.other', _emberRouting.Route.extend({
+      _this5.add('route:parent-route.other', _emberRouting.Route.extend({
         model: function () {
           return _this.otherDefer.promise;
         }
       }));
 
-      _this4.addTemplate('application', '\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
+      _this5.addTemplate('application', '\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
 
-      _this4.visit('/');
-      return _this4;
+      _this5.visit('/');
+      return _this5;
     }
 
     _class2.prototype.resolveAbout = function resolveAbout() {
-      var _this5 = this;
+      var _this6 = this;
 
       return this.runTask(function () {
-        _this5.aboutDefer.resolve();
-        _this5.aboutDefer = _emberRuntime.RSVP.defer();
+        _this6.aboutDefer.resolve();
+        _this6.aboutDefer = _emberRuntime.RSVP.defer();
       });
     };
 
     _class2.prototype.resolveOther = function resolveOther() {
-      var _this6 = this;
+      var _this7 = this;
 
       return this.runTask(function () {
-        _this6.otherDefer.resolve();
-        _this6.otherDefer = _emberRuntime.RSVP.defer();
+        _this7.otherDefer.resolve();
+        _this7.otherDefer = _emberRuntime.RSVP.defer();
       });
     };
 

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+88a9a977
+ * @version   2.17.0-alpha.1-null+b27344ab
  */
 
 var enifed, requireModule, Ember;
@@ -16715,7 +16715,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       }
     }),
 
-    _computeActive: function (routerState) {
+    _isActive: function (routerState) {
       if ((0, _emberMetal.get)(this, 'loading')) {
         return false;
       }
@@ -16735,7 +16735,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
 
       for (var i = 0; i < currentWhen.length; i++) {
         if (routing.isActiveForRoute(models, resolvedQueryParams, currentWhen[i], routerState, isCurrentWhenSpecified)) {
-          return (0, _emberMetal.get)(this, 'activeClass');
+          return true;
         }
       }
 
@@ -16754,13 +16754,21 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
        @property active
       @private
     */
-    active: (0, _emberMetal.computed)('attrs.params', '_routing.currentState', function computeLinkToComponentActive() {
+    active: (0, _emberMetal.computed)('attrs.params', '_active', function computeLinkToComponentActiveClass() {
       var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
       if (!currentState) {
         return false;
       }
 
-      return this._computeActive(currentState);
+      return this.get('_active') ? (0, _emberMetal.get)(this, 'activeClass') : false;
+    }),
+
+    _active: (0, _emberMetal.computed)('_routing.currentState', function computeLinkToComponentActive() {
+      var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
+      if (!currentState) {
+        return false;
+      }
+      return this._isActive(currentState);
     }),
 
     willBeActive: (0, _emberMetal.computed)('_routing.targetState', function computeLinkToComponentWillBeActive() {
@@ -16770,11 +16778,11 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
         return;
       }
 
-      return !!this._computeActive(targetState);
+      return this._isActive(targetState);
     }),
 
     transitioningIn: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningIn() {
-      if ((0, _emberMetal.get)(this, 'willBeActive') === true && !(0, _emberMetal.get)(this, 'active')) {
+      if ((0, _emberMetal.get)(this, 'willBeActive') === true && !(0, _emberMetal.get)(this, '_active')) {
         return 'ember-transitioning-in';
       } else {
         return false;
@@ -16782,7 +16790,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     }),
 
     transitioningOut: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningOut() {
-      if ((0, _emberMetal.get)(this, 'willBeActive') === false && (0, _emberMetal.get)(this, 'active')) {
+      if ((0, _emberMetal.get)(this, 'willBeActive') === false && (0, _emberMetal.get)(this, '_active')) {
         return 'ember-transitioning-out';
       } else {
         return false;
@@ -48065,7 +48073,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+88a9a977";
+  exports.default = "2.17.0-alpha.1-null+b27344ab";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

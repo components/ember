@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.88a9a977"
+        "version": "2.17.0-alpha.1.b27344ab"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -7876,7 +7876,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.js",
-            "line": 618,
+            "line": 624,
             "description": "Event handler that invokes the link, activating the associated route.",
             "itemtype": "method",
             "name": "_invoke",
@@ -7896,7 +7896,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.js",
-            "line": 701,
+            "line": 707,
             "description": "Sets the element's `href` attribute to the url for\nthe `LinkComponent`'s targeted route.\n\nIf the `LinkComponent`'s `tagName` is changed to a value other\nthan `a`, this property will be ignored.",
             "itemtype": "property",
             "name": "href",
@@ -7909,7 +7909,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/components/link-to.js",
-            "line": 785,
+            "line": 791,
             "description": "The default href value to use while a link-to is loading.\nOnly applies when tagName is 'a'",
             "itemtype": "property",
             "name": "loadingHref",
