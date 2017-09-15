@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+b03b7161
+ * @version   2.17.0-alpha.1-null+0e590f5a
  */
 
 var enifed, requireModule, Ember;
@@ -12525,13 +12525,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Map is mocked out to look like an Ember object, so you can do
     `Ember.Map.create()` for symmetry with other Ember classes.
   */
-  function missingFunction(fn) {
-    throw new TypeError(Object.prototype.toString.call(fn) + ' is not a function');
-  }
-
-  function missingNew(name) {
-    throw new TypeError('Constructor ' + name + ' requires \'new\'');
-  }
 
   function copyNull(obj) {
     var output = Object.create(null);
@@ -12565,37 +12558,35 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @constructor
     @private
   */
-  function OrderedSet() {
-    if (this instanceof OrderedSet) {
+
+  var OrderedSet = function () {
+    function OrderedSet() {
+
       this.clear();
-    } else {
-      missingNew('OrderedSet');
     }
-  }
 
-  /**
-    @method create
-    @static
-    @return {Ember.OrderedSet}
-    @private
-  */
-  OrderedSet.create = function () {
-    var Constructor = this;
+    /**
+      @method create
+      @static
+      @return {Ember.OrderedSet}
+      @private
+    */
 
-    return new Constructor();
-  };
+    OrderedSet.create = function () {
+      var Constructor = this;
+      return new Constructor();
+    };
 
-  OrderedSet.prototype = {
-    constructor: OrderedSet,
     /**
       @method clear
       @private
     */
-    clear: function () {
+
+    OrderedSet.prototype.clear = function () {
       this.presenceSet = Object.create(null);
       this.list = [];
       this.size = 0;
-    },
+    };
 
     /**
       @method add
@@ -12604,7 +12595,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Ember.OrderedSet}
       @private
     */
-    add: function (obj, _guid) {
+
+    OrderedSet.prototype.add = function (obj, _guid) {
       var guid = _guid || emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
       var list = this.list;
@@ -12615,7 +12607,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       return this;
-    },
+    };
 
     /**
       @since 1.8.0
@@ -12625,7 +12617,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean}
       @private
     */
-    delete: function (obj, _guid) {
+
+    OrderedSet.prototype.delete = function (obj, _guid) {
       var guid = _guid || emberUtils.guidFor(obj),
           index;
       var presenceSet = this.presenceSet;
@@ -12643,16 +12636,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       } else {
         return false;
       }
-    },
+    };
 
     /**
       @method isEmpty
       @return {Boolean}
       @private
     */
-    isEmpty: function () {
+
+    OrderedSet.prototype.isEmpty = function () {
       return this.size === 0;
-    },
+    };
 
     /**
       @method has
@@ -12660,7 +12654,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean}
       @private
     */
-    has: function (obj) {
+
+    OrderedSet.prototype.has = function (obj) {
       if (this.size === 0) {
         return false;
       }
@@ -12669,7 +12664,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var presenceSet = this.presenceSet;
 
       return presenceSet[guid] === true;
-    },
+    };
 
     /**
       @method forEach
@@ -12677,10 +12672,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @param self
       @private
     */
-    forEach: function (fn /*, ...thisArg*/) {
-      if (typeof fn !== 'function') {
-        missingFunction(fn);
-      }
+
+    OrderedSet.prototype.forEach = function (fn /*, ...thisArg*/) {
+      true && !(typeof fn === 'function') && emberDebug.assert(Object.prototype.toString.call(fn) + ' is not a function', typeof fn === 'function');
 
       if (this.size === 0) {
         return;
@@ -12699,23 +12693,25 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           fn(list[_i]);
         }
       }
-    },
+    };
 
     /**
       @method toArray
       @return {Array}
       @private
     */
-    toArray: function () {
+
+    OrderedSet.prototype.toArray = function () {
       return this.list.slice();
-    },
+    };
 
     /**
       @method copy
       @return {Ember.OrderedSet}
       @private
     */
-    copy: function () {
+
+    OrderedSet.prototype.copy = function () {
       var Constructor = this.constructor;
       var set = new Constructor();
 
@@ -12724,8 +12720,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       set.size = this.size;
 
       return set;
-    }
-  };
+    };
+
+    return OrderedSet;
+  }();
 
   /**
     A Map stores values indexed by keys. Unlike JavaScript's
@@ -12747,38 +12745,25 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
     @constructor
   */
-  function Map() {
-    if (this instanceof Map) {
-      this._keys = OrderedSet.create();
+
+  var Map = function () {
+    function Map() {
+
+      this._keys = new OrderedSet();
       this._values = Object.create(null);
       this.size = 0;
-    } else {
-      missingNew('Map');
     }
-  }
-
-  /**
-    @method create
-    @static
-    @private
-  */
-  Map.create = function () {
-    var Constructor = this;
-    return new Constructor();
-  };
-
-  Map.prototype = {
-    constructor: Map,
 
     /**
-      This property will change as the number of objects in the map changes.
-       @since 1.8.0
-      @property size
-      @type number
-      @default 0
+      @method create
+      @static
       @private
     */
-    size: 0,
+
+    Map.create = function () {
+      var Constructor = this;
+      return new Constructor();
+    };
 
     /**
       Retrieve the value associated with a given key.
@@ -12787,7 +12772,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {*} the value associated with the key, or `undefined`
       @private
     */
-    get: function (key) {
+
+    Map.prototype.get = function (key) {
       if (this.size === 0) {
         return;
       }
@@ -12796,7 +12782,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var guid = emberUtils.guidFor(key);
 
       return values[guid];
-    },
+    };
 
     /**
       Adds a value to the map. If a value for the given key has already been
@@ -12807,7 +12793,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Ember.Map}
       @private
     */
-    set: function (key, value) {
+
+    Map.prototype.set = function (key, value) {
       var keys = this._keys;
       var values = this._values;
       var guid = emberUtils.guidFor(key);
@@ -12822,7 +12809,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       this.size = keys.size;
 
       return this;
-    },
+    };
 
     /**
       Removes a value from the map for an associated key.
@@ -12832,7 +12819,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean} true if an item was removed, false otherwise
       @private
     */
-    delete: function (key) {
+
+    Map.prototype.delete = function (key) {
       if (this.size === 0) {
         return false;
       }
@@ -12849,7 +12837,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       } else {
         return false;
       }
-    },
+    };
 
     /**
       Check whether a key is present.
@@ -12858,9 +12846,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean} true if the item was present, false otherwise
       @private
     */
-    has: function (key) {
+
+    Map.prototype.has = function (key) {
       return this._keys.has(key);
-    },
+    };
 
     /**
       Iterate over all the keys and values. Calls the function once
@@ -12873,10 +12862,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         callback. By default, `this` is the map.
       @private
     */
-    forEach: function (callback /*, ...thisArg*/) {
-      if (typeof callback !== 'function') {
-        missingFunction(callback);
-      }
+
+    Map.prototype.forEach = function (callback /*, ...thisArg*/) {
+      true && !(typeof callback === 'function') && emberDebug.assert(Object.prototype.toString.call(callback) + ' is not a function', typeof callback === 'function');
 
       if (this.size === 0) {
         return;
@@ -12898,27 +12886,31 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       this._keys.forEach(cb);
-    },
+    };
 
     /**
       @method clear
       @private
     */
-    clear: function () {
+
+    Map.prototype.clear = function () {
       this._keys.clear();
       this._values = Object.create(null);
       this.size = 0;
-    },
+    };
 
     /**
       @method copy
       @return {Ember.Map}
       @private
     */
-    copy: function () {
+
+    Map.prototype.copy = function () {
       return copyMap(this, new Map());
-    }
-  };
+    };
+
+    return Map;
+  }();
 
   /**
     @class MapWithDefault
@@ -12929,66 +12921,73 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param [options]
       @param {*} [options.defaultValue]
   */
-  function MapWithDefault(options) {
-    this._super$constructor();
-    this.defaultValue = options.defaultValue;
-  }
 
-  /**
-    @method create
-    @static
-    @param [options]
-      @param {*} [options.defaultValue]
-    @return {Ember.MapWithDefault|Ember.Map} If options are passed, returns
-      `Ember.MapWithDefault` otherwise returns `Ember.Map`
-    @private
-  */
-  MapWithDefault.create = function (options) {
-    if (options) {
-      return new MapWithDefault(options);
-    } else {
-      return new Map();
+  var MapWithDefault = function (_Map) {
+    emberBabel.inherits(MapWithDefault, _Map);
+
+    function MapWithDefault(options) {
+
+      var _this = emberBabel.possibleConstructorReturn(this, _Map.call(this));
+
+      _this.defaultValue = options.defaultValue;
+      return _this;
     }
-  };
 
-  MapWithDefault.prototype = Object.create(Map.prototype);
-  MapWithDefault.prototype.constructor = MapWithDefault;
-  MapWithDefault.prototype._super$constructor = Map;
-  MapWithDefault.prototype._super$get = Map.prototype.get;
+    /**
+      @method create
+      @static
+      @param [options]
+        @param {*} [options.defaultValue]
+      @return {Ember.MapWithDefault|Ember.Map} If options are passed, returns
+        `Ember.MapWithDefault` otherwise returns `Ember.Map`
+      @private
+    */
 
-  /**
-    Retrieve the value associated with a given key.
-  
-    @method get
-    @param {*} key
-    @return {*} the value associated with the key, or the default value
-    @private
-  */
-  MapWithDefault.prototype.get = function (key) {
-    var hasValue = this.has(key),
-        defaultValue;
+    MapWithDefault.create = function (options) {
+      if (options) {
+        return new MapWithDefault(options);
+      } else {
+        return new Map();
+      }
+    };
 
-    if (hasValue) {
-      return this._super$get(key);
-    } else {
-      defaultValue = this.defaultValue(key);
+    /**
+      Retrieve the value associated with a given key.
+       @method get
+      @param {*} key
+      @return {*} the value associated with the key, or the default value
+      @private
+    */
 
-      this.set(key, defaultValue);
-      return defaultValue;
-    }
-  };
+    MapWithDefault.prototype.get = function (key) {
+      var hasValue = this.has(key),
+          defaultValue;
 
-  /**
-    @method copy
-    @return {Ember.MapWithDefault}
-    @private
-  */
-  MapWithDefault.prototype.copy = function () {
-    var Constructor = this.constructor;
-    return copyMap(this, new Constructor({
-      defaultValue: this.defaultValue
-    }));
-  };
+      if (hasValue) {
+        return _Map.prototype.get.call(this, key);
+      } else {
+        defaultValue = this.defaultValue(key);
+
+        this.set(key, defaultValue);
+        return defaultValue;
+      }
+    };
+
+    /**
+      @method copy
+      @return {Ember.MapWithDefault}
+      @private
+    */
+
+    MapWithDefault.prototype.copy = function () {
+      var Constructor = this.constructor;
+      return copyMap(this, new Constructor({
+        defaultValue: this.defaultValue
+      }));
+    };
+
+    return MapWithDefault;
+  }(Map);
 
   /**
     To get multiple properties at once, call `Ember.getProperties`
@@ -17080,7 +17079,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+b03b7161";
+  exports.default = "2.17.0-alpha.1-null+0e590f5a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

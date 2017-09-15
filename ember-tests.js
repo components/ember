@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+b03b7161
+ * @version   2.17.0-alpha.1-null+0e590f5a
  */
 
 var enifed, requireModule, Ember;
@@ -41834,19 +41834,19 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     });
 
     QUnit.test('forEach without proper callback', function () {
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach();
       }, '[object Undefined] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach(undefined);
       }, '[object Undefined] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach(1);
       }, '[object Number] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach({});
       }, '[object Object] is not a function');
 
@@ -41855,7 +41855,7 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       });
       // ensure the error happens even if no data is present
       equal(map.size, 0);
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach({});
       }, '[object Object] is not a function');
     });
@@ -42067,13 +42067,6 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     equal(map.constructor, _emberMetal.Map);
   });
 
-  QUnit.test('Map() without `new`', function () {
-    QUnit.throws(function () {
-      // jshint newcap:false
-      (0, _emberMetal.Map)();
-    }, /Constructor Map requires 'new'/);
-  });
-
   QUnit.test('MapWithDefault.prototype.constructor', function () {
     var map = new _emberMetal.MapWithDefault({
       defaultValue: function (key) {
@@ -42120,13 +42113,6 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
 
       map = _emberMetal.OrderedSet.create();
     }
-  });
-
-  QUnit.test('OrderedSet() without `new`', function () {
-    QUnit.throws(function () {
-      // jshint newcap:false
-      (0, _emberMetal.OrderedSet)();
-    }, /Constructor OrderedSet requires 'new'/);
   });
 
   QUnit.test('add returns the set', function () {

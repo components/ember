@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.b03b7161"
+        "version": "2.17.0-alpha.1.0e590f5a"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2931,7 +2931,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/map.js",
-            "line": 55,
+            "line": 49,
             "description": "This class is used internally by Ember and Ember Data.\nPlease do not use it at this time. We plan to clean it up\nand add many tests soon.",
             "is_constructor": 1,
             "access": "private",
@@ -2949,7 +2949,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/map.js",
-            "line": 219,
+            "line": 205,
             "description": "A Map stores values indexed by keys. Unlike JavaScript's\ndefault Objects, the keys of a Map can be any JavaScript\nobject.\n\nInternally, a Map has two data structures:\n\n1. `keys`: an OrderedSet of all of the existing keys\n2. `values`: a JavaScript Object indexed by the `Ember.guidFor(key)`\n\nWhen a key/value pair is added for the first time, we\nadd the key to the `keys` OrderedSet, and create or\nreplace an entry in `values`. When an entry is deleted,\nwe delete its entry in `keys` and `values`.",
             "access": "private",
             "tagname": "",
@@ -2967,7 +2967,7 @@
             "submodule": "ember-metal",
             "namespace": "Ember",
             "file": "packages/ember-metal/lib/map.js",
-            "line": 408,
+            "line": 375,
             "extends": "Ember.Map",
             "access": "private",
             "tagname": "",
@@ -9666,7 +9666,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 73,
+            "line": 64,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -9683,7 +9683,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 87,
+            "line": 75,
             "itemtype": "method",
             "name": "clear",
             "access": "private",
@@ -9695,7 +9695,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 97,
+            "line": 85,
             "itemtype": "method",
             "name": "add",
             "params": [
@@ -9721,7 +9721,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 117,
+            "line": 105,
             "since": "1.8.0",
             "itemtype": "method",
             "name": "delete",
@@ -9748,7 +9748,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 143,
+            "line": 131,
             "itemtype": "method",
             "name": "isEmpty",
             "return": {
@@ -9764,7 +9764,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 152,
+            "line": 140,
             "itemtype": "method",
             "name": "has",
             "params": [
@@ -9786,7 +9786,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 167,
+            "line": 155,
             "itemtype": "method",
             "name": "forEach",
             "params": [
@@ -9809,7 +9809,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 193,
+            "line": 179,
             "itemtype": "method",
             "name": "toArray",
             "return": {
@@ -9825,7 +9825,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 202,
+            "line": 188,
             "itemtype": "method",
             "name": "copy",
             "return": {
@@ -9841,7 +9841,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 249,
+            "line": 232,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -9854,23 +9854,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 262,
-            "description": "This property will change as the number of objects in the map changes.",
-            "since": "1.8.0",
-            "itemtype": "property",
-            "name": "size",
-            "type": "number",
-            "default": "0",
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.Map",
-            "module": "ember",
-            "submodule": "ember-metal",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-metal/lib/map.js",
-            "line": 273,
+            "line": 242,
             "description": "Retrieve the value associated with a given key.",
             "itemtype": "method",
             "name": "get",
@@ -9894,7 +9878,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 290,
+            "line": 259,
             "description": "Adds a value to the map. If a value for the given key has already been\nprovided, the new value will replace the old value.",
             "itemtype": "method",
             "name": "set",
@@ -9923,7 +9907,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 317,
+            "line": 286,
             "description": "Removes a value from the map for an associated key.",
             "since": "1.8.0",
             "itemtype": "method",
@@ -9948,7 +9932,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 343,
+            "line": 312,
             "description": "Check whether a key is present.",
             "itemtype": "method",
             "name": "has",
@@ -9972,7 +9956,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 355,
+            "line": 324,
             "description": "Iterate over all the keys and values. Calls the function once\nfor each key, passing in value, key, and the map being iterated over,\nin that order.\n\nThe keys are guaranteed to be iterated over in insertion order.",
             "itemtype": "method",
             "name": "forEach",
@@ -9997,7 +9981,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 388,
+            "line": 355,
             "itemtype": "method",
             "name": "clear",
             "access": "private",
@@ -10009,7 +9993,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 398,
+            "line": 365,
             "itemtype": "method",
             "name": "copy",
             "return": {
@@ -10025,7 +10009,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 422,
+            "line": 390,
             "itemtype": "method",
             "name": "create",
             "static": 1,
@@ -10057,7 +10041,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 444,
+            "line": 407,
             "description": "Retrieve the value associated with a given key.",
             "itemtype": "method",
             "name": "get",
@@ -10081,7 +10065,7 @@
         },
         {
             "file": "packages/ember-metal/lib/map.js",
-            "line": 464,
+            "line": 427,
             "itemtype": "method",
             "name": "copy",
             "return": {
