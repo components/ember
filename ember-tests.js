@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+70dbb0ac
+ * @version   2.17.0-alpha.1-null+6c5db5a4
  */
 
 var enifed, requireModule, Ember;
@@ -8237,7 +8237,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/application/actions-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing'], function (_emberBabel, _testCase, _abstractTestCase, _helpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting) {
+enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing', 'ember-metal'], function (_emberBabel, _testCase, _abstractTestCase, _helpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting, _emberMetal) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    '], ['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    ']),
@@ -8603,8 +8603,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:application_error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:application_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -8617,6 +8624,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this12.assertText('Application');
         return _this12.transitionTo('blog.post');
       }).catch(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this12.assertText('ApplicationError! Oh, noes!');
       });
     };
@@ -8626,8 +8635,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -8640,6 +8656,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this13.assertText('Application');
         return _this13.transitionTo('blog.post');
       }).catch(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this13.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -8649,8 +8667,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:post_error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:post_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -8663,6 +8688,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this14.assertText('Application');
         return _this14.transitionTo('blog.post');
       }).catch(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this14.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -8672,8 +8699,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:post.error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:post.error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post.comments', _emberRouting.Route.extend({
           model: function () {
@@ -8686,6 +8720,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this15.assertText('Application');
         return _this15.transitionTo('blog.post.comments');
       }).catch(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this15.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -8694,18 +8730,23 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this16 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:application_loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:application_loading', (0, _helpers.compile)('Loading'));
         this.register('template:post', (0, _helpers.compile)('Post'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -8714,16 +8755,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this16.assertText('Application');
         var transition = _this16.transitionTo('blog.post');
 
-        _this16.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this16.assertText('ApplicationLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this16.runTaskNext(function () {
-            return _this16.assertText('ApplicationEnginePost');
+            _this16.assertText('ApplicationEnginePost');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8731,18 +8773,23 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this17 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:loading', (0, _helpers.compile)('Loading'));
         this.register('template:post', (0, _helpers.compile)('Post'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -8751,16 +8798,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this17.assertText('Application');
         var transition = _this17.transitionTo('blog.post');
 
-        _this17.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this17.assertText('ApplicationEngineLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this17.runTaskNext(function () {
-            return _this17.assertText('ApplicationEnginePost');
+            _this17.assertText('ApplicationEnginePost');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8807,20 +8855,25 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this19 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
         this.register('template:post', (0, _helpers.compile)('{{outlet}}'));
         this.register('template:post.comments', (0, _helpers.compile)('Comments'));
+        this.register('route:post.loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:post.loading', (0, _helpers.compile)('Loading'));
         this.register('template:post.likes', (0, _helpers.compile)('Likes'));
         this.register('route:post.likes', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -8829,16 +8882,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this19.assertText('ApplicationEngineComments');
         var transition = _this19.transitionTo('blog.post.likes');
 
-        _this19.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this19.assertText('ApplicationEngineLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this19.runTaskNext(function () {
-            return _this19.assertText('ApplicationEngineLikes');
+            _this19.assertText('ApplicationEngineLikes');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8883,6 +8937,77 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       });
     };
 
+    _class.prototype['@test visit() routable engine which errors on init'] = function testVisitRoutableEngineWhichErrorsOnInit(assert) {
+      var _this22 = this;
+
+      assert.expect(1);
+
+      var hooks = [];
+
+      this.additionalEngineRegistrations(function () {
+        this.register('route:application', _emberRouting.Route.extend({
+          init: function () {
+            throw new Error('Whoops! Something went wrong...');
+          }
+        }));
+      });
+
+      this.setupAppAndRoutableEngine(hooks);
+
+      return this.visit('/', { shouldRender: true }).then(function () {
+        return _this22.visit('/blog');
+      }).catch(function (error) {
+        assert.equal(error.message, 'Whoops! Something went wrong...');
+      });
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'routerOptions',
+      get: function () {
+        var assert = this.assert;
+
+        return {
+          location: 'none',
+
+          _getHandlerFunction: function () {
+            var _this23 = this;
+
+            var syncHandler = this._super.apply(this, arguments);
+            this._enginePromises = Object.create(null);
+            this._resolvedEngines = Object.create(null);
+
+            return function (name) {
+              var engineInfo = _this23._engineInfoByRoute[name];
+              if (!engineInfo) {
+                return syncHandler(name);
+              }
+
+              var engineName = engineInfo.name;
+              if (_this23._resolvedEngines[engineName]) {
+                return syncHandler(name);
+              }
+
+              var enginePromise = _this23._enginePromises[engineName];
+
+              if (!enginePromise) {
+                enginePromise = new _emberRuntime.RSVP.Promise(function (resolve) {
+                  setTimeout(function () {
+                    _this23._resolvedEngines[engineName] = true;
+
+                    resolve();
+                  }, 1);
+                });
+                _this23._enginePromises[engineName] = enginePromise;
+              }
+
+              return enginePromise.then(function () {
+                return syncHandler(name);
+              });
+            };
+          }
+        };
+      }
+    }]);
     return _class;
   }(_testCase.ApplicationTest));
 });

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+70dbb0ac
+ * @version   2.17.0-alpha.1-null+6c5db5a4
  */
 
 var enifed, requireModule, Ember;
@@ -32075,7 +32075,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     _initRouterJs: function () {
       var routerMicrolib = this._routerMicrolib = new _router.default();
-      routerMicrolib.triggerEvent = triggerEvent;
+      routerMicrolib.triggerEvent = triggerEvent.bind(this);
 
       routerMicrolib._triggerWillChangeContext = K;
       routerMicrolib._triggerWillLeave = K;
@@ -32862,26 +32862,27 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     @param {Function} callback
     @return {Void}
    */
-  function forEachRouteAbove(originRoute, handlerInfos, callback) {
-    var originRouteFound = false,
-        i,
-        handlerInfo,
-        route;
+  function forEachRouteAbove(handlerInfos, callback) {
+    var i, handlerInfo, route;
+
 
     for (i = handlerInfos.length - 1; i >= 0; --i) {
       handlerInfo = handlerInfos[i];
       route = handlerInfo.handler;
 
+      // handlerInfo.handler being `undefined` generally means either:
+      //
+      // 1. an error occurred during creation of the route in question
+      // 2. the route is across an async boundary (e.g. within an engine)
+      //
+      // In both of these cases, we cannot invoke the callback on that specific
+      // route, because it just doesn't exist...
 
-      if (originRoute === route) {
-        originRouteFound = true;
-      }
-
-      if (!originRouteFound) {
+      if (route === undefined) {
         continue;
       }
 
-      if (callback(route) !== true) {
+      if (callback(route, handlerInfo) !== true) {
         return;
       }
     }
@@ -32890,18 +32891,19 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   // These get invoked when an action bubbles above ApplicationRoute
   // and are not meant to be overridable.
   var defaultActionHandlers = {
-    willResolveModel: function (transition, originRoute) {
-      originRoute.router._scheduleLoadingEvent(transition, originRoute);
+    willResolveModel: function (handlerInfos, transition, originRoute) {
+      this._scheduleLoadingEvent(transition, originRoute);
     },
-    error: function (error, transition, originRoute) {
-      var handlerInfos = transition.state.handlerInfos;
-      var router = originRoute.router;
+    error: function (handlerInfos, error, transition) {
+      var router = this;
 
-      forEachRouteAbove(originRoute, handlerInfos, function (route) {
-        // Check for the existence of an 'error' route.
-        // We don't check for an 'error' route on the originRoute, since that would
+      var handlerInfoWithError = handlerInfos[handlerInfos.length - 1];
+
+      forEachRouteAbove(handlerInfos, function (route, handlerInfo) {
+        // We don't check the leaf most handlerInfo since that would
         // technically be below where we're at in the route hierarchy.
-        if (originRoute !== route) {
+        if (handlerInfo !== handlerInfoWithError) {
+          // Check for the existence of an 'error' route.
           errorRouteName = findRouteStateName(route, 'error');
 
           if (errorRouteName) {
@@ -32923,15 +32925,16 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       logError(error, 'Error while processing route: ' + transition.targetName);
     },
-    loading: function (transition, originRoute) {
-      var handlerInfos = transition.state.handlerInfos;
-      var router = originRoute.router;
+    loading: function (handlerInfos, transition) {
+      var router = this;
 
-      forEachRouteAbove(originRoute, handlerInfos, function (route) {
-        // Check for the existence of a 'loading' route.
-        // We don't check for a 'loading' route on the originRoute, since that would
+      var handlerInfoWithSlowLoading = handlerInfos[handlerInfos.length - 1];
+
+      forEachRouteAbove(handlerInfos, function (route, handlerInfo) {
+        // We don't check the leaf most handlerInfo since that would
         // technically be below where we're at in the route hierarchy.
-        if (originRoute !== route) {
+        if (handlerInfo !== handlerInfoWithSlowLoading) {
+          // Check for the existence of a 'loading' route.
           loadingRouteName = findRouteStateName(route, 'loading');
 
           if (loadingRouteName) {
@@ -33080,7 +33083,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     var defaultHandler = defaultActionHandlers[name];
     if (defaultHandler) {
-      defaultHandler.apply(null, args);
+      defaultHandler.apply(this, [handlerInfos].concat(args));
       return;
     }
 
@@ -44261,7 +44264,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+70dbb0ac";
+  exports.default = "2.17.0-alpha.1-null+6c5db5a4";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
