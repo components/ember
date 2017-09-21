@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+dc7bf1a2
+ * @version   2.17.0-alpha.1-null+d31f0d1a
  */
 
 var enifed, requireModule, Ember;
@@ -27969,6 +27969,62 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
 
     return _class4;
   }(InputRenderingTest));
+
+  // These are the permutations of the set:
+  // ['type="range"', 'min="-5" max="50"', 'value="%x"']
+  ['type="range" min="-5" max="50" value="%x"', 'type="range" value="%x" min="-5" max="50"', 'min="-5" max="50" type="range" value="%x"', 'min="-5" max="50" value="%x" type="range"', 'value="%x" min="-5" max="50" type="range"', 'value="%x" type="range" min="-5" max="50"'].forEach(function (attrs) {
+    (0, _testCase.moduleFor)('[GH#15675] Helpers test: {{input ' + attrs + '}}', function (_InputRenderingTest5) {
+      (0, _emberBabel.inherits)(_class5, _InputRenderingTest5);
+
+      function _class5() {
+        return (0, _emberBabel.possibleConstructorReturn)(this, _InputRenderingTest5.apply(this, arguments));
+      }
+
+      _class5.prototype.renderInput = function () {
+        var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 25;
+
+        this.render('{{input ' + attrs.replace("%x", value) + '}}');
+      };
+
+      _class5.prototype.assertValue = function (expected) {
+        var type = this.$input().attr('type');
+
+        if (type !== 'range') {
+          this.assert.ok(true, 'IE9 does not support range items');
+          return;
+        }
+
+        _InputRenderingTest5.prototype.assertValue.call(this, expected);
+      };
+
+      _class5.prototype['@test value over default max but below set max is kept'] = function () {
+        this.renderInput("25");
+        this.assertValue("25");
+      };
+
+      _class5.prototype['@test value below default min but above set min is kept'] = function () {
+        this.renderInput("-2");
+        this.assertValue("-2");
+      };
+
+      _class5.prototype['@test in the valid default range is kept'] = function () {
+        this.renderInput("5");
+        this.assertValue("5");
+      };
+
+      _class5.prototype['@test value above max is reset to max'] = function () {
+        this.renderInput("55");
+        this.assertValue("50");
+      };
+
+      _class5.prototype['@test value below min is reset to min'] = function () {
+        this.renderInput("-10");
+        this.assertValue("-5");
+      };
+
+      return _class5;
+    }(InputRenderingTest));
+  });
 });
 enifed('ember-glimmer/tests/integration/helpers/loc-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember'], function (_emberBabel, _testCase, _emberMetal, _ember) {
   'use strict';
