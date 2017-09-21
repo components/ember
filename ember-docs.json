@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.6c5db5a4"
+        "version": "2.17.0-alpha.1.dc7bf1a2"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -6257,7 +6257,7 @@
                 "description": "The parent engine instance.",
                 "type": "EngineInstance"
             },
-            "access": "public",
+            "access": "private",
             "tagname": "",
             "class": "Ember",
             "module": "ember"

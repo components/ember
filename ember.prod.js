@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+6c5db5a4
+ * @version   2.17.0-alpha.1-null+dc7bf1a2
  */
 
 var enifed, requireModule, Ember;
@@ -12629,7 +12629,7 @@ enifed('ember-application/system/engine-parent', ['exports', 'ember-utils'], fun
     @param {EngineInstance} engine An engine instance.
     @return {EngineInstance} The parent engine instance.
     @for Ember
-    @public
+    @private
   */
   function (engine) {
     return engine[ENGINE_PARENT];
@@ -44264,7 +44264,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+6c5db5a4";
+  exports.default = "2.17.0-alpha.1-null+dc7bf1a2";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
