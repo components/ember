@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+d31f0d1a
+ * @version   2.17.0-alpha.1-null+c3777881
  */
 
 var enifed, requireModule, Ember;
@@ -44265,7 +44265,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+d31f0d1a";
+  exports.default = "2.17.0-alpha.1-null+c3777881";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
@@ -45021,23 +45021,13 @@ enifed("route-recognizer", ["exports"], function (exports) {
 
     exports.default = RouteRecognizer;
 });
-enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _routeRecognizer, _rsvp) {
+enifed('router', ['exports', 'ember-babel', 'route-recognizer', 'rsvp'], function (exports, _emberBabel, _routeRecognizer, _rsvp) {
   'use strict';
 
   exports.Transition = undefined;
 
   var slice = Array.prototype.slice;
-
-  var _isArray;
-  if (!Array.isArray) {
-    _isArray = function (x) {
-      return Object.prototype.toString.call(x) === "[object Array]";
-    };
-  } else {
-    _isArray = Array.isArray;
-  }
-
-  var isArray = _isArray;
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
 
   /**
     Determines if an object is Promise by checking if it is "thenable".
@@ -45048,17 +45038,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
   function merge(hash, other) {
     for (var prop in other) {
-      if (other.hasOwnProperty(prop)) {
+      if (hasOwnProperty.call(other, prop)) {
         hash[prop] = other[prop];
       }
     }
   }
-
-  var oCreate = Object.create || function (proto) {
-    function F() {}
-    F.prototype = proto;
-    return new F();
-  };
 
   /**
     @private
@@ -45067,8 +45051,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   **/
   function extractQueryParams(array) {
     var len = array && array.length,
-        head,
-        queryParams;
+        head = void 0,
+        queryParams = void 0;
 
     if (len && len > 0 && array[len - 1] && array[len - 1].hasOwnProperty('queryParams')) {
       queryParams = array[len - 1].queryParams;
@@ -45090,7 +45074,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     for (var key in queryParams) {
       if (typeof queryParams[key] === 'number') {
         queryParams[key] = '' + queryParams[key];
-      } else if (isArray(queryParams[key])) {
+      } else if (Array.isArray(queryParams[key])) {
         for (i = 0, l = queryParams[key].length; i < l; i++) {
           queryParams[key][i] = '' + queryParams[key][i];
         }
@@ -45100,39 +45084,32 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   /**
     @private
    */
-  function log(router, sequence, msg) {
+  function _log(router, sequence, msg) {
     if (!router.log) {
       return;
     }
 
     if (arguments.length === 3) {
-      router.log("Transition #" + sequence + ": " + msg);
+      router.log('Transition #' + sequence + ': ' + msg);
     } else {
       msg = sequence;
       router.log(msg);
     }
   }
 
-  function bind(context, fn) {
-    var boundArgs = arguments;
-    return function (value) {
-      var args = slice.call(boundArgs, 2);
-      args.push(value);
-      return fn.apply(context, args);
-    };
-  }
-
   function isParam(object) {
-    return typeof object === "string" || object instanceof String || typeof object === "number" || object instanceof Number;
+    return typeof object === 'string' || object instanceof String || typeof object === 'number' || object instanceof Number;
   }
 
   function forEach(array, callback) {
     var i, l;
 
-    for (i = 0, l = array.length; i < l && false !== callback(array[i]); i++) {}
+    for (i = 0, l = array.length; i < l && false !== callback(array[i]); i++) {
+      // empty intentionally
+    }
   }
 
-  function trigger(router, handlerInfos, ignoreFailure, args) {
+  function _trigger(router, handlerInfos, ignoreFailure, args) {
     if (router.triggerEvent) {
       router.triggerEvent(handlerInfos, ignoreFailure, args);
       return;
@@ -45163,7 +45140,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // means that we should trigger the event later when the handler is available
 
       if (!handler) {
-        handlerInfo.handlerPromise.then(bind(null, delayedEvent, name, args));
+        handlerInfo.handlerPromise.then(delayedEvent.bind(null, name, args));
         continue;
       }
 
@@ -45186,13 +45163,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   function getChangelist(oldObject, newObject) {
+    var key = void 0,
+        i,
+        l;
     var results = {
       all: {},
       changed: {},
       removed: {}
-    },
-        i,
-        l;
+    };
 
     merge(results.all, newObject);
 
@@ -45201,9 +45179,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     coerceQueryParamsToString(newObject);
 
     // Calculate removals
-    for (var key in oldObject) {
-      if (oldObject.hasOwnProperty(key)) {
-        if (!newObject.hasOwnProperty(key)) {
+    for (key in oldObject) {
+      if (hasOwnProperty.call(oldObject, key)) {
+        if (!hasOwnProperty.call(newObject, key)) {
           didChange = true;
           results.removed[key] = oldObject[key];
         }
@@ -45212,8 +45190,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     // Calculate changes
     for (key in newObject) {
-      if (newObject.hasOwnProperty(key)) {
-        if (isArray(oldObject[key]) && isArray(newObject[key])) {
+      if (hasOwnProperty.call(newObject, key)) {
+        if (Array.isArray(oldObject[key]) && Array.isArray(newObject[key])) {
           if (oldObject[key].length !== newObject[key].length) {
             results.changed[key] = newObject[key];
             didChange = true;
@@ -45237,24 +45215,15 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     return didChange && results;
   }
 
-  function promiseLabel(label) {
+  function _promiseLabel(label) {
     return 'Router: ' + label;
-  }
-
-  function subclass(parentConstructor, proto) {
-    function C(props) {
-      parentConstructor.call(this, props || {});
-    }
-    C.prototype = oCreate(parentConstructor.prototype);
-    merge(C.prototype, proto);
-    return C;
   }
 
   function resolveHook(obj, hookName) {
     if (!obj) {
       return;
     }
-    var underscored = "_" + hookName;
+    var underscored = '_' + hookName;
     return obj[underscored] && underscored || obj[hookName] && hookName;
   }
 
@@ -45293,7 +45262,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         }
         targetName += handlerInfo.name;
       });
-      return promiseLabel("'" + targetName + "': " + label);
+      return _promiseLabel("'" + targetName + "': " + label);
     },
 
     resolve: function (shouldContinue, payload) {
@@ -45311,7 +45280,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var wasAborted = false;
 
       // The prelude RSVP.resolve() asyncs us into the promise land.
-      return _rsvp.Promise.resolve(null, this.promiseLabel("Start transition")).then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler'))['catch'](function (error) {
+      return _rsvp.Promise.resolve(null, this.promiseLabel('Start transition')).then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler')).catch(function (error) {
         // This is the only possible
         // reject value of TransitionState#resolve
         var handlerInfos = currentState.handlerInfos;
@@ -45325,13 +45294,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }, this.promiseLabel('Handle error'));
 
       function innerShouldContinue() {
-        return _rsvp.Promise.resolve(shouldContinue(), currentState.promiseLabel("Check if should continue"))['catch'](function (reason) {
+        return _rsvp.Promise.resolve(shouldContinue(), currentState.promiseLabel('Check if should continue')).catch(function (reason) {
           // We distinguish between errors that occurred
-          // during resolution (e.g. beforeModel/model/afterModel),
+          // during resolution (e.g. before"Model/model/afterModel),
           // and aborts due to a rejecting promise from shouldContinue().
           wasAborted = true;
           return _rsvp.Promise.reject(reason);
-        }, currentState.promiseLabel("Handle abort"));
+        }, currentState.promiseLabel('Handle abort'));
       }
 
       function proceed(resolvedHandlerInfo) {
@@ -45396,7 +45365,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     this.code = error.code;
   }
 
-  TransitionAbortedError.prototype = oCreate(Error.prototype);
+  TransitionAbortedError.prototype = Object.create(Error.prototype);
 
   /**
     A Transition is a thennable (a promise-like object) that represents
@@ -45413,101 +45382,90 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     @param {Object} error
     @private
    */
-  function Transition(router, intent, state, error, previousTransition) {
-    var transition = this,
-        len,
-        i,
-        handlerInfo;
-    this.state = state || router.state;
-    this.intent = intent;
-    this.router = router;
-    this.data = this.intent && this.intent.data || {};
-    this.resolvedModels = {};
-    this.queryParams = {};
-    this.promise = undefined;
-    this.error = undefined;
-    this.params = undefined;
-    this.handlerInfos = undefined;
-    this.targetName = undefined;
-    this.pivotHandler = undefined;
-    this.sequence = undefined;
-    this.isAborted = false;
-    this.isActive = true;
 
-    if (error) {
-      this.promise = _rsvp.Promise.reject(error);
-      this.error = error;
-      return;
-    }
+  var Transition = function () {
+    function Transition(router, intent, state, error, previousTransition) {
+      var _this = this,
+          len,
+          i,
+          handlerInfo;
 
-    // if you're doing multiple redirects, need the new transition to know if it
-    // is actually part of the first transition or not. Any further redirects
-    // in the initial transition also need to know if they are part of the
-    // initial transition
-    this.isCausedByAbortingTransition = !!previousTransition;
-    this.isCausedByInitialTransition = previousTransition && (previousTransition.isCausedByInitialTransition || previousTransition.sequence === 0);
+      this.state = state || router.state;
+      this.intent = intent;
+      this.router = router;
+      this.data = this.intent && this.intent.data || {};
+      this.resolvedModels = {};
+      this.queryParams = {};
+      this.promise = undefined;
+      this.error = undefined;
+      this.params = undefined;
+      this.handlerInfos = undefined;
+      this.targetName = undefined;
+      this.pivotHandler = undefined;
+      this.sequence = undefined;
+      this.isAborted = false;
+      this.isActive = true;
+      this.urlMethod = 'update';
+      this.resolveIndex = 0;
+      this.queryParamsOnly = false;
+      this.isTransition = true;
 
-    if (state) {
-      this.params = state.params;
-      this.queryParams = state.queryParams;
-      this.handlerInfos = state.handlerInfos;
-
-      len = state.handlerInfos.length;
-
-      if (len) {
-        this.targetName = state.handlerInfos[len - 1].name;
+      if (error) {
+        this.promise = _rsvp.Promise.reject(error);
+        this.error = error;
+        return;
       }
 
-      for (i = 0; i < len; ++i) {
-        handlerInfo = state.handlerInfos[i];
+      // if you're doing multiple redirects, need the new transition to know if it
+      // is actually part of the first transition or not. Any further redirects
+      // in the initial transition also need to know if they are part of the
+      // initial transition
+      this.isCausedByAbortingTransition = !!previousTransition;
+      this.isCausedByInitialTransition = previousTransition && (previousTransition.isCausedByInitialTransition || previousTransition.sequence === 0);
 
-        // TODO: this all seems hacky
+      if (state) {
+        this.params = state.params;
+        this.queryParams = state.queryParams;
+        this.handlerInfos = state.handlerInfos;
 
-        if (!handlerInfo.isResolved) {
-          break;
+        len = state.handlerInfos.length;
+
+        if (len) {
+          this.targetName = state.handlerInfos[len - 1].name;
         }
-        this.pivotHandler = handlerInfo.handler;
-      }
 
-      this.sequence = router.currentSequence++;
-      this.promise = state.resolve(checkForAbort, this)['catch'](catchHandlerForTransition(transition), promiseLabel('Handle Abort'));
-    } else {
-      this.promise = _rsvp.Promise.resolve(this.state);
-      this.params = {};
-    }
+        for (i = 0; i < len; ++i) {
+          handlerInfo = state.handlerInfos[i];
 
-    function checkForAbort() {
-      if (transition.isAborted) {
-        return _rsvp.Promise.reject(undefined, promiseLabel("Transition aborted - reject"));
-      }
-    }
-  }
+          // TODO: this all seems hacky
 
-  function catchHandlerForTransition(transition) {
-    return function (result) {
-      if (result.wasAborted || transition.isAborted) {
-        return _rsvp.Promise.reject(logAbort(transition));
+          if (!handlerInfo.isResolved) {
+            break;
+          }
+          this.pivotHandler = handlerInfo.handler;
+        }
+
+        this.sequence = router.currentSequence++;
+        this.promise = state.resolve(function () {
+          if (_this.isAborted) {
+            return _rsvp.Promise.reject(undefined, _promiseLabel('Transition aborted - reject'));
+          }
+        }, this).catch(function (result) {
+          if (result.wasAborted || _this.isAborted) {
+            return _rsvp.Promise.reject(logAbort(_this));
+          } else {
+            _this.trigger('error', result.error, _this, result.handlerWithError);
+            _this.abort();
+            return _rsvp.Promise.reject(result.error);
+          }
+        }, _promiseLabel('Handle Abort'));
       } else {
-        transition.trigger('error', result.error, transition, result.handlerWithError);
-        transition.abort();
-        return _rsvp.Promise.reject(result.error);
+        this.promise = _rsvp.Promise.resolve(this.state);
+        this.params = {};
       }
-    };
-  }
+    }
 
-  Transition.prototype = {
-    targetName: null,
-    urlMethod: 'update',
-    intent: null,
-    pivotHandler: null,
-    resolveIndex: 0,
-    resolvedModels: null,
-    state: null,
-    queryParamsOnly: false,
-
-    isTransition: true,
-
-    isExiting: function (handler) {
+    Transition.prototype.isExiting = function (handler) {
       var handlerInfos = this.handlerInfos,
           i,
           len,
@@ -45520,109 +45478,33 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         }
       }
       return true;
-    },
+    };
 
-    /**
-      The Transition's internal promise. Calling `.then` on this property
-      is that same as calling `.then` on the Transition object itself, but
-      this property is exposed for when you want to pass around a
-      Transition's promise, but not the Transition object itself, since
-      Transition object can be externally `abort`ed, while the promise
-      cannot.
-       @property promise
-      @type {Object}
-      @public
-     */
-    promise: null,
-
-    /**
-      Custom state can be stored on a Transition's `data` object.
-      This can be useful for decorating a Transition within an earlier
-      hook and shared with a later hook. Properties set on `data` will
-      be copied to new transitions generated by calling `retry` on this
-      transition.
-       @property data
-      @type {Object}
-      @public
-     */
-    data: null,
-
-    /**
-      A standard promise hook that resolves if the transition
-      succeeds and rejects if it fails/redirects/aborts.
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method then
-      @param {Function} onFulfilled
-      @param {Function} onRejected
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    then: function (onFulfilled, onRejected, label) {
+    Transition.prototype.then = function (onFulfilled, onRejected, label) {
       return this.promise.then(onFulfilled, onRejected, label);
-    },
+    };
 
-    /**
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method catch
-      @param {Function} onRejection
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    catch: function (onRejection, label) {
+    Transition.prototype.catch = function (onRejection, label) {
       return this.promise.catch(onRejection, label);
-    },
+    };
 
-    /**
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method finally
-      @param {Function} callback
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    finally: function (callback, label) {
+    Transition.prototype.finally = function (callback, label) {
       return this.promise.finally(callback, label);
-    },
+    };
 
-    /**
-      Aborts the Transition. Note you can also implicitly abort a transition
-      by initiating another transition while a previous one is underway.
-       @method abort
-      @return {Transition} this transition
-      @public
-     */
-    abort: function () {
+    Transition.prototype.abort = function () {
       if (this.isAborted) {
         return this;
       }
-      log(this.router, this.sequence, this.targetName + ": transition was aborted");
+      _log(this.router, this.sequence, this.targetName + ': transition was aborted');
       this.intent.preTransitionState = this.router.state;
       this.isAborted = true;
       this.isActive = false;
       this.router.activeTransition = null;
       return this;
-    },
+    };
 
-    /**
-       Retries a previously-aborted transition (making sure to abort the
-      transition if it's still active). Returns a new transition that
-      represents the new attempt to transition.
-       @method retry
-      @return {Transition} new transition
-      @public
-     */
-    retry: function () {
+    Transition.prototype.retry = function () {
       // TODO: add tests for merged state retry()s
       this.abort();
       var newTransition = this.router.transitionByIntent(this.intent, false);
@@ -45639,41 +45521,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         newTransition.method(this.urlMethod);
       }
       return newTransition;
-    },
+    };
 
-    /**
-       Sets the URL-changing method to be employed at the end of a
-      successful transition. By default, a new Transition will just
-      use `updateURL`, but passing 'replace' to this method will
-      cause the URL to update using 'replaceWith' instead. Omitting
-      a parameter will disable the URL change, allowing for transitions
-      that don't update the URL at completion (this is also used for
-      handleURL, since the URL has already changed before the
-      transition took place).
-       @method method
-      @param {String} method the type of URL-changing method to use
-        at the end of a transition. Accepted values are 'replace',
-        falsy values, or any other non-falsy value (which is
-        interpreted as an updateURL transition).
-       @return {Transition} this transition
-      @public
-     */
-    method: function (method) {
-      this.urlMethod = method;
+    Transition.prototype.method = function (_method) {
+      this.urlMethod = _method;
       return this;
-    },
+    };
 
-    /**
-       Fires an event on the current list of resolved/resolving
-      handlers within this transition. Useful for firing events
-      on route hierarchies that haven't fully been entered yet.
-       Note: This method is also aliased as `send`
-       @method trigger
-      @param {Boolean} [ignoreFailure=false] a boolean specifying whether unhandled events throw an error
-      @param {String} name the name of the event to fire
-      @public
-     */
-    trigger: function (ignoreFailure) {
+    Transition.prototype.trigger = function (ignoreFailure) {
       var args = slice.call(arguments);
       if (typeof ignoreFailure === 'boolean') {
         args.shift();
@@ -45681,41 +45536,29 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         // Throw errors on unhandled trigger events by default
         ignoreFailure = false;
       }
-      trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
-    },
+      _trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
+    };
 
-    /**
-      Transitions are aborted and their promises rejected
-      when redirects occur; this method returns a promise
-      that will follow any redirects that occur and fulfill
-      with the value fulfilled by any redirecting transitions
-      that occur.
-       @method followRedirects
-      @return {Promise} a promise that fulfills with the same
-        value that the final redirecting transition fulfills with
-      @public
-     */
-    followRedirects: function () {
+    Transition.prototype.followRedirects = function () {
       var router = this.router;
-      return this.promise['catch'](function (reason) {
+      return this.promise.catch(function (reason) {
         if (router.activeTransition) {
           return router.activeTransition.followRedirects();
         }
         return _rsvp.Promise.reject(reason);
       });
-    },
+    };
 
-    toString: function () {
-      return "Transition (sequence " + this.sequence + ")";
-    },
+    Transition.prototype.toString = function () {
+      return 'Transition (sequence ' + this.sequence + ')';
+    };
 
-    /**
-      @private
-     */
-    log: function (message) {
-      log(this.router, this.sequence, message);
-    }
-  };
+    Transition.prototype.log = function (message) {
+      _log(this.router, this.sequence, message);
+    };
+
+    return Transition;
+  }();
 
   // Alias 'trigger' as 'send'
   Transition.prototype.send = Transition.prototype.trigger;
@@ -45723,63 +45566,50 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   /**
     @private
   
-    Logs and returns an instance of TransitionAbortedError.
+    Logs and returns an instance of TransitionAborted.
    */
   function logAbort(transition) {
-    log(transition.router, transition.sequence, "detected abort.");
+    _log(transition.router, transition.sequence, 'detected abort.');
     return new TransitionAbortedError();
   }
 
-  function TransitionIntent(props) {
-    this.initialize(props);
+  var TransitionIntent = function () {
 
-    // TODO: wat
     this.data = this.data || {};
-  }
-
-  TransitionIntent.prototype = {
-    initialize: null,
-    applyToState: null
   };
 
   var DEFAULT_HANDLER = Object.freeze({});
 
-  function HandlerInfo(_props) {
-    var props = _props || {},
-        name;
+  var HandlerInfo = function () {
+    function HandlerInfo(_props) {
 
-    // Set a default handler to ensure consistent object shape
-    this._handler = DEFAULT_HANDLER;
+      var props = _props || {};
 
-    if (props.handler) {
-      name = props.name;
+      // initialize local properties to ensure consistent object shape
+      this._handler = DEFAULT_HANDLER;
+      this._handlerPromise = null;
+      this.factory = null; // Injected by the handler info factory
+      this.name = props.name;
 
-      // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
-
-      this.handlerPromise = _rsvp.Promise.resolve(props.handler);
-
-      // Wait until the 'handler' property has been updated when chaining to a handler
-      // that is a promise
-      if (isPromise(props.handler)) {
-        this.handlerPromise = this.handlerPromise.then(bind(this, this.updateHandler));
-        props.handler = undefined;
-      } else if (props.handler) {
-        // Store the name of the handler on the handler for easy checks later
-        props.handler._handlerName = name;
+      for (var prop in props) {
+        if (prop === 'handler') {
+          this._processHandler(props.handler);
+        } else {
+          this[prop] = props[prop];
+        }
       }
     }
 
-    merge(this, props);
-    this.initialize(props);
-  }
+    HandlerInfo.prototype.getHandler = function () {};
 
-  HandlerInfo.prototype = {
-    name: null,
-
-    getHandler: function () {},
-
-    fetchHandler: function () {
+    HandlerInfo.prototype.fetchHandler = function () {
       var handler = this.getHandler(this.name);
+
+      return this._processHandler(handler);
+    };
+
+    HandlerInfo.prototype._processHandler = function (handler) {
+      var _this2 = this;
 
       // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
       this.handlerPromise = _rsvp.Promise.resolve(handler);
@@ -45787,75 +45617,65 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // Wait until the 'handler' property has been updated when chaining to a handler
       // that is a promise
       if (isPromise(handler)) {
-        this.handlerPromise = this.handlerPromise.then(bind(this, this.updateHandler));
+        this.handlerPromise = this.handlerPromise.then(function (h) {
+          return _this2.updateHandler(h);
+        });
+        // set to undefined to avoid recursive loop in the handler getter
+        return this.handler = undefined;
       } else if (handler) {
-        // Store the name of the handler on the handler for easy checks later
-        handler._handlerName = this.name;
-        return this.handler = handler;
+        return this.updateHandler(handler);
       }
+    };
 
-      return this.handler = undefined;
-    },
-
-    _handlerPromise: undefined,
-
-    params: null,
-    context: null,
-
-    // Injected by the handler info factory.
-    factory: null,
-
-    initialize: function () {},
-
-    log: function (payload, message) {
+    HandlerInfo.prototype.log = function (payload, message) {
       if (payload.log) {
         payload.log(this.name + ': ' + message);
       }
-    },
+    };
 
-    promiseLabel: function (label) {
-      return promiseLabel("'" + this.name + "' " + label);
-    },
+    HandlerInfo.prototype.promiseLabel = function (label) {
+      return _promiseLabel("'" + this.name + "' " + label);
+    };
 
-    getUnresolved: function () {
+    HandlerInfo.prototype.getUnresolved = function () {
       return this;
-    },
+    };
 
-    serialize: function () {
+    HandlerInfo.prototype.serialize = function () {
       return this.params || {};
-    },
+    };
 
-    updateHandler: function (handler) {
+    HandlerInfo.prototype.updateHandler = function (handler) {
       // Store the name of the handler on the handler for easy checks later
       handler._handlerName = this.name;
       return this.handler = handler;
-    },
+    };
 
-    resolve: function (shouldContinue, payload) {
-      var checkForAbort = bind(this, this.checkForAbort, shouldContinue),
-          beforeModel = bind(this, this.runBeforeModelHook, payload),
-          model = bind(this, this.getModel, payload),
-          afterModel = bind(this, this.runAfterModelHook, payload),
-          becomeResolved = bind(this, this.becomeResolved, payload),
+    HandlerInfo.prototype.resolve = function (shouldContinue, payload) {
+      var checkForAbort = this.checkForAbort.bind(this, shouldContinue),
+          beforeModel = this.runBeforeModelHook.bind(this, payload),
+          model = this.getModel.bind(this, payload),
+          afterModel = this.runAfterModelHook.bind(this, payload),
+          becomeResolved = this.becomeResolved.bind(this, payload),
           self = this;
 
-      return _rsvp.Promise.resolve(this.handlerPromise, this.promiseLabel("Start handler")).then(function (handler) {
+      return _rsvp.Promise.resolve(this.handlerPromise, this.promiseLabel('Start handler')).then(function (handler) {
         // We nest this chain in case the handlerPromise has an error so that
         // we don't have to bubble it through every step
-        return _rsvp.Promise.resolve(handler).then(checkForAbort, null, self.promiseLabel("Check for abort")).then(beforeModel, null, self.promiseLabel("Before model")).then(checkForAbort, null, self.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, self.promiseLabel("Model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, self.promiseLabel("After model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, self.promiseLabel("Become resolved"));
+        return _rsvp.Promise.resolve(handler).then(checkForAbort, null, self.promiseLabel('Check for abort')).then(beforeModel, null, self.promiseLabel('Before model')).then(checkForAbort, null, self.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, self.promiseLabel('Model')).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, self.promiseLabel('After model')).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, self.promiseLabel('Become resolved'));
       }, function (error) {
         throw error;
       });
-    },
+    };
 
-    runBeforeModelHook: function (payload) {
+    HandlerInfo.prototype.runBeforeModelHook = function (payload) {
       if (payload.trigger) {
         payload.trigger(true, 'willResolveModel', payload, this.handler);
       }
       return this.runSharedModelHook(payload, 'beforeModel', []);
-    },
+    };
 
-    runAfterModelHook: function (payload, resolvedModel) {
+    HandlerInfo.prototype.runAfterModelHook = function (payload, resolvedModel) {
       // Stash the resolved model on the payload.
       // This makes it possible for users to swap out
       // the resolved model in afterModel.
@@ -45867,11 +45687,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         // Return the value stashed in resolvedModels, which
         // might have been swapped out in afterModel.
         return payload.resolvedModels[name];
-      }, null, this.promiseLabel("Ignore fulfillment value and return model value"));
-    },
+      }, null, this.promiseLabel('Ignore fulfillment value and return model value'));
+    };
 
-    runSharedModelHook: function (payload, hookName, args) {
-      this.log(payload, "calling " + hookName + " hook");
+    HandlerInfo.prototype.runSharedModelHook = function (payload, hookName, args) {
+      this.log(payload, 'calling ' + hookName + ' hook');
 
       if (this.queryParams) {
         args.push(this.queryParams);
@@ -45884,26 +45704,25 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         result = null;
       }
 
-      return _rsvp.Promise.resolve(result, this.promiseLabel("Resolve value returned from one of the model hooks"));
-    },
+      return _rsvp.Promise.resolve(result, this.promiseLabel('Resolve value returned from one of the model hooks'));
+    };
 
-    // overridden by subclasses
-    getModel: null,
+    HandlerInfo.prototype.getModel = function () {};
 
-    checkForAbort: function (shouldContinue, promiseValue) {
-      return _rsvp.Promise.resolve(shouldContinue(), this.promiseLabel("Check for abort")).then(function () {
+    HandlerInfo.prototype.checkForAbort = function (shouldContinue, promiseValue) {
+      return _rsvp.Promise.resolve(shouldContinue(), this.promiseLabel('Check for abort')).then(function () {
         // We don't care about shouldContinue's resolve value;
         // pass along the original value passed to this fn.
         return promiseValue;
-      }, null, this.promiseLabel("Ignore fulfillment value and continue"));
-    },
+      }, null, this.promiseLabel('Ignore fulfillment value and continue'));
+    };
 
-    stashResolvedModel: function (payload, resolvedModel) {
+    HandlerInfo.prototype.stashResolvedModel = function (payload, resolvedModel) {
       payload.resolvedModels = payload.resolvedModels || {};
       payload.resolvedModels[this.name] = resolvedModel;
-    },
+    };
 
-    becomeResolved: function (payload, resolvedContext) {
+    HandlerInfo.prototype.becomeResolved = function (payload, resolvedContext) {
       var params = this.serialize(resolvedContext);
 
       if (payload) {
@@ -45918,9 +45737,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         handler: this.handler,
         params: params
       });
-    },
+    };
 
-    shouldSupercede: function (other) {
+    HandlerInfo.prototype.shouldSupercede = function (other) {
       // Prefer this newer handlerInfo over `other` if:
       // 1) The other one doesn't exist
       // 2) The names don't match
@@ -45933,40 +45752,57 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
       var contextsMatch = other.context === this.context;
       return other.name !== this.name || this.hasOwnProperty('context') && !contextsMatch || this.hasOwnProperty('params') && !paramsMatch(this.params, other.params);
-    }
-  };
+    };
 
-  Object.defineProperty(HandlerInfo.prototype, 'handler', {
-    get: function () {
-      // _handler could be set to either a handler object or undefined, so we
-      // compare against a default reference to know when it's been set
-      if (this._handler !== DEFAULT_HANDLER) {
-        return this._handler;
+    (0, _emberBabel.createClass)(HandlerInfo, [{
+      key: 'handler',
+      get: function () {
+        // _handler could be set to either a handler object or undefined, so we
+        // compare against a default reference to know when it's been set
+        if (this._handler !== DEFAULT_HANDLER) {
+          return this._handler;
+        }
+
+        return this.fetchHandler();
+      },
+      set: function (handler) {
+        return this._handler = handler;
       }
+    }, {
+      key: 'handlerPromise',
+      get: function () {
+        if (this._handlerPromise !== null) {
+          return this._handlerPromise;
+        }
 
-      return this.fetchHandler();
-    },
+        this.fetchHandler();
 
-    set: function (handler) {
-      return this._handler = handler;
-    }
-  });
-
-  Object.defineProperty(HandlerInfo.prototype, 'handlerPromise', {
-    get: function () {
-      if (this._handlerPromise) {
         return this._handlerPromise;
+      },
+      set: function (handlerPromise) {
+        this._handlerPromise = handlerPromise;
+
+        return handlerPromise;
       }
+    }]);
+    return HandlerInfo;
+  }();
 
-      this.fetchHandler();
-
-      return this._handlerPromise;
-    },
-
-    set: function (handlerPromise) {
-      return this._handlerPromise = handlerPromise;
-    }
-  });
+  // this is bonkers, we require that `context` be set on on the
+  // HandlerInfo prototype to null because the checks in
+  // `NamedTransitionIntent.prototype.applyToHandlers` here
+  // https://github.com/tildeio/router.js/blob/v1.2.8/lib/router/transition-intent/named-transition-intent.js#L76-L81
+  // check of `oldHandlerInfo.context === newHandlerInfo.context` and assumes
+  // that the params _must_ match also in that case.
+  //
+  // The only reason `oldHandlerInfo.context` and `newHandlerInfo.context` did not
+  // match in prior versions is because if the context isn't set yet (on newHandlerInfo)
+  // is because it inherits the `null` from the prototype vs `undefined` (on
+  // the oldHandlerInfo).
+  //
+  // A future refactoring should remove that conditional, and fix the hand full of
+  // failing tests.
+  HandlerInfo.prototype.context = null;
 
   function paramsMatch(a, b) {
     if (!a ^ !b) {
@@ -45990,48 +45826,55 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     return true;
   }
 
-  var ResolvedHandlerInfo = subclass(HandlerInfo, {
-    resolve: function (shouldContinue, payload) {
+  var ResolvedHandlerInfo = function (_HandlerInfo) {
+    (0, _emberBabel.inherits)(ResolvedHandlerInfo, _HandlerInfo);
+
+    function ResolvedHandlerInfo(props) {
+
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _HandlerInfo.call(this, props));
+
+      _this3.isResolved = true;
+      return _this3;
+    }
+
+    ResolvedHandlerInfo.prototype.resolve = function (shouldContinue, payload) {
       // A ResolvedHandlerInfo just resolved with itself.
       if (payload && payload.resolvedModels) {
         payload.resolvedModels[this.name] = this.context;
       }
-      return _rsvp.Promise.resolve(this, this.promiseLabel("Resolve"));
-    },
+      return _rsvp.Promise.resolve(this, this.promiseLabel('Resolve'));
+    };
 
-    getUnresolved: function () {
+    ResolvedHandlerInfo.prototype.getUnresolved = function () {
       return this.factory('param', {
         name: this.name,
         handler: this.handler,
         params: this.params
       });
-    },
+    };
 
-    isResolved: true
-  });
+    return ResolvedHandlerInfo;
+  }(HandlerInfo);
 
-  var UnresolvedHandlerInfoByObject = subclass(HandlerInfo, {
-    getModel: function (payload) {
-      this.log(payload, this.name + ": resolving provided model");
+  var UnresolvedHandlerInfoByObject = function (_HandlerInfo2) {
+    (0, _emberBabel.inherits)(UnresolvedHandlerInfoByObject, _HandlerInfo2);
+
+    function UnresolvedHandlerInfoByObject(props) {
+
+      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _HandlerInfo2.call(this, props));
+
+      _this4.names = _this4.names || [];
+      return _this4;
+    }
+
+    UnresolvedHandlerInfoByObject.prototype.getModel = function (payload) {
+      this.log(payload, this.name + ': resolving provided model');
       return _rsvp.Promise.resolve(this.context);
-    },
+    };
 
-    initialize: function (props) {
-      this.names = props.names || [];
-      this.context = props.context;
-    },
-
-    /**
-      @private
-       Serializes a handler using its custom `serialize` method or
-      by a default that looks up the expected property name from
-      the dynamic segment.
-       @param {Object} model the model to be serialized for this handler
-    */
-    serialize: function (_model) {
+    UnresolvedHandlerInfoByObject.prototype.serialize = function (_model) {
       var model = _model || this.context,
-          names = this.names,
-          serializer = this.serializer || this.handler && this.handler.serialize;
+          names = this.names;
 
       var object = {};
       if (isParam(model)) {
@@ -46040,8 +45883,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
 
       // Use custom serialize if it exists.
-      if (serializer) {
-        return serializer(model, names);
+      if (this.serializer) {
+        // invoke this.serializer unbound (getSerializer returns a stateless function)
+        return this.serializer.call(null, model, names);
+      } else if (this.handler && this.handler.serialize) {
+        return this.handler.serialize(model, names);
       }
 
       if (names.length !== 1) {
@@ -46056,16 +45902,23 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         object[name] = model;
       }
       return object;
+    };
+
+    return UnresolvedHandlerInfoByObject;
+  }(HandlerInfo);
+
+  var UnresolvedHandlerInfoByParam = function (_HandlerInfo3) {
+    (0, _emberBabel.inherits)(UnresolvedHandlerInfoByParam, _HandlerInfo3);
+
+    function UnresolvedHandlerInfoByParam(props) {
+
+      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _HandlerInfo3.call(this, props));
+
+      _this5.params = _this5.params || {};
+      return _this5;
     }
-  });
 
-  // Generated by URL transitions and non-dynamic route segments in named Transitions.
-  var UnresolvedHandlerInfoByParam = subclass(HandlerInfo, {
-    initialize: function (props) {
-      this.params = props.params || {};
-    },
-
-    getModel: function (payload) {
+    UnresolvedHandlerInfoByParam.prototype.getModel = function (payload) {
       var fullParams = this.params;
       if (payload && payload.queryParams) {
         fullParams = {};
@@ -46077,8 +45930,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var hookName = resolveHook(handler, 'deserialize') || resolveHook(handler, 'model');
 
       return this.runSharedModelHook(payload, hookName, [fullParams]);
-    }
-  });
+    };
+
+    return UnresolvedHandlerInfoByParam;
+  }(HandlerInfo);
 
   handlerInfoFactory.klasses = {
     resolved: ResolvedHandlerInfo,
@@ -46087,27 +45942,27 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   };
 
   function handlerInfoFactory(name, props) {
-    var Ctor = handlerInfoFactory.klasses[name],
-        handlerInfo = new Ctor(props || {});
+    var klass = handlerInfoFactory.klasses[name];
+    var handlerInfo = new klass(props || {});
     handlerInfo.factory = handlerInfoFactory;
     return handlerInfo;
   }
 
-  var NamedTransitionIntent = subclass(TransitionIntent, {
-    name: null,
-    pivotHandler: null,
-    contexts: null,
-    queryParams: null,
+  var NamedTransitionIntent = function (_TransitionIntent) {
+    (0, _emberBabel.inherits)(NamedTransitionIntent, _TransitionIntent);
 
-    initialize: function (props) {
-      this.name = props.name;
-      this.pivotHandler = props.pivotHandler;
-      this.contexts = props.contexts || [];
-      this.queryParams = props.queryParams;
-    },
+    function NamedTransitionIntent(props) {
 
-    applyToState: function (oldState, recognizer, getHandler, isIntermediate, getSerializer) {
+      var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _TransitionIntent.call(this, props));
 
+      _this6.name = props.name;
+      _this6.pivotHandler = props.pivotHandler;
+      _this6.contexts = props.contexts || [];
+      _this6.queryParams = props.queryParams;
+      return _this6;
+    }
+
+    NamedTransitionIntent.prototype.applyToState = function (oldState, recognizer, getHandler, isIntermediate, getSerializer) {
       var partitionedArgs = extractQueryParams([this.name].concat(this.contexts)),
           pureArgs = partitionedArgs[0],
           handlers = recognizer.handlersFor(pureArgs[0]);
@@ -46115,10 +45970,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var targetRouteName = handlers[handlers.length - 1].handler;
 
       return this.applyToHandlers(oldState, handlers, getHandler, targetRouteName, isIntermediate, null, getSerializer);
-    },
+    };
 
-    applyToHandlers: function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
-
+    NamedTransitionIntent.prototype.applyToHandlers = function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
       var i, len, result, name, oldHandlerInfo, newHandlerInfo, serializer, oldContext, handlerToUse;
       var newState = new TransitionState();
       var objects = this.contexts.slice(0);
@@ -46189,7 +46043,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
 
       if (objects.length > 0) {
-        throw new Error("More context objects were passed than there are dynamic segments for the route: " + targetRouteName);
+        throw new Error('More context objects were passed than there are dynamic segments for the route: ' + targetRouteName);
       }
 
       if (!isIntermediate) {
@@ -46199,9 +46053,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       merge(newState.queryParams, this.queryParams || {});
 
       return newState;
-    },
+    };
 
-    invalidateChildren: function (handlerInfos, invalidateIndex) {
+    NamedTransitionIntent.prototype.invalidateChildren = function (handlerInfos, invalidateIndex) {
       var i, l, handlerInfo;
 
       for (i = invalidateIndex, l = handlerInfos.length; i < l; ++i) {
@@ -46209,12 +46063,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
         handlerInfos[i] = handlerInfo.getUnresolved();
       }
-    },
+    };
 
-    getHandlerInfoForDynamicSegment: function (name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
+    NamedTransitionIntent.prototype.getHandlerInfoForDynamicSegment = function (name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
       var objectToUse, preTransitionHandlerInfo;
       if (objects.length > 0) {
-
         // Use the objects provided for this transition.
         objectToUse = objects[objects.length - 1];
         if (isParam(objectToUse)) {
@@ -46249,9 +46102,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         context: objectToUse,
         names: names
       });
-    },
+    };
 
-    createParamHandlerInfo: function (name, getHandler, names, objects, oldHandlerInfo) {
+    NamedTransitionIntent.prototype.createParamHandlerInfo = function (name, getHandler, names, objects, oldHandlerInfo) {
       var params = {},
           oldParams,
           peek,
@@ -46260,14 +46113,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // Soak up all the provided string/numbers
       var numNames = names.length;
       while (numNames--) {
-
         // Only use old params if the names match with the new handler
         oldParams = oldHandlerInfo && name === oldHandlerInfo.name && oldHandlerInfo.params || {};
         peek = objects[objects.length - 1];
         paramName = names[numNames];
 
         if (isParam(peek)) {
-          params[paramName] = "" + objects.pop();
+          params[paramName] = '' + objects.pop();
         } else {
           // If we're here, this means only some of the params
           // were string/number params, so try and use a param
@@ -46285,8 +46137,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         getHandler: getHandler,
         params: params
       });
-    }
-  });
+    };
+
+    return NamedTransitionIntent;
+  }(TransitionIntent);
 
   function UnrecognizedURLError(message) {
     if (!(this instanceof UnrecognizedURLError)) {
@@ -46310,16 +46164,20 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     this.code = error.code;
   }
 
-  UnrecognizedURLError.prototype = oCreate(Error.prototype);
+  UnrecognizedURLError.prototype = Object.create(Error.prototype);
 
-  var URLTransitionIntent = subclass(TransitionIntent, {
-    url: null,
+  var URLTransitionIntent = function (_TransitionIntent2) {
+    (0, _emberBabel.inherits)(URLTransitionIntent, _TransitionIntent2);
 
-    initialize: function (props) {
-      this.url = props.url;
-    },
+    function URLTransitionIntent(props) {
 
-    applyToState: function (oldState, recognizer, getHandler) {
+      var _this7 = (0, _emberBabel.possibleConstructorReturn)(this, _TransitionIntent2.call(this, props));
+
+      _this7.url = props.url;
+      return _this7;
+    }
+
+    URLTransitionIntent.prototype.applyToState = function (oldState, recognizer, getHandler) {
       var newState = new TransitionState(),
           result,
           name,
@@ -46381,12 +46239,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       merge(newState.queryParams, results.queryParams);
 
       return newState;
-    }
-  });
+    };
+
+    return URLTransitionIntent;
+  }(TransitionIntent);
 
   var pop = Array.prototype.pop;
 
-  function Router$1(_options) {
+  function Router(_options) {
     var options = _options || {};
     this.getHandler = options.getHandler || this.getHandler;
     this.getSerializer = options.getSerializer || this.getSerializer;
@@ -46403,7 +46263,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     this._changedQueryParams = undefined;
     this.oldState = undefined;
     this.currentHandlerInfos = undefined;
-    this.state = undefined;
     this.currentSequence = 0;
 
     this.recognizer = new _routeRecognizer.default();
@@ -46419,7 +46278,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     var queryParamChangelist = getChangelist(oldState.queryParams, newState.queryParams);
 
     if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
-
       // This is a no-op transition. See if query params changed.
       if (queryParamChangelist) {
         newTransition = this.queryParamsTransition(queryParamChangelist, wasTransitioning, oldState, newState);
@@ -46458,7 +46316,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     // after the transition has been finalized.
     newTransition.promise = newTransition.promise.then(function (result) {
       return finalizeTransition(newTransition, result.state);
-    }, null, promiseLabel("Settle transition promise when transition is finalized"));
+    }, null, _promiseLabel('Settle transition promise when transition is finalized'));
 
     if (!wasTransitioning) {
       notifyExistingHandlers(this, newState, newTransition);
@@ -46469,8 +46327,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     return newTransition;
   }
 
-  Router$1.prototype = {
-
+  Router.prototype = {
     /**
       The main entry point into the router. The API is essentially
       the same as the `map` method in `route-recognizer`.
@@ -46531,7 +46388,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
             router.didTransition(router.currentHandlerInfos);
           }
           return result;
-        }, null, promiseLabel("Transition complete"));
+        }, null, _promiseLabel('Transition complete'));
         return newTransition;
       }
     },
@@ -46592,7 +46449,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
        @param {String} url a URL to update to
     */
     updateURL: function () {
-      throw new Error("updateURL is not implemented");
+      throw new Error('updateURL is not implemented');
     },
 
     /**
@@ -46619,20 +46476,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     },
 
     refresh: function (pivotHandler) {
-      var previousTransition = this.activeTransition,
-          i,
-          len,
-          handlerInfo;
+      var previousTransition = this.activeTransition;
       var state = previousTransition ? previousTransition.state : this.state;
       var handlerInfos = state.handlerInfos;
-      var params = {};
-      for (i = 0, len = handlerInfos.length; i < len; ++i) {
-        handlerInfo = handlerInfos[i];
 
-        params[handlerInfo.name] = handlerInfo.params || {};
-      }
-
-      log(this, "Starting a refresh transition");
+      _log(this, 'Starting a refresh transition');
       var intent = new NamedTransitionIntent({
         name: handlerInfos[handlerInfos.length - 1].name,
         pivotHandler: pivotHandler || handlerInfos[0].handler,
@@ -46669,7 +46517,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
        @return {String} a URL
     */
     generate: function (handlerName) {
-
       var partitionedArgs = extractQueryParams(slice.call(arguments, 1)),
           suppliedParams = partitionedArgs[0],
           queryParams = partitionedArgs[1],
@@ -46680,7 +46527,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
       // Construct a TransitionIntent with the provided params
       // and apply it to the present state of the router.
-      var intent = new NamedTransitionIntent({ name: handlerName, contexts: suppliedParams });
+      var intent = new NamedTransitionIntent({
+        name: handlerName,
+        contexts: suppliedParams
+      });
       var state = intent.applyToState(this.state, this.recognizer, this.getHandler, null, this.getSerializer);
       var params = {};
 
@@ -46768,7 +46618,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     trigger: function () /*name*/{
       var args = slice.call(arguments);
-      trigger(this, this.currentHandlerInfos, false, args);
+      _trigger(this, this.currentHandlerInfos, false, args);
     },
 
     /**
@@ -46786,12 +46636,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   function fireQueryParamDidChange(router, newState, queryParamChangelist) {
     // If queryParams changed trigger event
     if (queryParamChangelist) {
-
       // This is a little hacky but we need some way of storing
       // changed query params given that no activeTransition
       // is guaranteed to have occurred.
       router._changedQueryParams = queryParamChangelist.all;
-      trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
+      _trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
       router._changedQueryParams = null;
     }
   }
@@ -47080,9 +46929,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   function finalizeTransition(transition, newState) {
     var router, handlerInfos, infos;
 
-
     try {
-      log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
+      _log(transition.router, transition.sequence, 'Resolved all models on destination route; finalizing transition.');
 
       router = transition.router, handlerInfos = newState.handlerInfos;
 
@@ -47102,13 +46950,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       transition.isActive = false;
       router.activeTransition = null;
 
-      trigger(router, router.currentHandlerInfos, true, ['didTransition']);
+      _trigger(router, router.currentHandlerInfos, true, ['didTransition']);
 
       if (router.didTransition) {
         router.didTransition(router.currentHandlerInfos);
       }
 
-      log(router, transition.sequence, "TRANSITION COMPLETE.");
+      _log(router, transition.sequence, 'TRANSITION COMPLETE.');
 
       // Resolve with the final handler.
       return handlerInfos[handlerInfos.length - 1].handler;
@@ -47149,8 +46997,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     var intent;
     if (args.length === 0) {
-
-      log(router, "Updating query params");
+      _log(router, 'Updating query params');
 
       // A query param update is really just a transition
       // into the route you're already on.
@@ -47162,12 +47009,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         queryParams: queryParams
       });
     } else if (name.charAt(0) === '/') {
-
-      log(router, "Attempting URL transition to " + name);
+      _log(router, 'Attempting URL transition to ' + name);
       intent = new URLTransitionIntent({ url: name });
     } else {
-
-      log(router, "Attempting transition to " + name);
+      _log(router, 'Attempting transition to ' + name);
       intent = new NamedTransitionIntent({
         name: args[0],
         contexts: slice.call(args, 1),
@@ -47260,7 +47105,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         i,
         len,
         qp;
-    trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
+    _trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
 
     if (transition) {
       transition._visibleQueryParams = {};
@@ -47281,8 +47126,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   function notifyExistingHandlers(router, newState, newTransition) {
     var oldHandlers = router.state.handlerInfos,
         changing = [],
-        leavingIndex = null,
-        leaving,
         i,
         oldHandlerLen,
         oldHandler,
@@ -47294,7 +47137,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       newHandler = newState.handlerInfos[i];
 
       if (!newHandler || oldHandler.name !== newHandler.name) {
-        leavingIndex = i;
         break;
       }
 
@@ -47303,11 +47145,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
     }
 
-    if (leavingIndex !== null) {
-      leaving = oldHandlers.slice(leavingIndex, oldHandlerLen);
-    }
-
-    trigger(router, oldHandlers, true, ['willTransition', newTransition]);
+    _trigger(router, oldHandlers, true, ['willTransition', newTransition]);
 
     if (router.willTransition) {
       router.willTransition(oldHandlers, newState.handlerInfos, newTransition);
@@ -47315,7 +47153,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   exports.Transition = Transition;
-  exports.default = Router$1;
+  exports.default = Router;
 });
 enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _emberBabel, _nodeModule) {
   'use strict';
