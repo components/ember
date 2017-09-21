@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c3777881
+ * @version   2.17.0-alpha.1-null+04b6f42c
  */
 
 var enifed, requireModule, Ember;
@@ -4640,7 +4640,6 @@ enifed('backburner', ['exports'], function (exports) {
             this.name = name;
             this.options = options;
             this.globalOptions = globalOptions;
-            this.globalOptions.onError = getOnError(globalOptions);
         }
 
         Queue.prototype.push = function (target, method, args, stack) {
@@ -4670,14 +4669,13 @@ enifed('backburner', ['exports'], function (exports) {
             var _options = this.options,
                 before = _options.before,
                 after = _options.after,
+                onError,
                 i;
 
             var target = void 0;
             var method = void 0;
             var args = void 0;
             var errorRecordedForStack = void 0;
-            var onError = this.globalOptions.onError;
-            var invoke = onError ? this.invokeWithOnError : this.invoke;
             this.targetQueues = Object.create(null);
             var queueItems = void 0;
             if (this._queueBeingFlushed.length > 0) {
@@ -4689,33 +4687,39 @@ enifed('backburner', ['exports'], function (exports) {
             if (before) {
                 before();
             }
-            for (i = this.index; i < queueItems.length; i += 4) {
-                this.index += 4;
-                target = queueItems[i];
-                method = queueItems[i + 1];
-                args = queueItems[i + 2];
-                errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
-                // method could have been nullified / canceled during flush
-                if (method !== null) {
-                    //
-                    //    ** Attention intrepid developer **
-                    //
-                    //    To find out the stack of this task when it was scheduled onto
-                    //    the run loop, add the following to your app.js:
-                    //
-                    //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
-                    //
-                    //    Once that is in place, when you are at a breakpoint and navigate
-                    //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
-                    //    which will be the captured stack when this job was scheduled.
-                    //
-                    //    One possible long-term solution is the following Chrome issue:
-                    //       https://bugs.chromium.org/p/chromium/issues/detail?id=332624
-                    //
-                    invoke(target, method, args, onError, errorRecordedForStack);
-                }
-                if (this.index !== this._queueBeingFlushed.length && this.globalOptions.mustYield && this.globalOptions.mustYield()) {
-                    return 1 /* Pause */;
+            var invoke = void 0;
+            if (queueItems.length > 0) {
+                onError = getOnError(this.globalOptions);
+
+                invoke = onError ? this.invokeWithOnError : this.invoke;
+                for (i = this.index; i < queueItems.length; i += 4) {
+                    this.index += 4;
+                    target = queueItems[i];
+                    method = queueItems[i + 1];
+                    args = queueItems[i + 2];
+                    errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
+                    // method could have been nullified / canceled during flush
+                    if (method !== null) {
+                        //
+                        //    ** Attention intrepid developer **
+                        //
+                        //    To find out the stack of this task when it was scheduled onto
+                        //    the run loop, add the following to your app.js:
+                        //
+                        //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+                        //
+                        //    Once that is in place, when you are at a breakpoint and navigate
+                        //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+                        //    which will be the captured stack when this job was scheduled.
+                        //
+                        //    One possible long-term solution is the following Chrome issue:
+                        //       https://bugs.chromium.org/p/chromium/issues/detail?id=332624
+                        //
+                        invoke(target, method, args, onError, errorRecordedForStack);
+                    }
+                    if (this.index !== this._queueBeingFlushed.length && this.globalOptions.mustYield && this.globalOptions.mustYield()) {
+                        return 1 /* Pause */;
+                    }
                 }
             }
             if (after) {
@@ -4926,7 +4930,6 @@ enifed('backburner', ['exports'], function (exports) {
 
     // accepts a function that when invoked will return an iterator
     // iterator will drain until completion
-    // accepts a function that when invoked will return an iterator
     var iteratorDrain = function (fn) {
         var iterator = fn();
         var result = iterator.next();
@@ -4936,7 +4939,6 @@ enifed('backburner', ['exports'], function (exports) {
         }
     };
 
-    var now = Date.now;
     var noop = function () {};
 
     var Backburner = function () {
@@ -4977,6 +4979,9 @@ enifed('backburner', ['exports'], function (exports) {
                 return platform.setTimeout(fn, 0);
             };
             platform.clearNext = _platform.clearNext || platform.clearTimeout;
+            platform.now = _platform.now || function () {
+                return Date.now();
+            };
             this._platform = platform;
             this._boundRunExpiredTimers = function () {
                 _this._runExpiredTimers();
@@ -5275,7 +5280,7 @@ enifed('backburner', ['exports'], function (exports) {
                 }
             }
             var onError = getOnError(this.options);
-            var executeAt = now() + wait;
+            var executeAt = this._platform.now() + wait;
             var fn = void 0;
             if (onError) {
                 fn = function () {
@@ -5495,7 +5500,7 @@ enifed('backburner', ['exports'], function (exports) {
             var l = timers.length;
             var i = 0;
             var defaultQueue = this.options.defaultQueue;
-            var n = now();
+            var n = this._platform.now();
             for (; i < l; i += 2) {
                 executeAt = timers[i];
 
@@ -5529,7 +5534,7 @@ enifed('backburner', ['exports'], function (exports) {
                 return;
             }
             var minExpiresAt = this._timers[0];
-            var n = now();
+            var n = this._platform.now();
             var wait = Math.max(0, minExpiresAt - n);
             this._timerTimeoutId = this._platform.setTimeout(this._boundRunExpiredTimers, wait);
         };
@@ -11406,22 +11411,20 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   var onerror = void 0;
+  var onErrorTarget = {
+    get onerror() {
+      return dispatchOverride || onerror;
+    }
+  };
+
   // Ember.onerror getter
 
   // Ember.onerror setter
-  function setOnerror(handler) {
-    onerror = handler;
-  }
+
 
   var dispatchOverride = void 0;
   // dispatch error
-  function dispatchError(error) {
-    if (dispatchOverride) {
-      dispatchOverride(error);
-    } else {
-      defaultDispatch(error);
-    }
-  }
+
 
   // allows testing adapter to override dispatch
 
@@ -11723,15 +11726,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
 
-
-  var onErrorTarget = {
-    get onerror() {
-      return dispatchError;
-    },
-    set onerror(handler) {
-      return setOnerror(handler);
-    }
-  };
 
   var backburner$1 = new Backburner(['sync', 'actions', 'destroy'], {
     GUID_KEY: emberUtils.GUID_KEY,
@@ -14652,8 +14646,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.getOnerror = function () {
     return onerror;
   };
-  exports.setOnerror = setOnerror;
-  exports.dispatchError = dispatchError;
+  exports.setOnerror = function (handler) {
+    onerror = handler;
+  };
+  exports.dispatchError = function (error) {
+    if (dispatchOverride) {
+      dispatchOverride(error);
+    } else {
+      defaultDispatch(error);
+    }
+  };
   exports.setDispatchOverride = function (handler) {
     dispatchOverride = handler;
   };
@@ -17079,7 +17081,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+c3777881";
+  exports.default = "2.17.0-alpha.1-null+04b6f42c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

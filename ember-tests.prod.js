@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c3777881
+ * @version   2.17.0-alpha.1-null+04b6f42c
  */
 
 var enifed, requireModule, Ember;
@@ -43128,7 +43128,7 @@ enifed('ember-metal/tests/run_loop/debounce_test', ['ember-metal'], function (_e
     ok(wasCalled, 'Ember.run.debounce used');
   });
 });
-enifed('ember-metal/tests/run_loop/later_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/run_loop/later_test', ['ember-utils', 'ember-metal'], function (_emberUtils, _emberMetal) {
   'use strict';
 
   var originalSetTimeout = window.setTimeout;
@@ -43335,7 +43335,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-metal'], function (_embe
     // happens when an expired timer callback takes a while to run,
     // which is what we simulate here.
     var newSetTimeoutUsed = void 0;
-    _emberMetal.run.backburner._platform = {
+    _emberMetal.run.backburner._platform = (0, _emberUtils.assign)({}, originalPlatform, {
       setTimeout: function () {
         var wait = arguments[arguments.length - 1];
         newSetTimeoutUsed = true;
@@ -43343,7 +43343,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-metal'], function (_embe
 
         return originalPlatform.setTimeout.apply(originalPlatform, arguments);
       }
-    };
+    });
 
     var count = 0;
     (0, _emberMetal.run)(function () {
@@ -57737,9 +57737,9 @@ enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-r
 
   QUnit.test('throws if you try to pass anything a string as a parameter', function () {
 
-    throws(function () {
+    expectAssertion(function () {
       return _object.default.create('some-string');
-    }, 'EmberObject.create only accepts an objects.');
+    }, 'Ember.Object.create only accepts objects.');
   });
 
   QUnit.test('EmberObject.create can take undefined as a parameter', function () {
@@ -64190,6 +64190,65 @@ enifed('ember/tests/controller_test', ['ember-babel', 'ember-runtime', 'internal
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 });
+enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_ember, _emberMetal) {
+  'use strict';
+
+  var ONERROR = _ember.default.onerror;
+  var ADAPTER = _ember.default.Test && _ember.default.Test.adapter;
+  var TESTING = _ember.default.testing;
+
+  QUnit.module('error_handler', {
+    teardown: function () {
+      _ember.default.onerror = ONERROR;
+      _ember.default.testing = TESTING;
+      if (_ember.default.Test) {
+        _ember.default.Test.adapter = ADAPTER;
+      }
+    }
+  });
+
+  function runThatThrows(message) {
+    return (0, _emberMetal.run)(function () {
+      throw new Error(message);
+    });
+  }
+
+  test('by default there is no onerror', function (assert) {
+    _ember.default.onerror = undefined;
+    assert.throws(runThatThrows, Error);
+    assert.equal(_ember.default.onerror, undefined);
+  });
+
+  test('when Ember.onerror is registered', function (assert) {
+    assert.expect(2);
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'onerror called');
+      throw error;
+    };
+    assert.throws(runThatThrows, Error);
+    // Ember.onerror = ONERROR;
+  });
+
+  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = true)', function () {
+    _ember.default.testing = true;
+    var error = new Error('the error');
+    throws(function () {
+      _ember.default.run(function () {
+        throw error;
+      });
+    }, error);
+  });
+
+  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = false)', function () {
+    _ember.default.testing = false;
+    var error = new Error('the error');
+    throws(function () {
+      _ember.default.run(function () {
+        throw error;
+      });
+    }, error);
+  });
+});
 enifed('ember/tests/global-api-test', ['ember-metal', 'ember-runtime'], function (_emberMetal, _emberRuntime) {
   'use strict';
 
@@ -66487,7 +66546,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
 
       assert.expect(1);
 
-      assert.throws(function () {
+      expectAssertion(function () {
         _this19.runTask(function () {
           _this19.createApplication();
 
@@ -66497,7 +66556,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['embe
 
           _this19.addTemplate('application', '{{#link-to id=\'the-link\'}}Index{{/link-to}}');
         });
-      }, /(You must provide one or more parameters to the link-to component.|undefined is not an object)/);
+      }, /You must provide one or more parameters to the link-to component/);
     };
 
     return _class2;
