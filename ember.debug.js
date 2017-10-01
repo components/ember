@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+862321f9
+ * @version   2.17.0-alpha.1-null+9e24c7c8
  */
 
 var enifed, requireModule, Ember;
@@ -34767,8 +34767,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     @method empty
     @for Ember.computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which negate
-    the original value for property
+    @return {Ember.ComputedProperty} computed property which returns true if
+    the value of the dependent property is null, an empty string, empty array,
+    or empty function and false if the underlying value is not empty.
+  
     @public
   */
   function empty(dependentKey) {
@@ -48185,7 +48187,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+862321f9";
+  exports.default = "2.17.0-alpha.1-null+9e24c7c8";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

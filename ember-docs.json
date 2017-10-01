@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.862321f9"
+        "version": "2.17.0-alpha.1.9e24c7c8"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -13487,7 +13487,7 @@
                 }
             ],
             "return": {
-                "description": "computed property which negate\nthe original value for property",
+                "description": "computed property which returns true if\nthe value of the dependent property is null, an empty string, empty array,\nor empty function and false if the underlying value is not empty.",
                 "type": "Ember.ComputedProperty"
             },
             "access": "public",
@@ -13499,7 +13499,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 93,
+            "line": 95,
             "description": "A computed property that returns true if the value of the dependent\nproperty is NOT null, an empty string, empty array, or empty function.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasStuff: Ember.computed.notEmpty('backpack')\n});\n\nlet hamster = Hamster.create({ backpack: ['Food', 'Sleeping Bag', 'Tent'] });\n\nhamster.get('hasStuff');         // true\nhamster.get('backpack').clear(); // []\nhamster.get('hasStuff');         // false\n```",
             "itemtype": "method",
             "name": "notEmpty",
@@ -13523,7 +13523,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 124,
+            "line": 126,
             "description": "A computed property that returns true if the value of the dependent\nproperty is null or undefined. This avoids errors from JSLint complaining\nabout use of ==, which can be technically confusing.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  isHungry: Ember.computed.none('food')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('isHungry'); // true\nhamster.set('food', 'Banana');\nhamster.get('isHungry'); // false\nhamster.set('food', null);\nhamster.get('isHungry'); // true\n```",
             "itemtype": "method",
             "name": "none",
@@ -13547,7 +13547,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 158,
+            "line": 160,
             "description": "A computed property that returns the inverse boolean value\nof the original value for the dependent property.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  isAnonymous: Ember.computed.not('loggedIn')\n});\n\nlet user = User.create({loggedIn: false});\n\nuser.get('isAnonymous'); // true\nuser.set('loggedIn', true);\nuser.get('isAnonymous'); // false\n```",
             "itemtype": "method",
             "name": "not",
@@ -13571,7 +13571,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 189,
+            "line": 191,
             "description": "A computed property that converts the provided dependent property\ninto a boolean value.\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasBananas: Ember.computed.bool('numBananas')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('hasBananas'); // false\nhamster.set('numBananas', 0);\nhamster.get('hasBananas'); // false\nhamster.set('numBananas', 1);\nhamster.get('hasBananas'); // true\nhamster.set('numBananas', null);\nhamster.get('hasBananas'); // false\n```",
             "itemtype": "method",
             "name": "bool",
@@ -13595,7 +13595,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 222,
+            "line": 224,
             "description": "A computed property which matches the original value for the\ndependent property against a given RegExp, returning `true`\nif the value matches the RegExp and `false` if it does not.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  hasValidEmail: Ember.computed.match('email', /^.+@.+\\..+$/)\n});\n\nlet user = User.create({loggedIn: false});\n\nuser.get('hasValidEmail'); // false\nuser.set('email', '');\nuser.get('hasValidEmail'); // false\nuser.set('email', 'ember_hamster@example.com');\nuser.get('hasValidEmail'); // true\n```",
             "itemtype": "method",
             "name": "match",
@@ -13624,7 +13624,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 258,
+            "line": 260,
             "description": "A computed property that returns true if the provided dependent property\nis equal to the given value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  satisfied: Ember.computed.equal('percentCarrotsEaten', 100)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('satisfied'); // false\nhamster.set('percentCarrotsEaten', 100);\nhamster.get('satisfied'); // true\nhamster.set('percentCarrotsEaten', 50);\nhamster.get('satisfied'); // false\n```",
             "itemtype": "method",
             "name": "equal",
@@ -13653,7 +13653,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 292,
+            "line": 294,
             "description": "A computed property that returns true if the provided dependent property\nis greater than the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasTooManyBananas: Ember.computed.gt('numBananas', 10)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 3);\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 11);\nhamster.get('hasTooManyBananas'); // true\n```",
             "itemtype": "method",
             "name": "gt",
@@ -13682,7 +13682,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 326,
+            "line": 328,
             "description": "A computed property that returns true if the provided dependent property\nis greater than or equal to the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  hasTooManyBananas: Ember.computed.gte('numBananas', 10)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 3);\nhamster.get('hasTooManyBananas'); // false\nhamster.set('numBananas', 10);\nhamster.get('hasTooManyBananas'); // true\n```",
             "itemtype": "method",
             "name": "gte",
@@ -13711,7 +13711,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 360,
+            "line": 362,
             "description": "A computed property that returns true if the provided dependent property\nis less than the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  needsMoreBananas: Ember.computed.lt('numBananas', 3)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('needsMoreBananas'); // true\nhamster.set('numBananas', 3);\nhamster.get('needsMoreBananas'); // false\nhamster.set('numBananas', 2);\nhamster.get('needsMoreBananas'); // true\n```",
             "itemtype": "method",
             "name": "lt",
@@ -13740,7 +13740,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 394,
+            "line": 396,
             "description": "A computed property that returns true if the provided dependent property\nis less than or equal to the provided value.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  needsMoreBananas: Ember.computed.lte('numBananas', 3)\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('needsMoreBananas'); // true\nhamster.set('numBananas', 5);\nhamster.get('needsMoreBananas'); // false\nhamster.set('numBananas', 3);\nhamster.get('needsMoreBananas'); // true\n```",
             "itemtype": "method",
             "name": "lte",
@@ -13769,7 +13769,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 428,
+            "line": 430,
             "description": "A computed property that performs a logical `and` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturn the first falsy value or last truthy value\njust like JavaScript's `&&` operator.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  readyForCamp: Ember.computed.and('hasTent', 'hasBackpack'),\n  readyForHike: Ember.computed.and('hasWalkingStick', 'hasBackpack')\n});\n\nlet tomster = Hamster.create();\n\ntomster.get('readyForCamp'); // false\ntomster.set('hasTent', true);\ntomster.get('readyForCamp'); // false\ntomster.set('hasBackpack', true);\ntomster.get('readyForCamp'); // true\ntomster.set('hasBackpack', 'Yes');\ntomster.get('readyForCamp'); // 'Yes'\ntomster.set('hasWalkingStick', null);\ntomster.get('readyForHike'); // null\n```",
             "itemtype": "method",
             "name": "and",
@@ -13794,7 +13794,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 467,
+            "line": 469,
             "description": "A computed property which performs a logical `or` on the\noriginal values for the provided dependent properties.\n\nYou may pass in more than two properties and even use\nproperty brace expansion.  The computed property will\nreturn the first truthy value or last falsy value just\nlike JavaScript's `||` operator.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  readyForRain: Ember.computed.or('hasJacket', 'hasUmbrella'),\n  readyForBeach: Ember.computed.or('{hasSunscreen,hasUmbrella}')\n});\n\nlet tomster = Hamster.create();\n\ntomster.get('readyForRain'); // undefined\ntomster.set('hasUmbrella', true);\ntomster.get('readyForRain'); // true\ntomster.set('hasJacket', 'Yes');\ntomster.get('readyForRain'); // 'Yes'\ntomster.set('hasSunscreen', 'Check');\ntomster.get('readyForBeach'); // 'Check'\n```",
             "itemtype": "method",
             "name": "or",
@@ -13819,7 +13819,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 504,
+            "line": 506,
             "description": "Creates a new property that is an alias for another property\non an object. Calls to `get` or `set` this property behave as\nthough they were called on the original property.\n\n```javascript\nlet Person = Ember.Object.extend({\n  name: 'Alex Matchneer',\n  nomen: Ember.computed.alias('name')\n});\n\nlet alex = Person.create();\n\nalex.get('nomen'); // 'Alex Matchneer'\nalex.get('name');  // 'Alex Matchneer'\n\nalex.set('nomen', '@machty');\nalex.get('name');  // '@machty'\n```",
             "itemtype": "method",
             "name": "alias",
@@ -13843,7 +13843,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 532,
+            "line": 534,
             "description": "Where `computed.alias` aliases `get` and `set`, and allows for bidirectional\ndata flow, `computed.oneWay` only provides an aliased `get`. The `set` will\nnot mutate the upstream property, rather causes the current property to\nbecome the value set. This causes the downstream property to permanently\ndiverge from the upstream property.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  firstName: null,\n  lastName: null,\n  nickName: Ember.computed.oneWay('firstName')\n});\n\nlet teddy = User.create({\n  firstName: 'Teddy',\n  lastName:  'Zeenny'\n});\n\nteddy.get('nickName');              // 'Teddy'\nteddy.set('nickName', 'TeddyBear'); // 'TeddyBear'\nteddy.get('firstName');             // 'Teddy'\n```",
             "itemtype": "method",
             "name": "oneWay",
@@ -13867,7 +13867,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 569,
+            "line": 571,
             "description": "This is a more semantically meaningful alias of `computed.oneWay`,\nwhose name is somewhat ambiguous as to which direction the data flows.",
             "itemtype": "method",
             "name": "reads",
@@ -13891,7 +13891,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 581,
+            "line": 583,
             "description": "Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides\na readOnly one way binding. Very often when using `computed.oneWay` one does\nnot also want changes to propagate back up, as they will replace the value.\n\nThis prevents the reverse flow, and also throws an exception when it occurs.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  firstName: null,\n  lastName: null,\n  nickName: Ember.computed.readOnly('firstName')\n});\n\nlet teddy = User.create({\n  firstName: 'Teddy',\n  lastName:  'Zeenny'\n});\n\nteddy.get('nickName');              // 'Teddy'\nteddy.set('nickName', 'TeddyBear'); // throws Exception\n// throw new Ember.Error('Cannot Set: nickName on: <User:ember27288>' );`\nteddy.get('firstName');             // 'Teddy'\n```",
             "itemtype": "method",
             "name": "readOnly",
@@ -13916,7 +13916,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
-            "line": 620,
+            "line": 622,
             "description": "Creates a new property that is an alias for another property\non an object. Calls to `get` or `set` this property behave as\nthough they were called on the original property, but also\nprint a deprecation warning.\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  bananaCount: Ember.computed.deprecatingAlias('cavendishCount', {\n    id: 'hamster.deprecate-banana',\n    until: '3.0.0'\n  })\n});\n\nlet hamster = Hamster.create();\n\nhamster.set('bananaCount', 5); // Prints a deprecation warning.\nhamster.get('cavendishCount'); // 5\n```",
             "itemtype": "method",
             "name": "deprecatingAlias",
