@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+04b6f42c
+ * @version   2.17.0-alpha.1-null+862321f9
  */
 
 var enifed, requireModule, Ember;
@@ -20194,10 +20194,31 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-debug', 'ember-glimmer/s
     {{mount "ember-chat"}}
     ```
   
-    Currently, the engine name is the only argument that can be passed to
-    `{{mount}}`.
+    Additionally, you can also pass in a `model` argument that will be
+    set as the engines model. This can be an existing object:
+    
+    ```
+    <div>
+      {{mount 'admin' model=userSettings}}
+    </div>
+    ```
+  
+    Or an inline `hash`, and you can even pass components:
+  
+    ```
+    <div>
+      <h1>Application template!</h1>
+      {{mount 'admin' model=(hash
+          title='Secret Admin'
+          signInButton=(component 'sign-in-button')
+      )}}
+    </div>
+    ```
   
     @method mount
+    @param {String} name Name of the engine to mount.
+    @param {Object} [model] Object that will be set as
+                            the model of the engine.
     @for Ember.Templates.helpers
     @category ember-application-engines
     @public
@@ -30069,9 +30090,91 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
   */
 
   var RouterService = _emberRuntime.Service.extend({
+
+    /**
+       Name of the current route.
+        This property represent the logical name of the route,
+       which is comma separated.
+       For the following router:
+        ```app/router.js
+       Router.map(function() {
+         this.route('about);
+         this.route('blog', function () {
+           this.route('post', { path: ':post_id' });
+         });
+       });
+       ```
+        It will return:
+        * `index` when you visit `/`
+       * `about` when you visit `/about`
+       * `blog.index` when you visit `/blog`
+       * `blog.post` when you visit `/blog/some-post-id`
+        @property currentRouteName
+       @type String
+       @public
+     */
     currentRouteName: (0, _emberRuntime.readOnly)('_router.currentRouteName'),
+
+    /**
+       Current URL for the application.
+       This property represent the URL path for this route.
+      For the following router:
+        ```app/router.js
+       Router.map(function() {
+         this.route('about);
+         this.route('blog', function () {
+           this.route('post', { path: ':post_id' });
+         });
+       });
+       ```
+        It will return:
+        * `/` when you visit `/`
+       * `/about` when you visit `/about`
+       * `/blog/index` when you visit `/blog`
+       * `/blog/post` when you visit `/blog/some-post-id`
+        @property currentURL
+       @type String
+       @public
+     */
     currentURL: (0, _emberRuntime.readOnly)('_router.currentURL'),
+
+    /**
+      The `location` property determines the type of URL's that your
+      application will use.
+      The following location types are currently available:
+      * `auto`
+      * `hash`
+      * `history`
+      * `none`
+       @property location
+      @default 'hash'
+      @see {Ember.Location}
+      @public
+    */
     location: (0, _emberRuntime.readOnly)('_router.location'),
+
+    /**
+      The `rootURL` property represents the URL of the root of
+      the application, '/' by default.
+      This prefix is assumed on all routes defined on this app.
+       IF you change the `rootURL` in your environment configuration
+      like so:
+       ```config/environment.js
+      'use strict';
+       module.exports = function(environment) {
+        let ENV = {
+          modulePrefix: 'router-service',
+          environment,
+          rootURL: '/my-root',
+        …
+        }
+      ]
+      ```
+       This property will return `/my-root`.
+       @property rootURL
+      @default '/'
+      @public
+    */
     rootURL: (0, _emberRuntime.readOnly)('_router.rootURL'),
     _router: null,
 
@@ -32059,7 +32162,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       * `hash` - use `#` to separate the server part of the URL from the Ember part: `/blog/#/posts/new`
       * `none` - do not store the Ember URL in the actual browser URL (mainly used for testing)
       * `auto` - use the best option based on browser capabilities: `history` if possible, then `hash` if possible, otherwise `none`
-       Note: If using ember-cli, this value is defaulted to `auto` by the `locationType` setting of `/config/environment.js`
+       This value is defaulted to `auto` by the `locationType` setting of `/config/environment.js`
        @property location
       @default 'hash'
       @see {Ember.Location}
@@ -44267,7 +44370,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+04b6f42c";
+  exports.default = "2.17.0-alpha.1-null+862321f9";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
