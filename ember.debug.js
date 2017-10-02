@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+9e24c7c8
+ * @version   2.17.0-alpha.1-null+ed381d70
  */
 
 var enifed, requireModule, Ember;
@@ -33841,6 +33841,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           // Check for the existence of an 'error' route.
           var errorRouteName = findRouteStateName(route, 'error');
           if (errorRouteName) {
+            var _errorId = (0, _emberUtils.guidFor)(error);
+            router._markErrorAsHandled(_errorId);
             router.intermediateTransitionTo(errorRouteName, error);
             return false;
           }
@@ -33849,6 +33851,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
         // Check for an 'error' substate route
         var errorSubstateName = findRouteSubstateName(route, 'error');
         if (errorSubstateName) {
+          var errorId = (0, _emberUtils.guidFor)(error);
+          router._markErrorAsHandled(errorId);
           router.intermediateTransitionTo(errorSubstateName, error);
           return false;
         }
@@ -48187,7 +48191,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+9e24c7c8";
+  exports.default = "2.17.0-alpha.1-null+ed381d70";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

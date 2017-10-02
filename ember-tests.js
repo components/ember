@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+9e24c7c8
+ * @version   2.17.0-alpha.1-null+ed381d70
  */
 
 var enifed, requireModule, Ember;
@@ -8623,7 +8623,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this12.assertText('Application');
         return _this12.transitionTo('blog.post');
-      }).catch(function () {
+      }).then(function () {
         return errorEntered.promise;
       }).then(function () {
         _this12.assertText('ApplicationError! Oh, noes!');
@@ -8655,7 +8655,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this13.assertText('Application');
         return _this13.transitionTo('blog.post');
-      }).catch(function () {
+      }).then(function () {
         return errorEntered.promise;
       }).then(function () {
         _this13.assertText('ApplicationEngineError! Oh, noes!');
@@ -8687,7 +8687,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this14.assertText('Application');
         return _this14.transitionTo('blog.post');
-      }).catch(function () {
+      }).then(function () {
         return errorEntered.promise;
       }).then(function () {
         _this14.assertText('ApplicationEngineError! Oh, noes!');
@@ -8719,7 +8719,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this15.assertText('Application');
         return _this15.transitionTo('blog.post.comments');
-      }).catch(function () {
+      }).then(function () {
         return errorEntered.promise;
       }).then(function () {
         _this15.assertText('ApplicationEngineError! Oh, noes!');
@@ -72607,9 +72607,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
 
-    throws(function () {
-      return bootApplication();
-    }, /More context objects were passed/);
+    bootApplication();
 
     equal((0, _emberViews.jQuery)('#error').length, 1, 'Error template was rendered.');
   });
@@ -78082,13 +78080,11 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
       }));
 
       return this.visit('/').then(function () {
-        assert.throws(function () {
-          _this11.visit('/foo/bar');
-        }, function (err) {
-          return err.msg === "did it broke?";
-        }, 'it broke');
-        var text = _this11.$('#app').text();
-        assert.equal(text, 'FOOBAR ERROR: did it broke?', 'foo.bar_error was entered (as opposed to something like foo/foo/bar_error)');
+        return _this11.visit('/foo/bar').then(function () {
+
+          var text = _this11.$('#app').text();
+          assert.equal(text, 'FOOBAR ERROR: did it broke?', 'foo.bar_error was entered (as opposed to something like foo/foo/bar_error)');
+        });
       });
     };
 
@@ -78157,14 +78153,12 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
       }));
 
       return this.visit('/').then(function () {
-        assert.throws(function () {
-          _this13.visit('/foo');
-        }, function (err) {
-          return err.msg === 'did it broke?';
-        }, 'it broke');
-        var text = _this13.$('#app').text();
 
-        assert.equal(text, 'FOO ERROR: did it broke?', 'foo.index_error was entered');
+        return _this13.visit('/foo').then(function () {
+          var text = _this13.$('#app').text();
+
+          assert.equal(text, 'FOO ERROR: did it broke?', 'foo.index_error was entered');
+        });
       });
     };
 
@@ -78190,28 +78184,24 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
 
       var reject = true;
 
-      assert.throws(function () {
-        _this15.runTask(function () {
-          _this15.createApplication();
-          _this15.addTemplate('index', '<div id="app">INDEX</div>');
-          _this15.add('route:application', _emberRouting.Route.extend({
-            init: function () {
-              this._super.apply(this, arguments);
-            },
-            model: function () {
-              if (reject) {
-                return _emberRuntime.RSVP.reject({ msg: 'BAD NEWS BEARS' });
-              } else {
-                return {};
-              }
+      this.runTask(function () {
+        _this15.createApplication();
+        _this15.addTemplate('index', '<div id="app">INDEX</div>');
+        _this15.add('route:application', _emberRouting.Route.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+          },
+          model: function () {
+            if (reject) {
+              return _emberRuntime.RSVP.reject({ msg: 'BAD NEWS BEARS' });
+            } else {
+              return {};
             }
-          }));
+          }
+        }));
 
-          _this15.addTemplate('application_error', '\n          <p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>\n        ');
-        });
-      }, function (err) {
-        return err.msg === 'BAD NEWS BEARS';
-      }, 'it went poorly');
+        _this15.addTemplate('application_error', '\n        <p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>\n      ');
+      });
 
       var text = this.$('#toplevel-error').text();
       assert.equal(text, 'TOPLEVEL ERROR: BAD NEWS BEARS', 'toplevel error rendered');
@@ -78362,18 +78352,14 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
         }
       }));
 
-      assert.throws(function () {
-        _this19.visit('/grandma/mom/sally');
-      }, function (err) {
-        return err.msg === "did it broke?";
-      }, 'it broke.');
+      return this.visit('/grandma/mom/sally').then(function () {
+        step(3, 'App finished loading');
 
-      step(3, 'App finished loading');
+        var text = _this19.$('#app').text();
 
-      var text = this.$('#app').text();
-
-      assert.equal(text, 'GRANDMA ERROR: did it broke?', 'error bubbles');
-      assert.equal(this.currentPath, 'grandma.error', 'Initial route fully loaded');
+        assert.equal(text, 'GRANDMA ERROR: did it broke?', 'error bubbles');
+        assert.equal(_this19.currentPath, 'grandma.error', 'Initial route fully loaded');
+      });
     };
 
     _class3.prototype['@test Non-bubbled errors that re-throw aren\'t swallowed'] = function (assert) {
@@ -78525,17 +78511,13 @@ enifed('ember/tests/routing/substates_test', ['ember-babel', 'ember-runtime', 'e
         }
       }));
 
-      assert.throws(function () {
-        _this24.visit('/grandma/mom/sally');
-      }, function (err) {
-        return err.msg === 'did it broke?';
-      }, 'it broke');
+      return this.visit('/grandma/mom/sally').then(function () {
+        step(3, 'Application finished booting');
 
-      step(3, 'Application finished booting');
+        assert.equal(_this24.$('#app').text(), 'GRANDMA MOM ERROR: did it broke?', 'the more specifically named mome error substate was entered over the other error route');
 
-      assert.equal(this.$('#app').text(), 'GRANDMA MOM ERROR: did it broke?', 'the more specifically named mome error substate was entered over the other error route');
-
-      assert.equal(this.currentPath, 'grandma.mom_error', 'Initial route fully loaded');
+        assert.equal(_this24.currentPath, 'grandma.mom_error', 'Initial route fully loaded');
+      });
     };
 
     _class3.prototype['@test Slow promises waterfall on startup'] = function testSlowPromisesWaterfallOnStartup(assert) {
