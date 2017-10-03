@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0
+ * @version   2.15.0-null+2a1a775f
  */
 
 var enifed, requireModule, Ember;
@@ -7767,7 +7767,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this12.assertText('Application');
         return _this12.transitionTo('blog.post');
-      }).catch(function () {
+      }).then(function () {
         _this12.assertText('ApplicationError! Oh, noes!');
       });
     };
@@ -7790,7 +7790,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this13.assertText('Application');
         return _this13.transitionTo('blog.post');
-      }).catch(function () {
+      }).then(function () {
         _this13.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -7813,7 +7813,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this14.assertText('Application');
         return _this14.transitionTo('blog.post');
-      }).catch(function () {
+      }).then(function () {
         _this14.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -7836,7 +7836,7 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       return this.visit('/').then(function () {
         _this15.assertText('Application');
         return _this15.transitionTo('blog.post.comments');
-      }).catch(function () {
+      }).then(function () {
         _this15.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -42369,7 +42369,7 @@ enifed('ember-metal/tests/run_loop/debounce_test', ['ember-metal'], function (_e
     ok(wasCalled, 'Ember.run.debounce used');
   });
 });
-enifed('ember-metal/tests/run_loop/later_test', ['ember-metal'], function (_emberMetal) {
+enifed('ember-metal/tests/run_loop/later_test', ['ember-utils', 'ember-metal'], function (_emberUtils, _emberMetal) {
   'use strict';
 
   var originalSetTimeout = window.setTimeout;
@@ -42576,7 +42576,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-metal'], function (_embe
     // happens when an expired timer callback takes a while to run,
     // which is what we simulate here.
     var newSetTimeoutUsed = void 0;
-    _emberMetal.run.backburner._platform = {
+    _emberMetal.run.backburner._platform = (0, _emberUtils.assign)({}, originalPlatform, {
       setTimeout: function () {
         var wait = arguments[arguments.length - 1];
         newSetTimeoutUsed = true;
@@ -42584,7 +42584,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-metal'], function (_embe
 
         return originalPlatform.setTimeout.apply(originalPlatform, arguments);
       }
-    };
+    });
 
     var count = 0;
     (0, _emberMetal.run)(function () {
@@ -63662,6 +63662,65 @@ enifed('ember/tests/controller_test', ['ember-babel', 'ember-runtime', 'internal
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 });
+enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_ember, _emberMetal) {
+  'use strict';
+
+  var ONERROR = _ember.default.onerror;
+  var ADAPTER = _ember.default.Test && _ember.default.Test.adapter;
+  var TESTING = _ember.default.testing;
+
+  QUnit.module('error_handler', {
+    teardown: function () {
+      _ember.default.onerror = ONERROR;
+      _ember.default.testing = TESTING;
+      if (_ember.default.Test) {
+        _ember.default.Test.adapter = ADAPTER;
+      }
+    }
+  });
+
+  function runThatThrows(message) {
+    return (0, _emberMetal.run)(function () {
+      throw new Error(message);
+    });
+  }
+
+  test('by default there is no onerror', function (assert) {
+    _ember.default.onerror = undefined;
+    assert.throws(runThatThrows, Error);
+    assert.equal(_ember.default.onerror, undefined);
+  });
+
+  test('when Ember.onerror is registered', function (assert) {
+    assert.expect(2);
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'onerror called');
+      throw error;
+    };
+    assert.throws(runThatThrows, Error);
+    // Ember.onerror = ONERROR;
+  });
+
+  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = true)', function () {
+    _ember.default.testing = true;
+    var error = new Error('the error');
+    throws(function () {
+      _ember.default.run(function () {
+        throw error;
+      });
+    }, error);
+  });
+
+  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = false)', function () {
+    _ember.default.testing = false;
+    var error = new Error('the error');
+    throws(function () {
+      _ember.default.run(function () {
+        throw error;
+      });
+    }, error);
+  });
+});
 enifed('ember/tests/global-api-test', ['ember-metal', 'ember-runtime'], function (_emberMetal, _emberRuntime) {
   'use strict';
 
@@ -69072,9 +69131,7 @@ enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember
       }
     });
 
-    throws(function () {
-      return bootApplication();
-    }, /More context objects were passed/);
+    bootApplication();
 
     equal((0, _emberViews.jQuery)('#error').length, 1, 'Error template was rendered.');
   });
@@ -74130,7 +74187,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
   });
 
   QUnit.test('Default error event moves into nested route', function () {
-    expect(6);
+    expect(5);
 
     templates['grandma'] = 'GRANDMA {{outlet}}';
     templates['grandma/error'] = 'ERROR: {{model.msg}}';
@@ -74162,11 +74219,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
       }
     });
 
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
+    bootApplication('/grandma/mom/sally');
 
     step(3, 'App finished booting');
 
@@ -74548,7 +74601,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
   });
 
   QUnit.test('Default error event moves into nested route, prioritizing more specifically named error route', function () {
-    expect(6);
+    expect(5);
 
     templates['grandma'] = 'GRANDMA {{outlet}}';
     templates['grandma/error'] = 'ERROR: {{model.msg}}';
@@ -74581,11 +74634,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
       }
     });
 
-    throws(function () {
-      bootApplication('/grandma/mom/sally');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
+    bootApplication('/grandma/mom/sally');
 
     step(3, 'App finished booting');
 
@@ -74686,7 +74735,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
   });
 
   QUnit.test('Prioritized error substate entry works with preserved-namespace nested routes', function () {
-    expect(2);
+    expect(1);
 
     templates['foo/bar_error'] = 'FOOBAR ERROR: {{model.msg}}';
     templates['foo/bar'] = 'YAY';
@@ -74707,11 +74756,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
       }
     });
 
-    throws(function () {
-      bootApplication('/foo/bar');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
+    bootApplication('/foo/bar');
 
     equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'FOOBAR ERROR: did it broke?', 'foo.bar_error was entered (as opposed to something like foo/foo/bar_error)');
   });
@@ -74753,7 +74798,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
   });
 
   QUnit.test('Prioritized error substate entry works with auto-generated index routes', function () {
-    expect(2);
+    expect(1);
 
     templates['foo/index_error'] = 'FOO ERROR: {{model.msg}}';
     templates['foo/index'] = 'YAY';
@@ -74780,17 +74825,13 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
       }
     });
 
-    throws(function () {
-      return bootApplication('/foo');
-    }, function (err) {
-      return err.msg === 'did it broke?';
-    });
+    bootApplication('/foo');
 
     equal((0, _emberViews.jQuery)('#app', '#qunit-fixture').text(), 'FOO ERROR: did it broke?', 'foo.index_error was entered');
   });
 
   QUnit.test('Rejected promises returned from ApplicationRoute transition into top-level application_error', function () {
-    expect(3);
+    expect(2);
 
     templates['application_error'] = '<p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>';
 
@@ -74805,11 +74846,7 @@ enifed('ember/tests/routing/substates_test', ['ember-runtime', 'ember-routing', 
       }
     });
 
-    throws(function () {
-      return bootApplication();
-    }, function (err) {
-      return err.msg === 'BAD NEWS BEARS';
-    });
+    bootApplication();
 
     equal((0, _emberViews.jQuery)('#toplevel-error', '#qunit-fixture').text(), 'TOPLEVEL ERROR: BAD NEWS BEARS');
 

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.0
+ * @version   2.15.0-null+2a1a775f
  */
 
 var enifed, requireModule, Ember;
@@ -5361,6 +5361,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   var onerror = void 0;
+  var onErrorTarget = {
+    get onerror() {
+      return dispatchOverride || onerror;
+    }
+  };
+
   // Ember.onerror getter
   function getOnerror() {
     return onerror;
@@ -5679,15 +5685,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function onEnd(current, next) {
     run$1.currentRunLoop = next;
   }
-
-  var onErrorTarget = {
-    get onerror() {
-      return dispatchError;
-    },
-    set onerror(handler) {
-      return setOnerror(handler);
-    }
-  };
 
   var backburner = new Backburner(['sync', 'actions', 'destroy'], {
     GUID_KEY: emberUtils.GUID_KEY,
