@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-beta.1
+ * @version   2.16.0-beta.1-null+464504ab
  */
 
 var enifed, requireModule, Ember;
@@ -112,7 +112,7 @@ var mainContext = this; // Used in ember-environment/lib/global.js
   }
 })();
 
-enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember/features', 'ember-environment'], function (exports, _emberBabel, _emberUtils, _emberDebug, _features) {
+enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberDebug, _features) {
   'use strict';
 
   exports.Container = exports.privatize = exports.Registry = undefined;
@@ -494,7 +494,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       if (typeof this.class._initFactory === 'function') {
         this.class._initFactory(this);
       } else {
-        // in the non-Ember.Object case we need to still setOwner
+        // in the non-EmberObject case we need to still setOwner
         // this is required for supporting glimmer environment and
         // template instantiation which rely heavily on
         // `options[OWNER]` being passed into `create`
@@ -1788,7 +1788,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function hasListeners(obj, eventName) {
     var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1) {
+    if (meta$$1 === undefined) {
       return false;
     }
     var matched = meta$$1.matchingListeners(eventName);
@@ -1851,6 +1851,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     var func = args.pop();
     var events = args;
+
+    true && !(typeof func === 'function') && emberDebug.assert('Ember.on expects function as last argument', typeof func === 'function');
+    true && !(events.length > 0 && events.every(function (p) {
+      return typeof p === 'string' && p.length;
+    })) && emberDebug.assert('Ember.on called without valid event names', events.length > 0 && events.every(function (p) {
+      return typeof p === 'string' && p.length;
+    }));
+
     func.__ember_listens__ = events;
     return func;
   }
@@ -2453,7 +2461,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function DEFAULT_GETTER_FUNCTION(name) {
     return function GETTER_FUNCTION() {
       var meta$$1 = exports.peekMeta(this);
-      if (meta$$1 !== null && meta$$1 !== undefined) {
+      if (meta$$1 !== undefined) {
         return meta$$1.peekValues(name);
       }
     };
@@ -2463,7 +2471,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     function IGETTER_FUNCTION() {
       var meta$$1 = exports.peekMeta(this);
       var val = void 0;
-      if (meta$$1 !== null && meta$$1 !== undefined) {
+      if (meta$$1 !== undefined) {
         val = meta$$1.readInheritedValue('values', name);
       }
 
@@ -2525,7 +2533,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       become the explicit value of this property.
   */
   function defineProperty(obj, keyName, desc, data, meta$$1) {
-    if (meta$$1 === null || meta$$1 === undefined) {
+    if (meta$$1 === undefined) {
       meta$$1 = meta(obj);
     }
 
@@ -2713,7 +2721,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var meta$$1 = _meta || exports.peekMeta(obj);
 
     // do nothing of this object has already been destroyed
-    if (!meta$$1 || meta$$1.isSourceDestroyed()) {
+    if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
       return;
     }
 
@@ -2924,9 +2932,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
 
-    var meta$$1 = _meta || exports.peekMeta(obj);
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
 
-    if (!meta$$1 || !meta$$1.readableChainWatchers()) {
+    if (meta$$1 === undefined || meta$$1.readableChainWatchers() === undefined) {
       return;
     }
 
@@ -4387,7 +4395,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
-    if (typeof config === 'function') {
+    var hasGetterOnly = typeof config === 'function';
+    if (hasGetterOnly) {
       this._getter = config;
     } else {
       true && !(typeof config === 'object' && !Array.isArray(config)) && emberDebug.assert('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
@@ -4405,8 +4414,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     this._suspended = undefined;
     this._meta = undefined;
     this._volatile = false;
+
     this._dependentKeys = opts && opts.dependentKeys;
-    this._readOnly = false;
+    this._readOnly = opts && hasGetterOnly && opts.readOnly === true;
   }
 
   ComputedProperty.prototype = new Descriptor();
@@ -4524,10 +4534,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     You can pass a hash of these values to a computed property like this:
   
     ```
-    person: Ember.computed(function() {
+    import { computed } from '@ember/object';
+    import Person from 'my-app/utils/person';
+  
+    person: computed(function() {
       let personId = this.get('personId');
-      return App.Person.create({ id: personId });
-    }).meta({ type: App.Person })
+      return Person.create({ id: personId });
+    }).meta({ type: Person })
     ```
   
     The hash that you pass to the `meta()` function will be saved on the
@@ -4559,12 +4572,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     // don't create objects just to invalidate
     var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1 || meta$$1.source !== obj) {
+    if (meta$$1 === undefined || meta$$1.source !== obj) {
       return;
     }
 
     var cache = meta$$1.readableCache();
-    if (cache && cache[keyName] !== undefined) {
+    if (cache !== undefined && cache[keyName] !== undefined) {
       cache[keyName] = undefined;
       removeDependentKeys(this, obj, keyName, meta$$1);
     }
@@ -4586,14 +4599,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var ret = this._getter.call(obj, keyName);
-    if (ret === undefined) {
-      cache[keyName] = UNDEFINED;
-    } else {
-      cache[keyName] = ret;
-    }
+    cache[keyName] = ret === undefined ? UNDEFINED : ret;
 
     var chainWatchers = meta$$1.readableChainWatchers();
-    if (chainWatchers) {
+    if (chainWatchers !== undefined) {
       chainWatchers.revalidate(keyName);
     }
     addDependentKeys(this, obj, keyName, meta$$1);
@@ -4643,15 +4652,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
-    // cache requires own meta
     var meta$$1 = meta(obj);
-    // either there is a writable cache or we need one to update
     var cache = meta$$1.writableCache();
     var hadCachedValue = false;
     var cachedValue = void 0;
-    if (cache[keyName] !== undefined) {
-      if (cache[keyName] !== UNDEFINED) {
-        cachedValue = cache[keyName];
+    var val = cache[keyName];
+    if (val !== undefined) {
+      if (val !== UNDEFINED) {
+        cachedValue = val;
       }
       hadCachedValue = true;
     }
@@ -5265,6 +5273,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   var onerror = void 0;
+  var onErrorTarget = {
+    get onerror() {
+      return dispatchOverride || onerror;
+    }
+  };
+
   // Ember.onerror getter
   function getOnerror() {
     return onerror;
@@ -5356,7 +5370,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1) {
+      if (meta$$1 !== undefined) {
         var map = meta$$1.readableWeak();
         if (map !== undefined) {
           var val = map[this._id];
@@ -5401,7 +5415,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1) {
+      if (meta$$1 !== undefined) {
         var map = meta$$1.readableWeak();
         if (map !== undefined) {
           return map[this._id] !== undefined;
@@ -5593,15 +5607,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     run.currentRunLoop = next;
   }
 
-  var onErrorTarget = {
-    get onerror() {
-      return dispatchError;
-    },
-    set onerror(handler) {
-      return setOnerror(handler);
-    }
-  };
-
   var backburner$1 = new Backburner(['sync', 'actions', 'destroy'], {
     GUID_KEY: emberUtils.GUID_KEY,
     sync: {
@@ -5709,16 +5714,26 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     We can use that setup option to do some additional setup for our component.
     The component itself could look something like the following:
   
-    ```javascript
-    App.RichTextEditorComponent = Ember.Component.extend({
+    ```app/components/rich-text-editor.js
+    import Component from '@ember/component';
+    import { bind } from '@ember/runloop';
+  
+    export default Component.extend({
       initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
         });
       }),
+      
+      didInsertElement() {
+        tinymce.init({
+          selector: '#' + this.$().prop('id'),
+          setup: Ember.run.bind(this, this.setupEditor)
+        });
+      }
   
-      setupEditor: function(editor) {
+      setupEditor(editor) {
         this.set('editor', editor);
   
         editor.on('change', function() {
@@ -5729,7 +5744,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     In this example, we use Ember.run.bind to bind the setupEditor method to the
-    context of the App.RichTextEditorComponent and to have the invocation of that
+    context of the RichTextEditor component and to have the invocation of that
     method be safely handled and executed by the Ember run loop.
   
     @method bind
@@ -5963,9 +5978,23 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     });
     ```
   
-    Also note that passing an anonymous function to `run.scheduleOnce` will
-    not prevent additional calls with an identical anonymous function from
-    scheduling the items multiple times, e.g.:
+    Also note that for `run.scheduleOnce` to prevent additional calls, you need to
+    pass the same function instance. The following case works as expected:
+  
+    ```javascript
+    function log() {
+      console.log('Logging only once');
+    }
+  
+    function scheduleIt() {
+      run.scheduleOnce('actions', myContext, log);
+    }
+  
+    scheduleIt();
+    scheduleIt();
+    ```
+  
+    But this other case will schedule the function multiple times:
   
     ```javascript
     function scheduleIt() {
@@ -5978,7 +6007,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     scheduleIt();
   
     // "Closure" will print twice, even though we're using `run.scheduleOnce`,
-    // because the function we pass to it is anonymous and won't match the
+    // because the function we pass to it won't match the
     // previously scheduled operation.
     ```
   
@@ -6026,8 +6055,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     Example:
   
-    ```javascript
-    export default Ember.Component.extend({
+    ```app/components/my-component.js
+    import Component from '@ember/component';
+  
+    export Component.extend({
       didInsertElement() {
         this._super(...arguments);
         run.scheduleOnce('afterRender', this, 'processChildElements');
@@ -7573,16 +7604,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     if (baseValue === null || baseValue === undefined) {
       ret = emberUtils.makeArray(value);
-    } else {
-      if (isArray(baseValue)) {
-        if (value === null || value === undefined) {
-          ret = baseValue;
-        } else {
-          ret = a_concat.call(baseValue, value);
-        }
+    } else if (isArray(baseValue)) {
+      if (value === null || value === undefined) {
+        ret = baseValue;
       } else {
-        ret = a_concat.call(emberUtils.makeArray(baseValue), value);
+        ret = a_concat.call(baseValue, value);
       }
+    } else {
+      ret = a_concat.call(emberUtils.makeArray(baseValue), value);
     }
 
     {
@@ -7653,7 +7682,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     } else {
       if (concats && concats.indexOf(key) >= 0 || key === 'concatenatedProperties' || key === 'mergedProperties') {
         value = applyConcatenatedProperties(base, key, value, values);
-      } else if (mergings && mergings.indexOf(key) >= 0) {
+      } else if (mergings && mergings.indexOf(key) > -1) {
         value = applyMergedProperties(base, key, value, values);
       } else if (isMethod(value)) {
         value = giveMethodSuper(base, key, value, values, descs);
@@ -7765,9 +7794,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return { desc: desc, value: value };
   }
 
-  function updateObserversAndListeners(obj, key, observerOrListener, pathsKey, updateMethod) {
-    var paths = observerOrListener[pathsKey];
-
+  function updateObserversAndListeners(obj, key, paths, updateMethod) {
     if (paths) {
       for (var i = 0; i < paths.length; i++) {
         updateMethod(obj, paths[i], null, key);
@@ -7778,16 +7805,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function replaceObserversAndListeners(obj, key, observerOrListener) {
     var prev = obj[key];
 
-    if ('function' === typeof prev) {
-      updateObserversAndListeners(obj, key, prev, '__ember_observesBefore__', _removeBeforeObserver);
-      updateObserversAndListeners(obj, key, prev, '__ember_observes__', removeObserver);
-      updateObserversAndListeners(obj, key, prev, '__ember_listens__', removeListener);
+    if (typeof prev === 'function') {
+      updateObserversAndListeners(obj, key, prev.__ember_observesBefore__, _removeBeforeObserver);
+      updateObserversAndListeners(obj, key, prev.__ember_observes__, removeObserver);
+      updateObserversAndListeners(obj, key, prev.__ember_listens__, removeListener);
     }
 
-    if ('function' === typeof observerOrListener) {
-      updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', _addBeforeObserver);
-      updateObserversAndListeners(obj, key, observerOrListener, '__ember_observes__', addObserver);
-      updateObserversAndListeners(obj, key, observerOrListener, '__ember_listens__', addListener);
+    if (typeof observerOrListener === 'function') {
+      updateObserversAndListeners(obj, key, observerOrListener.__ember_observesBefore__, _addBeforeObserver);
+      updateObserversAndListeners(obj, key, observerOrListener.__ember_observes__, addObserver);
+      updateObserversAndListeners(obj, key, observerOrListener.__ember_listens__, addListener);
     }
   }
 
@@ -7994,7 +8021,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Mixin.mixins = function mixins(obj) {
       var meta$$1 = exports.peekMeta(obj);
       var ret = [];
-      if (!meta$$1) {
+      if (meta$$1 === undefined) {
         return ret;
       }
 
@@ -8111,7 +8138,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return _detect(obj, this, {});
     }
     var meta$$1 = exports.peekMeta(obj);
-    if (!meta$$1) {
+    if (meta$$1 === undefined) {
       return false;
     }
     return !!meta$$1.peekMixins(emberUtils.guidFor(this));
@@ -8186,15 +8213,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     Makes a method available via an additional name.
   
-    ```javascript
-    App.Person = Ember.Object.extend({
-      name: function() {
+    ```app/utils/person.js
+    import EmberObject, {
+      aliasMethod
+    } from '@ember/object';
+  
+    export default EmberObject.extend({
+      name() {
         return 'Tomhuda Katzdale';
       },
-      moniker: Ember.aliasMethod('name')
+      moniker: aliasMethod('name')
     });
+    ```
   
-    let goodGuy = App.Person.create();
+    ```javascript
+    let goodGuy = Person.create();
   
     goodGuy.name();    // 'Tomhuda Katzdale'
     goodGuy.moniker(); // 'Tomhuda Katzdale'
@@ -8433,7 +8466,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   function isProxy(value) {
     if (typeof value === 'object' && value !== null) {
       var meta$$1 = exports.peekMeta(value);
-      return meta$$1 && meta$$1.isProxy();
+      return meta$$1 === undefined ? false : meta$$1.isProxy();
     }
 
     return false;
