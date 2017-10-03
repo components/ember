@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+ed381d70
+ * @version   2.17.0-alpha.1-null+ea84510d
  */
 
 var enifed, requireModule, Ember;
@@ -48191,7 +48191,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+ed381d70";
+  exports.default = "2.17.0-alpha.1-null+ea84510d";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -52349,16 +52349,6 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
   var _rsvp;
 
-  function indexOf(callbacks, callback) {
-    for (var i = 0, l = callbacks.length; i < l; i++) {
-      if (callbacks[i] === callback) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
-
   function callbacksFor(object) {
     var callbacks = object._promiseCallbacks;
 
@@ -52394,7 +52384,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
         callbacks = allCallbacks[eventName] = [];
       }
 
-      if (indexOf(callbacks, callback) === -1) {
+      if (callbacks.indexOf(callback)) {
         callbacks.push(callback);
       }
     },
@@ -52410,7 +52400,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
       callbacks = allCallbacks[eventName];
 
-      index = indexOf(callbacks, callback);
+      index = callbacks.indexOf(callback);
 
       if (index !== -1) {
         callbacks.splice(index, 1);
@@ -52446,40 +52436,6 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     }
   }
 
-  function objectOrFunction(x) {
-    var type = typeof x;
-    return x !== null && (type === 'object' || type === 'function');
-  }
-
-  function isFunction(x) {
-    return typeof x === 'function';
-  }
-
-  function isObject(x) {
-    return x !== null && typeof x === 'object';
-  }
-
-  function isMaybeThenable(x) {
-    return x !== null && typeof x === 'object';
-  }
-
-  var _isArray = void 0;
-  if (Array.isArray) {
-    _isArray = Array.isArray;
-  } else {
-    _isArray = function (x) {
-      return Object.prototype.toString.call(x) === '[object Array]';
-    };
-  }
-
-  var isArray = _isArray;
-
-  // Date.now is not available in browsers < IE9
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  var now = Date.now || function () {
-    return new Date().getTime();
-  };
-
   var queue = [];
 
   function scheduleFlush() {
@@ -52511,7 +52467,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
         detail: promise._result,
         childId: child && child._id,
         label: promise._label,
-        timeStamp: now(),
+        timeStamp: Date.now(),
         error: config["instrument-with-stack"] ? new Error(promise._label) : null
       } })) {
       scheduleFlush();
@@ -52567,11 +52523,20 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return new TypeError('A promises callback cannot return that same promise.');
   }
 
+  function objectOrFunction(x) {
+    var type = typeof x;
+    return x !== null && (type === 'object' || type === 'function');
+  }
+
   function noop() {}
 
   var PENDING = void 0;
   var FULFILLED = 1;
   var REJECTED = 2;
+
+  function ErrorObject() {
+    this.error = null;
+  }
 
   var GET_THEN_ERROR = new ErrorObject();
 
@@ -52582,6 +52547,25 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       GET_THEN_ERROR.error = error;
       return GET_THEN_ERROR;
     }
+  }
+
+  var TRY_CATCH_ERROR = new ErrorObject();
+
+  var tryCatchCallback = void 0;
+  function tryCatcher() {
+    try {
+      var target = tryCatchCallback;
+      tryCatchCallback = null;
+      return target.apply(this, arguments);
+    } catch (e) {
+      TRY_CATCH_ERROR.error = e;
+      return TRY_CATCH_ERROR;
+    }
+  }
+
+  function tryCatch(fn) {
+    tryCatchCallback = fn;
+    return tryCatcher;
   }
 
   function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
@@ -52629,10 +52613,10 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       reject(promise, thenable._result);
     } else {
       subscribe(thenable, undefined, function (value) {
-        if (thenable !== value) {
-          resolve(promise, value, undefined);
-        } else {
+        if (thenable === value) {
           fulfill(promise, value);
+        } else {
+          resolve(promise, value);
         }
       }, function (reason) {
         return reject(promise, reason);
@@ -52646,9 +52630,10 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     if (isOwnThenable) {
       handleOwnThenable(promise, maybeThenable);
     } else if (then$$1 === GET_THEN_ERROR) {
-      reject(promise, GET_THEN_ERROR.error);
+      var error = GET_THEN_ERROR.error;
       GET_THEN_ERROR.error = null;
-    } else if (isFunction(then$$1)) {
+      reject(promise, error);
+    } else if (typeof then$$1 === 'function') {
       handleForeignThenable(promise, maybeThenable, then$$1);
     } else {
       fulfill(promise, maybeThenable);
@@ -52744,46 +52729,26 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     promise._subscribers.length = 0;
   }
 
-  function ErrorObject() {
-    this.error = null;
-  }
-
-  var TRY_CATCH_ERROR = new ErrorObject();
-
-  function tryCatch(callback, result) {
-    try {
-      return callback(result);
-    } catch (e) {
-      TRY_CATCH_ERROR.error = e;
-      return TRY_CATCH_ERROR;
-    }
-  }
-
   function invokeCallback(state, promise, callback, result) {
-    var hasCallback = isFunction(callback);
-    var value = void 0,
-        error = void 0;
+    var hasCallback = typeof callback === 'function';
+    var value = void 0;
 
     if (hasCallback) {
-      value = tryCatch(callback, result);
-
-      if (value === TRY_CATCH_ERROR) {
-        error = value.error;
-        value.error = null; // release
-      } else if (value === promise) {
-        reject(promise, withOwnPromise());
-        return;
-      }
+      value = tryCatch(callback)(result);
     } else {
       value = result;
     }
 
     if (promise._state !== PENDING) {
       // noop
-    } else if (hasCallback && error === undefined) {
-      resolve(promise, value);
-    } else if (error !== undefined) {
+    } else if (value === promise) {
+      reject(promise, withOwnPromise());
+    } else if (value === TRY_CATCH_ERROR) {
+      var error = value.error;
+      value.error = null; // release
       reject(promise, error);
+    } else if (hasCallback) {
+      resolve(promise, value);
     } else if (state === FULFILLED) {
       fulfill(promise, value);
     } else if (state === REJECTED) {
@@ -52840,109 +52805,118 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return child;
   }
 
-  function Enumerator(Constructor, input, abortOnReject, label) {
-    this._instanceConstructor = Constructor;
-    this.promise = new Constructor(noop, label);
-    this._abortOnReject = abortOnReject;
+  var Enumerator = function () {
+    function Enumerator(Constructor, input, abortOnReject, label) {
+      (0, _emberBabel.classCallCheck)(this, Enumerator);
 
-    this._init.apply(this, arguments);
-  }
+      this._instanceConstructor = Constructor;
+      this.promise = new Constructor(noop, label);
+      this._abortOnReject = abortOnReject;
+      this.isUsingOwnPromise = Constructor === Promise;
 
-  Enumerator.prototype._init = function (Constructor, input) {
-    var len = input.length || 0;
-    this.length = len;
-    this._remaining = len;
-    this._result = new Array(len);
-
-    this._enumerate(input);
-    if (this._remaining === 0) {
-      fulfill(this.promise, this._result);
+      this._init.apply(this, arguments);
     }
-  };
 
-  Enumerator.prototype._enumerate = function (input) {
-    var length = this.length;
-    var promise = this.promise;
+    Enumerator.prototype._init = function _init(Constructor, input) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+      this._result = new Array(len);
 
-    for (var i = 0; promise._state === PENDING && i < length; i++) {
-      this._eachEntry(input[i], i);
-    }
-  };
+      this._enumerate(input);
+    };
 
-  Enumerator.prototype._settleMaybeThenable = function (entry, i) {
-    var c = this._instanceConstructor;
-    var resolve$$1 = c.resolve;
+    Enumerator.prototype._enumerate = function _enumerate(input) {
+      var length = this.length;
+      var promise = this.promise;
 
-    if (resolve$$1 === resolve$1) {
-      var then$$1 = getThen(entry);
-
-      if (then$$1 === then && entry._state !== PENDING) {
-        entry._onError = null;
-        this._settledAt(entry._state, i, entry._result);
-      } else if (typeof then$$1 !== 'function') {
-        this._remaining--;
-        this._result[i] = this._makeResult(FULFILLED, i, entry);
-      } else if (c === Promise) {
-        var promise = new c(noop);
-        handleMaybeThenable(promise, entry, then$$1);
-        this._willSettleAt(promise, i);
-      } else {
-        this._willSettleAt(new c(function (resolve$$1) {
-          return resolve$$1(entry);
-        }), i);
+      for (var i = 0; promise._state === PENDING && i < length; i++) {
+        this._eachEntry(input[i], i, true);
       }
-    } else {
-      this._willSettleAt(resolve$$1(entry), i);
-    }
-  };
 
-  Enumerator.prototype._eachEntry = function (entry, i) {
-    if (isMaybeThenable(entry)) {
-      this._settleMaybeThenable(entry, i);
-    } else {
-      this._remaining--;
-      this._result[i] = this._makeResult(FULFILLED, i, entry);
-    }
-  };
+      this._checkFullfillment();
+    };
 
-  Enumerator.prototype._settledAt = function (state, i, value) {
-    var promise = this.promise;
+    Enumerator.prototype._checkFullfillment = function _checkFullfillment() {
+      if (this._remaining === 0) {
+        fulfill(this.promise, this._result);
+      }
+    };
 
-    if (promise._state === PENDING) {
-      if (this._abortOnReject && state === REJECTED) {
-        reject(promise, value);
+    Enumerator.prototype._settleMaybeThenable = function _settleMaybeThenable(entry, i, firstPass) {
+      var c = this._instanceConstructor;
+      var resolve$$1 = c.resolve;
+
+      if (resolve$$1 === resolve$1) {
+        var then$$1 = getThen(entry);
+
+        if (then$$1 === then && entry._state !== PENDING) {
+          entry._onError = null;
+          this._settledAt(entry._state, i, entry._result, firstPass);
+        } else if (typeof then$$1 !== 'function') {
+          this._settledAt(FULFILLED, i, entry, firstPass);
+        } else if (this.isUsingOwnPromise) {
+          var promise = new c(noop);
+          handleMaybeThenable(promise, entry, then$$1);
+          this._willSettleAt(promise, i, firstPass);
+        } else {
+          this._willSettleAt(new c(function (resolve$$1) {
+            return resolve$$1(entry);
+          }), i, firstPass);
+        }
       } else {
-        this._remaining--;
-        this._result[i] = this._makeResult(state, i, value);
-        if (this._remaining === 0) {
-          fulfill(promise, this._result);
+        this._willSettleAt(resolve$$1(entry), i, firstPass);
+      }
+    };
+
+    Enumerator.prototype._eachEntry = function _eachEntry(entry, i, firstPass) {
+      if (entry !== null && typeof entry === 'object') {
+        this._settleMaybeThenable(entry, i, firstPass);
+      } else {
+        this._setResultAt(FULFILLED, i, entry, firstPass);
+      }
+    };
+
+    Enumerator.prototype._settledAt = function _settledAt(state, i, value, firstPass) {
+      var promise = this.promise;
+
+      if (promise._state === PENDING) {
+        if (this._abortOnReject && state === REJECTED) {
+          reject(promise, value);
+        } else {
+          this._setResultAt(state, i, value, firstPass);
+          this._checkFullfillment();
         }
       }
-    }
-  };
+    };
 
-  Enumerator.prototype._makeResult = function (state, i, value) {
-    return value;
-  };
+    Enumerator.prototype._setResultAt = function _setResultAt(state, i, value, firstPass) {
+      this._remaining--;
+      this._result[i] = value;
+    };
 
-  Enumerator.prototype._willSettleAt = function (promise, i) {
-    var enumerator = this;
+    Enumerator.prototype._willSettleAt = function _willSettleAt(promise, i, firstPass) {
+      var _this = this;
 
-    subscribe(promise, undefined, function (value) {
-      return enumerator._settledAt(FULFILLED, i, value);
-    }, function (reason) {
-      return enumerator._settledAt(REJECTED, i, reason);
-    });
-  };
+      subscribe(promise, undefined, function (value) {
+        return _this._settledAt(FULFILLED, i, value, firstPass);
+      }, function (reason) {
+        return _this._settledAt(REJECTED, i, reason, firstPass);
+      });
+    };
 
-  function makeSettledResult(state, position, value) {
+    return Enumerator;
+  }();
+
+  function setSettledResult(state, i, value) {
+    this._remaining--;
     if (state === FULFILLED) {
-      return {
+      this._result[i] = {
         state: 'fulfilled',
         value: value
       };
     } else {
-      return {
+      this._result[i] = {
         state: 'rejected',
         reason: value
       };
@@ -52997,7 +52971,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     @static
   */
   function all(entries, label) {
-    if (!isArray(entries)) {
+    if (!Array.isArray(entries)) {
       return this.reject(new TypeError("Promise.all must be called with an array"), label);
     }
     return new Enumerator(this, entries, true /* abort on reject */, label).promise;
@@ -53075,7 +53049,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
     var promise = new Constructor(noop, label);
 
-    if (!isArray(entries)) {
+    if (!Array.isArray(entries)) {
       reject(promise, new TypeError('Promise.race must be called with an array'));
       return promise;
     }
@@ -53134,7 +53108,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return promise;
   }
 
-  var guidKey = 'rsvp_' + now() + '-';
+  var guidKey = 'rsvp_' + Date.now() + '-';
   var counter = 0;
 
   function needsResolver() {
@@ -53249,117 +53223,56 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     Useful for tooling.
     @constructor
   */
-  function Promise(resolver, label) {
-    this._id = counter++;
-    this._label = label;
-    this._state = undefined;
-    this._result = undefined;
-    this._subscribers = [];
 
-    config.instrument && instrument('created', this);
+  var Promise = function () {
+    function Promise(resolver, label) {
+      (0, _emberBabel.classCallCheck)(this, Promise);
 
-    if (noop !== resolver) {
-      typeof resolver !== 'function' && needsResolver();
-      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-    }
-  }
+      this._id = counter++;
+      this._label = label;
+      this._state = undefined;
+      this._result = undefined;
+      this._subscribers = [];
 
-  Promise.prototype._onError = function (reason) {
-    var _this = this;
+      config.instrument && instrument('created', this);
 
-    config.after(function () {
-      if (_this._onError) {
-        config.trigger('error', reason, _this._label);
+      if (noop !== resolver) {
+        typeof resolver !== 'function' && needsResolver();
+        this instanceof Promise ? initializePromise(this, resolver) : needsNew();
       }
-    });
-  };
+    }
 
-  /**
-    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-    as the catch block of a try/catch statement.
-  
-    ```js
-    function findAuthor(){
-      throw new Error('couldn\'t find that author');
-    }
-  
-    // synchronous
-    try {
-      findAuthor();
-    } catch(reason) {
-      // something went wrong
-    }
-  
-    // async with promises
-    findAuthor().catch(function(reason){
-      // something went wrong
-    });
-    ```
-  
-    @method catch
-    @param {Function} onRejection
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.catch = function (onRejection, label) {
-    return this.then(undefined, onRejection, label);
-  };
+    Promise.prototype._onError = function _onError(reason) {
+      var _this2 = this;
 
-  /**
-    `finally` will be invoked regardless of the promise's fate just as native
-    try/catch/finally behaves
-  
-    Synchronous example:
-  
-    ```js
-    findAuthor() {
-      if (Math.random() > 0.5) {
-        throw new Error();
-      }
-      return new Author();
-    }
-  
-    try {
-      return findAuthor(); // succeed or fail
-    } catch(error) {
-      return findOtherAuthor();
-    } finally {
-      // always runs
-      // doesn't affect the return value
-    }
-    ```
-  
-    Asynchronous example:
-  
-    ```js
-    findAuthor().catch(function(reason){
-      return findOtherAuthor();
-    }).finally(function(){
-      // author was either found, or not
-    });
-    ```
-  
-    @method finally
-    @param {Function} callback
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.finally = function (callback, label) {
-    var promise = this;
-    var constructor = promise.constructor;
-
-    return promise.then(function (value) {
-      return constructor.resolve(callback()).then(function () {
-        return value;
+      config.after(function () {
+        if (_this2._onError) {
+          config.trigger('error', reason, _this2._label);
+        }
       });
-    }, function (reason) {
-      return constructor.resolve(callback()).then(function () {
-        throw reason;
-      });
-    }, label);
-  };
+    };
+
+    Promise.prototype.catch = function _catch(onRejection, label) {
+      return this.then(undefined, onRejection, label);
+    };
+
+    Promise.prototype.finally = function _finally(callback, label) {
+      var promise = this;
+      var constructor = promise.constructor;
+
+      return promise.then(function (value) {
+        return constructor.resolve(callback()).then(function () {
+          return value;
+        });
+      }, function (reason) {
+        return constructor.resolve(callback()).then(function () {
+          throw reason;
+        });
+      }, label);
+    };
+
+    return Promise;
+  }();
 
   Promise.cast = resolve$1; // deprecated
   Promise.all = all;
@@ -53781,7 +53694,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       var promise = new Promise(noop);
 
       args[l] = function (err, val) {
-        if (err) reject(promise, err);else if (options === undefined) resolve(promise, val);else if (options === true) resolve(promise, arrayResult(arguments));else if (isArray(options)) resolve(promise, makeObject(arguments, options));else resolve(promise, val);
+        if (err) reject(promise, err);else if (options === undefined) resolve(promise, val);else if (options === true) resolve(promise, arrayResult(arguments));else if (Array.isArray(options)) resolve(promise, makeObject(arguments, options));else resolve(promise, val);
       };
 
       if (promiseInput) {
@@ -53852,7 +53765,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return AllSettled;
   }(Enumerator);
 
-  AllSettled.prototype._makeResult = makeSettledResult;
+  AllSettled.prototype._setResultAt = setSettledResult;
 
   /**
   `RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing
@@ -53900,7 +53813,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   */
 
   function allSettled(entries, label) {
-    if (!isArray(entries)) {
+    if (!Array.isArray(entries)) {
       return Promise.reject(new TypeError("Promise.allSettled must be called with an array"), label);
     }
 
@@ -54057,7 +53970,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     have been fulfilled, or rejected if any of them become rejected.
   */
   function hash(object, label) {
-    if (!isObject(object)) {
+    if (object === null || typeof object !== 'object') {
       return Promise.reject(new TypeError("Promise.hash must be called with an object"), label);
     }
 
@@ -54075,7 +53988,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return HashSettled;
   }(PromiseHash);
 
-  HashSettled.prototype._makeResult = makeSettledResult;
+  HashSettled.prototype._setResultAt = setSettledResult;
 
   /**
     `RSVP.hashSettled` is similar to `RSVP.allSettled`, but takes an object
@@ -54180,7 +54093,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   */
 
   function hashSettled(object, label) {
-    if (!isObject(object)) {
+    if (object === null || typeof object !== 'object') {
       return Promise.reject(new TypeError("RSVP.hashSettled must be called with an object"), label);
     }
 
@@ -54278,12 +54191,46 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return deferred;
   }
 
+  var MapEnumerator = function (_Enumerator3) {
+    (0, _emberBabel.inherits)(MapEnumerator, _Enumerator3);
+
+    function MapEnumerator(Constructor, entries, mapFn, label) {
+      (0, _emberBabel.classCallCheck)(this, MapEnumerator);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _Enumerator3.call(this, Constructor, entries, true, label, mapFn));
+    }
+
+    MapEnumerator.prototype._init = function _init(Constructor, input, bool, label, mapFn) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+      this._result = new Array(len);
+      this._mapFn = mapFn;
+
+      this._enumerate(input);
+    };
+
+    MapEnumerator.prototype._setResultAt = function _setResultAt(state, i, value, firstPass) {
+      if (firstPass) {
+        var val = tryCatch(this._mapFn)(value, i);
+        if (val === TRY_CATCH_ERROR) {
+          this._settledAt(REJECTED, i, val.error, false);
+        } else {
+          this._eachEntry(val, i, false);
+        }
+      } else {
+        this._remaining--;
+        this._result[i] = value;
+      }
+    };
+
+    return MapEnumerator;
+  }(Enumerator);
+
   /**
-   `RSVP.map` is similar to JavaScript's native `map` method, except that it
-    waits for all promises to become fulfilled before running the `mapFn` on
-    each item in given to `promises`. `RSVP.map` returns a promise that will
-    become fulfilled with the result of running `mapFn` on the values the promises
-    become fulfilled with.
+   `RSVP.map` is similar to JavaScript's native `map` method. `mapFn` is eagerly called
+    meaning that as soon as any promise resolves its value will be passed to `mapFn`.
+    `RSVP.map` returns a promise that will become fulfilled with the result of running
+    `mapFn` on the values the promises become fulfilled with.
   
     For example:
   
@@ -54357,24 +54304,15 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     @static
   */
   function map(promises, mapFn, label) {
-    if (!isArray(promises)) {
+    if (!Array.isArray(promises)) {
       return Promise.reject(new TypeError("RSVP.map must be called with an array"), label);
     }
 
-    if (!isFunction(mapFn)) {
+    if (typeof mapFn !== 'function') {
       return Promise.reject(new TypeError("RSVP.map expects a function as a second argument"), label);
     }
 
-    return Promise.all(promises, label).then(function (values) {
-      var length = values.length;
-      var results = new Array(length);
-
-      for (var i = 0; i < length; i++) {
-        results[i] = mapFn(values[i]);
-      }
-
-      return Promise.all(results, label);
-    });
+    return new MapEnumerator(Promise, promises, mapFn, label).promise;
   }
 
   /**
@@ -54408,12 +54346,62 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return Promise.reject(reason, label);
   }
 
+  var EMPTY_OBJECT = {};
+
+  var FilterEnumerator = function (_Enumerator4) {
+    (0, _emberBabel.inherits)(FilterEnumerator, _Enumerator4);
+
+    function FilterEnumerator(Constructor, entries, filterFn, label) {
+      (0, _emberBabel.classCallCheck)(this, FilterEnumerator);
+      return (0, _emberBabel.possibleConstructorReturn)(this, _Enumerator4.call(this, Constructor, entries, true, label, filterFn));
+    }
+
+    FilterEnumerator.prototype._init = function _init(Constructor, input, bool, label, filterFn) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+
+      this._result = new Array(len);
+      this._filterFn = filterFn;
+
+      this._enumerate(input);
+    };
+
+    FilterEnumerator.prototype._checkFullfillment = function _checkFullfillment() {
+      if (this._remaining === 0) {
+        this._result = this._result.filter(function (val) {
+          return val !== EMPTY_OBJECT;
+        });
+        fulfill(this.promise, this._result);
+      }
+    };
+
+    FilterEnumerator.prototype._setResultAt = function _setResultAt(state, i, value, firstPass) {
+      if (firstPass) {
+        this._result[i] = value;
+        var val = tryCatch(this._filterFn)(value, i);
+        if (val === TRY_CATCH_ERROR) {
+          this._settledAt(REJECTED, i, val.error, false);
+        } else {
+          this._eachEntry(val, i, false);
+        }
+      } else {
+        this._remaining--;
+        if (!value) {
+          this._result[i] = EMPTY_OBJECT;
+        }
+      }
+    };
+
+    return FilterEnumerator;
+  }(Enumerator);
+
   /**
-   `RSVP.filter` is similar to JavaScript's native `filter` method, except that it
-    waits for all promises to become fulfilled before running the `filterFn` on
-    each item in given to `promises`. `RSVP.filter` returns a promise that will
-    become fulfilled with the result of running `filterFn` on the values the
-    promises become fulfilled with.
+   `RSVP.filter` is similar to JavaScript's native `filter` method.
+   `filterFn` is eagerly called meaning that as soon as any promise
+    resolves its value will be passed to `filterFn`. `RSVP.filter` returns
+    a promise that will become fulfilled with the result of running
+    `filterFn` on the values the promises become fulfilled with.
   
     For example:
   
@@ -54494,49 +54482,17 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     @return {Promise}
   */
 
-  function resolveAll(promises, label) {
-    return Promise.all(promises, label);
-  }
-
-  function resolveSingle(promise, label) {
-    return Promise.resolve(promise, label).then(function (promises) {
-      return resolveAll(promises, label);
-    });
-  }
-
   function filter(promises, filterFn, label) {
-    if (!isArray(promises) && !(isObject(promises) && promises.then !== undefined)) {
+    if (!Array.isArray(promises) && !(promises !== null && typeof promises === 'object' && promises.then !== undefined)) {
       return Promise.reject(new TypeError("RSVP.filter must be called with an array or promise"), label);
     }
 
-    if (!isFunction(filterFn)) {
+    if (typeof filterFn !== 'function') {
       return Promise.reject(new TypeError("RSVP.filter expects function as a second argument"), label);
     }
 
-    var promise = isArray(promises) ? resolveAll(promises, label) : resolveSingle(promises, label);
-    return promise.then(function (values) {
-      var length = values.length;
-      var filtered = new Array(length);
-
-      for (var i = 0; i < length; i++) {
-        filtered[i] = filterFn(values[i]);
-      }
-
-      return resolveAll(filtered, label).then(function (filtered) {
-        var results = new Array(length);
-        var newLength = 0;
-
-        for (var _i = 0; _i < length; _i++) {
-          if (filtered[_i]) {
-            results[newLength] = values[_i];
-            newLength++;
-          }
-        }
-
-        results.length = newLength;
-
-        return results;
-      });
+    return Promise.resolve(promises, label).then(function (promises) {
+      return new FilterEnumerator(Promise, promises, filterFn, label).promise;
     });
   }
 
