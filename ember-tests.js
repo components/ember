@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+decbb294
+ * @version   2.17.0-alpha.1-null+20f0dddf
  */
 
 var enifed, requireModule, Ember;
@@ -1779,6 +1779,7 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     appInstance = (0, _emberMetal.run)(function () {
       return _applicationInstance.default.create({ application: application });
     });
+    appInstance.setupRegistry();
 
     application.customEvents = {
       awesome: 'sauce'
@@ -1798,6 +1799,7 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     (0, _emberMetal.run)(function () {
       return appInstance = _applicationInstance.default.create({ application: application });
     });
+    appInstance.setupRegistry();
 
     application.customEvents = {
       awesome: 'sauce'
@@ -1817,6 +1819,7 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     appInstance = (0, _emberMetal.run)(function () {
       return _applicationInstance.default.create({ application: application });
     });
+    appInstance.setupRegistry();
 
     appInstance.customEvents = {
       awesome: 'sauce'
@@ -5762,13 +5765,20 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
       });
     };
 
-    _class.prototype['@test visit() on engine resolves engine component'] = function (assert) {
+    _class.prototype['@test visit() does not setup the event_dispatcher:main if isInteractive is false (with Engines) GH#15615'] = function (assert) {
       var _this8 = this;
 
-      assert.expect(2);
+      assert.expect(3);
 
       this.router.map(function () {
         this.mount('blog');
+      });
+
+      this.addTemplate('application', '<h1>Hello world</h1>{{outlet}}');
+      this.add('event_dispatcher:main', {
+        create: function () {
+          throw new Error('should not happen!');
+        }
       });
 
       // Register engine
@@ -5790,14 +5800,15 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
       var BlogMap = function () {};
       this.add('route-map:blog', BlogMap);
 
-      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+      assert.strictEqual(this.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
 
-      return this.visit('/blog', { shouldRender: true }).then(function (instance) {
+      return this.visit('/blog', { isInteractive: false }).then(function (instance) {
+        assert.ok(instance instanceof _applicationInstance.default, 'promise is resolved with an ApplicationInstance');
         assert.strictEqual(_this8.$().find('p').text(), 'Dis cache money', 'Engine component is resolved');
       });
     };
 
-    _class.prototype['@test visit() on engine resolves engine helper'] = function (assert) {
+    _class.prototype['@test visit() on engine resolves engine component'] = function (assert) {
       var _this9 = this;
 
       assert.expect(2);
@@ -5811,6 +5822,41 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         init: function () {
           for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
             args[_key2] = arguments[_key2];
+          }
+
+          this._super.apply(this, args);
+          this.register('template:application', (0, _emberTemplateCompiler.compile)('{{cache-money}}'));
+          this.register('template:components/cache-money', (0, _emberTemplateCompiler.compile)('\n          <p>Dis cache money</p>\n        '));
+          this.register('component:cache-money', _emberGlimmer.Component.extend({}));
+        }
+      });
+      this.add('engine:blog', BlogEngine);
+
+      // Register engine route map
+      var BlogMap = function () {};
+      this.add('route-map:blog', BlogMap);
+
+      assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
+
+      return this.visit('/blog', { shouldRender: true }).then(function (instance) {
+        assert.strictEqual(_this9.$().find('p').text(), 'Dis cache money', 'Engine component is resolved');
+      });
+    };
+
+    _class.prototype['@test visit() on engine resolves engine helper'] = function (assert) {
+      var _this10 = this;
+
+      assert.expect(2);
+
+      this.router.map(function () {
+        this.mount('blog');
+      });
+
+      // Register engine
+      var BlogEngine = _engine.default.extend({
+        init: function () {
+          for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+            args[_key3] = arguments[_key3];
           }
 
           this._super.apply(this, args);
@@ -5829,12 +5875,12 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
       assert.strictEqual(this.$().children().length, 0, 'there are no elements in the fixture element');
 
       return this.visit('/blog', { shouldRender: true }).then(function () {
-        assert.strictEqual(_this9.$().text(), 'turnt up', 'Engine component is resolved');
+        assert.strictEqual(_this10.$().text(), 'turnt up', 'Engine component is resolved');
       });
     };
 
     _class.prototype['@test Ember Islands-style setup'] = function (assert) {
-      var _this10 = this;
+      var _this11 = this;
 
       var xFooInitCalled = false;
       var xFooDidInsertElementCalled = false;
@@ -5921,9 +5967,9 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
       var instances = [];
 
       return _emberRuntime.RSVP.all([this.runTask(function () {
-        return _this10.application.visit('/x-foo?data=' + data, { rootElement: $foo[0] });
+        return _this11.application.visit('/x-foo?data=' + data, { rootElement: $foo[0] });
       }), this.runTask(function () {
-        return _this10.application.visit('/x-bar', { rootElement: $bar[0] });
+        return _this11.application.visit('/x-bar', { rootElement: $bar[0] });
       })]).then(function (_instances) {
         instances = _instances;
 
@@ -5941,14 +5987,14 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         assert.equal($bar.find('button').text(), 'Join 0 others in clicking me!');
         assert.ok($bar.text().indexOf('X-Foo') === -1);
 
-        _this10.runTask(function () {
+        _this11.runTask(function () {
           $foo.find('x-foo').click();
         });
 
         assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
         assert.equal($bar.find('button').text(), 'Join 1 others in clicking me!');
 
-        _this10.runTask(function () {
+        _this11.runTask(function () {
           $bar.find('button').click();
           $bar.find('button').click();
         });
@@ -5956,7 +6002,7 @@ enifed('ember-application/tests/system/visit_test', ['ember-babel', 'internal-te
         assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
         assert.equal($bar.find('button').text(), 'Join 3 others in clicking me!');
       }).finally(function () {
-        _this10.runTask(function () {
+        _this11.runTask(function () {
           instances.forEach(function (instance) {
             instance.destroy();
           });
@@ -23135,15 +23181,6 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
       this.render('{{x-foo}}');
     };
 
-    _class2.prototype['@test canDispatchToEventManager is deprecated in EventDispatcher'] = function testCanDispatchToEventManagerIsDeprecatedInEventDispatcher(assert) {
-      var MyDispatcher = _emberViews.EventDispatcher.extend({
-        canDispatchToEventManager: null
-      });
-
-      expectDeprecation(/`canDispatchToEventManager` has been deprecated/);
-      MyDispatcher.create();
-    };
-
     _class2.prototype['@test a rootElement can be specified'] = function testARootElementCanBeSpecified(assert) {
       this.$().append('<div id="app"></div>');
       this.dispatcher.setup({ myevent: 'myEvent' }, '#app');
@@ -23188,21 +23225,49 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
     return _class2;
   }(_testCase.RenderingTest));
 
-  if (_features.EMBER_IMPROVED_INSTRUMENTATION) {
-    (0, _testCase.moduleFor)('EventDispatcher - Instrumentation', function (_RenderingTest3) {
-      (0, _emberBabel.inherits)(_class3, _RenderingTest3);
+  (0, _testCase.moduleFor)('custom EventDispatcher subclass with #setup', function (_RenderingTest3) {
+    (0, _emberBabel.inherits)(_class3, _RenderingTest3);
 
-      function _class3() {
-        (0, _emberBabel.classCallCheck)(this, _class3);
-        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest3.apply(this, arguments));
+    function _class3() {
+      (0, _emberBabel.classCallCheck)(this, _class3);
+
+      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest3.call(this));
+
+      var dispatcher = _this9.owner.lookup('event_dispatcher:main');
+      (0, _emberMetal.run)(dispatcher, 'destroy');
+      _this9.owner.__container__.reset('event_dispatcher:main');
+      _this9.owner.unregister('event_dispatcher:main');
+      return _this9;
+    }
+
+    _class3.prototype['@test canDispatchToEventManager is deprecated in EventDispatcher'] = function testCanDispatchToEventManagerIsDeprecatedInEventDispatcher(assert) {
+      var MyDispatcher = _emberViews.EventDispatcher.extend({
+        canDispatchToEventManager: null
+      });
+      this.owner.register('event_dispatcher:main', MyDispatcher);
+
+      expectDeprecation(/`canDispatchToEventManager` has been deprecated/);
+      this.owner.lookup('event_dispatcher:main');
+    };
+
+    return _class3;
+  }(_testCase.RenderingTest));
+
+  if (_features.EMBER_IMPROVED_INSTRUMENTATION) {
+    (0, _testCase.moduleFor)('EventDispatcher - Instrumentation', function (_RenderingTest4) {
+      (0, _emberBabel.inherits)(_class4, _RenderingTest4);
+
+      function _class4() {
+        (0, _emberBabel.classCallCheck)(this, _class4);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest4.apply(this, arguments));
       }
 
-      _class3.prototype.teardown = function teardown() {
-        _RenderingTest3.prototype.teardown.call(this);
+      _class4.prototype.teardown = function teardown() {
+        _RenderingTest4.prototype.teardown.call(this);
         (0, _emberMetal.instrumentationReset)();
       };
 
-      _class3.prototype['@test instruments triggered events'] = function testInstrumentsTriggeredEvents(assert) {
+      _class4.prototype['@test instruments triggered events'] = function testInstrumentsTriggeredEvents(assert) {
         var clicked = 0;
 
         this.registerComponent('x-foo', {
@@ -23249,20 +23314,20 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
         assert.strictEqual(keypressInstrumented, 0, 'The keypress was not instrumented');
       };
 
-      return _class3;
+      return _class4;
     }(_testCase.RenderingTest));
   }
 
   if (canDataTransfer) {
-    (0, _testCase.moduleFor)('EventDispatcher - Event Properties', function (_RenderingTest4) {
-      (0, _emberBabel.inherits)(_class4, _RenderingTest4);
+    (0, _testCase.moduleFor)('EventDispatcher - Event Properties', function (_RenderingTest5) {
+      (0, _emberBabel.inherits)(_class5, _RenderingTest5);
 
-      function _class4() {
-        (0, _emberBabel.classCallCheck)(this, _class4);
-        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest4.apply(this, arguments));
+      function _class5() {
+        (0, _emberBabel.classCallCheck)(this, _class5);
+        return (0, _emberBabel.possibleConstructorReturn)(this, _RenderingTest5.apply(this, arguments));
       }
 
-      _class4.prototype['@test dataTransfer property is added to drop event'] = function testDataTransferPropertyIsAddedToDropEvent(assert) {
+      _class5.prototype['@test dataTransfer property is added to drop event'] = function testDataTransferPropertyIsAddedToDropEvent(assert) {
         var receivedEvent = void 0;
         this.registerComponent('x-foo', {
           ComponentClass: _helpers.Component.extend({
@@ -23278,7 +23343,7 @@ enifed('ember-glimmer/tests/integration/event-dispatcher-test', ['ember-babel', 
         assert.equal(receivedEvent.dataTransfer, 'success');
       };
 
-      return _class4;
+      return _class5;
     }(_testCase.RenderingTest));
   }
 });
@@ -79615,10 +79680,12 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
 
       var _this = (0, _emberBabel.possibleConstructorReturn)(this, _AbstractTestCase.call(this));
 
+      var bootOptions = _this.getBootOptions();
+
       var owner = _this.owner = (0, _buildOwner.default)({
         ownerOptions: _this.getOwnerOptions(),
-        bootOptions: _this.getBootOptions(),
-        resolver: _this.getResolver()
+        resolver: _this.getResolver(),
+        bootOptions: bootOptions
       });
 
       _this.renderer = _this.owner.lookup('renderer:-dom');
@@ -79627,7 +79694,9 @@ enifed('internal-test-helpers/test-cases/abstract-rendering', ['exports', 'ember
 
       owner.register('event_dispatcher:main', _emberViews.EventDispatcher);
       owner.inject('event_dispatcher:main', '_viewRegistry', '-view-registry:main');
-      owner.lookup('event_dispatcher:main').setup(_this.getCustomDispatcherEvents(), _this.element);
+      if (!bootOptions || bootOptions.isInteractive !== false) {
+        owner.lookup('event_dispatcher:main').setup(_this.getCustomDispatcherEvents(), _this.element);
+      }
       return _this;
     }
 
