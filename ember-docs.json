@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "v2.15.1"
+        "version": "v2.15.2"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -2124,7 +2124,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 19,
+            "line": 18,
             "description": "The internal class used to create text inputs when the `{{input}}`\nhelper is used with `type` of `checkbox`.\n\nSee [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.\n\n## Direct manipulation of `checked`\n\nThe `checked` attribute of an `Ember.Checkbox` object should always be set\nthrough the Ember object or by interacting with its rendered element\nrepresentation via the mouse, keyboard, or touch. Updating the value of the\ncheckbox via jQuery will result in the checked value of the object and its\nelement losing synchronization.\n\n## Layout and LayoutName properties\n\nBecause HTML `input` elements are self closing `layout` and `layoutName`\nproperties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s\nlayout section for more information."
         },
         "ember-metal": {
@@ -3938,7 +3938,7 @@
             "submodule": "ember-views",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 19,
+            "line": 18,
             "description": "`Ember.EventDispatcher` handles delegating browser events to their\ncorresponding `Ember.Views.` For example, when you click on a view,\n`Ember.EventDispatcher` ensures that that view's `mouseDown` method gets\ncalled.",
             "access": "private",
             "tagname": "",
@@ -6226,7 +6226,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/engine-instance.js",
-            "line": 195,
+            "line": 198,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -7388,7 +7388,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 311,
+            "line": 315,
             "description": "Wraps a given model type and observes changes to it.",
             "access": "private",
             "tagname": "",
@@ -7417,7 +7417,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 343,
+            "line": 347,
             "description": "Fetches all models defined in the application.",
             "access": "private",
             "tagname": "",
@@ -7434,7 +7434,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 372,
+            "line": 376,
             "description": "Loops over all namespaces and all objects\nattached to them.",
             "access": "private",
             "tagname": "",
@@ -7451,7 +7451,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 397,
+            "line": 401,
             "description": "Fetches all loaded records for a given type.",
             "access": "private",
             "tagname": "",
@@ -7468,7 +7468,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 410,
+            "line": 414,
             "description": "Wraps a record and observers changes to it.",
             "access": "private",
             "tagname": "",
@@ -7492,7 +7492,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 431,
+            "line": 435,
             "description": "Gets the values for each column.",
             "access": "private",
             "tagname": "",
@@ -7509,7 +7509,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 443,
+            "line": 447,
             "description": "Returns keywords to match when searching records.",
             "access": "private",
             "tagname": "",
@@ -7526,7 +7526,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 454,
+            "line": 458,
             "description": "Returns the values of filters defined by `getFilters`.",
             "access": "private",
             "tagname": "",
@@ -7550,7 +7550,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 466,
+            "line": 470,
             "description": "Each record can have a color that represents its state.",
             "access": "private",
             "tagname": "",
@@ -7574,7 +7574,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 479,
+            "line": 483,
             "description": "Observes all relevant properties and re-sends the wrapped record\nwhen a change occurs.",
             "access": "private",
             "tagname": "",
@@ -20490,7 +20490,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 32,
+            "line": 31,
             "description": "The set of events names (and associated handler function names) to be setup\nand dispatched by the `EventDispatcher`. Modifications to this list can be done\nat setup time, generally via the `Ember.Application.customEvents` hash.\n\nTo add new events to be listened to:\n\n```javascript\nlet App = Ember.Application.create({\n  customEvents: {\n    paste: 'paste'\n  }\n});\n```\n\nTo prevent default events from being listened to:\n\n```javascript\nlet App = Ember.Application.create({\n  customEvents: {\n    mouseenter: null,\n    mouseleave: null\n  }\n});\n```",
             "itemtype": "property",
             "name": "events",
@@ -20504,7 +20504,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 91,
+            "line": 90,
             "description": "The root DOM element to which event listeners should be attached. Event\nlisteners will be attached to the document unless this is overridden.\n\nCan be specified as a DOMElement or a selector string.\n\nThe default body is a string since this may be evaluated before document.body\nexists in the DOM.",
             "access": "private",
             "tagname": "",
@@ -20519,7 +20519,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 107,
+            "line": 106,
             "description": "It enables events to be dispatched to the view's `eventManager.` When present,\nthis object takes precedence over handling of events on the view itself.\n\nNote that most Ember applications do not use this feature. If your app also\ndoes not use it, consider setting this property to false to gain some performance\nimprovement by allowing the EventDispatcher to skip the search for the\n`eventManager` on the view tree.\n\n```javascript\nlet EventDispatcher = Em.EventDispatcher.extend({\n  events: {\n      click       : 'click',\n      focusin     : 'focusIn',\n      focusout    : 'focusOut',\n      change      : 'change'\n  },\n  canDispatchToEventManager: false\n});\ncontainer.register('event_dispatcher:main', EventDispatcher);\n```",
             "itemtype": "property",
             "name": "canDispatchToEventManager",
@@ -20536,7 +20536,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 151,
+            "line": 156,
             "description": "Sets up event listeners for standard browser events.\n\nThis will be called after the browser sends a `DOMContentReady` event. By\ndefault, it will set up all of the listeners on the document body. If you\nwould like to register the listeners on a different element, set the event\ndispatcher's `root` property.",
             "access": "private",
             "tagname": "",
@@ -20556,7 +20556,7 @@
         },
         {
             "file": "packages/ember-views/lib/system/event_dispatcher.js",
-            "line": 194,
+            "line": 199,
             "description": "Registers an event listener on the rootElement. If the given event is\ntriggered, the provided event handler will be triggered on the target view.\n\nIf the target view does not implement the event handler, or if the handler\nreturns `false`, the parent view will be called. The event will continue to\nbubble to each successive parent view until it reaches the top.",
             "access": "private",
             "tagname": "",
