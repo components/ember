@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+20f0dddf
+ * @version   2.17.0-alpha.1-null+5c6333c2
  */
 
 var enifed, requireModule, Ember;
@@ -14655,8 +14655,12 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       }
 
       var observer = {
-        didChange: function () {
-          _emberMetal.run.scheduleOnce('actions', this, onChange);
+        didChange: function (array, idx, removedCount, addedCount) {
+          // Only re-fetch records if the record count changed
+          // (which is all we care about as far as model types are concerned).
+          if (removedCount > 0 || addedCount > 0) {
+            _emberMetal.run.scheduleOnce('actions', this, onChange);
+          }
         },
         willChange: function () {
           return this;
@@ -48201,7 +48205,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+20f0dddf";
+  exports.default = "2.17.0-alpha.1-null+5c6333c2";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

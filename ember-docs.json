@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.20f0dddf"
+        "version": "2.17.0-alpha.1.5c6333c2"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -6881,7 +6881,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 311,
+            "line": 315,
             "description": "Wraps a given model type and observes changes to it.",
             "access": "private",
             "tagname": "",
@@ -6910,7 +6910,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 343,
+            "line": 347,
             "description": "Fetches all models defined in the application.",
             "access": "private",
             "tagname": "",
@@ -6927,7 +6927,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 372,
+            "line": 376,
             "description": "Loops over all namespaces and all objects\nattached to them.",
             "access": "private",
             "tagname": "",
@@ -6944,7 +6944,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 397,
+            "line": 401,
             "description": "Fetches all loaded records for a given type.",
             "access": "private",
             "tagname": "",
@@ -6961,7 +6961,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 410,
+            "line": 414,
             "description": "Wraps a record and observers changes to it.",
             "access": "private",
             "tagname": "",
@@ -6985,7 +6985,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 431,
+            "line": 435,
             "description": "Gets the values for each column.",
             "access": "private",
             "tagname": "",
@@ -7002,7 +7002,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 443,
+            "line": 447,
             "description": "Returns keywords to match when searching records.",
             "access": "private",
             "tagname": "",
@@ -7019,7 +7019,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 454,
+            "line": 458,
             "description": "Returns the values of filters defined by `getFilters`.",
             "access": "private",
             "tagname": "",
@@ -7043,7 +7043,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 466,
+            "line": 470,
             "description": "Each record can have a color that represents its state.",
             "access": "private",
             "tagname": "",
@@ -7067,7 +7067,7 @@
         },
         {
             "file": "packages/ember-extension-support/lib/data_adapter.js",
-            "line": 479,
+            "line": 483,
             "description": "Observes all relevant properties and re-sends the wrapped record\nwhen a change occurs.",
             "access": "private",
             "tagname": "",

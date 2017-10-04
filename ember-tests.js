@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+20f0dddf
+ * @version   2.17.0-alpha.1-null+5c6333c2
  */
 
 var enifed, requireModule, Ember;
@@ -7761,8 +7761,37 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
       });
     };
 
-    _class.prototype['@test Records Added'] = function testRecordsAdded() {
+    _class.prototype['@test Model Types Updated but Unchanged Do not Trigger Callbacks'] = function testModelTypesUpdatedButUnchangedDoNotTriggerCallbacks() {
       var _this6 = this;
+
+      expect(0);
+      var records = (0, _emberRuntime.A)([1, 2, 3]);
+      this.add('data-adapter:main', DataAdapter.extend({
+        getRecords: function (klass, name) {
+          return records;
+        }
+      }));
+      this.add('model:post', PostClass);
+
+      return this.visit('/').then(function () {
+        adapter = _this6.applicationInstance.lookup('data-adapter:main');
+
+        function modelTypesAdded(types) {
+          (0, _emberMetal.run)(function () {
+            records.arrayContentDidChange(0, 0, 0);
+          });
+        }
+
+        function modelTypesUpdated(types) {
+          ok(false, "modelTypesUpdated should not be triggered if the array didn't change");
+        }
+
+        adapter.watchModelTypes(modelTypesAdded, modelTypesUpdated);
+      });
+    };
+
+    _class.prototype['@test Records Added'] = function testRecordsAdded() {
+      var _this7 = this;
 
       var countAdded = 1;
       var post = PostClass.create();
@@ -7785,7 +7814,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
       this.add('model:post', PostClass);
 
       return this.visit('/').then(function () {
-        adapter = _this6.applicationInstance.lookup('data-adapter:main');
+        adapter = _this7.applicationInstance.lookup('data-adapter:main');
 
         function recordsAdded(records) {
           var record = records[0];
@@ -7803,7 +7832,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test Observes and releases a record correctly'] = function testObservesAndReleasesARecordCorrectly() {
-      var _this7 = this;
+      var _this8 = this;
 
       var updatesCalled = 0;
       var post = PostClass.create({ title: 'Post' });
@@ -7830,7 +7859,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
       this.add('model:post', PostClass);
 
       return this.visit('/').then(function () {
-        adapter = _this7.applicationInstance.lookup('data-adapter:main');
+        adapter = _this8.applicationInstance.lookup('data-adapter:main');
 
         function recordsAdded() {
           (0, _emberMetal.set)(post, 'title', 'Post Modified');
@@ -7849,12 +7878,12 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-babel', 'ember
     };
 
     _class.prototype['@test _nameToClass does not error when not found'] = function test_nameToClassDoesNotErrorWhenNotFound() {
-      var _this8 = this;
+      var _this9 = this;
 
       this.add('data-adapter:main', DataAdapter);
 
       return this.visit('/').then(function () {
-        adapter = _this8.applicationInstance.lookup('data-adapter:main');
+        adapter = _this9.applicationInstance.lookup('data-adapter:main');
 
         var klass = adapter._nameToClass('foo');
 
