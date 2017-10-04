@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-beta.2
+ * @version   2.16.0-beta.2-null+96d010ba
  */
 
 var enifed, requireModule, Ember;
@@ -12306,7 +12306,11 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
       var env = parent.lookup('-environment:main');
       this.register('-environment:main', env, { instantiate: false });
 
-      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document', 'event_dispatcher:main'];
+      var singletons = ['router:main', (0, _container.privatize)(_templateObject), '-view-registry:main', 'renderer:-' + (env.isInteractive ? 'dom' : 'inert'), 'service:-document'];
+
+      if (env.isInteractive) {
+        singletons.push('event_dispatcher:main');
+      }
 
       singletons.forEach(function (key) {
         return _this2.register(key, parent.lookup(key), { instantiate: false });
@@ -14679,8 +14683,12 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-utils', 'ember
       }
 
       var observer = {
-        didChange: function () {
-          _emberMetal.run.scheduleOnce('actions', this, onChange);
+        didChange: function (array, idx, removedCount, addedCount) {
+          // Only re-fetch records if the record count changed
+          // (which is all we care about as far as model types are concerned).
+          if (removedCount > 0 || addedCount > 0) {
+            _emberMetal.run.scheduleOnce('actions', this, onChange);
+          }
         },
         willChange: function () {
           return this;
@@ -46811,14 +46819,15 @@ enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   */
   ActionManager.registeredActions = {};
 });
-enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-environment', 'ember-views/compat/fallback-view-registry'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _jquery, _action_manager, _emberEnvironment, _fallbackViewRegistry) {
+enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-views/compat/fallback-view-registry'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _jquery, _action_manager, _fallbackViewRegistry) {
   'use strict';
 
-  var ROOT_ELEMENT_CLASS = 'ember-application'; /**
-                                                @module ember
-                                                @submodule ember-views
-                                                */
+  /**
+  @module ember
+  @submodule ember-views
+  */
 
+  var ROOT_ELEMENT_CLASS = 'ember-application';
   var ROOT_ELEMENT_SELECTOR = '.' + ROOT_ELEMENT_CLASS;
 
   /**
@@ -46930,8 +46939,18 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
     */
 
     init: function () {
+      var _this = this;
+
       this._super();
-      (true && !(_emberEnvironment.environment.hasDOM) && (0, _emberDebug.assert)('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', _emberEnvironment.environment.hasDOM));
+
+      (true && !(function () {
+        var owner = (0, _emberUtils.getOwner)(_this);
+        var environment = owner.lookup('-environment:main');
+
+        return environment.isInteractive;
+      }()) && (0, _emberDebug.assert)('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', function () {
+        var owner = (0, _emberUtils.getOwner)(_this);var environment = owner.lookup('-environment:main');return environment.isInteractive;
+      }()));
       (true && !(!('canDispatchToEventManager' in this)) && (0, _emberDebug.deprecate)('`canDispatchToEventManager` has been deprecated in ' + this + '.', !('canDispatchToEventManager' in this), {
         id: 'ember-views.event-dispatcher.canDispatchToEventManager',
         until: '2.17.0'
@@ -48223,7 +48242,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-beta.2";
+  exports.default = "2.16.0-beta.2-null+96d010ba";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
