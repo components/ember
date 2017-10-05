@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+92a6aece
+ * @version   2.17.0-alpha.1-null+24c67d27
  */
 
 var enifed, requireModule, Ember;
@@ -41373,7 +41373,7 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-utils', 'ember-metal
 
   exports.default = Namespace;
 });
-enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-environment', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/copy'], function (exports, _emberMetal, _emberEnvironment, _array, _mutable_array, _observable, _copyable, _freezable, _copy) {
+enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-environment', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/copyable', 'ember-debug', 'ember-runtime/mixins/freezable', 'ember-runtime/copy'], function (exports, _emberMetal, _emberEnvironment, _array, _mutable_array, _observable, _copyable, _emberDebug, _freezable, _copy) {
   'use strict';
 
   exports.NativeArray = exports.A = undefined;
@@ -41410,9 +41410,8 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
       return this[idx];
     },
     replace: function (idx, amt, objects) {
-      if (this.isFrozen) {
-        throw _freezable.FROZEN_ERROR;
-      }
+      (true && !(!this.isFrozen) && (0, _emberDebug.assert)(_freezable.FROZEN_ERROR, !this.isFrozen));
+
 
       // if we replaced exactly the same number of items, then pass only the
       // replaced range. Otherwise, pass the full remaining array length
@@ -48219,7 +48218,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+92a6aece";
+  exports.default = "2.17.0-alpha.1-null+24c67d27";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
