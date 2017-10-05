@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+24c67d27
+ * @version   2.17.0-alpha.1-null+a20a7848
  */
 
 var enifed, requireModule, Ember;
@@ -23876,30 +23876,30 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   var handleMandatorySetter = void 0;
 
-  function watchKey(obj, keyName, meta$$1) {
+  function watchKey(obj, keyName, _meta) {
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
 
-    var m = meta$$1 === undefined ? meta(obj) : meta$$1;
-    var count = m.peekWatching(keyName) || 0;
-    m.writeWatching(keyName, count + 1);
+    var meta$$1 = _meta === undefined ? meta(obj) : _meta;
+    var count = meta$$1.peekWatching(keyName) || 0;
+    meta$$1.writeWatching(keyName, count + 1);
 
     if (count === 0) {
       // activate watching first time
       var possibleDesc = obj[keyName];
       var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
       if (isDescriptor && possibleDesc.willWatch) {
-        possibleDesc.willWatch(obj, keyName);
+        possibleDesc.willWatch(obj, keyName, meta$$1);
       }
 
-      if ('function' === typeof obj.willWatchProperty) {
+      if (typeof obj.willWatchProperty === 'function') {
         obj.willWatchProperty(keyName);
       }
 
       if (ember_features.MANDATORY_SETTER) {
         // NOTE: this is dropped for prod + minified builds
-        handleMandatorySetter(m, obj, keyName);
+        handleMandatorySetter(meta$$1, obj, keyName);
       }
     }
   }
@@ -23908,7 +23908,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var _hasOwnProperty = function (obj, key) {
       return Object.prototype.hasOwnProperty.call(obj, key);
     };
-
     var _propertyIsEnumerable = function (obj, key) {
       return Object.prototype.propertyIsEnumerable.call(obj, key);
     };
@@ -23969,10 +23968,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
       if (isDescriptor && possibleDesc.didUnwatch) {
-        possibleDesc.didUnwatch(obj, keyName);
+        possibleDesc.didUnwatch(obj, keyName, meta$$1);
       }
 
-      if ('function' === typeof obj.didUnwatchProperty) {
+      if (typeof obj.didUnwatchProperty === 'function') {
         obj.didUnwatchProperty(keyName);
       }
 
@@ -26120,12 +26119,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
     };
 
-    AliasedProperty.prototype.willWatch = function willWatch(obj, keyName) {
-      addDependentKeys(this, obj, keyName, meta(obj));
+    AliasedProperty.prototype.willWatch = function willWatch(obj, keyName, meta$$1) {
+      addDependentKeys(this, obj, keyName, meta$$1);
     };
 
-    AliasedProperty.prototype.didUnwatch = function didUnwatch(obj, keyName) {
-      removeDependentKeys(this, obj, keyName, meta(obj));
+    AliasedProperty.prototype.didUnwatch = function didUnwatch(obj, keyName, meta$$1) {
+      removeDependentKeys(this, obj, keyName, meta$$1);
     };
 
     AliasedProperty.prototype.get = function get$$1(obj, keyName) {
@@ -48218,7 +48217,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+24c67d27";
+  exports.default = "2.17.0-alpha.1-null+a20a7848";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
