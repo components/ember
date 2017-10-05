@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.a20a7848"
+        "version": "2.17.0-alpha.1.5cbe3fff"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -9621,7 +9621,29 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 546,
+            "line": 535,
+            "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
+            "itemtype": "method",
+            "name": "deleteMeta",
+            "params": [
+                {
+                    "name": "obj",
+                    "description": "the object to destroy",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Void"
+            },
+            "access": "private",
+            "tagname": "",
+            "class": "Ember",
+            "module": "ember-metal"
+        },
+        {
+            "file": "packages/ember-metal/lib/meta.js",
+            "line": 556,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -10749,7 +10771,7 @@
         },
         {
             "file": "packages/ember-metal/lib/watching.js",
-            "line": 20,
+            "line": 19,
             "description": "Starts watching a property on an object. Whenever the property changes,\ninvokes `Ember.propertyWillChange` and `Ember.propertyDidChange`. This is the\nprimitive used by observers and dependent keys; usually you will never call\nthis method directly but instead use higher level methods like\n`Ember.addObserver()`",
             "access": "private",
             "tagname": "",
@@ -10766,28 +10788,6 @@
                     "type": "String"
                 }
             ],
-            "class": "Ember",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/watching.js",
-            "line": 58,
-            "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
-            "itemtype": "method",
-            "name": "destroy",
-            "params": [
-                {
-                    "name": "obj",
-                    "description": "the object to destroy",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "",
-                "type": "Void"
-            },
-            "access": "private",
-            "tagname": "",
             "class": "Ember",
             "module": "ember-metal"
         },

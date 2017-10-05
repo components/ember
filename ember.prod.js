@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+a20a7848
+ * @version   2.17.0-alpha.1-null+5cbe3fff
  */
 
 var enifed, requireModule, Ember;
@@ -24015,6 +24015,18 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
+    Tears down the meta on an object so that it can be garbage collected.
+    Multiple calls will have no effect.
+  
+    @method deleteMeta
+    @for Ember
+    @param {Object} obj  the object to destroy
+    @return {void}
+    @private
+  */
+
+
+  /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
     hash is writable for this object as well.
   
@@ -28654,6 +28666,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
   exports.META_DESC = META_DESC;
   exports.meta = meta;
+  exports.deleteMeta = function (obj) {
+    var meta = exports.peekMeta(obj);
+    if (meta !== undefined) {
+      meta.destroy();
+    }
+  };
   exports.Cache = Cache;
   exports._getPath = _getPath;
   exports.get = get;
@@ -28746,12 +28764,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.removeChainWatcher = removeChainWatcher;
   exports.watchPath = watchPath;
   exports.unwatchPath = unwatchPath;
-  exports.destroy = function (obj) {
-    var meta = exports.peekMeta(obj);
-    if (meta !== undefined) {
-      meta.destroy();
-    }
-  };
   exports.isWatching = function (obj, key) {
     return watcherCount(obj, key) > 0;
   };
@@ -40131,7 +40143,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     if (m.isSourceDestroyed()) {
       return;
     }
-    (0, _emberMetal.destroy)(this);
+    (0, _emberMetal.deleteMeta)(this);
     m.setSourceDestroyed();
   }, _Mixin$create.bind = function (to, from) {
     if (!(from instanceof _emberMetal.Binding)) {
@@ -43985,7 +43997,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.watch = _emberMetal.watch;
   _emberMetal.default.isWatching = _emberMetal.isWatching;
   _emberMetal.default.unwatch = _emberMetal.unwatch;
-  _emberMetal.default.destroy = _emberMetal.destroy;
+  _emberMetal.default.destroy = _emberMetal.deleteMeta;
   _emberMetal.default.libraries = _emberMetal.libraries;
   _emberMetal.default.OrderedSet = _emberMetal.OrderedSet;
   _emberMetal.default.Map = _emberMetal.Map;
@@ -44389,7 +44401,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+a20a7848";
+  exports.default = "2.17.0-alpha.1-null+5cbe3fff";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
