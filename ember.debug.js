@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+87291c1a
+ * @version   2.17.0-alpha.1-null+f5183973
  */
 
 var enifed, requireModule, Ember;
@@ -32382,20 +32382,17 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         // Update the model dep values used to calculate cache keys.
         (0, _utils.stashParamNames)(this.router, transition.state.handlerInfos);
 
+        var cache = this._bucketCache;
         var params = transition.params;
         var allParams = queryParams.propertyNames;
-        var cache = this._bucketCache;
 
         allParams.forEach(function (prop) {
           var aQp = queryParams.map[prop];
-
           aQp.values = params;
-          var cacheKey = (0, _utils.calculateCacheKey)(aQp.route.fullRouteName, aQp.parts, aQp.values);
 
-          if (cache) {
-            var value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
-            (0, _emberMetal.set)(controller, prop, value);
-          }
+          var cacheKey = (0, _utils.calculateCacheKey)(aQp.route.fullRouteName, aQp.parts, aQp.values);
+          var value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
+          (0, _emberMetal.set)(controller, prop, value);
         });
 
         var qpValues = getQueryParamsFor(this, transition.state);
@@ -32413,13 +32410,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         return;
       }
 
-      var cacheKey = (0, _utils.calculateCacheKey)(qp.route.fullRouteName, qp.parts, qp.values);
-
       // Update model-dep cache
       var cache = this._bucketCache;
-      if (cache) {
-        cache.stash(cacheKey, prop, value);
-      }
+      var cacheKey = (0, _utils.calculateCacheKey)(qp.route.fullRouteName, qp.parts, qp.values);
+      cache.stash(cacheKey, prop, value);
     },
 
 
@@ -48203,7 +48197,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+87291c1a";
+  exports.default = "2.17.0-alpha.1-null+f5183973";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
