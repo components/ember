@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+47026fc3
+ * @version   2.17.0-alpha.1-null+1cbc8db4
  */
 
 var enifed, requireModule, Ember;
@@ -10272,16 +10272,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     throw new Error('Could not create factory');
   }
 
-  function markInjectionsAsDynamic(injections) {
-    injections._dynamic = true;
-  }
-
-  function areInjectionsNotDynamic(injections) {
-    return injections._dynamic !== true;
-  }
-
   function buildInjections() /* container, ...injections */{
     var hash = {};
+    var isDynamic = false;
 
     if (arguments.length > 1) {
       var container = arguments[0];
@@ -10298,21 +10291,16 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         container.registry.validateInjections(injections);
       }
 
-      var markAsDynamic = false;
       for (var _i = 0; _i < injections.length; _i++) {
         injection = injections[_i];
         hash[injection.property] = lookup(container, injection.fullName);
-        if (!markAsDynamic) {
-          markAsDynamic = !isSingleton(container, injection.fullName);
+        if (!isDynamic) {
+          isDynamic = !isSingleton(container, injection.fullName);
         }
-      }
-
-      if (markAsDynamic) {
-        markInjectionsAsDynamic(hash);
       }
     }
 
-    return hash;
+    return { injections: hash, isDynamic: isDynamic };
   }
 
   function injectionsFor(container, fullName) {
@@ -10320,9 +10308,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     var splitName = fullName.split(':');
     var type = splitName[0];
 
-    var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
-
-    return injections;
+    return buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
   }
 
   function destroyDestroyables(container) {
@@ -10382,14 +10368,19 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     FactoryManager.prototype.create = function create() {
       var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-      var injections = this.injections;
-      if (injections === undefined) {
-        injections = injectionsFor(this.container, this.normalizedName);
-        if (areInjectionsNotDynamic(injections)) {
+      var injectionsCache = this.injections;
+      if (injectionsCache === undefined) {
+        var _injectionsFor = injectionsFor(this.container, this.normalizedName),
+            injections = _injectionsFor.injections,
+            isDynamic = _injectionsFor.isDynamic;
+
+        injectionsCache = injections;
+        if (!isDynamic) {
           this.injections = injections;
         }
       }
-      var props = (0, _emberUtils.assign)({}, injections, options);
+
+      var props = (0, _emberUtils.assign)({}, injectionsCache, options);
 
       if (true) {
         var lazyInjections = void 0;
@@ -48227,7 +48218,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+47026fc3";
+  exports.default = "2.17.0-alpha.1-null+1cbc8db4";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
