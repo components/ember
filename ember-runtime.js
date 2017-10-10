@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c63ca139
+ * @version   2.17.0-alpha.1-null+8d5ee89c
  */
 
 var enifed, requireModule, Ember;
@@ -285,10 +285,12 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       }
     }
 
-    var cacheKey = container._resolverCacheKey(fullName, options);
-    var cached = container.cache[cacheKey];
-    if (cached !== undefined && options.singleton !== false) {
-      return cached;
+    if (options.singleton !== false) {
+      var cacheKey = container._resolverCacheKey(fullName, options);
+      var cached = container.cache[cacheKey];
+      if (cached !== undefined) {
+        return cached;
+      }
     }
 
     return instantiateFactory(container, fullName, options);
@@ -329,11 +331,10 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       return;
     }
 
-    var cacheKey = container._resolverCacheKey(fullName, options);
-
     // SomeClass { singleton: true, instantiate: true } | { singleton: true } | { instantiate: true } | {}
     // By default majority of objects fall into this case
     if (isSingletonInstance(container, fullName, options)) {
+      var cacheKey = container._resolverCacheKey(fullName, options);
       return container.cache[cacheKey] = factoryManager.create();
     }
 
@@ -436,7 +437,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     }
 
     FactoryManager.prototype.toString = function toString() {
-      if (!this.madeToString) {
+      if (this.madeToString === undefined) {
         this.madeToString = this.container.registry.makeToString(this.class, this.fullName);
       }
 
@@ -796,23 +797,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     isValidFullName: function (fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
     },
-    normalizeInjectionsHash: function (hash) {
-      var injections = [];
-
-      for (var key in hash) {
-        if (hash.hasOwnProperty(key)) {
-          (true && !(this.validateFullName(hash[key])) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key])));
-
-
-          injections.push({
-            property: key,
-            fullName: hash[key]
-          });
-        }
-      }
-
-      return injections;
-    },
     getInjections: function (fullName) {
       var injections = this._injections[fullName] || [];
       if (this.fallback) {
@@ -862,6 +846,24 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
   }
 
   if (true) {
+    Registry.prototype.normalizeInjectionsHash = function (hash) {
+      var injections = [];
+
+      for (var key in hash) {
+        if (hash.hasOwnProperty(key)) {
+          (true && !(this.validateFullName(hash[key])) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key])));
+
+
+          injections.push({
+            property: key,
+            fullName: hash[key]
+          });
+        }
+      }
+
+      return injections;
+    };
+
     Registry.prototype.validateInjections = function (injections) {
       if (!injections) {
         return;

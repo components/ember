@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c63ca139
+ * @version   2.17.0-alpha.1-null+8d5ee89c
  */
 
 var enifed, requireModule, Ember;
@@ -5714,7 +5714,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
   function lookup(container, fullName) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-        expandedFullName;
+        expandedFullName,
+        cacheKey,
+        cached;
 
     if (options.source) {
       expandedFullName = container.registry.expandLocalLookup(fullName, options);
@@ -5735,10 +5737,13 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       }
     }
 
-    var cacheKey = container._resolverCacheKey(fullName, options);
-    var cached = container.cache[cacheKey];
-    if (cached !== undefined && options.singleton !== false) {
-      return cached;
+    if (options.singleton !== false) {
+      cacheKey = container._resolverCacheKey(fullName, options);
+      cached = container.cache[cacheKey];
+
+      if (cached !== undefined) {
+        return cached;
+      }
     }
 
     return instantiateFactory(container, fullName, options);
@@ -5773,17 +5778,18 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
   }
 
   function instantiateFactory(container, fullName, options) {
-    var factoryManager = _features.EMBER_MODULE_UNIFICATION && options && options.source ? container.factoryFor(fullName, options) : container.factoryFor(fullName);
+    var factoryManager = _features.EMBER_MODULE_UNIFICATION && options && options.source ? container.factoryFor(fullName, options) : container.factoryFor(fullName),
+        cacheKey;
 
     if (factoryManager === undefined) {
       return;
     }
 
-    var cacheKey = container._resolverCacheKey(fullName, options);
-
     // SomeClass { singleton: true, instantiate: true } | { singleton: true } | { instantiate: true } | {}
     // By default majority of objects fall into this case
     if (isSingletonInstance(container, fullName, options)) {
+      cacheKey = container._resolverCacheKey(fullName, options);
+
       return container.cache[cacheKey] = factoryManager.create();
     }
 
@@ -5894,7 +5900,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     }
 
     FactoryManager.prototype.toString = function () {
-      if (!this.madeToString) {
+      if (this.madeToString === undefined) {
         this.madeToString = this.container.registry.makeToString(this.class, this.fullName);
       }
 
@@ -6256,22 +6262,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     isValidFullName: function (fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
     },
-    normalizeInjectionsHash: function (hash) {
-      var injections = [];
-
-      for (var key in hash) {
-        if (hash.hasOwnProperty(key)) {
-          true && !this.validateFullName(hash[key]) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
-
-          injections.push({
-            property: key,
-            fullName: hash[key]
-          });
-        }
-      }
-
-      return injections;
-    },
     getInjections: function (fullName) {
       var injections = this._injections[fullName] || [];
       if (this.fallback) {
@@ -6321,6 +6311,23 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       resolve: registry.resolver
     };
   }
+
+  Registry.prototype.normalizeInjectionsHash = function (hash) {
+    var injections = [];
+
+    for (var key in hash) {
+      if (hash.hasOwnProperty(key)) {
+        true && !this.validateFullName(hash[key]) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
+
+        injections.push({
+          property: key,
+          fullName: hash[key]
+        });
+      }
+    }
+
+    return injections;
+  };
 
   Registry.prototype.validateInjections = function (injections) {
     if (!injections) {
@@ -17082,7 +17089,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+c63ca139";
+  exports.default = "2.17.0-alpha.1-null+8d5ee89c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
