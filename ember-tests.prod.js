@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-beta.2-null+b8fe28f3
+ * @version   2.17.0-beta.1-null+a613289f
  */
 
 var enifed, requireModule, Ember;
@@ -7462,7 +7462,7 @@ enifed('ember-glimmer/tests/integration/application/actions-test', ['ember-babel
     return _class2;
   }(_testCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing'], function (_emberBabel, _testCase, _abstractTestCase, _helpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting) {
+enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-glimmer/tests/utils/abstract-test-case', 'ember-glimmer/tests/utils/helpers', 'ember-runtime', 'ember-glimmer', 'ember-application', 'ember-routing', 'ember-metal'], function (_emberBabel, _testCase, _abstractTestCase, _helpers, _emberRuntime, _emberGlimmer, _emberApplication, _emberRouting, _emberMetal) {
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    '], ['\n      <h1>{{contextType}}</h1>\n      {{ambiguous-curlies}}\n\n      {{outlet}}\n    ']),
@@ -7827,8 +7827,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:application_error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:application_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -7841,6 +7848,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this12.assertText('Application');
         return _this12.transitionTo('blog.post');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this12.assertText('ApplicationError! Oh, noes!');
       });
     };
@@ -7850,8 +7859,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -7864,6 +7880,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this13.assertText('Application');
         return _this13.transitionTo('blog.post');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this13.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -7873,8 +7891,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:post_error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:post_error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
@@ -7887,6 +7912,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this14.assertText('Application');
         return _this14.transitionTo('blog.post');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this14.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -7896,8 +7923,15 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
 
       assert.expect(2);
 
+      var errorEntered = _emberRuntime.RSVP.defer();
+
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:post.error', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(errorEntered.resolve);
+          }
+        }));
         this.register('template:post.error', (0, _helpers.compile)('Error! {{model.message}}'));
         this.register('route:post.comments', _emberRouting.Route.extend({
           model: function () {
@@ -7910,6 +7944,8 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this15.assertText('Application');
         return _this15.transitionTo('blog.post.comments');
       }).then(function () {
+        return errorEntered.promise;
+      }).then(function () {
         _this15.assertText('ApplicationEngineError! Oh, noes!');
       });
     };
@@ -7918,18 +7954,23 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this16 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:application_loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:application_loading', (0, _helpers.compile)('Loading'));
         this.register('template:post', (0, _helpers.compile)('Post'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -7938,16 +7979,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this16.assertText('Application');
         var transition = _this16.transitionTo('blog.post');
 
-        _this16.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this16.assertText('ApplicationLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this16.runTaskNext(function () {
-            return _this16.assertText('ApplicationEnginePost');
+            _this16.assertText('ApplicationEnginePost');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -7955,18 +7997,23 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this17 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
+        this.register('route:loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:loading', (0, _helpers.compile)('Loading'));
         this.register('template:post', (0, _helpers.compile)('Post'));
         this.register('route:post', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -7975,16 +8022,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this17.assertText('Application');
         var transition = _this17.transitionTo('blog.post');
 
-        _this17.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this17.assertText('ApplicationEngineLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this17.runTaskNext(function () {
-            return _this17.assertText('ApplicationEnginePost');
+            _this17.assertText('ApplicationEnginePost');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8031,20 +8079,25 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       var _this19 = this;
 
       assert.expect(3);
+      var done = assert.async();
 
-      var resolveLoading = void 0;
+      var loadingEntered = _emberRuntime.RSVP.defer();
+      var resolveLoading = _emberRuntime.RSVP.defer();
 
       this.setupAppAndRoutableEngine();
       this.additionalEngineRegistrations(function () {
         this.register('template:post', (0, _helpers.compile)('{{outlet}}'));
         this.register('template:post.comments', (0, _helpers.compile)('Comments'));
+        this.register('route:post.loading', _emberRouting.Route.extend({
+          activate: function () {
+            _emberMetal.run.next(loadingEntered.resolve);
+          }
+        }));
         this.register('template:post.loading', (0, _helpers.compile)('Loading'));
         this.register('template:post.likes', (0, _helpers.compile)('Likes'));
         this.register('route:post.likes', _emberRouting.Route.extend({
           model: function () {
-            return new _emberRuntime.RSVP.Promise(function (resolve) {
-              resolveLoading = resolve;
-            });
+            return resolveLoading.promise;
           }
         }));
       });
@@ -8053,16 +8106,17 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
         _this19.assertText('ApplicationEngineComments');
         var transition = _this19.transitionTo('blog.post.likes');
 
-        _this19.runTaskNext(function () {
+        loadingEntered.promise.then(function () {
           _this19.assertText('ApplicationEngineLoading');
-          resolveLoading();
-        });
+          resolveLoading.resolve();
 
-        return transition.then(function () {
           _this19.runTaskNext(function () {
-            return _this19.assertText('ApplicationEngineLikes');
+            _this19.assertText('ApplicationEngineLikes');
+            done();
           });
         });
+
+        return transition;
       });
     };
 
@@ -8105,6 +8159,76 @@ enifed('ember-glimmer/tests/integration/application/engine-test', ['ember-babel'
       });
     };
 
+    _class.prototype['@test visit() routable engine which errors on init'] = function (assert) {
+      var _this22 = this;
+
+      assert.expect(1);
+
+      this.additionalEngineRegistrations(function () {
+        this.register('route:application', _emberRouting.Route.extend({
+          init: function () {
+            throw new Error('Whoops! Something went wrong...');
+          }
+        }));
+      });
+
+      this.setupAppAndRoutableEngine([]);
+
+      return this.visit('/', { shouldRender: true }).then(function () {
+        return _this22.visit('/blog');
+      }).catch(function (error) {
+        assert.equal(error.message, 'Whoops! Something went wrong...');
+      });
+    };
+
+    (0, _emberBabel.createClass)(_class, [{
+      key: 'routerOptions',
+      get: function () {
+        this.assert;
+
+
+        return {
+          location: 'none',
+
+          _getHandlerFunction: function () {
+            var _this23 = this;
+
+            var syncHandler = this._super.apply(this, arguments);
+            this._enginePromises = Object.create(null);
+            this._resolvedEngines = Object.create(null);
+
+            return function (name) {
+              var engineInfo = _this23._engineInfoByRoute[name];
+              if (!engineInfo) {
+                return syncHandler(name);
+              }
+
+              var engineName = engineInfo.name;
+              if (_this23._resolvedEngines[engineName]) {
+                return syncHandler(name);
+              }
+
+              var enginePromise = _this23._enginePromises[engineName];
+
+              if (!enginePromise) {
+                enginePromise = new _emberRuntime.RSVP.Promise(function (resolve) {
+                  setTimeout(function () {
+                    _this23._resolvedEngines[engineName] = true;
+
+                    resolve();
+                  }, 1);
+                });
+                _this23._enginePromises[engineName] = enginePromise;
+              }
+
+              return enginePromise.then(function () {
+                return syncHandler(name);
+              });
+            };
+          }
+        };
+      }
+    }]);
     return _class;
   }(_testCase.ApplicationTest));
 });
@@ -39268,19 +39392,19 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     });
 
     QUnit.test('forEach without proper callback', function () {
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach();
       }, '[object Undefined] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach(undefined);
       }, '[object Undefined] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach(1);
       }, '[object Number] is not a function');
 
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach({});
       }, '[object Object] is not a function');
 
@@ -39289,7 +39413,7 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
       });
       // ensure the error happens even if no data is present
       equal(map.size, 0);
-      QUnit.throws(function () {
+      expectAssertion(function () {
         map.forEach({});
       }, '[object Object] is not a function');
     });
@@ -39501,13 +39625,6 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
     equal(map.constructor, _emberMetal.Map);
   });
 
-  QUnit.test('Map() without `new`', function () {
-    QUnit.throws(function () {
-      // jshint newcap:false
-      (0, _emberMetal.Map)();
-    }, /Constructor Map requires 'new'/);
-  });
-
   QUnit.test('MapWithDefault.prototype.constructor', function () {
     var map = new _emberMetal.MapWithDefault({
       defaultValue: function (key) {
@@ -39554,13 +39671,6 @@ enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
 
       map = _emberMetal.OrderedSet.create();
     }
-  });
-
-  QUnit.test('OrderedSet() without `new`', function () {
-    QUnit.throws(function () {
-      // jshint newcap:false
-      (0, _emberMetal.OrderedSet)();
-    }, /Constructor OrderedSet requires 'new'/);
   });
 
   QUnit.test('add returns the set', function () {
@@ -43595,7 +43705,7 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
     equal(meta_objB.peekWatching('foo'), 1, 'should be watching foo');
     equal(meta_objB.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
 
-    (0, _emberMetal.destroy)(objA);
+    (0, _emberMetal.deleteMeta)(objA);
 
     equal(meta_objB.peekWatching('foo'), 0, 'should not be watching foo');
     equal(meta_objB.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
@@ -48927,15 +49037,6 @@ enifed('ember-runtime/tests/inject_test', ['ember-metal', 'ember-runtime/inject'
       }, /Attempting to inject an unknown injection: 'bar:baz'/);
     });
   }
-
-  QUnit.test('factories should return a list of lazy injection full names', function () {
-    var AnObject = _object.default.extend({
-      foo: new _emberMetal.InjectedProperty('foo', 'bar'),
-      bar: new _emberMetal.InjectedProperty('quux')
-    });
-
-    deepEqual(AnObject._lazyInjections(), { 'foo': 'foo:bar', 'bar': 'quux:bar' }, 'should return injected container keys');
-  });
 });
 enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-metal', 'ember-runtime/system/object', 'ember-runtime/system/native_array'], function (_emberMetal, _object, _native_array) {
   'use strict';
@@ -58546,68 +58647,24 @@ enifed('ember-runtime/tests/system/string/camelize_test', ['ember-environment', 
     });
   }
 
-  QUnit.test('camelize normal string', function () {
-    deepEqual((0, _string.camelize)('my favorite items'), 'myFavoriteItems');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.camelize(), 'myFavoriteItems');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.camelize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.camelize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('camelize capitalized string', function () {
-    deepEqual((0, _string.camelize)('I Love Ramen'), 'iLoveRamen');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('I Love Ramen'.camelize(), 'iLoveRamen');
-    }
-  });
-
-  QUnit.test('camelize dasherized string', function () {
-    deepEqual((0, _string.camelize)('css-class-name'), 'cssClassName');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.camelize(), 'cssClassName');
-    }
-  });
-
-  QUnit.test('camelize underscored string', function () {
-    deepEqual((0, _string.camelize)('action_name'), 'actionName');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.camelize(), 'actionName');
-    }
-  });
-
-  QUnit.test('camelize dot notation string', function () {
-    deepEqual((0, _string.camelize)('action.name'), 'actionName');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action.name'.camelize(), 'actionName');
-    }
-  });
-
-  QUnit.test('does nothing with camelcased string', function () {
-    deepEqual((0, _string.camelize)('innerHTML'), 'innerHTML');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.camelize(), 'innerHTML');
-    }
-  });
-
-  QUnit.test('camelize namespaced classified string', function () {
-    deepEqual((0, _string.camelize)('PrivateDocs/OwnerInvoice'), 'privateDocs/ownerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.camelize(), 'privateDocs/ownerInvoice');
-    }
-  });
-
-  QUnit.test('camelize namespaced underscored string', function () {
-    deepEqual((0, _string.camelize)('private_docs/owner_invoice'), 'privateDocs/ownerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private_docs/owner_invoice'.camelize(), 'privateDocs/ownerInvoice');
-    }
-  });
-
-  QUnit.test('camelize namespaced dasherized string', function () {
-    deepEqual((0, _string.camelize)('private-docs/owner-invoice'), 'privateDocs/ownerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private-docs/owner-invoice'.camelize(), 'privateDocs/ownerInvoice');
-    }
-  });
+  test('my favorite items', 'myFavoriteItems', 'camelize normal string');
+  test('I Love Ramen', 'iLoveRamen', 'camelize capitalized string');
+  test('css-class-name', 'cssClassName', 'camelize dasherized string');
+  test('action_name', 'actionName', 'camelize underscored string');
+  test('action.name', 'actionName', 'camelize dot notation string');
+  test('innerHTML', 'innerHTML', 'does nothing with camelcased string');
+  test('PrivateDocs/OwnerInvoice', 'privateDocs/ownerInvoice', 'camelize namespaced classified string');
+  test('private_docs/owner_invoice', 'privateDocs/ownerInvoice', 'camelize namespaced underscored string');
+  test('private-docs/owner-invoice', 'privateDocs/ownerInvoice', 'camelize namespaced dasherized string');
 });
 enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
   'use strict';
@@ -58620,68 +58677,24 @@ enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-environment'
     });
   }
 
-  QUnit.test('capitalize normal string', function () {
-    deepEqual((0, _string.capitalize)('my favorite items'), 'My favorite items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.capitalize(), 'My favorite items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.capitalize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.capitalize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('capitalize dasherized string', function () {
-    deepEqual((0, _string.capitalize)('css-class-name'), 'Css-class-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.capitalize(), 'Css-class-name');
-    }
-  });
-
-  QUnit.test('capitalize underscored string', function () {
-    deepEqual((0, _string.capitalize)('action_name'), 'Action_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.capitalize(), 'Action_name');
-    }
-  });
-
-  QUnit.test('capitalize camelcased string', function () {
-    deepEqual((0, _string.capitalize)('innerHTML'), 'InnerHTML');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.capitalize(), 'InnerHTML');
-    }
-  });
-
-  QUnit.test('does nothing with capitalized string', function () {
-    deepEqual((0, _string.capitalize)('Capitalized string'), 'Capitalized string');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('Capitalized string'.capitalize(), 'Capitalized string');
-    }
-  });
-
-  QUnit.test('capitalize namespaced camelized string', function () {
-    deepEqual((0, _string.capitalize)('privateDocs/ownerInvoice'), 'PrivateDocs/OwnerInvoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.capitalize(), 'PrivateDocs/OwnerInvoice');
-    }
-  });
-
-  QUnit.test('capitalize namespaced underscored string', function () {
-    deepEqual((0, _string.capitalize)('private_docs/owner_invoice'), 'Private_docs/Owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private_docs/owner_invoice'.capitalize(), 'Private_docs/Owner_invoice');
-    }
-  });
-
-  QUnit.test('capitalize namespaced dasherized string', function () {
-    deepEqual((0, _string.capitalize)('private-docs/owner-invoice'), 'Private-docs/Owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private-docs/owner-invoice'.capitalize(), 'Private-docs/Owner-invoice');
-    }
-  });
-
-  QUnit.test('capitalize string with accent character', function () {
-    deepEqual((0, _string.capitalize)('šabc'), 'Šabc');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('šabc'.capitalize(), 'Šabc');
-    }
-  });
+  test('my favorite items', 'My favorite items', 'capitalize normal string');
+  test('css-class-name', 'Css-class-name', 'capitalize dasherized string');
+  test('action_name', 'Action_name', 'capitalize underscored string');
+  test('innerHTML', 'InnerHTML', 'capitalize camelcased string');
+  test('Capitalized string', 'Capitalized string', 'does nothing with capitalized string');
+  test('privateDocs/ownerInvoice', 'PrivateDocs/OwnerInvoice', 'capitalize namespaced camelized string');
+  test('private_docs/owner_invoice', 'Private_docs/Owner_invoice', 'capitalize namespaced underscored string');
+  test('private-docs/owner-invoice', 'Private-docs/Owner-invoice', 'capitalize namespaced dasherized string');
+  test('šabc', 'Šabc', 'capitalize string with accent character');
 });
 enifed('ember-runtime/tests/system/string/classify_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
   'use strict';
@@ -58730,61 +58743,23 @@ enifed('ember-runtime/tests/system/string/dasherize_test', ['ember-environment',
     });
   }
 
-  QUnit.test('dasherize normal string', function () {
-    deepEqual((0, _string.dasherize)('my favorite items'), 'my-favorite-items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.dasherize(), 'my-favorite-items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.dasherize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.dasherize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('does nothing with dasherized string', function () {
-    deepEqual((0, _string.dasherize)('css-class-name'), 'css-class-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.dasherize(), 'css-class-name');
-    }
-  });
-
-  QUnit.test('dasherize underscored string', function () {
-    deepEqual((0, _string.dasherize)('action_name'), 'action-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.dasherize(), 'action-name');
-    }
-  });
-
-  QUnit.test('dasherize camelcased string', function () {
-    deepEqual((0, _string.dasherize)('innerHTML'), 'inner-html');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.dasherize(), 'inner-html');
-    }
-  });
-
-  QUnit.test('dasherize string that is the property name of Object.prototype', function () {
-    deepEqual((0, _string.dasherize)('toString'), 'to-string');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('toString'.dasherize(), 'to-string');
-    }
-  });
-
-  QUnit.test('dasherize namespaced classified string', function () {
-    deepEqual((0, _string.dasherize)('PrivateDocs/OwnerInvoice'), 'private-docs/owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.dasherize(), 'private-docs/owner-invoice');
-    }
-  });
-
-  QUnit.test('dasherize namespaced camelized string', function () {
-    deepEqual((0, _string.dasherize)('privateDocs/ownerInvoice'), 'private-docs/owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.dasherize(), 'private-docs/owner-invoice');
-    }
-  });
-
-  QUnit.test('dasherize namespaced underscored string', function () {
-    deepEqual((0, _string.dasherize)('private_docs/owner_invoice'), 'private-docs/owner-invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private_docs/owner_invoice'.dasherize(), 'private-docs/owner-invoice');
-    }
-  });
+  test('my favorite items', 'my-favorite-items', 'dasherize normal string');
+  test('css-class-name', 'css-class-name', 'does nothing with dasherized string');
+  test('action_name', 'action-name', 'dasherize underscored string');
+  test('innerHTML', 'inner-html', 'dasherize camelcased string');
+  test('toString', 'to-string', 'dasherize string that is the property name of Object.prototype');
+  test('PrivateDocs/OwnerInvoice', 'private-docs/owner-invoice', 'dasherize namespaced classified string');
+  test('privateDocs/ownerInvoice', 'private-docs/owner-invoice', 'dasherize namespaced camelized string');
+  test('private_docs/owner_invoice', 'private-docs/owner-invoice', 'dasherize namespaced underscored string');
 });
 enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
   'use strict';
@@ -58797,54 +58772,22 @@ enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-environment'
     });
   }
 
-  QUnit.test('does nothing with normal string', function () {
-    deepEqual((0, _string.decamelize)('my favorite items'), 'my favorite items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.decamelize(), 'my favorite items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.decamelize)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.decamelize(), expected);
+      }
+    });
+  }
 
-  QUnit.test('does nothing with dasherized string', function () {
-    deepEqual((0, _string.decamelize)('css-class-name'), 'css-class-name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.decamelize(), 'css-class-name');
-    }
-  });
-
-  QUnit.test('does nothing with underscored string', function () {
-    deepEqual((0, _string.decamelize)('action_name'), 'action_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.decamelize(), 'action_name');
-    }
-  });
-
-  QUnit.test('converts a camelized string into all lower case separated by underscores.', function () {
-    deepEqual((0, _string.decamelize)('innerHTML'), 'inner_html');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.decamelize(), 'inner_html');
-    }
-  });
-
-  QUnit.test('decamelizes strings with numbers', function () {
-    deepEqual((0, _string.decamelize)('size160Url'), 'size160_url');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('size160Url'.decamelize(), 'size160_url');
-    }
-  });
-
-  QUnit.test('decamelize namespaced classified string', function () {
-    deepEqual((0, _string.decamelize)('PrivateDocs/OwnerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.decamelize(), 'private_docs/owner_invoice');
-    }
-  });
-
-  QUnit.test('decamelize namespaced camelized string', function () {
-    deepEqual((0, _string.decamelize)('privateDocs/ownerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.decamelize(), 'private_docs/owner_invoice');
-    }
-  });
+  test('my favorite items', 'my favorite items', 'does nothing with normal string');
+  test('css-class-name', 'css-class-name', 'does nothing with dasherized string');
+  test('action_name', 'action_name', 'does nothing with underscored string');
+  test('innerHTML', 'inner_html', 'converts a camelized string into all lower case separated by underscores.');
+  test('size160Url', 'size160_url', 'decamelizes strings with numbers');
+  test('PrivateDocs/OwnerInvoice', 'private_docs/owner_invoice', 'decamelize namespaced classified string');
+  test('privateDocs/ownerInvoice', 'private_docs/owner_invoice', 'decamelize namespaced camelized string');
 });
 enifed('ember-runtime/tests/system/string/fmt_string_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
   'use strict';
@@ -58857,38 +58800,20 @@ enifed('ember-runtime/tests/system/string/fmt_string_test', ['ember-environment'
     });
   }
 
-  QUnit.test('\'Hello %@ %@\'.fmt(\'John\', \'Doe\') => \'Hello John Doe\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('Hello %@ %@', ['John', 'Doe']), 'Hello John Doe');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('Hello %@ %@'.fmt('John', 'Doe'), 'Hello John Doe');
-    }
-  });
+  function test(given, args, expected, description) {
+    QUnit.test(description, function () {
+      expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
+      equal((0, _string.fmt)(given, args), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        equal(given.fmt.apply(given, args), expected);
+      }
+    });
+  }
 
-  QUnit.test('\'Hello %@2 %@1\'.fmt(\'John\', \'Doe\') => \'Hello Doe John\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('Hello %@2 %@1', ['John', 'Doe']), 'Hello Doe John');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('Hello %@2 %@1'.fmt('John', 'Doe'), 'Hello Doe John');
-    }
-  });
-
-  QUnit.test('\'%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01\'.fmt(\'One\', \'Two\', \'Three\', \'Four\', \'Five\', \'Six\', \'Seven\', \'Eight\') => \'Eight Seven Six Five Four Three Two One\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01', ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight']), 'Eight Seven Six Five Four Three Two One');
-
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01'.fmt('One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'), 'Eight Seven Six Five Four Three Two One');
-    }
-  });
-
-  QUnit.test('\'data: %@\'.fmt({ id: 3 }) => \'data: {id: 3}\'', function () {
-    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
-    equal((0, _string.fmt)('data: %@', [{ id: 3 }]), 'data: {id: 3}');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('data: %@'.fmt({ id: 3 }), 'data: {id: 3}');
-    }
-  });
+  test('Hello %@ %@', ['John', 'Doe'], 'Hello John Doe', 'fmt(\'Hello %@ %@\', [\'John\', \'Doe\']) => \'Hello John Doe\'');
+  test('Hello %@2 %@1', ['John', 'Doe'], 'Hello Doe John', 'fmt(\'Hello %@2 %@1\', [\'John\', \'Doe\']) => \'Hello Doe John\'');
+  test('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01', ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'], 'Eight Seven Six Five Four Three Two One', 'fmt(\'%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01\', [\'One\', \'Two\', \'Three\', \'Four\', \'Five\', \'Six\', \'Seven\', \'Eight\']) => \'Eight Seven Six Five Four Three Two One\'');
+  test('data: %@', [{ id: 3 }], 'data: {id: 3}', 'fmt(\'data: %@\', [{ id: 3 }]) => \'data: {id: 3}\'');
 
   QUnit.test('works with argument form', function () {
     expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
@@ -58924,33 +58849,19 @@ enifed('ember-runtime/tests/system/string/loc_test', ['ember-metal', 'ember-envi
     });
   }
 
-  QUnit.test('\'_Hello World\'.loc() => \'Bonjour le monde\'', function () {
-    equal((0, _string.loc)('_Hello World'), 'Bonjour le monde');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Hello World'.loc(), 'Bonjour le monde');
-    }
-  });
+  function test(given, args, expected, description) {
+    QUnit.test(description, function () {
+      equal((0, _string.loc)(given, args), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        equal(given.loc.apply(given, args), expected);
+      }
+    });
+  }
 
-  QUnit.test('\'_Hello %@ %@\'.loc(\'John\', \'Doe\') => \'Bonjour John Doe\'', function () {
-    equal((0, _string.loc)('_Hello %@ %@', ['John', 'Doe']), 'Bonjour John Doe');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Hello %@ %@'.loc('John', 'Doe'), 'Bonjour John Doe');
-    }
-  });
-
-  QUnit.test('\'_Hello %@# %@#\'.loc(\'John\', \'Doe\') => \'Bonjour Doe John\'', function () {
-    equal((0, _string.loc)('_Hello %@# %@#', ['John', 'Doe']), 'Bonjour Doe John');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Hello %@# %@#'.loc('John', 'Doe'), 'Bonjour Doe John');
-    }
-  });
-
-  QUnit.test('\'_Not In Strings\'.loc() => \'_Not In Strings\'', function () {
-    equal((0, _string.loc)('_Not In Strings'), '_Not In Strings');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      equal('_Not In Strings'.loc(), '_Not In Strings');
-    }
-  });
+  test('_Hello World', [], 'Bonjour le monde', 'loc(\'_Hello World\') => \'Bonjour le monde\'');
+  test('_Hello %@ %@', ['John', 'Doe'], 'Bonjour John Doe', 'loc(\'_Hello %@ %@\', [\'John\', \'Doe\']) => \'Bonjour John Doe\'');
+  test('_Hello %@# %@#', ['John', 'Doe'], 'Bonjour Doe John', 'loc(\'_Hello %@# %@#\', [\'John\', \'Doe\']) => \'Bonjour Doe John\'');
+  test('_Not In Strings', [], '_Not In Strings', 'loc(\'_Not In Strings\') => \'_Not In Strings\'');
 
   QUnit.test('works with argument form', function () {
     equal((0, _string.loc)('_Hello %@', 'John'), 'Bonjour John');
@@ -58968,54 +58879,22 @@ enifed('ember-runtime/tests/system/string/underscore_test', ['ember-environment'
     });
   }
 
-  QUnit.test('with normal string', function () {
-    deepEqual((0, _string.underscore)('my favorite items'), 'my_favorite_items');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('my favorite items'.underscore(), 'my_favorite_items');
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.underscore)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.underscore(), expected);
+      }
+    });
+  }
 
-  QUnit.test('with dasherized string', function () {
-    deepEqual((0, _string.underscore)('css-class-name'), 'css_class_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('css-class-name'.underscore(), 'css_class_name');
-    }
-  });
-
-  QUnit.test('does nothing with underscored string', function () {
-    deepEqual((0, _string.underscore)('action_name'), 'action_name');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('action_name'.underscore(), 'action_name');
-    }
-  });
-
-  QUnit.test('with camelcased string', function () {
-    deepEqual((0, _string.underscore)('innerHTML'), 'inner_html');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('innerHTML'.underscore(), 'inner_html');
-    }
-  });
-
-  QUnit.test('underscore namespaced classified string', function () {
-    deepEqual((0, _string.underscore)('PrivateDocs/OwnerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('PrivateDocs/OwnerInvoice'.underscore(), 'private_docs/owner_invoice');
-    }
-  });
-
-  QUnit.test('underscore namespaced camelized string', function () {
-    deepEqual((0, _string.underscore)('privateDocs/ownerInvoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('privateDocs/ownerInvoice'.underscore(), 'private_docs/owner_invoice');
-    }
-  });
-
-  QUnit.test('underscore namespaced dasherized string', function () {
-    deepEqual((0, _string.underscore)('private-docs/owner-invoice'), 'private_docs/owner_invoice');
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('private-docs/owner-invoice'.underscore(), 'private_docs/owner_invoice');
-    }
-  });
+  test('my favorite items', 'my_favorite_items', 'with normal string');
+  test('css-class-name', 'css_class_name', 'with dasherized string');
+  test('action_name', 'action_name', 'does nothing with underscored string');
+  test('innerHTML', 'inner_html', 'with camelcased string');
+  test('PrivateDocs/OwnerInvoice', 'private_docs/owner_invoice', 'underscore namespaced classified string');
+  test('privateDocs/ownerInvoice', 'private_docs/owner_invoice', 'underscore namespaced camelized string');
+  test('private-docs/owner-invoice', 'private_docs/owner_invoice', 'underscore namespaced dasherized string');
 });
 enifed('ember-runtime/tests/system/string/w_test', ['ember-environment', 'ember-runtime/system/string'], function (_emberEnvironment, _string) {
   'use strict';
@@ -59028,26 +58907,18 @@ enifed('ember-runtime/tests/system/string/w_test', ['ember-environment', 'ember-
     });
   }
 
-  QUnit.test('\'one two three\'.w() => [\'one\',\'two\',\'three\']', function () {
-    deepEqual((0, _string.w)('one two three'), ['one', 'two', 'three']);
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('one two three'.w(), ['one', 'two', 'three']);
-    }
-  });
+  function test(given, expected, description) {
+    QUnit.test(description, function () {
+      deepEqual((0, _string.w)(given), expected);
+      if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
+        deepEqual(given.w(), expected);
+      }
+    });
+  }
 
-  QUnit.test('\'one    two    three\'.w() with extra spaces between words => [\'one\',\'two\',\'three\']', function () {
-    deepEqual((0, _string.w)('one   two  three'), ['one', 'two', 'three']);
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('one   two  three'.w(), ['one', 'two', 'three']);
-    }
-  });
-
-  QUnit.test('\'one two three\'.w() with tabs', function () {
-    deepEqual((0, _string.w)('one\ttwo  three'), ['one', 'two', 'three']);
-    if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.String) {
-      deepEqual('one\ttwo  three'.w(), ['one', 'two', 'three']);
-    }
-  });
+  test('one two three', ['one', 'two', 'three'], 'w(\'one two three\') => [\'one\',\'two\',\'three\']');
+  test('one   two  three', ['one', 'two', 'three'], 'w(\'one    two    three\') with extra spaces between words => [\'one\',\'two\',\'three\']');
+  test('one\ttwo  three', ['one', 'two', 'three'], 'w(\'one two three\') with tabs');
 });
 enifed('ember-template-compiler/compat', ['ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/compile-options'], function (_emberMetal, _precompile, _compile, _compileOptions) {
   'use strict';
@@ -65348,11 +65219,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 
       _this2.aboutDefer = _emberRuntime.RSVP.defer();
       _this2.otherDefer = _emberRuntime.RSVP.defer();
+      _this2.newsDefer = _emberRuntime.RSVP.defer();
       var _this = _this2;
 
       _this2.router.map(function () {
         this.route('about');
         this.route('other');
+        this.route('news');
       });
 
       _this2.add('route:about', _emberRouting.Route.extend({
@@ -65367,7 +65240,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
         }
       }));
 
-      _this2.addTemplate('application', '\n      {{outlet}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{link-to \'About\' \'about\' id=\'about-link\'}}\n      {{link-to \'Other\' \'other\' id=\'other-link\'}}\n    ');
+      _this2.add('route:news', _emberRouting.Route.extend({
+        model: function () {
+          return _this.newsDefer.promise;
+        }
+      }));
+
+      _this2.addTemplate('application', '\n      {{outlet}}\n      {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{link-to \'About\' \'about\' id=\'about-link\'}}\n      {{link-to \'Other\' \'other\' id=\'other-link\'}}\n      {{link-to \'News\' \'news\' activeClass=false id=\'news-link\'}}\n    ');
 
       _this2.visit('/');
       return _this2;
@@ -65377,6 +65256,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       _ApplicationTestCase.prototype.teardown.call(this);
       this.aboutDefer = null;
       this.otherDefer = null;
+      this.newsDefer = null;
     };
 
     _class.prototype['@test while a transition is underway'] = function (assert) {
@@ -65417,6 +65297,44 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       assertHasNoClass(assert, $other, 'ember-transitioning-out');
     };
 
+    _class.prototype['@test while a transition is underway with activeClass is false'] = function (assert) {
+      var _this4 = this;
+
+      var $index = this.$('#index-link');
+      var $news = this.$('#news-link');
+      var $other = this.$('#other-link');
+
+      $news.click();
+
+      assertHasClass(assert, $index, 'active');
+      assertHasNoClass(assert, $news, 'active');
+      assertHasNoClass(assert, $other, 'active');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-in');
+      assertHasClass(assert, $news, 'ember-transitioning-in');
+      assertHasNoClass(assert, $other, 'ember-transitioning-in');
+
+      assertHasClass(assert, $index, 'ember-transitioning-out');
+      assertHasNoClass(assert, $news, 'ember-transitioning-out');
+      assertHasNoClass(assert, $other, 'ember-transitioning-out');
+
+      this.runTask(function () {
+        return _this4.newsDefer.resolve();
+      });
+
+      assertHasNoClass(assert, $index, 'active');
+      assertHasNoClass(assert, $news, 'active');
+      assertHasNoClass(assert, $other, 'active');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-in');
+      assertHasNoClass(assert, $news, 'ember-transitioning-in');
+      assertHasNoClass(assert, $other, 'ember-transitioning-in');
+
+      assertHasNoClass(assert, $index, 'ember-transitioning-out');
+      assertHasNoClass(assert, $news, 'ember-transitioning-out');
+      assertHasNoClass(assert, $other, 'ember-transitioning-out');
+    };
+
     return _class;
   }(_internalTestHelpers.ApplicationTestCase));
 
@@ -65425,51 +65343,51 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 
     function _class2() {
 
-      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
+      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.call(this));
 
-      _this4.aboutDefer = _emberRuntime.RSVP.defer();
-      _this4.otherDefer = _emberRuntime.RSVP.defer();
-      var _this = _this4;
+      _this5.aboutDefer = _emberRuntime.RSVP.defer();
+      _this5.otherDefer = _emberRuntime.RSVP.defer();
+      var _this = _this5;
 
-      _this4.router.map(function () {
+      _this5.router.map(function () {
         this.route('parent-route', function () {
           this.route('about');
           this.route('other');
         });
       });
-      _this4.add('route:parent-route.about', _emberRouting.Route.extend({
+      _this5.add('route:parent-route.about', _emberRouting.Route.extend({
         model: function () {
           return _this.aboutDefer.promise;
         }
       }));
 
-      _this4.add('route:parent-route.other', _emberRouting.Route.extend({
+      _this5.add('route:parent-route.other', _emberRouting.Route.extend({
         model: function () {
           return _this.otherDefer.promise;
         }
       }));
 
-      _this4.addTemplate('application', '\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
+      _this5.addTemplate('application', '\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
 
-      _this4.visit('/');
-      return _this4;
+      _this5.visit('/');
+      return _this5;
     }
 
     _class2.prototype.resolveAbout = function () {
-      var _this5 = this;
+      var _this6 = this;
 
       return this.runTask(function () {
-        _this5.aboutDefer.resolve();
-        _this5.aboutDefer = _emberRuntime.RSVP.defer();
+        _this6.aboutDefer.resolve();
+        _this6.aboutDefer = _emberRuntime.RSVP.defer();
       });
     };
 
     _class2.prototype.resolveOther = function () {
-      var _this6 = this;
+      var _this7 = this;
 
       return this.runTask(function () {
-        _this6.otherDefer.resolve();
-        _this6.otherDefer = _emberRuntime.RSVP.defer();
+        _this7.otherDefer.resolve();
+        _this7.otherDefer = _emberRuntime.RSVP.defer();
       });
     };
 
@@ -66286,7 +66204,7 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
