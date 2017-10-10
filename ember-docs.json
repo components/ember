@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.16.0-beta.2.5dc3a689"
+        "version": "2.16.0-beta.2.b8fe28f3"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -19263,7 +19263,7 @@
         {
             "file": "packages/ember-testing/lib/helpers/pause_test.js",
             "line": 24,
-            "description": "Pauses the current test - this is useful for debugging while testing or for test-driving.\nIt allows you to inspect the state of your application at any point.\nExample (The test will pause before clicking the button):\n\n```javascript\nvisit('/')\nreturn pauseTest();\nclick('.btn');\n```",
+            "description": "Pauses the current test - this is useful for debugging while testing or for test-driving.\nIt allows you to inspect the state of your application at any point.\nExample (The test will pause before clicking the button):\n\n```javascript\nvisit('/')\nreturn pauseTest();\nclick('.btn');\n```\n\nYou may want to turn off the timeout before pausing.\n\nqunit (as of 2.4.0):\n\n```\nvisit('/');\nassert.timeout(0);\nreturn pauseTest();\nclick('.btn');\n```\n\nmocha:\n\n```\nvisit('/');\nthis.timeout(0);\nreturn pauseTest();\nclick('.btn');\n```",
             "since": "1.9.0",
             "itemtype": "method",
             "name": "pauseTest",

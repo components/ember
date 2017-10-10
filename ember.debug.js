@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-beta.2-null+5dc3a689
+ * @version   2.16.0-beta.2-null+b8fe28f3
  */
 
 var enifed, requireModule, Ember;
@@ -40734,8 +40734,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
 
   var _Mixin$create, _ClassMixinProps;
 
-  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['.'], ['.']);
-
   var schedule = _emberMetal.run.schedule;
   var applyMixin = _emberMetal.Mixin._apply;
   var finishPartial = _emberMetal.Mixin.finishPartial;
@@ -40920,7 +40918,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
         return;
       }
 
-      (true && !(false) && (0, _emberDebug.assert)(('You cannot set `' + this + '.isDestroyed` directly, please use ').destroy()(_templateObject), false));
+      (true && !(false) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroyed` directly, please use `.destroy()`.', false));
     }
   }), _Mixin$create.isDestroying = (0, _emberMetal.descriptor)({
     get: function () {
@@ -40932,7 +40930,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
         return;
       }
 
-      (true && !(false) && (0, _emberDebug.assert)(('You cannot set `' + this + '.isDestroying` directly, please use ').destroy()(_templateObject), false));
+      (true && !(false) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroying` directly, please use `.destroy()`.', false));
     }
   }), _Mixin$create.destroy = function () {
     var m = (0, _emberMetal.meta)(this);
@@ -44240,6 +44238,28 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
    return pauseTest();
    click('.btn');
    ```
+  
+   You may want to turn off the timeout before pausing.
+  
+   qunit (as of 2.4.0):
+  
+   ```
+   visit('/');
+   assert.timeout(0);
+   return pauseTest();
+   click('.btn');
+   ```
+  
+   mocha:
+  
+   ```
+   visit('/');
+   this.timeout(0);
+   return pauseTest();
+   click('.btn');
+   ```
+  
+  
    @since 1.9.0
    @method pauseTest
    @return {Object} A promise that will never resolve
@@ -48243,7 +48263,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-beta.2-null+5dc3a689";
+  exports.default = "2.16.0-beta.2-null+b8fe28f3";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-beta.2-null+5dc3a689
+ * @version   2.16.0-beta.2-null+b8fe28f3
  */
 
 var enifed, requireModule, Ember;
@@ -39886,14 +39886,12 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     }
   });
 });
-enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject', 'ember-debug'], function (exports, _emberBabel, _emberUtils, _emberMetal, _action_handler, _inject, _emberDebug) {
+enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime/mixins/action_handler', 'ember-runtime/inject', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _action_handler, _inject, _emberDebug) {
   'use strict';
 
   exports.POST_INIT = undefined;
 
   var _Mixin$create, _ClassMixinProps;
-
-  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['.'], ['.']);
 
   var schedule = _emberMetal.run.schedule;
   var applyMixin = _emberMetal.Mixin._apply;
@@ -40093,7 +40091,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
         return;
       }
 
-      false && !false && (0, _emberDebug.assert)(('You cannot set `' + this + '.isDestroyed` directly, please use ').destroy()(_templateObject), false);
+      false && !false && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroyed` directly, please use `.destroy()`.', false);
     }
   }), _Mixin$create.isDestroying = (0, _emberMetal.descriptor)({
     get: function () {
@@ -40105,7 +40103,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
         return;
       }
 
-      false && !false && (0, _emberDebug.assert)(('You cannot set `' + this + '.isDestroying` directly, please use ').destroy()(_templateObject), false);
+      false && !false && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroying` directly, please use `.destroy()`.', false);
     }
   }), _Mixin$create.destroy = function () {
     var m = (0, _emberMetal.meta)(this);
@@ -44373,7 +44371,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-beta.2-null+5dc3a689";
+  exports.default = "2.16.0-beta.2-null+b8fe28f3";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
