@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-beta.2-null+b8fe28f3
+ * @version   2.17.0-beta.1
  */
 
 var enifed, requireModule, Ember;
@@ -10518,7 +10518,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
 
   function lookup(container, fullName) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-        expandedFullName;
+        expandedFullName,
+        cacheKey,
+        cached;
 
     if (options.source) {
       expandedFullName = container.registry.expandLocalLookup(fullName, options);
@@ -10531,10 +10533,13 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
       fullName = expandedFullName;
     }
 
-    var cacheKey = container._resolverCacheKey(fullName, options);
-    var cached = container.cache[cacheKey];
-    if (cached !== undefined && options.singleton !== false) {
-      return cached;
+    if (options.singleton !== false) {
+      cacheKey = container._resolverCacheKey(fullName, options);
+      cached = container.cache[cacheKey];
+
+      if (cached !== undefined) {
+        return cached;
+      }
     }
 
     return instantiateFactory(container, fullName, options);
@@ -10569,17 +10574,18 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
   }
 
   function instantiateFactory(container, fullName, options) {
-    var factoryManager = container.factoryFor(fullName);
+    var factoryManager = container.factoryFor(fullName),
+        cacheKey;
 
     if (factoryManager === undefined) {
       return;
     }
 
-    var cacheKey = container._resolverCacheKey(fullName, options);
-
     // SomeClass { singleton: true, instantiate: true } | { singleton: true } | { instantiate: true } | {}
     // By default majority of objects fall into this case
     if (isSingletonInstance(container, fullName, options)) {
+      cacheKey = container._resolverCacheKey(fullName, options);
+
       return container.cache[cacheKey] = factoryManager.create();
     }
 
@@ -10596,22 +10602,14 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
     throw new Error('Could not create factory');
   }
 
-  function markInjectionsAsDynamic(injections) {
-    injections._dynamic = true;
-  }
-
-  function areInjectionsNotDynamic(injections) {
-    return injections._dynamic !== true;
-  }
-
   function buildInjections() /* container, ...injections */{
     var hash = {},
         container,
         injections,
         injection,
         i,
-        markAsDynamic,
         _i;
+    var isDynamic = false;
 
     if (arguments.length > 1) {
       container = arguments[0];
@@ -10625,22 +10623,16 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
         }
       }
 
-      markAsDynamic = false;
-
       for (_i = 0; _i < injections.length; _i++) {
         injection = injections[_i];
         hash[injection.property] = lookup(container, injection.fullName);
-        if (!markAsDynamic) {
-          markAsDynamic = !isSingleton(container, injection.fullName);
+        if (!isDynamic) {
+          isDynamic = !isSingleton(container, injection.fullName);
         }
-      }
-
-      if (markAsDynamic) {
-        markInjectionsAsDynamic(hash);
       }
     }
 
-    return hash;
+    return { injections: hash, isDynamic: isDynamic };
   }
 
   function injectionsFor(container, fullName) {
@@ -10648,9 +10640,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
     var splitName = fullName.split(':');
     var type = splitName[0];
 
-    var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
-
-    return injections;
+    return buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
   }
 
   function destroyDestroyables(container) {
@@ -10665,7 +10655,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
       value = cache[key];
 
 
-      if (isInstantiatable(container, key) && value.destroy) {
+      if (value.destroy) {
         value.destroy();
       }
     }
@@ -10703,7 +10693,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
     }
 
     FactoryManager.prototype.toString = function () {
-      if (!this.madeToString) {
+      if (this.madeToString === undefined) {
         this.madeToString = this.container.registry.makeToString(this.class, this.fullName);
       }
 
@@ -10711,16 +10701,23 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
     };
 
     FactoryManager.prototype.create = function () {
-      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _injectionsFor,
+          injections,
+          isDynamic;
 
-      var injections = this.injections;
-      if (injections === undefined) {
-        injections = injectionsFor(this.container, this.normalizedName);
-        if (areInjectionsNotDynamic(injections)) {
+      var injectionsCache = this.injections;
+      if (injectionsCache === undefined) {
+        _injectionsFor = injectionsFor(this.container, this.normalizedName), injections = _injectionsFor.injections, isDynamic = _injectionsFor.isDynamic;
+
+
+        injectionsCache = injections;
+        if (!isDynamic) {
           this.injections = injections;
         }
       }
-      var props = (0, _emberUtils.assign)({}, injections, options);
+
+      var props = (0, _emberUtils.assign)({}, injectionsCache, options);
 
       if (!this.class.create) {
         throw new Error('Failed to create an instance of \'' + this.normalizedName + '\'. Most likely an improperly defined class or' + ' an invalid module export.');
@@ -10988,10 +10985,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
 
       var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
 
-      injections.push({
-        property: property,
-        fullName: fullName
-      });
+      injections.push({ property: property, fullName: fullName });
     },
     injection: function (fullName, property, injectionName) {
       this.validateFullName(injectionName);
@@ -11007,10 +11001,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
 
       var injections = this._injections[normalizedName] || (this._injections[normalizedName] = []);
 
-      injections.push({
-        property: property,
-        fullName: normalizedInjectionName
-      });
+      injections.push({ property: property, fullName: normalizedInjectionName });
     },
     knownForType: function (type) {
       var fallbackKnown = void 0,
@@ -11051,22 +11042,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
     isValidFullName: function (fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
     },
-    normalizeInjectionsHash: function (hash) {
-      var injections = [];
-
-      for (var key in hash) {
-        if (hash.hasOwnProperty(key)) {
-          false && !this.validateFullName(hash[key]) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
-
-          injections.push({
-            property: key,
-            fullName: hash[key]
-          });
-        }
-      }
-
-      return injections;
-    },
     getInjections: function (fullName) {
       var injections = this._injections[fullName] || [];
       if (this.fallback) {
@@ -11083,6 +11058,25 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
     },
     resolverCacheKey: function (name, options) {
       return name;
+    },
+    expandLocalLookup: function (fullName, options) {
+      var normalizedFullName, normalizedSource;
+
+      if (this.resolver && this.resolver.expandLocalLookup) {
+        false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+        false && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
+        false && !this.validateFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
+
+        normalizedFullName = this.normalize(fullName);
+        normalizedSource = this.normalize(options.source);
+
+
+        return expandLocalLookup(this, normalizedFullName, normalizedSource);
+      } else if (this.fallback) {
+        return this.fallback.expandLocalLookup(fullName, options);
+      } else {
+        return null;
+      }
     }
   };
 
@@ -11093,44 +11087,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
       resolve: registry.resolver
     };
   }
-
-  /**
-   Given a fullName and a source fullName returns the fully resolved
-   fullName. Used to allow for local lookup.
-  
-   ```javascript
-   let registry = new Registry();
-  
-   // the twitter factory is added to the module system
-   registry.expandLocalLookup('component:post-title', { source: 'template:post' }) // => component:post/post-title
-   ```
-  
-   @private
-   @method expandLocalLookup
-   @param {String} fullName
-   @param {Object} [options]
-   @param {String} [options.source] the fullname of the request source (used for local lookups)
-   @return {String} fullName
-   */
-  Registry.prototype.expandLocalLookup = function (fullName, options) {
-    var normalizedFullName, normalizedSource;
-
-    if (this.resolver && this.resolver.expandLocalLookup) {
-      false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
-      false && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
-      false && !this.validateFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
-
-      normalizedFullName = this.normalize(fullName);
-      normalizedSource = this.normalize(options.source);
-
-
-      return expandLocalLookup(this, normalizedFullName, normalizedSource);
-    } else if (this.fallback) {
-      return this.fallback.expandLocalLookup(fullName, options);
-    } else {
-      return null;
-    }
-  };
 
   function expandLocalLookup(registry, normalizedName, normalizedSource) {
     var cache = registry._localLookupCache;
@@ -11454,7 +11410,6 @@ enifed("dag-map", ["exports"], function (exports) {
         };
         return IntStack;
     }();
-    //# sourceMappingURL=dag-map.js.map
 });
 enifed('ember-application/index', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/resolver', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-application/system/engine-parent', 'ember-application/initializers/dom-templates'], function (exports, _application, _applicationInstance, _resolver, _engine, _engineInstance, _engineParent) {
   'use strict';
@@ -11522,10 +11477,8 @@ enifed('ember-application/initializers/dom-templates', ['require', 'ember-glimme
     }
   });
 });
-enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberDebug, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _engineInstance) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-environment', 'ember-views', 'ember-application/system/engine-instance'], function (exports, _emberUtils, _emberMetal, _emberRuntime, _emberEnvironment, _emberViews, _engineInstance) {
   'use strict';
-
-  var BootOptions = void 0;
 
   /**
     The `ApplicationInstance` encapsulates all of the stateful aspects of a
@@ -11672,8 +11625,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
       return dispatcher;
     },
     getURL: function () {
-      var router = (0, _emberMetal.get)(this, 'router');
-      return (0, _emberMetal.get)(router, 'url');
+      return (0, _emberMetal.get)(this, 'router.url');
     },
     visit: function (url) {
       var _this = this;
@@ -11759,7 +11711,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     @namespace Ember.ApplicationInstance
     @public
   */
-  BootOptions = function () {
+  function BootOptions() {
     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     /**
@@ -11901,7 +11853,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     if (options.isInteractive !== undefined) {
       this.isInteractive = !!options.isInteractive;
     }
-  };
+  }
 
   BootOptions.prototype.toEnvironment = function () {
     var env = (0, _emberUtils.assign)({}, _emberEnvironment.environment);
@@ -12304,7 +12256,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
       // boot promise exists for book-keeping purposes: if anything went wrong in
       // the boot process, we need to store the error as a rejection on the boot
       // promise so that a future caller of `boot()` can tell what failed.
-      var defer = this._bootResolver = new _emberRuntime.RSVP.defer();
+      var defer = this._bootResolver = _emberRuntime.RSVP.defer();
       this._bootPromise = defer.promise;
 
       try {
@@ -16383,7 +16335,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
       }
     }),
 
-    _computeActive: function (routerState) {
+    _isActive: function (routerState) {
       if ((0, _emberMetal.get)(this, 'loading')) {
         return false;
       }
@@ -16404,7 +16356,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
 
       for (i = 0; i < currentWhen.length; i++) {
         if (routing.isActiveForRoute(models, resolvedQueryParams, currentWhen[i], routerState, isCurrentWhenSpecified)) {
-          return (0, _emberMetal.get)(this, 'activeClass');
+          return true;
         }
       }
 
@@ -16422,13 +16374,21 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
        @property active
       @private
     */
-    active: (0, _emberMetal.computed)('attrs.params', '_routing.currentState', function () {
+    active: (0, _emberMetal.computed)('attrs.params', '_active', function () {
       var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
       if (!currentState) {
         return false;
       }
 
-      return this._computeActive(currentState);
+      return this.get('_active') ? (0, _emberMetal.get)(this, 'activeClass') : false;
+    }),
+
+    _active: (0, _emberMetal.computed)('_routing.currentState', function () {
+      var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
+      if (!currentState) {
+        return false;
+      }
+      return this._isActive(currentState);
     }),
 
     willBeActive: (0, _emberMetal.computed)('_routing.targetState', function () {
@@ -16438,11 +16398,11 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
         return;
       }
 
-      return !!this._computeActive(targetState);
+      return this._isActive(targetState);
     }),
 
     transitioningIn: (0, _emberMetal.computed)('active', 'willBeActive', function () {
-      if ((0, _emberMetal.get)(this, 'willBeActive') === true && !(0, _emberMetal.get)(this, 'active')) {
+      if ((0, _emberMetal.get)(this, 'willBeActive') === true && !(0, _emberMetal.get)(this, '_active')) {
         return 'ember-transitioning-in';
       } else {
         return false;
@@ -16450,7 +16410,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     }),
 
     transitioningOut: (0, _emberMetal.computed)('active', 'willBeActive', function () {
-      if ((0, _emberMetal.get)(this, 'willBeActive') === false && (0, _emberMetal.get)(this, 'active')) {
+      if ((0, _emberMetal.get)(this, 'willBeActive') === false && (0, _emberMetal.get)(this, '_active')) {
         return 'ember-transitioning-out';
       } else {
         return false;
@@ -18314,7 +18274,7 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (ex
   */
   var EACH_IN_REFERENCE = (0, _emberUtils.symbol)('EACH_IN');
 });
-enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference'], function (exports, _emberBabel, _emberMetal, _references, _reference) {
+enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference', '@glimmer/runtime'], function (exports, _emberBabel, _emberMetal, _references, _reference, _runtime) {
   'use strict';
 
   exports.default = function (vm, args) {
@@ -18344,7 +18304,7 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'e
       _this.pathReference = pathReference;
 
       _this.lastPath = null;
-      _this.innerReference = null;
+      _this.innerReference = _runtime.NULL_REFERENCE;
 
       var innerTag = _this.innerTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
 
@@ -18366,19 +18326,21 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'e
 
 
           if (pathType === 'string') {
-            innerReference = this.innerReference = (0, _reference.referenceFromParts)(this.sourceReference, path.split('.'));
+            innerReference = (0, _reference.referenceFromParts)(this.sourceReference, path.split('.'));
           } else if (pathType === 'number') {
-            innerReference = this.innerReference = this.sourceReference.get('' + path);
+            innerReference = this.sourceReference.get('' + path);
           }
 
           innerTag.update(innerReference.tag);
         } else {
-          innerReference = this.innerReference = null;
+          innerReference = _runtime.NULL_REFERENCE;
           innerTag.update(_reference.CONSTANT_TAG);
         }
+
+        this.innerReference = innerReference;
       }
 
-      return innerReference ? innerReference.value() : null;
+      return innerReference.value();
     };
 
     GetHelperReference.prototype[_references.UPDATE] = function (value) {
@@ -20128,8 +20090,7 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
 
   function (name, params, hash, builder) {
     var keys = void 0,
-        typeArg,
-        definition;
+        typeArg;
     var values = void 0;
     var typeIndex = -1;
     var valueIndex = -1;
@@ -20148,32 +20109,24 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     if (typeIndex > -1) {
       typeArg = values[typeIndex];
 
-      if (!Array.isArray(typeArg)) {
-        if (typeArg === 'checkbox') {
-          false && !(valueIndex === -1) && (0, _emberDebug.assert)('{{input type=\'checkbox\'}} does not support setting `value=someBooleanValue`; ' + 'you must use `checked=someBooleanValue` instead.', valueIndex === -1);
+      if (Array.isArray(typeArg)) {
+        return (0, _dynamicComponent.dynamicComponentMacro)(params, hash, null, null, builder);
+      } else if (typeArg === 'checkbox') {
+        false && !(valueIndex === -1) && (0, _emberDebug.assert)('{{input type=\'checkbox\'}} does not support setting `value=someBooleanValue`; ' + 'you must use `checked=someBooleanValue` instead.', valueIndex === -1);
 
-          (0, _bindings.wrapComponentClassAttribute)(hash);
-
-          definition = builder.env.getComponentDefinition('-checkbox', builder.meta.templateMeta);
-
-          builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
-          return true;
-        } else {
-          return buildTextFieldSyntax(params, hash, builder);
-        }
+        (0, _bindings.wrapComponentClassAttribute)(hash);
+        return buildSyntax('-checkbox', params, hash, builder);
       }
-    } else {
-      return buildTextFieldSyntax(params, hash, builder);
     }
 
-    return (0, _dynamicComponent.dynamicComponentMacro)(params, hash, null, null, builder);
+    return buildSyntax('-text-field', params, hash, builder);
   };
   /**
   @module ember
   @submodule ember-glimmer
   */
-  function buildTextFieldSyntax(params, hash, builder) {
-    var definition = builder.env.getComponentDefinition('-text-field', builder.meta.templateMeta);
+  function buildSyntax(type, params, hash, builder) {
+    var definition = builder.env.getComponentDefinition(type, builder.meta.templateMeta);
     builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
     return true;
   }
@@ -21062,16 +21015,11 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
       var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, keyFor));
 
       _this2.keys = keys;
-      _this2.length = keys.length;
       return _this2;
     }
 
     ObjectKeysIterator.prototype.getMemo = function (position) {
       return this.keys[position];
-    };
-
-    ObjectKeysIterator.prototype.getValue = function (position) {
-      return this.array[position];
     };
 
     return ObjectKeysIterator;
@@ -21121,7 +21069,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
 
       var typeofIterable = typeof iterable;
 
-      if (iterable && (typeofIterable === 'object' || typeofIterable === 'function')) {
+      if (iterable !== null && (typeofIterable === 'object' || typeofIterable === 'function')) {
         keys = Object.keys(iterable);
         values = keys.map(function (key) {
           return iterable[key];
@@ -21173,7 +21121,7 @@ enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils',
 
       valueTag.update((0, _emberMetal.tagForProperty)(iterable, '[]'));
 
-      if (!iterable || typeof iterable !== 'object') {
+      if (iterable === null || typeof iterable !== 'object') {
         return EMPTY_ITERATOR;
       }
 
@@ -21533,19 +21481,19 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
     (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
 
     SimpleHelperReference.create = function (helper, args) {
-      var positional, named, positionalValue, namedValue, _result;
+      var positional, named, positionalValue, namedValue, result;
 
       if ((0, _reference.isConst)(args)) {
         positional = args.positional, named = args.named;
         positionalValue = positional.value();
         namedValue = named.value();
-        _result = helper(positionalValue, namedValue);
+        result = helper(positionalValue, namedValue);
 
 
-        if (typeof _result === 'object' && _result !== null || typeof _result === 'function') {
-          return new RootReference(_result);
+        if (typeof result === 'object' && result !== null || typeof result === 'function') {
+          return new RootReference(result);
         } else {
-          return _runtime.PrimitiveReference.create(_result);
+          return _runtime.PrimitiveReference.create(result);
         }
       } else {
         return new SimpleHelperReference(helper, args);
@@ -21642,7 +21590,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils
     }
 
     UnboundReference.create = function (value) {
-      if (typeof value === 'object' && value !== null || typeof result === 'function') {
+      if (typeof value === 'object' && value !== null) {
         return new UnboundReference(value);
       } else {
         return _runtime.PrimitiveReference.create(value);
@@ -22332,7 +22280,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var meta$$1, i, target, method, flags;
 
     if (actions === undefined) {
-      meta$$1 = _meta || exports.peekMeta(obj);
+      meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
 
       actions = typeof meta$$1 === 'object' && meta$$1 !== null && meta$$1.matchingListeners(eventName);
     }
@@ -22399,9 +22347,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         target,
         method;
     var meta$$1 = exports.peekMeta(obj);
-    var actions = meta$$1 && meta$$1.matchingListeners(eventName);
+    var actions = meta$$1 !== undefined ? meta$$1.matchingListeners(eventName) : undefined;
 
-    if (!actions) {
+    if (actions === undefined) {
       return ret;
     }
 
@@ -22453,7 +22401,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var meta$$1;
 
     if (typeof object === 'object' && object !== null) {
-      meta$$1 = _meta || meta(object);
+      meta$$1 = _meta === undefined ? meta(object) : _meta;
 
       return meta$$1.writableTag(makeTag);
     } else {
@@ -22607,12 +22555,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function propertyWillChange(obj, keyName, _meta) {
-    var meta$$1 = _meta || exports.peekMeta(obj);
-    if (meta$$1 && !meta$$1.isInitialized(obj)) {
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    if (meta$$1 !== undefined && !meta$$1.isInitialized(obj)) {
       return;
     }
 
-    var watching = meta$$1 && meta$$1.peekWatching(keyName) > 0;
+    var watching = meta$$1 !== undefined && meta$$1.peekWatching(keyName) > 0;
     var possibleDesc = obj[keyName];
     var isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
@@ -22645,8 +22593,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function propertyDidChange(obj, keyName, _meta) {
-    var meta$$1 = _meta || exports.peekMeta(obj);
-    var hasMeta = !!meta$$1;
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    var hasMeta = meta$$1 !== undefined;
 
     if (hasMeta && !meta$$1.isInitialized(obj)) {
       return;
@@ -23045,16 +22993,16 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
-  function watchKey(obj, keyName, meta$$1) {
+  function watchKey(obj, keyName, _meta) {
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
 
-    var m = meta$$1 || meta(obj),
+    var meta$$1 = _meta === undefined ? meta(obj) : _meta,
         possibleDesc,
         isDescriptor;
-    var count = m.peekWatching(keyName) || 0;
-    m.writeWatching(keyName, count + 1);
+    var count = meta$$1.peekWatching(keyName) || 0;
+    meta$$1.writeWatching(keyName, count + 1);
 
     if (count === 0) {
       // activate watching first time
@@ -23062,10 +23010,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       isDescriptor = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor;
 
       if (isDescriptor && possibleDesc.willWatch) {
-        possibleDesc.willWatch(obj, keyName);
+        possibleDesc.willWatch(obj, keyName, meta$$1);
       }
 
-      if ('function' === typeof obj.willWatchProperty) {
+      if (typeof obj.willWatchProperty === 'function') {
         obj.willWatchProperty(keyName);
       }
     }
@@ -23075,7 +23023,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var meta$$1 = _meta || exports.peekMeta(obj),
+    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta,
         possibleDesc,
         isDescriptor;
 
@@ -23093,10 +23041,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
       if (isDescriptor && possibleDesc.didUnwatch) {
-        possibleDesc.didUnwatch(obj, keyName);
+        possibleDesc.didUnwatch(obj, keyName, meta$$1);
       }
 
-      if ('function' === typeof obj.didUnwatchProperty) {
+      if (typeof obj.didUnwatchProperty === 'function') {
         obj.didUnwatchProperty(keyName);
       }
     } else if (count > 1) {
@@ -23112,7 +23060,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var m = meta$$1 || meta(obj);
+    var m = meta$$1 === undefined ? meta(obj) : meta$$1;
     var counter = m.peekWatching(keyPath) || 0;
 
     m.writeWatching(keyPath, counter + 1);
@@ -23126,7 +23074,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var m = meta$$1 || exports.peekMeta(obj);
+    var m = meta$$1 === undefined ? exports.peekMeta(obj) : meta$$1;
+
     if (m === undefined) {
       return;
     }
@@ -24012,6 +23961,18 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
+    Tears down the meta on an object so that it can be garbage collected.
+    Multiple calls will have no effect.
+  
+    @method deleteMeta
+    @for Ember
+    @param {Object} obj  the object to destroy
+    @return {void}
+    @private
+  */
+
+
+  /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
     hash is writable for this object as well.
   
@@ -24452,7 +24413,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function watcherCount(obj, key) {
     var meta$$1 = exports.peekMeta(obj);
-    return meta$$1 && meta$$1.peekWatching(key) || 0;
+    return meta$$1 !== undefined && meta$$1.peekWatching(key) || 0;
   }
 
   function unwatch(obj, _keyPath, m) {
@@ -25036,8 +24997,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function cacheFor(obj, key) {
     var meta$$1 = exports.peekMeta(obj);
-    var cache = meta$$1 && meta$$1.source === obj && meta$$1.readableCache();
-    var ret = cache && cache[key];
+    var cache = meta$$1 !== undefined ? meta$$1.source === obj && meta$$1.readableCache() : undefined;
+    var ret = cache !== undefined ? cache[key] : undefined;
 
     if (ret === UNDEFINED) {
       return undefined;
@@ -25090,17 +25051,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     AliasedProperty.prototype.teardown = function (obj, keyName, meta$$1) {
-      if (meta$$1 && meta$$1.peekWatching(keyName)) {
+      if (meta$$1.peekWatching(keyName)) {
         removeDependentKeys(this, obj, keyName, meta$$1);
       }
     };
 
-    AliasedProperty.prototype.willWatch = function (obj, keyName) {
-      addDependentKeys(this, obj, keyName, meta(obj));
+    AliasedProperty.prototype.willWatch = function (obj, keyName, meta$$1) {
+      addDependentKeys(this, obj, keyName, meta$$1);
     };
 
-    AliasedProperty.prototype.didUnwatch = function (obj, keyName) {
-      removeDependentKeys(this, obj, keyName, meta(obj));
+    AliasedProperty.prototype.didUnwatch = function (obj, keyName, meta$$1) {
+      removeDependentKeys(this, obj, keyName, meta$$1);
     };
 
     AliasedProperty.prototype.get = function (obj, keyName) {
@@ -26493,13 +26454,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Map is mocked out to look like an Ember object, so you can do
     `Ember.Map.create()` for symmetry with other Ember classes.
   */
-  function missingFunction(fn) {
-    throw new TypeError(Object.prototype.toString.call(fn) + ' is not a function');
-  }
-
-  function missingNew(name) {
-    throw new TypeError('Constructor ' + name + ' requires \'new\'');
-  }
 
   function copyNull(obj) {
     var output = Object.create(null);
@@ -26533,37 +26487,35 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @constructor
     @private
   */
-  function OrderedSet() {
-    if (this instanceof OrderedSet) {
+
+  var OrderedSet = function () {
+    function OrderedSet() {
+
       this.clear();
-    } else {
-      missingNew('OrderedSet');
     }
-  }
 
-  /**
-    @method create
-    @static
-    @return {Ember.OrderedSet}
-    @private
-  */
-  OrderedSet.create = function () {
-    var Constructor = this;
+    /**
+      @method create
+      @static
+      @return {Ember.OrderedSet}
+      @private
+    */
 
-    return new Constructor();
-  };
+    OrderedSet.create = function () {
+      var Constructor = this;
+      return new Constructor();
+    };
 
-  OrderedSet.prototype = {
-    constructor: OrderedSet,
     /**
       @method clear
       @private
     */
-    clear: function () {
+
+    OrderedSet.prototype.clear = function () {
       this.presenceSet = Object.create(null);
       this.list = [];
       this.size = 0;
-    },
+    };
 
     /**
       @method add
@@ -26572,7 +26524,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Ember.OrderedSet}
       @private
     */
-    add: function (obj, _guid) {
+
+    OrderedSet.prototype.add = function (obj, _guid) {
       var guid = _guid || emberUtils.guidFor(obj);
       var presenceSet = this.presenceSet;
       var list = this.list;
@@ -26583,7 +26536,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       return this;
-    },
+    };
 
     /**
       @since 1.8.0
@@ -26593,7 +26546,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean}
       @private
     */
-    delete: function (obj, _guid) {
+
+    OrderedSet.prototype.delete = function (obj, _guid) {
       var guid = _guid || emberUtils.guidFor(obj),
           index;
       var presenceSet = this.presenceSet;
@@ -26611,16 +26565,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       } else {
         return false;
       }
-    },
+    };
 
     /**
       @method isEmpty
       @return {Boolean}
       @private
     */
-    isEmpty: function () {
+
+    OrderedSet.prototype.isEmpty = function () {
       return this.size === 0;
-    },
+    };
 
     /**
       @method has
@@ -26628,7 +26583,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean}
       @private
     */
-    has: function (obj) {
+
+    OrderedSet.prototype.has = function (obj) {
       if (this.size === 0) {
         return false;
       }
@@ -26637,7 +26593,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var presenceSet = this.presenceSet;
 
       return presenceSet[guid] === true;
-    },
+    };
 
     /**
       @method forEach
@@ -26645,10 +26601,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @param self
       @private
     */
-    forEach: function (fn /*, ...thisArg*/) {
-      if (typeof fn !== 'function') {
-        missingFunction(fn);
-      }
+
+    OrderedSet.prototype.forEach = function (fn /*, ...thisArg*/) {
+      false && !(typeof fn === 'function') && emberDebug.assert(Object.prototype.toString.call(fn) + ' is not a function', typeof fn === 'function');
 
       if (this.size === 0) {
         return;
@@ -26667,23 +26622,25 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           fn(list[_i]);
         }
       }
-    },
+    };
 
     /**
       @method toArray
       @return {Array}
       @private
     */
-    toArray: function () {
+
+    OrderedSet.prototype.toArray = function () {
       return this.list.slice();
-    },
+    };
 
     /**
       @method copy
       @return {Ember.OrderedSet}
       @private
     */
-    copy: function () {
+
+    OrderedSet.prototype.copy = function () {
       var Constructor = this.constructor;
       var set = new Constructor();
 
@@ -26692,8 +26649,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       set.size = this.size;
 
       return set;
-    }
-  };
+    };
+
+    return OrderedSet;
+  }();
 
   /**
     A Map stores values indexed by keys. Unlike JavaScript's
@@ -26715,38 +26674,25 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
     @constructor
   */
-  function Map() {
-    if (this instanceof Map) {
-      this._keys = OrderedSet.create();
+
+  var Map = function () {
+    function Map() {
+
+      this._keys = new OrderedSet();
       this._values = Object.create(null);
       this.size = 0;
-    } else {
-      missingNew('Map');
     }
-  }
-
-  /**
-    @method create
-    @static
-    @private
-  */
-  Map.create = function () {
-    var Constructor = this;
-    return new Constructor();
-  };
-
-  Map.prototype = {
-    constructor: Map,
 
     /**
-      This property will change as the number of objects in the map changes.
-       @since 1.8.0
-      @property size
-      @type number
-      @default 0
+      @method create
+      @static
       @private
     */
-    size: 0,
+
+    Map.create = function () {
+      var Constructor = this;
+      return new Constructor();
+    };
 
     /**
       Retrieve the value associated with a given key.
@@ -26755,7 +26701,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {*} the value associated with the key, or `undefined`
       @private
     */
-    get: function (key) {
+
+    Map.prototype.get = function (key) {
       if (this.size === 0) {
         return;
       }
@@ -26764,7 +26711,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       var guid = emberUtils.guidFor(key);
 
       return values[guid];
-    },
+    };
 
     /**
       Adds a value to the map. If a value for the given key has already been
@@ -26775,7 +26722,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Ember.Map}
       @private
     */
-    set: function (key, value) {
+
+    Map.prototype.set = function (key, value) {
       var keys = this._keys;
       var values = this._values;
       var guid = emberUtils.guidFor(key);
@@ -26790,7 +26738,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       this.size = keys.size;
 
       return this;
-    },
+    };
 
     /**
       Removes a value from the map for an associated key.
@@ -26800,7 +26748,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean} true if an item was removed, false otherwise
       @private
     */
-    delete: function (key) {
+
+    Map.prototype.delete = function (key) {
       if (this.size === 0) {
         return false;
       }
@@ -26817,7 +26766,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       } else {
         return false;
       }
-    },
+    };
 
     /**
       Check whether a key is present.
@@ -26826,9 +26775,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       @return {Boolean} true if the item was present, false otherwise
       @private
     */
-    has: function (key) {
+
+    Map.prototype.has = function (key) {
       return this._keys.has(key);
-    },
+    };
 
     /**
       Iterate over all the keys and values. Calls the function once
@@ -26841,10 +26791,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         callback. By default, `this` is the map.
       @private
     */
-    forEach: function (callback /*, ...thisArg*/) {
-      if (typeof callback !== 'function') {
-        missingFunction(callback);
-      }
+
+    Map.prototype.forEach = function (callback /*, ...thisArg*/) {
+      false && !(typeof callback === 'function') && emberDebug.assert(Object.prototype.toString.call(callback) + ' is not a function', typeof callback === 'function');
 
       if (this.size === 0) {
         return;
@@ -26866,27 +26815,31 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       this._keys.forEach(cb);
-    },
+    };
 
     /**
       @method clear
       @private
     */
-    clear: function () {
+
+    Map.prototype.clear = function () {
       this._keys.clear();
       this._values = Object.create(null);
       this.size = 0;
-    },
+    };
 
     /**
       @method copy
       @return {Ember.Map}
       @private
     */
-    copy: function () {
+
+    Map.prototype.copy = function () {
       return copyMap(this, new Map());
-    }
-  };
+    };
+
+    return Map;
+  }();
 
   /**
     @class MapWithDefault
@@ -26897,66 +26850,73 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param [options]
       @param {*} [options.defaultValue]
   */
-  function MapWithDefault(options) {
-    this._super$constructor();
-    this.defaultValue = options.defaultValue;
-  }
 
-  /**
-    @method create
-    @static
-    @param [options]
-      @param {*} [options.defaultValue]
-    @return {Ember.MapWithDefault|Ember.Map} If options are passed, returns
-      `Ember.MapWithDefault` otherwise returns `Ember.Map`
-    @private
-  */
-  MapWithDefault.create = function (options) {
-    if (options) {
-      return new MapWithDefault(options);
-    } else {
-      return new Map();
+  var MapWithDefault = function (_Map) {
+    emberBabel.inherits(MapWithDefault, _Map);
+
+    function MapWithDefault(options) {
+
+      var _this = emberBabel.possibleConstructorReturn(this, _Map.call(this));
+
+      _this.defaultValue = options.defaultValue;
+      return _this;
     }
-  };
 
-  MapWithDefault.prototype = Object.create(Map.prototype);
-  MapWithDefault.prototype.constructor = MapWithDefault;
-  MapWithDefault.prototype._super$constructor = Map;
-  MapWithDefault.prototype._super$get = Map.prototype.get;
+    /**
+      @method create
+      @static
+      @param [options]
+        @param {*} [options.defaultValue]
+      @return {Ember.MapWithDefault|Ember.Map} If options are passed, returns
+        `Ember.MapWithDefault` otherwise returns `Ember.Map`
+      @private
+    */
 
-  /**
-    Retrieve the value associated with a given key.
-  
-    @method get
-    @param {*} key
-    @return {*} the value associated with the key, or the default value
-    @private
-  */
-  MapWithDefault.prototype.get = function (key) {
-    var hasValue = this.has(key),
-        defaultValue;
+    MapWithDefault.create = function (options) {
+      if (options) {
+        return new MapWithDefault(options);
+      } else {
+        return new Map();
+      }
+    };
 
-    if (hasValue) {
-      return this._super$get(key);
-    } else {
-      defaultValue = this.defaultValue(key);
+    /**
+      Retrieve the value associated with a given key.
+       @method get
+      @param {*} key
+      @return {*} the value associated with the key, or the default value
+      @private
+    */
 
-      this.set(key, defaultValue);
-      return defaultValue;
-    }
-  };
+    MapWithDefault.prototype.get = function (key) {
+      var hasValue = this.has(key),
+          defaultValue;
 
-  /**
-    @method copy
-    @return {Ember.MapWithDefault}
-    @private
-  */
-  MapWithDefault.prototype.copy = function () {
-    var Constructor = this.constructor;
-    return copyMap(this, new Constructor({
-      defaultValue: this.defaultValue
-    }));
-  };
+      if (hasValue) {
+        return _Map.prototype.get.call(this, key);
+      } else {
+        defaultValue = this.defaultValue(key);
+
+        this.set(key, defaultValue);
+        return defaultValue;
+      }
+    };
+
+    /**
+      @method copy
+      @return {Ember.MapWithDefault}
+      @private
+    */
+
+    MapWithDefault.prototype.copy = function () {
+      var Constructor = this.constructor;
+      return copyMap(this, new Constructor({
+        defaultValue: this.defaultValue
+      }));
+    };
+
+    return MapWithDefault;
+  }(Map);
 
   /**
     To get multiple properties at once, call `Ember.getProperties`
@@ -27694,6 +27654,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var baseValue = values[key] || obj[key],
         propValue;
 
+    false && !!isArray(value) && emberDebug.assert('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', !isArray(value));
+
     if (!baseValue) {
       return value;
     }
@@ -27835,7 +27797,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function finishPartial(obj, meta$$1) {
-    connectBindings(obj, meta$$1 || meta(obj));
+    connectBindings(obj, meta$$1 === undefined ? meta(obj) : meta$$1);
     return obj;
   }
 
@@ -28105,65 +28067,111 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return ret;
     };
 
+    /**
+      @method reopen
+      @param arguments*
+      @private
+    */
+
+    Mixin.prototype.reopen = function () {
+      var currentMixin = void 0;
+
+      if (this.properties) {
+        currentMixin = new Mixin(undefined, this.properties);
+        this.properties = undefined;
+        this.mixins = [currentMixin];
+      } else if (!this.mixins) {
+        this.mixins = [];
+      }
+
+      var mixins = this.mixins;
+      var idx = void 0;
+
+      for (idx = 0; idx < arguments.length; idx++) {
+        currentMixin = arguments[idx];
+        false && !(typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]') && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
+
+        if (currentMixin instanceof Mixin) {
+          mixins.push(currentMixin);
+        } else {
+          mixins.push(new Mixin(undefined, currentMixin));
+        }
+      }
+
+      return this;
+    };
+
+    /**
+      @method apply
+      @param obj
+      @return applied object
+      @private
+    */
+
+    Mixin.prototype.apply = function (obj) {
+      return applyMixin(obj, [this], false);
+    };
+
+    Mixin.prototype.applyPartial = function (obj) {
+      return applyMixin(obj, [this], true);
+    };
+
+    /**
+      @method detect
+      @param obj
+      @return {Boolean}
+      @private
+    */
+
+    Mixin.prototype.detect = function (obj) {
+      if (typeof obj !== 'object' || obj === null) {
+        return false;
+      }
+      if (obj instanceof Mixin) {
+        return _detect(obj, this, {});
+      }
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1 === undefined) {
+        return false;
+      }
+      return !!meta$$1.peekMixins(emberUtils.guidFor(this));
+    };
+
+    Mixin.prototype.without = function () {
+      var ret = new Mixin([this]),
+          _len4,
+          args,
+          _key4;
+
+      for (_len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+        args[_key4] = arguments[_key4];
+      }
+
+      ret._without = args;
+      return ret;
+    };
+
+    Mixin.prototype.keys = function () {
+      var keys = {};
+
+
+      _keys(keys, this, {});
+      var ret = Object.keys(keys);
+      return ret;
+    };
+
     return Mixin;
   }();
 
   Mixin._apply = applyMixin;
-
   Mixin.finishPartial = finishPartial;
 
-  var unprocessedFlag = false;
-
   var MixinPrototype = Mixin.prototype;
-
-  /**
-    @method reopen
-    @param arguments*
-    @private
-  */
-  MixinPrototype.reopen = function () {
-    var currentMixin = void 0;
-
-    if (this.properties) {
-      currentMixin = new Mixin(undefined, this.properties);
-      this.properties = undefined;
-      this.mixins = [currentMixin];
-    } else if (!this.mixins) {
-      this.mixins = [];
-    }
-
-    var mixins = this.mixins;
-    var idx = void 0;
-
-    for (idx = 0; idx < arguments.length; idx++) {
-      currentMixin = arguments[idx];
-      false && !(typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]') && emberDebug.assert('Expected hash or Mixin instance, got ' + Object.prototype.toString.call(currentMixin), typeof currentMixin === 'object' && currentMixin !== null && Object.prototype.toString.call(currentMixin) !== '[object Array]');
-
-      if (currentMixin instanceof Mixin) {
-        mixins.push(currentMixin);
-      } else {
-        mixins.push(new Mixin(undefined, currentMixin));
-      }
-    }
-
-    return this;
-  };
-
-  /**
-    @method apply
-    @param obj
-    @return applied object
-    @private
-  */
-  MixinPrototype.apply = function (obj) {
-    return applyMixin(obj, [this], false);
-  };
-
-  MixinPrototype.applyPartial = function (obj) {
-    return applyMixin(obj, [this], true);
-  };
-
   MixinPrototype.toString = Object.toString;
+
+  emberDebug.debugSeal(MixinPrototype);
+
+  var unprocessedFlag = false;
 
   function _detect(curMixin, targetMixin, seen) {
     var guid = emberUtils.guidFor(curMixin);
@@ -28185,40 +28193,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
     return false;
   }
-
-  /**
-    @method detect
-    @param obj
-    @return {Boolean}
-    @private
-  */
-  MixinPrototype.detect = function (obj) {
-    if (typeof obj !== 'object' || obj === null) {
-      return false;
-    }
-    if (obj instanceof Mixin) {
-      return _detect(obj, this, {});
-    }
-    var meta$$1 = exports.peekMeta(obj);
-    if (meta$$1 === undefined) {
-      return false;
-    }
-    return !!meta$$1.peekMixins(emberUtils.guidFor(this));
-  };
-
-  MixinPrototype.without = function () {
-    var ret = new Mixin([this]),
-        _len4,
-        args,
-        _key4;
-
-    for (_len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      args[_key4] = arguments[_key4];
-    }
-
-    ret._without = args;
-    return ret;
-  };
 
   function _keys(ret, mixin, seen) {
     var props, i, key;
@@ -28242,17 +28216,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       });
     }
   }
-
-  MixinPrototype.keys = function () {
-    var keys = {};
-
-
-    _keys(keys, this, {});
-    var ret = Object.keys(keys);
-    return ret;
-  };
-
-  emberDebug.debugSeal(MixinPrototype);
 
   var REQUIRED = new Descriptor();
   REQUIRED.toString = function () {
@@ -28520,7 +28483,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return new AliasedProperty(altKey);
   };
   exports.merge = function (original, updates) {
-    if (!updates || typeof updates !== 'object') {
+    if (updates === null || typeof updates !== 'object') {
       return original;
     }
 
@@ -28641,6 +28604,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
   exports.META_DESC = META_DESC;
   exports.meta = meta;
+  exports.deleteMeta = function (obj) {
+    var meta = exports.peekMeta(obj);
+    if (meta !== undefined) {
+      meta.destroy();
+    }
+  };
   exports.Cache = Cache;
   exports._getPath = _getPath;
   exports.get = get;
@@ -28693,7 +28662,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.suspendListeners = suspendListeners;
   exports.watchedEvents = function (obj) {
     var meta$$1 = exports.peekMeta(obj);
-    return meta$$1 && meta$$1.watchedEvents() || [];
+    return meta$$1 !== undefined ? meta$$1.watchedEvents() : [];
   };
   exports.isNone = isNone;
   exports.isEmpty = isEmpty;
@@ -28733,12 +28702,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.removeChainWatcher = removeChainWatcher;
   exports.watchPath = watchPath;
   exports.unwatchPath = unwatchPath;
-  exports.destroy = function (obj) {
-    var meta = exports.peekMeta(obj);
-    if (meta !== undefined) {
-      meta.destroy();
-    }
-  };
   exports.isWatching = function (obj, key) {
     return watcherCount(obj, key) > 0;
   };
@@ -28765,7 +28728,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return ret;
   };
   exports.setProperties = function (obj, properties) {
-    if (!properties || typeof properties !== 'object') {
+    if (properties === null || typeof properties !== 'object') {
       return properties;
     }
     changeProperties(function () {
@@ -28887,7 +28850,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return _glimmer_reference.CONSTANT_TAG;
     }
 
-    var meta$$1 = _meta || meta(object);
+    var meta$$1 = _meta === undefined ? meta(object) : _meta;
     if (meta$$1.isProxy()) {
       return tagFor(object, meta$$1);
     }
@@ -31480,9 +31443,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     setup: function (context, transition) {
       var controller = void 0,
           propNames,
+          cache,
           params,
           allParams,
-          cache,
           qpValues;
 
       var controllerName = this.controllerName || this.routeName;
@@ -31513,23 +31476,18 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         // Update the model dep values used to calculate cache keys.
         (0, _utils.stashParamNames)(this.router, transition.state.handlerInfos);
 
+        cache = this._bucketCache;
         params = transition.params;
         allParams = queryParams.propertyNames;
-        cache = this._bucketCache;
 
 
         allParams.forEach(function (prop) {
-          var aQp = queryParams.map[prop],
-              value;
-
+          var aQp = queryParams.map[prop];
           aQp.values = params;
+
           var cacheKey = (0, _utils.calculateCacheKey)(aQp.route.fullRouteName, aQp.parts, aQp.values);
-
-          if (cache) {
-            value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
-
-            (0, _emberMetal.set)(controller, prop, value);
-          }
+          var value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
+          (0, _emberMetal.set)(controller, prop, value);
         });
 
         qpValues = getQueryParamsFor(this, transition.state);
@@ -31548,13 +31506,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
         return;
       }
 
-      var cacheKey = (0, _utils.calculateCacheKey)(qp.route.fullRouteName, qp.parts, qp.values);
-
       // Update model-dep cache
       var cache = this._bucketCache;
-      if (cache) {
-        cache.stash(cacheKey, prop, value);
-      }
+      var cacheKey = (0, _utils.calculateCacheKey)(qp.route.fullRouteName, qp.parts, qp.values);
+      cache.stash(cacheKey, prop, value);
     },
 
     /**
@@ -32178,7 +32133,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     _initRouterJs: function () {
       var routerMicrolib = this._routerMicrolib = new _router.default();
-      routerMicrolib.triggerEvent = triggerEvent;
+      routerMicrolib.triggerEvent = triggerEvent.bind(this);
 
       routerMicrolib._triggerWillChangeContext = K;
       routerMicrolib._triggerWillLeave = K;
@@ -32965,26 +32920,27 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     @param {Function} callback
     @return {Void}
    */
-  function forEachRouteAbove(originRoute, handlerInfos, callback) {
-    var originRouteFound = false,
-        i,
-        handlerInfo,
-        route;
+  function forEachRouteAbove(handlerInfos, callback) {
+    var i, handlerInfo, route;
+
 
     for (i = handlerInfos.length - 1; i >= 0; --i) {
       handlerInfo = handlerInfos[i];
       route = handlerInfo.handler;
 
+      // handlerInfo.handler being `undefined` generally means either:
+      //
+      // 1. an error occurred during creation of the route in question
+      // 2. the route is across an async boundary (e.g. within an engine)
+      //
+      // In both of these cases, we cannot invoke the callback on that specific
+      // route, because it just doesn't exist...
 
-      if (originRoute === route) {
-        originRouteFound = true;
-      }
-
-      if (!originRouteFound) {
+      if (route === undefined) {
         continue;
       }
 
-      if (callback(route) !== true) {
+      if (callback(route, handlerInfo) !== true) {
         return;
       }
     }
@@ -32993,18 +32949,19 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   // These get invoked when an action bubbles above ApplicationRoute
   // and are not meant to be overridable.
   var defaultActionHandlers = {
-    willResolveModel: function (transition, originRoute) {
-      originRoute.router._scheduleLoadingEvent(transition, originRoute);
+    willResolveModel: function (handlerInfos, transition, originRoute) {
+      this._scheduleLoadingEvent(transition, originRoute);
     },
-    error: function (error, transition, originRoute) {
-      var handlerInfos = transition.state.handlerInfos;
-      var router = originRoute.router;
+    error: function (handlerInfos, error, transition) {
+      var router = this;
 
-      forEachRouteAbove(originRoute, handlerInfos, function (route) {
-        // Check for the existence of an 'error' route.
-        // We don't check for an 'error' route on the originRoute, since that would
+      var handlerInfoWithError = handlerInfos[handlerInfos.length - 1];
+
+      forEachRouteAbove(handlerInfos, function (route, handlerInfo) {
+        // We don't check the leaf most handlerInfo since that would
         // technically be below where we're at in the route hierarchy.
-        if (originRoute !== route) {
+        if (handlerInfo !== handlerInfoWithError) {
+          // Check for the existence of an 'error' route.
           errorRouteName = findRouteStateName(route, 'error');
 
           if (errorRouteName) {
@@ -33034,15 +32991,16 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
       logError(error, 'Error while processing route: ' + transition.targetName);
     },
-    loading: function (transition, originRoute) {
-      var handlerInfos = transition.state.handlerInfos;
-      var router = originRoute.router;
+    loading: function (handlerInfos, transition) {
+      var router = this;
 
-      forEachRouteAbove(originRoute, handlerInfos, function (route) {
-        // Check for the existence of a 'loading' route.
-        // We don't check for a 'loading' route on the originRoute, since that would
+      var handlerInfoWithSlowLoading = handlerInfos[handlerInfos.length - 1];
+
+      forEachRouteAbove(handlerInfos, function (route, handlerInfo) {
+        // We don't check the leaf most handlerInfo since that would
         // technically be below where we're at in the route hierarchy.
-        if (originRoute !== route) {
+        if (handlerInfo !== handlerInfoWithSlowLoading) {
+          // Check for the existence of a 'loading' route.
           loadingRouteName = findRouteStateName(route, 'loading');
 
           if (loadingRouteName) {
@@ -33191,7 +33149,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     var defaultHandler = defaultActionHandlers[name];
     if (defaultHandler) {
-      defaultHandler.apply(null, args);
+      defaultHandler.apply(this, [handlerInfos].concat(args));
       return;
     }
 
@@ -33911,8 +33869,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     @method empty
     @for Ember.computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which negate
-    the original value for property
+    @return {Ember.ComputedProperty} computed property which returns true if
+    the value of the dependent property is null, an empty string, empty array,
+    or empty function and false if the underlying value is not empty.
+  
     @public
   */
   function (dependentKey) {
@@ -37067,7 +37027,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       var lim = removedCnt > 0 ? idx + removedCnt : -1;
       var meta = void 0;
       for (var key in keys) {
-        meta = meta || (0, _emberMetal.peekMeta)(this);
+        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           removeObserverForContentKey(content, key, this, idx, lim);
         }
@@ -37079,7 +37039,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
       var lim = addedCnt > 0 ? idx + addedCnt : -1;
       var meta = void 0;
       for (var key in keys) {
-        meta = meta || (0, _emberMetal.peekMeta)(this);
+        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           addObserverForContentKey(content, key, this, idx, lim);
         }
@@ -40121,7 +40081,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
     if (m.isSourceDestroyed()) {
       return;
     }
-    (0, _emberMetal.destroy)(this);
+    (0, _emberMetal.deleteMeta)(this);
     m.setSourceDestroyed();
   }, _Mixin$create.bind = function (to, from) {
     if (!(from instanceof _emberMetal.Binding)) {
@@ -40243,30 +40203,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
       callback.call(binding || this, property.name, property.meta || empty);
     }
   }, _ClassMixinProps);
-
-  /**
-    Returns a hash of property names and container names that injected
-    properties will lookup on the container lazily.
-  
-    @method _lazyInjections
-    @return {Object} Hash of all lazy injected property keys to container names
-    @private
-  */
-  ClassMixinProps._lazyInjections = function () {
-    var injections = {};
-    var proto = this.proto();
-    var key = void 0;
-    var desc = void 0;
-
-    for (key in proto) {
-      desc = proto[key];
-      if (desc instanceof _emberMetal.InjectedProperty) {
-        injections[key] = desc.type + ':' + (desc.name || key);
-      }
-    }
-
-    return injections;
-  };
 
   var ClassMixin = _emberMetal.Mixin.create(ClassMixinProps);
 
@@ -40593,7 +40529,7 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-utils', 'ember-metal
 
   exports.default = Namespace;
 });
-enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-environment', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/copy'], function (exports, _emberMetal, _emberEnvironment, _array, _mutable_array, _observable, _copyable, _freezable, _copy) {
+enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-environment', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/copyable', 'ember-debug', 'ember-runtime/mixins/freezable', 'ember-runtime/copy'], function (exports, _emberMetal, _emberEnvironment, _array, _mutable_array, _observable, _copyable, _emberDebug, _freezable, _copy) {
   'use strict';
 
   exports.NativeArray = exports.A = undefined;
@@ -40630,9 +40566,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
       return this[idx];
     },
     replace: function (idx, amt, objects) {
-      if (this.isFrozen) {
-        throw _freezable.FROZEN_ERROR;
-      }
+      false && !!this.isFrozen && (0, _emberDebug.assert)(_freezable.FROZEN_ERROR, !this.isFrozen);
 
       // if we replaced exactly the same number of items, then pass only the
       // replaced range. Otherwise, pass the full remaining array length
@@ -43971,7 +43905,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.watch = _emberMetal.watch;
   _emberMetal.default.isWatching = _emberMetal.isWatching;
   _emberMetal.default.unwatch = _emberMetal.unwatch;
-  _emberMetal.default.destroy = _emberMetal.destroy;
+  _emberMetal.default.destroy = _emberMetal.deleteMeta;
   _emberMetal.default.libraries = _emberMetal.libraries;
   _emberMetal.default.OrderedSet = _emberMetal.OrderedSet;
   _emberMetal.default.Map = _emberMetal.Map;
@@ -44371,7 +44305,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-beta.2-null+b8fe28f3";
+  exports.default = "2.17.0-beta.1";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
@@ -45127,23 +45061,13 @@ enifed("route-recognizer", ["exports"], function (exports) {
 
     exports.default = RouteRecognizer;
 });
-enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _routeRecognizer, _rsvp) {
+enifed('router', ['exports', 'ember-babel', 'route-recognizer', 'rsvp'], function (exports, _emberBabel, _routeRecognizer, _rsvp) {
   'use strict';
 
   exports.Transition = undefined;
 
   var slice = Array.prototype.slice;
-
-  var _isArray;
-  if (!Array.isArray) {
-    _isArray = function (x) {
-      return Object.prototype.toString.call(x) === "[object Array]";
-    };
-  } else {
-    _isArray = Array.isArray;
-  }
-
-  var isArray = _isArray;
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
 
   /**
     Determines if an object is Promise by checking if it is "thenable".
@@ -45154,17 +45078,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
   function merge(hash, other) {
     for (var prop in other) {
-      if (other.hasOwnProperty(prop)) {
+      if (hasOwnProperty.call(other, prop)) {
         hash[prop] = other[prop];
       }
     }
   }
-
-  var oCreate = Object.create || function (proto) {
-    function F() {}
-    F.prototype = proto;
-    return new F();
-  };
 
   /**
     @private
@@ -45173,8 +45091,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   **/
   function extractQueryParams(array) {
     var len = array && array.length,
-        head,
-        queryParams;
+        head = void 0,
+        queryParams = void 0;
 
     if (len && len > 0 && array[len - 1] && array[len - 1].hasOwnProperty('queryParams')) {
       queryParams = array[len - 1].queryParams;
@@ -45196,7 +45114,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     for (var key in queryParams) {
       if (typeof queryParams[key] === 'number') {
         queryParams[key] = '' + queryParams[key];
-      } else if (isArray(queryParams[key])) {
+      } else if (Array.isArray(queryParams[key])) {
         for (i = 0, l = queryParams[key].length; i < l; i++) {
           queryParams[key][i] = '' + queryParams[key][i];
         }
@@ -45206,39 +45124,32 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   /**
     @private
    */
-  function log(router, sequence, msg) {
+  function _log(router, sequence, msg) {
     if (!router.log) {
       return;
     }
 
     if (arguments.length === 3) {
-      router.log("Transition #" + sequence + ": " + msg);
+      router.log('Transition #' + sequence + ': ' + msg);
     } else {
       msg = sequence;
       router.log(msg);
     }
   }
 
-  function bind(context, fn) {
-    var boundArgs = arguments;
-    return function (value) {
-      var args = slice.call(boundArgs, 2);
-      args.push(value);
-      return fn.apply(context, args);
-    };
-  }
-
   function isParam(object) {
-    return typeof object === "string" || object instanceof String || typeof object === "number" || object instanceof Number;
+    return typeof object === 'string' || object instanceof String || typeof object === 'number' || object instanceof Number;
   }
 
   function forEach(array, callback) {
     var i, l;
 
-    for (i = 0, l = array.length; i < l && false !== callback(array[i]); i++) {}
+    for (i = 0, l = array.length; i < l && false !== callback(array[i]); i++) {
+      // empty intentionally
+    }
   }
 
-  function trigger(router, handlerInfos, ignoreFailure, args) {
+  function _trigger(router, handlerInfos, ignoreFailure, args) {
     if (router.triggerEvent) {
       router.triggerEvent(handlerInfos, ignoreFailure, args);
       return;
@@ -45269,7 +45180,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // means that we should trigger the event later when the handler is available
 
       if (!handler) {
-        handlerInfo.handlerPromise.then(bind(null, delayedEvent, name, args));
+        handlerInfo.handlerPromise.then(delayedEvent.bind(null, name, args));
         continue;
       }
 
@@ -45292,13 +45203,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   function getChangelist(oldObject, newObject) {
+    var key = void 0,
+        i,
+        l;
     var results = {
       all: {},
       changed: {},
       removed: {}
-    },
-        i,
-        l;
+    };
 
     merge(results.all, newObject);
 
@@ -45307,9 +45219,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     coerceQueryParamsToString(newObject);
 
     // Calculate removals
-    for (var key in oldObject) {
-      if (oldObject.hasOwnProperty(key)) {
-        if (!newObject.hasOwnProperty(key)) {
+    for (key in oldObject) {
+      if (hasOwnProperty.call(oldObject, key)) {
+        if (!hasOwnProperty.call(newObject, key)) {
           didChange = true;
           results.removed[key] = oldObject[key];
         }
@@ -45318,8 +45230,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     // Calculate changes
     for (key in newObject) {
-      if (newObject.hasOwnProperty(key)) {
-        if (isArray(oldObject[key]) && isArray(newObject[key])) {
+      if (hasOwnProperty.call(newObject, key)) {
+        if (Array.isArray(oldObject[key]) && Array.isArray(newObject[key])) {
           if (oldObject[key].length !== newObject[key].length) {
             results.changed[key] = newObject[key];
             didChange = true;
@@ -45343,24 +45255,15 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     return didChange && results;
   }
 
-  function promiseLabel(label) {
+  function _promiseLabel(label) {
     return 'Router: ' + label;
-  }
-
-  function subclass(parentConstructor, proto) {
-    function C(props) {
-      parentConstructor.call(this, props || {});
-    }
-    C.prototype = oCreate(parentConstructor.prototype);
-    merge(C.prototype, proto);
-    return C;
   }
 
   function resolveHook(obj, hookName) {
     if (!obj) {
       return;
     }
-    var underscored = "_" + hookName;
+    var underscored = '_' + hookName;
     return obj[underscored] && underscored || obj[hookName] && hookName;
   }
 
@@ -45399,7 +45302,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         }
         targetName += handlerInfo.name;
       });
-      return promiseLabel("'" + targetName + "': " + label);
+      return _promiseLabel("'" + targetName + "': " + label);
     },
 
     resolve: function (shouldContinue, payload) {
@@ -45417,7 +45320,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var wasAborted = false;
 
       // The prelude RSVP.resolve() asyncs us into the promise land.
-      return _rsvp.Promise.resolve(null, this.promiseLabel("Start transition")).then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler'))['catch'](function (error) {
+      return _rsvp.Promise.resolve(null, this.promiseLabel('Start transition')).then(resolveOneHandlerInfo, null, this.promiseLabel('Resolve handler')).catch(function (error) {
         // This is the only possible
         // reject value of TransitionState#resolve
         var handlerInfos = currentState.handlerInfos;
@@ -45431,13 +45334,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }, this.promiseLabel('Handle error'));
 
       function innerShouldContinue() {
-        return _rsvp.Promise.resolve(shouldContinue(), currentState.promiseLabel("Check if should continue"))['catch'](function (reason) {
+        return _rsvp.Promise.resolve(shouldContinue(), currentState.promiseLabel('Check if should continue')).catch(function (reason) {
           // We distinguish between errors that occurred
-          // during resolution (e.g. beforeModel/model/afterModel),
+          // during resolution (e.g. before"Model/model/afterModel),
           // and aborts due to a rejecting promise from shouldContinue().
           wasAborted = true;
           return _rsvp.Promise.reject(reason);
-        }, currentState.promiseLabel("Handle abort"));
+        }, currentState.promiseLabel('Handle abort'));
       }
 
       function proceed(resolvedHandlerInfo) {
@@ -45502,7 +45405,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     this.code = error.code;
   }
 
-  TransitionAbortedError.prototype = oCreate(Error.prototype);
+  TransitionAbortedError.prototype = Object.create(Error.prototype);
 
   /**
     A Transition is a thennable (a promise-like object) that represents
@@ -45519,101 +45422,90 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     @param {Object} error
     @private
    */
-  function Transition(router, intent, state, error, previousTransition) {
-    var transition = this,
-        len,
-        i,
-        handlerInfo;
-    this.state = state || router.state;
-    this.intent = intent;
-    this.router = router;
-    this.data = this.intent && this.intent.data || {};
-    this.resolvedModels = {};
-    this.queryParams = {};
-    this.promise = undefined;
-    this.error = undefined;
-    this.params = undefined;
-    this.handlerInfos = undefined;
-    this.targetName = undefined;
-    this.pivotHandler = undefined;
-    this.sequence = undefined;
-    this.isAborted = false;
-    this.isActive = true;
 
-    if (error) {
-      this.promise = _rsvp.Promise.reject(error);
-      this.error = error;
-      return;
-    }
+  var Transition = function () {
+    function Transition(router, intent, state, error, previousTransition) {
+      var _this = this,
+          len,
+          i,
+          handlerInfo;
 
-    // if you're doing multiple redirects, need the new transition to know if it
-    // is actually part of the first transition or not. Any further redirects
-    // in the initial transition also need to know if they are part of the
-    // initial transition
-    this.isCausedByAbortingTransition = !!previousTransition;
-    this.isCausedByInitialTransition = previousTransition && (previousTransition.isCausedByInitialTransition || previousTransition.sequence === 0);
+      this.state = state || router.state;
+      this.intent = intent;
+      this.router = router;
+      this.data = this.intent && this.intent.data || {};
+      this.resolvedModels = {};
+      this.queryParams = {};
+      this.promise = undefined;
+      this.error = undefined;
+      this.params = undefined;
+      this.handlerInfos = undefined;
+      this.targetName = undefined;
+      this.pivotHandler = undefined;
+      this.sequence = undefined;
+      this.isAborted = false;
+      this.isActive = true;
+      this.urlMethod = 'update';
+      this.resolveIndex = 0;
+      this.queryParamsOnly = false;
+      this.isTransition = true;
 
-    if (state) {
-      this.params = state.params;
-      this.queryParams = state.queryParams;
-      this.handlerInfos = state.handlerInfos;
-
-      len = state.handlerInfos.length;
-
-      if (len) {
-        this.targetName = state.handlerInfos[len - 1].name;
+      if (error) {
+        this.promise = _rsvp.Promise.reject(error);
+        this.error = error;
+        return;
       }
 
-      for (i = 0; i < len; ++i) {
-        handlerInfo = state.handlerInfos[i];
+      // if you're doing multiple redirects, need the new transition to know if it
+      // is actually part of the first transition or not. Any further redirects
+      // in the initial transition also need to know if they are part of the
+      // initial transition
+      this.isCausedByAbortingTransition = !!previousTransition;
+      this.isCausedByInitialTransition = previousTransition && (previousTransition.isCausedByInitialTransition || previousTransition.sequence === 0);
 
-        // TODO: this all seems hacky
+      if (state) {
+        this.params = state.params;
+        this.queryParams = state.queryParams;
+        this.handlerInfos = state.handlerInfos;
 
-        if (!handlerInfo.isResolved) {
-          break;
+        len = state.handlerInfos.length;
+
+        if (len) {
+          this.targetName = state.handlerInfos[len - 1].name;
         }
-        this.pivotHandler = handlerInfo.handler;
-      }
 
-      this.sequence = router.currentSequence++;
-      this.promise = state.resolve(checkForAbort, this)['catch'](catchHandlerForTransition(transition), promiseLabel('Handle Abort'));
-    } else {
-      this.promise = _rsvp.Promise.resolve(this.state);
-      this.params = {};
-    }
+        for (i = 0; i < len; ++i) {
+          handlerInfo = state.handlerInfos[i];
 
-    function checkForAbort() {
-      if (transition.isAborted) {
-        return _rsvp.Promise.reject(undefined, promiseLabel("Transition aborted - reject"));
-      }
-    }
-  }
+          // TODO: this all seems hacky
 
-  function catchHandlerForTransition(transition) {
-    return function (result) {
-      if (result.wasAborted || transition.isAborted) {
-        return _rsvp.Promise.reject(logAbort(transition));
+          if (!handlerInfo.isResolved) {
+            break;
+          }
+          this.pivotHandler = handlerInfo.handler;
+        }
+
+        this.sequence = router.currentSequence++;
+        this.promise = state.resolve(function () {
+          if (_this.isAborted) {
+            return _rsvp.Promise.reject(undefined, _promiseLabel('Transition aborted - reject'));
+          }
+        }, this).catch(function (result) {
+          if (result.wasAborted || _this.isAborted) {
+            return _rsvp.Promise.reject(logAbort(_this));
+          } else {
+            _this.trigger('error', result.error, _this, result.handlerWithError);
+            _this.abort();
+            return _rsvp.Promise.reject(result.error);
+          }
+        }, _promiseLabel('Handle Abort'));
       } else {
-        transition.trigger('error', result.error, transition, result.handlerWithError);
-        transition.abort();
-        return _rsvp.Promise.reject(result.error);
+        this.promise = _rsvp.Promise.resolve(this.state);
+        this.params = {};
       }
-    };
-  }
+    }
 
-  Transition.prototype = {
-    targetName: null,
-    urlMethod: 'update',
-    intent: null,
-    pivotHandler: null,
-    resolveIndex: 0,
-    resolvedModels: null,
-    state: null,
-    queryParamsOnly: false,
-
-    isTransition: true,
-
-    isExiting: function (handler) {
+    Transition.prototype.isExiting = function (handler) {
       var handlerInfos = this.handlerInfos,
           i,
           len,
@@ -45626,109 +45518,33 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         }
       }
       return true;
-    },
+    };
 
-    /**
-      The Transition's internal promise. Calling `.then` on this property
-      is that same as calling `.then` on the Transition object itself, but
-      this property is exposed for when you want to pass around a
-      Transition's promise, but not the Transition object itself, since
-      Transition object can be externally `abort`ed, while the promise
-      cannot.
-       @property promise
-      @type {Object}
-      @public
-     */
-    promise: null,
-
-    /**
-      Custom state can be stored on a Transition's `data` object.
-      This can be useful for decorating a Transition within an earlier
-      hook and shared with a later hook. Properties set on `data` will
-      be copied to new transitions generated by calling `retry` on this
-      transition.
-       @property data
-      @type {Object}
-      @public
-     */
-    data: null,
-
-    /**
-      A standard promise hook that resolves if the transition
-      succeeds and rejects if it fails/redirects/aborts.
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method then
-      @param {Function} onFulfilled
-      @param {Function} onRejected
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    then: function (onFulfilled, onRejected, label) {
+    Transition.prototype.then = function (onFulfilled, onRejected, label) {
       return this.promise.then(onFulfilled, onRejected, label);
-    },
+    };
 
-    /**
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method catch
-      @param {Function} onRejection
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    catch: function (onRejection, label) {
+    Transition.prototype.catch = function (onRejection, label) {
       return this.promise.catch(onRejection, label);
-    },
+    };
 
-    /**
-       Forwards to the internal `promise` property which you can
-      use in situations where you want to pass around a thennable,
-      but not the Transition itself.
-       @method finally
-      @param {Function} callback
-      @param {String} label optional string for labeling the promise.
-      Useful for tooling.
-      @return {Promise}
-      @public
-     */
-    finally: function (callback, label) {
+    Transition.prototype.finally = function (callback, label) {
       return this.promise.finally(callback, label);
-    },
+    };
 
-    /**
-      Aborts the Transition. Note you can also implicitly abort a transition
-      by initiating another transition while a previous one is underway.
-       @method abort
-      @return {Transition} this transition
-      @public
-     */
-    abort: function () {
+    Transition.prototype.abort = function () {
       if (this.isAborted) {
         return this;
       }
-      log(this.router, this.sequence, this.targetName + ": transition was aborted");
+      _log(this.router, this.sequence, this.targetName + ': transition was aborted');
       this.intent.preTransitionState = this.router.state;
       this.isAborted = true;
       this.isActive = false;
       this.router.activeTransition = null;
       return this;
-    },
+    };
 
-    /**
-       Retries a previously-aborted transition (making sure to abort the
-      transition if it's still active). Returns a new transition that
-      represents the new attempt to transition.
-       @method retry
-      @return {Transition} new transition
-      @public
-     */
-    retry: function () {
+    Transition.prototype.retry = function () {
       // TODO: add tests for merged state retry()s
       this.abort();
       var newTransition = this.router.transitionByIntent(this.intent, false);
@@ -45745,41 +45561,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         newTransition.method(this.urlMethod);
       }
       return newTransition;
-    },
+    };
 
-    /**
-       Sets the URL-changing method to be employed at the end of a
-      successful transition. By default, a new Transition will just
-      use `updateURL`, but passing 'replace' to this method will
-      cause the URL to update using 'replaceWith' instead. Omitting
-      a parameter will disable the URL change, allowing for transitions
-      that don't update the URL at completion (this is also used for
-      handleURL, since the URL has already changed before the
-      transition took place).
-       @method method
-      @param {String} method the type of URL-changing method to use
-        at the end of a transition. Accepted values are 'replace',
-        falsy values, or any other non-falsy value (which is
-        interpreted as an updateURL transition).
-       @return {Transition} this transition
-      @public
-     */
-    method: function (method) {
-      this.urlMethod = method;
+    Transition.prototype.method = function (_method) {
+      this.urlMethod = _method;
       return this;
-    },
+    };
 
-    /**
-       Fires an event on the current list of resolved/resolving
-      handlers within this transition. Useful for firing events
-      on route hierarchies that haven't fully been entered yet.
-       Note: This method is also aliased as `send`
-       @method trigger
-      @param {Boolean} [ignoreFailure=false] a boolean specifying whether unhandled events throw an error
-      @param {String} name the name of the event to fire
-      @public
-     */
-    trigger: function (ignoreFailure) {
+    Transition.prototype.trigger = function (ignoreFailure) {
       var args = slice.call(arguments);
       if (typeof ignoreFailure === 'boolean') {
         args.shift();
@@ -45787,41 +45576,29 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         // Throw errors on unhandled trigger events by default
         ignoreFailure = false;
       }
-      trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
-    },
+      _trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
+    };
 
-    /**
-      Transitions are aborted and their promises rejected
-      when redirects occur; this method returns a promise
-      that will follow any redirects that occur and fulfill
-      with the value fulfilled by any redirecting transitions
-      that occur.
-       @method followRedirects
-      @return {Promise} a promise that fulfills with the same
-        value that the final redirecting transition fulfills with
-      @public
-     */
-    followRedirects: function () {
+    Transition.prototype.followRedirects = function () {
       var router = this.router;
-      return this.promise['catch'](function (reason) {
+      return this.promise.catch(function (reason) {
         if (router.activeTransition) {
           return router.activeTransition.followRedirects();
         }
         return _rsvp.Promise.reject(reason);
       });
-    },
+    };
 
-    toString: function () {
-      return "Transition (sequence " + this.sequence + ")";
-    },
+    Transition.prototype.toString = function () {
+      return 'Transition (sequence ' + this.sequence + ')';
+    };
 
-    /**
-      @private
-     */
-    log: function (message) {
-      log(this.router, this.sequence, message);
-    }
-  };
+    Transition.prototype.log = function (message) {
+      _log(this.router, this.sequence, message);
+    };
+
+    return Transition;
+  }();
 
   // Alias 'trigger' as 'send'
   Transition.prototype.send = Transition.prototype.trigger;
@@ -45829,63 +45606,50 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   /**
     @private
   
-    Logs and returns an instance of TransitionAbortedError.
+    Logs and returns an instance of TransitionAborted.
    */
   function logAbort(transition) {
-    log(transition.router, transition.sequence, "detected abort.");
+    _log(transition.router, transition.sequence, 'detected abort.');
     return new TransitionAbortedError();
   }
 
-  function TransitionIntent(props) {
-    this.initialize(props);
+  var TransitionIntent = function () {
 
-    // TODO: wat
     this.data = this.data || {};
-  }
-
-  TransitionIntent.prototype = {
-    initialize: null,
-    applyToState: null
   };
 
   var DEFAULT_HANDLER = Object.freeze({});
 
-  function HandlerInfo(_props) {
-    var props = _props || {},
-        name;
+  var HandlerInfo = function () {
+    function HandlerInfo(_props) {
 
-    // Set a default handler to ensure consistent object shape
-    this._handler = DEFAULT_HANDLER;
+      var props = _props || {};
 
-    if (props.handler) {
-      name = props.name;
+      // initialize local properties to ensure consistent object shape
+      this._handler = DEFAULT_HANDLER;
+      this._handlerPromise = null;
+      this.factory = null; // Injected by the handler info factory
+      this.name = props.name;
 
-      // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
-
-      this.handlerPromise = _rsvp.Promise.resolve(props.handler);
-
-      // Wait until the 'handler' property has been updated when chaining to a handler
-      // that is a promise
-      if (isPromise(props.handler)) {
-        this.handlerPromise = this.handlerPromise.then(bind(this, this.updateHandler));
-        props.handler = undefined;
-      } else if (props.handler) {
-        // Store the name of the handler on the handler for easy checks later
-        props.handler._handlerName = name;
+      for (var prop in props) {
+        if (prop === 'handler') {
+          this._processHandler(props.handler);
+        } else {
+          this[prop] = props[prop];
+        }
       }
     }
 
-    merge(this, props);
-    this.initialize(props);
-  }
+    HandlerInfo.prototype.getHandler = function () {};
 
-  HandlerInfo.prototype = {
-    name: null,
-
-    getHandler: function () {},
-
-    fetchHandler: function () {
+    HandlerInfo.prototype.fetchHandler = function () {
       var handler = this.getHandler(this.name);
+
+      return this._processHandler(handler);
+    };
+
+    HandlerInfo.prototype._processHandler = function (handler) {
+      var _this2 = this;
 
       // Setup a handlerPromise so that we can wait for asynchronously loaded handlers
       this.handlerPromise = _rsvp.Promise.resolve(handler);
@@ -45893,75 +45657,65 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // Wait until the 'handler' property has been updated when chaining to a handler
       // that is a promise
       if (isPromise(handler)) {
-        this.handlerPromise = this.handlerPromise.then(bind(this, this.updateHandler));
+        this.handlerPromise = this.handlerPromise.then(function (h) {
+          return _this2.updateHandler(h);
+        });
+        // set to undefined to avoid recursive loop in the handler getter
+        return this.handler = undefined;
       } else if (handler) {
-        // Store the name of the handler on the handler for easy checks later
-        handler._handlerName = this.name;
-        return this.handler = handler;
+        return this.updateHandler(handler);
       }
+    };
 
-      return this.handler = undefined;
-    },
-
-    _handlerPromise: undefined,
-
-    params: null,
-    context: null,
-
-    // Injected by the handler info factory.
-    factory: null,
-
-    initialize: function () {},
-
-    log: function (payload, message) {
+    HandlerInfo.prototype.log = function (payload, message) {
       if (payload.log) {
         payload.log(this.name + ': ' + message);
       }
-    },
+    };
 
-    promiseLabel: function (label) {
-      return promiseLabel("'" + this.name + "' " + label);
-    },
+    HandlerInfo.prototype.promiseLabel = function (label) {
+      return _promiseLabel("'" + this.name + "' " + label);
+    };
 
-    getUnresolved: function () {
+    HandlerInfo.prototype.getUnresolved = function () {
       return this;
-    },
+    };
 
-    serialize: function () {
+    HandlerInfo.prototype.serialize = function () {
       return this.params || {};
-    },
+    };
 
-    updateHandler: function (handler) {
+    HandlerInfo.prototype.updateHandler = function (handler) {
       // Store the name of the handler on the handler for easy checks later
       handler._handlerName = this.name;
       return this.handler = handler;
-    },
+    };
 
-    resolve: function (shouldContinue, payload) {
-      var checkForAbort = bind(this, this.checkForAbort, shouldContinue),
-          beforeModel = bind(this, this.runBeforeModelHook, payload),
-          model = bind(this, this.getModel, payload),
-          afterModel = bind(this, this.runAfterModelHook, payload),
-          becomeResolved = bind(this, this.becomeResolved, payload),
+    HandlerInfo.prototype.resolve = function (shouldContinue, payload) {
+      var checkForAbort = this.checkForAbort.bind(this, shouldContinue),
+          beforeModel = this.runBeforeModelHook.bind(this, payload),
+          model = this.getModel.bind(this, payload),
+          afterModel = this.runAfterModelHook.bind(this, payload),
+          becomeResolved = this.becomeResolved.bind(this, payload),
           self = this;
 
-      return _rsvp.Promise.resolve(this.handlerPromise, this.promiseLabel("Start handler")).then(function (handler) {
+      return _rsvp.Promise.resolve(this.handlerPromise, this.promiseLabel('Start handler')).then(function (handler) {
         // We nest this chain in case the handlerPromise has an error so that
         // we don't have to bubble it through every step
-        return _rsvp.Promise.resolve(handler).then(checkForAbort, null, self.promiseLabel("Check for abort")).then(beforeModel, null, self.promiseLabel("Before model")).then(checkForAbort, null, self.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, self.promiseLabel("Model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, self.promiseLabel("After model")).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, self.promiseLabel("Become resolved"));
+        return _rsvp.Promise.resolve(handler).then(checkForAbort, null, self.promiseLabel('Check for abort')).then(beforeModel, null, self.promiseLabel('Before model')).then(checkForAbort, null, self.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, self.promiseLabel('Model')).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, self.promiseLabel('After model')).then(checkForAbort, null, self.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, self.promiseLabel('Become resolved'));
       }, function (error) {
         throw error;
       });
-    },
+    };
 
-    runBeforeModelHook: function (payload) {
+    HandlerInfo.prototype.runBeforeModelHook = function (payload) {
       if (payload.trigger) {
         payload.trigger(true, 'willResolveModel', payload, this.handler);
       }
       return this.runSharedModelHook(payload, 'beforeModel', []);
-    },
+    };
 
-    runAfterModelHook: function (payload, resolvedModel) {
+    HandlerInfo.prototype.runAfterModelHook = function (payload, resolvedModel) {
       // Stash the resolved model on the payload.
       // This makes it possible for users to swap out
       // the resolved model in afterModel.
@@ -45973,11 +45727,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         // Return the value stashed in resolvedModels, which
         // might have been swapped out in afterModel.
         return payload.resolvedModels[name];
-      }, null, this.promiseLabel("Ignore fulfillment value and return model value"));
-    },
+      }, null, this.promiseLabel('Ignore fulfillment value and return model value'));
+    };
 
-    runSharedModelHook: function (payload, hookName, args) {
-      this.log(payload, "calling " + hookName + " hook");
+    HandlerInfo.prototype.runSharedModelHook = function (payload, hookName, args) {
+      this.log(payload, 'calling ' + hookName + ' hook');
 
       if (this.queryParams) {
         args.push(this.queryParams);
@@ -45990,26 +45744,25 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         result = null;
       }
 
-      return _rsvp.Promise.resolve(result, this.promiseLabel("Resolve value returned from one of the model hooks"));
-    },
+      return _rsvp.Promise.resolve(result, this.promiseLabel('Resolve value returned from one of the model hooks'));
+    };
 
-    // overridden by subclasses
-    getModel: null,
+    HandlerInfo.prototype.getModel = function () {};
 
-    checkForAbort: function (shouldContinue, promiseValue) {
-      return _rsvp.Promise.resolve(shouldContinue(), this.promiseLabel("Check for abort")).then(function () {
+    HandlerInfo.prototype.checkForAbort = function (shouldContinue, promiseValue) {
+      return _rsvp.Promise.resolve(shouldContinue(), this.promiseLabel('Check for abort')).then(function () {
         // We don't care about shouldContinue's resolve value;
         // pass along the original value passed to this fn.
         return promiseValue;
-      }, null, this.promiseLabel("Ignore fulfillment value and continue"));
-    },
+      }, null, this.promiseLabel('Ignore fulfillment value and continue'));
+    };
 
-    stashResolvedModel: function (payload, resolvedModel) {
+    HandlerInfo.prototype.stashResolvedModel = function (payload, resolvedModel) {
       payload.resolvedModels = payload.resolvedModels || {};
       payload.resolvedModels[this.name] = resolvedModel;
-    },
+    };
 
-    becomeResolved: function (payload, resolvedContext) {
+    HandlerInfo.prototype.becomeResolved = function (payload, resolvedContext) {
       var params = this.serialize(resolvedContext);
 
       if (payload) {
@@ -46024,9 +45777,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         handler: this.handler,
         params: params
       });
-    },
+    };
 
-    shouldSupercede: function (other) {
+    HandlerInfo.prototype.shouldSupercede = function (other) {
       // Prefer this newer handlerInfo over `other` if:
       // 1) The other one doesn't exist
       // 2) The names don't match
@@ -46039,40 +45792,57 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
       var contextsMatch = other.context === this.context;
       return other.name !== this.name || this.hasOwnProperty('context') && !contextsMatch || this.hasOwnProperty('params') && !paramsMatch(this.params, other.params);
-    }
-  };
+    };
 
-  Object.defineProperty(HandlerInfo.prototype, 'handler', {
-    get: function () {
-      // _handler could be set to either a handler object or undefined, so we
-      // compare against a default reference to know when it's been set
-      if (this._handler !== DEFAULT_HANDLER) {
-        return this._handler;
+    (0, _emberBabel.createClass)(HandlerInfo, [{
+      key: 'handler',
+      get: function () {
+        // _handler could be set to either a handler object or undefined, so we
+        // compare against a default reference to know when it's been set
+        if (this._handler !== DEFAULT_HANDLER) {
+          return this._handler;
+        }
+
+        return this.fetchHandler();
+      },
+      set: function (handler) {
+        return this._handler = handler;
       }
+    }, {
+      key: 'handlerPromise',
+      get: function () {
+        if (this._handlerPromise !== null) {
+          return this._handlerPromise;
+        }
 
-      return this.fetchHandler();
-    },
+        this.fetchHandler();
 
-    set: function (handler) {
-      return this._handler = handler;
-    }
-  });
-
-  Object.defineProperty(HandlerInfo.prototype, 'handlerPromise', {
-    get: function () {
-      if (this._handlerPromise) {
         return this._handlerPromise;
+      },
+      set: function (handlerPromise) {
+        this._handlerPromise = handlerPromise;
+
+        return handlerPromise;
       }
+    }]);
+    return HandlerInfo;
+  }();
 
-      this.fetchHandler();
-
-      return this._handlerPromise;
-    },
-
-    set: function (handlerPromise) {
-      return this._handlerPromise = handlerPromise;
-    }
-  });
+  // this is bonkers, we require that `context` be set on on the
+  // HandlerInfo prototype to null because the checks in
+  // `NamedTransitionIntent.prototype.applyToHandlers` here
+  // https://github.com/tildeio/router.js/blob/v1.2.8/lib/router/transition-intent/named-transition-intent.js#L76-L81
+  // check of `oldHandlerInfo.context === newHandlerInfo.context` and assumes
+  // that the params _must_ match also in that case.
+  //
+  // The only reason `oldHandlerInfo.context` and `newHandlerInfo.context` did not
+  // match in prior versions is because if the context isn't set yet (on newHandlerInfo)
+  // is because it inherits the `null` from the prototype vs `undefined` (on
+  // the oldHandlerInfo).
+  //
+  // A future refactoring should remove that conditional, and fix the hand full of
+  // failing tests.
+  HandlerInfo.prototype.context = null;
 
   function paramsMatch(a, b) {
     if (!a ^ !b) {
@@ -46096,48 +45866,55 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     return true;
   }
 
-  var ResolvedHandlerInfo = subclass(HandlerInfo, {
-    resolve: function (shouldContinue, payload) {
+  var ResolvedHandlerInfo = function (_HandlerInfo) {
+    (0, _emberBabel.inherits)(ResolvedHandlerInfo, _HandlerInfo);
+
+    function ResolvedHandlerInfo(props) {
+
+      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _HandlerInfo.call(this, props));
+
+      _this3.isResolved = true;
+      return _this3;
+    }
+
+    ResolvedHandlerInfo.prototype.resolve = function (shouldContinue, payload) {
       // A ResolvedHandlerInfo just resolved with itself.
       if (payload && payload.resolvedModels) {
         payload.resolvedModels[this.name] = this.context;
       }
-      return _rsvp.Promise.resolve(this, this.promiseLabel("Resolve"));
-    },
+      return _rsvp.Promise.resolve(this, this.promiseLabel('Resolve'));
+    };
 
-    getUnresolved: function () {
+    ResolvedHandlerInfo.prototype.getUnresolved = function () {
       return this.factory('param', {
         name: this.name,
         handler: this.handler,
         params: this.params
       });
-    },
+    };
 
-    isResolved: true
-  });
+    return ResolvedHandlerInfo;
+  }(HandlerInfo);
 
-  var UnresolvedHandlerInfoByObject = subclass(HandlerInfo, {
-    getModel: function (payload) {
-      this.log(payload, this.name + ": resolving provided model");
+  var UnresolvedHandlerInfoByObject = function (_HandlerInfo2) {
+    (0, _emberBabel.inherits)(UnresolvedHandlerInfoByObject, _HandlerInfo2);
+
+    function UnresolvedHandlerInfoByObject(props) {
+
+      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _HandlerInfo2.call(this, props));
+
+      _this4.names = _this4.names || [];
+      return _this4;
+    }
+
+    UnresolvedHandlerInfoByObject.prototype.getModel = function (payload) {
+      this.log(payload, this.name + ': resolving provided model');
       return _rsvp.Promise.resolve(this.context);
-    },
+    };
 
-    initialize: function (props) {
-      this.names = props.names || [];
-      this.context = props.context;
-    },
-
-    /**
-      @private
-       Serializes a handler using its custom `serialize` method or
-      by a default that looks up the expected property name from
-      the dynamic segment.
-       @param {Object} model the model to be serialized for this handler
-    */
-    serialize: function (_model) {
+    UnresolvedHandlerInfoByObject.prototype.serialize = function (_model) {
       var model = _model || this.context,
-          names = this.names,
-          serializer = this.serializer || this.handler && this.handler.serialize;
+          names = this.names;
 
       var object = {};
       if (isParam(model)) {
@@ -46146,8 +45923,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
 
       // Use custom serialize if it exists.
-      if (serializer) {
-        return serializer(model, names);
+      if (this.serializer) {
+        // invoke this.serializer unbound (getSerializer returns a stateless function)
+        return this.serializer.call(null, model, names);
+      } else if (this.handler && this.handler.serialize) {
+        return this.handler.serialize(model, names);
       }
 
       if (names.length !== 1) {
@@ -46162,16 +45942,23 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         object[name] = model;
       }
       return object;
+    };
+
+    return UnresolvedHandlerInfoByObject;
+  }(HandlerInfo);
+
+  var UnresolvedHandlerInfoByParam = function (_HandlerInfo3) {
+    (0, _emberBabel.inherits)(UnresolvedHandlerInfoByParam, _HandlerInfo3);
+
+    function UnresolvedHandlerInfoByParam(props) {
+
+      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _HandlerInfo3.call(this, props));
+
+      _this5.params = _this5.params || {};
+      return _this5;
     }
-  });
 
-  // Generated by URL transitions and non-dynamic route segments in named Transitions.
-  var UnresolvedHandlerInfoByParam = subclass(HandlerInfo, {
-    initialize: function (props) {
-      this.params = props.params || {};
-    },
-
-    getModel: function (payload) {
+    UnresolvedHandlerInfoByParam.prototype.getModel = function (payload) {
       var fullParams = this.params;
       if (payload && payload.queryParams) {
         fullParams = {};
@@ -46183,8 +45970,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var hookName = resolveHook(handler, 'deserialize') || resolveHook(handler, 'model');
 
       return this.runSharedModelHook(payload, hookName, [fullParams]);
-    }
-  });
+    };
+
+    return UnresolvedHandlerInfoByParam;
+  }(HandlerInfo);
 
   handlerInfoFactory.klasses = {
     resolved: ResolvedHandlerInfo,
@@ -46193,27 +45982,27 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   };
 
   function handlerInfoFactory(name, props) {
-    var Ctor = handlerInfoFactory.klasses[name],
-        handlerInfo = new Ctor(props || {});
+    var klass = handlerInfoFactory.klasses[name];
+    var handlerInfo = new klass(props || {});
     handlerInfo.factory = handlerInfoFactory;
     return handlerInfo;
   }
 
-  var NamedTransitionIntent = subclass(TransitionIntent, {
-    name: null,
-    pivotHandler: null,
-    contexts: null,
-    queryParams: null,
+  var NamedTransitionIntent = function (_TransitionIntent) {
+    (0, _emberBabel.inherits)(NamedTransitionIntent, _TransitionIntent);
 
-    initialize: function (props) {
-      this.name = props.name;
-      this.pivotHandler = props.pivotHandler;
-      this.contexts = props.contexts || [];
-      this.queryParams = props.queryParams;
-    },
+    function NamedTransitionIntent(props) {
 
-    applyToState: function (oldState, recognizer, getHandler, isIntermediate, getSerializer) {
+      var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _TransitionIntent.call(this, props));
 
+      _this6.name = props.name;
+      _this6.pivotHandler = props.pivotHandler;
+      _this6.contexts = props.contexts || [];
+      _this6.queryParams = props.queryParams;
+      return _this6;
+    }
+
+    NamedTransitionIntent.prototype.applyToState = function (oldState, recognizer, getHandler, isIntermediate, getSerializer) {
       var partitionedArgs = extractQueryParams([this.name].concat(this.contexts)),
           pureArgs = partitionedArgs[0],
           handlers = recognizer.handlersFor(pureArgs[0]);
@@ -46221,10 +46010,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       var targetRouteName = handlers[handlers.length - 1].handler;
 
       return this.applyToHandlers(oldState, handlers, getHandler, targetRouteName, isIntermediate, null, getSerializer);
-    },
+    };
 
-    applyToHandlers: function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
-
+    NamedTransitionIntent.prototype.applyToHandlers = function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive, getSerializer) {
       var i, len, result, name, oldHandlerInfo, newHandlerInfo, serializer, oldContext, handlerToUse;
       var newState = new TransitionState();
       var objects = this.contexts.slice(0);
@@ -46295,7 +46083,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
 
       if (objects.length > 0) {
-        throw new Error("More context objects were passed than there are dynamic segments for the route: " + targetRouteName);
+        throw new Error('More context objects were passed than there are dynamic segments for the route: ' + targetRouteName);
       }
 
       if (!isIntermediate) {
@@ -46305,9 +46093,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       merge(newState.queryParams, this.queryParams || {});
 
       return newState;
-    },
+    };
 
-    invalidateChildren: function (handlerInfos, invalidateIndex) {
+    NamedTransitionIntent.prototype.invalidateChildren = function (handlerInfos, invalidateIndex) {
       var i, l, handlerInfo;
 
       for (i = invalidateIndex, l = handlerInfos.length; i < l; ++i) {
@@ -46315,12 +46103,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
         handlerInfos[i] = handlerInfo.getUnresolved();
       }
-    },
+    };
 
-    getHandlerInfoForDynamicSegment: function (name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
+    NamedTransitionIntent.prototype.getHandlerInfoForDynamicSegment = function (name, getHandler, names, objects, oldHandlerInfo, targetRouteName, i, serializer) {
       var objectToUse, preTransitionHandlerInfo;
       if (objects.length > 0) {
-
         // Use the objects provided for this transition.
         objectToUse = objects[objects.length - 1];
         if (isParam(objectToUse)) {
@@ -46355,9 +46142,9 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         context: objectToUse,
         names: names
       });
-    },
+    };
 
-    createParamHandlerInfo: function (name, getHandler, names, objects, oldHandlerInfo) {
+    NamedTransitionIntent.prototype.createParamHandlerInfo = function (name, getHandler, names, objects, oldHandlerInfo) {
       var params = {},
           oldParams,
           peek,
@@ -46366,14 +46153,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       // Soak up all the provided string/numbers
       var numNames = names.length;
       while (numNames--) {
-
         // Only use old params if the names match with the new handler
         oldParams = oldHandlerInfo && name === oldHandlerInfo.name && oldHandlerInfo.params || {};
         peek = objects[objects.length - 1];
         paramName = names[numNames];
 
         if (isParam(peek)) {
-          params[paramName] = "" + objects.pop();
+          params[paramName] = '' + objects.pop();
         } else {
           // If we're here, this means only some of the params
           // were string/number params, so try and use a param
@@ -46391,8 +46177,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         getHandler: getHandler,
         params: params
       });
-    }
-  });
+    };
+
+    return NamedTransitionIntent;
+  }(TransitionIntent);
 
   function UnrecognizedURLError(message) {
     if (!(this instanceof UnrecognizedURLError)) {
@@ -46416,16 +46204,20 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     this.code = error.code;
   }
 
-  UnrecognizedURLError.prototype = oCreate(Error.prototype);
+  UnrecognizedURLError.prototype = Object.create(Error.prototype);
 
-  var URLTransitionIntent = subclass(TransitionIntent, {
-    url: null,
+  var URLTransitionIntent = function (_TransitionIntent2) {
+    (0, _emberBabel.inherits)(URLTransitionIntent, _TransitionIntent2);
 
-    initialize: function (props) {
-      this.url = props.url;
-    },
+    function URLTransitionIntent(props) {
 
-    applyToState: function (oldState, recognizer, getHandler) {
+      var _this7 = (0, _emberBabel.possibleConstructorReturn)(this, _TransitionIntent2.call(this, props));
+
+      _this7.url = props.url;
+      return _this7;
+    }
+
+    URLTransitionIntent.prototype.applyToState = function (oldState, recognizer, getHandler) {
       var newState = new TransitionState(),
           result,
           name,
@@ -46487,12 +46279,14 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       merge(newState.queryParams, results.queryParams);
 
       return newState;
-    }
-  });
+    };
+
+    return URLTransitionIntent;
+  }(TransitionIntent);
 
   var pop = Array.prototype.pop;
 
-  function Router$1(_options) {
+  function Router(_options) {
     var options = _options || {};
     this.getHandler = options.getHandler || this.getHandler;
     this.getSerializer = options.getSerializer || this.getSerializer;
@@ -46509,7 +46303,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     this._changedQueryParams = undefined;
     this.oldState = undefined;
     this.currentHandlerInfos = undefined;
-    this.state = undefined;
     this.currentSequence = 0;
 
     this.recognizer = new _routeRecognizer.default();
@@ -46525,7 +46318,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     var queryParamChangelist = getChangelist(oldState.queryParams, newState.queryParams);
 
     if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
-
       // This is a no-op transition. See if query params changed.
       if (queryParamChangelist) {
         newTransition = this.queryParamsTransition(queryParamChangelist, wasTransitioning, oldState, newState);
@@ -46564,7 +46356,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     // after the transition has been finalized.
     newTransition.promise = newTransition.promise.then(function (result) {
       return finalizeTransition(newTransition, result.state);
-    }, null, promiseLabel("Settle transition promise when transition is finalized"));
+    }, null, _promiseLabel('Settle transition promise when transition is finalized'));
 
     if (!wasTransitioning) {
       notifyExistingHandlers(this, newState, newTransition);
@@ -46575,8 +46367,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     return newTransition;
   }
 
-  Router$1.prototype = {
-
+  Router.prototype = {
     /**
       The main entry point into the router. The API is essentially
       the same as the `map` method in `route-recognizer`.
@@ -46637,7 +46428,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
             router.didTransition(router.currentHandlerInfos);
           }
           return result;
-        }, null, promiseLabel("Transition complete"));
+        }, null, _promiseLabel('Transition complete'));
         return newTransition;
       }
     },
@@ -46698,7 +46489,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
        @param {String} url a URL to update to
     */
     updateURL: function () {
-      throw new Error("updateURL is not implemented");
+      throw new Error('updateURL is not implemented');
     },
 
     /**
@@ -46725,20 +46516,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
     },
 
     refresh: function (pivotHandler) {
-      var previousTransition = this.activeTransition,
-          i,
-          len,
-          handlerInfo;
+      var previousTransition = this.activeTransition;
       var state = previousTransition ? previousTransition.state : this.state;
       var handlerInfos = state.handlerInfos;
-      var params = {};
-      for (i = 0, len = handlerInfos.length; i < len; ++i) {
-        handlerInfo = handlerInfos[i];
 
-        params[handlerInfo.name] = handlerInfo.params || {};
-      }
-
-      log(this, "Starting a refresh transition");
+      _log(this, 'Starting a refresh transition');
       var intent = new NamedTransitionIntent({
         name: handlerInfos[handlerInfos.length - 1].name,
         pivotHandler: pivotHandler || handlerInfos[0].handler,
@@ -46775,7 +46557,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
        @return {String} a URL
     */
     generate: function (handlerName) {
-
       var partitionedArgs = extractQueryParams(slice.call(arguments, 1)),
           suppliedParams = partitionedArgs[0],
           queryParams = partitionedArgs[1],
@@ -46786,7 +46567,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
       // Construct a TransitionIntent with the provided params
       // and apply it to the present state of the router.
-      var intent = new NamedTransitionIntent({ name: handlerName, contexts: suppliedParams });
+      var intent = new NamedTransitionIntent({
+        name: handlerName,
+        contexts: suppliedParams
+      });
       var state = intent.applyToState(this.state, this.recognizer, this.getHandler, null, this.getSerializer);
       var params = {};
 
@@ -46874,7 +46658,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     trigger: function () /*name*/{
       var args = slice.call(arguments);
-      trigger(this, this.currentHandlerInfos, false, args);
+      _trigger(this, this.currentHandlerInfos, false, args);
     },
 
     /**
@@ -46892,12 +46676,11 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   function fireQueryParamDidChange(router, newState, queryParamChangelist) {
     // If queryParams changed trigger event
     if (queryParamChangelist) {
-
       // This is a little hacky but we need some way of storing
       // changed query params given that no activeTransition
       // is guaranteed to have occurred.
       router._changedQueryParams = queryParamChangelist.all;
-      trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
+      _trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
       router._changedQueryParams = null;
     }
   }
@@ -47186,9 +46969,8 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   function finalizeTransition(transition, newState) {
     var router, handlerInfos, infos;
 
-
     try {
-      log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
+      _log(transition.router, transition.sequence, 'Resolved all models on destination route; finalizing transition.');
 
       router = transition.router, handlerInfos = newState.handlerInfos;
 
@@ -47208,13 +46990,13 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       transition.isActive = false;
       router.activeTransition = null;
 
-      trigger(router, router.currentHandlerInfos, true, ['didTransition']);
+      _trigger(router, router.currentHandlerInfos, true, ['didTransition']);
 
       if (router.didTransition) {
         router.didTransition(router.currentHandlerInfos);
       }
 
-      log(router, transition.sequence, "TRANSITION COMPLETE.");
+      _log(router, transition.sequence, 'TRANSITION COMPLETE.');
 
       // Resolve with the final handler.
       return handlerInfos[handlerInfos.length - 1].handler;
@@ -47255,8 +47037,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
 
     var intent;
     if (args.length === 0) {
-
-      log(router, "Updating query params");
+      _log(router, 'Updating query params');
 
       // A query param update is really just a transition
       // into the route you're already on.
@@ -47268,12 +47049,10 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         queryParams: queryParams
       });
     } else if (name.charAt(0) === '/') {
-
-      log(router, "Attempting URL transition to " + name);
+      _log(router, 'Attempting URL transition to ' + name);
       intent = new URLTransitionIntent({ url: name });
     } else {
-
-      log(router, "Attempting transition to " + name);
+      _log(router, 'Attempting transition to ' + name);
       intent = new NamedTransitionIntent({
         name: args[0],
         contexts: slice.call(args, 1),
@@ -47366,7 +47145,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
         i,
         len,
         qp;
-    trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
+    _trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
 
     if (transition) {
       transition._visibleQueryParams = {};
@@ -47387,8 +47166,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   function notifyExistingHandlers(router, newState, newTransition) {
     var oldHandlers = router.state.handlerInfos,
         changing = [],
-        leavingIndex = null,
-        leaving,
         i,
         oldHandlerLen,
         oldHandler,
@@ -47400,7 +47177,6 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       newHandler = newState.handlerInfos[i];
 
       if (!newHandler || oldHandler.name !== newHandler.name) {
-        leavingIndex = i;
         break;
       }
 
@@ -47409,11 +47185,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
       }
     }
 
-    if (leavingIndex !== null) {
-      leaving = oldHandlers.slice(leavingIndex, oldHandlerLen);
-    }
-
-    trigger(router, oldHandlers, true, ['willTransition', newTransition]);
+    _trigger(router, oldHandlers, true, ['willTransition', newTransition]);
 
     if (router.willTransition) {
       router.willTransition(oldHandlers, newState.handlerInfos, newTransition);
@@ -47421,7 +47193,7 @@ enifed('router', ['exports', 'route-recognizer', 'rsvp'], function (exports, _ro
   }
 
   exports.Transition = Transition;
-  exports.default = Router$1;
+  exports.default = Router;
 });
 enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _emberBabel, _nodeModule) {
   'use strict';
@@ -47429,18 +47201,6 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   exports.filter = exports.async = exports.map = exports.reject = exports.resolve = exports.off = exports.on = exports.configure = exports.denodeify = exports.defer = exports.rethrow = exports.hashSettled = exports.hash = exports.race = exports.allSettled = exports.all = exports.EventTarget = exports.Promise = exports.cast = exports.asap = undefined;
 
   var _rsvp, callbacks;
-
-  function indexOf(callbacks, callback) {
-    var i, l;
-
-    for (i = 0, l = callbacks.length; i < l; i++) {
-      if (callbacks[i] === callback) {
-        return i;
-      }
-    }
-
-    return -1;
-  }
 
   function callbacksFor(object) {
     var callbacks = object._promiseCallbacks;
@@ -47477,7 +47237,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
         callbacks = allCallbacks[eventName] = [];
       }
 
-      if (indexOf(callbacks, callback) === -1) {
+      if (callbacks.indexOf(callback)) {
         callbacks.push(callback);
       }
     },
@@ -47493,7 +47253,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
       callbacks = allCallbacks[eventName];
 
-      index = indexOf(callbacks, callback);
+      index = callbacks.indexOf(callback);
 
       if (index !== -1) {
         callbacks.splice(index, 1);
@@ -47530,40 +47290,6 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     }
   }
 
-  function objectOrFunction(x) {
-    var type = typeof x;
-    return x !== null && (type === 'object' || type === 'function');
-  }
-
-  function isFunction(x) {
-    return typeof x === 'function';
-  }
-
-  function isObject(x) {
-    return x !== null && typeof x === 'object';
-  }
-
-  function isMaybeThenable(x) {
-    return x !== null && typeof x === 'object';
-  }
-
-  var _isArray = void 0;
-  if (Array.isArray) {
-    _isArray = Array.isArray;
-  } else {
-    _isArray = function (x) {
-      return Object.prototype.toString.call(x) === '[object Array]';
-    };
-  }
-
-  var isArray = _isArray;
-
-  // Date.now is not available in browsers < IE9
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  var now = Date.now || function () {
-    return new Date().getTime();
-  };
-
   var queue = [];
 
   function scheduleFlush() {
@@ -47597,7 +47323,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
         detail: promise._result,
         childId: child && child._id,
         label: promise._label,
-        timeStamp: now(),
+        timeStamp: Date.now(),
         error: config["instrument-with-stack"] ? new Error(promise._label) : null
       } })) {
       scheduleFlush();
@@ -47653,11 +47379,20 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return new TypeError('A promises callback cannot return that same promise.');
   }
 
+  function objectOrFunction(x) {
+    var type = typeof x;
+    return x !== null && (type === 'object' || type === 'function');
+  }
+
   function noop() {}
 
   var PENDING = void 0;
   var FULFILLED = 1;
   var REJECTED = 2;
+
+  function ErrorObject() {
+    this.error = null;
+  }
 
   var GET_THEN_ERROR = new ErrorObject();
 
@@ -47668,6 +47403,28 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       GET_THEN_ERROR.error = error;
       return GET_THEN_ERROR;
     }
+  }
+
+  var TRY_CATCH_ERROR = new ErrorObject();
+
+  var tryCatchCallback = void 0;
+  function tryCatcher() {
+    var target;
+
+    try {
+      target = tryCatchCallback;
+
+      tryCatchCallback = null;
+      return target.apply(this, arguments);
+    } catch (e) {
+      TRY_CATCH_ERROR.error = e;
+      return TRY_CATCH_ERROR;
+    }
+  }
+
+  function tryCatch(fn) {
+    tryCatchCallback = fn;
+    return tryCatcher;
   }
 
   function tryThen(then$$1, value, fulfillmentHandler, rejectionHandler) {
@@ -47715,10 +47472,10 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       reject(promise, thenable._result);
     } else {
       subscribe(thenable, undefined, function (value) {
-        if (thenable !== value) {
-          resolve(promise, value, undefined);
-        } else {
+        if (thenable === value) {
           fulfill(promise, value);
+        } else {
+          resolve(promise, value);
         }
       }, function (reason) {
         return reject(promise, reason);
@@ -47727,14 +47484,17 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   }
 
   function handleMaybeThenable(promise, maybeThenable, then$$1) {
-    var isOwnThenable = maybeThenable.constructor === promise.constructor && then$$1 === then && promise.constructor.resolve === resolve$1;
+    var isOwnThenable = maybeThenable.constructor === promise.constructor && then$$1 === then && promise.constructor.resolve === resolve$1,
+        error;
 
     if (isOwnThenable) {
       handleOwnThenable(promise, maybeThenable);
     } else if (then$$1 === GET_THEN_ERROR) {
-      reject(promise, GET_THEN_ERROR.error);
+      error = GET_THEN_ERROR.error;
+
       GET_THEN_ERROR.error = null;
-    } else if (isFunction(then$$1)) {
+      reject(promise, error);
+    } else if (typeof then$$1 === 'function') {
       handleForeignThenable(promise, maybeThenable, then$$1);
     } else {
       fulfill(promise, maybeThenable);
@@ -47831,46 +47591,28 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     promise._subscribers.length = 0;
   }
 
-  function ErrorObject() {
-    this.error = null;
-  }
-
-  var TRY_CATCH_ERROR = new ErrorObject();
-
-  function tryCatch(callback, result) {
-    try {
-      return callback(result);
-    } catch (e) {
-      TRY_CATCH_ERROR.error = e;
-      return TRY_CATCH_ERROR;
-    }
-  }
-
   function invokeCallback(state, promise, callback, result) {
-    var hasCallback = isFunction(callback);
-    var value = void 0,
-        error = void 0;
+    var hasCallback = typeof callback === 'function',
+        error;
+    var value = void 0;
 
     if (hasCallback) {
-      value = tryCatch(callback, result);
-
-      if (value === TRY_CATCH_ERROR) {
-        error = value.error;
-        value.error = null; // release
-      } else if (value === promise) {
-        reject(promise, withOwnPromise());
-        return;
-      }
+      value = tryCatch(callback)(result);
     } else {
       value = result;
     }
 
     if (promise._state !== PENDING) {
       // noop
-    } else if (hasCallback && error === undefined) {
-      resolve(promise, value);
-    } else if (error !== undefined) {
+    } else if (value === promise) {
+      reject(promise, withOwnPromise());
+    } else if (value === TRY_CATCH_ERROR) {
+      error = value.error;
+
+      value.error = null; // release
       reject(promise, error);
+    } else if (hasCallback) {
+      resolve(promise, value);
     } else if (state === FULFILLED) {
       fulfill(promise, value);
     } else if (state === REJECTED) {
@@ -47929,114 +47671,122 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return child;
   }
 
-  function Enumerator(Constructor, input, abortOnReject, label) {
-    this._instanceConstructor = Constructor;
-    this.promise = new Constructor(noop, label);
-    this._abortOnReject = abortOnReject;
+  var Enumerator = function () {
+    function Enumerator(Constructor, input, abortOnReject, label) {
 
-    this._init.apply(this, arguments);
-  }
+      this._instanceConstructor = Constructor;
+      this.promise = new Constructor(noop, label);
+      this._abortOnReject = abortOnReject;
+      this.isUsingOwnPromise = Constructor === Promise;
 
-  Enumerator.prototype._init = function (Constructor, input) {
-    var len = input.length || 0;
-    this.length = len;
-    this._remaining = len;
-    this._result = new Array(len);
-
-    this._enumerate(input);
-    if (this._remaining === 0) {
-      fulfill(this.promise, this._result);
+      this._init.apply(this, arguments);
     }
-  };
 
-  Enumerator.prototype._enumerate = function (input) {
-    var length = this.length,
-        i;
-    var promise = this.promise;
+    Enumerator.prototype._init = function (Constructor, input) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+      this._result = new Array(len);
 
-    for (i = 0; promise._state === PENDING && i < length; i++) {
-      this._eachEntry(input[i], i);
-    }
-  };
+      this._enumerate(input);
+    };
 
-  Enumerator.prototype._settleMaybeThenable = function (entry, i) {
-    var c = this._instanceConstructor,
-        then$$1,
-        promise;
-    var resolve$$1 = c.resolve;
+    Enumerator.prototype._enumerate = function (input) {
+      var length = this.length,
+          i;
+      var promise = this.promise;
 
-    if (resolve$$1 === resolve$1) {
-      then$$1 = getThen(entry);
-
-
-      if (then$$1 === then && entry._state !== PENDING) {
-        entry._onError = null;
-        this._settledAt(entry._state, i, entry._result);
-      } else if (typeof then$$1 !== 'function') {
-        this._remaining--;
-        this._result[i] = this._makeResult(FULFILLED, i, entry);
-      } else if (c === Promise) {
-        promise = new c(noop);
-
-        handleMaybeThenable(promise, entry, then$$1);
-        this._willSettleAt(promise, i);
-      } else {
-        this._willSettleAt(new c(function (resolve$$1) {
-          return resolve$$1(entry);
-        }), i);
+      for (i = 0; promise._state === PENDING && i < length; i++) {
+        this._eachEntry(input[i], i, true);
       }
-    } else {
-      this._willSettleAt(resolve$$1(entry), i);
-    }
-  };
 
-  Enumerator.prototype._eachEntry = function (entry, i) {
-    if (isMaybeThenable(entry)) {
-      this._settleMaybeThenable(entry, i);
-    } else {
-      this._remaining--;
-      this._result[i] = this._makeResult(FULFILLED, i, entry);
-    }
-  };
+      this._checkFullfillment();
+    };
 
-  Enumerator.prototype._settledAt = function (state, i, value) {
-    var promise = this.promise;
+    Enumerator.prototype._checkFullfillment = function () {
+      if (this._remaining === 0) {
+        fulfill(this.promise, this._result);
+      }
+    };
 
-    if (promise._state === PENDING) {
-      if (this._abortOnReject && state === REJECTED) {
-        reject(promise, value);
+    Enumerator.prototype._settleMaybeThenable = function (entry, i, firstPass) {
+      var c = this._instanceConstructor,
+          then$$1,
+          promise;
+      var resolve$$1 = c.resolve;
+
+      if (resolve$$1 === resolve$1) {
+        then$$1 = getThen(entry);
+
+
+        if (then$$1 === then && entry._state !== PENDING) {
+          entry._onError = null;
+          this._settledAt(entry._state, i, entry._result, firstPass);
+        } else if (typeof then$$1 !== 'function') {
+          this._settledAt(FULFILLED, i, entry, firstPass);
+        } else if (this.isUsingOwnPromise) {
+          promise = new c(noop);
+
+          handleMaybeThenable(promise, entry, then$$1);
+          this._willSettleAt(promise, i, firstPass);
+        } else {
+          this._willSettleAt(new c(function (resolve$$1) {
+            return resolve$$1(entry);
+          }), i, firstPass);
+        }
       } else {
-        this._remaining--;
-        this._result[i] = this._makeResult(state, i, value);
-        if (this._remaining === 0) {
-          fulfill(promise, this._result);
+        this._willSettleAt(resolve$$1(entry), i, firstPass);
+      }
+    };
+
+    Enumerator.prototype._eachEntry = function (entry, i, firstPass) {
+      if (entry !== null && typeof entry === 'object') {
+        this._settleMaybeThenable(entry, i, firstPass);
+      } else {
+        this._setResultAt(FULFILLED, i, entry, firstPass);
+      }
+    };
+
+    Enumerator.prototype._settledAt = function (state, i, value, firstPass) {
+      var promise = this.promise;
+
+      if (promise._state === PENDING) {
+        if (this._abortOnReject && state === REJECTED) {
+          reject(promise, value);
+        } else {
+          this._setResultAt(state, i, value, firstPass);
+          this._checkFullfillment();
         }
       }
-    }
-  };
+    };
 
-  Enumerator.prototype._makeResult = function (state, i, value) {
-    return value;
-  };
+    Enumerator.prototype._setResultAt = function (state, i, value) {
+      this._remaining--;
+      this._result[i] = value;
+    };
 
-  Enumerator.prototype._willSettleAt = function (promise, i) {
-    var enumerator = this;
+    Enumerator.prototype._willSettleAt = function (promise, i, firstPass) {
+      var _this = this;
 
-    subscribe(promise, undefined, function (value) {
-      return enumerator._settledAt(FULFILLED, i, value);
-    }, function (reason) {
-      return enumerator._settledAt(REJECTED, i, reason);
-    });
-  };
+      subscribe(promise, undefined, function (value) {
+        return _this._settledAt(FULFILLED, i, value, firstPass);
+      }, function (reason) {
+        return _this._settledAt(REJECTED, i, reason, firstPass);
+      });
+    };
 
-  function makeSettledResult(state, position, value) {
+    return Enumerator;
+  }();
+
+  function setSettledResult(state, i, value) {
+    this._remaining--;
     if (state === FULFILLED) {
-      return {
+      this._result[i] = {
         state: 'fulfilled',
         value: value
       };
     } else {
-      return {
+      this._result[i] = {
         state: 'rejected',
         reason: value
       };
@@ -48197,7 +47947,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   */
 
 
-  var guidKey = 'rsvp_' + now() + '-';
+  var guidKey = 'rsvp_' + Date.now() + '-';
   var counter = 0;
 
   function needsResolver() {
@@ -48312,121 +48062,59 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     Useful for tooling.
     @constructor
   */
-  function Promise(resolver, label) {
-    this._id = counter++;
-    this._label = label;
-    this._state = undefined;
-    this._result = undefined;
-    this._subscribers = [];
 
-    config.instrument && instrument('created', this);
+  var Promise = function () {
+    function Promise(resolver, label) {
 
-    if (noop !== resolver) {
-      typeof resolver !== 'function' && needsResolver();
-      this instanceof Promise ? initializePromise(this, resolver) : needsNew();
-    }
-  }
+      this._id = counter++;
+      this._label = label;
+      this._state = undefined;
+      this._result = undefined;
+      this._subscribers = [];
 
-  Promise.prototype._onError = function (reason) {
-    var _this = this;
+      config.instrument && instrument('created', this);
 
-    config.after(function () {
-      if (_this._onError) {
-        config.trigger('error', reason, _this._label);
+      if (noop !== resolver) {
+        typeof resolver !== 'function' && needsResolver();
+        this instanceof Promise ? initializePromise(this, resolver) : needsNew();
       }
-    });
-  };
+    }
 
-  /**
-    `catch` is simply sugar for `then(undefined, onRejection)` which makes it the same
-    as the catch block of a try/catch statement.
-  
-    ```js
-    function findAuthor(){
-      throw new Error('couldn\'t find that author');
-    }
-  
-    // synchronous
-    try {
-      findAuthor();
-    } catch(reason) {
-      // something went wrong
-    }
-  
-    // async with promises
-    findAuthor().catch(function(reason){
-      // something went wrong
-    });
-    ```
-  
-    @method catch
-    @param {Function} onRejection
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.catch = function (onRejection, label) {
-    return this.then(undefined, onRejection, label);
-  };
+    Promise.prototype._onError = function (reason) {
+      var _this2 = this;
 
-  /**
-    `finally` will be invoked regardless of the promise's fate just as native
-    try/catch/finally behaves
-  
-    Synchronous example:
-  
-    ```js
-    findAuthor() {
-      if (Math.random() > 0.5) {
-        throw new Error();
-      }
-      return new Author();
-    }
-  
-    try {
-      return findAuthor(); // succeed or fail
-    } catch(error) {
-      return findOtherAuthor();
-    } finally {
-      // always runs
-      // doesn't affect the return value
-    }
-    ```
-  
-    Asynchronous example:
-  
-    ```js
-    findAuthor().catch(function(reason){
-      return findOtherAuthor();
-    }).finally(function(){
-      // author was either found, or not
-    });
-    ```
-  
-    @method finally
-    @param {Function} callback
-    @param {String} label optional string for labeling the promise.
-    Useful for tooling.
-    @return {Promise}
-  */
-  Promise.prototype.finally = function (callback, label) {
-    var promise = this;
-    var constructor = promise.constructor;
-
-    return promise.then(function (value) {
-      return constructor.resolve(callback()).then(function () {
-        return value;
+      config.after(function () {
+        if (_this2._onError) {
+          config.trigger('error', reason, _this2._label);
+        }
       });
-    }, function (reason) {
-      return constructor.resolve(callback()).then(function () {
-        throw reason;
-      });
-    }, label);
-  };
+    };
+
+    Promise.prototype.catch = function (onRejection, label) {
+      return this.then(undefined, onRejection, label);
+    };
+
+    Promise.prototype.finally = function (callback, label) {
+      var promise = this;
+      var constructor = promise.constructor;
+
+      return promise.then(function (value) {
+        return constructor.resolve(callback()).then(function () {
+          return value;
+        });
+      }, function (reason) {
+        return constructor.resolve(callback()).then(function () {
+          throw reason;
+        });
+      }, label);
+    };
+
+    return Promise;
+  }();
 
   Promise.cast = resolve$1; // deprecated
   Promise.all = function (entries, label) {
-    if (!isArray(entries)) {
+    if (!Array.isArray(entries)) {
       return this.reject(new TypeError("Promise.all must be called with an array"), label);
     }
     return new Enumerator(this, entries, true /* abort on reject */, label).promise;
@@ -48438,7 +48126,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
 
     var promise = new Constructor(noop, label);
 
-    if (!isArray(entries)) {
+    if (!Array.isArray(entries)) {
       reject(promise, new TypeError('Promise.race must be called with an array'));
       return promise;
     }
@@ -48886,7 +48574,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
       var promise = new Promise(noop);
 
       args[l] = function (err, val) {
-        if (err) reject(promise, err);else if (options === undefined) resolve(promise, val);else if (options === true) resolve(promise, arrayResult(arguments));else if (isArray(options)) resolve(promise, makeObject(arguments, options));else resolve(promise, val);
+        if (err) reject(promise, err);else if (options === undefined) resolve(promise, val);else if (options === true) resolve(promise, arrayResult(arguments));else if (Array.isArray(options)) resolve(promise, makeObject(arguments, options));else resolve(promise, val);
       };
 
       if (promiseInput) {
@@ -48955,7 +48643,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return AllSettled;
   }(Enumerator);
 
-  AllSettled.prototype._makeResult = makeSettledResult;
+  AllSettled.prototype._setResultAt = setSettledResult;
 
   /**
   `RSVP.allSettled` is similar to `RSVP.all`, but instead of implementing
@@ -49003,7 +48691,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   */
 
   function allSettled(entries, label) {
-    if (!isArray(entries)) {
+    if (!Array.isArray(entries)) {
       return Promise.reject(new TypeError("Promise.allSettled must be called with an array"), label);
     }
 
@@ -49161,7 +48849,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     have been fulfilled, or rejected if any of them become rejected.
   */
   function hash(object, label) {
-    if (!isObject(object)) {
+    if (object === null || typeof object !== 'object') {
       return Promise.reject(new TypeError("Promise.hash must be called with an object"), label);
     }
 
@@ -49178,7 +48866,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return HashSettled;
   }(PromiseHash);
 
-  HashSettled.prototype._makeResult = makeSettledResult;
+  HashSettled.prototype._setResultAt = setSettledResult;
 
   /**
     `RSVP.hashSettled` is similar to `RSVP.allSettled`, but takes an object
@@ -49283,7 +48971,7 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
   */
 
   function hashSettled(object, label) {
-    if (!isObject(object)) {
+    if (object === null || typeof object !== 'object') {
       return Promise.reject(new TypeError("RSVP.hashSettled must be called with an object"), label);
     }
 
@@ -49381,12 +49069,48 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return deferred;
   }
 
+  var MapEnumerator = function (_Enumerator3) {
+    (0, _emberBabel.inherits)(MapEnumerator, _Enumerator3);
+
+    function MapEnumerator(Constructor, entries, mapFn, label) {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _Enumerator3.call(this, Constructor, entries, true, label, mapFn));
+    }
+
+    MapEnumerator.prototype._init = function (Constructor, input, bool, label, mapFn) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+      this._result = new Array(len);
+      this._mapFn = mapFn;
+
+      this._enumerate(input);
+    };
+
+    MapEnumerator.prototype._setResultAt = function (state, i, value, firstPass) {
+      var val;
+
+      if (firstPass) {
+        val = tryCatch(this._mapFn)(value, i);
+
+        if (val === TRY_CATCH_ERROR) {
+          this._settledAt(REJECTED, i, val.error, false);
+        } else {
+          this._eachEntry(val, i, false);
+        }
+      } else {
+        this._remaining--;
+        this._result[i] = value;
+      }
+    };
+
+    return MapEnumerator;
+  }(Enumerator);
+
   /**
-   `RSVP.map` is similar to JavaScript's native `map` method, except that it
-    waits for all promises to become fulfilled before running the `mapFn` on
-    each item in given to `promises`. `RSVP.map` returns a promise that will
-    become fulfilled with the result of running `mapFn` on the values the promises
-    become fulfilled with.
+   `RSVP.map` is similar to JavaScript's native `map` method. `mapFn` is eagerly called
+    meaning that as soon as any promise resolves its value will be passed to `mapFn`.
+    `RSVP.map` returns a promise that will become fulfilled with the result of running
+    `mapFn` on the values the promises become fulfilled with.
   
     For example:
   
@@ -49460,25 +49184,15 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     @static
   */
   function map(promises, mapFn, label) {
-    if (!isArray(promises)) {
+    if (!Array.isArray(promises)) {
       return Promise.reject(new TypeError("RSVP.map must be called with an array"), label);
     }
 
-    if (!isFunction(mapFn)) {
+    if (typeof mapFn !== 'function') {
       return Promise.reject(new TypeError("RSVP.map expects a function as a second argument"), label);
     }
 
-    return Promise.all(promises, label).then(function (values) {
-      var length = values.length,
-          i;
-      var results = new Array(length);
-
-      for (i = 0; i < length; i++) {
-        results[i] = mapFn(values[i]);
-      }
-
-      return Promise.all(results, label);
-    });
+    return new MapEnumerator(Promise, promises, mapFn, label).promise;
   }
 
   /**
@@ -49512,12 +49226,64 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     return Promise.reject(reason, label);
   }
 
+  var EMPTY_OBJECT = {};
+
+  var FilterEnumerator = function (_Enumerator4) {
+    (0, _emberBabel.inherits)(FilterEnumerator, _Enumerator4);
+
+    function FilterEnumerator(Constructor, entries, filterFn, label) {
+      return (0, _emberBabel.possibleConstructorReturn)(this, _Enumerator4.call(this, Constructor, entries, true, label, filterFn));
+    }
+
+    FilterEnumerator.prototype._init = function (Constructor, input, bool, label, filterFn) {
+      var len = input.length || 0;
+      this.length = len;
+      this._remaining = len;
+
+      this._result = new Array(len);
+      this._filterFn = filterFn;
+
+      this._enumerate(input);
+    };
+
+    FilterEnumerator.prototype._checkFullfillment = function () {
+      if (this._remaining === 0) {
+        this._result = this._result.filter(function (val) {
+          return val !== EMPTY_OBJECT;
+        });
+        fulfill(this.promise, this._result);
+      }
+    };
+
+    FilterEnumerator.prototype._setResultAt = function (state, i, value, firstPass) {
+      var val;
+
+      if (firstPass) {
+        this._result[i] = value;
+        val = tryCatch(this._filterFn)(value, i);
+
+        if (val === TRY_CATCH_ERROR) {
+          this._settledAt(REJECTED, i, val.error, false);
+        } else {
+          this._eachEntry(val, i, false);
+        }
+      } else {
+        this._remaining--;
+        if (!value) {
+          this._result[i] = EMPTY_OBJECT;
+        }
+      }
+    };
+
+    return FilterEnumerator;
+  }(Enumerator);
+
   /**
-   `RSVP.filter` is similar to JavaScript's native `filter` method, except that it
-    waits for all promises to become fulfilled before running the `filterFn` on
-    each item in given to `promises`. `RSVP.filter` returns a promise that will
-    become fulfilled with the result of running `filterFn` on the values the
-    promises become fulfilled with.
+   `RSVP.filter` is similar to JavaScript's native `filter` method.
+   `filterFn` is eagerly called meaning that as soon as any promise
+    resolves its value will be passed to `filterFn`. `RSVP.filter` returns
+    a promise that will become fulfilled with the result of running
+    `filterFn` on the values the promises become fulfilled with.
   
     For example:
   
@@ -49598,51 +49364,17 @@ enifed('rsvp', ['exports', 'ember-babel', 'node-module'], function (exports, _em
     @return {Promise}
   */
 
-  function resolveAll(promises, label) {
-    return Promise.all(promises, label);
-  }
-
-  function resolveSingle(promise, label) {
-    return Promise.resolve(promise, label).then(function (promises) {
-      return resolveAll(promises, label);
-    });
-  }
-
   function filter(promises, filterFn, label) {
-    if (!isArray(promises) && !(isObject(promises) && promises.then !== undefined)) {
+    if (!Array.isArray(promises) && !(promises !== null && typeof promises === 'object' && promises.then !== undefined)) {
       return Promise.reject(new TypeError("RSVP.filter must be called with an array or promise"), label);
     }
 
-    if (!isFunction(filterFn)) {
+    if (typeof filterFn !== 'function') {
       return Promise.reject(new TypeError("RSVP.filter expects function as a second argument"), label);
     }
 
-    var promise = isArray(promises) ? resolveAll(promises, label) : resolveSingle(promises, label);
-    return promise.then(function (values) {
-      var length = values.length,
-          i;
-      var filtered = new Array(length);
-
-      for (i = 0; i < length; i++) {
-        filtered[i] = filterFn(values[i]);
-      }
-
-      return resolveAll(filtered, label).then(function (filtered) {
-        var results = new Array(length),
-            _i;
-        var newLength = 0;
-
-        for (_i = 0; _i < length; _i++) {
-          if (filtered[_i]) {
-            results[newLength] = values[_i];
-            newLength++;
-          }
-        }
-
-        results.length = newLength;
-
-        return results;
-      });
+    return Promise.resolve(promises, label).then(function (promises) {
+      return new FilterEnumerator(Promise, promises, filterFn, label).promise;
     });
   }
 
