@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.15.2
+ * @version   2.16.0
  */
 
 var enifed, requireModule, Ember;
@@ -1659,6 +1659,28 @@ enifed('ember-testing/helpers/pause_test', ['exports', 'ember-runtime', 'ember-c
    return pauseTest();
    click('.btn');
    ```
+  
+   You may want to turn off the timeout before pausing.
+  
+   qunit (as of 2.4.0):
+  
+   ```
+   visit('/');
+   assert.timeout(0);
+   return pauseTest();
+   click('.btn');
+   ```
+  
+   mocha:
+  
+   ```
+   visit('/');
+   this.timeout(0);
+   return pauseTest();
+   click('.btn');
+   ```
+  
+  
    @since 1.9.0
    @method pauseTest
    @return {Object} A promise that will never resolve
