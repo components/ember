@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+f7fa758b
+ * @version   2.17.0-alpha.1-null+f4bbfe27
  */
 
 var enifed, requireModule, Ember;
@@ -31372,7 +31372,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           } else {
             if (presentKey) {
               svalue = params[presentKey];
-              value = route.deserializeQueryParam(svalue, qp.urlKey, qp.type);
+
+              if (svalue !== undefined) {
+                value = route.deserializeQueryParam(svalue, qp.urlKey, qp.type);
+              }
             } else {
               // No QP provided; use default value.
               svalue = qp.serializedDefaultValue;
@@ -32638,7 +32641,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       });
     },
     _serializeQueryParam: function (value, type) {
-      if (type === 'array') {
+      if (value === null || value === undefined) {
+        return value;
+      } else if (type === 'array') {
         return JSON.stringify(value);
       }
 
@@ -32655,7 +32660,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       });
     },
     _deserializeQueryParam: function (value, defaultType) {
-      if (defaultType === 'boolean') {
+      if (value === null || value === undefined) {
+        return value;
+      } else if (defaultType === 'boolean') {
         return value === 'true';
       } else if (defaultType === 'number') {
         return Number(value).valueOf();
@@ -32850,7 +32857,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
               return true;
             }
 
-            if (_fromRouterService) {
+            if (_fromRouterService && presentProp !== false) {
               return false;
             }
 
@@ -32858,7 +32865,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           }() && (0, _emberDebug.assert)('You passed the `' + presentProp + '` query parameter during a transition into ' + qp.route.routeName + ', please update to ' + qp.urlKey, function () {
             if (qp.urlKey === presentProp) {
               return true;
-            }if (_fromRouterService) {
+            }if (_fromRouterService && presentProp !== false) {
               return false;
             }return true;
           }());
@@ -44382,7 +44389,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+f7fa758b";
+  exports.default = "2.17.0-alpha.1-null+f4bbfe27";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
