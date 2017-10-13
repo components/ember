@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+032a2711
+ * @version   2.17.0-alpha.1-null+f94a4b6a
  */
 
 var enifed, requireModule, Ember;
@@ -65528,6 +65528,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helper
         _this31.router.map(function () {
           this.route('posts', { resetNamespace: true }, function () {
             this.route('new');
+            this.route('edit', { resetNamespace: true });
           });
         });
       });
@@ -65570,6 +65571,18 @@ enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helper
         assert.equal(testHelpers.currentRouteName(), 'posts.new', 'should equal \'posts.new\'.');
         assert.equal(testHelpers.currentPath(), 'posts.new', 'should equal \'posts.new\'.');
         assert.equal(testHelpers.currentURL(), '/posts/new', 'should equal \'/posts/new\'.');
+      });
+    };
+
+    _class4.prototype['@test currentRouteName for \'/posts/edit\''] = function (assert) {
+      assert.expect(3);
+
+      var testHelpers = this.application.testHelpers;
+
+      return testHelpers.visit('/posts/edit').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'edit', 'should equal \'edit\'.');
+        assert.equal(testHelpers.currentPath(), 'posts.edit', 'should equal \'posts.edit\'.');
+        assert.equal(testHelpers.currentURL(), '/posts/edit', 'should equal \'/posts/edit\'.');
       });
     };
 
