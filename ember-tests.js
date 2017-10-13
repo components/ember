@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+f4bbfe27
+ * @version   2.17.0-alpha.1-null+032a2711
  */
 
 var enifed, requireModule, Ember;
@@ -50862,6 +50862,13 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     (0, _emberMetal.set)(objectToRemove, 'lname', 'Updated-Stark');
 
     deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after changing removed item array is not updated');
+  });
+
+  QUnit.test('sort works if array property is null (non array value) on first evaluation of computed prop', function () {
+    obj.set('items', null);
+    deepEqual(obj.get('sortedItems'), []);
+    obj.set('items', (0, _native_array.A)([{ fname: 'Cersei', lname: 'Lanister' }]));
+    deepEqual(obj.get('sortedItems'), [{ fname: 'Cersei', lname: 'Lanister' }]);
   });
 
   QUnit.test('updating sort properties updates the sorted array', function () {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+f4bbfe27
+ * @version   2.17.0-alpha.1-null+032a2711
  */
 
 var enifed, requireModule, Ember;
@@ -36149,12 +36149,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
         });
       }
 
-      var itemsKeyIsAtThis = itemsKey === '@this';
-      var items = itemsKeyIsAtThis ? this : (0, _emberMetal.get)(this, itemsKey);
-      if (!(0, _utils.isArray)(items)) {
-        return (0, _native_array.A)();
-      }
-
       function sortPropertyDidChange() {
         this.notifyPropertyChange(key);
       }
@@ -36169,6 +36163,12 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       });
 
       activeObserversMap.set(this, activeObservers);
+
+      var itemsKeyIsAtThis = itemsKey === '@this';
+      var items = itemsKeyIsAtThis ? this : (0, _emberMetal.get)(this, itemsKey);
+      if (!(0, _utils.isArray)(items)) {
+        return (0, _native_array.A)();
+      }
 
       return sortByNormalizedSortProperties(items, normalizedSortProperties);
     }, { dependentKeys: [sortPropertiesKey + '.[]'], readOnly: true });
@@ -48227,7 +48227,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+f4bbfe27";
+  exports.default = "2.17.0-alpha.1-null+032a2711";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
