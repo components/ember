@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.f94a4b6a"
+        "version": "2.17.0-alpha.1.c482f7bb"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -3446,7 +3446,7 @@
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/mixins/evented.js",
             "line": 14,
-            "description": "This mixin allows for Ember objects to subscribe to and emit events.\n\n```app/utils/person.js\nimport EmberObject from '@ember/object';\nimport Evented from '@ember/object/evented';\n\nexport default EmberObject.extend(Ember.Evented, {\n  greet() {\n    // ...\n    this.trigger('greet');\n  }\n});\n```\n\n```javascript\nvar person = Person.create();\n\nperson.on('greet', function() {\n  console.log('Our person has greeted');\n});\n\nperson.greet();\n\n// outputs: 'Our person has greeted'\n```\n\nYou can also chain multiple event subscriptions:\n\n```javascript\nperson.on('greet', function() {\n  console.log('Our person has greeted');\n}).one('greet', function() {\n  console.log('Offer one-time special');\n}).off('event', this, forgetThis);\n```",
+            "description": "This mixin allows for Ember objects to subscribe to and emit events.\n\n```app/utils/person.js\nimport EmberObject from '@ember/object';\nimport Evented from '@ember/object/evented';\n\nexport default EmberObject.extend(Evented, {\n  greet() {\n    // ...\n    this.trigger('greet');\n  }\n});\n```\n\n```javascript\nvar person = Person.create();\n\nperson.on('greet', function() {\n  console.log('Our person has greeted');\n});\n\nperson.greet();\n\n// outputs: 'Our person has greeted'\n```\n\nYou can also chain multiple event subscriptions:\n\n```javascript\nperson.on('greet', function() {\n  console.log('Our person has greeted');\n}).one('greet', function() {\n  console.log('Offer one-time special');\n}).off('event', this, forgetThis);\n```",
             "access": "public",
             "tagname": ""
         },
