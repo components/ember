@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c482f7bb
+ * @version   2.17.0-alpha.1-null+241adea4
  */
 
 var enifed, requireModule, Ember;
@@ -63362,6 +63362,12 @@ enifed('ember-utils/tests/can_invoke_test', ['ember-utils'], function (_emberUti
 
   QUnit.test('should return false if the object doesn\'t exist', function () {
     equal((0, _emberUtils.canInvoke)(undefined, 'aMethodThatDoesNotExist'), false);
+  });
+
+  QUnit.test('should return true for falsy values that have methods', function () {
+    equal((0, _emberUtils.canInvoke)(false, 'valueOf'), true);
+    equal((0, _emberUtils.canInvoke)('', 'charAt'), true);
+    equal((0, _emberUtils.canInvoke)(0, 'toFixed'), true);
   });
 
   QUnit.test('should return true if the method exists on the object', function () {
