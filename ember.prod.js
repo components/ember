@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+241adea4
+ * @version   2.17.0-alpha.1-null+df874552
  */
 
 var enifed, requireModule, Ember;
@@ -35462,17 +35462,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
   
     This example will create a `posts` property on the `post` controller that
     looks up the `posts` controller in the container, making it easy to
-    reference other controllers. This is functionally equivalent to:
-  
-    ```app/controllers/post.js
-    import Controller from '@ember/controller';
-    import { alias } from '@ember/object/computed';
-  
-    export default Controller.extend({
-      needs: 'posts',
-      posts: alias('controllers.posts')
-    });
-    ```
+    reference other controllers.
   
     @method controller
     @since 1.10.0
@@ -44389,7 +44379,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+241adea4";
+  exports.default = "2.17.0-alpha.1-null+df874552";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

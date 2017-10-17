@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.241adea4"
+        "version": "2.17.0-alpha.1.df874552"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -14328,7 +14328,7 @@
         {
             "file": "packages/ember-runtime/lib/controllers/controller.js",
             "line": 31,
-            "description": "Creates a property that lazily looks up another controller in the container.\nCan only be used when defining another controller.\n\nExample:\n\n```app/controllers/post.js\nimport Controller, {\n  inject as controller\n} from '@ember/controller';\n\nexport default Controller.extend({\n  posts: controller()\n});\n```\n\nThis example will create a `posts` property on the `post` controller that\nlooks up the `posts` controller in the container, making it easy to\nreference other controllers. This is functionally equivalent to:\n\n```app/controllers/post.js\nimport Controller from '@ember/controller';\nimport { alias } from '@ember/object/computed';\n\nexport default Controller.extend({\n  needs: 'posts',\n  posts: alias('controllers.posts')\n});\n```",
+            "description": "Creates a property that lazily looks up another controller in the container.\nCan only be used when defining another controller.\n\nExample:\n\n```app/controllers/post.js\nimport Controller, {\n  inject as controller\n} from '@ember/controller';\n\nexport default Controller.extend({\n  posts: controller()\n});\n```\n\nThis example will create a `posts` property on the `post` controller that\nlooks up the `posts` controller in the container, making it easy to\nreference other controllers.",
             "itemtype": "method",
             "name": "controller",
             "since": "1.10.0",
