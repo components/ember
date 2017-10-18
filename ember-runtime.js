@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+df874552
+ * @version   2.17.0-alpha.1-null+9bacd688
  */
 
 var enifed, requireModule, Ember;
@@ -160,10 +160,10 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       this.isDestroyed = true;
     },
     reset: function (fullName) {
-      if (fullName !== undefined) {
-        resetMember(this, this.registry.normalize(fullName));
-      } else {
+      if (fullName === undefined) {
         resetCache(this);
+      } else {
+        resetMember(this, this.registry.normalize(fullName));
       }
     },
     ownerInjection: function () {
@@ -406,7 +406,8 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
   function resetCache(container) {
     destroyDestroyables(container);
-    container.cache.dict = (0, _emberUtils.dictionary)(null);
+    container.cache = (0, _emberUtils.dictionary)(null);
+    container.factoryManagerCache = (0, _emberUtils.dictionary)(null);
   }
 
   function resetMember(container, fullName) {
