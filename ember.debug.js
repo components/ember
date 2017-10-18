@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+9bacd688
+ * @version   2.17.0-alpha.1-null+1213b4a0
  */
 
 var enifed, requireModule, Ember;
@@ -37833,9 +37833,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     arrayWillChange: function (content, idx, removedCnt, addedCnt) {
       var keys = this._keys;
       var lim = removedCnt > 0 ? idx + removedCnt : -1;
-      var meta = void 0;
+      var meta = (0, _emberMetal.peekMeta)(this);
       for (var key in keys) {
-        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           removeObserverForContentKey(content, key, this, idx, lim);
         }
@@ -37845,9 +37844,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     arrayDidChange: function (content, idx, removedCnt, addedCnt) {
       var keys = this._keys;
       var lim = addedCnt > 0 ? idx + addedCnt : -1;
-      var meta = void 0;
+      var meta = (0, _emberMetal.peekMeta)(this);
       for (var key in keys) {
-        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           addObserverForContentKey(content, key, this, idx, lim);
         }
@@ -48218,7 +48216,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+9bacd688";
+  exports.default = "2.17.0-alpha.1-null+1213b4a0";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
