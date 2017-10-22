@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+e3627124
+ * @version   2.17.0-alpha.1-null+b52da3c1
  */
 
 var enifed, requireModule, Ember;
@@ -34090,8 +34090,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   }
 
   EmberRouter.reopenClass({
-    router: null,
-
     map: function (callback) {
       if (!this.dslCallbacks) {
         this.dslCallbacks = [];
@@ -34275,12 +34273,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       return defaultParentState;
     }
   }
-
-  (0, _emberMetal.deprecateProperty)(EmberRouter.prototype, 'router', '_routerMicrolib', {
-    id: 'ember-router.router',
-    until: '2.16',
-    url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-router-router-renamed-to-ember-router-_routermicrolib'
-  });
 
   exports.default = EmberRouter;
 });
@@ -48216,7 +48208,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+e3627124";
+  exports.default = "2.17.0-alpha.1-null+b52da3c1";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+e3627124
+ * @version   2.17.0-alpha.1-null+b52da3c1
  */
 
 var enifed, requireModule, Ember;
@@ -46714,24 +46714,6 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
     }];
 
     (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
-  });
-
-  QUnit.test('Router#router deprecates when called', function (assert) {
-    assert.expect(2);
-
-    var router = createRouter();
-
-    expectDeprecation(function () {
-      assert.equal(router.router, router._routerMicrolib);
-    }, 'Usage of `router` is deprecated, use `_routerMicrolib` instead.');
-  });
-
-  QUnit.test('Router#_routerMicrolib can be used without deprecation', function (assert) {
-    assert.expect(1);
-
-    var router = createRouter();
-
-    assert.ok(router._routerMicrolib, 'Router._routerMicrolib can be used without deprecation');
   });
 });
 enifed('ember-routing/tests/utils_test', ['ember-routing/utils'], function (_utils) {
