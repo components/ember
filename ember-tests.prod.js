@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.2
+ * @version   2.17.0-beta.2-null+be7c6d01
  */
 
 var enifed, requireModule, Ember;
@@ -644,6 +644,31 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-metal', 'contain
     var instance2 = factoryManager2.create({ bar: 'bar' });
 
     assert.deepEqual(instance1.constructor, instance2.constructor);
+  });
+
+  QUnit.test('can properly reset cache', function (assert) {
+    var registry = new _container.Registry();
+    var container = registry.container();
+
+    var Component = (0, _internalTestHelpers.factory)();
+    registry.register('component:foo-bar', Component);
+
+    var factory1 = container.factoryFor('component:foo-bar');
+    var factory2 = container.factoryFor('component:foo-bar');
+
+    var instance1 = container.lookup('component:foo-bar');
+    var instance2 = container.lookup('component:foo-bar');
+
+    assert.equal(instance1, instance2);
+    assert.equal(factory1, factory2);
+
+    container.reset();
+
+    var factory3 = container.factoryFor('component:foo-bar');
+    var instance3 = container.lookup('component:foo-bar');
+
+    assert.notEqual(instance1, instance3);
+    assert.notEqual(factory1, factory3);
   });
 
   QUnit.test('#factoryFor created instances come with instance injections', function (assert) {

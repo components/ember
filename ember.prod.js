@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.2
+ * @version   2.17.0-beta.2-null+be7c6d01
  */
 
 var enifed, requireModule, Ember;
@@ -10449,10 +10449,10 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
       this.isDestroyed = true;
     },
     reset: function (fullName) {
-      if (fullName !== undefined) {
-        resetMember(this, this.registry.normalize(fullName));
-      } else {
+      if (fullName === undefined) {
         resetCache(this);
+      } else {
+        resetMember(this, this.registry.normalize(fullName));
       }
     },
     ownerInjection: function () {
@@ -10663,7 +10663,8 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug'], function (exports
 
   function resetCache(container) {
     destroyDestroyables(container);
-    container.cache.dict = (0, _emberUtils.dictionary)(null);
+    container.cache = (0, _emberUtils.dictionary)(null);
+    container.factoryManagerCache = (0, _emberUtils.dictionary)(null);
   }
 
   function resetMember(container, fullName) {
@@ -37022,9 +37023,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     arrayWillChange: function (content, idx, removedCnt) {
       var keys = this._keys;
       var lim = removedCnt > 0 ? idx + removedCnt : -1;
-      var meta = void 0;
+      var meta = (0, _emberMetal.peekMeta)(this);
       for (var key in keys) {
-        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           removeObserverForContentKey(content, key, this, idx, lim);
         }
@@ -37034,9 +37034,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     arrayDidChange: function (content, idx, removedCnt, addedCnt) {
       var keys = this._keys;
       var lim = addedCnt > 0 ? idx + addedCnt : -1;
-      var meta = void 0;
+      var meta = (0, _emberMetal.peekMeta)(this);
       for (var key in keys) {
-        meta = meta === undefined ? (0, _emberMetal.peekMeta)(this) : meta;
         if (lim > 0) {
           addObserverForContentKey(content, key, this, idx, lim);
         }
@@ -44302,7 +44301,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-beta.2";
+  exports.default = "2.17.0-beta.2-null+be7c6d01";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
