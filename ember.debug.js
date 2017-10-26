@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+0b190028
+ * @version   2.17.0-alpha.1-null+fb7cf487
  */
 
 var enifed, requireModule, Ember;
@@ -41322,7 +41322,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   exports.NativeArray = NativeArray = (_NativeArray = NativeArray).without.apply(_NativeArray, ignore);
 
   /**
-    Creates an `Ember.NativeArray` from an Array like object.
+    Creates an `Ember.NativeArray` from an Array-like object.
     Does not modify the original object's contents. Ember.A is not needed if
     `EmberENV.EXTEND_PROTOTYPES` is `true` (the default value). However,
     it is recommended that you use Ember.A when creating addons for
@@ -41343,6 +41343,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   
         if (!this.get('content')) {
           this.set('content', Ember.A());
+          this.set('otherContent', Ember.A([1,2,3]));
         }
       }
     });
@@ -41350,6 +41351,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   
     @method A
     @for Ember
+    @param {Object} [array] An Array-like object to convert
     @return {Ember.NativeArray}
     @public
   */
@@ -48078,7 +48080,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+0b190028";
+  exports.default = "2.17.0-alpha.1-null+fb7cf487";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
