@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.14a9a238"
+        "version": "2.17.0-alpha.1.0b190028"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -6250,30 +6250,6 @@
         {
             "file": "packages/ember-application/lib/system/resolver.js",
             "line": 378,
-            "itemtype": "method",
-            "name": "_logLookup",
-            "params": [
-                {
-                    "name": "found",
-                    "description": "",
-                    "type": "Boolean"
-                },
-                {
-                    "name": "parsedName",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.DefaultResolver",
-            "module": "ember",
-            "submodule": "ember-application",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-application/lib/system/resolver.js",
-            "line": 397,
             "description": "Used to iterate all items of a given type.",
             "itemtype": "method",
             "name": "knownForType",
@@ -6293,7 +6269,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/resolver.js",
-            "line": 424,
+            "line": 405,
             "description": "Converts provided name from the backing namespace into a container lookup name.\n\nExamples:\n\n* App.FooBarHelper -> helper:foo-bar\n* App.THelper -> helper:t",
             "itemtype": "method",
             "name": "translateToContainerFullname",
@@ -6307,6 +6283,30 @@
                     "name": "name",
                     "description": "",
                     "type": "String"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "Ember.DefaultResolver",
+            "module": "ember",
+            "submodule": "ember-application",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-application/lib/system/resolver.js",
+            "line": 431,
+            "itemtype": "method",
+            "name": "_logLookup",
+            "params": [
+                {
+                    "name": "found",
+                    "description": "",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "parsedName",
+                    "description": "",
+                    "type": "Object"
                 }
             ],
             "access": "private",

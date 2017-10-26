@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+14a9a238
+ * @version   2.17.0-alpha.1-null+0b190028
  */
 
 var enifed, requireModule, Ember;
@@ -12852,7 +12852,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
     @public
   */
 
-  exports.default = _emberRuntime.Object.extend({
+  var DefaultResolver = _emberRuntime.Object.extend({
     /**
       This will be set to the Application instance when it is
       created.
@@ -12882,17 +12882,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
         return fullName;
       }
     },
-
-
-    /**
-      This method is called via the container's resolver method.
-      It parses the provided `fullName` and then looks up and
-      returns the appropriate template or class.
-       @method resolve
-      @param {String} fullName the lookup string
-      @return {Object} the resolved factory
-      @public
-    */
     resolve: function (fullName) {
       var parsedName = this.parseName(fullName);
       var resolveMethodName = parsedName.resolveMethodName;
@@ -12916,17 +12905,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
       return resolved;
     },
-
-
-    /**
-      Convert the string name of the form 'type:name' to
-      a Javascript object with the parsed aspects of the name
-      broken out.
-       @param {String} fullName the lookup string
-      @method parseName
-      @protected
-    */
-
     parseName: function (fullName) {
       return this._parseNameCache[fullName] || (this._parseNameCache[fullName] = this._parseName(fullName));
     },
@@ -12966,17 +12944,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
         resolveMethodName: 'resolve' + resolveMethodName
       };
     },
-
-
-    /**
-      Returns a human-readable description for a fullName. Used by the
-      Application namespace in assertions to describe the
-      precise name of the class that Ember is looking for, rather than
-      container keys.
-       @param {String} fullName the lookup string
-      @method lookupDescription
-      @protected
-    */
     lookupDescription: function (fullName) {
       var parsedName = this.parseName(fullName);
       var description = void 0;
@@ -12996,16 +12963,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
     makeToString: function (factory, fullName) {
       return factory.toString();
     },
-
-
-    /**
-      Given a parseName object (output from `parseName`), apply
-      the conventions expected by `Ember.Router`
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method useRouterNaming
-      @protected
-    */
     useRouterNaming: function (parsedName) {
       if (parsedName.name === 'basic') {
         parsedName.name = '';
@@ -13013,93 +12970,32 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
         parsedName.name = parsedName.name.replace(/\./g, '_');
       }
     },
-
-    /**
-      Look up the template in Ember.TEMPLATES
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method resolveTemplate
-      @protected
-    */
     resolveTemplate: function (parsedName) {
       var templateName = parsedName.fullNameWithoutType.replace(/\./g, '/');
 
       return (0, _emberGlimmer.getTemplate)(templateName) || (0, _emberGlimmer.getTemplate)(_emberRuntime.String.decamelize(templateName));
     },
-
-
-    /**
-      Lookup the view using `resolveOther`
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method resolveView
-      @protected
-    */
     resolveView: function (parsedName) {
       this.useRouterNaming(parsedName);
       return this.resolveOther(parsedName);
     },
-
-
-    /**
-      Lookup the controller using `resolveOther`
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method resolveController
-      @protected
-    */
     resolveController: function (parsedName) {
       this.useRouterNaming(parsedName);
       return this.resolveOther(parsedName);
     },
-
-    /**
-      Lookup the route using `resolveOther`
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method resolveRoute
-      @protected
-    */
     resolveRoute: function (parsedName) {
       this.useRouterNaming(parsedName);
       return this.resolveOther(parsedName);
     },
-
-
-    /**
-      Lookup the model on the Application namespace
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method resolveModel
-      @protected
-    */
     resolveModel: function (parsedName) {
       var className = _emberRuntime.String.classify(parsedName.name);
       var factory = (0, _emberMetal.get)(parsedName.root, className);
 
       return factory;
     },
-
-    /**
-      Look up the specified object (from parsedName) on the appropriate
-      namespace (usually on the Application)
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method resolveHelper
-      @protected
-    */
     resolveHelper: function (parsedName) {
       return this.resolveOther(parsedName);
     },
-
-    /**
-      Look up the specified object (from parsedName) on the appropriate
-      namespace (usually on the Application)
-       @param {Object} parsedName a parseName object with the parsed
-        fullName lookup string
-      @method resolveOther
-      @protected
-    */
     resolveOther: function (parsedName) {
       var className = _emberRuntime.String.classify(parsedName.name) + _emberRuntime.String.classify(parsedName.type);
       var factory = (0, _emberMetal.get)(parsedName.root, className);
@@ -13109,34 +13005,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       var className = _emberRuntime.String.classify(parsedName.type);
       return (0, _emberMetal.get)(parsedName.root, className);
     },
-
-
-    /**
-      @method _logLookup
-      @param {Boolean} found
-      @param {Object} parsedName
-      @private
-    */
-    _logLookup: function (found, parsedName) {
-      var symbol = found ? '[✓]' : '[ ]';
-
-      var padding = void 0;
-      if (parsedName.fullName.length > 60) {
-        padding = '.';
-      } else {
-        padding = new Array(60 - parsedName.fullName.length).join('.');
-      }
-
-      (0, _emberDebug.info)(symbol, parsedName.fullName, padding, this.lookupDescription(parsedName.fullName));
-    },
-
-
-    /**
-      Used to iterate all items of a given type.
-       @method knownForType
-      @param {String} type the type to search for
-      @private
-    */
     knownForType: function (type) {
       var namespace = (0, _emberMetal.get)(this, 'namespace');
       var suffix = _emberRuntime.String.classify(type);
@@ -13156,18 +13024,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
       return known;
     },
-
-
-    /**
-      Converts provided name from the backing namespace into a container lookup name.
-       Examples:
-       * App.FooBarHelper -> helper:foo-bar
-      * App.THelper -> helper:t
-       @method translateToContainerFullname
-      @param {String} type
-      @param {String} name
-      @private
-    */
     translateToContainerFullname: function (type, name) {
       var suffix = _emberRuntime.String.classify(type);
       var namePrefix = name.slice(0, suffix.length * -1);
@@ -13176,6 +13032,26 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
       return type + ':' + dasherizedName;
     }
   });
+
+  exports.default = DefaultResolver;
+
+
+  if (true) {
+    DefaultResolver.reopen({
+      _logLookup: function (found, parsedName) {
+        var symbol = found ? '[✓]' : '[ ]';
+
+        var padding = void 0;
+        if (parsedName.fullName.length > 60) {
+          padding = '.';
+        } else {
+          padding = new Array(60 - parsedName.fullName.length).join('.');
+        }
+
+        (0, _emberDebug.info)(symbol, parsedName.fullName, padding, this.lookupDescription(parsedName.fullName));
+      }
+    });
+  }
 });
 enifed('ember-application/utils/validate-type', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
@@ -48202,7 +48078,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+14a9a238";
+  exports.default = "2.17.0-alpha.1-null+0b190028";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
