@@ -6,51 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+5f4ac602
+ * @version   2.17.0-alpha.1-null+ef188077
  */
 
+/*global process */
 var enifed, requireModule, Ember;
 var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
-
-  if (typeof Ember === 'undefined') { Ember = {}; }
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
-      }
-
-      registry[name] = value;
-    };
-
-    requireModule = function(name) {
-      return internalRequire(name, null);
-    };
-
-    // setup `require` module
-    requireModule['default'] = requireModule;
-
-    requireModule.has = function registryHas(moduleName) {
-      return !!registry[moduleName] || !!registry[moduleName + '/index'];
-    };
-
     function missingModule(name, referrerName) {
       if (referrerName) {
         throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
@@ -98,6 +61,44 @@ var mainContext = this; // Used in ember-environment/lib/global.js
 
       return exports;
     }
+
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
+  if (typeof Ember === 'undefined') { Ember = {}; }
+
+  if (typeof Ember.__loader === 'undefined') {
+    var registry = {};
+    var seen = {};
+
+    enifed = function(name, deps, callback) {
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+      registry[name] = value;
+    };
+
+    requireModule = function(name) {
+      return internalRequire(name, null);
+    };
+
+    // setup `require` module
+    requireModule['default'] = requireModule;
+
+    requireModule.has = function registryHas(moduleName) {
+      return !!registry[moduleName] || !!registry[moduleName + '/index'];
+    };
 
     requireModule._eak_seen = registry;
 
@@ -21890,6 +21891,14 @@ enifed('ember-glimmer/tests/integration/custom-component-manager-test', ['ember-
         return env.getCompiledBlock(TestLayoutCompiler, definition.template);
       };
 
+      TestComponentManager.prototype.getDestructor = function (component) {
+        return component;
+      };
+
+      TestComponentManager.prototype.getSelf = function () {
+        return null;
+      };
+
       return TestComponentManager;
     }(_emberGlimmer.AbstractComponentManager);
 
@@ -31710,7 +31719,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: undefined,
-          ViewClass: undefined,
           template: undefined
         },
 
@@ -31736,7 +31744,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: undefined,
-          ViewClass: undefined,
           template: undefined
         },
 
@@ -31759,7 +31766,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31781,7 +31787,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'index',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
@@ -31805,7 +31810,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31829,7 +31833,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'index',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
@@ -31853,7 +31856,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31877,7 +31879,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'special',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:special')
         },
         outlets: Object.create(null)
@@ -31901,7 +31902,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31925,7 +31925,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'special',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:special')
         },
         outlets: Object.create(null)
@@ -31950,7 +31949,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: controller,
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31974,7 +31972,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'foo',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:foo')
         },
         outlets: Object.create(null)
@@ -31988,7 +31985,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'bar',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:bar')
         },
         outlets: Object.create(null)
@@ -32029,7 +32025,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'outer',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:outer')
         },
         outlets: {
@@ -32040,7 +32035,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
               outlet: 'main',
               name: 'inner',
               controller: {},
-              ViewClass: undefined,
               template: this.owner.lookup('template:inner')
             },
             outlets: Object.create(null)
@@ -77283,6 +77277,7 @@ enifed('internal-test-helpers/tests/index-test', [], function () {
     assert.ok(true, 'each package needs at least one test to be able to run through `npm test`');
   });
 });
+/*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
   if (IS_NODE) {

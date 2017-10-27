@@ -6,51 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+5f4ac602
+ * @version   2.17.0-alpha.1-null+ef188077
  */
 
+/*global process */
 var enifed, requireModule, Ember;
 var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
-
-  if (typeof Ember === 'undefined') { Ember = {}; }
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
-      }
-
-      registry[name] = value;
-    };
-
-    requireModule = function(name) {
-      return internalRequire(name, null);
-    };
-
-    // setup `require` module
-    requireModule['default'] = requireModule;
-
-    requireModule.has = function registryHas(moduleName) {
-      return !!registry[moduleName] || !!registry[moduleName + '/index'];
-    };
-
     function missingModule(name, referrerName) {
       if (referrerName) {
         throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
@@ -98,6 +61,44 @@ var mainContext = this; // Used in ember-environment/lib/global.js
 
       return exports;
     }
+
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
+  if (typeof Ember === 'undefined') { Ember = {}; }
+
+  if (typeof Ember.__loader === 'undefined') {
+    var registry = {};
+    var seen = {};
+
+    enifed = function(name, deps, callback) {
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+      registry[name] = value;
+    };
+
+    requireModule = function(name) {
+      return internalRequire(name, null);
+    };
+
+    // setup `require` module
+    requireModule['default'] = requireModule;
+
+    requireModule.has = function registryHas(moduleName) {
+      return !!registry[moduleName] || !!registry[moduleName + '/index'];
+    };
 
     requireModule._eak_seen = registry;
 
@@ -14760,1022 +14761,908 @@ enifed('ember-extension-support/index', ['exports', 'ember-extension-support/dat
   });
 });
 enifed('ember-glimmer/component-managers/abstract', ['exports', 'ember-babel'], function (exports, _emberBabel) {
-  'use strict';
+    'use strict';
 
-  var AbstractManager = function () {
-    function AbstractManager() {
-      (0, _emberBabel.classCallCheck)(this, AbstractManager);
+    var AbstractManager = function () {
+        function AbstractManager() {
+            (0, _emberBabel.classCallCheck)(this, AbstractManager);
 
-      this.debugStack = undefined;
-    }
-
-    AbstractManager.prototype.prepareArgs = function prepareArgs(definition, args) {
-      return null;
-    };
-
-    AbstractManager.prototype.create = function create(env, definition, args, dynamicScope, caller, hasBlock) {
-      if (true) {
-        throw new Error('AbstractManager#create must be implemented.');
-      }
-    };
-
-    AbstractManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      if (true) {
-        throw new Error('AbstractManager#create must be implemented.');
-      }
-    };
-
-    AbstractManager.prototype.getSelf = function getSelf(bucket) {
-      return bucket;
-    };
-
-    AbstractManager.prototype.didCreateElement = function didCreateElement(bucket, element, operations) {};
-
-    AbstractManager.prototype.didRenderLayout = function didRenderLayout(bucket, bounds) {};
-
-    AbstractManager.prototype.didCreate = function didCreate(bucket) {};
-
-    AbstractManager.prototype.getTag = function getTag(bucket) {
-      return null;
-    };
-
-    AbstractManager.prototype.update = function update(bucket, dynamicScope) {};
-
-    AbstractManager.prototype.didUpdateLayout = function didUpdateLayout(bucket, bounds) {};
-
-    AbstractManager.prototype.didUpdate = function didUpdate(bucket) {};
-
-    AbstractManager.prototype.getDestructor = function getDestructor(bucket) {};
-
-    return AbstractManager;
-  }();
-
-  exports.default = AbstractManager;
-
-
-  if (true) {
-    AbstractManager.prototype._pushToDebugStack = function (name, environment) {
-      this.debugStack = environment.debugStack;
-      this.debugStack.push(name);
-    };
-
-    AbstractManager.prototype._pushEngineToDebugStack = function (name, environment) {
-      this.debugStack = environment.debugStack;
-      this.debugStack.pushEngine(name);
-    };
-  }
-});
-enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', 'ember-utils', '@glimmer/reference', '@glimmer/runtime', 'ember-debug', 'ember-glimmer/component', 'ember-glimmer/utils/bindings', 'ember-metal', 'ember-glimmer/utils/process-args', 'ember-views', 'container', 'ember-glimmer/component-managers/abstract', 'ember-glimmer/utils/curly-component-state-bucket', 'ember-glimmer/utils/references'], function (exports, _emberBabel, _emberUtils, _reference, _runtime, _emberDebug, _component, _bindings, _emberMetal, _processArgs, _emberViews, _container, _abstract, _curlyComponentStateBucket, _references) {
-  'use strict';
-
-  exports.CurlyComponentDefinition = exports.PositionalArgumentReference = undefined;
-  exports.validatePositionalParameters = validatePositionalParameters;
-  exports.processComponentInitializationAssertions = processComponentInitializationAssertions;
-  exports.initialRenderInstrumentDetails = initialRenderInstrumentDetails;
-  exports.rerenderInstrumentDetails = rerenderInstrumentDetails;
-
-  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:components/-default'], ['template:components/-default']);
-
-  var DEFAULT_LAYOUT = (0, _container.privatize)(_templateObject);
-
-  function aliasIdToElementId(args, props) {
-    if (args.named.has('id')) {
-      (true && !(!args.named.has('elementId')) && (0, _emberDebug.assert)('You cannot invoke a component with both \'id\' and \'elementId\' at the same time.', !args.named.has('elementId')));
-
-      props.elementId = props.id;
-    }
-  }
-
-  // We must traverse the attributeBindings in reverse keeping track of
-  // what has already been applied. This is essentially refining the concated
-  // properties applying right to left.
-  function applyAttributeBindings(element, attributeBindings, component, operations) {
-    var seen = [];
-    var i = attributeBindings.length - 1;
-
-    while (i !== -1) {
-      var binding = attributeBindings[i];
-      var parsed = _bindings.AttributeBinding.parse(binding);
-      var attribute = parsed[1];
-
-      if (seen.indexOf(attribute) === -1) {
-        seen.push(attribute);
-        _bindings.AttributeBinding.install(element, component, parsed, operations);
-      }
-
-      i--;
-    }
-
-    if (seen.indexOf('id') === -1) {
-      operations.addStaticAttribute(element, 'id', component.elementId);
-    }
-
-    if (seen.indexOf('style') === -1) {
-      _bindings.IsVisibleBinding.install(element, component, operations);
-    }
-  }
-
-  function tagName(vm) {
-    var tagName = vm.dynamicScope().view.tagName;
-
-
-    return _runtime.PrimitiveReference.create(tagName === '' ? null : tagName || 'div');
-  }
-
-  function ariaRole(vm) {
-    return vm.getSelf().get('ariaRole');
-  }
-
-  var CurlyComponentLayoutCompiler = function () {
-    function CurlyComponentLayoutCompiler(template) {
-      (0, _emberBabel.classCallCheck)(this, CurlyComponentLayoutCompiler);
-
-      this.template = template;
-    }
-
-    CurlyComponentLayoutCompiler.prototype.compile = function compile(builder) {
-      builder.wrapLayout(this.template);
-      builder.tag.dynamic(tagName);
-      builder.attrs.dynamic('role', ariaRole);
-      builder.attrs.static('class', 'ember-view');
-    };
-
-    return CurlyComponentLayoutCompiler;
-  }();
-
-  CurlyComponentLayoutCompiler.id = 'curly';
-
-  var PositionalArgumentReference = exports.PositionalArgumentReference = function () {
-    function PositionalArgumentReference(references) {
-      (0, _emberBabel.classCallCheck)(this, PositionalArgumentReference);
-
-      this.tag = (0, _reference.combineTagged)(references);
-      this._references = references;
-    }
-
-    PositionalArgumentReference.prototype.value = function value() {
-      return this._references.map(function (reference) {
-        return reference.value();
-      });
-    };
-
-    PositionalArgumentReference.prototype.get = function get(key) {
-      return _references.PropertyReference.create(this, key);
-    };
-
-    return PositionalArgumentReference;
-  }();
-
-  var CurlyComponentManager = function (_AbstractManager) {
-    (0, _emberBabel.inherits)(CurlyComponentManager, _AbstractManager);
-
-    function CurlyComponentManager() {
-      (0, _emberBabel.classCallCheck)(this, CurlyComponentManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
-    }
-
-    CurlyComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
-      var componentPositionalParamsDefinition = definition.ComponentClass.class.positionalParams;
-
-      if (true && componentPositionalParamsDefinition) {
-        validatePositionalParameters(args.named, args.positional, componentPositionalParamsDefinition);
-      }
-
-      var componentHasRestStylePositionalParams = typeof componentPositionalParamsDefinition === 'string';
-      var componentHasPositionalParams = componentHasRestStylePositionalParams || componentPositionalParamsDefinition.length > 0;
-      var needsPositionalParamMunging = componentHasPositionalParams && args.positional.length !== 0;
-      var isClosureComponent = definition.args;
-
-      if (!needsPositionalParamMunging && !isClosureComponent) {
-        return null;
-      }
-
-      var capturedArgs = args.capture();
-      // grab raw positional references array
-      var positional = capturedArgs.positional.references;
-
-      // handle prep for closure component with positional params
-      var curriedNamed = void 0;
-      if (definition.args) {
-        var remainingDefinitionPositionals = definition.args.positional.slice(positional.length);
-        positional = positional.concat(remainingDefinitionPositionals);
-        curriedNamed = definition.args.named;
-      }
-
-      // handle positionalParams
-      var positionalParamsToNamed = void 0;
-      if (componentHasRestStylePositionalParams) {
-        var _positionalParamsToNa;
-
-        positionalParamsToNamed = (_positionalParamsToNa = {}, _positionalParamsToNa[componentPositionalParamsDefinition] = new PositionalArgumentReference(positional), _positionalParamsToNa);
-        positional = [];
-      } else if (componentHasPositionalParams) {
-        positionalParamsToNamed = {};
-        var length = Math.min(positional.length, componentPositionalParamsDefinition.length);
-        for (var i = 0; i < length; i++) {
-          var name = componentPositionalParamsDefinition[i];
-          positionalParamsToNamed[name] = positional[i];
-        }
-      }
-
-      var named = (0, _emberUtils.assign)({}, curriedNamed, positionalParamsToNamed, capturedArgs.named.map);
-
-      return { positional: positional, named: named };
-    };
-
-    CurlyComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, callerSelfRef, hasBlock) {
-      if (true) {
-        this._pushToDebugStack('component:' + definition.name, environment);
-      }
-
-      var parentView = dynamicScope.view;
-
-      var factory = definition.ComponentClass;
-
-      var capturedArgs = args.named.capture();
-      var props = (0, _processArgs.processComponentArgs)(capturedArgs);
-
-      aliasIdToElementId(args, props);
-
-      props.parentView = parentView;
-      props[_component.HAS_BLOCK] = hasBlock;
-
-      props._targetObject = callerSelfRef.value();
-
-      var component = factory.create(props);
-
-      var finalizer = (0, _emberMetal._instrumentStart)('render.component', initialRenderInstrumentDetails, component);
-
-      dynamicScope.view = component;
-
-      if (parentView !== null) {
-        parentView.appendChild(component);
-      }
-
-      // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
-      if (component.tagName === '') {
-        if (environment.isInteractive) {
-          component.trigger('willRender');
+            this.debugStack = undefined;
         }
 
-        component._transitionTo('hasElement');
+        AbstractManager.prototype.prepareArgs = function prepareArgs(_definition, _args) {
+            return null;
+        };
 
-        if (environment.isInteractive) {
-          component.trigger('willInsertElement');
-        }
-      }
+        AbstractManager.prototype.didCreateElement = function didCreateElement(_component, _element, _operations) {}
+        // noop
 
-      var bucket = new _curlyComponentStateBucket.default(environment, component, capturedArgs, finalizer);
+        // inheritors should also call `this.debugStack.pop()` to
+        // ensure the rerendering assertion messages are properly
+        // maintained
+        ;
 
-      if (args.named.has('class')) {
-        bucket.classRef = args.named.get('class');
-      }
+        AbstractManager.prototype.didRenderLayout = function didRenderLayout(_component, _bounds) {
+            // noop
+        };
 
-      if (true) {
-        processComponentInitializationAssertions(component, props);
-      }
+        AbstractManager.prototype.didCreate = function didCreate(_bucket) {
+            // noop
+        };
 
-      if (environment.isInteractive && component.tagName !== '') {
-        component.trigger('willRender');
-      }
+        AbstractManager.prototype.getTag = function getTag(_bucket) {
+            return null;
+        };
 
-      return bucket;
-    };
+        AbstractManager.prototype.update = function update(_bucket, _dynamicScope) {}
+        // noop
 
-    CurlyComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      var template = definition.template;
-      if (!template) {
-        var component = bucket.component;
+        // inheritors should also call `this.debugStack.pop()` to
+        // ensure the rerendering assertion messages are properly
+        // maintained
+        ;
 
-        template = this.templateFor(component, env);
-      }
-      return env.getCompiledBlock(CurlyComponentLayoutCompiler, template);
-    };
+        AbstractManager.prototype.didUpdateLayout = function didUpdateLayout(_bucket, _bounds) {
+            // noop
+        };
 
-    CurlyComponentManager.prototype.templateFor = function templateFor(component, env) {
-      var Template = (0, _emberMetal.get)(component, 'layout');
-      var owner = component[_emberUtils.OWNER];
-      if (Template) {
-        return env.getTemplate(Template, owner);
-      }
-      var layoutName = (0, _emberMetal.get)(component, 'layoutName');
-      if (layoutName) {
-        var template = owner.lookup('template:' + layoutName);
-        if (template) {
-          return template;
-        }
-      }
-      return owner.lookup(DEFAULT_LAYOUT);
-    };
+        AbstractManager.prototype.didUpdate = function didUpdate(_bucket) {
+            // noop
+        };
 
-    CurlyComponentManager.prototype.getSelf = function getSelf(_ref) {
-      var component = _ref.component;
+        return AbstractManager;
+    }();
 
-      return component[_component.ROOT_REF];
-    };
+    exports.default = AbstractManager;
 
-    CurlyComponentManager.prototype.didCreateElement = function didCreateElement(_ref2, element, operations) {
-      var component = _ref2.component,
-          classRef = _ref2.classRef,
-          environment = _ref2.environment;
-
-      (0, _emberViews.setViewElement)(component, element);
-
-      var attributeBindings = component.attributeBindings,
-          classNames = component.classNames,
-          classNameBindings = component.classNameBindings;
-
-
-      if (attributeBindings && attributeBindings.length) {
-        applyAttributeBindings(element, attributeBindings, component, operations);
-      } else {
-        operations.addStaticAttribute(element, 'id', component.elementId);
-        _bindings.IsVisibleBinding.install(element, component, operations);
-      }
-
-      if (classRef) {
-        operations.addDynamicAttribute(element, 'class', classRef);
-      }
-
-      if (classNames && classNames.length) {
-        classNames.forEach(function (name) {
-          operations.addStaticAttribute(element, 'class', name);
-        });
-      }
-
-      if (classNameBindings && classNameBindings.length) {
-        classNameBindings.forEach(function (binding) {
-          _bindings.ClassNameBinding.install(element, component, binding, operations);
-        });
-      }
-
-      component._transitionTo('hasElement');
-
-      if (environment.isInteractive) {
-        component.trigger('willInsertElement');
-      }
-    };
-
-    CurlyComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket, bounds) {
-      bucket.component[_component.BOUNDS] = bounds;
-      bucket.finalize();
-
-      if (true) {
-        this.debugStack.pop();
-      }
-    };
-
-    CurlyComponentManager.prototype.getTag = function getTag(_ref3) {
-      var component = _ref3.component;
-
-      return component[_component.DIRTY_TAG];
-    };
-
-    CurlyComponentManager.prototype.didCreate = function didCreate(_ref4) {
-      var component = _ref4.component,
-          environment = _ref4.environment;
-
-      if (environment.isInteractive) {
-        component._transitionTo('inDOM');
-        component.trigger('didInsertElement');
-        component.trigger('didRender');
-      }
-    };
-
-    CurlyComponentManager.prototype.update = function update(bucket, _, dynamicScope) {
-      var component = bucket.component,
-          args = bucket.args,
-          argsRevision = bucket.argsRevision,
-          environment = bucket.environment;
-
-
-      if (true) {
-        this._pushToDebugStack(component._debugContainerKey, environment);
-      }
-
-      bucket.finalizer = (0, _emberMetal._instrumentStart)('render.component', rerenderInstrumentDetails, component);
-
-      if (!args.tag.validate(argsRevision)) {
-        var props = (0, _processArgs.processComponentArgs)(args);
-
-        bucket.argsRevision = args.tag.value();
-
-        component[_component.IS_DISPATCHING_ATTRS] = true;
-        component.setProperties(props);
-        component[_component.IS_DISPATCHING_ATTRS] = false;
-
-        component.trigger('didUpdateAttrs');
-        component.trigger('didReceiveAttrs');
-      }
-
-      if (environment.isInteractive) {
-        component.trigger('willUpdate');
-        component.trigger('willRender');
-      }
-    };
-
-    CurlyComponentManager.prototype.didUpdateLayout = function didUpdateLayout(bucket) {
-      bucket.finalize();
-
-      if (true) {
-        this.debugStack.pop();
-      }
-    };
-
-    CurlyComponentManager.prototype.didUpdate = function didUpdate(_ref5) {
-      var component = _ref5.component,
-          environment = _ref5.environment;
-
-      if (environment.isInteractive) {
-        component.trigger('didUpdate');
-        component.trigger('didRender');
-      }
-    };
-
-    CurlyComponentManager.prototype.getDestructor = function getDestructor(stateBucket) {
-      return stateBucket;
-    };
-
-    return CurlyComponentManager;
-  }(_abstract.default);
-
-  exports.default = CurlyComponentManager;
-  function validatePositionalParameters(named, positional, positionalParamsDefinition) {
     if (true) {
-      if (!named || !positional || !positional.length) {
-        return;
-      }
-
-      var paramType = typeof positionalParamsDefinition;
-
-      if (paramType === 'string') {
-        (true && !(!named.has(positionalParamsDefinition)) && (0, _emberDebug.assert)('You cannot specify positional parameters and the hash argument `' + positionalParamsDefinition + '`.', !named.has(positionalParamsDefinition)));
-      } else {
-        if (positional.length < positionalParamsDefinition.length) {
-          positionalParamsDefinition = positionalParamsDefinition.slice(0, positional.length);
-        }
-
-        for (var i = 0; i < positionalParamsDefinition.length; i++) {
-          var name = positionalParamsDefinition[i];
-
-          (true && !(!named.has(name)) && (0, _emberDebug.assert)('You cannot specify both a positional param (at position ' + i + ') and the hash argument `' + name + '`.', !named.has(name)));
-        }
-      }
+        AbstractManager.prototype._pushToDebugStack = function (name, environment) {
+            this.debugStack = environment.debugStack;
+            this.debugStack.push(name);
+        };
+        AbstractManager.prototype._pushEngineToDebugStack = function (name, environment) {
+            this.debugStack = environment.debugStack;
+            this.debugStack.pushEngine(name);
+        };
     }
-  }
-
-  function processComponentInitializationAssertions(component, props) {
-    (true && !(function () {
-      var classNameBindings = component.classNameBindings;
-
-      for (var i = 0; i < classNameBindings.length; i++) {
-        var binding = classNameBindings[i];
-        if (binding.split(' ').length > 1) {
-          return false;
-        }
-      }
-      return true;
-    }()) && (0, _emberDebug.assert)('classNameBindings must not have spaces in them: ' + component.toString(), function () {
-      var classNameBindings = component.classNameBindings;
-      for (var i = 0; i < classNameBindings.length; i++) {
-        var binding = classNameBindings[i];if (binding.split(' ').length > 1) {
-          return false;
-        }
-      }return true;
-    }()));
-    (true && !(function () {
-      var classNameBindings = component.classNameBindings,
-          tagName = component.tagName;
-
-      return tagName !== '' || !classNameBindings || classNameBindings.length === 0;
-    }()) && (0, _emberDebug.assert)('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), function () {
-      var classNameBindings = component.classNameBindings,
-          tagName = component.tagName;
-      return tagName !== '' || !classNameBindings || classNameBindings.length === 0;
-    }()));
-    (true && !(function () {
-      var elementId = component.elementId,
-          tagName = component.tagName;
-
-      return tagName !== '' || props.id === elementId || !elementId && elementId !== '';
-    }()) && (0, _emberDebug.assert)('You cannot use `elementId` on a tag-less component: ' + component.toString(), function () {
-      var elementId = component.elementId,
-          tagName = component.tagName;
-      return tagName !== '' || props.id === elementId || !elementId && elementId !== '';
-    }()));
-    (true && !(function () {
-      var attributeBindings = component.attributeBindings,
-          tagName = component.tagName;
-
-      return tagName !== '' || !attributeBindings || attributeBindings.length === 0;
-    }()) && (0, _emberDebug.assert)('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), function () {
-      var attributeBindings = component.attributeBindings,
-          tagName = component.tagName;
-      return tagName !== '' || !attributeBindings || attributeBindings.length === 0;
-    }()));
-  }
-
-  function initialRenderInstrumentDetails(component) {
-    return component.instrumentDetails({ initialRender: true });
-  }
-
-  function rerenderInstrumentDetails(component) {
-    return component.instrumentDetails({ initialRender: false });
-  }
-
-  var MANAGER = new CurlyComponentManager();
-
-  var CurlyComponentDefinition = exports.CurlyComponentDefinition = function (_ComponentDefinition) {
-    (0, _emberBabel.inherits)(CurlyComponentDefinition, _ComponentDefinition);
-
-    function CurlyComponentDefinition(name, ComponentClass, template, args, customManager) {
-      (0, _emberBabel.classCallCheck)(this, CurlyComponentDefinition);
-
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, name, customManager || MANAGER, ComponentClass));
-
-      _this2.template = template;
-      _this2.args = args;
-      return _this2;
-    }
-
-    return CurlyComponentDefinition;
-  }(_runtime.ComponentDefinition);
 });
-enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@glimmer/runtime', '@glimmer/reference', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/outlet', 'ember-glimmer/component-managers/abstract', 'ember-routing', 'ember/features'], function (exports, _emberBabel, _runtime, _reference, _references, _outlet, _abstract, _emberRouting, _features) {
-  'use strict';
+enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@glimmer/reference', '@glimmer/runtime', 'container', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/utils/bindings', 'ember-glimmer/utils/curly-component-state-bucket', 'ember-glimmer/utils/process-args', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract'], function (exports, _emberBabel, _reference, _runtime, _container, _emberDebug, _emberMetal, _emberUtils, _emberViews, _component, _bindings, _curlyComponentStateBucket, _processArgs, _references, _abstract) {
+    'use strict';
 
-  exports.MountDefinition = undefined;
+    exports.CurlyComponentDefinition = exports.PositionalArgumentReference = undefined;
+    exports.validatePositionalParameters = validatePositionalParameters;
+    exports.processComponentInitializationAssertions = processComponentInitializationAssertions;
+    exports.initialRenderInstrumentDetails = initialRenderInstrumentDetails;
+    exports.rerenderInstrumentDetails = rerenderInstrumentDetails;
 
-  var MountManager = function (_AbstractManager) {
-    (0, _emberBabel.inherits)(MountManager, _AbstractManager);
+    var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:components/-default'], ['template:components/-default']);
 
-    function MountManager() {
-      (0, _emberBabel.classCallCheck)(this, MountManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
-    }
+    var DEFAULT_LAYOUT = (0, _container.privatize)(_templateObject);
+    function aliasIdToElementId(args, props) {
+        if (args.named.has('id')) {
+            (true && !(!args.named.has('elementId')) && (0, _emberDebug.assert)('You cannot invoke a component with both \'id\' and \'elementId\' at the same time.', !args.named.has('elementId')));
 
-    MountManager.prototype.prepareArgs = function prepareArgs(definition, args) {
-      return null;
-    };
-
-    MountManager.prototype.create = function create(environment, _ref, args, dynamicScope) {
-      var name = _ref.name;
-
-      if (true) {
-        this._pushEngineToDebugStack('engine:' + name, environment);
-      }
-
-      dynamicScope.outletState = _reference.UNDEFINED_REFERENCE;
-
-      var engine = environment.owner.buildChildEngineInstance(name);
-
-      engine.boot();
-
-      var bucket = { engine: engine };
-
-      if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        bucket.modelReference = args.named.get('model');
-      }
-
-      return bucket;
-    };
-
-    MountManager.prototype.layoutFor = function layoutFor(definition, _ref2, env) {
-      var engine = _ref2.engine;
-
-      var template = engine.lookup('template:application');
-      return env.getCompiledBlock(_outlet.OutletLayoutCompiler, template);
-    };
-
-    MountManager.prototype.getSelf = function getSelf(bucket) {
-      var engine = bucket.engine,
-          modelReference = bucket.modelReference;
-
-
-      var applicationFactory = engine.factoryFor('controller:application');
-      var controllerFactory = applicationFactory || (0, _emberRouting.generateControllerFactory)(engine, 'application');
-      var controller = bucket.controller = controllerFactory.create();
-
-      if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        var model = modelReference.value();
-        bucket.modelRevision = modelReference.tag.value();
-        controller.set('model', model);
-      }
-
-      return new _references.RootReference(controller);
-    };
-
-    MountManager.prototype.getDestructor = function getDestructor(_ref3) {
-      var engine = _ref3.engine;
-
-      return engine;
-    };
-
-    MountManager.prototype.didRenderLayout = function didRenderLayout() {
-      if (true) {
-        this.debugStack.pop();
-      }
-    };
-
-    MountManager.prototype.update = function update(bucket) {
-      if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-        var controller = bucket.controller,
-            modelReference = bucket.modelReference,
-            modelRevision = bucket.modelRevision;
-
-
-        if (!modelReference.tag.validate(modelRevision)) {
-          var model = modelReference.value();
-          bucket.modelRevision = modelReference.tag.value();
-          controller.set('model', model);
+            props.elementId = props.id;
         }
-      }
-    };
+    }
+    // We must traverse the attributeBindings in reverse keeping track of
+    // what has already been applied. This is essentially refining the concatenated
+    // properties applying right to left.
+    function applyAttributeBindings(element, attributeBindings, component, operations) {
+        var seen = [];
+        var i = attributeBindings.length - 1;
+        while (i !== -1) {
+            var binding = attributeBindings[i];
+            var parsed = _bindings.AttributeBinding.parse(binding);
+            var attribute = parsed[1];
+            if (seen.indexOf(attribute) === -1) {
+                seen.push(attribute);
+                _bindings.AttributeBinding.install(element, component, parsed, operations);
+            }
+            i--;
+        }
+        if (seen.indexOf('id') === -1) {
+            operations.addStaticAttribute(element, 'id', component.elementId);
+        }
+        if (seen.indexOf('style') === -1) {
+            _bindings.IsVisibleBinding.install(element, component, operations);
+        }
+    }
+    function tagName(vm) {
+        var tagName = vm.dynamicScope().view.tagName;
 
-    return MountManager;
-  }(_abstract.default);
-
-  var MOUNT_MANAGER = new MountManager();
-
-  var MountDefinition = exports.MountDefinition = function (_ComponentDefinition) {
-    (0, _emberBabel.inherits)(MountDefinition, _ComponentDefinition);
-
-    function MountDefinition(name) {
-      (0, _emberBabel.classCallCheck)(this, MountDefinition);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, name, MOUNT_MANAGER, null));
+        return _runtime.PrimitiveReference.create(tagName === '' ? null : tagName || 'div');
+    }
+    function ariaRole(vm) {
+        return vm.getSelf().get('ariaRole');
     }
 
-    return MountDefinition;
-  }(_runtime.ComponentDefinition);
-});
-enifed('ember-glimmer/component-managers/outlet', ['exports', 'ember-babel', 'ember-utils', '@glimmer/runtime', 'ember-metal', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract'], function (exports, _emberBabel, _emberUtils, _runtime, _emberMetal, _references, _abstract) {
-  'use strict';
-
-  exports.OutletLayoutCompiler = exports.OutletComponentDefinition = exports.TopLevelOutletComponentDefinition = undefined;
-
-
-  function instrumentationPayload(_ref) {
-    var _ref$render = _ref.render,
-        name = _ref$render.name,
-        outlet = _ref$render.outlet;
-
-    return { object: name + ':' + outlet };
-  }
-
-  function NOOP() {}
-
-  var StateBucket = function () {
-    function StateBucket(outletState) {
-      (0, _emberBabel.classCallCheck)(this, StateBucket);
-
-      this.outletState = outletState;
-      this.instrument();
-    }
-
-    StateBucket.prototype.instrument = function instrument() {
-      this.finalizer = (0, _emberMetal._instrumentStart)('render.outlet', instrumentationPayload, this.outletState);
-    };
-
-    StateBucket.prototype.finalize = function finalize() {
-      var finalizer = this.finalizer;
-
-      finalizer();
-      this.finalizer = NOOP;
-    };
-
-    return StateBucket;
-  }();
-
-  var OutletComponentManager = function (_AbstractManager) {
-    (0, _emberBabel.inherits)(OutletComponentManager, _AbstractManager);
-
-    function OutletComponentManager() {
-      (0, _emberBabel.classCallCheck)(this, OutletComponentManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
-    }
-
-    OutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      if (true) {
-        this._pushToDebugStack('template:' + definition.template.meta.moduleName, environment);
-      }
-
-      var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get('outlets').get(definition.outletName);
-      var outletState = outletStateReference.value();
-      return new StateBucket(outletState);
-    };
-
-    OutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      return env.getCompiledBlock(OutletLayoutCompiler, definition.template);
-    };
-
-    OutletComponentManager.prototype.getSelf = function getSelf(_ref2) {
-      var outletState = _ref2.outletState;
-
-      return new _references.RootReference(outletState.render.controller);
-    };
-
-    OutletComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket) {
-      bucket.finalize();
-
-      if (true) {
-        this.debugStack.pop();
-      }
-    };
-
-    return OutletComponentManager;
-  }(_abstract.default);
-
-  var MANAGER = new OutletComponentManager();
-
-  var TopLevelOutletComponentManager = function (_OutletComponentManag) {
-    (0, _emberBabel.inherits)(TopLevelOutletComponentManager, _OutletComponentManag);
-
-    function TopLevelOutletComponentManager() {
-      (0, _emberBabel.classCallCheck)(this, TopLevelOutletComponentManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _OutletComponentManag.apply(this, arguments));
-    }
-
-    TopLevelOutletComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      if (true) {
-        this._pushToDebugStack('template:' + definition.template.meta.moduleName, environment);
-      }
-      return new StateBucket(dynamicScope.outletState.value());
-    };
-
-    TopLevelOutletComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      return env.getCompiledBlock(TopLevelOutletLayoutCompiler, definition.template);
-    };
-
-    return TopLevelOutletComponentManager;
-  }(OutletComponentManager);
-
-  var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
-
-  var TopLevelOutletComponentDefinition = exports.TopLevelOutletComponentDefinition = function (_ComponentDefinition) {
-    (0, _emberBabel.inherits)(TopLevelOutletComponentDefinition, _ComponentDefinition);
-
-    function TopLevelOutletComponentDefinition(instance) {
-      (0, _emberBabel.classCallCheck)(this, TopLevelOutletComponentDefinition);
-
-      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'outlet', TOP_LEVEL_MANAGER, instance));
-
-      _this3.template = instance.template;
-      (0, _emberUtils.generateGuid)(_this3);
-      return _this3;
-    }
-
-    return TopLevelOutletComponentDefinition;
-  }(_runtime.ComponentDefinition);
-
-  var TopLevelOutletLayoutCompiler = function () {
-    function TopLevelOutletLayoutCompiler(template) {
-      (0, _emberBabel.classCallCheck)(this, TopLevelOutletLayoutCompiler);
-
-      this.template = template;
-    }
-
-    TopLevelOutletLayoutCompiler.prototype.compile = function compile(builder) {
-      builder.wrapLayout(this.template);
-      builder.tag.static('div');
-      builder.attrs.static('id', (0, _emberUtils.guidFor)(this));
-      builder.attrs.static('class', 'ember-view');
-    };
-
-    return TopLevelOutletLayoutCompiler;
-  }();
-
-  TopLevelOutletLayoutCompiler.id = 'top-level-outlet';
-
-  var OutletComponentDefinition = exports.OutletComponentDefinition = function (_ComponentDefinition2) {
-    (0, _emberBabel.inherits)(OutletComponentDefinition, _ComponentDefinition2);
-
-    function OutletComponentDefinition(outletName, template) {
-      (0, _emberBabel.classCallCheck)(this, OutletComponentDefinition);
-
-      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, 'outlet', MANAGER, null));
-
-      _this4.outletName = outletName;
-      _this4.template = template;
-      (0, _emberUtils.generateGuid)(_this4);
-      return _this4;
-    }
-
-    return OutletComponentDefinition;
-  }(_runtime.ComponentDefinition);
-
-  var OutletLayoutCompiler = exports.OutletLayoutCompiler = function () {
-    function OutletLayoutCompiler(template) {
-      (0, _emberBabel.classCallCheck)(this, OutletLayoutCompiler);
-
-      this.template = template;
-    }
-
-    OutletLayoutCompiler.prototype.compile = function compile(builder) {
-      builder.wrapLayout(this.template);
-    };
-
-    return OutletLayoutCompiler;
-  }();
-
-  OutletLayoutCompiler.id = 'outlet';
-});
-enifed('ember-glimmer/component-managers/render', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-glimmer/utils/references', 'ember-routing', 'ember-glimmer/component-managers/outlet', 'ember-glimmer/component-managers/abstract'], function (exports, _emberBabel, _runtime, _emberDebug, _references, _emberRouting, _outlet, _abstract) {
-  'use strict';
-
-  exports.RenderDefinition = exports.NON_SINGLETON_RENDER_MANAGER = exports.SINGLETON_RENDER_MANAGER = exports.AbstractRenderManager = undefined;
-
-  var AbstractRenderManager = exports.AbstractRenderManager = function (_AbstractManager) {
-    (0, _emberBabel.inherits)(AbstractRenderManager, _AbstractManager);
-
-    function AbstractRenderManager() {
-      (0, _emberBabel.classCallCheck)(this, AbstractRenderManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
-    }
-
-    AbstractRenderManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
-      return env.getCompiledBlock(_outlet.OutletLayoutCompiler, definition.template);
-    };
-
-    AbstractRenderManager.prototype.getSelf = function getSelf(_ref) {
-      var controller = _ref.controller;
-
-      return new _references.RootReference(controller);
-    };
-
-    return AbstractRenderManager;
-  }(_abstract.default);
-
-  if (true) {
-    AbstractRenderManager.prototype.didRenderLayout = function () {
-      this.debugStack.pop();
-    };
-  }
-
-  var SingletonRenderManager = function (_AbstractRenderManage) {
-    (0, _emberBabel.inherits)(SingletonRenderManager, _AbstractRenderManage);
-
-    function SingletonRenderManager() {
-      (0, _emberBabel.classCallCheck)(this, SingletonRenderManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractRenderManage.apply(this, arguments));
-    }
-
-    SingletonRenderManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      var name = definition.name,
-          env = definition.env;
-
-      var controller = env.owner.lookup('controller:' + name) || (0, _emberRouting.generateController)(env.owner, name);
-
-      if (true) {
-        this._pushToDebugStack('controller:' + name + ' (with the render helper)', environment);
-      }
-
-      if (dynamicScope.rootOutletState) {
-        dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
-      }
-
-      return { controller: controller };
-    };
-
-    return SingletonRenderManager;
-  }(AbstractRenderManager);
-
-  var SINGLETON_RENDER_MANAGER = exports.SINGLETON_RENDER_MANAGER = new SingletonRenderManager();
-
-  var NonSingletonRenderManager = function (_AbstractRenderManage2) {
-    (0, _emberBabel.inherits)(NonSingletonRenderManager, _AbstractRenderManage2);
-
-    function NonSingletonRenderManager() {
-      (0, _emberBabel.classCallCheck)(this, NonSingletonRenderManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractRenderManage2.apply(this, arguments));
-    }
-
-    NonSingletonRenderManager.prototype.create = function create(environment, definition, args, dynamicScope) {
-      var name = definition.name,
-          env = definition.env;
-
-      var modelRef = args.positional.at(0);
-      var controllerFactory = env.owner.factoryFor('controller:' + name);
-
-      var factory = controllerFactory || (0, _emberRouting.generateControllerFactory)(env.owner, name);
-      var controller = factory.create({ model: modelRef.value() });
-
-      if (true) {
-        this._pushToDebugStack('controller:' + name + ' (with the render helper)', environment);
-      }
-
-      if (dynamicScope.rootOutletState) {
-        dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
-      }
-
-      return { controller: controller, model: modelRef };
-    };
-
-    NonSingletonRenderManager.prototype.update = function update(_ref2, dynamicScope) {
-      var controller = _ref2.controller,
-          model = _ref2.model;
-
-      controller.set('model', model.value());
-    };
-
-    NonSingletonRenderManager.prototype.getDestructor = function getDestructor(_ref3) {
-      var controller = _ref3.controller;
-
-      return controller;
-    };
-
-    return NonSingletonRenderManager;
-  }(AbstractRenderManager);
-
-  var NON_SINGLETON_RENDER_MANAGER = exports.NON_SINGLETON_RENDER_MANAGER = new NonSingletonRenderManager();
-
-  var RenderDefinition = exports.RenderDefinition = function (_ComponentDefinition) {
-    (0, _emberBabel.inherits)(RenderDefinition, _ComponentDefinition);
-
-    function RenderDefinition(name, template, env, manager) {
-      (0, _emberBabel.classCallCheck)(this, RenderDefinition);
-
-      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'render', manager, null));
-
-      _this4.name = name;
-      _this4.template = template;
-      _this4.env = env;
-      return _this4;
-    }
-
-    return RenderDefinition;
-  }(_runtime.ComponentDefinition);
-});
-enifed('ember-glimmer/component-managers/root', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-metal', 'ember-debug', 'ember-glimmer/utils/curly-component-state-bucket', 'ember-glimmer/component-managers/curly'], function (exports, _emberBabel, _runtime, _emberMetal, _emberDebug, _curlyComponentStateBucket, _curly) {
-  'use strict';
-
-  exports.RootComponentDefinition = undefined;
-
-  var RootComponentManager = function (_CurlyComponentManage) {
-    (0, _emberBabel.inherits)(RootComponentManager, _CurlyComponentManage);
-
-    function RootComponentManager() {
-      (0, _emberBabel.classCallCheck)(this, RootComponentManager);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _CurlyComponentManage.apply(this, arguments));
-    }
-
-    RootComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, currentScope, hasBlock) {
-      var component = definition.ComponentClass.create();
-
-      if (true) {
-        this._pushToDebugStack(component._debugContainerKey, environment);
-      }
-
-      var finalizer = (0, _emberMetal._instrumentStart)('render.component', _curly.initialRenderInstrumentDetails, component);
-
-      dynamicScope.view = component;
-
-      // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
-      if (component.tagName === '') {
-        if (environment.isInteractive) {
-          component.trigger('willRender');
+    var CurlyComponentLayoutCompiler = function () {
+        function CurlyComponentLayoutCompiler(template) {
+            (0, _emberBabel.classCallCheck)(this, CurlyComponentLayoutCompiler);
+
+            this.template = template;
         }
 
-        component._transitionTo('hasElement');
+        CurlyComponentLayoutCompiler.prototype.compile = function compile(builder) {
+            builder.wrapLayout(this.template);
+            builder.tag.dynamic(tagName);
+            builder.attrs.dynamic('role', ariaRole);
+            builder.attrs.static('class', 'ember-view');
+        };
 
-        if (environment.isInteractive) {
-          component.trigger('willInsertElement');
+        return CurlyComponentLayoutCompiler;
+    }();
+
+    CurlyComponentLayoutCompiler.id = 'curly';
+
+    var PositionalArgumentReference = exports.PositionalArgumentReference = function () {
+        function PositionalArgumentReference(references) {
+            (0, _emberBabel.classCallCheck)(this, PositionalArgumentReference);
+
+            this.tag = (0, _reference.combineTagged)(references);
+            this._references = references;
         }
-      }
 
-      if (true) {
-        (0, _curly.processComponentInitializationAssertions)(component, {});
-      }
+        PositionalArgumentReference.prototype.value = function value() {
+            return this._references.map(function (reference) {
+                return reference.value();
+            });
+        };
 
-      return new _curlyComponentStateBucket.default(environment, component, args.named.capture(), finalizer);
-    };
+        PositionalArgumentReference.prototype.get = function get(key) {
+            return _references.PropertyReference.create(this, key);
+        };
 
-    return RootComponentManager;
-  }(_curly.default);
+        return PositionalArgumentReference;
+    }();
 
-  var ROOT_MANAGER = new RootComponentManager();
+    var CurlyComponentManager = function (_AbstractManager) {
+        (0, _emberBabel.inherits)(CurlyComponentManager, _AbstractManager);
 
-  var RootComponentDefinition = exports.RootComponentDefinition = function (_ComponentDefinition) {
-    (0, _emberBabel.inherits)(RootComponentDefinition, _ComponentDefinition);
-
-    function RootComponentDefinition(instance) {
-      (0, _emberBabel.classCallCheck)(this, RootComponentDefinition);
-
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, '-root', ROOT_MANAGER, {
-        class: instance.constructor,
-        create: function () {
-          return instance;
+        function CurlyComponentManager() {
+            (0, _emberBabel.classCallCheck)(this, CurlyComponentManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
         }
-      }));
 
-      _this2.template = undefined;
-      _this2.args = undefined;
-      return _this2;
+        CurlyComponentManager.prototype.prepareArgs = function prepareArgs(definition, args) {
+            var componentPositionalParamsDefinition = definition.ComponentClass.class.positionalParams;
+            if (true && componentPositionalParamsDefinition) {
+                validatePositionalParameters(args.named, args.positional, componentPositionalParamsDefinition);
+            }
+            var componentHasRestStylePositionalParams = typeof componentPositionalParamsDefinition === 'string';
+            var componentHasPositionalParams = componentHasRestStylePositionalParams || componentPositionalParamsDefinition.length > 0;
+            var needsPositionalParamMunging = componentHasPositionalParams && args.positional.length !== 0;
+            var isClosureComponent = definition.args;
+            if (!needsPositionalParamMunging && !isClosureComponent) {
+                return null;
+            }
+            var capturedArgs = args.capture();
+            // grab raw positional references array
+            var positional = capturedArgs.positional.references;
+            // handle prep for closure component with positional params
+            var curriedNamed = void 0;
+            if (definition.args) {
+                var remainingDefinitionPositionals = definition.args.positional.slice(positional.length);
+                positional = positional.concat(remainingDefinitionPositionals);
+                curriedNamed = definition.args.named;
+            }
+            // handle positionalParams
+            var positionalParamsToNamed = void 0;
+            if (componentHasRestStylePositionalParams) {
+                var _positionalParamsToNa;
+
+                positionalParamsToNamed = (_positionalParamsToNa = {}, _positionalParamsToNa[componentPositionalParamsDefinition] = new PositionalArgumentReference(positional), _positionalParamsToNa);
+                positional = [];
+            } else if (componentHasPositionalParams) {
+                positionalParamsToNamed = {};
+                var length = Math.min(positional.length, componentPositionalParamsDefinition.length);
+                for (var i = 0; i < length; i++) {
+                    var name = componentPositionalParamsDefinition[i];
+                    positionalParamsToNamed[name] = positional[i];
+                }
+            }
+            var named = (0, _emberUtils.assign)({}, curriedNamed, positionalParamsToNamed, capturedArgs.named.map);
+            return { positional: positional, named: named };
+        };
+
+        CurlyComponentManager.prototype.create = function create(environment, definition, args, dynamicScope, callerSelfRef, hasBlock) {
+            if (true) {
+                this._pushToDebugStack('component:' + definition.name, environment);
+            }
+            var parentView = dynamicScope.view;
+            var factory = definition.ComponentClass;
+            var capturedArgs = args.named.capture();
+            var props = (0, _processArgs.processComponentArgs)(capturedArgs);
+            aliasIdToElementId(args, props);
+            props.parentView = parentView;
+            props[_component.HAS_BLOCK] = hasBlock;
+            props._targetObject = callerSelfRef.value();
+            var component = factory.create(props);
+            var finalizer = (0, _emberMetal._instrumentStart)('render.component', initialRenderInstrumentDetails, component);
+            dynamicScope.view = component;
+            if (parentView !== null) {
+                parentView.appendChild(component);
+            }
+            // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
+            if (component.tagName === '') {
+                if (environment.isInteractive) {
+                    component.trigger('willRender');
+                }
+                component._transitionTo('hasElement');
+                if (environment.isInteractive) {
+                    component.trigger('willInsertElement');
+                }
+            }
+            var bucket = new _curlyComponentStateBucket.default(environment, component, capturedArgs, finalizer);
+            if (args.named.has('class')) {
+                bucket.classRef = args.named.get('class');
+            }
+            if (true) {
+                processComponentInitializationAssertions(component, props);
+            }
+            if (environment.isInteractive && component.tagName !== '') {
+                component.trigger('willRender');
+            }
+            return bucket;
+        };
+
+        CurlyComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
+            var template = definition.template;
+            if (!template) {
+                var component = bucket.component;
+
+                template = this.templateFor(component, env);
+            }
+            return env.getCompiledBlock(CurlyComponentLayoutCompiler, template);
+        };
+
+        CurlyComponentManager.prototype.templateFor = function templateFor(component, env) {
+            var Template = (0, _emberMetal.get)(component, 'layout');
+            var owner = component[_emberUtils.OWNER];
+            if (Template) {
+                return env.getTemplate(Template, owner);
+            }
+            var layoutName = (0, _emberMetal.get)(component, 'layoutName');
+            if (layoutName) {
+                var template = owner.lookup('template:' + layoutName);
+                if (template) {
+                    return template;
+                }
+            }
+            return owner.lookup(DEFAULT_LAYOUT);
+        };
+
+        CurlyComponentManager.prototype.getSelf = function getSelf(_ref) {
+            var component = _ref.component;
+
+            return component[_component.ROOT_REF];
+        };
+
+        CurlyComponentManager.prototype.didCreateElement = function didCreateElement(_ref2, element, operations) {
+            var component = _ref2.component,
+                classRef = _ref2.classRef,
+                environment = _ref2.environment;
+
+            (0, _emberViews.setViewElement)(component, element);
+            var attributeBindings = component.attributeBindings,
+                classNames = component.classNames,
+                classNameBindings = component.classNameBindings;
+
+            if (attributeBindings && attributeBindings.length) {
+                applyAttributeBindings(element, attributeBindings, component, operations);
+            } else {
+                operations.addStaticAttribute(element, 'id', component.elementId);
+                _bindings.IsVisibleBinding.install(element, component, operations);
+            }
+            if (classRef) {
+                operations.addDynamicAttribute(element, 'class', classRef);
+            }
+            if (classNames && classNames.length) {
+                classNames.forEach(function (name) {
+                    operations.addStaticAttribute(element, 'class', name);
+                });
+            }
+            if (classNameBindings && classNameBindings.length) {
+                classNameBindings.forEach(function (binding) {
+                    _bindings.ClassNameBinding.install(element, component, binding, operations);
+                });
+            }
+            component._transitionTo('hasElement');
+            if (environment.isInteractive) {
+                component.trigger('willInsertElement');
+            }
+        };
+
+        CurlyComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket, bounds) {
+            bucket.component[_component.BOUNDS] = bounds;
+            bucket.finalize();
+            if (true) {
+                this.debugStack.pop();
+            }
+        };
+
+        CurlyComponentManager.prototype.getTag = function getTag(_ref3) {
+            var component = _ref3.component;
+
+            return component[_component.DIRTY_TAG];
+        };
+
+        CurlyComponentManager.prototype.didCreate = function didCreate(_ref4) {
+            var component = _ref4.component,
+                environment = _ref4.environment;
+
+            if (environment.isInteractive) {
+                component._transitionTo('inDOM');
+                component.trigger('didInsertElement');
+                component.trigger('didRender');
+            }
+        };
+
+        CurlyComponentManager.prototype.update = function update(bucket) {
+            var component = bucket.component,
+                args = bucket.args,
+                argsRevision = bucket.argsRevision,
+                environment = bucket.environment;
+
+            if (true) {
+                this._pushToDebugStack(component._debugContainerKey, environment);
+            }
+            bucket.finalizer = (0, _emberMetal._instrumentStart)('render.component', rerenderInstrumentDetails, component);
+            if (!args.tag.validate(argsRevision)) {
+                var props = (0, _processArgs.processComponentArgs)(args);
+                bucket.argsRevision = args.tag.value();
+                component[_component.IS_DISPATCHING_ATTRS] = true;
+                component.setProperties(props);
+                component[_component.IS_DISPATCHING_ATTRS] = false;
+                component.trigger('didUpdateAttrs');
+                component.trigger('didReceiveAttrs');
+            }
+            if (environment.isInteractive) {
+                component.trigger('willUpdate');
+                component.trigger('willRender');
+            }
+        };
+
+        CurlyComponentManager.prototype.didUpdateLayout = function didUpdateLayout(bucket) {
+            bucket.finalize();
+            if (true) {
+                this.debugStack.pop();
+            }
+        };
+
+        CurlyComponentManager.prototype.didUpdate = function didUpdate(_ref5) {
+            var component = _ref5.component,
+                environment = _ref5.environment;
+
+            if (environment.isInteractive) {
+                component.trigger('didUpdate');
+                component.trigger('didRender');
+            }
+        };
+
+        CurlyComponentManager.prototype.getDestructor = function getDestructor(stateBucket) {
+            return stateBucket;
+        };
+
+        return CurlyComponentManager;
+    }(_abstract.default);
+
+    exports.default = CurlyComponentManager;
+    function validatePositionalParameters(named, positional, positionalParamsDefinition) {
+        if (true) {
+            if (!named || !positional || !positional.length) {
+                return;
+            }
+            var paramType = typeof positionalParamsDefinition;
+            if (paramType === 'string') {
+                (true && !(!named.has(positionalParamsDefinition)) && (0, _emberDebug.assert)('You cannot specify positional parameters and the hash argument `' + positionalParamsDefinition + '`.', !named.has(positionalParamsDefinition)));
+            } else {
+                if (positional.length < positionalParamsDefinition.length) {
+                    positionalParamsDefinition = positionalParamsDefinition.slice(0, positional.length);
+                }
+                for (var i = 0; i < positionalParamsDefinition.length; i++) {
+                    var name = positionalParamsDefinition[i];
+                    (true && !(!named.has(name)) && (0, _emberDebug.assert)('You cannot specify both a positional param (at position ' + i + ') and the hash argument `' + name + '`.', !named.has(name)));
+                }
+            }
+        }
+    }
+    function processComponentInitializationAssertions(component, props) {
+        (true && !(function () {
+            var classNameBindings = component.classNameBindings;
+
+            for (var i = 0; i < classNameBindings.length; i++) {
+                var binding = classNameBindings[i];
+                if (binding.split(' ').length > 1) {
+                    return false;
+                }
+            }
+            return true;
+        }()) && (0, _emberDebug.assert)('classNameBindings must not have spaces in them: ' + component.toString(), function () {
+            var classNameBindings = component.classNameBindings;
+            for (var i = 0; i < classNameBindings.length; i++) {
+                var binding = classNameBindings[i];if (binding.split(' ').length > 1) {
+                    return false;
+                }
+            }return true;
+        }()));
+        (true && !(component.tagName !== '' || !component.classNameBindings || component.classNameBindings.length === 0) && (0, _emberDebug.assert)('You cannot use `classNameBindings` on a tag-less component: ' + component.toString(), component.tagName !== '' || !component.classNameBindings || component.classNameBindings.length === 0));
+        (true && !(component.tagName !== '' || props.id === component.elementId || !component.elementId && component.elementId !== '') && (0, _emberDebug.assert)('You cannot use `elementId` on a tag-less component: ' + component.toString(), component.tagName !== '' || props.id === component.elementId || !component.elementId && component.elementId !== ''));
+        (true && !(component.tagName !== '' || !component.attributeBindings || component.attributeBindings.length === 0) && (0, _emberDebug.assert)('You cannot use `attributeBindings` on a tag-less component: ' + component.toString(), component.tagName !== '' || !component.attributeBindings || component.attributeBindings.length === 0));
+    }
+    function initialRenderInstrumentDetails(component) {
+        return component.instrumentDetails({ initialRender: true });
+    }
+    function rerenderInstrumentDetails(component) {
+        return component.instrumentDetails({ initialRender: false });
+    }
+    var MANAGER = new CurlyComponentManager();
+
+    var CurlyComponentDefinition = exports.CurlyComponentDefinition = function (_ComponentDefinition) {
+        (0, _emberBabel.inherits)(CurlyComponentDefinition, _ComponentDefinition);
+
+        function CurlyComponentDefinition(name, ComponentClass, template, args, customManager) {
+            (0, _emberBabel.classCallCheck)(this, CurlyComponentDefinition);
+
+            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, name, customManager || MANAGER, ComponentClass));
+
+            _this2.template = template;
+            _this2.args = args;
+            return _this2;
+        }
+
+        return CurlyComponentDefinition;
+    }(_runtime.ComponentDefinition);
+});
+enifed('ember-glimmer/component-managers/mount', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-routing', 'ember/features', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract', 'ember-glimmer/component-managers/outlet'], function (exports, _emberBabel, _runtime, _emberRouting, _features, _references, _abstract, _outlet) {
+    'use strict';
+
+    exports.MountDefinition = undefined;
+
+    var MountManager = function (_AbstractManager) {
+        (0, _emberBabel.inherits)(MountManager, _AbstractManager);
+
+        function MountManager() {
+            (0, _emberBabel.classCallCheck)(this, MountManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
+        }
+
+        MountManager.prototype.create = function create(environment, _ref, args) {
+            var name = _ref.name;
+
+            if (true) {
+                this._pushEngineToDebugStack('engine:' + name, environment);
+            }
+            var engine = environment.owner.buildChildEngineInstance(name);
+            engine.boot();
+            var bucket = { engine: engine };
+            if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
+                bucket.modelReference = args.named.get('model');
+            }
+            return bucket;
+        };
+
+        MountManager.prototype.layoutFor = function layoutFor(_definition, _ref2, env) {
+            var engine = _ref2.engine;
+
+            var template = engine.lookup('template:application');
+            return env.getCompiledBlock(_outlet.OutletLayoutCompiler, template);
+        };
+
+        MountManager.prototype.getSelf = function getSelf(bucket) {
+            var engine = bucket.engine,
+                modelReference = bucket.modelReference;
+
+            var applicationFactory = engine.factoryFor('controller:application');
+            var controllerFactory = applicationFactory || (0, _emberRouting.generateControllerFactory)(engine, 'application');
+            var controller = bucket.controller = controllerFactory.create();
+            if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
+                var model = modelReference.value();
+                bucket.modelRevision = modelReference.tag.value();
+                controller.set('model', model);
+            }
+            return new _references.RootReference(controller);
+        };
+
+        MountManager.prototype.getDestructor = function getDestructor(_ref3) {
+            var engine = _ref3.engine;
+
+            return engine;
+        };
+
+        MountManager.prototype.didRenderLayout = function didRenderLayout() {
+            if (true) {
+                this.debugStack.pop();
+            }
+        };
+
+        MountManager.prototype.update = function update(bucket) {
+            if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
+                var controller = bucket.controller,
+                    modelReference = bucket.modelReference,
+                    modelRevision = bucket.modelRevision;
+
+                if (!modelReference.tag.validate(modelRevision)) {
+                    var model = modelReference.value();
+                    bucket.modelRevision = modelReference.tag.value();
+                    controller.set('model', model);
+                }
+            }
+        };
+
+        return MountManager;
+    }(_abstract.default);
+
+    var MOUNT_MANAGER = new MountManager();
+
+    var MountDefinition = exports.MountDefinition = function (_ComponentDefinition) {
+        (0, _emberBabel.inherits)(MountDefinition, _ComponentDefinition);
+
+        function MountDefinition(name) {
+            (0, _emberBabel.classCallCheck)(this, MountDefinition);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, name, MOUNT_MANAGER, null));
+        }
+
+        return MountDefinition;
+    }(_runtime.ComponentDefinition);
+});
+enifed('ember-glimmer/component-managers/outlet', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-metal', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract'], function (exports, _emberBabel, _runtime, _emberMetal, _emberUtils, _references, _abstract) {
+    'use strict';
+
+    exports.OutletLayoutCompiler = exports.OutletComponentDefinition = exports.TopLevelOutletComponentDefinition = undefined;
+
+    function instrumentationPayload(_ref) {
+        var _ref$render = _ref.render,
+            name = _ref$render.name,
+            outlet = _ref$render.outlet;
+
+        return { object: name + ':' + outlet };
+    }
+    function NOOP() {}
+
+    var StateBucket = function () {
+        function StateBucket(outletState) {
+            (0, _emberBabel.classCallCheck)(this, StateBucket);
+
+            this.outletState = outletState;
+            this.instrument();
+        }
+
+        StateBucket.prototype.instrument = function instrument() {
+            this.finalizer = (0, _emberMetal._instrumentStart)('render.outlet', instrumentationPayload, this.outletState);
+        };
+
+        StateBucket.prototype.finalize = function finalize() {
+            var finalizer = this.finalizer;
+
+            finalizer();
+            this.finalizer = NOOP;
+        };
+
+        return StateBucket;
+    }();
+
+    var OutletComponentManager = function (_AbstractManager) {
+        (0, _emberBabel.inherits)(OutletComponentManager, _AbstractManager);
+
+        function OutletComponentManager() {
+            (0, _emberBabel.classCallCheck)(this, OutletComponentManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
+        }
+
+        OutletComponentManager.prototype.create = function create(environment, definition, _args, dynamicScope) {
+            if (true) {
+                this._pushToDebugStack('template:' + definition.template.meta.moduleName, environment);
+            }
+            var outletStateReference = dynamicScope.outletState = dynamicScope.outletState.get('outlets').get(definition.outletName);
+            var outletState = outletStateReference.value();
+            return new StateBucket(outletState);
+        };
+
+        OutletComponentManager.prototype.layoutFor = function layoutFor(definition, _bucket, env) {
+            return env.getCompiledBlock(OutletLayoutCompiler, definition.template);
+        };
+
+        OutletComponentManager.prototype.getSelf = function getSelf(_ref2) {
+            var outletState = _ref2.outletState;
+
+            return new _references.RootReference(outletState.render.controller);
+        };
+
+        OutletComponentManager.prototype.didRenderLayout = function didRenderLayout(bucket) {
+            bucket.finalize();
+            if (true) {
+                this.debugStack.pop();
+            }
+        };
+
+        OutletComponentManager.prototype.getDestructor = function getDestructor() {
+            return null;
+        };
+
+        return OutletComponentManager;
+    }(_abstract.default);
+
+    var MANAGER = new OutletComponentManager();
+
+    var TopLevelOutletComponentManager = function (_OutletComponentManag) {
+        (0, _emberBabel.inherits)(TopLevelOutletComponentManager, _OutletComponentManag);
+
+        function TopLevelOutletComponentManager() {
+            (0, _emberBabel.classCallCheck)(this, TopLevelOutletComponentManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _OutletComponentManag.apply(this, arguments));
+        }
+
+        TopLevelOutletComponentManager.prototype.create = function create(environment, definition, _args, dynamicScope) {
+            if (true) {
+                this._pushToDebugStack('template:' + definition.template.meta.moduleName, environment);
+            }
+            return new StateBucket(dynamicScope.outletState.value());
+        };
+
+        TopLevelOutletComponentManager.prototype.layoutFor = function layoutFor(definition, _bucket, env) {
+            return env.getCompiledBlock(TopLevelOutletLayoutCompiler, definition.template);
+        };
+
+        return TopLevelOutletComponentManager;
+    }(OutletComponentManager);
+
+    var TOP_LEVEL_MANAGER = new TopLevelOutletComponentManager();
+
+    var TopLevelOutletComponentDefinition = exports.TopLevelOutletComponentDefinition = function (_ComponentDefinition) {
+        (0, _emberBabel.inherits)(TopLevelOutletComponentDefinition, _ComponentDefinition);
+
+        function TopLevelOutletComponentDefinition(instance) {
+            (0, _emberBabel.classCallCheck)(this, TopLevelOutletComponentDefinition);
+
+            var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'outlet', TOP_LEVEL_MANAGER, instance));
+
+            _this3.template = instance.template;
+            (0, _emberUtils.generateGuid)(_this3);
+            return _this3;
+        }
+
+        return TopLevelOutletComponentDefinition;
+    }(_runtime.ComponentDefinition);
+
+    var TopLevelOutletLayoutCompiler = function () {
+        function TopLevelOutletLayoutCompiler(template) {
+            (0, _emberBabel.classCallCheck)(this, TopLevelOutletLayoutCompiler);
+
+            this.template = template;
+        }
+
+        TopLevelOutletLayoutCompiler.prototype.compile = function compile(builder) {
+            builder.wrapLayout(this.template);
+            builder.tag.static('div');
+            builder.attrs.static('id', (0, _emberUtils.guidFor)(this));
+            builder.attrs.static('class', 'ember-view');
+        };
+
+        return TopLevelOutletLayoutCompiler;
+    }();
+
+    TopLevelOutletLayoutCompiler.id = 'top-level-outlet';
+
+    var OutletComponentDefinition = exports.OutletComponentDefinition = function (_ComponentDefinition2) {
+        (0, _emberBabel.inherits)(OutletComponentDefinition, _ComponentDefinition2);
+
+        function OutletComponentDefinition(outletName, template) {
+            (0, _emberBabel.classCallCheck)(this, OutletComponentDefinition);
+
+            var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition2.call(this, 'outlet', MANAGER, null));
+
+            _this4.outletName = outletName;
+            _this4.template = template;
+            (0, _emberUtils.generateGuid)(_this4);
+            return _this4;
+        }
+
+        return OutletComponentDefinition;
+    }(_runtime.ComponentDefinition);
+
+    var OutletLayoutCompiler = exports.OutletLayoutCompiler = function () {
+        function OutletLayoutCompiler(template) {
+            (0, _emberBabel.classCallCheck)(this, OutletLayoutCompiler);
+
+            this.template = template;
+        }
+
+        OutletLayoutCompiler.prototype.compile = function compile(builder) {
+            builder.wrapLayout(this.template);
+        };
+
+        return OutletLayoutCompiler;
+    }();
+
+    OutletLayoutCompiler.id = 'outlet';
+});
+enifed('ember-glimmer/component-managers/render', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-routing', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract', 'ember-glimmer/component-managers/outlet'], function (exports, _emberBabel, _runtime, _emberRouting, _references, _abstract, _outlet) {
+    'use strict';
+
+    exports.RenderDefinition = exports.NON_SINGLETON_RENDER_MANAGER = exports.SINGLETON_RENDER_MANAGER = exports.AbstractRenderManager = undefined;
+
+    var AbstractRenderManager = exports.AbstractRenderManager = function (_AbstractManager) {
+        (0, _emberBabel.inherits)(AbstractRenderManager, _AbstractManager);
+
+        function AbstractRenderManager() {
+            (0, _emberBabel.classCallCheck)(this, AbstractRenderManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractManager.apply(this, arguments));
+        }
+
+        AbstractRenderManager.prototype.layoutFor = function layoutFor(definition, _bucket, env) {
+            return env.getCompiledBlock(_outlet.OutletLayoutCompiler, definition.template);
+        };
+
+        AbstractRenderManager.prototype.getSelf = function getSelf(_ref) {
+            var controller = _ref.controller;
+
+            return new _references.RootReference(controller);
+        };
+
+        return AbstractRenderManager;
+    }(_abstract.default);
+
+    if (true) {
+        AbstractRenderManager.prototype.didRenderLayout = function () {
+            this.debugStack.pop();
+        };
     }
 
-    return RootComponentDefinition;
-  }(_runtime.ComponentDefinition);
+    var SingletonRenderManager = function (_AbstractRenderManage) {
+        (0, _emberBabel.inherits)(SingletonRenderManager, _AbstractRenderManage);
+
+        function SingletonRenderManager() {
+            (0, _emberBabel.classCallCheck)(this, SingletonRenderManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractRenderManage.apply(this, arguments));
+        }
+
+        SingletonRenderManager.prototype.create = function create(env, definition, _args, dynamicScope) {
+            var name = definition.name;
+
+            var controller = env.owner.lookup('controller:' + name) || (0, _emberRouting.generateController)(env.owner, name);
+            if (true) {
+                this._pushToDebugStack('controller:' + name + ' (with the render helper)', env);
+            }
+            if (dynamicScope.rootOutletState) {
+                dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
+            }
+            return { controller: controller };
+        };
+
+        SingletonRenderManager.prototype.getDestructor = function getDestructor() {
+            return null;
+        };
+
+        return SingletonRenderManager;
+    }(AbstractRenderManager);
+
+    var SINGLETON_RENDER_MANAGER = exports.SINGLETON_RENDER_MANAGER = new SingletonRenderManager();
+
+    var NonSingletonRenderManager = function (_AbstractRenderManage2) {
+        (0, _emberBabel.inherits)(NonSingletonRenderManager, _AbstractRenderManage2);
+
+        function NonSingletonRenderManager() {
+            (0, _emberBabel.classCallCheck)(this, NonSingletonRenderManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _AbstractRenderManage2.apply(this, arguments));
+        }
+
+        NonSingletonRenderManager.prototype.create = function create(environment, definition, args, dynamicScope) {
+            var name = definition.name,
+                env = definition.env;
+
+            var modelRef = args.positional.at(0);
+            var controllerFactory = env.owner.factoryFor('controller:' + name);
+            var factory = controllerFactory || (0, _emberRouting.generateControllerFactory)(env.owner, name);
+            var controller = factory.create({ model: modelRef.value() });
+            if (true) {
+                this._pushToDebugStack('controller:' + name + ' (with the render helper)', environment);
+            }
+            if (dynamicScope.rootOutletState) {
+                dynamicScope.outletState = dynamicScope.rootOutletState.getOrphan(name);
+            }
+            return { controller: controller, model: modelRef };
+        };
+
+        NonSingletonRenderManager.prototype.update = function update(_ref2) {
+            var controller = _ref2.controller,
+                model = _ref2.model;
+
+            controller.set('model', model.value());
+        };
+
+        NonSingletonRenderManager.prototype.getDestructor = function getDestructor(_ref3) {
+            var controller = _ref3.controller;
+
+            return controller;
+        };
+
+        return NonSingletonRenderManager;
+    }(AbstractRenderManager);
+
+    var NON_SINGLETON_RENDER_MANAGER = exports.NON_SINGLETON_RENDER_MANAGER = new NonSingletonRenderManager();
+
+    var RenderDefinition = exports.RenderDefinition = function (_ComponentDefinition) {
+        (0, _emberBabel.inherits)(RenderDefinition, _ComponentDefinition);
+
+        function RenderDefinition(name, template, env, manager) {
+            (0, _emberBabel.classCallCheck)(this, RenderDefinition);
+
+            var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, 'render', manager, null));
+
+            _this4.name = name;
+            _this4.template = template;
+            _this4.env = env;
+            return _this4;
+        }
+
+        return RenderDefinition;
+    }(_runtime.ComponentDefinition);
 });
-enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'ember-runtime', 'ember-debug', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference', '@glimmer/runtime'], function (exports, _emberUtils, _emberViews, _emberRuntime, _emberDebug, _emberMetal, _references, _reference, _runtime) {
+enifed('ember-glimmer/component-managers/root', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-metal', 'ember-glimmer/utils/curly-component-state-bucket', 'ember-glimmer/component-managers/curly'], function (exports, _emberBabel, _runtime, _emberMetal, _curlyComponentStateBucket, _curly) {
+    'use strict';
+
+    exports.RootComponentDefinition = undefined;
+
+    var RootComponentManager = function (_CurlyComponentManage) {
+        (0, _emberBabel.inherits)(RootComponentManager, _CurlyComponentManage);
+
+        function RootComponentManager() {
+            (0, _emberBabel.classCallCheck)(this, RootComponentManager);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _CurlyComponentManage.apply(this, arguments));
+        }
+
+        RootComponentManager.prototype.create = function create(environment, definition, args, dynamicScope) {
+            var component = definition.ComponentClass.create();
+            if (true) {
+                this._pushToDebugStack(component._debugContainerKey, environment);
+            }
+            var finalizer = (0, _emberMetal._instrumentStart)('render.component', _curly.initialRenderInstrumentDetails, component);
+            dynamicScope.view = component;
+            // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
+            if (component.tagName === '') {
+                if (environment.isInteractive) {
+                    component.trigger('willRender');
+                }
+                component._transitionTo('hasElement');
+                if (environment.isInteractive) {
+                    component.trigger('willInsertElement');
+                }
+            }
+            if (true) {
+                (0, _curly.processComponentInitializationAssertions)(component, {});
+            }
+            return new _curlyComponentStateBucket.default(environment, component, args.named.capture(), finalizer);
+        };
+
+        return RootComponentManager;
+    }(_curly.default);
+
+    var ROOT_MANAGER = new RootComponentManager();
+
+    var RootComponentDefinition = exports.RootComponentDefinition = function (_ComponentDefinition) {
+        (0, _emberBabel.inherits)(RootComponentDefinition, _ComponentDefinition);
+
+        function RootComponentDefinition(instance) {
+            (0, _emberBabel.classCallCheck)(this, RootComponentDefinition);
+
+            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ComponentDefinition.call(this, '-root', ROOT_MANAGER, {
+                class: instance.constructor,
+                create: function () {
+                    return instance;
+                }
+            }));
+
+            _this2.template = undefined;
+            _this2.args = undefined;
+            return _this2;
+        }
+
+        return RootComponentDefinition;
+    }(_runtime.ComponentDefinition);
+});
+enifed('ember-glimmer/component', ['exports', '@glimmer/reference', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-utils', 'ember-views', 'ember-glimmer/utils/references'], function (exports, _reference, _runtime, _emberDebug, _emberMetal, _emberRuntime, _emberUtils, _emberViews, _references) {
   'use strict';
 
   exports.BOUNDS = exports.HAS_BLOCK = exports.IS_DISPATCHING_ATTRS = exports.ROOT_REF = exports.ARGS = exports.DIRTY_TAG = undefined;
@@ -15788,11 +15675,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   var IS_DISPATCHING_ATTRS = exports.IS_DISPATCHING_ATTRS = (0, _emberUtils.symbol)('IS_DISPATCHING_ATTRS');
   var HAS_BLOCK = exports.HAS_BLOCK = (0, _emberUtils.symbol)('HAS_BLOCK');
   var BOUNDS = exports.BOUNDS = (0, _emberUtils.symbol)('BOUNDS');
-
   /**
   @module @ember/component
   */
-
   /**
     A `Component` is a view that is completely
     isolated. Properties accessed in its templates go
@@ -15870,7 +15755,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     elements. This is consistent with the same
     requirement in web components.
   
-  
     ## HTML Tag
   
     The default HTML tag name used for a component's DOM representation is `div`.
@@ -15890,7 +15774,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     ```html
     <em id="ember1" class="ember-view"></em>
     ```
-  
   
     ## HTML `class` Attribute
   
@@ -16076,7 +15959,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     [EmberObject](/api/classes/Ember.Object.html) documentation for more
     information about concatenated properties.
   
-  
     ## HTML Attributes
   
     The HTML attribute section of a component's tag can be set by providing an
@@ -16199,7 +16081,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     `attributeBindings` is a concatenated property. See [EmberObject](/api/classes/Ember.Object.html)
     documentation for more information about concatenated properties.
   
-  
     ## Layouts
   
     See [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)
@@ -16233,13 +16114,11 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
       </div>
     ```
   
-  
     ## Responding to Browser Events
   
     Components can respond to user-initiated events in one of three ways: method
     implementation, through an event manager, and through `{{action}}` helper use
     in their template or layout.
-  
   
     ### Method Implementation
   
@@ -16258,11 +16137,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     });
     ```
   
-  
     ### `{{action}}` Helper
   
     See [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).
-  
   
     ### Event Names
   
@@ -16326,7 +16203,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   */
   var Component = _emberViews.CoreView.extend(_emberViews.ChildViewsSupport, _emberViews.ViewStateSupport, _emberViews.ClassNamesSupport, _emberRuntime.TargetActionSupport, _emberViews.ActionSupport, _emberViews.ViewMixin, (_CoreView$extend = {
     isComponent: true,
-
     init: function () {
       var _this = this;
 
@@ -16335,7 +16211,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
       this[DIRTY_TAG] = new _reference.DirtyableTag();
       this[ROOT_REF] = new _references.RootReference(this);
       this[BOUNDS] = null;
-
       // If a `defaultLayout` was specified move it to the `layout` prop.
       // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
       // logic is supported with a deprecation
@@ -16346,28 +16221,26 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
           url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-component-defaultlayout'
         }));
 
-
         this.layout = this.defaultLayout;
       }
-
       // If in a tagless component, assert that no event handlers are defined
       (true && !(this.tagName !== '' || !this.renderer._destinedForDOM || !function () {
         var eventDispatcher = (0, _emberUtils.getOwner)(_this).lookup('event_dispatcher:main');
         var events = eventDispatcher && eventDispatcher._finalEvents || {};
-
+        // tslint:disable-next-line:forin
         for (var key in events) {
           var methodName = events[key];
-
           if (typeof _this[methodName] === 'function') {
             return true; // indicate that the assertion should be triggered
           }
         }
+        return false;
       }()) && (0, _emberDebug.assert)('You can not define a function that handles DOM events in the `' + this + '` tagless component since it doesn\'t have any DOM element.', this.tagName !== '' || !this.renderer._destinedForDOM || !function () {
         var eventDispatcher = (0, _emberUtils.getOwner)(_this).lookup('event_dispatcher:main');var events = eventDispatcher && eventDispatcher._finalEvents || {};for (var key in events) {
           var methodName = events[key];if (typeof _this[methodName] === 'function') {
             return true;
           }
-        }
+        }return false;
       }()));
       (true && !(!(this.tagName && this.tagName.isDescriptor)) && (0, _emberDebug.assert)('You cannot use a computed property for the component\'s `tagName` (' + this + ').', !(this.tagName && this.tagName.isDescriptor)));
     },
@@ -16382,11 +16255,9 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     if (this[IS_DISPATCHING_ATTRS]) {
       return;
     }
-
-    var args = void 0,
-        reference = void 0;
-
-    if ((args = this[ARGS]) && (reference = args[key])) {
+    var args = this[ARGS];
+    var reference = args && args[key];
+    if (reference) {
       if (reference[_references.UPDATE]) {
         reference[_references.UPDATE]((0, _emberMetal.get)(this, key));
       }
@@ -16398,987 +16269,889 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     var element = (0, _emberViews.getViewElement)(this);
     return (0, _runtime.readDOMAttr)(element, name);
   }, _CoreView$extend));
-
   Component[_emberUtils.NAME_KEY] = 'Ember.Component';
-
   Component.reopenClass({
     isComponentFactory: true,
     positionalParams: []
   });
-
   exports.default = Component;
 });
 enifed('ember-glimmer/components/checkbox', ['exports', 'ember-metal', 'ember-glimmer/component', 'ember-glimmer/templates/empty'], function (exports, _emberMetal, _component, _empty) {
-  'use strict';
+    'use strict';
 
-  exports.default = _component.default.extend({
-    layout: _empty.default,
-    classNames: ['ember-checkbox'],
-
-    tagName: 'input',
-
-    attributeBindings: ['type', 'checked', 'indeterminate', 'disabled', 'tabindex', 'name', 'autofocus', 'required', 'form'],
-
-    type: 'checkbox',
-    disabled: false,
-    indeterminate: false,
-
-    didInsertElement: function () {
-      this._super.apply(this, arguments);
-      (0, _emberMetal.get)(this, 'element').indeterminate = !!(0, _emberMetal.get)(this, 'indeterminate');
-    },
-    change: function () {
-      (0, _emberMetal.set)(this, 'checked', this.$().prop('checked'));
-    }
-  });
+    exports.default = _component.default.extend({
+        layout: _empty.default,
+        classNames: ['ember-checkbox'],
+        tagName: 'input',
+        attributeBindings: ['type', 'checked', 'indeterminate', 'disabled', 'tabindex', 'name', 'autofocus', 'required', 'form'],
+        type: 'checkbox',
+        disabled: false,
+        indeterminate: false,
+        didInsertElement: function () {
+            this._super.apply(this, arguments);
+            (0, _emberMetal.get)(this, 'element').indeterminate = !!(0, _emberMetal.get)(this, 'indeterminate');
+        },
+        change: function () {
+            (0, _emberMetal.set)(this, 'checked', this.$().prop('checked'));
+        }
+    });
 });
-enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-glimmer/templates/link-to', 'ember-glimmer/component'], function (exports, _emberConsole, _emberDebug, _emberMetal, _emberRuntime, _emberViews, _linkTo, _component) {
-  'use strict';
-
-  /**
-    @module @ember/routing
-  */
-  /**
-    `LinkComponent` renders an element whose `click` event triggers a
-    transition of the application's instance of `Router` to
-    a supplied route by name.
-  
-    `LinkComponent` components are invoked with {{#link-to}}. Properties
-    of this class can be overridden with `reopen` to customize application-wide
-    behavior.
-  
-    @class LinkComponent
-    @extends Component
-    @see {Ember.Templates.helpers.link-to}
-    @public
-  **/
-  var LinkComponent = _component.default.extend({
-    layout: _linkTo.default,
-
-    tagName: 'a',
+enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/templates/link-to'], function (exports, _emberConsole, _emberDebug, _emberMetal, _emberRuntime, _emberViews, _component, _linkTo) {
+    'use strict';
 
     /**
-      @deprecated Use current-when instead.
-      @property currentWhen
-      @private
+      @module @ember/routing
     */
-    currentWhen: (0, _emberRuntime.deprecatingAlias)('current-when', { id: 'ember-routing-view.deprecated-current-when', until: '3.0.0' }),
-
     /**
-      Used to determine when this `LinkComponent` is active.
-       @property currentWhen
-      @public
-    */
-    'current-when': null,
-
-    /**
-      Sets the `title` attribute of the `LinkComponent`'s HTML element.
-       @property title
-      @default null
+      `LinkComponent` renders an element whose `click` event triggers a
+      transition of the application's instance of `Router` to
+      a supplied route by name.
+    
+      `LinkComponent` components are invoked with {{#link-to}}. Properties
+      of this class can be overridden with `reopen` to customize application-wide
+      behavior.
+    
+      @class LinkComponent
+      @extends Component
+      @see {Ember.Templates.helpers.link-to}
       @public
     **/
-    title: null,
+    var LinkComponent = _component.default.extend({
+        layout: _linkTo.default,
+        tagName: 'a',
+        /**
+          @deprecated Use current-when instead.
+          @property currentWhen
+          @private
+        */
+        currentWhen: (0, _emberRuntime.deprecatingAlias)('current-when', { id: 'ember-routing-view.deprecated-current-when', until: '3.0.0' }),
+        /**
+          Used to determine when this `LinkComponent` is active.
+             @property currentWhen
+          @public
+        */
+        'current-when': null,
+        /**
+          Sets the `title` attribute of the `LinkComponent`'s HTML element.
+             @property title
+          @default null
+          @public
+        **/
+        title: null,
+        /**
+          Sets the `rel` attribute of the `LinkComponent`'s HTML element.
+             @property rel
+          @default null
+          @public
+        **/
+        rel: null,
+        /**
+          Sets the `tabindex` attribute of the `LinkComponent`'s HTML element.
+             @property tabindex
+          @default null
+          @public
+        **/
+        tabindex: null,
+        /**
+          Sets the `target` attribute of the `LinkComponent`'s HTML element.
+             @since 1.8.0
+          @property target
+          @default null
+          @public
+        **/
+        target: null,
+        /**
+          The CSS class to apply to `LinkComponent`'s element when its `active`
+          property is `true`.
+             @property activeClass
+          @type String
+          @default active
+          @public
+        **/
+        activeClass: 'active',
+        /**
+          The CSS class to apply to `LinkComponent`'s element when its `loading`
+          property is `true`.
+             @property loadingClass
+          @type String
+          @default loading
+          @private
+        **/
+        loadingClass: 'loading',
+        /**
+          The CSS class to apply to a `LinkComponent`'s element when its `disabled`
+          property is `true`.
+             @property disabledClass
+          @type String
+          @default disabled
+          @private
+        **/
+        disabledClass: 'disabled',
+        /**
+          Determines whether the `LinkComponent` will trigger routing via
+          the `replaceWith` routing strategy.
+             @property replace
+          @type Boolean
+          @default false
+          @public
+        **/
+        replace: false,
+        /**
+          By default the `{{link-to}}` component will bind to the `href` and
+          `title` attributes. It's discouraged that you override these defaults,
+          however you can push onto the array if needed.
+             @property attributeBindings
+          @type Array | String
+          @default ['title', 'rel', 'tabindex', 'target']
+          @public
+        */
+        attributeBindings: ['href', 'title', 'rel', 'tabindex', 'target'],
+        /**
+          By default the `{{link-to}}` component will bind to the `active`, `loading`,
+          and `disabled` classes. It is discouraged to override these directly.
+             @property classNameBindings
+          @type Array
+          @default ['active', 'loading', 'disabled', 'ember-transitioning-in', 'ember-transitioning-out']
+          @public
+        */
+        classNameBindings: ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'],
+        /**
+          By default the `{{link-to}}` component responds to the `click` event. You
+          can override this globally by setting this property to your custom
+          event name.
+             This is particularly useful on mobile when one wants to avoid the 300ms
+          click delay using some sort of custom `tap` event.
+             @property eventName
+          @type String
+          @default click
+          @private
+        */
+        eventName: 'click',
+        init: function () {
+            this._super.apply(this, arguments);
+            this._isDisabled = false;
+            // Map desired event name to invoke function
+            var eventName = (0, _emberMetal.get)(this, 'eventName');
+            this.on(eventName, this, this._invoke);
+        },
 
-    /**
-      Sets the `rel` attribute of the `LinkComponent`'s HTML element.
-       @property rel
-      @default null
-      @public
-    **/
-    rel: null,
+        _routing: _emberRuntime.inject.service('-routing'),
+        /**
+          Accessed as a classname binding to apply the `LinkComponent`'s `disabledClass`
+          CSS `class` to the element when the link is disabled.
+             When `true` interactions with the element will not trigger route changes.
+          @property disabled
+          @private
+        */
+        disabled: (0, _emberMetal.computed)({
+            get: function (_key) {
+                return false;
+            },
+            set: function (_key, value) {
+                if (value !== undefined) {
+                    this.set('_isDisabled', value);
+                }
+                return value ? (0, _emberMetal.get)(this, 'disabledClass') : false;
+            }
+        }),
+        _isActive: function (routerState) {
+            if ((0, _emberMetal.get)(this, 'loading')) {
+                return false;
+            }
+            var routing = (0, _emberMetal.get)(this, '_routing');
+            var models = (0, _emberMetal.get)(this, 'models');
+            var resolvedQueryParams = (0, _emberMetal.get)(this, 'resolvedQueryParams');
+            var currentWhen = (0, _emberMetal.get)(this, 'current-when');
+            if (typeof currentWhen === 'boolean') {
+                return currentWhen ? (0, _emberMetal.get)(this, 'activeClass') : false;
+            }
+            var isCurrentWhenSpecified = !!currentWhen;
+            currentWhen = currentWhen || (0, _emberMetal.get)(this, 'qualifiedRouteName');
+            currentWhen = currentWhen.split(' ');
+            for (var i = 0; i < currentWhen.length; i++) {
+                if (routing.isActiveForRoute(models, resolvedQueryParams, currentWhen[i], routerState, isCurrentWhenSpecified)) {
+                    return true;
+                }
+            }
+            return false;
+        },
 
-    /**
-      Sets the `tabindex` attribute of the `LinkComponent`'s HTML element.
-       @property tabindex
-      @default null
-      @public
-    **/
-    tabindex: null,
+        /**
+          Accessed as a classname binding to apply the `LinkComponent`'s `activeClass`
+          CSS `class` to the element when the link is active.
+             A `LinkComponent` is considered active when its `currentWhen` property is `true`
+          or the application's current route is the route the `LinkComponent` would trigger
+          transitions into.
+             The `currentWhen` property can match against multiple routes by separating
+          route names using the ` ` (space) character.
+             @property active
+          @private
+        */
+        active: (0, _emberMetal.computed)('attrs.params', '_active', function computeLinkToComponentActiveClass() {
+            var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
+            if (!currentState) {
+                return false;
+            }
+            return this.get('_active') ? (0, _emberMetal.get)(this, 'activeClass') : false;
+        }),
+        _active: (0, _emberMetal.computed)('_routing.currentState', function computeLinkToComponentActive() {
+            var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
+            if (!currentState) {
+                return false;
+            }
+            return this._isActive(currentState);
+        }),
+        willBeActive: (0, _emberMetal.computed)('_routing.targetState', function computeLinkToComponentWillBeActive() {
+            var routing = (0, _emberMetal.get)(this, '_routing');
+            var targetState = (0, _emberMetal.get)(routing, 'targetState');
+            if ((0, _emberMetal.get)(routing, 'currentState') === targetState) {
+                return;
+            }
+            return this._isActive(targetState);
+        }),
+        transitioningIn: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningIn() {
+            if ((0, _emberMetal.get)(this, 'willBeActive') === true && !(0, _emberMetal.get)(this, '_active')) {
+                return 'ember-transitioning-in';
+            } else {
+                return false;
+            }
+        }),
+        transitioningOut: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningOut() {
+            if ((0, _emberMetal.get)(this, 'willBeActive') === false && (0, _emberMetal.get)(this, '_active')) {
+                return 'ember-transitioning-out';
+            } else {
+                return false;
+            }
+        }),
+        _invoke: function (event) {
+            if (!(0, _emberViews.isSimpleClick)(event)) {
+                return true;
+            }
+            var preventDefault = (0, _emberMetal.get)(this, 'preventDefault');
+            var targetAttribute = (0, _emberMetal.get)(this, 'target');
+            if (preventDefault !== false) {
+                if (!targetAttribute || targetAttribute === '_self') {
+                    event.preventDefault();
+                }
+            }
+            if ((0, _emberMetal.get)(this, 'bubbles') === false) {
+                event.stopPropagation();
+            }
+            if ((0, _emberMetal.get)(this, '_isDisabled')) {
+                return false;
+            }
+            if ((0, _emberMetal.get)(this, 'loading')) {
+                // tslint:disable-next-line:max-line-length
+                _emberConsole.default.warn('This link-to is in an inactive loading state because at least one of its parameters presently has a null/undefined value, or the provided route name is invalid.');
+                return false;
+            }
+            if (targetAttribute && targetAttribute !== '_self') {
+                return false;
+            }
+            var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
+            var models = (0, _emberMetal.get)(this, 'models');
+            var queryParams = (0, _emberMetal.get)(this, 'queryParams.values');
+            var shouldReplace = (0, _emberMetal.get)(this, 'replace');
+            var payload = {
+                queryParams: queryParams,
+                routeName: qualifiedRouteName
+            };
+            // tslint:disable-next-line:max-line-length
+            (0, _emberMetal.flaggedInstrument)('interaction.link-to', payload, this._generateTransition(payload, qualifiedRouteName, models, queryParams, shouldReplace));
+            return false;
+        },
+        _generateTransition: function (payload, qualifiedRouteName, models, queryParams, shouldReplace) {
+            var routing = (0, _emberMetal.get)(this, '_routing');
+            return function () {
+                payload.transition = routing.transitionTo(qualifiedRouteName, models, queryParams, shouldReplace);
+            };
+        },
 
-    /**
-      Sets the `target` attribute of the `LinkComponent`'s HTML element.
-       @since 1.8.0
-      @property target
-      @default null
-      @public
-    **/
-    target: null,
+        queryParams: null,
+        qualifiedRouteName: (0, _emberMetal.computed)('targetRouteName', '_routing.currentState', function computeLinkToComponentQualifiedRouteName() {
+            var params = (0, _emberMetal.get)(this, 'params');
+            var paramsLength = params.length;
+            var lastParam = params[paramsLength - 1];
+            if (lastParam && lastParam.isQueryParams) {
+                paramsLength--;
+            }
+            var onlyQueryParamsSupplied = this[_component.HAS_BLOCK] ? paramsLength === 0 : paramsLength === 1;
+            if (onlyQueryParamsSupplied) {
+                return (0, _emberMetal.get)(this, '_routing.currentRouteName');
+            }
+            return (0, _emberMetal.get)(this, 'targetRouteName');
+        }),
+        resolvedQueryParams: (0, _emberMetal.computed)('queryParams', function computeLinkToComponentResolvedQueryParams() {
+            var resolvedQueryParams = {};
+            var queryParams = (0, _emberMetal.get)(this, 'queryParams');
+            if (!queryParams) {
+                return resolvedQueryParams;
+            }
+            var values = queryParams.values;
+            for (var key in values) {
+                if (!values.hasOwnProperty(key)) {
+                    continue;
+                }
+                resolvedQueryParams[key] = values[key];
+            }
+            return resolvedQueryParams;
+        }),
+        /**
+          Sets the element's `href` attribute to the url for
+          the `LinkComponent`'s targeted route.
+             If the `LinkComponent`'s `tagName` is changed to a value other
+          than `a`, this property will be ignored.
+             @property href
+          @private
+        */
+        href: (0, _emberMetal.computed)('models', 'qualifiedRouteName', function computeLinkToComponentHref() {
+            if ((0, _emberMetal.get)(this, 'tagName') !== 'a') {
+                return;
+            }
+            var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
+            var models = (0, _emberMetal.get)(this, 'models');
+            if ((0, _emberMetal.get)(this, 'loading')) {
+                return (0, _emberMetal.get)(this, 'loadingHref');
+            }
+            var routing = (0, _emberMetal.get)(this, '_routing');
+            var queryParams = (0, _emberMetal.get)(this, 'queryParams.values');
+            if (true) {
+                /*
+                 * Unfortunately, to get decent error messages, we need to do this.
+                 * In some future state we should be able to use a "feature flag"
+                 * which allows us to strip this without needing to call it twice.
+                 *
+                 * if (isDebugBuild()) {
+                 *   // Do the useful debug thing, probably including try/catch.
+                 * } else {
+                 *   // Do the performant thing.
+                 * }
+                 */
+                try {
+                    routing.generateURL(qualifiedRouteName, models, queryParams);
+                } catch (e) {
+                    (true && !(false) && (0, _emberDebug.assert)('You attempted to define a `{{link-to "' + qualifiedRouteName + '"}}` but did not pass the parameters required for generating its dynamic segments. ' + e.message));
+                }
+            }
+            return routing.generateURL(qualifiedRouteName, models, queryParams);
+        }),
+        loading: (0, _emberMetal.computed)('_modelsAreLoaded', 'qualifiedRouteName', function computeLinkToComponentLoading() {
+            var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
+            var modelsAreLoaded = (0, _emberMetal.get)(this, '_modelsAreLoaded');
+            if (!modelsAreLoaded || qualifiedRouteName == null) {
+                return (0, _emberMetal.get)(this, 'loadingClass');
+            }
+        }),
+        _modelsAreLoaded: (0, _emberMetal.computed)('models', function computeLinkToComponentModelsAreLoaded() {
+            var models = (0, _emberMetal.get)(this, 'models');
+            for (var i = 0; i < models.length; i++) {
+                if (models[i] == null) {
+                    return false;
+                }
+            }
+            return true;
+        }),
+        _getModels: function (params) {
+            var modelCount = params.length - 1;
+            var models = new Array(modelCount);
+            for (var i = 0; i < modelCount; i++) {
+                var value = params[i + 1];
+                while (_emberRuntime.ControllerMixin.detect(value)) {
+                    (true && !(false) && (0, _emberDebug.deprecate)('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. ' + (this.parentView ? 'Please update `' + this.parentView + '` to use `{{link-to "post" someController.model}}` instead.' : ''), false, { id: 'ember-routing-views.controller-wrapped-param', until: '3.0.0' }));
 
-    /**
-      The CSS class to apply to `LinkComponent`'s element when its `active`
-      property is `true`.
-       @property activeClass
-      @type String
-      @default active
-      @public
-    **/
-    activeClass: 'active',
+                    value = value.get('model');
+                }
+                models[i] = value;
+            }
+            return models;
+        },
 
-    /**
-      The CSS class to apply to `LinkComponent`'s element when its `loading`
-      property is `true`.
-       @property loadingClass
-      @type String
-      @default loading
-      @private
-    **/
-    loadingClass: 'loading',
+        /**
+          The default href value to use while a link-to is loading.
+          Only applies when tagName is 'a'
+             @property loadingHref
+          @type String
+          @default #
+          @private
+        */
+        loadingHref: '#',
+        didReceiveAttrs: function () {
+            var queryParams = void 0;
+            var params = (0, _emberMetal.get)(this, 'params');
+            if (params) {
+                // Do not mutate params in place
+                params = params.slice();
+            }
+            (true && !(params && params.length) && (0, _emberDebug.assert)('You must provide one or more parameters to the link-to component.', params && params.length));
 
-    /**
-      The CSS class to apply to a `LinkComponent`'s element when its `disabled`
-      property is `true`.
-       @property disabledClass
-      @type String
-      @default disabled
-      @private
-    **/
-    disabledClass: 'disabled',
-    _isDisabled: false,
-
-    /**
-      Determines whether the `LinkComponent` will trigger routing via
-      the `replaceWith` routing strategy.
-       @property replace
-      @type Boolean
-      @default false
-      @public
-    **/
-    replace: false,
-
-    /**
-      By default the `{{link-to}}` component will bind to the `href` and
-      `title` attributes. It's discouraged that you override these defaults,
-      however you can push onto the array if needed.
-       @property attributeBindings
-      @type Array | String
-      @default ['title', 'rel', 'tabindex', 'target']
-      @public
-    */
-    attributeBindings: ['href', 'title', 'rel', 'tabindex', 'target'],
-
-    /**
-      By default the `{{link-to}}` component will bind to the `active`, `loading`,
-      and `disabled` classes. It is discouraged to override these directly.
-       @property classNameBindings
-      @type Array
-      @default ['active', 'loading', 'disabled', 'ember-transitioning-in', 'ember-transitioning-out']
-      @public
-    */
-    classNameBindings: ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'],
-
-    /**
-      By default the `{{link-to}}` component responds to the `click` event. You
-      can override this globally by setting this property to your custom
-      event name.
-       This is particularly useful on mobile when one wants to avoid the 300ms
-      click delay using some sort of custom `tap` event.
-       @property eventName
-      @type String
-      @default click
-      @private
-    */
-    eventName: 'click',
-
-    init: function () {
-      this._super.apply(this, arguments);
-
-      // Map desired event name to invoke function
-      var eventName = (0, _emberMetal.get)(this, 'eventName');
-      this.on(eventName, this, this._invoke);
-    },
-
-
-    _routing: _emberRuntime.inject.service('-routing'),
-
-    /**
-      Accessed as a classname binding to apply the `LinkComponent`'s `disabledClass`
-      CSS `class` to the element when the link is disabled.
-       When `true` interactions with the element will not trigger route changes.
-      @property disabled
-      @private
-    */
-    disabled: (0, _emberMetal.computed)({
-      get: function (key, value) {
-        return false;
-      },
-      set: function (key, value) {
-        if (value !== undefined) {
-          this.set('_isDisabled', value);
+            var disabledWhen = (0, _emberMetal.get)(this, 'disabledWhen');
+            if (disabledWhen !== undefined) {
+                this.set('disabled', disabledWhen);
+            }
+            // Process the positional arguments, in order.
+            // 1. Inline link title comes first, if present.
+            if (!this[_component.HAS_BLOCK]) {
+                this.set('linkTitle', params.shift());
+            }
+            // 2. `targetRouteName` is now always at index 0.
+            this.set('targetRouteName', params[0]);
+            // 3. The last argument (if still remaining) is the `queryParams` object.
+            var lastParam = params[params.length - 1];
+            if (lastParam && lastParam.isQueryParams) {
+                queryParams = params.pop();
+            } else {
+                queryParams = { values: {} };
+            }
+            this.set('queryParams', queryParams);
+            // 4. Any remaining indices (excepting `targetRouteName` at 0) are `models`.
+            if (params.length > 1) {
+                this.set('models', this._getModels(params));
+            } else {
+                this.set('models', []);
+            }
         }
-
-        return value ? (0, _emberMetal.get)(this, 'disabledClass') : false;
-      }
-    }),
-
-    _isActive: function (routerState) {
-      if ((0, _emberMetal.get)(this, 'loading')) {
-        return false;
-      }
-
-      var routing = (0, _emberMetal.get)(this, '_routing');
-      var models = (0, _emberMetal.get)(this, 'models');
-      var resolvedQueryParams = (0, _emberMetal.get)(this, 'resolvedQueryParams');
-      var currentWhen = (0, _emberMetal.get)(this, 'current-when');
-
-      if (typeof currentWhen === 'boolean') {
-        return currentWhen ? (0, _emberMetal.get)(this, 'activeClass') : false;
-      }
-
-      var isCurrentWhenSpecified = !!currentWhen;
-      currentWhen = currentWhen || (0, _emberMetal.get)(this, 'qualifiedRouteName');
-      currentWhen = currentWhen.split(' ');
-
-      for (var i = 0; i < currentWhen.length; i++) {
-        if (routing.isActiveForRoute(models, resolvedQueryParams, currentWhen[i], routerState, isCurrentWhenSpecified)) {
-          return true;
-        }
-      }
-
-      return false;
-    },
-
-
+    }); /**
+        @module ember
+        */
     /**
-      Accessed as a classname binding to apply the `LinkComponent`'s `activeClass`
-      CSS `class` to the element when the link is active.
-       A `LinkComponent` is considered active when its `currentWhen` property is `true`
-      or the application's current route is the route the `LinkComponent` would trigger
-      transitions into.
-       The `currentWhen` property can match against multiple routes by separating
-      route names using the ` ` (space) character.
-       @property active
-      @private
-    */
-    active: (0, _emberMetal.computed)('attrs.params', '_active', function computeLinkToComponentActiveClass() {
-      var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
-      if (!currentState) {
-        return false;
-      }
-
-      return this.get('_active') ? (0, _emberMetal.get)(this, 'activeClass') : false;
-    }),
-
-    _active: (0, _emberMetal.computed)('_routing.currentState', function computeLinkToComponentActive() {
-      var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
-      if (!currentState) {
-        return false;
-      }
-      return this._isActive(currentState);
-    }),
-
-    willBeActive: (0, _emberMetal.computed)('_routing.targetState', function computeLinkToComponentWillBeActive() {
-      var routing = (0, _emberMetal.get)(this, '_routing');
-      var targetState = (0, _emberMetal.get)(routing, 'targetState');
-      if ((0, _emberMetal.get)(routing, 'currentState') === targetState) {
-        return;
-      }
-
-      return this._isActive(targetState);
-    }),
-
-    transitioningIn: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningIn() {
-      if ((0, _emberMetal.get)(this, 'willBeActive') === true && !(0, _emberMetal.get)(this, '_active')) {
-        return 'ember-transitioning-in';
-      } else {
-        return false;
-      }
-    }),
-
-    transitioningOut: (0, _emberMetal.computed)('active', 'willBeActive', function computeLinkToComponentTransitioningOut() {
-      if ((0, _emberMetal.get)(this, 'willBeActive') === false && (0, _emberMetal.get)(this, '_active')) {
-        return 'ember-transitioning-out';
-      } else {
-        return false;
-      }
-    }),
-
-    _invoke: function (event) {
-      if (!(0, _emberViews.isSimpleClick)(event)) {
-        return true;
-      }
-
-      var preventDefault = (0, _emberMetal.get)(this, 'preventDefault');
-      var targetAttribute = (0, _emberMetal.get)(this, 'target');
-
-      if (preventDefault !== false) {
-        if (!targetAttribute || targetAttribute === '_self') {
-          event.preventDefault();
-        }
-      }
-
-      if ((0, _emberMetal.get)(this, 'bubbles') === false) {
-        event.stopPropagation();
-      }
-
-      if ((0, _emberMetal.get)(this, '_isDisabled')) {
-        return false;
-      }
-
-      if ((0, _emberMetal.get)(this, 'loading')) {
-        _emberConsole.default.warn('This link-to is in an inactive loading state because at least one of its parameters presently has a null/undefined value, or the provided route name is invalid.');
-        return false;
-      }
-
-      if (targetAttribute && targetAttribute !== '_self') {
-        return false;
-      }
-
-      var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
-      var models = (0, _emberMetal.get)(this, 'models');
-      var queryParams = (0, _emberMetal.get)(this, 'queryParams.values');
-      var shouldReplace = (0, _emberMetal.get)(this, 'replace');
-
-      var payload = {
-        queryParams: queryParams,
-        routeName: qualifiedRouteName
-      };
-
-      (0, _emberMetal.flaggedInstrument)('interaction.link-to', payload, this._generateTransition(payload, qualifiedRouteName, models, queryParams, shouldReplace));
-    },
-    _generateTransition: function (payload, qualifiedRouteName, models, queryParams, shouldReplace) {
-      var routing = (0, _emberMetal.get)(this, '_routing');
-      return function () {
-        payload.transition = routing.transitionTo(qualifiedRouteName, models, queryParams, shouldReplace);
-      };
-    },
-
-
-    queryParams: null,
-
-    qualifiedRouteName: (0, _emberMetal.computed)('targetRouteName', '_routing.currentState', function computeLinkToComponentQualifiedRouteName() {
-      var params = (0, _emberMetal.get)(this, 'params');
-      var paramsLength = params.length;
-      var lastParam = params[paramsLength - 1];
-      if (lastParam && lastParam.isQueryParams) {
-        paramsLength--;
-      }
-      var onlyQueryParamsSupplied = this[_component.HAS_BLOCK] ? paramsLength === 0 : paramsLength === 1;
-      if (onlyQueryParamsSupplied) {
-        return (0, _emberMetal.get)(this, '_routing.currentRouteName');
-      }
-      return (0, _emberMetal.get)(this, 'targetRouteName');
-    }),
-
-    resolvedQueryParams: (0, _emberMetal.computed)('queryParams', function computeLinkToComponentResolvedQueryParams() {
-      var resolvedQueryParams = {};
-      var queryParams = (0, _emberMetal.get)(this, 'queryParams');
-
-      if (!queryParams) {
-        return resolvedQueryParams;
-      }
-
-      var values = queryParams.values;
-      for (var key in values) {
-        if (!values.hasOwnProperty(key)) {
-          continue;
-        }
-        resolvedQueryParams[key] = values[key];
-      }
-
-      return resolvedQueryParams;
-    }),
-
-    /**
-      Sets the element's `href` attribute to the url for
-      the `LinkComponent`'s targeted route.
-       If the `LinkComponent`'s `tagName` is changed to a value other
-      than `a`, this property will be ignored.
-       @property href
-      @private
-    */
-    href: (0, _emberMetal.computed)('models', 'qualifiedRouteName', function computeLinkToComponentHref() {
-      if ((0, _emberMetal.get)(this, 'tagName') !== 'a') {
-        return;
-      }
-
-      var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
-      var models = (0, _emberMetal.get)(this, 'models');
-
-      if ((0, _emberMetal.get)(this, 'loading')) {
-        return (0, _emberMetal.get)(this, 'loadingHref');
-      }
-
-      var routing = (0, _emberMetal.get)(this, '_routing');
-      var queryParams = (0, _emberMetal.get)(this, 'queryParams.values');
-
-      if (true) {
-        /*
-         * Unfortunately, to get decent error messages, we need to do this.
-         * In some future state we should be able to use a "feature flag"
-         * which allows us to strip this without needing to call it twice.
-         *
-         * if (isDebugBuild()) {
-         *   // Do the useful debug thing, probably including try/catch.
-         * } else {
-         *   // Do the performant thing.
-         * }
-         */
-        try {
-          routing.generateURL(qualifiedRouteName, models, queryParams);
-        } catch (e) {
-          (true && !(false) && (0, _emberDebug.assert)('You attempted to define a `{{link-to "' + qualifiedRouteName + '"}}` but did not pass the parameters required for generating its dynamic segments. ' + e.message));
-        }
-      }
-
-      return routing.generateURL(qualifiedRouteName, models, queryParams);
-    }),
-
-    loading: (0, _emberMetal.computed)('_modelsAreLoaded', 'qualifiedRouteName', function computeLinkToComponentLoading() {
-      var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
-      var modelsAreLoaded = (0, _emberMetal.get)(this, '_modelsAreLoaded');
-
-      if (!modelsAreLoaded || qualifiedRouteName == null) {
-        return (0, _emberMetal.get)(this, 'loadingClass');
-      }
-    }),
-
-    _modelsAreLoaded: (0, _emberMetal.computed)('models', function computeLinkToComponentModelsAreLoaded() {
-      var models = (0, _emberMetal.get)(this, 'models');
-      for (var i = 0; i < models.length; i++) {
-        if (models[i] == null) {
-          return false;
-        }
-      }
-
-      return true;
-    }),
-
-    _getModels: function (params) {
-      var modelCount = params.length - 1;
-      var models = new Array(modelCount);
-
-      for (var i = 0; i < modelCount; i++) {
-        var value = params[i + 1];
-
-        while (_emberRuntime.ControllerMixin.detect(value)) {
-          (true && !(false) && (0, _emberDebug.deprecate)('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. ' + (this.parentView ? 'Please update `' + this.parentView + '` to use `{{link-to "post" someController.model}}` instead.' : ''), false, { id: 'ember-routing-views.controller-wrapped-param', until: '3.0.0' }));
-
-          value = value.get('model');
-        }
-
-        models[i] = value;
-      }
-
-      return models;
-    },
-
-
-    /**
-      The default href value to use while a link-to is loading.
-      Only applies when tagName is 'a'
-       @property loadingHref
-      @type String
-      @default #
-      @private
-    */
-    loadingHref: '#',
-
-    didReceiveAttrs: function () {
-      var queryParams = void 0;
-
-      var params = (0, _emberMetal.get)(this, 'params');
-
-      if (params) {
-        // Do not mutate params in place
-        params = params.slice();
-      }
-
-      (true && !(params && params.length) && (0, _emberDebug.assert)('You must provide one or more parameters to the link-to component.', params && params.length));
-
-
-      var disabledWhen = (0, _emberMetal.get)(this, 'disabledWhen');
-      if (disabledWhen !== undefined) {
-        this.set('disabled', disabledWhen);
-      }
-
-      // Process the positional arguments, in order.
-      // 1. Inline link title comes first, if present.
-      if (!this[_component.HAS_BLOCK]) {
-        this.set('linkTitle', params.shift());
-      }
-
-      // 2. `targetRouteName` is now always at index 0.
-      this.set('targetRouteName', params[0]);
-
-      // 3. The last argument (if still remaining) is the `queryParams` object.
-      var lastParam = params[params.length - 1];
-
-      if (lastParam && lastParam.isQueryParams) {
-        queryParams = params.pop();
-      } else {
-        queryParams = { values: {} };
-      }
-      this.set('queryParams', queryParams);
-
-      // 4. Any remaining indices (excepting `targetRouteName` at 0) are `models`.
-      if (params.length > 1) {
-        this.set('models', this._getModels(params));
-      } else {
-        this.set('models', []);
-      }
-    }
-  }); /**
-      @module ember
-      */
-
-  /**
-    The `{{link-to}}` component renders a link to the supplied
-    `routeName` passing an optionally supplied model to the
-    route as its `model` context of the route. The block
-    for `{{link-to}}` becomes the innerHTML of the rendered
-    element:
-  
-    ```handlebars
-    {{#link-to 'photoGallery'}}
-      Great Hamster Photos
-    {{/link-to}}
-    ```
-  
-    You can also use an inline form of `{{link-to}}` component by
-    passing the link text as the first argument
-    to the component:
-  
-    ```handlebars
-    {{link-to 'Great Hamster Photos' 'photoGallery'}}
-    ```
-  
-    Both will result in:
-  
-    ```html
-    <a href="/hamster-photos">
-      Great Hamster Photos
-    </a>
-    ```
-  
-    ### Supplying a tagName
-    By default `{{link-to}}` renders an `<a>` element. This can
-    be overridden for a single use of `{{link-to}}` by supplying
-    a `tagName` option:
-  
-    ```handlebars
-    {{#link-to 'photoGallery' tagName="li"}}
-      Great Hamster Photos
-    {{/link-to}}
-    ```
-  
-    ```html
-    <li>
-      Great Hamster Photos
-    </li>
-    ```
-  
-    To override this option for your entire application, see
-    "Overriding Application-wide Defaults".
-  
-    ### Disabling the `link-to` component
-    By default `{{link-to}}` is enabled.
-    any passed value to the `disabled` component property will disable
-    the `link-to` component.
-  
-    static use: the `disabled` option:
-  
-    ```handlebars
-    {{#link-to 'photoGallery' disabled=true}}
-      Great Hamster Photos
-    {{/link-to}}
-    ```
-  
-    dynamic use: the `disabledWhen` option:
-  
-    ```handlebars
-    {{#link-to 'photoGallery' disabledWhen=controller.someProperty}}
-      Great Hamster Photos
-    {{/link-to}}
-    ```
-  
-    any passed value to `disabled` will disable it except `undefined`.
-    to ensure that only `true` disable the `link-to` component you can
-    override the global behavior of `LinkComponent`.
-  
-    ```javascript
-    import LinkComponent from '@ember/routing/link-component';
-    import { computed } from '@ember/object';
-  
-    LinkComponent.reopen({
-      disabled: computed(function(key, value) {
-        if (value !== undefined) {
-          this.set('_isDisabled', value === true);
-        }
-        return value === true ? get(this, 'disabledClass') : false;
-      })
-    });
-    ```
-  
-    see "Overriding Application-wide Defaults" for more.
-  
-    ### Handling `href`
-    `{{link-to}}` will use your application's Router to
-    fill the element's `href` property with a url that
-    matches the path to the supplied `routeName` for your
-    router's configured `Location` scheme, which defaults
-    to HashLocation.
-  
-    ### Handling current route
-    `{{link-to}}` will apply a CSS class name of 'active'
-    when the application's current route matches
-    the supplied routeName. For example, if the application's
-    current route is 'photoGallery.recent' the following
-    use of `{{link-to}}`:
-  
-    ```handlebars
-    {{#link-to 'photoGallery.recent'}}
-      Great Hamster Photos
-    {{/link-to}}
-    ```
-  
-    will result in
-  
-    ```html
-    <a href="/hamster-photos/this-week" class="active">
-      Great Hamster Photos
-    </a>
-    ```
-  
-    The CSS class name used for active classes can be customized
-    for a single use of `{{link-to}}` by passing an `activeClass`
-    option:
-  
-    ```handlebars
-    {{#link-to 'photoGallery.recent' activeClass="current-url"}}
-      Great Hamster Photos
-    {{/link-to}}
-    ```
-  
-    ```html
-    <a href="/hamster-photos/this-week" class="current-url">
-      Great Hamster Photos
-    </a>
-    ```
-  
-    To override this option for your entire application, see
-    "Overriding Application-wide Defaults".
-  
-    ### Keeping a link active for other routes
-  
-    If you need a link to be 'active' even when it doesn't match
-    the current route, you can use the `current-when` argument.
-  
-    ```handlebars
-    {{#link-to 'photoGallery' current-when='photos'}}
-      Photo Gallery
-    {{/link-to}}
-    ```
-  
-    This may be helpful for keeping links active for:
-  
-    * non-nested routes that are logically related
-    * some secondary menu approaches
-    * 'top navigation' with 'sub navigation' scenarios
-  
-    A link will be active if `current-when` is `true` or the current
-    route is the route this link would transition to.
-  
-    To match multiple routes 'space-separate' the routes:
-  
-    ```handlebars
-    {{#link-to 'gallery' current-when='photos drawings paintings'}}
-      Art Gallery
-    {{/link-to}}
-    ```
-  
-    ### Supplying a model
-    An optional model argument can be used for routes whose
-    paths contain dynamic segments. This argument will become
-    the model context of the linked route:
-  
-    ```javascript
-    Router.map(function() {
-      this.route("photoGallery", {path: "hamster-photos/:photo_id"});
-    });
-    ```
-  
-    ```handlebars
-    {{#link-to 'photoGallery' aPhoto}}
-      {{aPhoto.title}}
-    {{/link-to}}
-    ```
-  
-    ```html
-    <a href="/hamster-photos/42">
-      Tomster
-    </a>
-    ```
-  
-    ### Supplying multiple models
-    For deep-linking to route paths that contain multiple
-    dynamic segments, multiple model arguments can be used.
-    As the router transitions through the route path, each
-    supplied model argument will become the context for the
-    route with the dynamic segments:
-  
-    ```javascript
-    Router.map(function() {
-      this.route("photoGallery", { path: "hamster-photos/:photo_id" }, function() {
-        this.route("comment", {path: "comments/:comment_id"});
+      The `{{link-to}}` component renders a link to the supplied
+      `routeName` passing an optionally supplied model to the
+      route as its `model` context of the route. The block
+      for `{{link-to}}` becomes the innerHTML of the rendered
+      element:
+    
+      ```handlebars
+      {{#link-to 'photoGallery'}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+    
+      You can also use an inline form of `{{link-to}}` component by
+      passing the link text as the first argument
+      to the component:
+    
+      ```handlebars
+      {{link-to 'Great Hamster Photos' 'photoGallery'}}
+      ```
+    
+      Both will result in:
+    
+      ```html
+      <a href="/hamster-photos">
+        Great Hamster Photos
+      </a>
+      ```
+    
+      ### Supplying a tagName
+      By default `{{link-to}}` renders an `<a>` element. This can
+      be overridden for a single use of `{{link-to}}` by supplying
+      a `tagName` option:
+    
+      ```handlebars
+      {{#link-to 'photoGallery' tagName="li"}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+    
+      ```html
+      <li>
+        Great Hamster Photos
+      </li>
+      ```
+    
+      To override this option for your entire application, see
+      "Overriding Application-wide Defaults".
+    
+      ### Disabling the `link-to` component
+      By default `{{link-to}}` is enabled.
+      any passed value to the `disabled` component property will disable
+      the `link-to` component.
+    
+      static use: the `disabled` option:
+    
+      ```handlebars
+      {{#link-to 'photoGallery' disabled=true}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+    
+      dynamic use: the `disabledWhen` option:
+    
+      ```handlebars
+      {{#link-to 'photoGallery' disabledWhen=controller.someProperty}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+    
+      any passed value to `disabled` will disable it except `undefined`.
+      to ensure that only `true` disable the `link-to` component you can
+      override the global behavior of `LinkComponent`.
+    
+      ```javascript
+      import LinkComponent from '@ember/routing/link-component';
+      import { computed } from '@ember/object';
+    
+      LinkComponent.reopen({
+        disabled: computed(function(key, value) {
+          if (value !== undefined) {
+            this.set('_isDisabled', value === true);
+          }
+          return value === true ? get(this, 'disabledClass') : false;
+        })
       });
-    });
-    ```
-    This argument will become the model context of the linked route:
-  
-    ```handlebars
-    {{#link-to 'photoGallery.comment' aPhoto comment}}
-      {{comment.body}}
-    {{/link-to}}
-    ```
-  
-    ```html
-    <a href="/hamster-photos/42/comments/718">
-      A+++ would snuggle again.
-    </a>
-    ```
-  
-    ### Supplying an explicit dynamic segment value
-    If you don't have a model object available to pass to `{{link-to}}`,
-    an optional string or integer argument can be passed for routes whose
-    paths contain dynamic segments. This argument will become the value
-    of the dynamic segment:
-  
-    ```javascript
-    Router.map(function() {
-      this.route("photoGallery", { path: "hamster-photos/:photo_id" });
-    });
-    ```
-  
-    ```handlebars
-    {{#link-to 'photoGallery' aPhotoId}}
-      {{aPhoto.title}}
-    {{/link-to}}
-    ```
-  
-    ```html
-    <a href="/hamster-photos/42">
-      Tomster
-    </a>
-    ```
-  
-    When transitioning into the linked route, the `model` hook will
-    be triggered with parameters including this passed identifier.
-  
-    ### Allowing Default Action
-  
-    By default the `{{link-to}}` component prevents the default browser action
-    by calling `preventDefault()` as this sort of action bubbling is normally
-    handled internally and we do not want to take the browser to a new URL (for
-    example).
-  
-    If you need to override this behavior specify `preventDefault=false` in
-    your template:
-  
-    ```handlebars
-    {{#link-to 'photoGallery' aPhotoId preventDefault=false}}
-      {{aPhotoId.title}}
-    {{/link-to}}
-    ```
-  
-    ### Overriding attributes
-    You can override any given property of the `LinkComponent`
-    that is generated by the `{{link-to}}` component by passing
-    key/value pairs, like so:
-  
-    ```handlebars
-    {{#link-to  aPhoto tagName='li' title='Following this link will change your life' classNames='pic sweet'}}
-      Uh-mazing!
-    {{/link-to}}
-    ```
-  
-    See [LinkComponent](/api/classes/Ember.LinkComponent.html) for a
-    complete list of overrideable properties. Be sure to also
-    check out inherited properties of `LinkComponent`.
-  
-    ### Overriding Application-wide Defaults
-    ``{{link-to}}`` creates an instance of `LinkComponent`
-    for rendering. To override options for your entire
-    application, reopen `LinkComponent` and supply the
-    desired values:
-  
-    ``` javascript
-    import LinkComponent from '@ember/routing/link-component';
-  
-    LinkComponent.reopen({
-      activeClass: "is-active",
-      tagName: 'li'
-    })
-    ```
-  
-    It is also possible to override the default event in
-    this manner:
-  
-    ``` javascript
-    import LinkCompoennt from '@ember/routing/link-component';
-  
-    LinkComponent.reopen({
-      eventName: 'customEventName'
-    });
-    ```
-    @method link-to
-    @for Ember.Templates.helpers
-    @param {String} routeName
-    @param {Object} [context]*
-    @param [options] {Object} Handlebars key/value pairs of options, you can override any property of Ember.LinkComponent
-    @return {String} HTML string
-    @see {LinkComponent}
-    @public
-  */
+      ```
+    
+      see "Overriding Application-wide Defaults" for more.
+    
+      ### Handling `href`
+      `{{link-to}}` will use your application's Router to
+      fill the element's `href` property with a url that
+      matches the path to the supplied `routeName` for your
+      router's configured `Location` scheme, which defaults
+      to HashLocation.
+    
+      ### Handling current route
+      `{{link-to}}` will apply a CSS class name of 'active'
+      when the application's current route matches
+      the supplied routeName. For example, if the application's
+      current route is 'photoGallery.recent' the following
+      use of `{{link-to}}`:
+    
+      ```handlebars
+      {{#link-to 'photoGallery.recent'}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+    
+      will result in
+    
+      ```html
+      <a href="/hamster-photos/this-week" class="active">
+        Great Hamster Photos
+      </a>
+      ```
+    
+      The CSS class name used for active classes can be customized
+      for a single use of `{{link-to}}` by passing an `activeClass`
+      option:
+    
+      ```handlebars
+      {{#link-to 'photoGallery.recent' activeClass="current-url"}}
+        Great Hamster Photos
+      {{/link-to}}
+      ```
+    
+      ```html
+      <a href="/hamster-photos/this-week" class="current-url">
+        Great Hamster Photos
+      </a>
+      ```
+    
+      To override this option for your entire application, see
+      "Overriding Application-wide Defaults".
+    
+      ### Keeping a link active for other routes
+    
+      If you need a link to be 'active' even when it doesn't match
+      the current route, you can use the `current-when` argument.
+    
+      ```handlebars
+      {{#link-to 'photoGallery' current-when='photos'}}
+        Photo Gallery
+      {{/link-to}}
+      ```
+    
+      This may be helpful for keeping links active for:
+    
+      * non-nested routes that are logically related
+      * some secondary menu approaches
+      * 'top navigation' with 'sub navigation' scenarios
+    
+      A link will be active if `current-when` is `true` or the current
+      route is the route this link would transition to.
+    
+      To match multiple routes 'space-separate' the routes:
+    
+      ```handlebars
+      {{#link-to 'gallery' current-when='photos drawings paintings'}}
+        Art Gallery
+      {{/link-to}}
+      ```
+    
+      ### Supplying a model
+      An optional model argument can be used for routes whose
+      paths contain dynamic segments. This argument will become
+      the model context of the linked route:
+    
+      ```javascript
+      Router.map(function() {
+        this.route("photoGallery", {path: "hamster-photos/:photo_id"});
+      });
+      ```
+    
+      ```handlebars
+      {{#link-to 'photoGallery' aPhoto}}
+        {{aPhoto.title}}
+      {{/link-to}}
+      ```
+    
+      ```html
+      <a href="/hamster-photos/42">
+        Tomster
+      </a>
+      ```
+    
+      ### Supplying multiple models
+      For deep-linking to route paths that contain multiple
+      dynamic segments, multiple model arguments can be used.
+      As the router transitions through the route path, each
+      supplied model argument will become the context for the
+      route with the dynamic segments:
+    
+      ```javascript
+      Router.map(function() {
+        this.route("photoGallery", { path: "hamster-photos/:photo_id" }, function() {
+          this.route("comment", {path: "comments/:comment_id"});
+        });
+      });
+      ```
+      This argument will become the model context of the linked route:
+    
+      ```handlebars
+      {{#link-to 'photoGallery.comment' aPhoto comment}}
+        {{comment.body}}
+      {{/link-to}}
+      ```
+    
+      ```html
+      <a href="/hamster-photos/42/comments/718">
+        A+++ would snuggle again.
+      </a>
+      ```
+    
+      ### Supplying an explicit dynamic segment value
+      If you don't have a model object available to pass to `{{link-to}}`,
+      an optional string or integer argument can be passed for routes whose
+      paths contain dynamic segments. This argument will become the value
+      of the dynamic segment:
+    
+      ```javascript
+      Router.map(function() {
+        this.route("photoGallery", { path: "hamster-photos/:photo_id" });
+      });
+      ```
+    
+      ```handlebars
+      {{#link-to 'photoGallery' aPhotoId}}
+        {{aPhoto.title}}
+      {{/link-to}}
+      ```
+    
+      ```html
+      <a href="/hamster-photos/42">
+        Tomster
+      </a>
+      ```
+    
+      When transitioning into the linked route, the `model` hook will
+      be triggered with parameters including this passed identifier.
+    
+      ### Allowing Default Action
+    
+      By default the `{{link-to}}` component prevents the default browser action
+      by calling `preventDefault()` as this sort of action bubbling is normally
+      handled internally and we do not want to take the browser to a new URL (for
+      example).
+    
+      If you need to override this behavior specify `preventDefault=false` in
+      your template:
+    
+      ```handlebars
+      {{#link-to 'photoGallery' aPhotoId preventDefault=false}}
+        {{aPhotoId.title}}
+      {{/link-to}}
+      ```
+    
+      ### Overriding attributes
+      You can override any given property of the `LinkComponent`
+      that is generated by the `{{link-to}}` component by passing
+      key/value pairs, like so:
+    
+      ```handlebars
+      {{#link-to  aPhoto tagName='li' title='Following this link will change your life' classNames='pic sweet'}}
+        Uh-mazing!
+      {{/link-to}}
+      ```
+    
+      See [LinkComponent](/api/classes/Ember.LinkComponent.html) for a
+      complete list of overrideable properties. Be sure to also
+      check out inherited properties of `LinkComponent`.
+    
+      ### Overriding Application-wide Defaults
+      ``{{link-to}}`` creates an instance of `LinkComponent`
+      for rendering. To override options for your entire
+      application, reopen `LinkComponent` and supply the
+      desired values:
+    
+      ``` javascript
+      import LinkComponent from '@ember/routing/link-component';
+    
+      LinkComponent.reopen({
+        activeClass: "is-active",
+        tagName: 'li'
+      })
+      ```
+    
+      It is also possible to override the default event in
+      this manner:
+    
+      ``` javascript
+      import LinkCompoennt from '@ember/routing/link-component';
+    
+      LinkComponent.reopen({
+        eventName: 'customEventName'
+      });
+      ```
+      @method link-to
+      @for Ember.Templates.helpers
+      @param {String} routeName
+      @param {Object} [context]*
+      @param [options] {Object} Handlebars key/value pairs of options, you can override any property of Ember.LinkComponent
+      @return {String} HTML string
+      @see {LinkComponent}
+      @public
+    */
 
-  LinkComponent.toString = function () {
-    return 'LinkComponent';
-  };
-
-  LinkComponent.reopenClass({
-    positionalParams: 'params'
-  });
-
-  exports.default = LinkComponent;
+    LinkComponent.toString = function () {
+        return 'LinkComponent';
+    };
+    LinkComponent.reopenClass({
+        positionalParams: 'params'
+    });
+    exports.default = LinkComponent;
 });
-enifed('ember-glimmer/components/text_area', ['exports', 'ember-glimmer/component', 'ember-views', 'ember-glimmer/templates/empty'], function (exports, _component, _emberViews, _empty) {
+enifed('ember-glimmer/components/text_area', ['exports', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/templates/empty'], function (exports, _emberViews, _component, _empty) {
   'use strict';
 
   exports.default = _component.default.extend(_emberViews.TextSupport, {
     classNames: ['ember-text-area'],
-
     layout: _empty.default,
-
     tagName: 'textarea',
     attributeBindings: ['rows', 'cols', 'name', 'selectionEnd', 'selectionStart', 'wrap', 'lang', 'dir', 'value'],
     rows: null,
     cols: null
   });
 });
-enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/templates/empty', 'ember-views'], function (exports, _emberMetal, _emberEnvironment, _component, _empty, _emberViews) {
-  'use strict';
+enifed('ember-glimmer/components/text_field', ['exports', 'ember-environment', 'ember-metal', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/templates/empty'], function (exports, _emberEnvironment, _emberMetal, _emberViews, _component, _empty) {
+    'use strict';
 
-  var inputTypes = Object.create(null); /**
-                                        @module @ember/component
-                                        */
+    var inputTypes = Object.create(null); /**
+                                          @module @ember/component
+                                          */
 
-  function canSetTypeOfInput(type) {
-    if (type in inputTypes) {
-      return inputTypes[type];
-    }
-
-    // if running in outside of a browser always return the
-    // original type
-    if (!_emberEnvironment.environment.hasDOM) {
-      inputTypes[type] = type;
-
-      return type;
-    }
-
-    var inputTypeTestElement = document.createElement('input');
-
-    try {
-      inputTypeTestElement.type = type;
-    } catch (e) {
-      // ignored
-    }
-
-    return inputTypes[type] = inputTypeTestElement.type === type;
-  }
-
-  /**
-  
-    The internal class used to create text inputs when the `{{input}}`
-    helper is used with `type` of `text`.
-  
-    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
-  
-    ## Layout and LayoutName properties
-  
-    Because HTML `input` elements are self closing `layout` and `layoutName`
-    properties will not be applied.
-  
-    @class TextField
-    @extends Component
-    @uses Ember.TextSupport
-    @public
-  */
-  exports.default = _component.default.extend(_emberViews.TextSupport, {
-    layout: _empty.default,
-    classNames: ['ember-text-field'],
-    tagName: 'input',
-    attributeBindings: ['accept', 'autocomplete', 'autosave', 'dir', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget', 'height', 'inputmode', 'lang', 'list', 'type', // needs to be before min and max. See #15675
-    'max', 'min', 'multiple', 'name', 'pattern', 'size', 'step', 'value', 'width'],
-
-    /**
-      The `value` attribute of the input element. As the user inputs text, this
-      property is updated live.
-       @property value
-      @type String
-      @default ""
-      @public
-    */
-    value: '',
-
-    /**
-      The `type` attribute of the input element.
-       @property type
-      @type String
-      @default "text"
-      @public
-    */
-    type: (0, _emberMetal.computed)({
-      get: function () {
-        return 'text';
-      },
-      set: function (key, value) {
-        var type = 'text';
-
-        if (canSetTypeOfInput(value)) {
-          type = value;
+    function canSetTypeOfInput(type) {
+        if (type in inputTypes) {
+            return inputTypes[type];
         }
-
-        return type;
-      }
-    }),
-
+        // if running in outside of a browser always return the
+        // original type
+        if (!_emberEnvironment.environment.hasDOM) {
+            inputTypes[type] = type;
+            return type;
+        }
+        var inputTypeTestElement = document.createElement('input');
+        try {
+            inputTypeTestElement.type = type;
+        } catch (e) {
+            // ignored
+        }
+        return inputTypes[type] = inputTypeTestElement.type === type;
+    }
     /**
-      The `size` of the text field in characters.
-       @property size
-      @type String
-      @default null
+    
+      The internal class used to create text inputs when the `{{input}}`
+      helper is used with `type` of `text`.
+    
+      See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
+    
+      ## Layout and LayoutName properties
+    
+      Because HTML `input` elements are self closing `layout` and `layoutName`
+      properties will not be applied.
+    
+      @class TextField
+      @extends Component
+      @uses Ember.TextSupport
       @public
     */
-    size: null,
-
-    /**
-      The `pattern` attribute of input element.
-       @property pattern
-      @type String
-      @default null
-      @public
-    */
-    pattern: null,
-
-    /**
-      The `min` attribute of input element used with `type="number"` or `type="range"`.
-       @property min
-      @type String
-      @default null
-      @since 1.4.0
-      @public
-    */
-    min: null,
-
-    /**
-      The `max` attribute of input element used with `type="number"` or `type="range"`.
-       @property max
-      @type String
-      @default null
-      @since 1.4.0
-      @public
-    */
-    max: null
-  });
+    exports.default = _component.default.extend(_emberViews.TextSupport, {
+        layout: _empty.default,
+        classNames: ['ember-text-field'],
+        tagName: 'input',
+        attributeBindings: ['accept', 'autocomplete', 'autosave', 'dir', 'formaction', 'formenctype', 'formmethod', 'formnovalidate', 'formtarget', 'height', 'inputmode', 'lang', 'list', 'type', 'max', 'min', 'multiple', 'name', 'pattern', 'size', 'step', 'value', 'width'],
+        /**
+          The `value` attribute of the input element. As the user inputs text, this
+          property is updated live.
+             @property value
+          @type String
+          @default ""
+          @public
+        */
+        value: '',
+        /**
+          The `type` attribute of the input element.
+             @property type
+          @type String
+          @default "text"
+          @public
+        */
+        type: (0, _emberMetal.computed)({
+            get: function () {
+                return 'text';
+            },
+            set: function (_key, value) {
+                var type = 'text';
+                if (canSetTypeOfInput(value)) {
+                    type = value;
+                }
+                return type;
+            }
+        }),
+        /**
+          The `size` of the text field in characters.
+             @property size
+          @type String
+          @default null
+          @public
+        */
+        size: null,
+        /**
+          The `pattern` attribute of input element.
+             @property pattern
+          @type String
+          @default null
+          @public
+        */
+        pattern: null,
+        /**
+          The `min` attribute of input element used with `type="number"` or `type="range"`.
+             @property min
+          @type String
+          @default null
+          @since 1.4.0
+          @public
+        */
+        min: null,
+        /**
+          The `max` attribute of input element used with `type="number"` or `type="range"`.
+             @property max
+          @type String
+          @default null
+          @since 1.4.0
+          @public
+        */
+        max: null
+    });
 });
 enifed('ember-glimmer/dom', ['exports', '@glimmer/runtime', '@glimmer/node'], function (exports, _runtime, _node) {
   'use strict';
@@ -17402,556 +17175,507 @@ enifed('ember-glimmer/dom', ['exports', '@glimmer/runtime', '@glimmer/node'], fu
     }
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-debug', 'ember/features', 'ember-views', '@glimmer/runtime', 'ember-glimmer/component-managers/curly', 'ember-glimmer/syntax', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/protocol-for-url', 'ember-glimmer/modifiers/action'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberDebug, _features, _emberViews, _runtime, _curly, _syntax, _iterable, _references, _debugStack, _ifUnless, _action, _component, _concat, _get, _hash, _loc, _log, _mut, _readonly, _unbound, _class, _inputType, _queryParam, _eachIn, _normalizeClass, _htmlSafe, _protocolForUrl, _action2) {
-  'use strict';
+enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-views', 'ember-glimmer/component-managers/curly', 'ember-glimmer/syntax', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/modifiers/action', 'ember-glimmer/protocol-for-url', 'ember/features'], function (exports, _emberBabel, _runtime, _emberDebug, _emberMetal, _emberUtils, _emberViews, _curly, _syntax, _debugStack, _iterable, _references, _class, _htmlSafe, _inputType, _normalizeClass, _action, _component, _concat, _eachIn, _get, _hash, _ifUnless, _loc, _log, _mut, _queryParam, _readonly, _unbound, _action2, _protocolForUrl, _features) {
+    'use strict';
 
-  function instrumentationPayload(name) {
-    return { object: 'component:' + name };
-  }
-
-  var Environment = function (_GlimmerEnvironment) {
-    (0, _emberBabel.inherits)(Environment, _GlimmerEnvironment);
-
-    Environment.create = function create(options) {
-      return new this(options);
-    };
-
-    function Environment(_ref) {
-      var owner = _ref[_emberUtils.OWNER];
-      (0, _emberBabel.classCallCheck)(this, Environment);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _GlimmerEnvironment.apply(this, arguments));
-
-      _this.owner = owner;
-      _this.isInteractive = owner.lookup('-environment:main').isInteractive;
-
-      // can be removed once https://github.com/tildeio/glimmer/pull/305 lands
-      _this.destroyedComponents = [];
-
-      (0, _protocolForUrl.default)(_this);
-
-      _this._definitionCache = new _emberMetal.Cache(2000, function (_ref2) {
-        var name = _ref2.name,
-            source = _ref2.source,
-            owner = _ref2.owner;
-
-        var _lookupComponent = (0, _emberViews.lookupComponent)(owner, name, { source: source }),
-            componentFactory = _lookupComponent.component,
-            layout = _lookupComponent.layout;
-
-        var customManager = undefined;
-
-        if (componentFactory || layout) {
-          if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
-            var managerId = layout && layout.meta.managerId;
-
-            if (managerId) {
-              customManager = owner.factoryFor('component-manager:' + managerId).class;
-            }
-          }
-          return new _curly.CurlyComponentDefinition(name, componentFactory, layout, undefined, customManager);
-        }
-      }, function (_ref3) {
-        var name = _ref3.name,
-            source = _ref3.source,
-            owner = _ref3.owner;
-
-        var expandedName = source && _this._resolveLocalLookupName(name, source, owner) || name;
-
-        var ownerGuid = (0, _emberUtils.guidFor)(owner);
-
-        return ownerGuid + '|' + expandedName;
-      });
-
-      _this._templateCache = new _emberMetal.Cache(1000, function (_ref4) {
-        var Template = _ref4.Template,
-            owner = _ref4.owner;
-
-        if (Template.create) {
-          var _Template$create;
-
-          // we received a factory
-          return Template.create((_Template$create = { env: _this }, _Template$create[_emberUtils.OWNER] = owner, _Template$create));
-        } else {
-          // we were provided an instance already
-          return Template;
-        }
-      }, function (_ref5) {
-        var Template = _ref5.Template,
-            owner = _ref5.owner;
-        return (0, _emberUtils.guidFor)(owner) + '|' + Template.id;
-      });
-
-      _this._compilerCache = new _emberMetal.Cache(10, function (Compiler) {
-        return new _emberMetal.Cache(2000, function (template) {
-          var compilable = new Compiler(template);
-          return (0, _runtime.compileLayout)(compilable, _this);
-        }, function (template) {
-          var owner = template.meta.owner;
-          return (0, _emberUtils.guidFor)(owner) + '|' + template.id;
-        });
-      }, function (Compiler) {
-        return Compiler.id;
-      });
-
-      _this.builtInModifiers = {
-        action: new _action2.default()
-      };
-
-      _this.builtInHelpers = {
-        if: _ifUnless.inlineIf,
-        action: _action.default,
-        concat: _concat.default,
-        get: _get.default,
-        hash: _hash.default,
-        loc: _loc.default,
-        log: _log.default,
-        mut: _mut.default,
-        'query-params': _queryParam.default,
-        readonly: _readonly.default,
-        unbound: _unbound.default,
-        unless: _ifUnless.inlineUnless,
-        '-class': _class.default,
-        '-each-in': _eachIn.default,
-        '-input-type': _inputType.default,
-        '-normalize-class': _normalizeClass.default,
-        '-html-safe': _htmlSafe.default,
-        '-get-dynamic-var': _runtime.getDynamicVar
-      };
-
-      if (true) {
-        _this.debugStack = new _debugStack.default();
-      }
-      return _this;
+    function instrumentationPayload(name) {
+        return { object: 'component:' + name };
+    }
+    function isTemplateFactory(template) {
+        return typeof template.create === 'function';
     }
 
-    Environment.prototype._resolveLocalLookupName = function _resolveLocalLookupName(name, source, owner) {
-      return _features.EMBER_MODULE_UNIFICATION ? source + ':' + name : owner._resolveLocalLookupName(name, source);
-    };
+    var Environment = function (_GlimmerEnvironment) {
+        (0, _emberBabel.inherits)(Environment, _GlimmerEnvironment);
 
-    Environment.prototype.macros = function macros() {
-      var macros = _GlimmerEnvironment.prototype.macros.call(this);
-      (0, _syntax.populateMacros)(macros.blocks, macros.inlines);
-      return macros;
-    };
-
-    Environment.prototype.hasComponentDefinition = function hasComponentDefinition() {
-      return false;
-    };
-
-    Environment.prototype.getComponentDefinition = function getComponentDefinition(name, _ref6) {
-      var owner = _ref6.owner,
-          moduleName = _ref6.moduleName;
-
-      var finalizer = (0, _emberMetal._instrumentStart)('render.getComponentDefinition', instrumentationPayload, name);
-      var source = moduleName && 'template:' + moduleName;
-      var definition = this._definitionCache.get({ name: name, source: source, owner: owner });
-      finalizer();
-      return definition;
-    };
-
-    Environment.prototype.getTemplate = function getTemplate(Template, owner) {
-      return this._templateCache.get({ Template: Template, owner: owner });
-    };
-
-    Environment.prototype.getCompiledBlock = function getCompiledBlock(Compiler, template) {
-      var compilerCache = this._compilerCache.get(Compiler);
-      return compilerCache.get(template);
-    };
-
-    Environment.prototype.hasPartial = function hasPartial(name, _ref7) {
-      var owner = _ref7.owner;
-
-      return (0, _emberViews.hasPartial)(name, owner);
-    };
-
-    Environment.prototype.lookupPartial = function lookupPartial(name, _ref8) {
-      var owner = _ref8.owner;
-
-      var partial = {
-        template: (0, _emberViews.lookupPartial)(name, owner)
-      };
-
-      if (partial.template) {
-        return partial;
-      } else {
-        throw new Error(name + ' is not a partial');
-      }
-    };
-
-    Environment.prototype.hasHelper = function hasHelper(name, _ref9) {
-      var owner = _ref9.owner,
-          moduleName = _ref9.moduleName;
-
-      if (name === 'component' || this.builtInHelpers[name]) {
-        return true;
-      }
-
-      var options = { source: 'template:' + moduleName };
-
-      return owner.hasRegistration('helper:' + name, options) || owner.hasRegistration('helper:' + name);
-    };
-
-    Environment.prototype.lookupHelper = function lookupHelper(name, meta) {
-      if (name === 'component') {
-        return function (vm, args) {
-          return (0, _component.default)(vm, args, meta);
+        Environment.create = function create(options) {
+            return new this(options);
         };
-      }
 
-      var owner = meta.owner,
-          moduleName = meta.moduleName;
+        function Environment(injections) {
+            (0, _emberBabel.classCallCheck)(this, Environment);
 
-      var helper = this.builtInHelpers[name];
+            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _GlimmerEnvironment.call(this, injections));
 
-      if (helper) {
-        return helper;
-      }
+            _this.owner = injections[_emberUtils.OWNER];
+            _this.isInteractive = _this.owner.lookup('-environment:main').isInteractive;
+            // can be removed once https://github.com/tildeio/glimmer/pull/305 lands
+            _this.destroyedComponents = [];
+            (0, _protocolForUrl.default)(_this);
+            _this._definitionCache = new _emberMetal.Cache(2000, function (_ref) {
+                var name = _ref.name,
+                    source = _ref.source,
+                    owner = _ref.owner;
 
-      var options = moduleName && { source: 'template:' + moduleName } || {};
-      var helperFactory = owner.factoryFor('helper:' + name, options) || owner.factoryFor('helper:' + name);
+                var _lookupComponent = (0, _emberViews.lookupComponent)(owner, name, { source: source }),
+                    componentFactory = _lookupComponent.component,
+                    layout = _lookupComponent.layout;
 
-      // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
-      if (helperFactory.class.isHelperInstance) {
-        return function (vm, args) {
-          return _references.SimpleHelperReference.create(helperFactory.class.compute, args.capture());
+                var customManager = void 0;
+                if (componentFactory || layout) {
+                    if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
+                        var managerId = layout && layout.meta.managerId;
+                        if (managerId) {
+                            customManager = owner.factoryFor('component-manager:' + managerId).class;
+                        }
+                    }
+                    return new _curly.CurlyComponentDefinition(name, componentFactory, layout, undefined, customManager);
+                }
+                return undefined;
+            }, function (_ref2) {
+                var name = _ref2.name,
+                    source = _ref2.source,
+                    owner = _ref2.owner;
+
+                var expandedName = source && _this._resolveLocalLookupName(name, source, owner) || name;
+                var ownerGuid = (0, _emberUtils.guidFor)(owner);
+                return ownerGuid + '|' + expandedName;
+            });
+            _this._templateCache = new _emberMetal.Cache(1000, function (_ref3) {
+                var Template = _ref3.Template,
+                    owner = _ref3.owner;
+
+                if (isTemplateFactory(Template)) {
+                    var _Template$create;
+
+                    // we received a factory
+                    return Template.create((_Template$create = { env: _this }, _Template$create[_emberUtils.OWNER] = owner, _Template$create));
+                } else {
+                    // we were provided an instance already
+                    return Template;
+                }
+            }, function (_ref4) {
+                var Template = _ref4.Template,
+                    owner = _ref4.owner;
+                return (0, _emberUtils.guidFor)(owner) + '|' + Template.id;
+            });
+            _this._compilerCache = new _emberMetal.Cache(10, function (Compiler) {
+                return new _emberMetal.Cache(2000, function (template) {
+                    var compilable = new Compiler(template);
+                    return (0, _runtime.compileLayout)(compilable, _this);
+                }, function (template) {
+                    var owner = template.meta.owner;
+                    return (0, _emberUtils.guidFor)(owner) + '|' + template.id;
+                });
+            }, function (Compiler) {
+                return Compiler.id;
+            });
+            _this.builtInModifiers = {
+                action: new _action2.default()
+            };
+            _this.builtInHelpers = {
+                'if': _ifUnless.inlineIf,
+                action: _action.default,
+                concat: _concat.default,
+                get: _get.default,
+                hash: _hash.default,
+                loc: _loc.default,
+                log: _log.default,
+                mut: _mut.default,
+                'query-params': _queryParam.default,
+                readonly: _readonly.default,
+                unbound: _unbound.default,
+                'unless': _ifUnless.inlineUnless,
+                '-class': _class.default,
+                '-each-in': _eachIn.default,
+                '-input-type': _inputType.default,
+                '-normalize-class': _normalizeClass.default,
+                '-html-safe': _htmlSafe.default,
+                '-get-dynamic-var': _runtime.getDynamicVar
+            };
+            if (true) {
+                _this.debugStack = new _debugStack.default();
+            }
+            return _this;
+        }
+        // this gets clobbered by installPlatformSpecificProtocolForURL
+        // it really should just delegate to a platform specific injection
+
+
+        Environment.prototype.protocolForURL = function protocolForURL(s) {
+            return s;
         };
-      } else if (helperFactory.class.isHelperFactory) {
-        return function (vm, args) {
-          return _references.ClassBasedHelperReference.create(helperFactory, vm, args.capture());
+
+        Environment.prototype._resolveLocalLookupName = function _resolveLocalLookupName(name, source, owner) {
+            return _features.EMBER_MODULE_UNIFICATION ? source + ':' + name : owner._resolveLocalLookupName(name, source);
         };
-      } else {
-        throw new Error(name + ' is not a helper');
-      }
-    };
 
-    Environment.prototype.hasModifier = function hasModifier(name) {
-      return !!this.builtInModifiers[name];
-    };
+        Environment.prototype.macros = function macros() {
+            var macros = _GlimmerEnvironment.prototype.macros.call(this);
+            (0, _syntax.populateMacros)(macros.blocks, macros.inlines);
+            return macros;
+        };
 
-    Environment.prototype.lookupModifier = function lookupModifier(name) {
-      var modifier = this.builtInModifiers[name];
+        Environment.prototype.hasComponentDefinition = function hasComponentDefinition() {
+            return false;
+        };
 
-      if (modifier) {
-        return modifier;
-      } else {
-        throw new Error(name + ' is not a modifier');
-      }
-    };
+        Environment.prototype.getComponentDefinition = function getComponentDefinition(name, _ref5) {
+            var owner = _ref5.owner,
+                moduleName = _ref5.moduleName;
 
-    Environment.prototype.toConditionalReference = function toConditionalReference(reference) {
-      return _references.ConditionalReference.create(reference);
-    };
+            var finalizer = (0, _emberMetal._instrumentStart)('render.getComponentDefinition', instrumentationPayload, name);
+            var source = moduleName && 'template:' + moduleName;
+            var definition = this._definitionCache.get({ name: name, source: source, owner: owner });
+            finalizer();
+            // TODO the glimmer-vm wants this to always have a def
+            // but internally we need it to sometimes be undefined
+            return definition;
+        };
 
-    Environment.prototype.iterableFor = function iterableFor(ref, key) {
-      return (0, _iterable.default)(ref, key);
-    };
+        Environment.prototype.getTemplate = function getTemplate(Template, owner) {
+            return this._templateCache.get({ Template: Template, owner: owner });
+        };
 
-    Environment.prototype.scheduleInstallModifier = function scheduleInstallModifier() {
-      if (this.isInteractive) {
-        var _GlimmerEnvironment$p;
+        Environment.prototype.getCompiledBlock = function getCompiledBlock(Compiler, template) {
+            var compilerCache = this._compilerCache.get(Compiler);
+            return compilerCache.get(template);
+        };
 
-        (_GlimmerEnvironment$p = _GlimmerEnvironment.prototype.scheduleInstallModifier).call.apply(_GlimmerEnvironment$p, [this].concat(Array.prototype.slice.call(arguments)));
-      }
-    };
+        Environment.prototype.hasPartial = function hasPartial(name, meta) {
+            return (0, _emberViews.hasPartial)(name, meta.owner);
+        };
 
-    Environment.prototype.scheduleUpdateModifier = function scheduleUpdateModifier() {
-      if (this.isInteractive) {
-        var _GlimmerEnvironment$p2;
+        Environment.prototype.lookupPartial = function lookupPartial(name, meta) {
+            var partial = {
+                name: name,
+                template: (0, _emberViews.lookupPartial)(name, meta.owner)
+            };
+            if (partial.template) {
+                return partial;
+            } else {
+                throw new Error(name + ' is not a partial');
+            }
+        };
 
-        (_GlimmerEnvironment$p2 = _GlimmerEnvironment.prototype.scheduleUpdateModifier).call.apply(_GlimmerEnvironment$p2, [this].concat(Array.prototype.slice.call(arguments)));
-      }
-    };
+        Environment.prototype.hasHelper = function hasHelper(name, _ref6) {
+            var owner = _ref6.owner,
+                moduleName = _ref6.moduleName;
 
-    Environment.prototype.didDestroy = function didDestroy(destroyable) {
-      destroyable.destroy();
-    };
+            if (name === 'component' || this.builtInHelpers[name]) {
+                return true;
+            }
+            var options = { source: 'template:' + moduleName };
+            return owner.hasRegistration('helper:' + name, options) || owner.hasRegistration('helper:' + name);
+        };
 
-    Environment.prototype.begin = function begin() {
-      this.inTransaction = true;
+        Environment.prototype.lookupHelper = function lookupHelper(name, meta) {
+            if (name === 'component') {
+                return function (vm, args) {
+                    return (0, _component.default)(vm, args, meta);
+                };
+            }
+            var owner = meta.owner,
+                moduleName = meta.moduleName;
 
-      _GlimmerEnvironment.prototype.begin.call(this);
-    };
+            var helper = this.builtInHelpers[name];
+            if (helper) {
+                return helper;
+            }
+            var options = moduleName && { source: 'template:' + moduleName } || {};
+            var helperFactory = owner.factoryFor('helper:' + name, options) || owner.factoryFor('helper:' + name);
+            // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
+            if (helperFactory.class.isHelperInstance) {
+                return function (_vm, args) {
+                    return _references.SimpleHelperReference.create(helperFactory.class.compute, args.capture());
+                };
+            } else if (helperFactory.class.isHelperFactory) {
+                return function (vm, args) {
+                    return _references.ClassBasedHelperReference.create(helperFactory, vm, args.capture());
+                };
+            } else {
+                throw new Error(name + ' is not a helper');
+            }
+        };
 
-    Environment.prototype.commit = function commit() {
-      var destroyedComponents = this.destroyedComponents;
-      this.destroyedComponents = [];
-      // components queued for destruction must be destroyed before firing
-      // `didCreate` to prevent errors when removing and adding a component
-      // with the same name (would throw an error when added to view registry)
-      for (var i = 0; i < destroyedComponents.length; i++) {
-        destroyedComponents[i].destroy();
-      }
+        Environment.prototype.hasModifier = function hasModifier(name) {
+            return !!this.builtInModifiers[name];
+        };
 
-      _GlimmerEnvironment.prototype.commit.call(this);
+        Environment.prototype.lookupModifier = function lookupModifier(name) {
+            var modifier = this.builtInModifiers[name];
+            if (modifier) {
+                return modifier;
+            } else {
+                throw new Error(name + ' is not a modifier');
+            }
+        };
 
-      this.inTransaction = false;
-    };
+        Environment.prototype.toConditionalReference = function toConditionalReference(reference) {
+            return _references.ConditionalReference.create(reference);
+        };
 
-    return Environment;
-  }(_runtime.Environment);
+        Environment.prototype.iterableFor = function iterableFor(ref, key) {
+            return (0, _iterable.default)(ref, key);
+        };
 
-  exports.default = Environment;
+        Environment.prototype.scheduleInstallModifier = function scheduleInstallModifier(modifier, manager) {
+            if (this.isInteractive) {
+                _GlimmerEnvironment.prototype.scheduleInstallModifier.call(this, modifier, manager);
+            }
+        };
 
+        Environment.prototype.scheduleUpdateModifier = function scheduleUpdateModifier(modifier, manager) {
+            if (this.isInteractive) {
+                _GlimmerEnvironment.prototype.scheduleUpdateModifier.call(this, modifier, manager);
+            }
+        };
 
-  if (true) {
-    var StyleAttributeManager = function (_AttributeManager) {
-      (0, _emberBabel.inherits)(StyleAttributeManager, _AttributeManager);
+        Environment.prototype.didDestroy = function didDestroy(destroyable) {
+            destroyable.destroy();
+        };
 
-      function StyleAttributeManager() {
-        (0, _emberBabel.classCallCheck)(this, StyleAttributeManager);
-        return (0, _emberBabel.possibleConstructorReturn)(this, _AttributeManager.apply(this, arguments));
-      }
+        Environment.prototype.begin = function begin() {
+            this.inTransaction = true;
+            _GlimmerEnvironment.prototype.begin.call(this);
+        };
 
-      StyleAttributeManager.prototype.setAttribute = function setAttribute(dom, element, value) {
-        var _AttributeManager$pro;
+        Environment.prototype.commit = function commit() {
+            var destroyedComponents = this.destroyedComponents;
+            this.destroyedComponents = [];
+            // components queued for destruction must be destroyed before firing
+            // `didCreate` to prevent errors when removing and adding a component
+            // with the same name (would throw an error when added to view registry)
+            for (var i = 0; i < destroyedComponents.length; i++) {
+                destroyedComponents[i].destroy();
+            }
+            _GlimmerEnvironment.prototype.commit.call(this);
+            this.inTransaction = false;
+        };
 
-        (true && (0, _emberDebug.warn)((0, _emberViews.constructStyleDeprecationMessage)(value), function () {
-          if (value === null || value === undefined || (0, _runtime.isSafeString)(value)) {
-            return true;
-          }
-          return false;
-        }(), { id: 'ember-htmlbars.style-xss-warning' }));
+        return Environment;
+    }(_runtime.Environment);
 
-        (_AttributeManager$pro = _AttributeManager.prototype.setAttribute).call.apply(_AttributeManager$pro, [this].concat(Array.prototype.slice.call(arguments)));
-      };
+    exports.default = Environment;
 
-      StyleAttributeManager.prototype.updateAttribute = function updateAttribute(dom, element, value) {
-        var _AttributeManager$pro2;
+    if (true) {
+        var StyleAttributeManager = function (_AttributeManager) {
+            (0, _emberBabel.inherits)(StyleAttributeManager, _AttributeManager);
 
-        (true && (0, _emberDebug.warn)((0, _emberViews.constructStyleDeprecationMessage)(value), function () {
-          if (value === null || value === undefined || (0, _runtime.isSafeString)(value)) {
-            return true;
-          }
-          return false;
-        }(), { id: 'ember-htmlbars.style-xss-warning' }));
+            function StyleAttributeManager() {
+                (0, _emberBabel.classCallCheck)(this, StyleAttributeManager);
+                return (0, _emberBabel.possibleConstructorReturn)(this, _AttributeManager.apply(this, arguments));
+            }
 
-        (_AttributeManager$pro2 = _AttributeManager.prototype.updateAttribute).call.apply(_AttributeManager$pro2, [this].concat(Array.prototype.slice.call(arguments)));
-      };
+            StyleAttributeManager.prototype.setAttribute = function setAttribute(dom, element, value) {
+                (true && (0, _emberDebug.warn)((0, _emberViews.constructStyleDeprecationMessage)(value), function () {
+                    if (value === null || value === undefined || (0, _runtime.isSafeString)(value)) {
+                        return true;
+                    }
+                    return false;
+                }(), { id: 'ember-htmlbars.style-xss-warning' }));
 
-      return StyleAttributeManager;
-    }(_runtime.AttributeManager);
+                _AttributeManager.prototype.setAttribute.call(this, dom, element, value);
+            };
 
-    var STYLE_ATTRIBUTE_MANANGER = new StyleAttributeManager('style');
+            StyleAttributeManager.prototype.updateAttribute = function updateAttribute(dom, element, value) {
+                (true && (0, _emberDebug.warn)((0, _emberViews.constructStyleDeprecationMessage)(value), function () {
+                    if (value === null || value === undefined || (0, _runtime.isSafeString)(value)) {
+                        return true;
+                    }
+                    return false;
+                }(), { id: 'ember-htmlbars.style-xss-warning' }));
 
-    Environment.prototype.attributeFor = function (element, attribute, isTrusting, namespace) {
-      if (attribute === 'style' && !isTrusting) {
-        return STYLE_ATTRIBUTE_MANANGER;
-      }
+                _AttributeManager.prototype.updateAttribute.call(this, dom, element, value);
+            };
 
-      return _runtime.Environment.prototype.attributeFor.call(this, element, attribute, isTrusting);
-    };
-  }
+            return StyleAttributeManager;
+        }(_runtime.AttributeManager);
+
+        var STYLE_ATTRIBUTE_MANANGER = new StyleAttributeManager('style');
+        Environment.prototype.attributeFor = function (element, attribute, isTrusting) {
+            if (attribute === 'style' && !isTrusting) {
+                return STYLE_ATTRIBUTE_MANANGER;
+            }
+            return _runtime.Environment.prototype.attributeFor.call(this, element, attribute, isTrusting);
+        };
+    }
 });
-enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@glimmer/reference'], function (exports, _emberUtils, _emberRuntime, _reference) {
-  'use strict';
+enifed('ember-glimmer/helper', ['exports', '@glimmer/reference', 'ember-runtime', 'ember-utils'], function (exports, _reference, _emberRuntime, _emberUtils) {
+    'use strict';
 
-  exports.RECOMPUTE_TAG = undefined;
-  exports.helper = helper;
-  var RECOMPUTE_TAG = exports.RECOMPUTE_TAG = (0, _emberUtils.symbol)('RECOMPUTE_TAG');
-
-  /**
-    Ember Helpers are functions that can compute values, and are used in templates.
-    For example, this code calls a helper named `format-currency`:
-  
-    ```handlebars
-    <div>{{format-currency cents currency="$"}}</div>
-    ```
-  
-    Additionally a helper can be called as a nested helper (sometimes called a
-    subexpression). In this example, the computed value of a helper is passed
-    to a component named `show-money`:
-  
-    ```handlebars
-    {{show-money amount=(format-currency cents currency="$")}}
-    ```
-  
-    Helpers defined using a class must provide a `compute` function. For example:
-  
-    ```app/helpers/format-currency.js
-    import Helper from '@ember/component/helper';
-  
-    export default Helper.extend({
-      compute(params, hash) {
+    exports.RECOMPUTE_TAG = undefined;
+    exports.helper = helper;
+    var RECOMPUTE_TAG = exports.RECOMPUTE_TAG = (0, _emberUtils.symbol)('RECOMPUTE_TAG');
+    /**
+      Ember Helpers are functions that can compute values, and are used in templates.
+      For example, this code calls a helper named `format-currency`:
+    
+      ```handlebars
+      <div>{{format-currency cents currency="$"}}</div>
+      ```
+    
+      Additionally a helper can be called as a nested helper (sometimes called a
+      subexpression). In this example, the computed value of a helper is passed
+      to a component named `show-money`:
+    
+      ```handlebars
+      {{show-money amount=(format-currency cents currency="$")}}
+      ```
+    
+      Helpers defined using a class must provide a `compute` function. For example:
+    
+      ```app/helpers/format-currency.js
+      import Helper from '@ember/component/helper';
+    
+      export default Helper.extend({
+        compute(params, hash) {
+          let cents = params[0];
+          let currency = hash.currency;
+          return `${currency}${cents * 0.01}`;
+        }
+      });
+      ```
+    
+      Each time the input to a helper changes, the `compute` function will be
+      called again.
+    
+      As instances, these helpers also have access to the container an will accept
+      injected dependencies.
+    
+      Additionally, class helpers can call `recompute` to force a new computation.
+    
+      @class Helper
+      @public
+      @since 1.13.0
+    */
+    /**
+    @module @ember/component
+    */
+    var Helper = _emberRuntime.FrameworkObject.extend({
+        isHelperInstance: true,
+        init: function () {
+            this._super.apply(this, arguments);
+            this[RECOMPUTE_TAG] = new _reference.DirtyableTag();
+        },
+        recompute: function () {
+            this[RECOMPUTE_TAG].dirty();
+        }
+    });
+    Helper.reopenClass({
+        isHelperFactory: true
+    });
+    /**
+      In many cases, the ceremony of a full `Helper` class is not required.
+      The `helper` method create pure-function helpers without instances. For
+      example:
+    
+      ```app/helpers/format-currency.js
+      import { helper } from '@ember/component/helper';
+    
+      export default helper(function(params, hash) {
         let cents = params[0];
         let currency = hash.currency;
         return `${currency}${cents * 0.01}`;
-      }
-    });
-    ```
-  
-    Each time the input to a helper changes, the `compute` function will be
-    called again.
-  
-    As instances, these helpers also have access to the container an will accept
-    injected dependencies.
-  
-    Additionally, class helpers can call `recompute` to force a new computation.
-  
-    @class Helper
-    @public
-    @since 1.13.0
-  */
-  /**
-  @module @ember/component
-  */
-
-  var Helper = _emberRuntime.FrameworkObject.extend({
-    isHelperInstance: true,
-
-    init: function () {
-      this._super.apply(this, arguments);
-      this[RECOMPUTE_TAG] = new _reference.DirtyableTag();
-    },
-    recompute: function () {
-      this[RECOMPUTE_TAG].dirty();
+      });
+      ```
+    
+      @static
+      @param {Function} helper The helper function
+      @method helper
+      @for @ember/component/helper
+      @public
+      @since 1.13.0
+    */
+    function helper(helperFn) {
+        return {
+            isHelperInstance: true,
+            compute: helperFn
+        };
     }
-  }
-
-  /**
-    Override this function when writing a class-based helper.
-     @method compute
-    @param {Array} params The positional arguments to the helper
-    @param {Object} hash The named arguments to the helper
-    @public
-    @since 1.13.0
-  */
-  );
-
-  Helper.reopenClass({
-    isHelperFactory: true
-  });
-
-  /**
-    In many cases, the ceremony of a full `Helper` class is not required.
-    The `helper` method create pure-function helpers without instances. For
-    example:
-  
-    ```app/helpers/format-currency.js
-    import { helper } from '@ember/component/helper';
-  
-    export default helper(function(params, hash) {
-      let cents = params[0];
-      let currency = hash.currency;
-      return `${currency}${cents * 0.01}`;
-    });
-    ```
-  
-    @static
-    @param {Function} helper The helper function
-    @method helper
-    @for @ember/component/helper
-    @public
-    @since 1.13.0
-  */
-  function helper(helperFn) {
-    return {
-      isHelperInstance: true,
-      compute: helperFn
-    };
-  }
-
-  exports.default = Helper;
+    exports.default = Helper;
 });
-enifed('ember-glimmer/helpers/-class', ['exports', 'ember-glimmer/utils/references', 'ember-runtime'], function (exports, _references, _emberRuntime) {
-  'use strict';
+enifed('ember-glimmer/helpers/-class', ['exports', 'ember-runtime', 'ember-glimmer/utils/references'], function (exports, _emberRuntime, _references) {
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return new _references.InternalHelperReference(classHelper, args.capture());
-  };
+    exports.default = function (_vm, args) {
+        return new _references.InternalHelperReference(classHelper, args.capture());
+    };
 
-  function classHelper(_ref) {
-    var positional = _ref.positional;
+    function classHelper(_ref) {
+        var positional = _ref.positional;
 
-    var path = positional.at(0);
-    var args = positional.length;
-    var value = path.value();
-
-    if (value === true) {
-      if (args > 1) {
-        return _emberRuntime.String.dasherize(positional.at(1).value());
-      }
-      return null;
+        var path = positional.at(0);
+        var args = positional.length;
+        var value = path.value();
+        if (value === true) {
+            if (args > 1) {
+                return _emberRuntime.String.dasherize(positional.at(1).value());
+            }
+            return null;
+        }
+        if (value === false) {
+            if (args > 2) {
+                return _emberRuntime.String.dasherize(positional.at(2).value());
+            }
+            return null;
+        }
+        return value;
     }
-
-    if (value === false) {
-      if (args > 2) {
-        return _emberRuntime.String.dasherize(positional.at(2).value());
-      }
-      return null;
-    }
-
-    return value;
-  }
 });
 enifed('ember-glimmer/helpers/-html-safe', ['exports', 'ember-glimmer/utils/references', 'ember-glimmer/utils/string'], function (exports, _references, _string) {
-  'use strict';
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return new _references.InternalHelperReference(htmlSafe, args.capture());
-  };
+    exports.default = function (_vm, args) {
+        return new _references.InternalHelperReference(htmlSafe, args.capture());
+    };
 
-  function htmlSafe(_ref) {
-    var positional = _ref.positional;
+    function htmlSafe(_ref) {
+        var positional = _ref.positional;
 
-    var path = positional.at(0);
-    return new _string.SafeString(path.value());
-  }
+        var path = positional.at(0);
+        return new _string.SafeString(path.value());
+    }
 });
 enifed('ember-glimmer/helpers/-input-type', ['exports', 'ember-glimmer/utils/references'], function (exports, _references) {
-  'use strict';
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return new _references.InternalHelperReference(inputTypeHelper, args.capture());
-  };
+    exports.default = function (_vm, args) {
+        return new _references.InternalHelperReference(inputTypeHelper, args.capture());
+    };
 
-  function inputTypeHelper(_ref) {
-    var positional = _ref.positional,
-        named = _ref.named;
+    function inputTypeHelper(_ref) {
+        var positional = _ref.positional;
 
-    var type = positional.at(0).value();
-    if (type === 'checkbox') {
-      return '-checkbox';
+        var type = positional.at(0).value();
+        if (type === 'checkbox') {
+            return '-checkbox';
+        }
+        return '-text-field';
     }
-    return '-text-field';
-  }
 });
-enifed('ember-glimmer/helpers/-normalize-class', ['exports', 'ember-glimmer/utils/references', 'ember-runtime'], function (exports, _references, _emberRuntime) {
-  'use strict';
+enifed('ember-glimmer/helpers/-normalize-class', ['exports', 'ember-runtime', 'ember-glimmer/utils/references'], function (exports, _emberRuntime, _references) {
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return new _references.InternalHelperReference(normalizeClass, args.capture());
-  };
+    exports.default = function (_vm, args) {
+        return new _references.InternalHelperReference(normalizeClass, args.capture());
+    };
 
-  function normalizeClass(_ref) {
-    var positional = _ref.positional,
-        named = _ref.named;
+    function normalizeClass(_ref) {
+        var positional = _ref.positional;
 
-    var classNameParts = positional.at(0).value().split('.');
-    var className = classNameParts[classNameParts.length - 1];
-    var value = positional.at(1).value();
-
-    if (value === true) {
-      return _emberRuntime.String.dasherize(className);
-    } else if (!value && value !== 0) {
-      return '';
-    } else {
-      return String(value);
+        var classNameParts = positional.at(0).value().split('.');
+        var className = classNameParts[classNameParts.length - 1];
+        var value = positional.at(1).value();
+        if (value === true) {
+            return _emberRuntime.String.dasherize(className);
+        } else if (!value && value !== 0) {
+            return '';
+        } else {
+            return String(value);
+        }
     }
-  }
 });
-enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _references, _reference, _emberDebug) {
+enifed('ember-glimmer/helpers/action', ['exports', '@glimmer/reference', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-glimmer/utils/references'], function (exports, _reference, _emberDebug, _emberMetal, _emberUtils, _references) {
   'use strict';
 
   exports.ACTION = exports.INVOKE = undefined;
 
-  exports.default = function (vm, args) {
+  exports.default = function (_vm, args) {
     var named = args.named,
         positional = args.positional;
 
-
     var capturedArgs = positional.capture();
-
     // The first two argument slots are reserved.
     // pos[0] is the context (or `this`)
     // pos[1] is the action name or function
@@ -17961,17 +17685,13 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
         context = _capturedArgs$referen[0],
         action = _capturedArgs$referen[1],
         restArgs = _capturedArgs$referen.slice(2);
-
     // TODO: Is there a better way of doing this?
 
 
     var debugKey = action._propertyKey;
-
     var target = named.has('target') ? named.get('target') : context;
     var processArgs = makeArgsProcessor(named.has('value') && named.get('value'), restArgs);
-
     var fn = void 0;
-
     if (typeof action[INVOKE] === 'function') {
       fn = makeClosureAction(action, action, action[INVOKE], processArgs, debugKey);
     } else if ((0, _reference.isConst)(target) && (0, _reference.isConst)(action)) {
@@ -17979,9 +17699,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     } else {
       fn = makeDynamicClosureAction(context.value(), target, action, processArgs, debugKey);
     }
-
     fn[ACTION] = true;
-
     return new _references.UnboundReference(fn);
   };
 
@@ -17989,7 +17707,6 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
                                                                    @module ember
                                                                    */
   var ACTION = exports.ACTION = (0, _emberUtils.symbol)('ACTION');
-
   /**
     The `{{action}}` helper provides a way to pass triggers for behavior (usually
     just a function) between components, and into components from controllers.
@@ -18245,14 +17962,11 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     @public
   */
 
-
   function NOOP(args) {
     return args;
   }
-
   function makeArgsProcessor(valuePathRef, actionArgsRef) {
-    var mergeArgs = null;
-
+    var mergeArgs = void 0;
     if (actionArgsRef.length > 0) {
       mergeArgs = function (args) {
         return actionArgsRef.map(function (ref) {
@@ -18260,21 +17974,16 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
         }).concat(args);
       };
     }
-
-    var readValue = null;
-
+    var readValue = void 0;
     if (valuePathRef) {
       readValue = function (args) {
         var valuePath = valuePathRef.value();
-
         if (valuePath && args.length > 0) {
           args[0] = (0, _emberMetal.get)(args[0], valuePath);
         }
-
         return args;
       };
     }
-
     if (mergeArgs && readValue) {
       return function (args) {
         return readValue(mergeArgs(args));
@@ -18283,35 +17992,28 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
       return mergeArgs || readValue || NOOP;
     }
   }
-
   function makeDynamicClosureAction(context, targetRef, actionRef, processArgs, debugKey) {
     // We don't allow undefined/null values, so this creates a throw-away action to trigger the assertions
     if (true) {
       makeClosureAction(context, targetRef.value(), actionRef.value(), processArgs, debugKey);
     }
-
     return function () {
       return makeClosureAction(context, targetRef.value(), actionRef.value(), processArgs, debugKey).apply(undefined, arguments);
     };
   }
-
   function makeClosureAction(context, target, action, processArgs, debugKey) {
-    var self = void 0,
-        fn = void 0;
-
+    var self = void 0;
+    var fn = void 0;
     (true && !(!(0, _emberMetal.isNone)(action)) && (0, _emberDebug.assert)('Action passed is null or undefined in (action) from ' + target + '.', !(0, _emberMetal.isNone)(action)));
-
 
     if (typeof action[INVOKE] === 'function') {
       self = action;
       fn = action[INVOKE];
     } else {
       var typeofAction = typeof action;
-
       if (typeofAction === 'string') {
         self = target;
         fn = target.actions && target.actions[action];
-
         (true && !(fn) && (0, _emberDebug.assert)('An action named \'' + action + '\' was not found in ' + target, fn));
       } else if (typeofAction === 'function') {
         self = context;
@@ -18320,7 +18022,6 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
         (true && !(false) && (0, _emberDebug.assert)('An action could not be made for `' + (debugKey || action) + '` in ' + target + '. Please confirm that you are using either a quoted action name (i.e. `(action \'' + (debugKey || 'myAction') + '\')`) or a function available in ' + target + '.', false));
       }
     }
-
     return function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -18333,7 +18034,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     };
   }
 });
-enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/curly', '@glimmer/runtime', 'ember-debug'], function (exports, _emberBabel, _emberUtils, _references, _curly, _runtime, _emberDebug) {
+enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-utils', 'ember-glimmer/component-managers/curly', 'ember-glimmer/utils/references'], function (exports, _emberBabel, _runtime, _emberDebug, _emberUtils, _curly, _references) {
   'use strict';
 
   exports.ClosureComponentReference = undefined;
@@ -18377,20 +18078,21 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
           lastName = this.lastName;
 
       var nameOrDef = defRef.value();
-      var definition = null;
-
+      var definition = void 0;
       if (nameOrDef && nameOrDef === lastName) {
         return lastDefinition;
       }
-
       this.lastName = nameOrDef;
-
       if (typeof nameOrDef === 'string') {
+        // tslint:disable-next-line:max-line-length
         (true && !(nameOrDef !== 'input') && (0, _emberDebug.assert)('You cannot use the input helper as a contextual helper. Please extend TextField or Checkbox to use it as a contextual component.', nameOrDef !== 'input'));
+        // tslint:disable-next-line:max-line-length
+
         (true && !(nameOrDef !== 'textarea') && (0, _emberDebug.assert)('You cannot use the textarea helper as a contextual helper. Please extend TextArea to use it as a contextual component.', nameOrDef !== 'textarea'));
 
         definition = env.getComponentDefinition(nameOrDef, meta);
-        (true && !(definition) && (0, _emberDebug.assert)('The component helper cannot be used without a valid component name. You used "' + nameOrDef + '" via (component "' + nameOrDef + '")', definition));
+        // tslint:disable-next-line:max-line-length
+        (true && !(!!definition) && (0, _emberDebug.assert)('The component helper cannot be used without a valid component name. You used "' + nameOrDef + '" via (component "' + nameOrDef + '")', !!definition));
       } else if ((0, _runtime.isComponentDefinition)(nameOrDef)) {
         definition = nameOrDef;
       } else {
@@ -18398,11 +18100,8 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
 
         return null;
       }
-
       var newDef = createCurriedDefinition(definition, args);
-
       this.lastDefinition = newDef;
-
       return newDef;
     };
 
@@ -18411,21 +18110,17 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
 
   function createCurriedDefinition(definition, args) {
     var curriedArgs = curryArgs(definition, args);
-
     return new _curly.CurlyComponentDefinition(definition.name, definition.ComponentClass, definition.template, curriedArgs);
   }
-
   function curryArgs(definition, newArgs) {
     var args = definition.args,
         ComponentClass = definition.ComponentClass;
 
     var positionalParams = ComponentClass.class.positionalParams;
-
     // The args being passed in are from the (component ...) invocation,
     // so the first positional argument is actually the name or component
     // definition. It needs to be dropped in order for any actual positional
     // args to coincide with the ComponentClass's positionParams.
-
     // For "normal" curly components this slicing is done at the syntax layer,
     // but we don't have that luxury here.
 
@@ -18435,80 +18130,70 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
     if (positionalParams && slicedPositionalArgs.length) {
       (0, _curly.validatePositionalParameters)(newArgs.named, slicedPositionalArgs, positionalParams);
     }
-
     var isRest = typeof positionalParams === 'string';
-
     // For non-rest position params, we need to perform the position -> name mapping
     // at each layer to avoid a collision later when the args are used to construct
     // the component instance (inside of processArgs(), inside of create()).
     var positionalToNamedParams = {};
-
     if (!isRest && positionalParams.length > 0) {
       var limit = Math.min(positionalParams.length, slicedPositionalArgs.length);
-
       for (var i = 0; i < limit; i++) {
         var name = positionalParams[i];
         positionalToNamedParams[name] = slicedPositionalArgs[i];
       }
-
       slicedPositionalArgs.length = 0; // Throw them away since you're merged in.
     }
-
     // args (aka 'oldArgs') may be undefined or simply be empty args, so
     // we need to fall back to an empty array or object.
     var oldNamed = args && args.named || {};
     var oldPositional = args && args.positional || [];
-
     // Merge positional arrays
     var positional = new Array(Math.max(oldPositional.length, slicedPositionalArgs.length));
     positional.splice.apply(positional, [0, oldPositional.length].concat(oldPositional));
     positional.splice.apply(positional, [0, slicedPositionalArgs.length].concat(slicedPositionalArgs));
-
     // Merge named maps
     var named = (0, _emberUtils.assign)({}, oldNamed, positionalToNamedParams, newArgs.named.map);
-
     return { positional: positional, named: named };
   }
 });
-enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/utils/references', '@glimmer/runtime'], function (exports, _references, _runtime) {
-  'use strict';
+enifed('ember-glimmer/helpers/concat', ['exports', '@glimmer/runtime', 'ember-glimmer/utils/references'], function (exports, _runtime, _references) {
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return new _references.InternalHelperReference(concat, args.capture());
-  };
+    exports.default = function (_vm, args) {
+        return new _references.InternalHelperReference(concat, args.capture());
+    };
 
-  /**
-  @module ember
-  */
+    /**
+    @module ember
+    */
+    /**
+      Concatenates the given arguments into a string.
+    
+      Example:
+    
+      ```handlebars
+      {{some-component name=(concat firstName " " lastName)}}
+    
+      {{! would pass name="<first name value> <last name value>" to the component}}
+      ```
+    
+      @public
+      @method concat
+      @for Ember.Templates.helpers
+      @since 1.13.0
+    */
+    function concat(_ref) {
+        var positional = _ref.positional;
 
-  /**
-    Concatenates the given arguments into a string.
-  
-    Example:
-  
-    ```handlebars
-    {{some-component name=(concat firstName " " lastName)}}
-  
-    {{! would pass name="<first name value> <last name value>" to the component}}
-    ```
-  
-    @public
-    @method concat
-    @for Ember.Templates.helpers
-    @since 1.13.0
-  */
-  function concat(_ref) {
-    var positional = _ref.positional;
-
-    return positional.value().map(_runtime.normalizeTextValue).join('');
-  }
+        return positional.value().map(_runtime.normalizeTextValue).join('');
+    }
 });
 enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (exports, _emberUtils) {
   'use strict';
 
   exports.isEachIn = isEachIn;
 
-  exports.default = function (vm, args) {
+  exports.default = function (_vm, args) {
     var ref = Object.create(args.positional.at(0));
     ref[EACH_IN_REFERENCE] = true;
     return ref;
@@ -18589,7 +18274,6 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (ex
     @for Ember.Templates.helpers
     @public
    */
-
   /**
     The `{{each-in}}` helper loops over properties on an object.
   
@@ -18627,249 +18311,236 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (ex
     return ref && ref[EACH_IN_REFERENCE];
   }
 });
-enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'ember-glimmer/utils/references', '@glimmer/reference', '@glimmer/runtime'], function (exports, _emberBabel, _emberMetal, _references, _reference, _runtime) {
-  'use strict';
+enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', '@glimmer/reference', '@glimmer/runtime', 'ember-metal', 'ember-glimmer/utils/references'], function (exports, _emberBabel, _reference, _runtime, _emberMetal, _references) {
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return GetHelperReference.create(args.positional.at(0), args.positional.at(1));
-  };
-
-  var GetHelperReference = function (_CachedReference) {
-    (0, _emberBabel.inherits)(GetHelperReference, _CachedReference);
-
-    GetHelperReference.create = function create(sourceReference, pathReference) {
-      if ((0, _reference.isConst)(pathReference)) {
-        var parts = pathReference.value().split('.');
-        return (0, _reference.referenceFromParts)(sourceReference, parts);
-      } else {
-        return new GetHelperReference(sourceReference, pathReference);
-      }
+    exports.default = function (_vm, args) {
+        return GetHelperReference.create(args.positional.at(0), args.positional.at(1));
     };
 
-    function GetHelperReference(sourceReference, pathReference) {
-      (0, _emberBabel.classCallCheck)(this, GetHelperReference);
+    var GetHelperReference = function (_CachedReference) {
+        (0, _emberBabel.inherits)(GetHelperReference, _CachedReference);
 
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.call(this));
+        GetHelperReference.create = function create(sourceReference, pathReference) {
+            if ((0, _reference.isConst)(pathReference)) {
+                var parts = pathReference.value().split('.');
+                return (0, _reference.referenceFromParts)(sourceReference, parts);
+            } else {
+                return new GetHelperReference(sourceReference, pathReference);
+            }
+        };
 
-      _this.sourceReference = sourceReference;
-      _this.pathReference = pathReference;
+        function GetHelperReference(sourceReference, pathReference) {
+            (0, _emberBabel.classCallCheck)(this, GetHelperReference);
 
-      _this.lastPath = null;
-      _this.innerReference = _runtime.NULL_REFERENCE;
+            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.call(this));
 
-      var innerTag = _this.innerTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
-
-      _this.tag = (0, _reference.combine)([sourceReference.tag, pathReference.tag, innerTag]);
-      return _this;
-    }
-
-    GetHelperReference.prototype.compute = function compute() {
-      var lastPath = this.lastPath,
-          innerReference = this.innerReference,
-          innerTag = this.innerTag;
-
-
-      var path = this.lastPath = this.pathReference.value();
-
-      if (path !== lastPath) {
-        if (path !== undefined && path !== null && path !== '') {
-          var pathType = typeof path;
-
-          if (pathType === 'string') {
-            innerReference = (0, _reference.referenceFromParts)(this.sourceReference, path.split('.'));
-          } else if (pathType === 'number') {
-            innerReference = this.sourceReference.get('' + path);
-          }
-
-          innerTag.update(innerReference.tag);
-        } else {
-          innerReference = _runtime.NULL_REFERENCE;
-          innerTag.update(_reference.CONSTANT_TAG);
+            _this.sourceReference = sourceReference;
+            _this.pathReference = pathReference;
+            _this.lastPath = null;
+            _this.innerReference = _runtime.NULL_REFERENCE;
+            var innerTag = _this.innerTag = _reference.UpdatableTag.create(_reference.CONSTANT_TAG);
+            _this.tag = (0, _reference.combine)([sourceReference.tag, pathReference.tag, innerTag]);
+            return _this;
         }
 
-        this.innerReference = innerReference;
-      }
+        GetHelperReference.prototype.compute = function compute() {
+            var lastPath = this.lastPath,
+                innerReference = this.innerReference,
+                innerTag = this.innerTag;
 
-      return innerReference.value();
-    };
+            var path = this.lastPath = this.pathReference.value();
+            if (path !== lastPath) {
+                if (path !== undefined && path !== null && path !== '') {
+                    var pathType = typeof path;
+                    if (pathType === 'string') {
+                        innerReference = (0, _reference.referenceFromParts)(this.sourceReference, path.split('.'));
+                    } else if (pathType === 'number') {
+                        innerReference = this.sourceReference.get('' + path);
+                    }
+                    innerTag.inner.update(innerReference.tag);
+                } else {
+                    innerReference = _runtime.NULL_REFERENCE;
+                    innerTag.inner.update(_reference.CONSTANT_TAG);
+                }
+                this.innerReference = innerReference;
+            }
+            return innerReference.value();
+        };
 
-    GetHelperReference.prototype[_references.UPDATE] = function (value) {
-      (0, _emberMetal.set)(this.sourceReference.value(), this.pathReference.value(), value);
-    };
+        GetHelperReference.prototype[_references.UPDATE] = function (value) {
+            (0, _emberMetal.set)(this.sourceReference.value(), this.pathReference.value(), value);
+        };
 
-    return GetHelperReference;
-  }(_references.CachedReference);
+        return GetHelperReference;
+    }(_references.CachedReference);
 });
 enifed("ember-glimmer/helpers/hash", ["exports"], function (exports) {
-  "use strict";
+   "use strict";
 
-  exports.default = function (vm, args) {
-    return args.named.capture();
-  };
+   exports.default = function (_vm, args) {
+      return args.named.capture();
+   };
 });
-enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-babel', 'ember-debug', 'ember-glimmer/utils/references', '@glimmer/reference'], function (exports, _emberBabel, _emberDebug, _references, _reference) {
-  'use strict';
+enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-babel', '@glimmer/reference', 'ember-debug', 'ember-glimmer/utils/references'], function (exports, _emberBabel, _reference, _emberDebug, _references) {
+    'use strict';
 
-  exports.inlineIf = inlineIf;
-  exports.inlineUnless = inlineUnless;
+    exports.inlineIf = inlineIf;
+    exports.inlineUnless = inlineUnless;
 
-  var ConditionalHelperReference = function (_CachedReference) {
-    (0, _emberBabel.inherits)(ConditionalHelperReference, _CachedReference);
+    var ConditionalHelperReference = function (_CachedReference) {
+        (0, _emberBabel.inherits)(ConditionalHelperReference, _CachedReference);
 
-    ConditionalHelperReference.create = function create(_condRef, truthyRef, falsyRef) {
-      var condRef = _references.ConditionalReference.create(_condRef);
-      if ((0, _reference.isConst)(condRef)) {
-        return condRef.value() ? truthyRef : falsyRef;
-      } else {
-        return new ConditionalHelperReference(condRef, truthyRef, falsyRef);
-      }
-    };
+        ConditionalHelperReference.create = function create(_condRef, truthyRef, falsyRef) {
+            var condRef = _references.ConditionalReference.create(_condRef);
+            if ((0, _reference.isConst)(condRef)) {
+                return condRef.value() ? truthyRef : falsyRef;
+            } else {
+                return new ConditionalHelperReference(condRef, truthyRef, falsyRef);
+            }
+        };
 
-    function ConditionalHelperReference(cond, truthy, falsy) {
-      (0, _emberBabel.classCallCheck)(this, ConditionalHelperReference);
+        function ConditionalHelperReference(cond, truthy, falsy) {
+            (0, _emberBabel.classCallCheck)(this, ConditionalHelperReference);
 
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.call(this));
+            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.call(this));
 
-      _this.branchTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
-      _this.tag = (0, _reference.combine)([cond.tag, _this.branchTag]);
+            _this.branchTag = _reference.UpdatableTag.create(_reference.CONSTANT_TAG);
+            _this.tag = (0, _reference.combine)([cond.tag, _this.branchTag]);
+            _this.cond = cond;
+            _this.truthy = truthy;
+            _this.falsy = falsy;
+            return _this;
+        }
 
-      _this.cond = cond;
-      _this.truthy = truthy;
-      _this.falsy = falsy;
-      return _this;
+        ConditionalHelperReference.prototype.compute = function compute() {
+            var branch = this.cond.value() ? this.truthy : this.falsy;
+            this.branchTag.inner.update(branch.tag);
+            return branch.value();
+        };
+
+        return ConditionalHelperReference;
+    }(_references.CachedReference);
+
+    /**
+      The `if` helper allows you to conditionally render one of two branches,
+      depending on the "truthiness" of a property.
+      For example the following values are all falsey: `false`, `undefined`, `null`, `""`, `0`, `NaN` or an empty array.
+    
+      This helper has two forms, block and inline.
+    
+      ## Block form
+    
+      You can use the block form of `if` to conditionally render a section of the template.
+    
+      To use it, pass the conditional value to the `if` helper,
+      using the block form to wrap the section of template you want to conditionally render.
+      Like so:
+    
+      ```handlebars
+      {{! will not render if foo is falsey}}
+      {{#if foo}}
+        Welcome to the {{foo.bar}}
+      {{/if}}
+      ```
+    
+      You can also specify a template to show if the property is falsey by using
+      the `else` helper.
+    
+      ```handlebars
+      {{! is it raining outside?}}
+      {{#if isRaining}}
+        Yes, grab an umbrella!
+      {{else}}
+        No, it's lovely outside!
+      {{/if}}
+      ```
+    
+      You are also able to combine `else` and `if` helpers to create more complex
+      conditional logic.
+    
+      ```handlebars
+      {{#if isMorning}}
+        Good morning
+      {{else if isAfternoon}}
+        Good afternoon
+      {{else}}
+        Good night
+      {{/if}}
+      ```
+    
+      ## Inline form
+    
+      The inline `if` helper conditionally renders a single property or string.
+    
+      In this form, the `if` helper receives three arguments, the conditional value,
+      the value to render when truthy, and the value to render when falsey.
+    
+      For example, if `useLongGreeting` is truthy, the following:
+    
+      ```handlebars
+      {{if useLongGreeting "Hello" "Hi"}} Alex
+      ```
+    
+      Will render:
+    
+      ```html
+      Hello Alex
+      ```
+    
+      ### Nested `if`
+    
+      You can use the `if` helper inside another helper as a nested helper:
+    
+      ```handlebars
+      {{some-component height=(if isBig "100" "10")}}
+      ```
+    
+      One detail to keep in mind is that both branches of the `if` helper will be evaluated,
+      so if you have `{{if condition "foo" (expensive-operation "bar")`,
+      `expensive-operation` will always calculate.
+    
+      @method if
+      @for Ember.Templates.helpers
+      @public
+    */
+    function inlineIf(_vm, _ref) {
+        var positional = _ref.positional;
+        (true && !(positional.length === 3 || positional.length === 2) && (0, _emberDebug.assert)('The inline form of the `if` helper expects two or three arguments, e.g. ' + '`{{if trialExpired "Expired" expiryDate}}`.', positional.length === 3 || positional.length === 2));
+
+        return ConditionalHelperReference.create(positional.at(0), positional.at(1), positional.at(2));
     }
+    /**
+      The inline `unless` helper conditionally renders a single property or string.
+      This helper acts like a ternary operator. If the first property is falsy,
+      the second argument will be displayed, otherwise, the third argument will be
+      displayed
+    
+      ```handlebars
+      {{unless useLongGreeting "Hi" "Hello"}} Ben
+      ```
+    
+      You can use the `unless` helper inside another helper as a subexpression.
+    
+      ```handlebars
+      {{some-component height=(unless isBig "10" "100")}}
+      ```
+    
+      @method unless
+      @for Ember.Templates.helpers
+      @public
+    */
+    function inlineUnless(_vm, _ref2) {
+        var positional = _ref2.positional;
+        (true && !(positional.length === 3 || positional.length === 2) && (0, _emberDebug.assert)('The inline form of the `unless` helper expects two or three arguments, e.g. ' + '`{{unless isFirstLogin "Welcome back!"}}`.', positional.length === 3 || positional.length === 2));
 
-    ConditionalHelperReference.prototype.compute = function compute() {
-      var branch = this.cond.value() ? this.truthy : this.falsy;
-
-      this.branchTag.update(branch.tag);
-
-      return branch.value();
-    };
-
-    return ConditionalHelperReference;
-  }(_references.CachedReference);
-
-  /**
-    The `if` helper allows you to conditionally render one of two branches,
-    depending on the "truthiness" of a property.
-    For example the following values are all falsey: `false`, `undefined`, `null`, `""`, `0`, `NaN` or an empty array.
-  
-    This helper has two forms, block and inline.
-  
-    ## Block form
-  
-    You can use the block form of `if` to conditionally render a section of the template.
-  
-    To use it, pass the conditional value to the `if` helper,
-    using the block form to wrap the section of template you want to conditionally render.
-    Like so:
-  
-    ```handlebars
-    {{! will not render if foo is falsey}}
-    {{#if foo}}
-      Welcome to the {{foo.bar}}
-    {{/if}}
-    ```
-  
-    You can also specify a template to show if the property is falsey by using
-    the `else` helper.
-  
-    ```handlebars
-    {{! is it raining outside?}}
-    {{#if isRaining}}
-      Yes, grab an umbrella!
-    {{else}}
-      No, it's lovely outside!
-    {{/if}}
-    ```
-  
-    You are also able to combine `else` and `if` helpers to create more complex
-    conditional logic.
-  
-    ```handlebars
-    {{#if isMorning}}
-      Good morning
-    {{else if isAfternoon}}
-      Good afternoon
-    {{else}}
-      Good night
-    {{/if}}
-    ```
-  
-    ## Inline form
-  
-    The inline `if` helper conditionally renders a single property or string.
-  
-    In this form, the `if` helper receives three arguments, the conditional value,
-    the value to render when truthy, and the value to render when falsey.
-  
-    For example, if `useLongGreeting` is truthy, the following:
-  
-    ```handlebars
-    {{if useLongGreeting "Hello" "Hi"}} Alex
-    ```
-  
-    Will render:
-  
-    ```html
-    Hello Alex
-    ```
-  
-    ### Nested `if`
-  
-    You can use the `if` helper inside another helper as a nested helper:
-  
-    ```handlebars
-    {{some-component height=(if isBig "100" "10")}}
-    ```
-  
-    One detail to keep in mind is that both branches of the `if` helper will be evaluated,
-    so if you have `{{if condition "foo" (expensive-operation "bar")`,
-    `expensive-operation` will always calculate.
-  
-    @method if
-    @for Ember.Templates.helpers
-    @public
-  */
-  function inlineIf(vm, _ref) {
-    var positional = _ref.positional;
-    (true && !(positional.length === 3 || positional.length === 2) && (0, _emberDebug.assert)('The inline form of the `if` helper expects two or three arguments, e.g. ' + '`{{if trialExpired "Expired" expiryDate}}`.', positional.length === 3 || positional.length === 2));
-
-    return ConditionalHelperReference.create(positional.at(0), positional.at(1), positional.at(2));
-  }
-
-  /**
-    The inline `unless` helper conditionally renders a single property or string.
-    This helper acts like a ternary operator. If the first property is falsy,
-    the second argument will be displayed, otherwise, the third argument will be
-    displayed
-  
-    ```handlebars
-    {{unless useLongGreeting "Hi" "Hello"}} Ben
-    ```
-  
-    You can use the `unless` helper inside another helper as a subexpression.
-  
-    ```handlebars
-    {{some-component height=(unless isBig "10" "100")}}
-    ```
-  
-    @method unless
-    @for Ember.Templates.helpers
-    @public
-  */
-  function inlineUnless(vm, _ref2) {
-    var positional = _ref2.positional;
-    (true && !(positional.length === 3 || positional.length === 2) && (0, _emberDebug.assert)('The inline form of the `unless` helper expects two or three arguments, e.g. ' + '`{{unless isFirstLogin "Welcome back!"}}`.', positional.length === 3 || positional.length === 2));
-
-    return ConditionalHelperReference.create(positional.at(0), positional.at(2), positional.at(1));
-  }
+        return ConditionalHelperReference.create(positional.at(0), positional.at(2), positional.at(1));
+    }
 });
-enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/utils/references', 'ember-runtime'], function (exports, _references, _emberRuntime) {
+enifed('ember-glimmer/helpers/loc', ['exports', 'ember-runtime', 'ember-glimmer/utils/references'], function (exports, _emberRuntime, _references) {
   'use strict';
 
-  exports.default = function (vm, args) {
+  exports.default = function (_vm, args) {
     return new _references.InternalHelperReference(locHelper, args.capture());
   };
 
@@ -18905,7 +18576,6 @@ enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/utils/references'
     @see {Ember.String#loc}
     @public
   */
-
   /**
   @module ember
   */
@@ -18916,47 +18586,45 @@ enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/utils/references'
   }
 });
 enifed('ember-glimmer/helpers/log', ['exports', 'ember-glimmer/utils/references', 'ember-console'], function (exports, _references, _emberConsole) {
-  'use strict';
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return new _references.InternalHelperReference(log, args.capture());
-  };
+    exports.default = function (_vm, args) {
+        return new _references.InternalHelperReference(log, args.capture());
+    };
 
-  /**
-    `log` allows you to output the value of variables in the current rendering
-    context. `log` also accepts primitive types such as strings or numbers.
-  
-    ```handlebars
-    {{log "myVariable:" myVariable }}
-    ```
-  
-    @method log
-    @for Ember.Templates.helpers
-    @param {Array} params
-    @public
-  */
-  function log(_ref) {
-    var positional = _ref.positional;
+    /**
+      `log` allows you to output the value of variables in the current rendering
+      context. `log` also accepts primitive types such as strings or numbers.
+    
+      ```handlebars
+      {{log "myVariable:" myVariable }}
+      ```
+    
+      @method log
+      @for Ember.Templates.helpers
+      @param {Array} params
+      @public
+    */
+    function log(_ref) {
+        var positional = _ref.positional;
 
-    _emberConsole.default.log.apply(null, positional.value());
-  }
-  /**
-  @module ember
-  */
+        _emberConsole.default.log.apply(null, positional.value());
+    }
+    /**
+    @module ember
+    */
 });
-enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-debug', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberDebug, _references, _action) {
+enifed('ember-glimmer/helpers/mut', ['exports', 'ember-debug', 'ember-utils', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/action'], function (exports, _emberDebug, _emberUtils, _references, _action) {
   'use strict';
 
   exports.isMut = isMut;
   exports.unMut = unMut;
 
-  exports.default = function (vm, args) {
+  exports.default = function (_vm, args) {
     var rawRef = args.positional.at(0);
-
     if (isMut(rawRef)) {
       return rawRef;
     }
-
     // TODO: Improve this error message. This covers at least two distinct
     // cases:
     //
@@ -18971,13 +18639,10 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-debug', 'e
     // confusing for the second case.
     (true && !(rawRef[_references.UPDATE]) && (0, _emberDebug.assert)('You can only pass a path to mut', rawRef[_references.UPDATE]));
 
-
     var wrappedRef = Object.create(rawRef);
-
     wrappedRef[SOURCE] = rawRef;
     wrappedRef[_action.INVOKE] = rawRef[_references.UPDATE];
     wrappedRef[MUT_REFERENCE] = true;
-
     return wrappedRef;
   };
 
@@ -19055,71 +18720,64 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-debug', 'e
   */
   var MUT_REFERENCE = (0, _emberUtils.symbol)('MUT');
   var SOURCE = (0, _emberUtils.symbol)('SOURCE');
-
   function isMut(ref) {
     return ref && ref[MUT_REFERENCE];
   }
-
   function unMut(ref) {
     return ref[SOURCE] || ref;
   }
 });
-enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-utils', 'ember-glimmer/utils/references', 'ember-debug', 'ember-routing'], function (exports, _emberUtils, _references, _emberDebug, _emberRouting) {
-  'use strict';
+enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-debug', 'ember-routing', 'ember-utils', 'ember-glimmer/utils/references'], function (exports, _emberDebug, _emberRouting, _emberUtils, _references) {
+    'use strict';
 
-  exports.default = function (vm, args) {
-    return new _references.InternalHelperReference(queryParams, args.capture());
-  };
+    exports.default = function (_vm, args) {
+        return new _references.InternalHelperReference(queryParams, args.capture());
+    };
 
-  /**
-    This is a helper to be used in conjunction with the link-to helper.
-    It will supply url query parameters to the target route.
-  
-    Example
-  
-    ```handlebars
-    {{#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
-    ```
-  
-    @method query-params
-    @for Ember.Templates.helpers
-    @param {Object} hash takes a hash of query parameters
-    @return {Object} A `QueryParams` object for `{{link-to}}`
-    @public
-  */
-  /**
-  @module ember
-  */
-  function queryParams(_ref) {
-    var positional = _ref.positional,
-        named = _ref.named;
-    (true && !(positional.value().length === 0) && (0, _emberDebug.assert)('The `query-params` helper only accepts hash parameters, e.g. (query-params queryParamPropertyName=\'foo\') as opposed to just (query-params \'foo\')', positional.value().length === 0));
+    /**
+      This is a helper to be used in conjunction with the link-to helper.
+      It will supply url query parameters to the target route.
+    
+      Example
+    
+      ```handlebars
+      {{#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+      ```
+    
+      @method query-params
+      @for Ember.Templates.helpers
+      @param {Object} hash takes a hash of query parameters
+      @return {Object} A `QueryParams` object for `{{link-to}}`
+      @public
+    */
+    /**
+    @module ember
+    */
+    function queryParams(_ref) {
+        var positional = _ref.positional,
+            named = _ref.named;
+        (true && !(positional.value().length === 0) && (0, _emberDebug.assert)('The `query-params` helper only accepts hash parameters, e.g. (query-params queryParamPropertyName=\'foo\') as opposed to just (query-params \'foo\')', positional.value().length === 0));
 
-
-    return _emberRouting.QueryParams.create({
-      values: (0, _emberUtils.assign)({}, named.value())
-    });
-  }
+        return _emberRouting.QueryParams.create({
+            values: (0, _emberUtils.assign)({}, named.value())
+        });
+    }
 });
 enifed('ember-glimmer/helpers/readonly', ['exports', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/mut'], function (exports, _references, _mut) {
   'use strict';
 
-  exports.default = function (vm, args) {
+  exports.default = function (_vm, args) {
     var ref = (0, _mut.unMut)(args.positional.at(0));
-
     var wrapped = Object.create(ref);
-
     wrapped[_references.UPDATE] = undefined;
-
     return wrapped;
   };
 });
 enifed('ember-glimmer/helpers/unbound', ['exports', 'ember-debug', 'ember-glimmer/utils/references'], function (exports, _emberDebug, _references) {
   'use strict';
 
-  exports.default = function (vm, args) {
+  exports.default = function (_vm, args) {
     (true && !(args.positional.length === 1 && args.named.length === 0) && (0, _emberDebug.assert)('unbound helper cannot be called with multiple params or hash params', args.positional.length === 1 && args.named.length === 0));
-
 
     return _references.UnboundReference.create(args.positional.at(0).value());
   };
@@ -19326,3184 +18984,2915 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
     }
   });
 });
-enifed('ember-glimmer/modifiers/action', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberDebug, _emberViews, _action) {
-  'use strict';
+enifed('ember-glimmer/modifiers/action', ['exports', 'ember-babel', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberBabel, _emberDebug, _emberMetal, _emberUtils, _emberViews, _action) {
+    'use strict';
 
-  exports.ActionState = exports.ActionHelper = undefined;
+    exports.ActionState = exports.ActionHelper = undefined;
 
-
-  var MODIFIERS = ['alt', 'shift', 'meta', 'ctrl'];
-  var POINTER_EVENT_TYPE_REGEX = /^click|mouse|touch/;
-
-  function isAllowedEvent(event, allowedKeys) {
-    if (allowedKeys === null || allowedKeys === undefined) {
-      if (POINTER_EVENT_TYPE_REGEX.test(event.type)) {
-        return (0, _emberViews.isSimpleClick)(event);
-      } else {
-        allowedKeys = '';
-      }
-    }
-
-    if (allowedKeys.indexOf('any') >= 0) {
-      return true;
-    }
-
-    for (var i = 0; i < MODIFIERS.length; i++) {
-      if (event[MODIFIERS[i] + 'Key'] && allowedKeys.indexOf(MODIFIERS[i]) === -1) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  var ActionHelper = exports.ActionHelper = {
-    // registeredActions is re-exported for compatibility with older plugins
-    // that were using this undocumented API.
-    registeredActions: _emberViews.ActionManager.registeredActions,
-
-    registerAction: function (actionState) {
-      var actionId = actionState.actionId;
-
-
-      _emberViews.ActionManager.registeredActions[actionId] = actionState;
-
-      return actionId;
-    },
-    unregisterAction: function (actionState) {
-      var actionId = actionState.actionId;
-
-
-      delete _emberViews.ActionManager.registeredActions[actionId];
-    }
-  };
-
-  var ActionState = exports.ActionState = function () {
-    function ActionState(element, actionId, actionName, actionArgs, namedArgs, positionalArgs, implicitTarget, dom) {
-      (0, _emberBabel.classCallCheck)(this, ActionState);
-
-      this.element = element;
-      this.actionId = actionId;
-      this.actionName = actionName;
-      this.actionArgs = actionArgs;
-      this.namedArgs = namedArgs;
-      this.positional = positionalArgs;
-      this.implicitTarget = implicitTarget;
-      this.dom = dom;
-      this.eventName = this.getEventName();
-    }
-
-    ActionState.prototype.getEventName = function getEventName() {
-      return this.namedArgs.get('on').value() || 'click';
-    };
-
-    ActionState.prototype.getActionArgs = function getActionArgs() {
-      var result = new Array(this.actionArgs.length);
-
-      for (var i = 0; i < this.actionArgs.length; i++) {
-        result[i] = this.actionArgs[i].value();
-      }
-
-      return result;
-    };
-
-    ActionState.prototype.getTarget = function getTarget() {
-      var implicitTarget = this.implicitTarget,
-          namedArgs = this.namedArgs;
-
-      var target = void 0;
-
-      if (namedArgs.has('target')) {
-        target = namedArgs.get('target').value();
-      } else {
-        target = implicitTarget.value();
-      }
-
-      return target;
-    };
-
-    ActionState.prototype.handler = function handler(event) {
-      var _this = this;
-
-      var actionName = this.actionName,
-          namedArgs = this.namedArgs;
-
-      var bubbles = namedArgs.get('bubbles');
-      var preventDefault = namedArgs.get('preventDefault');
-      var allowedKeys = namedArgs.get('allowedKeys');
-      var target = this.getTarget();
-
-      if (!isAllowedEvent(event, allowedKeys.value())) {
+    var MODIFIERS = ['alt', 'shift', 'meta', 'ctrl'];
+    var POINTER_EVENT_TYPE_REGEX = /^click|mouse|touch/;
+    function isAllowedEvent(event, allowedKeys) {
+        if (allowedKeys === null || allowedKeys === undefined) {
+            if (POINTER_EVENT_TYPE_REGEX.test(event.type)) {
+                return (0, _emberViews.isSimpleClick)(event);
+            } else {
+                allowedKeys = '';
+            }
+        }
+        if (allowedKeys.indexOf('any') >= 0) {
+            return true;
+        }
+        for (var i = 0; i < MODIFIERS.length; i++) {
+            if (event[MODIFIERS[i] + 'Key'] && allowedKeys.indexOf(MODIFIERS[i]) === -1) {
+                return false;
+            }
+        }
         return true;
-      }
-
-      if (preventDefault.value() !== false) {
-        event.preventDefault();
-      }
-
-      if (bubbles.value() === false) {
-        event.stopPropagation();
-      }
-
-      (0, _emberMetal.run)(function () {
-        var args = _this.getActionArgs();
-        var payload = {
-          args: args,
-          target: target
-        };
-        if (typeof actionName[_action.INVOKE] === 'function') {
-          (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
-            actionName[_action.INVOKE].apply(actionName, args);
-          });
-          return;
-        }
-        if (typeof actionName === 'function') {
-          (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
-            actionName.apply(target, args);
-          });
-          return;
-        }
-        payload.name = actionName;
-        if (target.send) {
-          (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
-            target.send.apply(target, [actionName].concat(args));
-          });
-        } else {
-          (true && !(typeof target[actionName] === 'function') && (0, _emberDebug.assert)('The action \'' + actionName + '\' did not exist on ' + target, typeof target[actionName] === 'function'));
-
-          (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
-            target[actionName].apply(target, args);
-          });
-        }
-      });
-    };
-
-    ActionState.prototype.destroy = function destroy() {
-      ActionHelper.unregisterAction(this);
-    };
-
-    return ActionState;
-  }();
-
-  var ActionModifierManager = function () {
-    function ActionModifierManager() {
-      (0, _emberBabel.classCallCheck)(this, ActionModifierManager);
     }
+    var ActionHelper = exports.ActionHelper = {
+        // registeredActions is re-exported for compatibility with older plugins
+        // that were using this undocumented API.
+        registeredActions: _emberViews.ActionManager.registeredActions,
+        registerAction: function (actionState) {
+            var actionId = actionState.actionId;
 
-    ActionModifierManager.prototype.create = function create(element, args, dynamicScope, dom) {
-      var _args$capture = args.capture(),
-          named = _args$capture.named,
-          positional = _args$capture.positional;
+            _emberViews.ActionManager.registeredActions[actionId] = actionState;
+            return actionId;
+        },
+        unregisterAction: function (actionState) {
+            var actionId = actionState.actionId;
 
-      var implicitTarget = void 0;
-      var actionName = void 0;
-      var actionNameRef = void 0;
-      if (positional.length > 1) {
-        implicitTarget = positional.at(0);
-        actionNameRef = positional.at(1);
-
-        if (actionNameRef[_action.INVOKE]) {
-          actionName = actionNameRef;
-        } else {
-          var actionLabel = actionNameRef._propertyKey;
-          actionName = actionNameRef.value();
-
-          (true && !(typeof actionName === 'string' || typeof actionName === 'function') && (0, _emberDebug.assert)('You specified a quoteless path, `' + actionLabel + '`, to the ' + '{{action}} helper which did not resolve to an action name (a ' + 'string). Perhaps you meant to use a quoted actionName? (e.g. ' + '{{action "' + actionLabel + '"}}).', typeof actionName === 'string' || typeof actionName === 'function'));
+            delete _emberViews.ActionManager.registeredActions[actionId];
         }
-      }
-
-      var actionArgs = [];
-      // The first two arguments are (1) `this` and (2) the action name.
-      // Everything else is a param.
-      for (var i = 2; i < positional.length; i++) {
-        actionArgs.push(positional.at(i));
-      }
-
-      var actionId = (0, _emberUtils.uuid)();
-      return new ActionState(element, actionId, actionName, actionArgs, named, positional, implicitTarget, dom);
     };
 
-    ActionModifierManager.prototype.install = function install(actionState) {
-      var dom = actionState.dom,
-          element = actionState.element,
-          actionId = actionState.actionId;
+    var ActionState = exports.ActionState = function () {
+        function ActionState(element, actionId, actionName, actionArgs, namedArgs, positionalArgs, implicitTarget, dom) {
+            (0, _emberBabel.classCallCheck)(this, ActionState);
 
+            this.element = element;
+            this.actionId = actionId;
+            this.actionName = actionName;
+            this.actionArgs = actionArgs;
+            this.namedArgs = namedArgs;
+            this.positional = positionalArgs;
+            this.implicitTarget = implicitTarget;
+            this.dom = dom;
+            this.eventName = this.getEventName();
+        }
 
-      ActionHelper.registerAction(actionState);
+        ActionState.prototype.getEventName = function getEventName() {
+            return this.namedArgs.get('on').value() || 'click';
+        };
 
-      dom.setAttribute(element, 'data-ember-action', '');
-      dom.setAttribute(element, 'data-ember-action-' + actionId, actionId);
-    };
+        ActionState.prototype.getActionArgs = function getActionArgs() {
+            var result = new Array(this.actionArgs.length);
+            for (var i = 0; i < this.actionArgs.length; i++) {
+                result[i] = this.actionArgs[i].value();
+            }
+            return result;
+        };
 
-    ActionModifierManager.prototype.update = function update(actionState) {
-      var positional = actionState.positional;
+        ActionState.prototype.getTarget = function getTarget() {
+            var implicitTarget = this.implicitTarget,
+                namedArgs = this.namedArgs;
 
-      var actionNameRef = positional.at(1);
+            var target = void 0;
+            if (namedArgs.has('target')) {
+                target = namedArgs.get('target').value();
+            } else {
+                target = implicitTarget.value();
+            }
+            return target;
+        };
 
-      if (!actionNameRef[_action.INVOKE]) {
-        actionState.actionName = actionNameRef.value();
-      }
+        ActionState.prototype.handler = function handler(event) {
+            var _this = this;
 
-      actionState.eventName = actionState.getEventName();
-    };
+            var actionName = this.actionName,
+                namedArgs = this.namedArgs;
 
-    ActionModifierManager.prototype.getDestructor = function getDestructor(modifier) {
-      return modifier;
-    };
+            var bubbles = namedArgs.get('bubbles');
+            var preventDefault = namedArgs.get('preventDefault');
+            var allowedKeys = namedArgs.get('allowedKeys');
+            var target = this.getTarget();
+            if (!isAllowedEvent(event, allowedKeys.value())) {
+                return true;
+            }
+            if (preventDefault.value() !== false) {
+                event.preventDefault();
+            }
+            if (bubbles.value() === false) {
+                event.stopPropagation();
+            }
+            (0, _emberMetal.run)(function () {
+                var args = _this.getActionArgs();
+                var payload = {
+                    args: args,
+                    target: target,
+                    name: null
+                };
+                if (typeof actionName[_action.INVOKE] === 'function') {
+                    (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
+                        actionName[_action.INVOKE].apply(actionName, args);
+                    });
+                    return;
+                }
+                if (typeof actionName === 'function') {
+                    (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
+                        actionName.apply(target, args);
+                    });
+                    return;
+                }
+                payload.name = actionName;
+                if (target.send) {
+                    (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
+                        target.send.apply(target, [actionName].concat(args));
+                    });
+                } else {
+                    (true && !(typeof target[actionName] === 'function') && (0, _emberDebug.assert)('The action \'' + actionName + '\' did not exist on ' + target, typeof target[actionName] === 'function'));
 
-    return ActionModifierManager;
-  }();
+                    (0, _emberMetal.flaggedInstrument)('interaction.ember-action', payload, function () {
+                        target[actionName].apply(target, args);
+                    });
+                }
+            });
+            return false;
+        };
 
-  exports.default = ActionModifierManager;
+        ActionState.prototype.destroy = function destroy() {
+            ActionHelper.unregisterAction(this);
+        };
+
+        return ActionState;
+    }();
+
+    var ActionModifierManager = function () {
+        function ActionModifierManager() {
+            (0, _emberBabel.classCallCheck)(this, ActionModifierManager);
+        }
+
+        ActionModifierManager.prototype.create = function create(element, args, _dynamicScope, dom) {
+            var _args$capture = args.capture(),
+                named = _args$capture.named,
+                positional = _args$capture.positional;
+
+            var implicitTarget = void 0;
+            var actionName = void 0;
+            var actionNameRef = void 0;
+            if (positional.length > 1) {
+                implicitTarget = positional.at(0);
+                actionNameRef = positional.at(1);
+                if (actionNameRef[_action.INVOKE]) {
+                    actionName = actionNameRef;
+                } else {
+                    var actionLabel = actionNameRef._propertyKey;
+                    actionName = actionNameRef.value();
+                    (true && !(typeof actionName === 'string' || typeof actionName === 'function') && (0, _emberDebug.assert)('You specified a quoteless path, `' + actionLabel + '`, to the ' + '{{action}} helper which did not resolve to an action name (a ' + 'string). Perhaps you meant to use a quoted actionName? (e.g. ' + '{{action "' + actionLabel + '"}}).', typeof actionName === 'string' || typeof actionName === 'function'));
+                }
+            }
+            var actionArgs = [];
+            // The first two arguments are (1) `this` and (2) the action name.
+            // Everything else is a param.
+            for (var i = 2; i < positional.length; i++) {
+                actionArgs.push(positional.at(i));
+            }
+            var actionId = (0, _emberUtils.uuid)();
+            return new ActionState(element, actionId, actionName, actionArgs, named, positional, implicitTarget, dom);
+        };
+
+        ActionModifierManager.prototype.install = function install(actionState) {
+            var dom = actionState.dom,
+                element = actionState.element,
+                actionId = actionState.actionId;
+
+            ActionHelper.registerAction(actionState);
+            dom.setAttribute(element, 'data-ember-action', '');
+            dom.setAttribute(element, 'data-ember-action-' + actionId, actionId);
+        };
+
+        ActionModifierManager.prototype.update = function update(actionState) {
+            var positional = actionState.positional;
+
+            var actionNameRef = positional.at(1);
+            if (!actionNameRef[_action.INVOKE]) {
+                actionState.actionName = actionNameRef.value();
+            }
+            actionState.eventName = actionState.getEventName();
+        };
+
+        ActionModifierManager.prototype.getDestructor = function getDestructor(modifier) {
+            return modifier;
+        };
+
+        return ActionModifierManager;
+    }();
+
+    exports.default = ActionModifierManager;
 });
 enifed('ember-glimmer/protocol-for-url', ['exports', 'ember-environment', 'node-module'], function (exports, _emberEnvironment, _nodeModule) {
-  'use strict';
+    'use strict';
 
-  exports.default = installProtocolForURL;
-  /* globals module, URL */
-
-  var nodeURL = void 0;
-  var parsingNode = void 0;
-
-  function installProtocolForURL(environment) {
-    var protocol = void 0;
-
-    if (_emberEnvironment.environment.hasDOM) {
-      protocol = browserProtocolForURL.call(environment, 'foobar:baz');
+    exports.default = installProtocolForURL;
+    /* globals module, URL */
+    var nodeURL = void 0;
+    var parsingNode = void 0;
+    function installProtocolForURL(environment) {
+        var protocol = void 0;
+        if (_emberEnvironment.environment.hasDOM) {
+            protocol = browserProtocolForURL.call(environment, 'foobar:baz');
+        }
+        // Test to see if our DOM implementation parses
+        // and normalizes URLs.
+        if (protocol === 'foobar:') {
+            // Swap in the method that doesn't do this test now that
+            // we know it works.
+            environment.protocolForURL = browserProtocolForURL;
+        } else if (typeof URL === 'object') {
+            // URL globally provided, likely from FastBoot's sandbox
+            nodeURL = URL;
+            environment.protocolForURL = nodeProtocolForURL;
+        } else if (_nodeModule.IS_NODE) {
+            // Otherwise, we need to fall back to our own URL parsing.
+            // Global `require` is shadowed by Ember's loader so we have to use the fully
+            // qualified `module.require`.
+            nodeURL = (0, _nodeModule.require)('url');
+            environment.protocolForURL = nodeProtocolForURL;
+        } else {
+            throw new Error('Could not find valid URL parsing mechanism for URL Sanitization');
+        }
     }
-
-    // Test to see if our DOM implementation parses
-    // and normalizes URLs.
-    if (protocol === 'foobar:') {
-      // Swap in the method that doesn't do this test now that
-      // we know it works.
-      environment.protocolForURL = browserProtocolForURL;
-    } else if (typeof URL === 'object') {
-      // URL globally provided, likely from FastBoot's sandbox
-      nodeURL = URL;
-      environment.protocolForURL = nodeProtocolForURL;
-    } else if (_nodeModule.IS_NODE) {
-      // Otherwise, we need to fall back to our own URL parsing.
-      // Global `require` is shadowed by Ember's loader so we have to use the fully
-      // qualified `module.require`.
-      nodeURL = (0, _nodeModule.require)('url');
-      environment.protocolForURL = nodeProtocolForURL;
-    } else {
-      throw new Error('Could not find valid URL parsing mechanism for URL Sanitization');
+    function browserProtocolForURL(url) {
+        if (!parsingNode) {
+            parsingNode = document.createElement('a');
+        }
+        parsingNode.href = url;
+        return parsingNode.protocol;
     }
-  }
-
-  function browserProtocolForURL(url) {
-    if (!parsingNode) {
-      parsingNode = document.createElement('a');
+    function nodeProtocolForURL(url) {
+        var protocol = null;
+        if (typeof url === 'string') {
+            protocol = nodeURL.parse(url).protocol;
+        }
+        return protocol === null ? ':' : protocol;
     }
-
-    parsingNode.href = url;
-    return parsingNode.protocol;
-  }
-
-  function nodeProtocolForURL(url) {
-    var protocol = null;
-    if (typeof url === 'string') {
-      protocol = nodeURL.parse(url).protocol;
-    }
-    return protocol === null ? ':' : protocol;
-  }
 });
-enifed('ember-glimmer/renderer', ['exports', 'ember-babel', 'ember-glimmer/utils/references', 'ember-metal', '@glimmer/reference', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/component-managers/root', 'ember-glimmer/component-managers/outlet', 'ember-debug'], function (exports, _emberBabel, _references, _emberMetal, _reference, _emberViews, _component, _root2, _outlet, _emberDebug) {
-  'use strict';
+enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference', 'ember-debug', 'ember-metal', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/component-managers/outlet', 'ember-glimmer/component-managers/root', 'ember-glimmer/utils/references', '@glimmer/runtime'], function (exports, _emberBabel, _reference, _emberDebug, _emberMetal, _emberViews, _component, _outlet, _root2, _references, _runtime) {
+    'use strict';
 
-  exports.InteractiveRenderer = exports.InertRenderer = undefined;
-  exports._resetRenderers = _resetRenderers;
-  var backburner = _emberMetal.run.backburner;
+    exports.InteractiveRenderer = exports.InertRenderer = exports.Renderer = exports.DynamicScope = undefined;
+    exports._resetRenderers = _resetRenderers;
+    var backburner = _emberMetal.run.backburner;
 
-  var DynamicScope = function () {
-    function DynamicScope(view, outletState, rootOutletState, targetObject) {
-      (0, _emberBabel.classCallCheck)(this, DynamicScope);
+    var DynamicScope = exports.DynamicScope = function () {
+        function DynamicScope(view, outletState, rootOutletState) {
+            (0, _emberBabel.classCallCheck)(this, DynamicScope);
 
-      this.view = view;
-      this.outletState = outletState;
-      this.rootOutletState = rootOutletState;
-    }
+            this.view = view;
+            this.outletState = outletState;
+            this.rootOutletState = rootOutletState;
+        }
 
-    DynamicScope.prototype.child = function child() {
-      return new DynamicScope(this.view, this.outletState, this.rootOutletState);
-    };
-
-    DynamicScope.prototype.get = function get(key) {
-      (true && !(key === 'outletState') && (0, _emberDebug.assert)('Using `-get-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState'));
-
-      return this.outletState;
-    };
-
-    DynamicScope.prototype.set = function set(key, value) {
-      (true && !(key === 'outletState') && (0, _emberDebug.assert)('Using `-with-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState'));
-
-      this.outletState = value;
-      return value;
-    };
-
-    return DynamicScope;
-  }();
-
-  var RootState = function () {
-    function RootState(root, env, template, self, parentElement, dynamicScope) {
-      var _this = this;
-
-      (0, _emberBabel.classCallCheck)(this, RootState);
-      (true && !(template) && (0, _emberDebug.assert)('You cannot render `' + self.value() + '` without a template.', template));
-
-
-      this.id = (0, _emberViews.getViewId)(root);
-      this.env = env;
-      this.root = root;
-      this.result = undefined;
-      this.shouldReflush = false;
-      this.destroyed = false;
-      this._removing = false;
-
-      var options = this.options = {
-        alwaysRevalidate: false
-      };
-
-      this.render = function () {
-        var iterator = template.render(self, parentElement, dynamicScope);
-        var iteratorResult = void 0;
-
-        do {
-          iteratorResult = iterator.next();
-        } while (!iteratorResult.done);
-
-        var result = _this.result = iteratorResult.value;
-
-        // override .render function after initial render
-        _this.render = function () {
-          return result.rerender(options);
+        DynamicScope.prototype.child = function child() {
+            return new DynamicScope(this.view, this.outletState, this.rootOutletState);
         };
-      };
-    }
 
-    RootState.prototype.isFor = function isFor(possibleRoot) {
-      return this.root === possibleRoot;
-    };
+        DynamicScope.prototype.get = function get(key) {
+            // tslint:disable-next-line:max-line-length
+            (true && !(key === 'outletState') && (0, _emberDebug.assert)('Using `-get-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState'));
 
-    RootState.prototype.destroy = function destroy() {
-      var result = this.result,
-          env = this.env;
+            return this.outletState;
+        };
 
+        DynamicScope.prototype.set = function set(key, value) {
+            // tslint:disable-next-line:max-line-length
+            (true && !(key === 'outletState') && (0, _emberDebug.assert)('Using `-with-dynamic-scope` is only supported for `outletState` (you used `' + key + '`).', key === 'outletState'));
 
-      this.destroyed = true;
+            this.outletState = value;
+            return value;
+        };
 
-      this.env = null;
-      this.root = null;
-      this.result = null;
-      this.render = null;
+        return DynamicScope;
+    }();
 
-      if (result) {
-        /*
-         Handles these scenarios:
-          * When roots are removed during standard rendering process, a transaction exists already
-           `.begin()` / `.commit()` are not needed.
-         * When roots are being destroyed manually (`component.append(); component.destroy() case), no
-           transaction exists already.
-         * When roots are being destroyed during `Renderer#destroy`, no transaction exists
-          */
-        var needsTransaction = !env.inTransaction;
+    var RootState = function () {
+        function RootState(root, env, template, self, parentElement, dynamicScope) {
+            var _this = this;
 
-        if (needsTransaction) {
-          env.begin();
+            (0, _emberBabel.classCallCheck)(this, RootState);
+            (true && !(template !== undefined) && (0, _emberDebug.assert)('You cannot render `' + self.value() + '` without a template.', template !== undefined));
+
+            this.id = (0, _emberViews.getViewId)(root);
+            this.env = env;
+            this.root = root;
+            this.result = undefined;
+            this.shouldReflush = false;
+            this.destroyed = false;
+            this._removing = false;
+            var options = this.options = {
+                alwaysRevalidate: false
+            };
+            this.render = function () {
+                var iterator = template.render(self, parentElement, dynamicScope);
+                var iteratorResult = void 0;
+                do {
+                    iteratorResult = iterator.next();
+                } while (!iteratorResult.done);
+                var result = _this.result = iteratorResult.value;
+                // override .render function after initial render
+                _this.render = function () {
+                    return result.rerender(options);
+                };
+            };
         }
 
-        result.destroy();
+        RootState.prototype.isFor = function isFor(possibleRoot) {
+            return this.root === possibleRoot;
+        };
 
-        if (needsTransaction) {
-          env.commit();
-        }
-      }
-    };
+        RootState.prototype.destroy = function destroy() {
+            var result = this.result,
+                env = this.env;
 
-    return RootState;
-  }();
+            this.destroyed = true;
+            this.env = undefined;
+            this.root = null;
+            this.result = undefined;
+            this.render = undefined;
+            if (result) {
+                /*
+                 Handles these scenarios:
+                        * When roots are removed during standard rendering process, a transaction exists already
+                   `.begin()` / `.commit()` are not needed.
+                 * When roots are being destroyed manually (`component.append(); component.destroy() case), no
+                   transaction exists already.
+                 * When roots are being destroyed during `Renderer#destroy`, no transaction exists
+                        */
+                var needsTransaction = !env.inTransaction;
+                if (needsTransaction) {
+                    env.begin();
+                }
+                result.destroy();
+                if (needsTransaction) {
+                    env.commit();
+                }
+            }
+        };
 
-  var renderers = [];
+        return RootState;
+    }();
 
-  function _resetRenderers() {
-    renderers.length = 0;
-  }
-
-  (0, _emberMetal.setHasViews)(function () {
-    return renderers.length > 0;
-  });
-
-  function register(renderer) {
-    (true && !(renderers.indexOf(renderer) === -1) && (0, _emberDebug.assert)('Cannot register the same renderer twice', renderers.indexOf(renderer) === -1));
-
-    renderers.push(renderer);
-  }
-
-  function deregister(renderer) {
-    var index = renderers.indexOf(renderer);
-    (true && !(index !== -1) && (0, _emberDebug.assert)('Cannot deregister unknown unregistered renderer', index !== -1));
-
-    renderers.splice(index, 1);
-  }
-
-  function loopBegin() {
-    for (var i = 0; i < renderers.length; i++) {
-      renderers[i]._scheduleRevalidate();
+    var renderers = [];
+    function _resetRenderers() {
+        renderers.length = 0;
     }
-  }
-
-  function K() {}
-
-  var loops = 0;
-  function loopEnd(current, next) {
-    for (var i = 0; i < renderers.length; i++) {
-      if (!renderers[i]._isValid()) {
-        if (loops > 10) {
-          loops = 0;
-          // TODO: do something better
-          renderers[i].destroy();
-          throw new Error('infinite rendering invalidation detected');
-        }
-        loops++;
-        return backburner.join(null, K);
-      }
-    }
-    loops = 0;
-  }
-
-  backburner.on('begin', loopBegin);
-  backburner.on('end', loopEnd);
-
-  var Renderer = function () {
-    function Renderer(env, rootTemplate) {
-      var _viewRegistry = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _emberViews.fallbackViewRegistry;
-
-      var destinedForDOM = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      (0, _emberBabel.classCallCheck)(this, Renderer);
-
-      this._env = env;
-      this._rootTemplate = rootTemplate;
-      this._viewRegistry = _viewRegistry;
-      this._destinedForDOM = destinedForDOM;
-      this._destroyed = false;
-      this._roots = [];
-      this._lastRevision = null;
-      this._isRenderingRoots = false;
-      this._removedRoots = [];
-    }
-
-    // renderer HOOKS
-
-    Renderer.prototype.appendOutletView = function appendOutletView(view, target) {
-      var definition = new _outlet.TopLevelOutletComponentDefinition(view);
-      var outletStateReference = view.toReference();
-      var targetObject = view.outletState.render.controller;
-
-      this._appendDefinition(view, definition, target, outletStateReference, targetObject);
-    };
-
-    Renderer.prototype.appendTo = function appendTo(view, target) {
-      var rootDef = new _root2.RootComponentDefinition(view);
-
-      this._appendDefinition(view, rootDef, target);
-    };
-
-    Renderer.prototype._appendDefinition = function _appendDefinition(root, definition, target) {
-      var outletStateReference = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _reference.UNDEFINED_REFERENCE;
-      var targetObject = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
-
-      var self = new _references.RootReference(definition);
-      var dynamicScope = new DynamicScope(null, outletStateReference, outletStateReference, true, targetObject);
-      var rootState = new RootState(root, this._env, this._rootTemplate, self, target, dynamicScope);
-
-      this._renderRoot(rootState);
-    };
-
-    Renderer.prototype.rerender = function rerender(view) {
-      this._scheduleRevalidate();
-    };
-
-    Renderer.prototype.register = function register(view) {
-      var id = (0, _emberViews.getViewId)(view);
-      (true && !(!this._viewRegistry[id]) && (0, _emberDebug.assert)('Attempted to register a view with an id already in use: ' + id, !this._viewRegistry[id]));
-
-      this._viewRegistry[id] = view;
-    };
-
-    Renderer.prototype.unregister = function unregister(view) {
-      delete this._viewRegistry[(0, _emberViews.getViewId)(view)];
-    };
-
-    Renderer.prototype.remove = function remove(view) {
-      view._transitionTo('destroying');
-
-      this.cleanupRootFor(view);
-
-      (0, _emberViews.setViewElement)(view, null);
-
-      if (this._destinedForDOM) {
-        view.trigger('didDestroyElement');
-      }
-
-      if (!view.isDestroying) {
-        view.destroy();
-      }
-    };
-
-    Renderer.prototype.cleanupRootFor = function cleanupRootFor(view) {
-      // no need to cleanup roots if we have already been destroyed
-      if (this._destroyed) {
-        return;
-      }
-
-      var roots = this._roots;
-
-      // traverse in reverse so we can remove items
-      // without mucking up the index
-      var i = this._roots.length;
-      while (i--) {
-        var root = roots[i];
-        if (root.isFor(view)) {
-          root.destroy();
-          roots.splice(i, 1);
-        }
-      }
-    };
-
-    Renderer.prototype.destroy = function destroy() {
-      if (this._destroyed) {
-        return;
-      }
-      this._destroyed = true;
-      this._clearAllRoots();
-    };
-
-    Renderer.prototype.getElement = function getElement(view) {
-      // overridden in the subclasses
-    };
-
-    Renderer.prototype.getBounds = function getBounds(view) {
-      var bounds = view[_component.BOUNDS];
-
-      var parentElement = bounds.parentElement();
-      var firstNode = bounds.firstNode();
-      var lastNode = bounds.lastNode();
-
-      return { parentElement: parentElement, firstNode: firstNode, lastNode: lastNode };
-    };
-
-    Renderer.prototype.createElement = function createElement(tagName) {
-      return this._env.getAppendOperations().createElement(tagName);
-    };
-
-    Renderer.prototype._renderRoot = function _renderRoot(root) {
-      var roots = this._roots;
-
-
-      roots.push(root);
-
-      if (roots.length === 1) {
-        register(this);
-      }
-
-      this._renderRootsTransaction();
-    };
-
-    Renderer.prototype._renderRoots = function _renderRoots() {
-      var roots = this._roots,
-          env = this._env,
-          removedRoots = this._removedRoots;
-
-      var globalShouldReflush = void 0,
-          initialRootsLength = void 0;
-
-      do {
-        env.begin();
-
-        // ensure that for the first iteration of the loop
-        // each root is processed
-        initialRootsLength = roots.length;
-        globalShouldReflush = false;
-
-        for (var i = 0; i < roots.length; i++) {
-          var root = roots[i];
-
-          if (root.destroyed) {
-            // add to the list of roots to be removed
-            // they will be removed from `this._roots` later
-            removedRoots.push(root);
-
-            // skip over roots that have been marked as destroyed
-            continue;
-          }
-
-          var shouldReflush = root.shouldReflush;
-
-
-          // when processing non-initial reflush loops,
-          // do not process more roots than needed
-          if (i >= initialRootsLength && !shouldReflush) {
-            continue;
-          }
-
-          root.options.alwaysRevalidate = shouldReflush;
-          // track shouldReflush based on this roots render result
-          shouldReflush = root.shouldReflush = (0, _emberMetal.runInTransaction)(root, 'render');
-
-          // globalShouldReflush should be `true` if *any* of
-          // the roots need to reflush
-          globalShouldReflush = globalShouldReflush || shouldReflush;
-        }
-
-        this._lastRevision = _reference.CURRENT_TAG.value();
-
-        env.commit();
-      } while (globalShouldReflush || roots.length > initialRootsLength);
-
-      // remove any roots that were destroyed during this transaction
-      while (removedRoots.length) {
-        var _root = removedRoots.pop();
-
-        var rootIndex = roots.indexOf(_root);
-        roots.splice(rootIndex, 1);
-      }
-
-      if (this._roots.length === 0) {
-        deregister(this);
-      }
-    };
-
-    Renderer.prototype._renderRootsTransaction = function _renderRootsTransaction() {
-      if (this._isRenderingRoots) {
-        // currently rendering roots, a new root was added and will
-        // be processed by the existing _renderRoots invocation
-        return;
-      }
-
-      // used to prevent calling _renderRoots again (see above)
-      // while we are actively rendering roots
-      this._isRenderingRoots = true;
-
-      var completedWithoutError = false;
-      try {
-        this._renderRoots();
-        completedWithoutError = true;
-      } finally {
-        if (!completedWithoutError) {
-          this._lastRevision = _reference.CURRENT_TAG.value();
-        }
-        this._isRenderingRoots = false;
-      }
-    };
-
-    Renderer.prototype._clearAllRoots = function _clearAllRoots() {
-      var roots = this._roots;
-      for (var i = 0; i < roots.length; i++) {
-        var root = roots[i];
-        root.destroy();
-      }
-
-      this._removedRoots.length = 0;
-      this._roots = null;
-
-      // if roots were present before destroying
-      // deregister this renderer instance
-      if (roots.length) {
-        deregister(this);
-      }
-    };
-
-    Renderer.prototype._scheduleRevalidate = function _scheduleRevalidate() {
-      backburner.scheduleOnce('render', this, this._revalidate);
-    };
-
-    Renderer.prototype._isValid = function _isValid() {
-      return this._destroyed || this._roots.length === 0 || _reference.CURRENT_TAG.validate(this._lastRevision);
-    };
-
-    Renderer.prototype._revalidate = function _revalidate() {
-      if (this._isValid()) {
-        return;
-      }
-      this._renderRootsTransaction();
-    };
-
-    return Renderer;
-  }();
-
-  var InertRenderer = exports.InertRenderer = function (_Renderer) {
-    (0, _emberBabel.inherits)(InertRenderer, _Renderer);
-
-    function InertRenderer() {
-      (0, _emberBabel.classCallCheck)(this, InertRenderer);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _Renderer.apply(this, arguments));
-    }
-
-    InertRenderer.create = function create(_ref) {
-      var env = _ref.env,
-          rootTemplate = _ref.rootTemplate,
-          _viewRegistry = _ref._viewRegistry;
-
-      return new this(env, rootTemplate, _viewRegistry, false);
-    };
-
-    InertRenderer.prototype.getElement = function getElement(view) {
-      throw new Error('Accessing `this.element` is not allowed in non-interactive environments (such as FastBoot).');
-    };
-
-    return InertRenderer;
-  }(Renderer);
-
-  var InteractiveRenderer = exports.InteractiveRenderer = function (_Renderer2) {
-    (0, _emberBabel.inherits)(InteractiveRenderer, _Renderer2);
-
-    function InteractiveRenderer() {
-      (0, _emberBabel.classCallCheck)(this, InteractiveRenderer);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _Renderer2.apply(this, arguments));
-    }
-
-    InteractiveRenderer.create = function create(_ref2) {
-      var env = _ref2.env,
-          rootTemplate = _ref2.rootTemplate,
-          _viewRegistry = _ref2._viewRegistry;
-
-      return new this(env, rootTemplate, _viewRegistry, true);
-    };
-
-    InteractiveRenderer.prototype.getElement = function getElement(view) {
-      return (0, _emberViews.getViewElement)(view);
-    };
-
-    return InteractiveRenderer;
-  }(Renderer);
-});
-enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'ember-environment', 'container', 'ember-glimmer/renderer', 'ember-glimmer/dom', 'ember-glimmer/views/outlet', 'ember-glimmer/components/text_field', 'ember-glimmer/components/text_area', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/link-to', 'ember-glimmer/component', 'ember-glimmer/templates/component', 'ember-glimmer/templates/root', 'ember-glimmer/templates/outlet', 'ember-glimmer/environment'], function (exports, _emberBabel, _emberEnvironment, _container, _renderer, _dom, _outlet, _text_field, _text_area, _checkbox, _linkTo, _component, _component2, _root, _outlet2, _environment) {
-  'use strict';
-
-  exports.setupApplicationRegistry = setupApplicationRegistry;
-  exports.setupEngineRegistry = setupEngineRegistry;
-
-  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:-root'], ['template:-root']),
-      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:components/-default'], ['template:components/-default']),
-      _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['component:-default'], ['component:-default']);
-
-  function setupApplicationRegistry(registry) {
-    registry.injection('service:-glimmer-environment', 'appendOperations', 'service:-dom-tree-construction');
-    registry.injection('renderer', 'env', 'service:-glimmer-environment');
-
-    registry.register((0, _container.privatize)(_templateObject), _root.default);
-    registry.injection('renderer', 'rootTemplate', (0, _container.privatize)(_templateObject));
-
-    registry.register('renderer:-dom', _renderer.InteractiveRenderer);
-    registry.register('renderer:-inert', _renderer.InertRenderer);
-
-    if (_emberEnvironment.environment.hasDOM) {
-      registry.injection('service:-glimmer-environment', 'updateOperations', 'service:-dom-changes');
-    }
-
-    registry.register('service:-dom-changes', {
-      create: function (_ref) {
-        var document = _ref.document;
-
-        return new _dom.DOMChanges(document);
-      }
+    (0, _emberMetal.setHasViews)(function () {
+        return renderers.length > 0;
     });
+    function register(renderer) {
+        (true && !(renderers.indexOf(renderer) === -1) && (0, _emberDebug.assert)('Cannot register the same renderer twice', renderers.indexOf(renderer) === -1));
 
-    registry.register('service:-dom-tree-construction', {
-      create: function (_ref2) {
-        var document = _ref2.document;
+        renderers.push(renderer);
+    }
+    function deregister(renderer) {
+        var index = renderers.indexOf(renderer);
+        (true && !(index !== -1) && (0, _emberDebug.assert)('Cannot deregister unknown unregistered renderer', index !== -1));
 
-        var Implementation = _emberEnvironment.environment.hasDOM ? _dom.DOMTreeConstruction : _dom.NodeDOMTreeConstruction;
-        return new Implementation(document);
-      }
-    });
-  }
+        renderers.splice(index, 1);
+    }
+    function loopBegin() {
+        for (var i = 0; i < renderers.length; i++) {
+            renderers[i]._scheduleRevalidate();
+        }
+    }
+    function K() {}
+    var loops = 0;
+    function loopEnd() {
+        for (var i = 0; i < renderers.length; i++) {
+            if (!renderers[i]._isValid()) {
+                if (loops > 10) {
+                    loops = 0;
+                    // TODO: do something better
+                    renderers[i].destroy();
+                    throw new Error('infinite rendering invalidation detected');
+                }
+                loops++;
+                return backburner.join(null, K);
+            }
+        }
+        loops = 0;
+    }
+    backburner.on('begin', loopBegin);
+    backburner.on('end', loopEnd);
 
-  function setupEngineRegistry(registry) {
-    registry.register('view:-outlet', _outlet.default);
-    registry.register('template:-outlet', _outlet2.default);
-    registry.injection('view:-outlet', 'template', 'template:-outlet');
+    var Renderer = exports.Renderer = function () {
+        function Renderer(env, rootTemplate) {
+            var _viewRegistry = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _emberViews.fallbackViewRegistry;
 
-    registry.injection('service:-dom-changes', 'document', 'service:-document');
-    registry.injection('service:-dom-tree-construction', 'document', 'service:-document');
+            var destinedForDOM = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+            (0, _emberBabel.classCallCheck)(this, Renderer);
 
-    registry.register((0, _container.privatize)(_templateObject2), _component2.default);
+            this._env = env;
+            this._rootTemplate = rootTemplate;
+            this._viewRegistry = _viewRegistry;
+            this._destinedForDOM = destinedForDOM;
+            this._destroyed = false;
+            this._roots = [];
+            this._lastRevision = -1;
+            this._isRenderingRoots = false;
+            this._removedRoots = [];
+        }
+        // renderer HOOKS
 
-    registry.register('service:-glimmer-environment', _environment.default);
-    registry.injection('template', 'env', 'service:-glimmer-environment');
 
-    registry.optionsForType('helper', { instantiate: false });
+        Renderer.prototype.appendOutletView = function appendOutletView(view, target) {
+            var definition = new _outlet.TopLevelOutletComponentDefinition(view);
+            var outletStateReference = view.toReference();
+            this._appendDefinition(view, definition, target, outletStateReference);
+        };
 
-    registry.register('component:-text-field', _text_field.default);
-    registry.register('component:-text-area', _text_area.default);
-    registry.register('component:-checkbox', _checkbox.default);
-    registry.register('component:link-to', _linkTo.default);
-    registry.register((0, _container.privatize)(_templateObject3), _component.default);
-  }
+        Renderer.prototype.appendTo = function appendTo(view, target) {
+            var rootDef = new _root2.RootComponentDefinition(view);
+            this._appendDefinition(view, rootDef, target);
+        };
+
+        Renderer.prototype._appendDefinition = function _appendDefinition(root, definition, target, outletStateReference) {
+            var self = new _references.RootReference(definition);
+            var dynamicScope = new DynamicScope(null, outletStateReference || _runtime.NULL_REFERENCE, outletStateReference);
+            var rootState = new RootState(root, this._env, this._rootTemplate, self, target, dynamicScope);
+            this._renderRoot(rootState);
+        };
+
+        Renderer.prototype.rerender = function rerender() {
+            this._scheduleRevalidate();
+        };
+
+        Renderer.prototype.register = function register(view) {
+            var id = (0, _emberViews.getViewId)(view);
+            (true && !(!this._viewRegistry[id]) && (0, _emberDebug.assert)('Attempted to register a view with an id already in use: ' + id, !this._viewRegistry[id]));
+
+            this._viewRegistry[id] = view;
+        };
+
+        Renderer.prototype.unregister = function unregister(view) {
+            delete this._viewRegistry[(0, _emberViews.getViewId)(view)];
+        };
+
+        Renderer.prototype.remove = function remove(view) {
+            view._transitionTo('destroying');
+            this.cleanupRootFor(view);
+            (0, _emberViews.setViewElement)(view, null);
+            if (this._destinedForDOM) {
+                view.trigger('didDestroyElement');
+            }
+            if (!view.isDestroying) {
+                view.destroy();
+            }
+        };
+
+        Renderer.prototype.cleanupRootFor = function cleanupRootFor(view) {
+            // no need to cleanup roots if we have already been destroyed
+            if (this._destroyed) {
+                return;
+            }
+            var roots = this._roots;
+            // traverse in reverse so we can remove items
+            // without mucking up the index
+            var i = this._roots.length;
+            while (i--) {
+                var root = roots[i];
+                if (root.isFor(view)) {
+                    root.destroy();
+                    roots.splice(i, 1);
+                }
+            }
+        };
+
+        Renderer.prototype.destroy = function destroy() {
+            if (this._destroyed) {
+                return;
+            }
+            this._destroyed = true;
+            this._clearAllRoots();
+        };
+
+        Renderer.prototype.getBounds = function getBounds(view) {
+            var bounds = view[_component.BOUNDS];
+            var parentElement = bounds.parentElement();
+            var firstNode = bounds.firstNode();
+            var lastNode = bounds.lastNode();
+            return { parentElement: parentElement, firstNode: firstNode, lastNode: lastNode };
+        };
+
+        Renderer.prototype.createElement = function createElement(tagName) {
+            return this._env.getAppendOperations().createElement(tagName);
+        };
+
+        Renderer.prototype._renderRoot = function _renderRoot(root) {
+            var roots = this._roots;
+
+            roots.push(root);
+            if (roots.length === 1) {
+                register(this);
+            }
+            this._renderRootsTransaction();
+        };
+
+        Renderer.prototype._renderRoots = function _renderRoots() {
+            var roots = this._roots,
+                env = this._env,
+                removedRoots = this._removedRoots;
+
+            var globalShouldReflush = void 0;
+            var initialRootsLength = void 0;
+            do {
+                env.begin();
+                // ensure that for the first iteration of the loop
+                // each root is processed
+                initialRootsLength = roots.length;
+                globalShouldReflush = false;
+                for (var i = 0; i < roots.length; i++) {
+                    var root = roots[i];
+                    if (root.destroyed) {
+                        // add to the list of roots to be removed
+                        // they will be removed from `this._roots` later
+                        removedRoots.push(root);
+                        // skip over roots that have been marked as destroyed
+                        continue;
+                    }
+                    var shouldReflush = root.shouldReflush;
+                    // when processing non-initial reflush loops,
+                    // do not process more roots than needed
+
+                    if (i >= initialRootsLength && !shouldReflush) {
+                        continue;
+                    }
+                    root.options.alwaysRevalidate = shouldReflush;
+                    // track shouldReflush based on this roots render result
+                    shouldReflush = root.shouldReflush = (0, _emberMetal.runInTransaction)(root, 'render');
+                    // globalShouldReflush should be `true` if *any* of
+                    // the roots need to reflush
+                    globalShouldReflush = globalShouldReflush || shouldReflush;
+                }
+                this._lastRevision = _reference.CURRENT_TAG.value();
+                env.commit();
+            } while (globalShouldReflush || roots.length > initialRootsLength);
+            // remove any roots that were destroyed during this transaction
+            while (removedRoots.length) {
+                var _root = removedRoots.pop();
+                var rootIndex = roots.indexOf(_root);
+                roots.splice(rootIndex, 1);
+            }
+            if (this._roots.length === 0) {
+                deregister(this);
+            }
+        };
+
+        Renderer.prototype._renderRootsTransaction = function _renderRootsTransaction() {
+            if (this._isRenderingRoots) {
+                // currently rendering roots, a new root was added and will
+                // be processed by the existing _renderRoots invocation
+                return;
+            }
+            // used to prevent calling _renderRoots again (see above)
+            // while we are actively rendering roots
+            this._isRenderingRoots = true;
+            var completedWithoutError = false;
+            try {
+                this._renderRoots();
+                completedWithoutError = true;
+            } finally {
+                if (!completedWithoutError) {
+                    this._lastRevision = _reference.CURRENT_TAG.value();
+                }
+                this._isRenderingRoots = false;
+            }
+        };
+
+        Renderer.prototype._clearAllRoots = function _clearAllRoots() {
+            var roots = this._roots;
+            for (var i = 0; i < roots.length; i++) {
+                var root = roots[i];
+                root.destroy();
+            }
+            this._removedRoots.length = 0;
+            this._roots = [];
+            // if roots were present before destroying
+            // deregister this renderer instance
+            if (roots.length) {
+                deregister(this);
+            }
+        };
+
+        Renderer.prototype._scheduleRevalidate = function _scheduleRevalidate() {
+            backburner.scheduleOnce('render', this, this._revalidate);
+        };
+
+        Renderer.prototype._isValid = function _isValid() {
+            return this._destroyed || this._roots.length === 0 || _reference.CURRENT_TAG.validate(this._lastRevision);
+        };
+
+        Renderer.prototype._revalidate = function _revalidate() {
+            if (this._isValid()) {
+                return;
+            }
+            this._renderRootsTransaction();
+        };
+
+        return Renderer;
+    }();
+
+    var InertRenderer = exports.InertRenderer = function (_Renderer) {
+        (0, _emberBabel.inherits)(InertRenderer, _Renderer);
+
+        function InertRenderer() {
+            (0, _emberBabel.classCallCheck)(this, InertRenderer);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _Renderer.apply(this, arguments));
+        }
+
+        InertRenderer.create = function create(_ref) {
+            var env = _ref.env,
+                rootTemplate = _ref.rootTemplate,
+                _viewRegistry = _ref._viewRegistry;
+
+            return new this(env, rootTemplate, _viewRegistry, false);
+        };
+
+        InertRenderer.prototype.getElement = function getElement(_view) {
+            throw new Error('Accessing `this.element` is not allowed in non-interactive environments (such as FastBoot).');
+        };
+
+        return InertRenderer;
+    }(Renderer);
+
+    var InteractiveRenderer = exports.InteractiveRenderer = function (_Renderer2) {
+        (0, _emberBabel.inherits)(InteractiveRenderer, _Renderer2);
+
+        function InteractiveRenderer() {
+            (0, _emberBabel.classCallCheck)(this, InteractiveRenderer);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _Renderer2.apply(this, arguments));
+        }
+
+        InteractiveRenderer.create = function create(_ref2) {
+            var env = _ref2.env,
+                rootTemplate = _ref2.rootTemplate,
+                _viewRegistry = _ref2._viewRegistry;
+
+            return new this(env, rootTemplate, _viewRegistry, true);
+        };
+
+        InteractiveRenderer.prototype.getElement = function getElement(view) {
+            return (0, _emberViews.getViewElement)(view);
+        };
+
+        return InteractiveRenderer;
+    }(Renderer);
 });
-enifed('ember-glimmer/syntax', ['exports', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/-text-area', 'ember-glimmer/syntax/utils', 'ember-debug'], function (exports, _render, _outlet, _mount, _dynamicComponent, _bindings, _input, _textArea, _utils, _emberDebug) {
-  'use strict';
+enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/link-to', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/dom', 'ember-glimmer/environment', 'ember-glimmer/renderer', 'ember-glimmer/templates/component', 'ember-glimmer/templates/outlet', 'ember-glimmer/templates/root', 'ember-glimmer/views/outlet'], function (exports, _emberBabel, _container, _emberEnvironment, _component, _checkbox, _linkTo, _text_area, _text_field, _dom, _environment, _renderer, _component2, _outlet, _root, _outlet2) {
+    'use strict';
 
-  exports.experimentalMacros = undefined;
-  exports.registerMacros = registerMacros;
-  exports.populateMacros = populateMacros;
+    exports.setupApplicationRegistry = setupApplicationRegistry;
+    exports.setupEngineRegistry = setupEngineRegistry;
 
+    var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:-root'], ['template:-root']),
+        _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['template:components/-default'], ['template:components/-default']),
+        _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['component:-default'], ['component:-default']);
 
-  function refineInlineSyntax(name, params, hash, builder) {
-    (true && !(!(builder.env.builtInHelpers[name] && builder.env.owner.hasRegistration('helper:' + name))) && (0, _emberDebug.assert)('You attempted to overwrite the built-in helper "' + name + '" which is not allowed. Please rename the helper.', !(builder.env.builtInHelpers[name] && builder.env.owner.hasRegistration('helper:' + name))));
+    function setupApplicationRegistry(registry) {
+        registry.injection('service:-glimmer-environment', 'appendOperations', 'service:-dom-tree-construction');
+        registry.injection('renderer', 'env', 'service:-glimmer-environment');
+        registry.register((0, _container.privatize)(_templateObject), _root.default);
+        registry.injection('renderer', 'rootTemplate', (0, _container.privatize)(_templateObject));
+        registry.register('renderer:-dom', _renderer.InteractiveRenderer);
+        registry.register('renderer:-inert', _renderer.InertRenderer);
+        if (_emberEnvironment.environment.hasDOM) {
+            registry.injection('service:-glimmer-environment', 'updateOperations', 'service:-dom-changes');
+        }
+        registry.register('service:-dom-changes', {
+            create: function (_ref) {
+                var document = _ref.document;
 
+                return new _dom.DOMChanges(document);
+            }
+        });
+        registry.register('service:-dom-tree-construction', {
+            create: function (_ref2) {
+                var document = _ref2.document;
 
-    var definition = void 0;
-    if (name.indexOf('-') > -1) {
-      definition = builder.env.getComponentDefinition(name, builder.meta.templateMeta);
+                var Implementation = _emberEnvironment.environment.hasDOM ? _dom.DOMTreeConstruction : _dom.NodeDOMTreeConstruction;
+                return new Implementation(document);
+            }
+        });
     }
-
-    if (definition) {
-      (0, _bindings.wrapComponentClassAttribute)(hash);
-      builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
-      return true;
+    function setupEngineRegistry(registry) {
+        registry.register('view:-outlet', _outlet2.default);
+        registry.register('template:-outlet', _outlet.default);
+        registry.injection('view:-outlet', 'template', 'template:-outlet');
+        registry.injection('service:-dom-changes', 'document', 'service:-document');
+        registry.injection('service:-dom-tree-construction', 'document', 'service:-document');
+        registry.register((0, _container.privatize)(_templateObject2), _component2.default);
+        registry.register('service:-glimmer-environment', _environment.default);
+        registry.injection('template', 'env', 'service:-glimmer-environment');
+        registry.optionsForType('helper', { instantiate: false });
+        registry.register('component:-text-field', _text_field.default);
+        registry.register('component:-text-area', _text_area.default);
+        registry.register('component:-checkbox', _checkbox.default);
+        registry.register('component:link-to', _linkTo.default);
+        registry.register((0, _container.privatize)(_templateObject3), _component.default);
     }
+});
+enifed('ember-glimmer/syntax', ['exports', 'ember-debug', 'ember-glimmer/syntax/-text-area', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/input', 'ember-glimmer/syntax/mount', 'ember-glimmer/syntax/outlet', 'ember-glimmer/syntax/render', 'ember-glimmer/syntax/utils', 'ember-glimmer/utils/bindings'], function (exports, _emberDebug, _textArea, _dynamicComponent, _input, _mount, _outlet, _render, _utils, _bindings) {
+    'use strict';
 
-    return false;
-  }
+    exports.experimentalMacros = undefined;
+    exports.registerMacros = registerMacros;
+    exports.populateMacros = populateMacros;
 
-  function refineBlockSyntax(name, params, hash, _default, inverse, builder) {
-    if (name.indexOf('-') === -1) {
-      return false;
+    function refineInlineSyntax(name, params, hash, builder) {
+        (true && !(!(builder.env.builtInHelpers[name] && builder.env.owner.hasRegistration('helper:' + name))) && (0, _emberDebug.assert)('You attempted to overwrite the built-in helper "' + name + '" which is not allowed. Please rename the helper.', !(builder.env.builtInHelpers[name] && builder.env.owner.hasRegistration('helper:' + name))));
+
+        var definition = void 0;
+        if (name.indexOf('-') > -1) {
+            definition = builder.env.getComponentDefinition(name, builder.meta.templateMeta);
+        }
+        if (definition) {
+            (0, _bindings.wrapComponentClassAttribute)(hash);
+            builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
+            return true;
+        }
+        return false;
     }
+    function refineBlockSyntax(name, params, hash, _default, inverse, builder) {
+        if (name.indexOf('-') === -1) {
+            return false;
+        }
+        var meta = builder.meta.templateMeta;
+        var definition = void 0;
+        if (name.indexOf('-') > -1) {
+            definition = builder.env.getComponentDefinition(name, meta);
+        }
+        if (definition) {
+            (0, _bindings.wrapComponentClassAttribute)(hash);
+            builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), _default, inverse]);
+            return true;
+        }
+        (true && !(builder.env.hasHelper(name, meta)) && (0, _emberDebug.assert)('A component or helper named "' + name + '" could not be found', builder.env.hasHelper(name, meta)));
+        (true && !(!builder.env.hasHelper(name, meta)) && (0, _emberDebug.assert)('Helpers may not be used in the block form, for example {{#' + name + '}}{{/' + name + '}}. Please use a component, or alternatively use the helper in combination with a built-in Ember helper, for example {{#if (' + name + ')}}{{/if}}.', !builder.env.hasHelper(name, meta)));
 
-    var meta = builder.meta.templateMeta;
-
-    var definition = void 0;
-    if (name.indexOf('-') > -1) {
-      definition = builder.env.getComponentDefinition(name, meta);
+        return false;
     }
-
-    if (definition) {
-      (0, _bindings.wrapComponentClassAttribute)(hash);
-      builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), _default, inverse]);
-      return true;
+    var experimentalMacros = exports.experimentalMacros = [];
+    // This is a private API to allow for experimental macros
+    // to be created in user space. Registering a macro should
+    // should be done in an initializer.
+    function registerMacros(macro) {
+        experimentalMacros.push(macro);
     }
-
-    (true && !(builder.env.hasHelper(name, meta)) && (0, _emberDebug.assert)('A component or helper named "' + name + '" could not be found', builder.env.hasHelper(name, meta)));
-    (true && !(!builder.env.hasHelper(name, meta)) && (0, _emberDebug.assert)('Helpers may not be used in the block form, for example {{#' + name + '}}{{/' + name + '}}. Please use a component, or alternatively use the helper in combination with a built-in Ember helper, for example {{#if (' + name + ')}}{{/if}}.', !builder.env.hasHelper(name, meta)));
-
-
-    return false;
-  }
-
-  var experimentalMacros = exports.experimentalMacros = [];
-
-  // This is a private API to allow for experimental macros
-  // to be created in user space. Registering a macro should
-  // should be done in an initializer.
-  function registerMacros(macro) {
-    experimentalMacros.push(macro);
-  }
-
-  function populateMacros(blocks, inlines) {
-    inlines.add('outlet', _outlet.outletMacro);
-    inlines.add('component', _dynamicComponent.inlineComponentMacro);
-    inlines.add('render', _render.renderMacro);
-    inlines.add('mount', _mount.mountMacro);
-    inlines.add('input', _input.inputMacro);
-    inlines.add('textarea', _textArea.textAreaMacro);
-    inlines.addMissing(refineInlineSyntax);
-    blocks.add('component', _dynamicComponent.blockComponentMacro);
-    blocks.addMissing(refineBlockSyntax);
-
-    for (var i = 0; i < experimentalMacros.length; i++) {
-      var macro = experimentalMacros[i];
-      macro(blocks, inlines);
+    function populateMacros(blocks, inlines) {
+        inlines.add('outlet', _outlet.outletMacro);
+        inlines.add('component', _dynamicComponent.inlineComponentMacro);
+        inlines.add('render', _render.renderMacro);
+        inlines.add('mount', _mount.mountMacro);
+        inlines.add('input', _input.inputMacro);
+        inlines.add('textarea', _textArea.textAreaMacro);
+        inlines.addMissing(refineInlineSyntax);
+        blocks.add('component', _dynamicComponent.blockComponentMacro);
+        blocks.addMissing(refineBlockSyntax);
+        for (var i = 0; i < experimentalMacros.length; i++) {
+            var macro = experimentalMacros[i];
+            macro(blocks, inlines);
+        }
+        return { blocks: blocks, inlines: inlines };
     }
-
-    return { blocks: blocks, inlines: inlines };
-  }
 });
 enifed('ember-glimmer/syntax/-text-area', ['exports', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/utils'], function (exports, _bindings, _utils) {
-  'use strict';
+    'use strict';
 
-  exports.textAreaMacro = textAreaMacro;
-  function textAreaMacro(name, params, hash, builder) {
-    var definition = builder.env.getComponentDefinition('-text-area', builder.meta.templateMeta);
-    (0, _bindings.wrapComponentClassAttribute)(hash);
-    builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
-    return true;
-  }
+    exports.textAreaMacro = textAreaMacro;
+    function textAreaMacro(_name, params, hash, builder) {
+        var definition = builder.env.getComponentDefinition('-text-area', builder.meta.templateMeta);
+        (0, _bindings.wrapComponentClassAttribute)(hash);
+        builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
+        return true;
+    }
 });
-enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'ember-babel', '@glimmer/runtime', '@glimmer/reference', 'ember-debug', 'ember-glimmer/syntax/utils'], function (exports, _emberBabel, _runtime, _reference, _emberDebug, _utils) {
-  'use strict';
+enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-glimmer/syntax/utils'], function (exports, _emberBabel, _runtime, _emberDebug, _utils) {
+    'use strict';
 
-  exports.dynamicComponentMacro = dynamicComponentMacro;
-  exports.blockComponentMacro = blockComponentMacro;
-  exports.inlineComponentMacro = inlineComponentMacro;
+    exports.dynamicComponentMacro = dynamicComponentMacro;
+    exports.blockComponentMacro = blockComponentMacro;
+    exports.inlineComponentMacro = inlineComponentMacro;
 
-
-  function dynamicComponentFor(vm, args, meta) {
-    var env = vm.env;
-    var nameRef = args.positional.at(0);
-
-    return new DynamicComponentReference({ nameRef: nameRef, env: env, meta: meta });
-  }
-
-  function dynamicComponentMacro(params, hash, _default, inverse, builder) {
-    var definitionArgs = [params.slice(0, 1), null, null, null];
-    var args = [params.slice(1), (0, _utils.hashToArgs)(hash), null, null];
-    builder.component.dynamic(definitionArgs, dynamicComponentFor, args);
-    return true;
-  }
-
-  function blockComponentMacro(params, hash, _default, inverse, builder) {
-    var definitionArgs = [params.slice(0, 1), null, null, null];
-    var args = [params.slice(1), (0, _utils.hashToArgs)(hash), _default, inverse];
-    builder.component.dynamic(definitionArgs, dynamicComponentFor, args);
-    return true;
-  }
-
-  function inlineComponentMacro(name, params, hash, builder) {
-    var definitionArgs = [params.slice(0, 1), null, null, null];
-    var args = [params.slice(1), (0, _utils.hashToArgs)(hash), null, null];
-    builder.component.dynamic(definitionArgs, dynamicComponentFor, args);
-    return true;
-  }
-
-  var DynamicComponentReference = function () {
-    function DynamicComponentReference(_ref) {
-      var nameRef = _ref.nameRef,
-          env = _ref.env,
-          meta = _ref.meta,
-          args = _ref.args;
-      (0, _emberBabel.classCallCheck)(this, DynamicComponentReference);
-
-      this.tag = nameRef.tag;
-      this.nameRef = nameRef;
-      this.env = env;
-      this.meta = meta;
-      this.args = args;
+    function dynamicComponentFor(vm, args, meta) {
+        var env = vm.env;
+        var nameRef = args.positional.at(0);
+        return new DynamicComponentReference({ nameRef: nameRef, env: env, meta: meta, args: null });
+    }
+    function dynamicComponentMacro(params, hash, _default, _inverse, builder) {
+        var definitionArgs = [params.slice(0, 1), null, null, null];
+        var args = [params.slice(1), (0, _utils.hashToArgs)(hash), null, null];
+        builder.component.dynamic(definitionArgs, dynamicComponentFor, args);
+        return true;
+    }
+    function blockComponentMacro(params, hash, _default, inverse, builder) {
+        var definitionArgs = [params.slice(0, 1), null, null, null];
+        var args = [params.slice(1), (0, _utils.hashToArgs)(hash), _default, inverse];
+        builder.component.dynamic(definitionArgs, dynamicComponentFor, args);
+        return true;
+    }
+    function inlineComponentMacro(_name, params, hash, builder) {
+        var definitionArgs = [params.slice(0, 1), null, null, null];
+        var args = [params.slice(1), (0, _utils.hashToArgs)(hash), null, null];
+        builder.component.dynamic(definitionArgs, dynamicComponentFor, args);
+        return true;
     }
 
-    DynamicComponentReference.prototype.value = function value() {
-      var env = this.env,
-          nameRef = this.nameRef,
-          meta = this.meta;
+    var DynamicComponentReference = function () {
+        function DynamicComponentReference(_ref) {
+            var nameRef = _ref.nameRef,
+                env = _ref.env,
+                meta = _ref.meta,
+                args = _ref.args;
+            (0, _emberBabel.classCallCheck)(this, DynamicComponentReference);
 
-      var nameOrDef = nameRef.value();
+            this.tag = nameRef.tag;
+            this.nameRef = nameRef;
+            this.env = env;
+            this.meta = meta;
+            this.args = args;
+        }
 
-      if (typeof nameOrDef === 'string') {
-        var definition = env.getComponentDefinition(nameOrDef, meta);
+        DynamicComponentReference.prototype.value = function value() {
+            var env = this.env,
+                nameRef = this.nameRef,
+                meta = this.meta;
 
-        (true && !(definition) && (0, _emberDebug.assert)('Could not find component named "' + nameOrDef + '" (no component or template with that name was found)', definition));
+            var nameOrDef = nameRef.value();
+            if (typeof nameOrDef === 'string') {
+                var definition = env.getComponentDefinition(nameOrDef, meta);
+                // tslint:disable-next-line:max-line-length
+                (true && !(definition) && (0, _emberDebug.assert)('Could not find component named "' + nameOrDef + '" (no component or template with that name was found)', definition));
 
+                return definition;
+            } else if ((0, _runtime.isComponentDefinition)(nameOrDef)) {
+                return nameOrDef;
+            } else {
+                return null;
+            }
+        };
 
-        return definition;
-      } else if ((0, _runtime.isComponentDefinition)(nameOrDef)) {
-        return nameOrDef;
-      } else {
-        return null;
-      }
-    };
+        DynamicComponentReference.prototype.get = function get() {};
 
-    DynamicComponentReference.prototype.get = function get() {
-      return _reference.UNDEFINED_REFERENCE;
-    };
-
-    return DynamicComponentReference;
-  }();
+        return DynamicComponentReference;
+    }();
 });
 enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/utils/bindings', 'ember-glimmer/syntax/dynamic-component', 'ember-glimmer/syntax/utils'], function (exports, _emberDebug, _bindings, _dynamicComponent, _utils) {
-  'use strict';
+    'use strict';
 
-  exports.inputMacro = inputMacro;
-  /**
-  @module ember
-  */
-  function buildSyntax(type, params, hash, builder) {
-    var definition = builder.env.getComponentDefinition(type, builder.meta.templateMeta);
-    builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
-    return true;
-  }
-
-  /**
-    The `{{input}}` helper lets you create an HTML `<input />` component.
-    It causes an `TextField` component to be rendered.  For more info,
-    see the [TextField](/api/classes/Ember.TextField.html) docs and
-    the [templates guide](https://emberjs.com/guides/templates/input-helpers/).
-  
-    ```handlebars
-    {{input value="987"}}
-    ```
-  
-    renders as:
-  
-    ```HTML
-    <input type="text" value="987" />
-    ```
-  
-    ### Text field
-  
-    If no `type` option is specified, a default of type 'text' is used.
-    Many of the standard HTML attributes may be passed to this helper.
-    <table>
-      <tr><td>`readonly`</td><td>`required`</td><td>`autofocus`</td></tr>
-      <tr><td>`value`</td><td>`placeholder`</td><td>`disabled`</td></tr>
-      <tr><td>`size`</td><td>`tabindex`</td><td>`maxlength`</td></tr>
-      <tr><td>`name`</td><td>`min`</td><td>`max`</td></tr>
-      <tr><td>`pattern`</td><td>`accept`</td><td>`autocomplete`</td></tr>
-      <tr><td>`autosave`</td><td>`formaction`</td><td>`formenctype`</td></tr>
-      <tr><td>`formmethod`</td><td>`formnovalidate`</td><td>`formtarget`</td></tr>
-      <tr><td>`height`</td><td>`inputmode`</td><td>`multiple`</td></tr>
-      <tr><td>`step`</td><td>`width`</td><td>`form`</td></tr>
-      <tr><td>`selectionDirection`</td><td>`spellcheck`</td><td>&nbsp;</td></tr>
-    </table>
-    When set to a quoted string, these values will be directly applied to the HTML
-    element. When left unquoted, these values will be bound to a property on the
-    template's current rendering context (most typically a controller instance).
-    A very common use of this helper is to bind the `value` of an input to an Object's attribute:
-  
-    ```handlebars
-    Search:
-    {{input value=searchWord}}
-    ```
-  
-    In this example, the initial value in the `<input />` will be set to the value of `searchWord`.
-    If the user changes the text, the value of `searchWord` will also be updated.
-  
-    ### Actions
-  
-    The helper can send multiple actions based on user events.
-    The action property defines the action which is sent when
-    the user presses the return key.
-  
-    ```handlebars
-    {{input action="submit"}}
-    ```
-  
-    The helper allows some user events to send actions.
-  
-    * `enter`
-    * `insert-newline`
-    * `escape-press`
-    * `focus-in`
-    * `focus-out`
-    * `key-press`
-    * `key-up`
-  
-    For example, if you desire an action to be sent when the input is blurred,
-    you only need to setup the action name to the event name property.
-  
-    ```handlebars
-    {{input focus-out="alertMessage"}}
-    ```
-    See more about [Text Support Actions](/api/classes/Ember.TextField.html)
-  
-    ### Extending `TextField`
-  
-    Internally, `{{input type="text"}}` creates an instance of `TextField`, passing
-    arguments from the helper to `TextField`'s `create` method. You can extend the
-    capabilities of text inputs in your applications by reopening this class. For example,
-    if you are building a Bootstrap project where `data-*` attributes are used, you
-    can add one to the `TextField`'s `attributeBindings` property:
-  
-    ```javascript
-    import TextField from '@ember/component/text-field';
-    TextField.reopen({
-      attributeBindings: ['data-error']
-    });
-    ```
-  
-    Keep in mind when writing `TextField` subclasses that `TextField`
-    itself extends `Component`. Expect isolated component semantics, not
-    legacy 1.x view semantics (like `controller` being present).
-    See more about [Ember components](/api/classes/Ember.Component.html)
-  
-    ### Checkbox
-  
-    Checkboxes are special forms of the `{{input}}` helper.  To create a `<checkbox />`:
-  
-    ```handlebars
-    Emberize Everything:
-    {{input type="checkbox" name="isEmberized" checked=isEmberized}}
-    ```
-  
-    This will bind checked state of this checkbox to the value of `isEmberized`  -- if either one changes,
-    it will be reflected in the other.
-  
-    The following HTML attributes can be set via the helper:
-  
-    * `checked`
-    * `disabled`
-    * `tabindex`
-    * `indeterminate`
-    * `name`
-    * `autofocus`
-    * `form`
-  
-    ### Extending `Checkbox`
-  
-    Internally, `{{input type="checkbox"}}` creates an instance of `Checkbox`, passing
-    arguments from the helper to `Checkbox`'s `create` method. You can extend the
-    capablilties of checkbox inputs in your applications by reopening this class. For example,
-    if you wanted to add a css class to all checkboxes in your application:
-  
-    ```javascript
-    import Checkbox from '@ember/component/checkbox';
-  
-    Checkbox.reopen({
-      classNames: ['my-app-checkbox']
-    });
-    ```
-  
-    @method input
-    @for Ember.Templates.helpers
-    @param {Hash} options
-    @public
-  */
-
-  function inputMacro(name, params, hash, builder) {
-    var keys = void 0;
-    var values = void 0;
-    var typeIndex = -1;
-    var valueIndex = -1;
-
-    if (hash) {
-      keys = hash[0];
-      values = hash[1];
-      typeIndex = keys.indexOf('type');
-      valueIndex = keys.indexOf('value');
+    exports.inputMacro = inputMacro;
+    /**
+    @module ember
+    */
+    function buildSyntax(type, params, hash, builder) {
+        var definition = builder.env.getComponentDefinition(type, builder.meta.templateMeta);
+        builder.component.static(definition, [params, (0, _utils.hashToArgs)(hash), null, null]);
+        return true;
     }
+    /**
+      The `{{input}}` helper lets you create an HTML `<input />` component.
+      It causes an `TextField` component to be rendered.  For more info,
+      see the [TextField](/api/classes/Ember.TextField.html) docs and
+      the [templates guide](https://emberjs.com/guides/templates/input-helpers/).
+    
+      ```handlebars
+      {{input value="987"}}
+      ```
+    
+      renders as:
+    
+      ```HTML
+      <input type="text" value="987" />
+      ```
+    
+      ### Text field
+    
+      If no `type` option is specified, a default of type 'text' is used.
+      Many of the standard HTML attributes may be passed to this helper.
+      <table>
+        <tr><td>`readonly`</td><td>`required`</td><td>`autofocus`</td></tr>
+        <tr><td>`value`</td><td>`placeholder`</td><td>`disabled`</td></tr>
+        <tr><td>`size`</td><td>`tabindex`</td><td>`maxlength`</td></tr>
+        <tr><td>`name`</td><td>`min`</td><td>`max`</td></tr>
+        <tr><td>`pattern`</td><td>`accept`</td><td>`autocomplete`</td></tr>
+        <tr><td>`autosave`</td><td>`formaction`</td><td>`formenctype`</td></tr>
+        <tr><td>`formmethod`</td><td>`formnovalidate`</td><td>`formtarget`</td></tr>
+        <tr><td>`height`</td><td>`inputmode`</td><td>`multiple`</td></tr>
+        <tr><td>`step`</td><td>`width`</td><td>`form`</td></tr>
+        <tr><td>`selectionDirection`</td><td>`spellcheck`</td><td>&nbsp;</td></tr>
+      </table>
+      When set to a quoted string, these values will be directly applied to the HTML
+      element. When left unquoted, these values will be bound to a property on the
+      template's current rendering context (most typically a controller instance).
+      A very common use of this helper is to bind the `value` of an input to an Object's attribute:
+    
+      ```handlebars
+      Search:
+      {{input value=searchWord}}
+      ```
+    
+      In this example, the initial value in the `<input />` will be set to the value of `searchWord`.
+      If the user changes the text, the value of `searchWord` will also be updated.
+    
+      ### Actions
+    
+      The helper can send multiple actions based on user events.
+      The action property defines the action which is sent when
+      the user presses the return key.
+    
+      ```handlebars
+      {{input action="submit"}}
+      ```
+    
+      The helper allows some user events to send actions.
+    
+      * `enter`
+      * `insert-newline`
+      * `escape-press`
+      * `focus-in`
+      * `focus-out`
+      * `key-press`
+      * `key-up`
+    
+      For example, if you desire an action to be sent when the input is blurred,
+      you only need to setup the action name to the event name property.
+    
+      ```handlebars
+      {{input focus-out="alertMessage"}}
+      ```
+      See more about [Text Support Actions](/api/classes/Ember.TextField.html)
+    
+      ### Extending `TextField`
+    
+      Internally, `{{input type="text"}}` creates an instance of `TextField`, passing
+      arguments from the helper to `TextField`'s `create` method. You can extend the
+      capabilities of text inputs in your applications by reopening this class. For example,
+      if you are building a Bootstrap project where `data-*` attributes are used, you
+      can add one to the `TextField`'s `attributeBindings` property:
+    
+      ```javascript
+      import TextField from '@ember/component/text-field';
+      TextField.reopen({
+        attributeBindings: ['data-error']
+      });
+      ```
+    
+      Keep in mind when writing `TextField` subclasses that `TextField`
+      itself extends `Component`. Expect isolated component semantics, not
+      legacy 1.x view semantics (like `controller` being present).
+      See more about [Ember components](/api/classes/Ember.Component.html)
+    
+      ### Checkbox
+    
+      Checkboxes are special forms of the `{{input}}` helper.  To create a `<checkbox />`:
+    
+      ```handlebars
+      Emberize Everything:
+      {{input type="checkbox" name="isEmberized" checked=isEmberized}}
+      ```
+    
+      This will bind checked state of this checkbox to the value of `isEmberized`  -- if either one changes,
+      it will be reflected in the other.
+    
+      The following HTML attributes can be set via the helper:
+    
+      * `checked`
+      * `disabled`
+      * `tabindex`
+      * `indeterminate`
+      * `name`
+      * `autofocus`
+      * `form`
+    
+      ### Extending `Checkbox`
+    
+      Internally, `{{input type="checkbox"}}` creates an instance of `Checkbox`, passing
+      arguments from the helper to `Checkbox`'s `create` method. You can extend the
+      capablilties of checkbox inputs in your applications by reopening this class. For example,
+      if you wanted to add a css class to all checkboxes in your application:
+    
+      ```javascript
+      import Checkbox from '@ember/component/checkbox';
+    
+      Checkbox.reopen({
+        classNames: ['my-app-checkbox']
+      });
+      ```
+    
+      @method input
+      @for Ember.Templates.helpers
+      @param {Hash} options
+      @public
+    */
+    function inputMacro(_name, params, hash, builder) {
+        var keys = void 0;
+        var values = void 0;
+        var typeIndex = -1;
+        var valueIndex = -1;
+        if (hash) {
+            keys = hash[0];
+            values = hash[1];
+            typeIndex = keys.indexOf('type');
+            valueIndex = keys.indexOf('value');
+        }
+        if (!params) {
+            params = [];
+        }
+        if (typeIndex > -1) {
+            var typeArg = values[typeIndex];
+            if (Array.isArray(typeArg)) {
+                return (0, _dynamicComponent.dynamicComponentMacro)(params, hash, null, null, builder);
+            } else if (typeArg === 'checkbox') {
+                (true && !(valueIndex === -1) && (0, _emberDebug.assert)('{{input type=\'checkbox\'}} does not support setting `value=someBooleanValue`; ' + 'you must use `checked=someBooleanValue` instead.', valueIndex === -1));
 
-    if (!params) {
-      params = [];
+                (0, _bindings.wrapComponentClassAttribute)(hash);
+                return buildSyntax('-checkbox', params, hash, builder);
+            }
+        }
+        return buildSyntax('-text-field', params, hash, builder);
     }
-
-    if (typeIndex > -1) {
-      var typeArg = values[typeIndex];
-      if (Array.isArray(typeArg)) {
-        return (0, _dynamicComponent.dynamicComponentMacro)(params, hash, null, null, builder);
-      } else if (typeArg === 'checkbox') {
-        (true && !(valueIndex === -1) && (0, _emberDebug.assert)('{{input type=\'checkbox\'}} does not support setting `value=someBooleanValue`; ' + 'you must use `checked=someBooleanValue` instead.', valueIndex === -1));
-
-        (0, _bindings.wrapComponentClassAttribute)(hash);
-        return buildSyntax('-checkbox', params, hash, builder);
-      }
-    }
-
-    return buildSyntax('-text-field', params, hash, builder);
-  }
 });
-enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', 'ember-debug', 'ember/features', 'ember-glimmer/syntax/utils', 'ember-glimmer/component-managers/mount'], function (exports, _emberBabel, _emberDebug, _features, _utils, _mount) {
-  'use strict';
+enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', 'ember-debug', 'ember/features', 'ember-glimmer/component-managers/mount', 'ember-glimmer/syntax/utils'], function (exports, _emberBabel, _emberDebug, _features, _mount, _utils) {
+    'use strict';
 
-  exports.mountMacro = mountMacro;
-  /**
-  @module ember
-  */
-  function dynamicEngineFor(vm, args, meta) {
-    var env = vm.env;
-    var nameRef = args.positional.at(0);
-
-    return new DynamicEngineReference({ nameRef: nameRef, env: env, meta: meta });
-  }
-
-  /**
-    The `{{mount}}` helper lets you embed a routeless engine in a template.
-    Mounting an engine will cause an instance to be booted and its `application`
-    template to be rendered.
-  
-    For example, the following template mounts the `ember-chat` engine:
-  
-    ```handlebars
-    {{! application.hbs }}
-    {{mount "ember-chat"}}
-    ```
-  
-    Additionally, you can also pass in a `model` argument that will be
-    set as the engines model. This can be an existing object:
-  
-    ```
-    <div>
-      {{mount 'admin' model=userSettings}}
-    </div>
-    ```
-  
-    Or an inline `hash`, and you can even pass components:
-  
-    ```
-    <div>
-      <h1>Application template!</h1>
-      {{mount 'admin' model=(hash
-          title='Secret Admin'
-          signInButton=(component 'sign-in-button')
-      )}}
-    </div>
-    ```
-  
-    @method mount
-    @param {String} name Name of the engine to mount.
-    @param {Object} [model] Object that will be set as
-                            the model of the engine.
-    @for Ember.Templates.helpers
-    @category ember-application-engines
-    @public
-  */
-  function mountMacro(name, params, hash, builder) {
-    if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
-      (true && !(params.length === 1) && (0, _emberDebug.assert)('You can only pass a single positional argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1));
-    } else {
-      (true && !(params.length === 1 && hash === null) && (0, _emberDebug.assert)('You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1 && hash === null));
+    exports.mountMacro = mountMacro;
+    /**
+    @module ember
+    */
+    function dynamicEngineFor(vm, args, meta) {
+        var env = vm.env;
+        var nameRef = args.positional.at(0);
+        return new DynamicEngineReference({ nameRef: nameRef, env: env, meta: meta });
+    }
+    /**
+      The `{{mount}}` helper lets you embed a routeless engine in a template.
+      Mounting an engine will cause an instance to be booted and its `application`
+      template to be rendered.
+    
+      For example, the following template mounts the `ember-chat` engine:
+    
+      ```handlebars
+      {{! application.hbs }}
+      {{mount "ember-chat"}}
+      ```
+    
+      Additionally, you can also pass in a `model` argument that will be
+      set as the engines model. This can be an existing object:
+    
+      ```
+      <div>
+        {{mount 'admin' model=userSettings}}
+      </div>
+      ```
+    
+      Or an inline `hash`, and you can even pass components:
+    
+      ```
+      <div>
+        <h1>Application template!</h1>
+        {{mount 'admin' model=(hash
+            title='Secret Admin'
+            signInButton=(component 'sign-in-button')
+        )}}
+      </div>
+      ```
+    
+      @method mount
+      @param {String} name Name of the engine to mount.
+      @param {Object} [model] Object that will be set as
+                              the model of the engine.
+      @for Ember.Templates.helpers
+      @category ember-application-engines
+      @public
+    */
+    function mountMacro(_name, params, hash, builder) {
+        if (_features.EMBER_ENGINES_MOUNT_PARAMS) {
+            (true && !(params.length === 1) && (0, _emberDebug.assert)('You can only pass a single positional argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1));
+        } else {
+            (true && !(params.length === 1 && hash === null) && (0, _emberDebug.assert)('You can only pass a single argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1 && hash === null));
+        }
+        var definitionArgs = [params.slice(0, 1), null, null, null];
+        var args = [null, (0, _utils.hashToArgs)(hash), null, null];
+        builder.component.dynamic(definitionArgs, dynamicEngineFor, args);
+        return true;
     }
 
-    var definitionArgs = [params.slice(0, 1), null, null, null];
-    var args = [null, (0, _utils.hashToArgs)(hash), null, null];
-    builder.component.dynamic(definitionArgs, dynamicEngineFor, args);
-    return true;
-  }
+    var DynamicEngineReference = function () {
+        function DynamicEngineReference(_ref) {
+            var nameRef = _ref.nameRef,
+                env = _ref.env,
+                meta = _ref.meta;
+            (0, _emberBabel.classCallCheck)(this, DynamicEngineReference);
 
-  var DynamicEngineReference = function () {
-    function DynamicEngineReference(_ref) {
-      var nameRef = _ref.nameRef,
-          env = _ref.env,
-          meta = _ref.meta;
-      (0, _emberBabel.classCallCheck)(this, DynamicEngineReference);
-
-      this.tag = nameRef.tag;
-      this.nameRef = nameRef;
-      this.env = env;
-      this.meta = meta;
-      this._lastName = undefined;
-      this._lastDef = undefined;
-    }
-
-    DynamicEngineReference.prototype.value = function value() {
-      var env = this.env,
-          nameRef = this.nameRef;
-
-      var nameOrDef = nameRef.value();
-
-      if (typeof nameOrDef === 'string') {
-        if (this._lastName === nameOrDef) {
-          return this._lastDef;
+            this.tag = nameRef.tag;
+            this.nameRef = nameRef;
+            this.env = env;
+            this.meta = meta;
+            this._lastName = undefined;
+            this._lastDef = undefined;
         }
 
-        (true && !(env.owner.hasRegistration('engine:' + nameOrDef)) && (0, _emberDebug.assert)('You used `{{mount \'' + nameOrDef + '\'}}`, but the engine \'' + nameOrDef + '\' can not be found.', env.owner.hasRegistration('engine:' + nameOrDef)));
+        DynamicEngineReference.prototype.value = function value() {
+            var env = this.env,
+                nameRef = this.nameRef;
 
+            var nameOrDef = nameRef.value();
+            if (typeof nameOrDef === 'string') {
+                if (this._lastName === nameOrDef) {
+                    return this._lastDef;
+                }
+                (true && !(env.owner.hasRegistration('engine:' + nameOrDef)) && (0, _emberDebug.assert)('You used `{{mount \'' + nameOrDef + '\'}}`, but the engine \'' + nameOrDef + '\' can not be found.', env.owner.hasRegistration('engine:' + nameOrDef)));
 
-        if (!env.owner.hasRegistration('engine:' + nameOrDef)) {
-          return null;
-        }
+                if (!env.owner.hasRegistration('engine:' + nameOrDef)) {
+                    return null;
+                }
+                this._lastName = nameOrDef;
+                this._lastDef = new _mount.MountDefinition(nameOrDef);
+                return this._lastDef;
+            } else {
+                (true && !(nameOrDef === null || nameOrDef === undefined) && (0, _emberDebug.assert)('Invalid engine name \'' + nameOrDef + '\' specified, engine name must be either a string, null or undefined.', nameOrDef === null || nameOrDef === undefined));
 
-        this._lastName = nameOrDef;
-        this._lastDef = new _mount.MountDefinition(nameOrDef);
+                return null;
+            }
+        };
 
-        return this._lastDef;
-      } else {
-        (true && !(nameOrDef === null || nameOrDef === undefined) && (0, _emberDebug.assert)('Invalid engine name \'' + nameOrDef + '\' specified, engine name must be either a string, null or undefined.', nameOrDef === null || nameOrDef === undefined));
-
-
-        return null;
-      }
-    };
-
-    return DynamicEngineReference;
-  }();
+        return DynamicEngineReference;
+    }();
 });
 enifed('ember-glimmer/syntax/outlet', ['exports', 'ember-babel', '@glimmer/reference', 'ember-glimmer/component-managers/outlet'], function (exports, _emberBabel, _reference, _outlet) {
-  'use strict';
+    'use strict';
 
-  exports.outletMacro = outletMacro;
+    exports.outletMacro = outletMacro;
 
-  var OutletComponentReference = function () {
-    function OutletComponentReference(outletNameRef, parentOutletStateRef) {
-      (0, _emberBabel.classCallCheck)(this, OutletComponentReference);
+    var OutletComponentReference = function () {
+        function OutletComponentReference(outletNameRef, parentOutletStateRef) {
+            (0, _emberBabel.classCallCheck)(this, OutletComponentReference);
 
-      this.outletNameRef = outletNameRef;
-      this.parentOutletStateRef = parentOutletStateRef;
-      this.definition = null;
-      this.lastState = null;
-      var outletStateTag = this.outletStateTag = new _reference.UpdatableTag(parentOutletStateRef.tag);
-      this.tag = (0, _reference.combine)([outletStateTag.tag, outletNameRef.tag]);
+            this.outletNameRef = outletNameRef;
+            this.parentOutletStateRef = parentOutletStateRef;
+            this.definition = null;
+            this.lastState = null;
+            var outletStateTag = this.outletStateTag = _reference.UpdatableTag.create(parentOutletStateRef.tag);
+            this.tag = (0, _reference.combine)([outletStateTag.inner, outletNameRef.tag]);
+        }
+
+        OutletComponentReference.prototype.value = function value() {
+            var outletNameRef = this.outletNameRef,
+                parentOutletStateRef = this.parentOutletStateRef,
+                definition = this.definition,
+                lastState = this.lastState;
+
+            var outletName = outletNameRef.value();
+            var outletStateRef = parentOutletStateRef.get('outlets').get(outletName);
+            var newState = this.lastState = outletStateRef.value();
+            this.outletStateTag.inner.update(outletStateRef.tag);
+            definition = revalidate(definition, lastState, newState);
+            var hasTemplate = newState && newState.render.template;
+            if (definition) {
+                return definition;
+            } else if (hasTemplate) {
+                return this.definition = new _outlet.OutletComponentDefinition(outletName, newState.render.template);
+            } else {
+                return this.definition = null;
+            }
+        };
+
+        return OutletComponentReference;
+    }();
+
+    function revalidate(definition, lastState, newState) {
+        if (!lastState && !newState) {
+            return definition;
+        }
+        if (!lastState && newState || lastState && !newState) {
+            return null;
+        }
+        if (newState.render.template === lastState.render.template && newState.render.controller === lastState.render.controller) {
+            return definition;
+        }
+        return null;
     }
+    function outletComponentFor(vm, args) {
+        var _vm$dynamicScope = vm.dynamicScope(),
+            outletState = _vm$dynamicScope.outletState;
 
-    OutletComponentReference.prototype.value = function value() {
-      var outletNameRef = this.outletNameRef,
-          parentOutletStateRef = this.parentOutletStateRef,
-          definition = this.definition,
-          lastState = this.lastState;
-
-
-      var outletName = outletNameRef.value();
-      var outletStateRef = parentOutletStateRef.get('outlets').get(outletName);
-      var newState = this.lastState = outletStateRef.value();
-
-      this.outletStateTag.update(outletStateRef.tag);
-
-      definition = revalidate(definition, lastState, newState);
-
-      var hasTemplate = newState && newState.render.template;
-
-      if (definition) {
-        return definition;
-      } else if (hasTemplate) {
-        return this.definition = new _outlet.OutletComponentDefinition(outletName, newState.render.template);
-      } else {
-        return this.definition = null;
-      }
-    };
-
-    return OutletComponentReference;
-  }();
-
-  function revalidate(definition, lastState, newState) {
-    if (!lastState && !newState) {
-      return definition;
+        var outletNameRef = void 0;
+        if (args.positional.length === 0) {
+            outletNameRef = new _reference.ConstReference('main');
+        } else {
+            outletNameRef = args.positional.at(0);
+        }
+        return new OutletComponentReference(outletNameRef, outletState);
     }
-
-    if (!lastState && newState || lastState && !newState) {
-      return null;
+    /**
+      The `{{outlet}}` helper lets you specify where a child route will render in
+      your template. An important use of the `{{outlet}}` helper is in your
+      application's `application.hbs` file:
+    
+      ```handlebars
+      {{! app/templates/application.hbs }}
+      <!-- header content goes here, and will always display -->
+      {{my-header}}
+      <div class="my-dynamic-content">
+        <!-- this content will change based on the current route, which depends on the current URL -->
+        {{outlet}}
+      </div>
+      <!-- footer content goes here, and will always display -->
+      {{my-footer}}
+      ```
+    
+      See [templates guide](https://emberjs.com/guides/templates/the-application-template/) for
+      additional information on using `{{outlet}}` in `application.hbs`.
+      You may also specify a name for the `{{outlet}}`, which is useful when using more than one
+      `{{outlet}}` in a template:
+    
+      ```handlebars
+      {{outlet "menu"}}
+      {{outlet "sidebar"}}
+      {{outlet "main"}}
+      ```
+    
+      Your routes can then render into a specific one of these `outlet`s by specifying the `outlet`
+      attribute in your `renderTemplate` function:
+    
+      ```app/routes/menu.js
+      import Route from '@ember/routing/route';
+    
+      export default Route.extend({
+        renderTemplate() {
+          this.render({ outlet: 'menu' });
+        }
+      });
+      ```
+    
+      See the [routing guide](https://emberjs.com/guides/routing/rendering-a-template/) for more
+      information on how your `route` interacts with the `{{outlet}}` helper.
+      Note: Your content __will not render__ if there isn't an `{{outlet}}` for it.
+    
+      @method outlet
+      @param {String} [name]
+      @for Ember.Templates.helpers
+      @public
+    */
+    function outletMacro(_name, params, _hash, builder) {
+        if (!params) {
+            params = [];
+        }
+        var definitionArgs = [params.slice(0, 1), null, null, null];
+        var emptyArgs = [[], null, null, null]; // FIXME
+        builder.component.dynamic(definitionArgs, outletComponentFor, emptyArgs);
+        return true;
     }
-
-    if (newState.render.template === lastState.render.template && newState.render.controller === lastState.render.controller) {
-      return definition;
-    }
-
-    return null;
-  }
-
-  function outletComponentFor(vm, args) {
-    var _vm$dynamicScope = vm.dynamicScope(),
-        outletState = _vm$dynamicScope.outletState;
-
-    var outletNameRef = void 0;
-    if (args.positional.length === 0) {
-      outletNameRef = new _reference.ConstReference('main');
-    } else {
-      outletNameRef = args.positional.at(0);
-    }
-
-    return new OutletComponentReference(outletNameRef, outletState);
-  }
-
-  /**
-    The `{{outlet}}` helper lets you specify where a child route will render in
-    your template. An important use of the `{{outlet}}` helper is in your
-    application's `application.hbs` file:
-  
-    ```handlebars
-    {{! app/templates/application.hbs }}
-    <!-- header content goes here, and will always display -->
-    {{my-header}}
-    <div class="my-dynamic-content">
-      <!-- this content will change based on the current route, which depends on the current URL -->
-      {{outlet}}
-    </div>
-    <!-- footer content goes here, and will always display -->
-    {{my-footer}}
-    ```
-  
-    See [templates guide](https://emberjs.com/guides/templates/the-application-template/) for
-    additional information on using `{{outlet}}` in `application.hbs`.
-    You may also specify a name for the `{{outlet}}`, which is useful when using more than one
-    `{{outlet}}` in a template:
-  
-    ```handlebars
-    {{outlet "menu"}}
-    {{outlet "sidebar"}}
-    {{outlet "main"}}
-    ```
-  
-    Your routes can then render into a specific one of these `outlet`s by specifying the `outlet`
-    attribute in your `renderTemplate` function:
-  
-    ```app/routes/menu.js
-    import Route from '@ember/routing/route';
-  
-    export default Route.extend({
-      renderTemplate() {
-        this.render({ outlet: 'menu' });
-      }
-    });
-    ```
-  
-    See the [routing guide](https://emberjs.com/guides/routing/rendering-a-template/) for more
-    information on how your `route` interacts with the `{{outlet}}` helper.
-    Note: Your content __will not render__ if there isn't an `{{outlet}}` for it.
-  
-    @method outlet
-    @param {String} [name]
-    @for Ember.Templates.helpers
-    @public
-  */
-  function outletMacro(name, params, hash, builder) {
-    if (!params) {
-      params = [];
-    }
-    var definitionArgs = [params.slice(0, 1), null, null, null];
-    var emptyArgs = [[], null, null, null]; // FIXME
-    builder.component.dynamic(definitionArgs, outletComponentFor, emptyArgs);
-    return true;
-  }
 });
-enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/reference', 'ember-debug', 'ember-glimmer/syntax/utils', 'ember-glimmer/component-managers/render'], function (exports, _reference, _emberDebug, _utils, _render) {
-  'use strict';
+enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/reference', 'ember-debug', 'ember-glimmer/component-managers/render', 'ember-glimmer/syntax/utils'], function (exports, _reference, _emberDebug, _render, _utils) {
+    'use strict';
 
-  exports.renderMacro = renderMacro;
-  /**
-  @module ember
-  */
+    exports.renderMacro = renderMacro;
+    /**
+    @module ember
+    */
+    function makeComponentDefinition(vm, args) {
+        var env = vm.env;
+        var nameRef = args.positional.at(0);
+        (true && !((0, _reference.isConst)(nameRef)) && (0, _emberDebug.assert)('The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.', (0, _reference.isConst)(nameRef)));
+        (true && !(args.positional.length === 1 || !(0, _reference.isConst)(args.positional.at(1))) && (0, _emberDebug.assert)('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', args.positional.length === 1 || !(0, _reference.isConst)(args.positional.at(1))));
 
-  function makeComponentDefinition(vm, args) {
-    var env = vm.env;
-    var nameRef = args.positional.at(0);
+        var templateName = nameRef.value();
+        // tslint:disable-next-line:max-line-length
+        (true && !(env.owner.hasRegistration('template:' + templateName)) && (0, _emberDebug.assert)('You used `{{render \'' + templateName + '\'}}`, but \'' + templateName + '\' can not be found as a template.', env.owner.hasRegistration('template:' + templateName)));
 
-    (true && !((0, _reference.isConst)(nameRef)) && (0, _emberDebug.assert)('The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.', (0, _reference.isConst)(nameRef)));
-    (true && !(args.positional.length === 1 || !(0, _reference.isConst)(args.positional.at(1))) && (0, _emberDebug.assert)('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', args.positional.length === 1 || !(0, _reference.isConst)(args.positional.at(1))));
+        var template = env.owner.lookup('template:' + templateName);
+        var controllerName = void 0;
+        if (args.named.has('controller')) {
+            var controllerNameRef = args.named.get('controller');
+            // tslint:disable-next-line:max-line-length
+            (true && !((0, _reference.isConst)(controllerNameRef)) && (0, _emberDebug.assert)('The controller argument for {{render}} must be quoted, e.g. {{render "sidebar" controller="foo"}}.', (0, _reference.isConst)(controllerNameRef)));
 
-
-    var templateName = nameRef.value();
-
-    (true && !(env.owner.hasRegistration('template:' + templateName)) && (0, _emberDebug.assert)('You used `{{render \'' + templateName + '\'}}`, but \'' + templateName + '\' can not be found as a template.', env.owner.hasRegistration('template:' + templateName)));
-
-
-    var template = env.owner.lookup('template:' + templateName);
-
-    var controllerName = void 0;
-
-    if (args.named.has('controller')) {
-      var controllerNameRef = args.named.get('controller');
-
-      (true && !((0, _reference.isConst)(controllerNameRef)) && (0, _emberDebug.assert)('The controller argument for {{render}} must be quoted, e.g. {{render "sidebar" controller="foo"}}.', (0, _reference.isConst)(controllerNameRef)));
-
-
-      controllerName = controllerNameRef.value();
-
-      (true && !(env.owner.hasRegistration('controller:' + controllerName)) && (0, _emberDebug.assert)('The controller name you supplied \'' + controllerName + '\' did not resolve to a controller.', env.owner.hasRegistration('controller:' + controllerName)));
-    } else {
-      controllerName = templateName;
+            controllerName = controllerNameRef.value();
+            // tslint:disable-next-line:max-line-length
+            (true && !(env.owner.hasRegistration('controller:' + controllerName)) && (0, _emberDebug.assert)('The controller name you supplied \'' + controllerName + '\' did not resolve to a controller.', env.owner.hasRegistration('controller:' + controllerName)));
+        } else {
+            controllerName = templateName;
+        }
+        if (args.positional.length === 1) {
+            return new _reference.ConstReference(new _render.RenderDefinition(controllerName, template, env, _render.SINGLETON_RENDER_MANAGER));
+        } else {
+            return new _reference.ConstReference(new _render.RenderDefinition(controllerName, template, env, _render.NON_SINGLETON_RENDER_MANAGER));
+        }
     }
-
-    if (args.positional.length === 1) {
-      return new _reference.ConstReference(new _render.RenderDefinition(controllerName, template, env, _render.SINGLETON_RENDER_MANAGER));
-    } else {
-      return new _reference.ConstReference(new _render.RenderDefinition(controllerName, template, env, _render.NON_SINGLETON_RENDER_MANAGER));
+    /**
+      Calling ``{{render}}`` from within a template will insert another
+      template that matches the provided name. The inserted template will
+      access its properties on its own controller (rather than the controller
+      of the parent template).
+    
+      If a view class with the same name exists, the view class also will be used.
+      Note: A given controller may only be used *once* in your app in this manner.
+      A singleton instance of the controller will be created for you.
+    
+      Example:
+    
+      ```app/controllers/navigation.js
+      import Controller from '@ember/controller';
+    
+      export default Controller.extend({
+        who: "world"
+      });
+      ```
+    
+      ```handlebars
+      <!-- navigation.hbs -->
+      Hello, {{who}}.
+      ```
+    
+      ```handlebars
+      <!-- application.hbs -->
+      <h1>My great app</h1>
+      {{render "navigation"}}
+      ```
+    
+      ```html
+      <h1>My great app</h1>
+      <div class='ember-view'>
+        Hello, world.
+      </div>
+      ```
+    
+      Optionally you may provide a second argument: a property path
+      that will be bound to the `model` property of the controller.
+      If a `model` property path is specified, then a new instance of the
+      controller will be created and `{{render}}` can be used multiple times
+      with the same name.
+    
+      For example if you had this `author` template.
+    
+      ```handlebars
+      <div class="author">
+        Written by {{firstName}} {{lastName}}.
+        Total Posts: {{postCount}}
+      </div>
+      ```
+    
+      You could render it inside the `post` template using the `render` helper.
+    
+      ```handlebars
+      <div class="post">
+        <h1>{{title}}</h1>
+        <div>{{body}}</div>
+        {{render "author" author}}
+      </div>
+      ```
+    
+      @method render
+      @for Ember.Templates.helpers
+      @param {String} name
+      @param {Object?} context
+      @param {Hash} options
+      @return {String} HTML string
+      @public
+      @deprecated Use a component instead
+    */
+    function renderMacro(_name, params, hash, builder) {
+        if (!params) {
+            params = [];
+        }
+        var definitionArgs = [params.slice(0), hash, null, null];
+        var args = [params.slice(1), (0, _utils.hashToArgs)(hash), null, null];
+        builder.component.dynamic(definitionArgs, makeComponentDefinition, args);
+        return true;
     }
-  }
-
-  /**
-    Calling ``{{render}}`` from within a template will insert another
-    template that matches the provided name. The inserted template will
-    access its properties on its own controller (rather than the controller
-    of the parent template).
-  
-    If a view class with the same name exists, the view class also will be used.
-    Note: A given controller may only be used *once* in your app in this manner.
-    A singleton instance of the controller will be created for you.
-  
-    Example:
-  
-    ```app/controllers/navigation.js
-    import Controller from '@ember/controller';
-  
-    export default Controller.extend({
-      who: "world"
-    });
-    ```
-  
-    ```handlebars
-    <!-- navigation.hbs -->
-    Hello, {{who}}.
-    ```
-  
-    ```handlebars
-    <!-- application.hbs -->
-    <h1>My great app</h1>
-    {{render "navigation"}}
-    ```
-  
-    ```html
-    <h1>My great app</h1>
-    <div class='ember-view'>
-      Hello, world.
-    </div>
-    ```
-  
-    Optionally you may provide a second argument: a property path
-    that will be bound to the `model` property of the controller.
-    If a `model` property path is specified, then a new instance of the
-    controller will be created and `{{render}}` can be used multiple times
-    with the same name.
-  
-    For example if you had this `author` template.
-  
-    ```handlebars
-    <div class="author">
-      Written by {{firstName}} {{lastName}}.
-      Total Posts: {{postCount}}
-    </div>
-    ```
-  
-    You could render it inside the `post` template using the `render` helper.
-  
-    ```handlebars
-    <div class="post">
-      <h1>{{title}}</h1>
-      <div>{{body}}</div>
-      {{render "author" author}}
-    </div>
-    ```
-  
-    @method render
-    @for Ember.Templates.helpers
-    @param {String} name
-    @param {Object?} context
-    @param {Hash} options
-    @return {String} HTML string
-    @public
-    @deprecated Use a component instead
-  */
-  function renderMacro(name, params, hash, builder) {
-    if (!params) {
-      params = [];
-    }
-    var definitionArgs = [params.slice(0), hash, null, null];
-    var args = [params.slice(1), (0, _utils.hashToArgs)(hash), null, null];
-    builder.component.dynamic(definitionArgs, makeComponentDefinition, args);
-    return true;
-  }
 });
 enifed("ember-glimmer/syntax/utils", ["exports"], function (exports) {
-  "use strict";
+    "use strict";
 
-  exports.hashToArgs = hashToArgs;
-  function hashToArgs(hash) {
-    if (hash === null) return null;
-    var names = hash[0].map(function (key) {
-      return "@" + key;
-    });
-    return [names, hash[1]];
-  }
+    exports.hashToArgs = hashToArgs;
+    function hashToArgs(hash) {
+        if (hash === null) {
+            return null;
+        }
+        var names = hash[0].map(function (key) {
+            return "@" + key;
+        });
+        return [names, hash[1]];
+    }
 });
-enifed('ember-glimmer/template', ['exports', 'ember-utils', '@glimmer/runtime'], function (exports, _emberUtils, _runtime) {
-  'use strict';
+enifed('ember-glimmer/template', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-utils'], function (exports, _emberBabel, _runtime, _emberUtils) {
+    'use strict';
 
-  exports.default = template;
-  function template(json) {
-    var factory = (0, _runtime.templateFactory)(json);
+    exports.WrappedTemplateFactory = undefined;
+    exports.default = template;
 
-    return {
-      id: factory.id,
-      meta: factory.meta,
-      create: function (props) {
-        return factory.create(props.env, { owner: props[_emberUtils.OWNER] });
-      }
-    };
-  }
+    var WrappedTemplateFactory = exports.WrappedTemplateFactory = function () {
+        function WrappedTemplateFactory(factory) {
+            (0, _emberBabel.classCallCheck)(this, WrappedTemplateFactory);
+
+            this.factory = factory;
+            this.id = factory.id;
+            this.meta = factory.meta;
+        }
+
+        WrappedTemplateFactory.prototype.create = function create(props) {
+            var owner = props[_emberUtils.OWNER];
+            return this.factory.create(props.env, { owner: owner });
+        };
+
+        return WrappedTemplateFactory;
+    }();
+
+    function template(json) {
+        var factory = (0, _runtime.templateFactory)(json);
+        return new WrappedTemplateFactory(factory);
+    }
 });
 enifed("ember-glimmer/template_registry", ["exports"], function (exports) {
-  "use strict";
+    "use strict";
 
-  exports.setTemplates = setTemplates;
-  exports.getTemplates = getTemplates;
-  exports.getTemplate = getTemplate;
-  exports.hasTemplate = hasTemplate;
-  exports.setTemplate = setTemplate;
-  // STATE within a module is frowned upon, this exists
-  // to support Ember.TEMPLATES but shield ember internals from this legacy
-  // global API.
-  var TEMPLATES = {};
-
-  function setTemplates(templates) {
-    TEMPLATES = templates;
-  }
-
-  function getTemplates() {
-    return TEMPLATES;
-  }
-
-  function getTemplate(name) {
-    if (TEMPLATES.hasOwnProperty(name)) {
-      return TEMPLATES[name];
+    exports.setTemplates = setTemplates;
+    exports.getTemplates = getTemplates;
+    exports.getTemplate = getTemplate;
+    exports.hasTemplate = hasTemplate;
+    exports.setTemplate = setTemplate;
+    // STATE within a module is frowned upon, this exists
+    // to support Ember.TEMPLATES but shield ember internals from this legacy
+    // global API.
+    var TEMPLATES = {};
+    function setTemplates(templates) {
+        TEMPLATES = templates;
     }
-  }
-
-  function hasTemplate(name) {
-    return TEMPLATES.hasOwnProperty(name);
-  }
-
-  function setTemplate(name, template) {
-    return TEMPLATES[name] = template;
-  }
+    function getTemplates() {
+        return TEMPLATES;
+    }
+    function getTemplate(name) {
+        if (TEMPLATES.hasOwnProperty(name)) {
+            return TEMPLATES[name];
+        }
+    }
+    function hasTemplate(name) {
+        return TEMPLATES.hasOwnProperty(name);
+    }
+    function setTemplate(name, template) {
+        return TEMPLATES[name] = template;
+    }
 });
 enifed("ember-glimmer/templates/component", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "mvSJ6iUj", "block": "{\"symbols\":[\"&default\"],\"statements\":[[11,1]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/component.hbs" } });
+  exports.default = (0, _template.default)({ "id": "RxHsBKwy", "block": "{\"symbols\":[\"&default\"],\"statements\":[[11,1]],\"hasEval\":false}", "meta": { "moduleName": "packages/ember-glimmer/lib/templates/component.hbs" } });
 });
 enifed("ember-glimmer/templates/empty", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "EPhvcwzD", "block": "{\"symbols\":[],\"statements\":[],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/empty.hbs" } });
+  exports.default = (0, _template.default)({ "id": "5jp2oO+o", "block": "{\"symbols\":[],\"statements\":[],\"hasEval\":false}", "meta": { "moduleName": "packages/ember-glimmer/lib/templates/empty.hbs" } });
 });
 enifed("ember-glimmer/templates/link-to", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "+G5dMm85", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[19,0,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/link-to.hbs" } });
+  exports.default = (0, _template.default)({ "id": "gBnxT4WO", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[19,0,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "packages/ember-glimmer/lib/templates/link-to.hbs" } });
 });
 enifed("ember-glimmer/templates/outlet", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "NblF8298", "block": "{\"symbols\":[],\"statements\":[[1,[18,\"outlet\"],false]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/outlet.hbs" } });
+  exports.default = (0, _template.default)({ "id": "/7rqcQ85", "block": "{\"symbols\":[],\"statements\":[[1,[18,\"outlet\"],false]],\"hasEval\":false}", "meta": { "moduleName": "packages/ember-glimmer/lib/templates/outlet.hbs" } });
 });
 enifed("ember-glimmer/templates/root", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "Jhwo1zmY", "block": "{\"symbols\":[],\"statements\":[[1,[25,\"component\",[[19,0,[]]],null],false]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/root.hbs" } });
+  exports.default = (0, _template.default)({ "id": "AdIsk/cm", "block": "{\"symbols\":[],\"statements\":[[1,[25,\"component\",[[19,0,[]]],null],false]],\"hasEval\":false}", "meta": { "moduleName": "packages/ember-glimmer/lib/templates/root.hbs" } });
 });
 enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/reference', '@glimmer/wire-format', 'ember-debug', 'ember-metal', 'ember-runtime', 'ember-glimmer/component', 'ember-glimmer/utils/string'], function (exports, _emberBabel, _reference, _wireFormat, _emberDebug, _emberMetal, _emberRuntime, _component, _string) {
-  'use strict';
+    'use strict';
 
-  exports.ClassNameBinding = exports.IsVisibleBinding = exports.AttributeBinding = undefined;
-  exports.wrapComponentClassAttribute = wrapComponentClassAttribute;
+    exports.ClassNameBinding = exports.IsVisibleBinding = exports.AttributeBinding = undefined;
+    exports.wrapComponentClassAttribute = wrapComponentClassAttribute;
 
-
-  function referenceForKey(component, key) {
-    return component[_component.ROOT_REF].get(key);
-  }
-
-  function referenceForParts(component, parts) {
-    var isAttrs = parts[0] === 'attrs';
-
-    // TODO deprecate this
-    if (isAttrs) {
-      parts.shift();
-
-      if (parts.length === 1) {
-        return referenceForKey(component, parts[0]);
-      }
+    function referenceForKey(component, key) {
+        return component[_component.ROOT_REF].get(key);
     }
-
-    return (0, _reference.referenceFromParts)(component[_component.ROOT_REF], parts);
-  }
-
-  // TODO we should probably do this transform at build time
-  function wrapComponentClassAttribute(hash) {
-    if (!hash) {
-      return hash;
-    }
-
-    var keys = hash[0],
-        values = hash[1];
-
-    var index = keys.indexOf('class');
-
-    if (index !== -1) {
-      var _values$index = values[index],
-          type = _values$index[0];
-
-
-      if (type === _wireFormat.Ops.Get) {
-        var getExp = values[index];
-        var path = getExp[2];
-        var propName = path[path.length - 1];
-        hash[1][index] = [_wireFormat.Ops.Helper, ['-class'], [getExp, propName]];
-      }
-    }
-
-    return hash;
-  }
-
-  var AttributeBinding = exports.AttributeBinding = {
-    parse: function (microsyntax) {
-      var colonIndex = microsyntax.indexOf(':');
-
-      if (colonIndex === -1) {
-        (true && !(microsyntax !== 'class') && (0, _emberDebug.assert)('You cannot use class as an attributeBinding, use classNameBindings instead.', microsyntax !== 'class'));
-
-        return [microsyntax, microsyntax, true];
-      } else {
-        var prop = microsyntax.substring(0, colonIndex);
-        var attribute = microsyntax.substring(colonIndex + 1);
-
-        (true && !(attribute !== 'class') && (0, _emberDebug.assert)('You cannot use class as an attributeBinding, use classNameBindings instead.', attribute !== 'class'));
-
-
-        return [prop, attribute, false];
-      }
-    },
-    install: function (element, component, parsed, operations) {
-      var prop = parsed[0],
-          attribute = parsed[1],
-          isSimple = parsed[2];
-
-
-      if (attribute === 'id') {
-        var elementId = (0, _emberMetal.get)(component, prop);
-        if (elementId === undefined || elementId === null) {
-          elementId = component.elementId;
+    function referenceForParts(component, parts) {
+        var isAttrs = parts[0] === 'attrs';
+        // TODO deprecate this
+        if (isAttrs) {
+            parts.shift();
+            if (parts.length === 1) {
+                return referenceForKey(component, parts[0]);
+            }
         }
-        operations.addStaticAttribute(element, 'id', elementId);
-        return;
-      }
-
-      var isPath = prop.indexOf('.') > -1;
-      var reference = isPath ? referenceForParts(component, prop.split('.')) : referenceForKey(component, prop);
-
-      (true && !(!(isSimple && isPath)) && (0, _emberDebug.assert)('Illegal attributeBinding: \'' + prop + '\' is not a valid attribute name.', !(isSimple && isPath)));
-
-
-      if (attribute === 'style') {
-        reference = new StyleBindingReference(reference, referenceForKey(component, 'isVisible'));
-      }
-
-      operations.addDynamicAttribute(element, attribute, reference);
+        return (0, _reference.referenceFromParts)(component[_component.ROOT_REF], parts);
     }
-  };
+    // TODO we should probably do this transform at build time
+    function wrapComponentClassAttribute(hash) {
+        if (!hash) {
+            return hash;
+        }
+        var keys = hash[0],
+            values = hash[1];
 
-  var DISPLAY_NONE = 'display: none;';
-  var SAFE_DISPLAY_NONE = (0, _string.htmlSafe)(DISPLAY_NONE);
+        var index = keys.indexOf('class');
+        if (index !== -1) {
+            var _values$index = values[index],
+                type = _values$index[0];
 
-  var StyleBindingReference = function (_CachedReference) {
-    (0, _emberBabel.inherits)(StyleBindingReference, _CachedReference);
-
-    function StyleBindingReference(inner, isVisible) {
-      (0, _emberBabel.classCallCheck)(this, StyleBindingReference);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.call(this));
-
-      _this.tag = (0, _reference.combine)([inner.tag, isVisible.tag]);
-      _this.inner = inner;
-      _this.isVisible = isVisible;
-      return _this;
+            if (type === _wireFormat.Ops.Get) {
+                var getExp = values[index];
+                var path = getExp[2];
+                var propName = path[path.length - 1];
+                hash[1][index] = [_wireFormat.Ops.Helper, ['-class'], [getExp, propName]];
+            }
+        }
+        return hash;
     }
+    var AttributeBinding = exports.AttributeBinding = {
+        parse: function (microsyntax) {
+            var colonIndex = microsyntax.indexOf(':');
+            if (colonIndex === -1) {
+                (true && !(microsyntax !== 'class') && (0, _emberDebug.assert)('You cannot use class as an attributeBinding, use classNameBindings instead.', microsyntax !== 'class'));
 
-    StyleBindingReference.prototype.compute = function compute() {
-      var value = this.inner.value();
-      var isVisible = this.isVisible.value();
+                return [microsyntax, microsyntax, true];
+            } else {
+                var prop = microsyntax.substring(0, colonIndex);
+                var attribute = microsyntax.substring(colonIndex + 1);
+                (true && !(attribute !== 'class') && (0, _emberDebug.assert)('You cannot use class as an attributeBinding, use classNameBindings instead.', attribute !== 'class'));
 
-      if (isVisible !== false) {
-        return value;
-      } else if (!value && value !== 0) {
-        return SAFE_DISPLAY_NONE;
-      } else {
-        var style = value + ' ' + DISPLAY_NONE;
-        return (0, _string.isHTMLSafe)(value) ? (0, _string.htmlSafe)(style) : style;
-      }
+                return [prop, attribute, false];
+            }
+        },
+        install: function (element, component, parsed, operations) {
+            var prop = parsed[0],
+                attribute = parsed[1],
+                isSimple = parsed[2];
+
+            if (attribute === 'id') {
+                var elementId = (0, _emberMetal.get)(component, prop);
+                if (elementId === undefined || elementId === null) {
+                    elementId = component.elementId;
+                }
+                operations.addStaticAttribute(element, 'id', elementId);
+                return;
+            }
+            var isPath = prop.indexOf('.') > -1;
+            var reference = isPath ? referenceForParts(component, prop.split('.')) : referenceForKey(component, prop);
+            (true && !(!(isSimple && isPath)) && (0, _emberDebug.assert)('Illegal attributeBinding: \'' + prop + '\' is not a valid attribute name.', !(isSimple && isPath)));
+
+            if (attribute === 'style') {
+                reference = new StyleBindingReference(reference, referenceForKey(component, 'isVisible'));
+            }
+            operations.addDynamicAttribute(element, attribute, reference);
+        }
     };
+    var DISPLAY_NONE = 'display: none;';
+    var SAFE_DISPLAY_NONE = (0, _string.htmlSafe)(DISPLAY_NONE);
 
-    return StyleBindingReference;
-  }(_reference.CachedReference);
+    var StyleBindingReference = function (_CachedReference) {
+        (0, _emberBabel.inherits)(StyleBindingReference, _CachedReference);
 
-  var IsVisibleBinding = exports.IsVisibleBinding = {
-    install: function (element, component, operations) {
-      operations.addDynamicAttribute(element, 'style', (0, _reference.map)(referenceForKey(component, 'isVisible'), this.mapStyleValue));
-    },
-    mapStyleValue: function (isVisible) {
-      return isVisible === false ? SAFE_DISPLAY_NONE : null;
-    }
-  };
+        function StyleBindingReference(inner, isVisible) {
+            (0, _emberBabel.classCallCheck)(this, StyleBindingReference);
 
-  var ClassNameBinding = exports.ClassNameBinding = {
-    install: function (element, component, microsyntax, operations) {
-      var _microsyntax$split = microsyntax.split(':'),
-          prop = _microsyntax$split[0],
-          truthy = _microsyntax$split[1],
-          falsy = _microsyntax$split[2];
+            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.call(this));
 
-      var isStatic = prop === '';
-
-      if (isStatic) {
-        operations.addStaticAttribute(element, 'class', truthy);
-      } else {
-        var isPath = prop.indexOf('.') > -1;
-        var parts = isPath && prop.split('.');
-        var value = isPath ? referenceForParts(component, parts) : referenceForKey(component, prop);
-        var ref = void 0;
-
-        if (truthy === undefined) {
-          ref = new SimpleClassNameBindingReference(value, isPath ? parts[parts.length - 1] : prop);
-        } else {
-          ref = new ColonClassNameBindingReference(value, truthy, falsy);
+            _this.inner = inner;
+            _this.isVisible = isVisible;
+            _this.tag = (0, _reference.combine)([inner.tag, isVisible.tag]);
+            return _this;
         }
 
-        operations.addDynamicAttribute(element, 'class', ref);
-      }
-    }
-  };
+        StyleBindingReference.prototype.compute = function compute() {
+            var value = this.inner.value();
+            var isVisible = this.isVisible.value();
+            if (isVisible !== false) {
+                return value;
+            } else if (!value) {
+                return SAFE_DISPLAY_NONE;
+            } else {
+                var style = value + ' ' + DISPLAY_NONE;
+                return (0, _string.isHTMLSafe)(value) ? (0, _string.htmlSafe)(style) : style;
+            }
+        };
 
-  var SimpleClassNameBindingReference = function (_CachedReference2) {
-    (0, _emberBabel.inherits)(SimpleClassNameBindingReference, _CachedReference2);
+        return StyleBindingReference;
+    }(_reference.CachedReference);
 
-    function SimpleClassNameBindingReference(inner, path) {
-      (0, _emberBabel.classCallCheck)(this, SimpleClassNameBindingReference);
+    var IsVisibleBinding = exports.IsVisibleBinding = {
+        install: function (element, component, operations) {
+            operations.addDynamicAttribute(element, 'style', (0, _reference.map)(referenceForKey(component, 'isVisible'), this.mapStyleValue));
+        },
+        mapStyleValue: function (isVisible) {
+            return isVisible === false ? SAFE_DISPLAY_NONE : null;
+        }
+    };
+    var ClassNameBinding = exports.ClassNameBinding = {
+        install: function (element, component, microsyntax, operations) {
+            var _microsyntax$split = microsyntax.split(':'),
+                prop = _microsyntax$split[0],
+                truthy = _microsyntax$split[1],
+                falsy = _microsyntax$split[2];
 
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference2.call(this));
-
-      _this2.tag = inner.tag;
-      _this2.inner = inner;
-      _this2.path = path;
-      _this2.dasherizedPath = null;
-      return _this2;
-    }
-
-    SimpleClassNameBindingReference.prototype.compute = function compute() {
-      var value = this.inner.value();
-
-      if (value === true) {
-        var path = this.path,
-            dasherizedPath = this.dasherizedPath;
-
-        return dasherizedPath || (this.dasherizedPath = _emberRuntime.String.dasherize(path));
-      } else if (value || value === 0) {
-        return value;
-      } else {
-        return null;
-      }
+            var isStatic = prop === '';
+            if (isStatic) {
+                operations.addStaticAttribute(element, 'class', truthy);
+            } else {
+                var isPath = prop.indexOf('.') > -1;
+                var parts = isPath && prop.split('.');
+                var value = isPath ? referenceForParts(component, parts) : referenceForKey(component, prop);
+                var ref = void 0;
+                if (truthy === undefined) {
+                    ref = new SimpleClassNameBindingReference(value, isPath ? parts[parts.length - 1] : prop);
+                } else {
+                    ref = new ColonClassNameBindingReference(value, truthy, falsy);
+                }
+                operations.addDynamicAttribute(element, 'class', ref);
+            }
+        }
     };
 
-    return SimpleClassNameBindingReference;
-  }(_reference.CachedReference);
+    var SimpleClassNameBindingReference = function (_CachedReference2) {
+        (0, _emberBabel.inherits)(SimpleClassNameBindingReference, _CachedReference2);
 
-  var ColonClassNameBindingReference = function (_CachedReference3) {
-    (0, _emberBabel.inherits)(ColonClassNameBindingReference, _CachedReference3);
+        function SimpleClassNameBindingReference(inner, path) {
+            (0, _emberBabel.classCallCheck)(this, SimpleClassNameBindingReference);
 
-    function ColonClassNameBindingReference(inner, truthy, falsy) {
-      (0, _emberBabel.classCallCheck)(this, ColonClassNameBindingReference);
+            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference2.call(this));
 
-      var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference3.call(this));
+            _this2.inner = inner;
+            _this2.path = path;
+            _this2.tag = inner.tag;
+            _this2.inner = inner;
+            _this2.path = path;
+            _this2.dasherizedPath = null;
+            return _this2;
+        }
 
-      _this3.tag = inner.tag;
-      _this3.inner = inner;
-      _this3.truthy = truthy || null;
-      _this3.falsy = falsy || null;
-      return _this3;
-    }
+        SimpleClassNameBindingReference.prototype.compute = function compute() {
+            var value = this.inner.value();
+            if (value === true) {
+                var path = this.path,
+                    dasherizedPath = this.dasherizedPath;
 
-    ColonClassNameBindingReference.prototype.compute = function compute() {
-      var inner = this.inner,
-          truthy = this.truthy,
-          falsy = this.falsy;
+                return dasherizedPath || (this.dasherizedPath = _emberRuntime.String.dasherize(path));
+            } else if (value || value === 0) {
+                return String(value);
+            } else {
+                return null;
+            }
+        };
 
-      return inner.value() ? truthy : falsy;
-    };
+        return SimpleClassNameBindingReference;
+    }(_reference.CachedReference);
 
-    return ColonClassNameBindingReference;
-  }(_reference.CachedReference);
+    var ColonClassNameBindingReference = function (_CachedReference3) {
+        (0, _emberBabel.inherits)(ColonClassNameBindingReference, _CachedReference3);
+
+        function ColonClassNameBindingReference(inner) {
+            var truthy = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+            var falsy = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+            (0, _emberBabel.classCallCheck)(this, ColonClassNameBindingReference);
+
+            var _this3 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference3.call(this));
+
+            _this3.inner = inner;
+            _this3.truthy = truthy;
+            _this3.falsy = falsy;
+            _this3.tag = inner.tag;
+            return _this3;
+        }
+
+        ColonClassNameBindingReference.prototype.compute = function compute() {
+            var inner = this.inner,
+                truthy = this.truthy,
+                falsy = this.falsy;
+
+            return inner.value() ? truthy : falsy;
+        };
+
+        return ColonClassNameBindingReference;
+    }(_reference.CachedReference);
 });
 enifed('ember-glimmer/utils/curly-component-state-bucket', ['exports', 'ember-babel'], function (exports, _emberBabel) {
-  'use strict';
+    'use strict';
 
-  function NOOP() {}
+    function NOOP() {}
+    /**
+      @module ember
+    */
+    /**
+      Represents the internal state of the component.
+    
+      @class ComponentStateBucket
+      @private
+    */
 
-  /**
-    @module ember
-  */
+    var ComponentStateBucket = function () {
+        function ComponentStateBucket(environment, component, args, finalizer) {
+            (0, _emberBabel.classCallCheck)(this, ComponentStateBucket);
 
-  /**
-    Represents the internal state of the component.
-  
-    @class ComponentStateBucket
-    @private
-  */
+            this.environment = environment;
+            this.component = component;
+            this.args = args;
+            this.finalizer = finalizer;
+            this.classRef = null;
+            this.classRef = null;
+            this.argsRevision = args.tag.value();
+        }
 
-  var ComponentStateBucket = function () {
-    function ComponentStateBucket(environment, component, args, finalizer) {
-      (0, _emberBabel.classCallCheck)(this, ComponentStateBucket);
+        ComponentStateBucket.prototype.destroy = function destroy() {
+            var component = this.component,
+                environment = this.environment;
 
-      this.environment = environment;
-      this.component = component;
-      this.classRef = null;
-      this.args = args;
-      this.argsRevision = args.tag.value();
-      this.finalizer = finalizer;
-    }
+            if (environment.isInteractive) {
+                component.trigger('willDestroyElement');
+                component.trigger('willClearRender');
+            }
+            environment.destroyedComponents.push(component);
+        };
 
-    ComponentStateBucket.prototype.destroy = function destroy() {
-      var component = this.component,
-          environment = this.environment;
+        ComponentStateBucket.prototype.finalize = function finalize() {
+            var finalizer = this.finalizer;
 
+            finalizer();
+            this.finalizer = NOOP;
+        };
 
-      if (environment.isInteractive) {
-        component.trigger('willDestroyElement');
-        component.trigger('willClearRender');
-      }
+        return ComponentStateBucket;
+    }();
 
-      environment.destroyedComponents.push(component);
-    };
-
-    ComponentStateBucket.prototype.finalize = function finalize() {
-      var finalizer = this.finalizer;
-
-      finalizer();
-      this.finalizer = NOOP;
-    };
-
-    return ComponentStateBucket;
-  }();
-
-  exports.default = ComponentStateBucket;
+    exports.default = ComponentStateBucket;
 });
 enifed('ember-glimmer/utils/debug-stack', ['exports', 'ember-babel'], function (exports, _emberBabel) {
-  'use strict';
+    'use strict';
 
-  var DebugStack = void 0;
+    // @ts-check
+    var DebugStack = void 0;
+    if (true) {
+        var Element = function Element(name) {
+            (0, _emberBabel.classCallCheck)(this, Element);
 
-  if (true) {
-    var Element = function Element(name) {
-      (0, _emberBabel.classCallCheck)(this, Element);
+            this.name = name;
+        };
 
-      this.name = name;
-    };
+        var TemplateElement = function (_Element) {
+            (0, _emberBabel.inherits)(TemplateElement, _Element);
 
-    var TemplateElement = function (_Element) {
-      (0, _emberBabel.inherits)(TemplateElement, _Element);
+            function TemplateElement() {
+                (0, _emberBabel.classCallCheck)(this, TemplateElement);
+                return (0, _emberBabel.possibleConstructorReturn)(this, _Element.apply(this, arguments));
+            }
 
-      function TemplateElement() {
-        (0, _emberBabel.classCallCheck)(this, TemplateElement);
-        return (0, _emberBabel.possibleConstructorReturn)(this, _Element.apply(this, arguments));
-      }
+            return TemplateElement;
+        }(Element);
 
-      return TemplateElement;
-    }(Element);
+        var EngineElement = function (_Element2) {
+            (0, _emberBabel.inherits)(EngineElement, _Element2);
 
-    var EngineElement = function (_Element2) {
-      (0, _emberBabel.inherits)(EngineElement, _Element2);
+            function EngineElement() {
+                (0, _emberBabel.classCallCheck)(this, EngineElement);
+                return (0, _emberBabel.possibleConstructorReturn)(this, _Element2.apply(this, arguments));
+            }
 
-      function EngineElement() {
-        (0, _emberBabel.classCallCheck)(this, EngineElement);
-        return (0, _emberBabel.possibleConstructorReturn)(this, _Element2.apply(this, arguments));
-      }
+            return EngineElement;
+        }(Element);
 
-      return EngineElement;
-    }(Element);
+        // tslint:disable-next-line:no-shadowed-variable
+        DebugStack = function () {
+            function DebugStack() {
+                (0, _emberBabel.classCallCheck)(this, DebugStack);
 
-    DebugStack = function () {
-      function DebugStack() {
-        (0, _emberBabel.classCallCheck)(this, DebugStack);
+                this._stack = [];
+            }
 
-        this._stack = [];
-      }
+            DebugStack.prototype.push = function push(name) {
+                this._stack.push(new TemplateElement(name));
+            };
 
-      DebugStack.prototype.push = function push(name) {
-        this._stack.push(new TemplateElement(name));
-      };
+            DebugStack.prototype.pushEngine = function pushEngine(name) {
+                this._stack.push(new EngineElement(name));
+            };
 
-      DebugStack.prototype.pushEngine = function pushEngine(name) {
-        this._stack.push(new EngineElement(name));
-      };
+            DebugStack.prototype.pop = function pop() {
+                var element = this._stack.pop();
+                if (element) {
+                    return element.name;
+                }
+            };
 
-      DebugStack.prototype.pop = function pop() {
-        var element = this._stack.pop();
+            DebugStack.prototype.peek = function peek() {
+                var template = this._currentTemplate();
+                var engine = this._currentEngine();
+                if (engine) {
+                    return '"' + template + '" (in "' + engine + '")';
+                } else if (template) {
+                    return '"' + template + '"';
+                }
+            };
 
-        if (element) {
-          return element.name;
-        }
-      };
+            DebugStack.prototype._currentTemplate = function _currentTemplate() {
+                return this._getCurrentByType(TemplateElement);
+            };
 
-      DebugStack.prototype.peek = function peek() {
-        var template = this._currentTemplate();
-        var engine = this._currentEngine();
+            DebugStack.prototype._currentEngine = function _currentEngine() {
+                return this._getCurrentByType(EngineElement);
+            };
 
-        if (engine) {
-          return '"' + template + '" (in "' + engine + '")';
-        } else if (template) {
-          return '"' + template + '"';
-        }
-      };
+            DebugStack.prototype._getCurrentByType = function _getCurrentByType(type) {
+                for (var i = this._stack.length; i >= 0; i--) {
+                    var element = this._stack[i];
+                    if (element instanceof type) {
+                        return element.name;
+                    }
+                }
+            };
 
-      DebugStack.prototype._currentTemplate = function _currentTemplate() {
-        return this._getCurrentByType(TemplateElement);
-      };
-
-      DebugStack.prototype._currentEngine = function _currentEngine() {
-        return this._getCurrentByType(EngineElement);
-      };
-
-      DebugStack.prototype._getCurrentByType = function _getCurrentByType(type) {
-        for (var i = this._stack.length; i >= 0; i--) {
-          var element = this._stack[i];
-          if (element instanceof type) {
-            return element.name;
-          }
-        }
-      };
-
-      return DebugStack;
-    }();
-  }
-
-  exports.default = DebugStack;
-});
-enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', 'ember-runtime', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/each-in', '@glimmer/reference'], function (exports, _emberBabel, _emberUtils, _emberMetal, _emberRuntime, _references, _eachIn, _reference) {
-  'use strict';
-
-  exports.default = iterableFor;
-
-
-  var ITERATOR_KEY_GUID = 'be277757-bbbe-4620-9fcb-213ef433cca2';
-
-  function iterableFor(ref, keyPath) {
-    if ((0, _eachIn.isEachIn)(ref)) {
-      return new EachInIterable(ref, keyForEachIn(keyPath));
-    } else {
-      return new ArrayIterable(ref, keyForArray(keyPath));
+            return DebugStack;
+        }();
     }
-  }
+    exports.default = DebugStack;
+});
+enifed('ember-glimmer/utils/iterable', ['exports', 'ember-babel', '@glimmer/reference', 'ember-metal', 'ember-runtime', 'ember-utils', 'ember-glimmer/helpers/each-in', 'ember-glimmer/utils/references'], function (exports, _emberBabel, _reference, _emberMetal, _emberRuntime, _emberUtils, _eachIn, _references) {
+    'use strict';
 
-  function keyForEachIn(keyPath) {
-    switch (keyPath) {
-      case '@index':
-      case undefined:
-      case null:
-        return index;
-      case '@identity':
-        return identity;
-      default:
-        return function (item) {
-          return (0, _emberMetal.get)(item, keyPath);
+    exports.default = iterableFor;
+
+    var ITERATOR_KEY_GUID = 'be277757-bbbe-4620-9fcb-213ef433cca2';
+    function iterableFor(ref, keyPath) {
+        if ((0, _eachIn.isEachIn)(ref)) {
+            return new EachInIterable(ref, keyForEachIn(keyPath));
+        } else {
+            return new ArrayIterable(ref, keyForArray(keyPath));
+        }
+    }
+    function keyForEachIn(keyPath) {
+        switch (keyPath) {
+            case '@index':
+            case undefined:
+            case null:
+                return index;
+            case '@identity':
+                return identity;
+            default:
+                return function (item) {
+                    return (0, _emberMetal.get)(item, keyPath);
+                };
+        }
+    }
+    function keyForArray(keyPath) {
+        switch (keyPath) {
+            case '@index':
+                return index;
+            case '@identity':
+            case undefined:
+            case null:
+                return identity;
+            default:
+                return function (item) {
+                    return (0, _emberMetal.get)(item, keyPath);
+                };
+        }
+    }
+    function index(_item, i) {
+        return String(i);
+    }
+    function identity(item) {
+        switch (typeof item) {
+            case 'string':
+            case 'number':
+                return String(item);
+            default:
+                return (0, _emberUtils.guidFor)(item);
+        }
+    }
+    function ensureUniqueKey(seen, key) {
+        var seenCount = seen[key];
+        if (seenCount > 0) {
+            seen[key]++;
+            return '' + key + ITERATOR_KEY_GUID + seenCount;
+        } else {
+            seen[key] = 1;
+        }
+        return key;
+    }
+
+    var ArrayIterator = function () {
+        function ArrayIterator(array, keyFor) {
+            (0, _emberBabel.classCallCheck)(this, ArrayIterator);
+
+            this.array = array;
+            this.length = array.length;
+            this.keyFor = keyFor;
+            this.position = 0;
+            this.seen = Object.create(null);
+        }
+
+        ArrayIterator.prototype.isEmpty = function isEmpty() {
+            return false;
+        };
+
+        ArrayIterator.prototype.getMemo = function getMemo(position) {
+            return position;
+        };
+
+        ArrayIterator.prototype.getValue = function getValue(position) {
+            return this.array[position];
+        };
+
+        ArrayIterator.prototype.next = function next() {
+            var length = this.length,
+                keyFor = this.keyFor,
+                position = this.position,
+                seen = this.seen;
+
+            if (position >= length) {
+                return null;
+            }
+            var value = this.getValue(position);
+            var memo = this.getMemo(position);
+            var key = ensureUniqueKey(seen, keyFor(value, memo));
+            this.position++;
+            return { key: key, value: value, memo: memo };
+        };
+
+        return ArrayIterator;
+    }();
+
+    var EmberArrayIterator = function (_ArrayIterator) {
+        (0, _emberBabel.inherits)(EmberArrayIterator, _ArrayIterator);
+
+        function EmberArrayIterator(array, keyFor) {
+            (0, _emberBabel.classCallCheck)(this, EmberArrayIterator);
+
+            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator.call(this, array, keyFor));
+
+            _this.length = (0, _emberMetal.get)(array, 'length');
+            return _this;
+        }
+
+        EmberArrayIterator.prototype.getValue = function getValue(position) {
+            return (0, _emberRuntime.objectAt)(this.array, position);
+        };
+
+        return EmberArrayIterator;
+    }(ArrayIterator);
+
+    var ObjectKeysIterator = function (_ArrayIterator2) {
+        (0, _emberBabel.inherits)(ObjectKeysIterator, _ArrayIterator2);
+
+        function ObjectKeysIterator(keys, values, keyFor) {
+            (0, _emberBabel.classCallCheck)(this, ObjectKeysIterator);
+
+            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, keyFor));
+
+            _this2.keys = keys;
+            return _this2;
+        }
+
+        ObjectKeysIterator.prototype.getMemo = function getMemo(position) {
+            return this.keys[position];
+        };
+
+        return ObjectKeysIterator;
+    }(ArrayIterator);
+
+    var EmptyIterator = function () {
+        function EmptyIterator() {
+            (0, _emberBabel.classCallCheck)(this, EmptyIterator);
+        }
+
+        EmptyIterator.prototype.isEmpty = function isEmpty() {
+            return true;
+        };
+
+        EmptyIterator.prototype.next = function next() {
+            throw new Error('Cannot call next() on an empty iterator');
+        };
+
+        return EmptyIterator;
+    }();
+
+    var EMPTY_ITERATOR = new EmptyIterator();
+
+    var EachInIterable = function () {
+        function EachInIterable(ref, keyFor) {
+            (0, _emberBabel.classCallCheck)(this, EachInIterable);
+
+            this.ref = ref;
+            this.keyFor = keyFor;
+            var valueTag = this.valueTag = _reference.UpdatableTag.create(_reference.CONSTANT_TAG);
+            this.tag = (0, _reference.combine)([ref.tag, valueTag]);
+        }
+
+        EachInIterable.prototype.iterate = function iterate() {
+            var ref = this.ref,
+                keyFor = this.keyFor,
+                valueTag = this.valueTag;
+
+            var iterable = ref.value();
+            valueTag.inner.update((0, _emberMetal.tagFor)(iterable));
+            if ((0, _emberMetal.isProxy)(iterable)) {
+                iterable = (0, _emberMetal.get)(iterable, 'content');
+            }
+            var typeofIterable = typeof iterable;
+            if (iterable !== null && (typeofIterable === 'object' || typeofIterable === 'function')) {
+                var keys = Object.keys(iterable);
+                var values = keys.map(function (key) {
+                    return iterable[key];
+                });
+                return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
+            } else {
+                return EMPTY_ITERATOR;
+            }
+        };
+
+        EachInIterable.prototype.valueReferenceFor = function valueReferenceFor(item) {
+            return new _references.UpdatablePrimitiveReference(item.memo);
+        };
+
+        EachInIterable.prototype.updateValueReference = function updateValueReference(reference, item) {
+            reference.update(item.memo);
+        };
+
+        EachInIterable.prototype.memoReferenceFor = function memoReferenceFor(item) {
+            return new _references.UpdatableReference(item.value);
+        };
+
+        EachInIterable.prototype.updateMemoReference = function updateMemoReference(reference, item) {
+            reference.update(item.value);
+        };
+
+        return EachInIterable;
+    }();
+
+    var ArrayIterable = function () {
+        function ArrayIterable(ref, keyFor) {
+            (0, _emberBabel.classCallCheck)(this, ArrayIterable);
+
+            this.ref = ref;
+            this.keyFor = keyFor;
+            var valueTag = this.valueTag = _reference.UpdatableTag.create(_reference.CONSTANT_TAG);
+            this.tag = (0, _reference.combine)([ref.tag, valueTag]);
+        }
+
+        ArrayIterable.prototype.iterate = function iterate() {
+            var ref = this.ref,
+                keyFor = this.keyFor,
+                valueTag = this.valueTag;
+
+            var iterable = ref.value();
+            valueTag.inner.update((0, _emberMetal.tagForProperty)(iterable, '[]'));
+            if (iterable === null || typeof iterable !== 'object') {
+                return EMPTY_ITERATOR;
+            }
+            if (Array.isArray(iterable)) {
+                return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
+            } else if ((0, _emberRuntime.isEmberArray)(iterable)) {
+                return (0, _emberMetal.get)(iterable, 'length') > 0 ? new EmberArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
+            } else if (typeof iterable.forEach === 'function') {
+                var array = [];
+                iterable.forEach(function (item) {
+                    array.push(item);
+                });
+                return array.length > 0 ? new ArrayIterator(array, keyFor) : EMPTY_ITERATOR;
+            } else {
+                return EMPTY_ITERATOR;
+            }
+        };
+
+        ArrayIterable.prototype.valueReferenceFor = function valueReferenceFor(item) {
+            return new _references.UpdatableReference(item.value);
+        };
+
+        ArrayIterable.prototype.updateValueReference = function updateValueReference(reference, item) {
+            reference.update(item.value);
+        };
+
+        ArrayIterable.prototype.memoReferenceFor = function memoReferenceFor(item) {
+            return new _references.UpdatablePrimitiveReference(item.memo);
+        };
+
+        ArrayIterable.prototype.updateMemoReference = function updateMemoReference(reference, item) {
+            reference.update(item.memo);
+        };
+
+        return ArrayIterable;
+    }();
+});
+enifed('ember-glimmer/utils/process-args', ['exports', 'ember-babel', 'ember-utils', 'ember-views', 'ember-glimmer/component', 'ember-glimmer/helpers/action', 'ember-glimmer/utils/references'], function (exports, _emberBabel, _emberUtils, _emberViews, _component, _action, _references) {
+    'use strict';
+
+    exports.processComponentArgs = processComponentArgs;
+
+    // ComponentArgs takes EvaluatedNamedArgs and converts them into the
+    // inputs needed by CurlyComponents (attrs and props, with mutable
+    // cells, etc).
+    function processComponentArgs(namedArgs) {
+        var keys = namedArgs.names;
+        var attrs = namedArgs.value();
+        var props = Object.create(null);
+        var args = Object.create(null);
+        props[_component.ARGS] = args;
+        for (var i = 0; i < keys.length; i++) {
+            var name = keys[i];
+            var ref = namedArgs.get(name);
+            var value = attrs[name];
+            if (typeof value === 'function' && value[_action.ACTION]) {
+                attrs[name] = value;
+            } else if (ref[_references.UPDATE]) {
+                attrs[name] = new MutableCell(ref, value);
+            }
+            args[name] = ref;
+            props[name] = value;
+        }
+        props.attrs = attrs;
+        return props;
+    }
+    var REF = (0, _emberUtils.symbol)('REF');
+
+    var MutableCell = function () {
+        function MutableCell(ref, value) {
+            (0, _emberBabel.classCallCheck)(this, MutableCell);
+
+            this[_emberViews.MUTABLE_CELL] = true;
+            this[REF] = ref;
+            this.value = value;
+        }
+
+        MutableCell.prototype.update = function update(val) {
+            this[REF][_references.UPDATE](val);
+        };
+
+        return MutableCell;
+    }();
+});
+enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/reference', '@glimmer/runtime', 'ember-metal', 'ember-utils', 'ember/features', 'ember-glimmer/helper', 'ember-glimmer/utils/to-bool'], function (exports, _emberBabel, _reference, _runtime, _emberMetal, _emberUtils, _features, _helper, _toBool) {
+    'use strict';
+
+    exports.UnboundReference = exports.InternalHelperReference = exports.ClassBasedHelperReference = exports.SimpleHelperReference = exports.ConditionalReference = exports.UpdatablePrimitiveReference = exports.UpdatableReference = exports.NestedPropertyReference = exports.RootPropertyReference = exports.PropertyReference = exports.RootReference = exports.CachedReference = exports.UPDATE = undefined;
+    var UPDATE = exports.UPDATE = (0, _emberUtils.symbol)('UPDATE');
+    var maybeFreeze = void 0;
+    if (true) {
+        // gaurding this in a DEBUG gaurd (as well as all invocations)
+        // so that it is properly stripped during the minification's
+        // dead code elimination
+        maybeFreeze = function (obj) {
+            // re-freezing an already frozen object introduces a significant
+            // performance penalty on Chrome (tested through 59).
+            //
+            // See: https://bugs.chromium.org/p/v8/issues/detail?id=6450
+            if (!Object.isFrozen(obj) && _emberUtils.HAS_NATIVE_WEAKMAP) {
+                Object.freeze(obj);
+            }
         };
     }
-  }
+    // @abstract
+    // @implements PathReference
 
-  function keyForArray(keyPath) {
-    switch (keyPath) {
-      case '@index':
-        return index;
-      case '@identity':
-      case undefined:
-      case null:
-        return identity;
-      default:
-        return function (item) {
-          return (0, _emberMetal.get)(item, keyPath);
+    var EmberPathReference = function () {
+        function EmberPathReference() {
+            (0, _emberBabel.classCallCheck)(this, EmberPathReference);
+        }
+
+        EmberPathReference.prototype.get = function get(key) {
+            return PropertyReference.create(this, key);
         };
-    }
-  }
 
-  function index(item, index) {
-    return String(index);
-  }
-
-  function identity(item) {
-    switch (typeof item) {
-      case 'string':
-      case 'number':
-        return String(item);
-      default:
-        return (0, _emberUtils.guidFor)(item);
-    }
-  }
-
-  function ensureUniqueKey(seen, key) {
-    var seenCount = seen[key];
-
-    if (seenCount > 0) {
-      seen[key]++;
-      return '' + key + ITERATOR_KEY_GUID + seenCount;
-    } else {
-      seen[key] = 1;
-    }
-
-    return key;
-  }
-
-  var ArrayIterator = function () {
-    function ArrayIterator(array, keyFor) {
-      (0, _emberBabel.classCallCheck)(this, ArrayIterator);
-
-      this.array = array;
-      this.length = array.length;
-      this.keyFor = keyFor;
-      this.position = 0;
-      this.seen = Object.create(null);
-    }
-
-    ArrayIterator.prototype.isEmpty = function isEmpty() {
-      return false;
-    };
-
-    ArrayIterator.prototype.getMemo = function getMemo(position) {
-      return position;
-    };
-
-    ArrayIterator.prototype.getValue = function getValue(position) {
-      return this.array[position];
-    };
-
-    ArrayIterator.prototype.next = function next() {
-      var length = this.length,
-          keyFor = this.keyFor,
-          position = this.position,
-          seen = this.seen;
-
-
-      if (position >= length) {
-        return null;
-      }
-
-      var value = this.getValue(position);
-      var memo = this.getMemo(position);
-      var key = ensureUniqueKey(seen, keyFor(value, memo));
-
-      this.position++;
-
-      return { key: key, value: value, memo: memo };
-    };
-
-    return ArrayIterator;
-  }();
-
-  var EmberArrayIterator = function (_ArrayIterator) {
-    (0, _emberBabel.inherits)(EmberArrayIterator, _ArrayIterator);
-
-    function EmberArrayIterator(array, keyFor) {
-      (0, _emberBabel.classCallCheck)(this, EmberArrayIterator);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator.call(this, array, keyFor));
-
-      _this.length = (0, _emberMetal.get)(array, 'length');
-      return _this;
-    }
-
-    EmberArrayIterator.prototype.getValue = function getValue(position) {
-      return (0, _emberRuntime.objectAt)(this.array, position);
-    };
-
-    return EmberArrayIterator;
-  }(ArrayIterator);
-
-  var ObjectKeysIterator = function (_ArrayIterator2) {
-    (0, _emberBabel.inherits)(ObjectKeysIterator, _ArrayIterator2);
-
-    function ObjectKeysIterator(keys, values, keyFor) {
-      (0, _emberBabel.classCallCheck)(this, ObjectKeysIterator);
-
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ArrayIterator2.call(this, values, keyFor));
-
-      _this2.keys = keys;
-      return _this2;
-    }
-
-    ObjectKeysIterator.prototype.getMemo = function getMemo(position) {
-      return this.keys[position];
-    };
-
-    return ObjectKeysIterator;
-  }(ArrayIterator);
-
-  var EmptyIterator = function () {
-    function EmptyIterator() {
-      (0, _emberBabel.classCallCheck)(this, EmptyIterator);
-    }
-
-    EmptyIterator.prototype.isEmpty = function isEmpty() {
-      return true;
-    };
-
-    EmptyIterator.prototype.next = function next() {
-      throw new Error('Cannot call next() on an empty iterator');
-    };
-
-    return EmptyIterator;
-  }();
-
-  var EMPTY_ITERATOR = new EmptyIterator();
-
-  var EachInIterable = function () {
-    function EachInIterable(ref, keyFor) {
-      (0, _emberBabel.classCallCheck)(this, EachInIterable);
-
-      this.ref = ref;
-      this.keyFor = keyFor;
-
-      var valueTag = this.valueTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
-
-      this.tag = (0, _reference.combine)([ref.tag, valueTag]);
-    }
-
-    EachInIterable.prototype.iterate = function iterate() {
-      var ref = this.ref,
-          keyFor = this.keyFor,
-          valueTag = this.valueTag;
-
-
-      var iterable = ref.value();
-
-      valueTag.update((0, _emberMetal.tagFor)(iterable));
-
-      if ((0, _emberMetal.isProxy)(iterable)) {
-        iterable = (0, _emberMetal.get)(iterable, 'content');
-      }
-
-      var typeofIterable = typeof iterable;
-
-      if (iterable !== null && (typeofIterable === 'object' || typeofIterable === 'function')) {
-        var keys = Object.keys(iterable);
-        var values = keys.map(function (key) {
-          return iterable[key];
-        });
-        return keys.length > 0 ? new ObjectKeysIterator(keys, values, keyFor) : EMPTY_ITERATOR;
-      } else {
-        return EMPTY_ITERATOR;
-      }
-    };
-
-    EachInIterable.prototype.valueReferenceFor = function valueReferenceFor(item) {
-      return new _references.UpdatablePrimitiveReference(item.memo);
-    };
-
-    EachInIterable.prototype.updateValueReference = function updateValueReference(reference, item) {
-      reference.update(item.memo);
-    };
-
-    EachInIterable.prototype.memoReferenceFor = function memoReferenceFor(item) {
-      return new _references.UpdatableReference(item.value);
-    };
-
-    EachInIterable.prototype.updateMemoReference = function updateMemoReference(reference, item) {
-      reference.update(item.value);
-    };
-
-    return EachInIterable;
-  }();
-
-  var ArrayIterable = function () {
-    function ArrayIterable(ref, keyFor) {
-      (0, _emberBabel.classCallCheck)(this, ArrayIterable);
-
-      this.ref = ref;
-      this.keyFor = keyFor;
-
-      var valueTag = this.valueTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
-
-      this.tag = (0, _reference.combine)([ref.tag, valueTag]);
-    }
-
-    ArrayIterable.prototype.iterate = function iterate() {
-      var ref = this.ref,
-          keyFor = this.keyFor,
-          valueTag = this.valueTag;
-
-
-      var iterable = ref.value();
-
-      valueTag.update((0, _emberMetal.tagForProperty)(iterable, '[]'));
-
-      if (iterable === null || typeof iterable !== 'object') {
-        return EMPTY_ITERATOR;
-      }
-
-      if (Array.isArray(iterable)) {
-        return iterable.length > 0 ? new ArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
-      } else if ((0, _emberRuntime.isEmberArray)(iterable)) {
-        return (0, _emberMetal.get)(iterable, 'length') > 0 ? new EmberArrayIterator(iterable, keyFor) : EMPTY_ITERATOR;
-      } else if (typeof iterable.forEach === 'function') {
-        var array = [];
-        iterable.forEach(function (item) {
-          array.push(item);
-        });
-        return array.length > 0 ? new ArrayIterator(array, keyFor) : EMPTY_ITERATOR;
-      } else {
-        return EMPTY_ITERATOR;
-      }
-    };
-
-    ArrayIterable.prototype.valueReferenceFor = function valueReferenceFor(item) {
-      return new _references.UpdatableReference(item.value);
-    };
-
-    ArrayIterable.prototype.updateValueReference = function updateValueReference(reference, item) {
-      reference.update(item.value);
-    };
-
-    ArrayIterable.prototype.memoReferenceFor = function memoReferenceFor(item) {
-      return new _references.UpdatablePrimitiveReference(item.memo);
-    };
-
-    ArrayIterable.prototype.updateMemoReference = function updateMemoReference(reference, item) {
-      reference.update(item.memo);
-    };
-
-    return ArrayIterable;
-  }();
-});
-enifed('ember-glimmer/utils/process-args', ['exports', 'ember-babel', 'ember-utils', 'ember-glimmer/component', 'ember-glimmer/utils/references', 'ember-views', 'ember-glimmer/helpers/action'], function (exports, _emberBabel, _emberUtils, _component, _references, _emberViews, _action) {
-  'use strict';
-
-  exports.processComponentArgs = processComponentArgs;
-
-
-  // ComponentArgs takes EvaluatedNamedArgs and converts them into the
-  // inputs needed by CurlyComponents (attrs and props, with mutable
-  // cells, etc).
-  function processComponentArgs(namedArgs) {
-    var keys = namedArgs.names;
-    var attrs = namedArgs.value();
-    var props = Object.create(null);
-    var args = Object.create(null);
-
-    props[_component.ARGS] = args;
-
-    for (var i = 0; i < keys.length; i++) {
-      var name = keys[i];
-      var ref = namedArgs.get(name);
-      var value = attrs[name];
-
-      if (typeof value === 'function' && value[_action.ACTION]) {
-        attrs[name] = value;
-      } else if (ref[_references.UPDATE]) {
-        attrs[name] = new MutableCell(ref, value);
-      }
-
-      args[name] = ref;
-      props[name] = value;
-    }
-
-    props.attrs = attrs;
-
-    return props;
-  }
-
-  var REF = (0, _emberUtils.symbol)('REF');
-
-  var MutableCell = function () {
-    function MutableCell(ref, value) {
-      (0, _emberBabel.classCallCheck)(this, MutableCell);
-
-      this[_emberViews.MUTABLE_CELL] = true;
-      this[REF] = ref;
-      this.value = value;
-    }
-
-    MutableCell.prototype.update = function update(val) {
-      this[REF][_references.UPDATE](val);
-    };
-
-    return MutableCell;
-  }();
-});
-enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', 'ember-utils', 'ember-metal', '@glimmer/reference', '@glimmer/runtime', 'ember-glimmer/utils/to-bool', 'ember-glimmer/helper', 'ember/features'], function (exports, _emberBabel, _emberUtils, _emberMetal, _reference, _runtime, _toBool, _helper, _features) {
-  'use strict';
-
-  exports.UnboundReference = exports.InternalHelperReference = exports.ClassBasedHelperReference = exports.SimpleHelperReference = exports.ConditionalReference = exports.UpdatablePrimitiveReference = exports.UpdatableReference = exports.NestedPropertyReference = exports.RootPropertyReference = exports.PropertyReference = exports.RootReference = exports.CachedReference = exports.UPDATE = undefined;
-  var UPDATE = exports.UPDATE = (0, _emberUtils.symbol)('UPDATE');
-
-  var maybeFreeze = void 0;
-  if (true) {
-    // gaurding this in a DEBUG gaurd (as well as all invocations)
-    // so that it is properly stripped during the minification's
-    // dead code elimination
-    maybeFreeze = function (obj) {
-      // re-freezing an already frozen object introduces a significant
-      // performance penalty on Chrome (tested through 59).
-      //
-      // See: https://bugs.chromium.org/p/v8/issues/detail?id=6450
-      if (!Object.isFrozen(obj) && _emberUtils.HAS_NATIVE_WEAKMAP) {
-        Object.freeze(obj);
-      }
-    };
-  }
-
-  // @abstract
-  // @implements PathReference
-
-  var EmberPathReference = function () {
-    function EmberPathReference() {
-      (0, _emberBabel.classCallCheck)(this, EmberPathReference);
-    }
-
-    EmberPathReference.prototype.get = function get(key) {
-      return PropertyReference.create(this, key);
-    };
-
-    return EmberPathReference;
-  }();
-
-  var CachedReference = exports.CachedReference = function (_EmberPathReference) {
-    (0, _emberBabel.inherits)(CachedReference, _EmberPathReference);
-
-    function CachedReference() {
-      (0, _emberBabel.classCallCheck)(this, CachedReference);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _EmberPathReference.call(this));
-
-      _this._lastRevision = null;
-      _this._lastValue = null;
-      return _this;
-    }
-
-    CachedReference.prototype.value = function value() {
-      var tag = this.tag,
-          _lastRevision = this._lastRevision,
-          _lastValue = this._lastValue;
-
-
-      if (!_lastRevision || !tag.validate(_lastRevision)) {
-        _lastValue = this._lastValue = this.compute();
-        this._lastRevision = tag.value();
-      }
-
-      return _lastValue;
-    };
-
-    // @abstract compute()
-
-
-    return CachedReference;
-  }(EmberPathReference);
-
-  var RootReference = exports.RootReference = function (_ConstReference) {
-    (0, _emberBabel.inherits)(RootReference, _ConstReference);
-
-    function RootReference(value) {
-      (0, _emberBabel.classCallCheck)(this, RootReference);
-
-      var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ConstReference.call(this, value));
-
-      _this2.children = Object.create(null);
-      return _this2;
-    }
-
-    RootReference.prototype.get = function get(propertyKey) {
-      var ref = this.children[propertyKey];
-
-      if (ref === undefined) {
-        ref = this.children[propertyKey] = new RootPropertyReference(this.inner, propertyKey);
-      }
-
-      return ref;
-    };
-
-    return RootReference;
-  }(_reference.ConstReference);
-
-  var TwoWayFlushDetectionTag = void 0;
-
-  if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-    TwoWayFlushDetectionTag = function () {
-      function TwoWayFlushDetectionTag(tag, key, ref) {
-        (0, _emberBabel.classCallCheck)(this, TwoWayFlushDetectionTag);
-
-        this.tag = tag;
-        this.parent = null;
-        this.key = key;
-        this.ref = ref;
-      }
-
-      TwoWayFlushDetectionTag.prototype.value = function value() {
-        return this.tag.value();
-      };
-
-      TwoWayFlushDetectionTag.prototype.validate = function validate(ticket) {
-        var parent = this.parent,
-            key = this.key;
-
-
-        var isValid = this.tag.validate(ticket);
-
-        if (isValid && parent) {
-          (0, _emberMetal.didRender)(parent, key, this.ref);
-        }
-
-        return isValid;
-      };
-
-      TwoWayFlushDetectionTag.prototype.didCompute = function didCompute(parent) {
-        this.parent = parent;
-        (0, _emberMetal.didRender)(parent, this.key, this.ref);
-      };
-
-      return TwoWayFlushDetectionTag;
+        return EmberPathReference;
     }();
-  }
 
-  var PropertyReference = exports.PropertyReference = function (_CachedReference) {
-    (0, _emberBabel.inherits)(PropertyReference, _CachedReference);
+    var CachedReference = exports.CachedReference = function (_EmberPathReference) {
+        (0, _emberBabel.inherits)(CachedReference, _EmberPathReference);
 
-    function PropertyReference() {
-      (0, _emberBabel.classCallCheck)(this, PropertyReference);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.apply(this, arguments));
-    }
+        function CachedReference() {
+            (0, _emberBabel.classCallCheck)(this, CachedReference);
 
-    PropertyReference.create = function create(parentReference, propertyKey) {
-      if ((0, _reference.isConst)(parentReference)) {
-        return new RootPropertyReference(parentReference.value(), propertyKey);
-      } else {
-        return new NestedPropertyReference(parentReference, propertyKey);
-      }
-    };
+            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _EmberPathReference.call(this));
 
-    PropertyReference.prototype.get = function get(key) {
-      return new NestedPropertyReference(this, key);
-    };
-
-    return PropertyReference;
-  }(CachedReference);
-
-  var RootPropertyReference = exports.RootPropertyReference = function (_PropertyReference) {
-    (0, _emberBabel.inherits)(RootPropertyReference, _PropertyReference);
-
-    function RootPropertyReference(parentValue, propertyKey) {
-      (0, _emberBabel.classCallCheck)(this, RootPropertyReference);
-
-      var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _PropertyReference.call(this));
-
-      _this4._parentValue = parentValue;
-      _this4._propertyKey = propertyKey;
-
-      if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-        _this4.tag = new TwoWayFlushDetectionTag((0, _emberMetal.tagForProperty)(parentValue, propertyKey), propertyKey, _this4);
-      } else {
-        _this4.tag = (0, _emberMetal.tagForProperty)(parentValue, propertyKey);
-      }
-
-      if (_features.MANDATORY_SETTER) {
-        (0, _emberMetal.watchKey)(parentValue, propertyKey);
-      }
-      return _this4;
-    }
-
-    RootPropertyReference.prototype.compute = function compute() {
-      var _parentValue = this._parentValue,
-          _propertyKey = this._propertyKey;
-
-
-      if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-        this.tag.didCompute(_parentValue);
-      }
-
-      return (0, _emberMetal.get)(_parentValue, _propertyKey);
-    };
-
-    RootPropertyReference.prototype[UPDATE] = function (value) {
-      (0, _emberMetal.set)(this._parentValue, this._propertyKey, value);
-    };
-
-    return RootPropertyReference;
-  }(PropertyReference);
-
-  var NestedPropertyReference = exports.NestedPropertyReference = function (_PropertyReference2) {
-    (0, _emberBabel.inherits)(NestedPropertyReference, _PropertyReference2);
-
-    function NestedPropertyReference(parentReference, propertyKey) {
-      (0, _emberBabel.classCallCheck)(this, NestedPropertyReference);
-
-      var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _PropertyReference2.call(this));
-
-      var parentReferenceTag = parentReference.tag;
-      var parentObjectTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
-
-      _this5._parentReference = parentReference;
-      _this5._parentObjectTag = parentObjectTag;
-      _this5._propertyKey = propertyKey;
-
-      if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-        var tag = (0, _reference.combine)([parentReferenceTag, parentObjectTag]);
-        _this5.tag = new TwoWayFlushDetectionTag(tag, propertyKey, _this5);
-      } else {
-        _this5.tag = (0, _reference.combine)([parentReferenceTag, parentObjectTag]);
-      }
-      return _this5;
-    }
-
-    NestedPropertyReference.prototype.compute = function compute() {
-      var _parentReference = this._parentReference,
-          _parentObjectTag = this._parentObjectTag,
-          _propertyKey = this._propertyKey;
-
-
-      var parentValue = _parentReference.value();
-
-      _parentObjectTag.update((0, _emberMetal.tagForProperty)(parentValue, _propertyKey));
-
-      var parentValueType = typeof parentValue;
-
-      if (parentValueType === 'string' && _propertyKey === 'length') {
-        return parentValue.length;
-      }
-
-      if (parentValueType === 'object' && parentValue !== null || parentValueType === 'function') {
-        if (_features.MANDATORY_SETTER) {
-          (0, _emberMetal.watchKey)(parentValue, _propertyKey);
+            _this._lastRevision = null;
+            _this._lastValue = null;
+            return _this;
         }
 
-        if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-          this.tag.didCompute(parentValue);
+        CachedReference.prototype.compute = function compute() {};
+
+        CachedReference.prototype.value = function value() {
+            var tag = this.tag,
+                _lastRevision = this._lastRevision,
+                _lastValue = this._lastValue;
+
+            if (!_lastRevision || !tag.validate(_lastRevision)) {
+                _lastValue = this._lastValue = this.compute();
+                this._lastRevision = tag.value();
+            }
+            return _lastValue;
+        };
+
+        return CachedReference;
+    }(EmberPathReference);
+
+    var RootReference = exports.RootReference = function (_ConstReference) {
+        (0, _emberBabel.inherits)(RootReference, _ConstReference);
+
+        function RootReference(value) {
+            (0, _emberBabel.classCallCheck)(this, RootReference);
+
+            var _this2 = (0, _emberBabel.possibleConstructorReturn)(this, _ConstReference.call(this, value));
+
+            _this2.children = Object.create(null);
+            return _this2;
         }
 
-        return (0, _emberMetal.get)(parentValue, _propertyKey);
-      } else {
-        return undefined;
-      }
-    };
+        RootReference.prototype.get = function get(propertyKey) {
+            var ref = this.children[propertyKey];
+            if (ref === undefined) {
+                ref = this.children[propertyKey] = new RootPropertyReference(this.inner, propertyKey);
+            }
+            return ref;
+        };
 
-    NestedPropertyReference.prototype[UPDATE] = function (value) {
-      var parent = this._parentReference.value();
-      (0, _emberMetal.set)(parent, this._propertyKey, value);
-    };
+        return RootReference;
+    }(_reference.ConstReference);
 
-    return NestedPropertyReference;
-  }(PropertyReference);
+    var TwoWayFlushDetectionTag = void 0;
+    if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+        TwoWayFlushDetectionTag = function () {
+            function TwoWayFlushDetectionTag(tag, key, ref) {
+                (0, _emberBabel.classCallCheck)(this, TwoWayFlushDetectionTag);
 
-  var UpdatableReference = exports.UpdatableReference = function (_EmberPathReference2) {
-    (0, _emberBabel.inherits)(UpdatableReference, _EmberPathReference2);
+                this.tag = tag;
+                this.parent = null;
+                this.key = key;
+                this.ref = ref;
+            }
 
-    function UpdatableReference(value) {
-      (0, _emberBabel.classCallCheck)(this, UpdatableReference);
+            TwoWayFlushDetectionTag.prototype.value = function value() {
+                return this.tag.value();
+            };
 
-      var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _EmberPathReference2.call(this));
+            TwoWayFlushDetectionTag.prototype.validate = function validate(ticket) {
+                var parent = this.parent,
+                    key = this.key;
 
-      _this6.tag = new _reference.DirtyableTag();
-      _this6._value = value;
-      return _this6;
+                var isValid = this.tag.validate(ticket);
+                if (isValid && parent) {
+                    (0, _emberMetal.didRender)(parent, key, this.ref);
+                }
+                return isValid;
+            };
+
+            TwoWayFlushDetectionTag.prototype.didCompute = function didCompute(parent) {
+                this.parent = parent;
+                (0, _emberMetal.didRender)(parent, this.key, this.ref);
+            };
+
+            return TwoWayFlushDetectionTag;
+        }();
     }
 
-    UpdatableReference.prototype.value = function value() {
-      return this._value;
-    };
+    var PropertyReference = exports.PropertyReference = function (_CachedReference) {
+        (0, _emberBabel.inherits)(PropertyReference, _CachedReference);
 
-    UpdatableReference.prototype.update = function update(value) {
-      var _value = this._value;
-
-
-      if (value !== _value) {
-        this.tag.dirty();
-        this._value = value;
-      }
-    };
-
-    return UpdatableReference;
-  }(EmberPathReference);
-
-  var UpdatablePrimitiveReference = exports.UpdatablePrimitiveReference = function (_UpdatableReference) {
-    (0, _emberBabel.inherits)(UpdatablePrimitiveReference, _UpdatableReference);
-
-    function UpdatablePrimitiveReference() {
-      (0, _emberBabel.classCallCheck)(this, UpdatablePrimitiveReference);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _UpdatableReference.apply(this, arguments));
-    }
-
-    UpdatablePrimitiveReference.prototype.get = function get() {
-      return _runtime.UNDEFINED_REFERENCE;
-    };
-
-    return UpdatablePrimitiveReference;
-  }(UpdatableReference);
-
-  var ConditionalReference = exports.ConditionalReference = function (_GlimmerConditionalRe) {
-    (0, _emberBabel.inherits)(ConditionalReference, _GlimmerConditionalRe);
-
-    ConditionalReference.create = function create(reference) {
-      if ((0, _reference.isConst)(reference)) {
-        var value = reference.value();
-
-        if ((0, _emberMetal.isProxy)(value)) {
-          return new RootPropertyReference(value, 'isTruthy');
-        } else {
-          return _runtime.PrimitiveReference.create((0, _toBool.default)(value));
-        }
-      }
-
-      return new ConditionalReference(reference);
-    };
-
-    function ConditionalReference(reference) {
-      (0, _emberBabel.classCallCheck)(this, ConditionalReference);
-
-      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _GlimmerConditionalRe.call(this, reference));
-
-      _this8.objectTag = new _reference.UpdatableTag(_reference.CONSTANT_TAG);
-      _this8.tag = (0, _reference.combine)([reference.tag, _this8.objectTag]);
-      return _this8;
-    }
-
-    ConditionalReference.prototype.toBool = function toBool(predicate) {
-      if ((0, _emberMetal.isProxy)(predicate)) {
-        this.objectTag.update((0, _emberMetal.tagForProperty)(predicate, 'isTruthy'));
-        return (0, _emberMetal.get)(predicate, 'isTruthy');
-      } else {
-        this.objectTag.update((0, _emberMetal.tagFor)(predicate));
-        return (0, _toBool.default)(predicate);
-      }
-    };
-
-    return ConditionalReference;
-  }(_runtime.ConditionalReference);
-
-  var SimpleHelperReference = exports.SimpleHelperReference = function (_CachedReference2) {
-    (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
-
-    SimpleHelperReference.create = function create(helper, args) {
-      if ((0, _reference.isConst)(args)) {
-        var positional = args.positional,
-            named = args.named;
-
-
-        var positionalValue = positional.value();
-        var namedValue = named.value();
-
-        if (true) {
-          maybeFreeze(positionalValue);
-          maybeFreeze(namedValue);
+        function PropertyReference() {
+            (0, _emberBabel.classCallCheck)(this, PropertyReference);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference.apply(this, arguments));
         }
 
-        var result = helper(positionalValue, namedValue);
+        PropertyReference.create = function create(parentReference, propertyKey) {
+            if ((0, _reference.isConst)(parentReference)) {
+                return new RootPropertyReference(parentReference.value(), propertyKey);
+            } else {
+                return new NestedPropertyReference(parentReference, propertyKey);
+            }
+        };
 
-        if (typeof result === 'object' && result !== null || typeof result === 'function') {
-          return new RootReference(result);
-        } else {
-          return _runtime.PrimitiveReference.create(result);
+        PropertyReference.prototype.get = function get(key) {
+            return new NestedPropertyReference(this, key);
+        };
+
+        return PropertyReference;
+    }(CachedReference);
+
+    var RootPropertyReference = exports.RootPropertyReference = function (_PropertyReference) {
+        (0, _emberBabel.inherits)(RootPropertyReference, _PropertyReference);
+
+        function RootPropertyReference(parentValue, propertyKey) {
+            (0, _emberBabel.classCallCheck)(this, RootPropertyReference);
+
+            var _this4 = (0, _emberBabel.possibleConstructorReturn)(this, _PropertyReference.call(this));
+
+            _this4._parentValue = parentValue;
+            _this4._propertyKey = propertyKey;
+            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+                _this4.tag = new TwoWayFlushDetectionTag((0, _emberMetal.tagForProperty)(parentValue, propertyKey), propertyKey, _this4);
+            } else {
+                _this4.tag = (0, _emberMetal.tagForProperty)(parentValue, propertyKey);
+            }
+            if (_features.MANDATORY_SETTER) {
+                (0, _emberMetal.watchKey)(parentValue, propertyKey);
+            }
+            return _this4;
         }
-      } else {
-        return new SimpleHelperReference(helper, args);
-      }
-    };
 
-    function SimpleHelperReference(helper, args) {
-      (0, _emberBabel.classCallCheck)(this, SimpleHelperReference);
+        RootPropertyReference.prototype.compute = function compute() {
+            var _parentValue = this._parentValue,
+                _propertyKey = this._propertyKey;
 
-      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference2.call(this));
+            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+                this.tag.didCompute(_parentValue);
+            }
+            return (0, _emberMetal.get)(_parentValue, _propertyKey);
+        };
 
-      _this9.tag = args.tag;
-      _this9.helper = helper;
-      _this9.args = args;
-      return _this9;
-    }
+        RootPropertyReference.prototype[UPDATE] = function (value) {
+            (0, _emberMetal.set)(this._parentValue, this._propertyKey, value);
+        };
 
-    SimpleHelperReference.prototype.compute = function compute() {
-      var helper = this.helper,
-          _args = this.args,
-          positional = _args.positional,
-          named = _args.named;
+        return RootPropertyReference;
+    }(PropertyReference);
 
+    var NestedPropertyReference = exports.NestedPropertyReference = function (_PropertyReference2) {
+        (0, _emberBabel.inherits)(NestedPropertyReference, _PropertyReference2);
 
-      var positionalValue = positional.value();
-      var namedValue = named.value();
+        function NestedPropertyReference(parentReference, propertyKey) {
+            (0, _emberBabel.classCallCheck)(this, NestedPropertyReference);
 
-      if (true) {
-        maybeFreeze(positionalValue);
-        maybeFreeze(namedValue);
-      }
+            var _this5 = (0, _emberBabel.possibleConstructorReturn)(this, _PropertyReference2.call(this));
 
-      return helper(positionalValue, namedValue);
-    };
+            var parentReferenceTag = parentReference.tag;
+            var parentObjectTag = _reference.UpdatableTag.create(_reference.CONSTANT_TAG);
+            _this5._parentReference = parentReference;
+            _this5._parentObjectTag = parentObjectTag;
+            _this5._propertyKey = propertyKey;
+            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+                var tag = (0, _reference.combine)([parentReferenceTag, parentObjectTag]);
+                _this5.tag = new TwoWayFlushDetectionTag(tag, propertyKey, _this5);
+            } else {
+                _this5.tag = (0, _reference.combine)([parentReferenceTag, parentObjectTag]);
+            }
+            return _this5;
+        }
 
-    return SimpleHelperReference;
-  }(CachedReference);
+        NestedPropertyReference.prototype.compute = function compute() {
+            var _parentReference = this._parentReference,
+                _parentObjectTag = this._parentObjectTag,
+                _propertyKey = this._propertyKey;
 
-  var ClassBasedHelperReference = exports.ClassBasedHelperReference = function (_CachedReference3) {
-    (0, _emberBabel.inherits)(ClassBasedHelperReference, _CachedReference3);
+            var parentValue = _parentReference.value();
+            _parentObjectTag.inner.update((0, _emberMetal.tagForProperty)(parentValue, _propertyKey));
+            var parentValueType = typeof parentValue;
+            if (parentValueType === 'string' && _propertyKey === 'length') {
+                return parentValue.length;
+            }
+            if (parentValueType === 'object' && parentValue !== null || parentValueType === 'function') {
+                if (_features.MANDATORY_SETTER) {
+                    (0, _emberMetal.watchKey)(parentValue, _propertyKey);
+                }
+                if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+                    this.tag.didCompute(parentValue);
+                }
+                return (0, _emberMetal.get)(parentValue, _propertyKey);
+            } else {
+                return undefined;
+            }
+        };
 
-    ClassBasedHelperReference.create = function create(helperClass, vm, args) {
-      var instance = helperClass.create();
-      vm.newDestroyable(instance);
-      return new ClassBasedHelperReference(instance, args);
-    };
+        NestedPropertyReference.prototype[UPDATE] = function (value) {
+            var parent = this._parentReference.value();
+            (0, _emberMetal.set)(parent, this._propertyKey, value);
+        };
 
-    function ClassBasedHelperReference(instance, args) {
-      (0, _emberBabel.classCallCheck)(this, ClassBasedHelperReference);
+        return NestedPropertyReference;
+    }(PropertyReference);
 
-      var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference3.call(this));
+    var UpdatableReference = exports.UpdatableReference = function (_EmberPathReference2) {
+        (0, _emberBabel.inherits)(UpdatableReference, _EmberPathReference2);
 
-      _this10.tag = (0, _reference.combine)([instance[_helper.RECOMPUTE_TAG], args.tag]);
-      _this10.instance = instance;
-      _this10.args = args;
-      return _this10;
-    }
+        function UpdatableReference(value) {
+            (0, _emberBabel.classCallCheck)(this, UpdatableReference);
 
-    ClassBasedHelperReference.prototype.compute = function compute() {
-      var instance = this.instance,
-          _args2 = this.args,
-          positional = _args2.positional,
-          named = _args2.named;
+            var _this6 = (0, _emberBabel.possibleConstructorReturn)(this, _EmberPathReference2.call(this));
 
+            _this6.tag = _reference.DirtyableTag.create();
+            _this6._value = value;
+            return _this6;
+        }
 
-      var positionalValue = positional.value();
-      var namedValue = named.value();
+        UpdatableReference.prototype.value = function value() {
+            return this._value;
+        };
 
-      if (true) {
-        maybeFreeze(positionalValue);
-        maybeFreeze(namedValue);
-      }
+        UpdatableReference.prototype.update = function update(value) {
+            var _value = this._value;
 
-      return instance.compute(positionalValue, namedValue);
-    };
+            if (value !== _value) {
+                this.tag.inner.dirty();
+                this._value = value;
+            }
+        };
 
-    return ClassBasedHelperReference;
-  }(CachedReference);
+        return UpdatableReference;
+    }(EmberPathReference);
 
-  var InternalHelperReference = exports.InternalHelperReference = function (_CachedReference4) {
-    (0, _emberBabel.inherits)(InternalHelperReference, _CachedReference4);
+    var UpdatablePrimitiveReference = exports.UpdatablePrimitiveReference = function (_UpdatableReference) {
+        (0, _emberBabel.inherits)(UpdatablePrimitiveReference, _UpdatableReference);
 
-    function InternalHelperReference(helper, args) {
-      (0, _emberBabel.classCallCheck)(this, InternalHelperReference);
+        function UpdatablePrimitiveReference() {
+            (0, _emberBabel.classCallCheck)(this, UpdatablePrimitiveReference);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _UpdatableReference.apply(this, arguments));
+        }
 
-      var _this11 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference4.call(this));
+        return UpdatablePrimitiveReference;
+    }(UpdatableReference);
 
-      _this11.tag = args.tag;
-      _this11.helper = helper;
-      _this11.args = args;
-      return _this11;
-    }
+    var ConditionalReference = exports.ConditionalReference = function (_GlimmerConditionalRe) {
+        (0, _emberBabel.inherits)(ConditionalReference, _GlimmerConditionalRe);
 
-    InternalHelperReference.prototype.compute = function compute() {
-      var helper = this.helper,
-          args = this.args;
+        ConditionalReference.create = function create(reference) {
+            if ((0, _reference.isConst)(reference)) {
+                var value = reference.value();
+                if ((0, _emberMetal.isProxy)(value)) {
+                    return new RootPropertyReference(value, 'isTruthy');
+                } else {
+                    return _runtime.PrimitiveReference.create((0, _toBool.default)(value));
+                }
+            }
+            return new ConditionalReference(reference);
+        };
 
-      return helper(args);
-    };
+        function ConditionalReference(reference) {
+            (0, _emberBabel.classCallCheck)(this, ConditionalReference);
 
-    return InternalHelperReference;
-  }(CachedReference);
+            var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _GlimmerConditionalRe.call(this, reference));
 
-  var UnboundReference = exports.UnboundReference = function (_ConstReference2) {
-    (0, _emberBabel.inherits)(UnboundReference, _ConstReference2);
+            _this8.objectTag = _reference.UpdatableTag.create(_reference.CONSTANT_TAG);
+            _this8.tag = (0, _reference.combine)([reference.tag, _this8.objectTag]);
+            return _this8;
+        }
 
-    function UnboundReference() {
-      (0, _emberBabel.classCallCheck)(this, UnboundReference);
-      return (0, _emberBabel.possibleConstructorReturn)(this, _ConstReference2.apply(this, arguments));
-    }
+        ConditionalReference.prototype.toBool = function toBool(predicate) {
+            if ((0, _emberMetal.isProxy)(predicate)) {
+                this.objectTag.inner.update((0, _emberMetal.tagForProperty)(predicate, 'isTruthy'));
+                return (0, _emberMetal.get)(predicate, 'isTruthy');
+            } else {
+                this.objectTag.inner.update((0, _emberMetal.tagFor)(predicate));
+                return (0, _toBool.default)(predicate);
+            }
+        };
 
-    UnboundReference.create = function create(value) {
-      if (typeof value === 'object' && value !== null) {
-        return new UnboundReference(value);
-      } else {
-        return _runtime.PrimitiveReference.create(value);
-      }
-    };
+        return ConditionalReference;
+    }(_runtime.ConditionalReference);
 
-    UnboundReference.prototype.get = function get(key) {
-      return new UnboundReference((0, _emberMetal.get)(this.inner, key));
-    };
+    var SimpleHelperReference = exports.SimpleHelperReference = function (_CachedReference2) {
+        (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
 
-    return UnboundReference;
-  }(_reference.ConstReference);
+        SimpleHelperReference.create = function create(helper, args) {
+            if ((0, _reference.isConst)(args)) {
+                var positional = args.positional,
+                    named = args.named;
+
+                var positionalValue = positional.value();
+                var namedValue = named.value();
+                if (true) {
+                    maybeFreeze(positionalValue);
+                    maybeFreeze(namedValue);
+                }
+                var result = helper(positionalValue, namedValue);
+                if (typeof result === 'object' && result !== null || typeof result === 'function') {
+                    return new RootReference(result);
+                } else {
+                    return _runtime.PrimitiveReference.create(result);
+                }
+            } else {
+                return new SimpleHelperReference(helper, args);
+            }
+        };
+
+        function SimpleHelperReference(helper, args) {
+            (0, _emberBabel.classCallCheck)(this, SimpleHelperReference);
+
+            var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference2.call(this));
+
+            _this9.tag = args.tag;
+            _this9.helper = helper;
+            _this9.args = args;
+            return _this9;
+        }
+
+        SimpleHelperReference.prototype.compute = function compute() {
+            var helper = this.helper,
+                _args = this.args,
+                positional = _args.positional,
+                named = _args.named;
+
+            var positionalValue = positional.value();
+            var namedValue = named.value();
+            if (true) {
+                maybeFreeze(positionalValue);
+                maybeFreeze(namedValue);
+            }
+            return helper(positionalValue, namedValue);
+        };
+
+        return SimpleHelperReference;
+    }(CachedReference);
+
+    var ClassBasedHelperReference = exports.ClassBasedHelperReference = function (_CachedReference3) {
+        (0, _emberBabel.inherits)(ClassBasedHelperReference, _CachedReference3);
+
+        ClassBasedHelperReference.create = function create(helperClass, vm, args) {
+            var instance = helperClass.create();
+            vm.newDestroyable(instance);
+            return new ClassBasedHelperReference(instance, args);
+        };
+
+        function ClassBasedHelperReference(instance, args) {
+            (0, _emberBabel.classCallCheck)(this, ClassBasedHelperReference);
+
+            var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference3.call(this));
+
+            _this10.tag = (0, _reference.combine)([instance[_helper.RECOMPUTE_TAG], args.tag]);
+            _this10.instance = instance;
+            _this10.args = args;
+            return _this10;
+        }
+
+        ClassBasedHelperReference.prototype.compute = function compute() {
+            var instance = this.instance,
+                _args2 = this.args,
+                positional = _args2.positional,
+                named = _args2.named;
+
+            var positionalValue = positional.value();
+            var namedValue = named.value();
+            if (true) {
+                maybeFreeze(positionalValue);
+                maybeFreeze(namedValue);
+            }
+            return instance.compute(positionalValue, namedValue);
+        };
+
+        return ClassBasedHelperReference;
+    }(CachedReference);
+
+    var InternalHelperReference = exports.InternalHelperReference = function (_CachedReference4) {
+        (0, _emberBabel.inherits)(InternalHelperReference, _CachedReference4);
+
+        function InternalHelperReference(helper, args) {
+            (0, _emberBabel.classCallCheck)(this, InternalHelperReference);
+
+            var _this11 = (0, _emberBabel.possibleConstructorReturn)(this, _CachedReference4.call(this));
+
+            _this11.tag = args.tag;
+            _this11.helper = helper;
+            _this11.args = args;
+            return _this11;
+        }
+
+        InternalHelperReference.prototype.compute = function compute() {
+            var helper = this.helper,
+                args = this.args;
+
+            return helper(args);
+        };
+
+        return InternalHelperReference;
+    }(CachedReference);
+
+    var UnboundReference = exports.UnboundReference = function (_ConstReference2) {
+        (0, _emberBabel.inherits)(UnboundReference, _ConstReference2);
+
+        function UnboundReference() {
+            (0, _emberBabel.classCallCheck)(this, UnboundReference);
+            return (0, _emberBabel.possibleConstructorReturn)(this, _ConstReference2.apply(this, arguments));
+        }
+
+        UnboundReference.create = function create(value) {
+            if (typeof value === 'object' && value !== null) {
+                return new UnboundReference(value);
+            } else {
+                return _runtime.PrimitiveReference.create(value);
+            }
+        };
+
+        UnboundReference.prototype.get = function get(key) {
+            return new UnboundReference((0, _emberMetal.get)(this.inner, key));
+        };
+
+        return UnboundReference;
+    }(_reference.ConstReference);
 });
 enifed('ember-glimmer/utils/string', ['exports', 'ember-babel', 'ember-debug'], function (exports, _emberBabel, _emberDebug) {
-  'use strict';
+    'use strict';
 
-  exports.SafeString = undefined;
-  exports.getSafeString = getSafeString;
-  exports.escapeExpression = escapeExpression;
-  exports.htmlSafe = htmlSafe;
-  exports.isHTMLSafe = isHTMLSafe;
+    exports.SafeString = undefined;
+    exports.getSafeString = getSafeString;
+    exports.escapeExpression = escapeExpression;
+    exports.htmlSafe = htmlSafe;
+    exports.isHTMLSafe = isHTMLSafe;
 
-  var SafeString = exports.SafeString = function () {
-    function SafeString(string) {
-      (0, _emberBabel.classCallCheck)(this, SafeString);
+    var SafeString = exports.SafeString = function () {
+        function SafeString(string) {
+            (0, _emberBabel.classCallCheck)(this, SafeString);
 
-      this.string = string;
-    }
-
-    SafeString.prototype.toString = function toString() {
-      return '' + this.string;
-    };
-
-    SafeString.prototype.toHTML = function toHTML() {
-      return this.toString();
-    };
-
-    return SafeString;
-  }();
-
-  function getSafeString() {
-    (true && !(false) && (0, _emberDebug.deprecate)('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
-      id: 'ember-htmlbars.ember-handlebars-safestring',
-      until: '3.0.0',
-      url: 'https://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
-    }));
-
-
-    return SafeString;
-  }
-
-  var escape = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    // jscs:disable
-    "'": '&#x27;',
-    // jscs:enable
-    '`': '&#x60;',
-    '=': '&#x3D;'
-  };
-
-  var possible = /[&<>"'`=]/;
-  var badChars = /[&<>"'`=]/g;
-
-  function escapeChar(chr) {
-    return escape[chr];
-  }
-
-  function escapeExpression(string) {
-    if (typeof string !== 'string') {
-      // don't escape SafeStrings, since they're already safe
-      if (string && string.toHTML) {
-        return string.toHTML();
-      } else if (string == null) {
-        return '';
-      } else if (!string) {
-        return string + '';
-      }
-
-      // Force a string conversion as this will be done by the append regardless and
-      // the regex test will do this transparently behind the scenes, causing issues if
-      // an object's to string has escaped characters in it.
-      string = '' + string;
-    }
-
-    if (!possible.test(string)) {
-      return string;
-    }
-    return string.replace(badChars, escapeChar);
-  }
-
-  /**
-    Mark a string as safe for unescaped output with Ember templates. If you
-    return HTML from a helper, use this function to
-    ensure Ember's rendering layer does not escape the HTML.
-  
-    ```javascript
-    import { htmlSafe } from '@ember/string';
-  
-    htmlSafe('<div>someString</div>')
-    ```
-  
-    @method htmlSafe
-    @for @ember/string
-    @static
-    @return {Handlebars.SafeString} A string that will not be HTML escaped by Handlebars.
-    @public
-  */
-  function htmlSafe(str) {
-    if (str === null || str === undefined) {
-      str = '';
-    } else if (typeof str !== 'string') {
-      str = '' + str;
-    }
-    return new SafeString(str);
-  }
-
-  /**
-    Detects if a string was decorated using `htmlSafe`.
-  
-    ```javascript
-    import { htmlSafe, isHTMLSafe } from '@ember/string';
-  
-    var plainString = 'plain string',
-        safeString = htmlSafe('<div>someValue</div>');
-  
-    isHTMLSafe(plainString); // false
-    isHTMLSafe(safeString);  // true
-    ```
-  
-    @method isHTMLSafe
-    @for @ember/string
-    @static
-    @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
-    @public
-  */
-  function isHTMLSafe(str) {
-    return str && typeof str.toHTML === 'function';
-  }
-});
-enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-runtime', 'ember-metal'], function (exports, _emberRuntime, _emberMetal) {
-  'use strict';
-
-  exports.default = toBool;
-  function toBool(predicate) {
-    if (!predicate) {
-      return false;
-    }
-
-    if (predicate === true) {
-      return true;
-    }
-
-    if ((0, _emberRuntime.isArray)(predicate)) {
-      return (0, _emberMetal.get)(predicate, 'length') !== 0;
-    }
-
-    return true;
-  }
-});
-enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', 'ember-utils', '@glimmer/reference', 'ember-environment', 'ember-metal'], function (exports, _emberBabel, _emberUtils, _reference, _emberEnvironment, _emberMetal) {
-  'use strict';
-
-  var OutletStateReference = function () {
-    function OutletStateReference(outletView) {
-      (0, _emberBabel.classCallCheck)(this, OutletStateReference);
-
-      this.outletView = outletView;
-      this.tag = outletView._tag;
-    }
-
-    OutletStateReference.prototype.get = function get(key) {
-      return new ChildOutletStateReference(this, key);
-    };
-
-    OutletStateReference.prototype.value = function value() {
-      return this.outletView.outletState;
-    };
-
-    OutletStateReference.prototype.getOrphan = function getOrphan(name) {
-      return new OrphanedOutletStateReference(this, name);
-    };
-
-    OutletStateReference.prototype.update = function update(state) {
-      this.outletView.setOutletState(state);
-    };
-
-    return OutletStateReference;
-  }();
-
-  var OrphanedOutletStateReference = function (_OutletStateReference) {
-    (0, _emberBabel.inherits)(OrphanedOutletStateReference, _OutletStateReference);
-
-    function OrphanedOutletStateReference(root, name) {
-      (0, _emberBabel.classCallCheck)(this, OrphanedOutletStateReference);
-
-      var _this = (0, _emberBabel.possibleConstructorReturn)(this, _OutletStateReference.call(this, root.outletView));
-
-      _this.root = root;
-      _this.name = name;
-      return _this;
-    }
-
-    OrphanedOutletStateReference.prototype.value = function value() {
-      var rootState = this.root.value();
-
-      var orphans = rootState.outlets.main.outlets.__ember_orphans__;
-
-      if (!orphans) {
-        return null;
-      }
-
-      var matched = orphans.outlets[this.name];
-
-      if (!matched) {
-        return null;
-      }
-
-      var state = Object.create(null);
-      state[matched.render.outlet] = matched;
-      matched.wasUsed = true;
-      return { outlets: state };
-    };
-
-    return OrphanedOutletStateReference;
-  }(OutletStateReference);
-
-  var ChildOutletStateReference = function () {
-    function ChildOutletStateReference(parent, key) {
-      (0, _emberBabel.classCallCheck)(this, ChildOutletStateReference);
-
-      this.parent = parent;
-      this.key = key;
-      this.tag = parent.tag;
-    }
-
-    ChildOutletStateReference.prototype.get = function get(key) {
-      return new ChildOutletStateReference(this, key);
-    };
-
-    ChildOutletStateReference.prototype.value = function value() {
-      return this.parent.value()[this.key];
-    };
-
-    return ChildOutletStateReference;
-  }();
-
-  var OutletView = function () {
-    OutletView.extend = function extend(injections) {
-      return function (_OutletView) {
-        (0, _emberBabel.inherits)(_class, _OutletView);
-
-        function _class() {
-          (0, _emberBabel.classCallCheck)(this, _class);
-          return (0, _emberBabel.possibleConstructorReturn)(this, _OutletView.apply(this, arguments));
+            this.string = string;
         }
 
-        _class.create = function create(options) {
-          if (options) {
-            return _OutletView.create.call(this, (0, _emberUtils.assign)({}, injections, options));
-          } else {
-            return _OutletView.create.call(this, injections);
-          }
+        SafeString.prototype.toString = function toString() {
+            return '' + this.string;
         };
 
-        return _class;
-      }(OutletView);
-    };
+        SafeString.prototype.toHTML = function toHTML() {
+            return this.toString();
+        };
 
-    OutletView.reopenClass = function reopenClass(injections) {
-      (0, _emberUtils.assign)(this, injections);
-    };
+        return SafeString;
+    }();
 
-    OutletView.create = function create(options) {
-      var _environment = options._environment,
-          renderer = options.renderer,
-          template = options.template;
+    function getSafeString() {
+        (true && !(false) && (0, _emberDebug.deprecate)('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
+            id: 'ember-htmlbars.ember-handlebars-safestring',
+            until: '3.0.0',
+            url: 'https://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
+        }));
 
-      var owner = options[_emberUtils.OWNER];
-      return new OutletView(_environment, renderer, owner, template);
-    };
-
-    function OutletView(_environment, renderer, owner, template) {
-      (0, _emberBabel.classCallCheck)(this, OutletView);
-
-      this._environment = _environment;
-      this.renderer = renderer;
-      this.owner = owner;
-      this.template = template;
-      this.outletState = null;
-      this._tag = new _reference.DirtyableTag();
+        return SafeString;
     }
-
-    OutletView.prototype.appendTo = function appendTo(selector) {
-      var env = this._environment || _emberEnvironment.environment;
-      var target = void 0;
-
-      if (env.hasDOM) {
-        target = typeof selector === 'string' ? document.querySelector(selector) : selector;
-      } else {
-        target = selector;
-      }
-
-      _emberMetal.run.schedule('render', this.renderer, 'appendOutletView', this, target);
+    var escape = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        // jscs:disable
+        "'": '&#x27;',
+        // jscs:enable
+        '`': '&#x60;',
+        '=': '&#x3D;'
     };
-
-    OutletView.prototype.rerender = function rerender() {};
-
-    OutletView.prototype.setOutletState = function setOutletState(state) {
-      this.outletState = {
-        outlets: {
-          main: state
-        },
-        render: {
-          owner: undefined,
-          into: undefined,
-          outlet: 'main',
-          name: '-top-level',
-          controller: undefined,
-          ViewClass: undefined,
-          template: undefined
+    var possible = /[&<>"'`=]/;
+    var badChars = /[&<>"'`=]/g;
+    function escapeChar(chr) {
+        return escape[chr];
+    }
+    function escapeExpression(string) {
+        if (typeof string !== 'string') {
+            // don't escape SafeStrings, since they're already safe
+            if (string && string.toHTML) {
+                return string.toHTML();
+            } else if (string == null) {
+                return '';
+            } else if (!string) {
+                return string + '';
+            }
+            // Force a string conversion as this will be done by the append regardless and
+            // the regex test will do this transparently behind the scenes, causing issues if
+            // an object's to string has escaped characters in it.
+            string = '' + string;
         }
-      };
-      this._tag.dirty();
-    };
+        if (!possible.test(string)) {
+            return string;
+        }
+        return string.replace(badChars, escapeChar);
+    }
+    /**
+      Mark a string as safe for unescaped output with Ember templates. If you
+      return HTML from a helper, use this function to
+      ensure Ember's rendering layer does not escape the HTML.
+    
+      ```javascript
+      import { htmlSafe } from '@ember/string';
+    
+      htmlSafe('<div>someString</div>')
+      ```
+    
+      @method htmlSafe
+      @for @ember/string
+      @static
+      @return {Handlebars.SafeString} A string that will not be HTML escaped by Handlebars.
+      @public
+    */
+    function htmlSafe(str) {
+        if (str === null || str === undefined) {
+            str = '';
+        } else if (typeof str !== 'string') {
+            str = '' + str;
+        }
+        return new SafeString(str);
+    }
+    /**
+      Detects if a string was decorated using `htmlSafe`.
+    
+      ```javascript
+      import { htmlSafe, isHTMLSafe } from '@ember/string';
+    
+      var plainString = 'plain string',
+          safeString = htmlSafe('<div>someValue</div>');
+    
+      isHTMLSafe(plainString); // false
+      isHTMLSafe(safeString);  // true
+      ```
+    
+      @method isHTMLSafe
+      @for @ember/string
+      @static
+      @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
+      @public
+    */
+    function isHTMLSafe(str) {
+        return str !== null && typeof str === 'object' && typeof str.toHTML === 'function';
+    }
+});
+enifed('ember-glimmer/utils/to-bool', ['exports', 'ember-metal', 'ember-runtime'], function (exports, _emberMetal, _emberRuntime) {
+    'use strict';
 
-    OutletView.prototype.toReference = function toReference() {
-      return new OutletStateReference(this);
-    };
+    exports.default = toBool;
+    function toBool(predicate) {
+        if (!predicate) {
+            return false;
+        }
+        if (predicate === true) {
+            return true;
+        }
+        if ((0, _emberRuntime.isArray)(predicate)) {
+            return (0, _emberMetal.get)(predicate, 'length') !== 0;
+        }
+        return true;
+    }
+});
+enifed('ember-glimmer/views/outlet', ['exports', 'ember-babel', '@glimmer/reference', 'ember-environment', 'ember-metal', 'ember-utils'], function (exports, _emberBabel, _reference, _emberEnvironment, _emberMetal, _emberUtils) {
+    'use strict';
 
-    OutletView.prototype.destroy = function destroy() {};
+    exports.RootOutletStateReference = undefined;
 
-    return OutletView;
-  }();
+    var RootOutletStateReference = exports.RootOutletStateReference = function () {
+        function RootOutletStateReference(outletView) {
+            (0, _emberBabel.classCallCheck)(this, RootOutletStateReference);
 
-  exports.default = OutletView;
+            this.outletView = outletView;
+            this.tag = outletView._tag;
+        }
+
+        RootOutletStateReference.prototype.get = function get(key) {
+            return new ChildOutletStateReference(this, key);
+        };
+
+        RootOutletStateReference.prototype.value = function value() {
+            return this.outletView.outletState;
+        };
+
+        RootOutletStateReference.prototype.getOrphan = function getOrphan(name) {
+            return new OrphanedOutletStateReference(this, name);
+        };
+
+        RootOutletStateReference.prototype.update = function update(state) {
+            this.outletView.setOutletState(state);
+        };
+
+        return RootOutletStateReference;
+    }();
+
+    var OrphanedOutletStateReference = function (_RootOutletStateRefer) {
+        (0, _emberBabel.inherits)(OrphanedOutletStateReference, _RootOutletStateRefer);
+
+        function OrphanedOutletStateReference(root, name) {
+            (0, _emberBabel.classCallCheck)(this, OrphanedOutletStateReference);
+
+            var _this = (0, _emberBabel.possibleConstructorReturn)(this, _RootOutletStateRefer.call(this, root.outletView));
+
+            _this.root = root;
+            _this.name = name;
+            return _this;
+        }
+
+        OrphanedOutletStateReference.prototype.value = function value() {
+            var rootState = this.root.value();
+            var orphans = rootState.outlets.main.outlets.__ember_orphans__;
+            if (!orphans) {
+                return null;
+            }
+            var matched = orphans.outlets[this.name];
+            if (!matched) {
+                return null;
+            }
+            var state = Object.create(null);
+            state[matched.render.outlet] = matched;
+            matched.wasUsed = true;
+            return { outlets: state, render: undefined };
+        };
+
+        return OrphanedOutletStateReference;
+    }(RootOutletStateReference);
+
+    var ChildOutletStateReference = function () {
+        function ChildOutletStateReference(parent, key) {
+            (0, _emberBabel.classCallCheck)(this, ChildOutletStateReference);
+
+            this.parent = parent;
+            this.key = key;
+            this.tag = parent.tag;
+        }
+
+        ChildOutletStateReference.prototype.get = function get(key) {
+            return new ChildOutletStateReference(this, key);
+        };
+
+        ChildOutletStateReference.prototype.value = function value() {
+            var parent = this.parent.value();
+            return parent && parent[this.key];
+        };
+
+        return ChildOutletStateReference;
+    }();
+
+    var OutletView = function () {
+        OutletView.extend = function extend(injections) {
+            return function (_OutletView) {
+                (0, _emberBabel.inherits)(_class, _OutletView);
+
+                function _class() {
+                    (0, _emberBabel.classCallCheck)(this, _class);
+                    return (0, _emberBabel.possibleConstructorReturn)(this, _OutletView.apply(this, arguments));
+                }
+
+                _class.create = function create(options) {
+                    if (options) {
+                        return _OutletView.create.call(this, (0, _emberUtils.assign)({}, injections, options));
+                    } else {
+                        return _OutletView.create.call(this, injections);
+                    }
+                };
+
+                return _class;
+            }(OutletView);
+        };
+
+        OutletView.reopenClass = function reopenClass(injections) {
+            (0, _emberUtils.assign)(this, injections);
+        };
+
+        OutletView.create = function create(options) {
+            var _environment = options._environment,
+                renderer = options.renderer,
+                template = options.template;
+
+            var owner = options[_emberUtils.OWNER];
+            return new OutletView(_environment, renderer, owner, template);
+        };
+
+        function OutletView(_environment, renderer, owner, template) {
+            (0, _emberBabel.classCallCheck)(this, OutletView);
+
+            this._environment = _environment;
+            this.renderer = renderer;
+            this.owner = owner;
+            this.template = template;
+            this.outletState = null;
+            this._tag = _reference.DirtyableTag.create();
+        }
+
+        OutletView.prototype.appendTo = function appendTo(selector) {
+            var env = this._environment || _emberEnvironment.environment;
+            var target = void 0;
+            if (env.hasDOM) {
+                target = typeof selector === 'string' ? document.querySelector(selector) : selector;
+            } else {
+                target = selector;
+            }
+            _emberMetal.run.schedule('render', this.renderer, 'appendOutletView', this, target);
+        };
+
+        OutletView.prototype.rerender = function rerender() {};
+
+        OutletView.prototype.setOutletState = function setOutletState(state) {
+            this.outletState = {
+                outlets: {
+                    main: state
+                },
+                render: {
+                    owner: undefined,
+                    into: undefined,
+                    outlet: 'main',
+                    name: '-top-level',
+                    controller: undefined,
+                    template: undefined
+                }
+            };
+            this._tag.inner.dirty();
+        };
+
+        OutletView.prototype.toReference = function toReference() {
+            return new RootOutletStateReference(this);
+        };
+
+        OutletView.prototype.destroy = function destroy() {};
+
+        return OutletView;
+    }();
+
+    exports.default = OutletView;
 });
 enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-debug', 'ember-babel', 'ember/features', '@glimmer/reference', 'require', 'ember-console', 'backburner'], function (exports, emberEnvironment, emberUtils, emberDebug, emberBabel, ember_features, _glimmer_reference, require, Logger, Backburner) {
   'use strict';
@@ -32775,8 +32164,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
             outlet: connection.outlet,
             name: connection.name,
             controller: undefined,
-            template: undefined,
-            ViewClass: undefined
+            template: undefined
           };
           _emberMetal.run.once(this.router, '_setOutlets');
         }
@@ -32880,8 +32268,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       outlet: outlet,
       name: name,
       controller: controller,
-      template: template || route._topLevelViewTemplate,
-      ViewClass: undefined
+      template: template || route._topLevelViewTemplate
     };
 
     if (true) {
@@ -45373,7 +44760,7 @@ enifed('ember-utils', ['exports'], function (exports) {
     // want to require non-enumerability for this API, which
     // would introduce a large cost.
     var id = GUID_KEY + Math.floor(Math.random() * new Date());
-    return intern('__' + debugName + '__ [id=' + id + ']');
+    return intern('__' + debugName + id + '__');
   }
 
   /**
@@ -48257,7 +47644,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+5f4ac602";
+  exports.default = "2.17.0-alpha.1-null+ef188077";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
@@ -49651,6 +49038,7 @@ enifed("handlebars", ["exports"], function (exports) {
   exports.parser = handlebars;
   exports.parse = parse;
 });
+/*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
   if (IS_NODE) {
