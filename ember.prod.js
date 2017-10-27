@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-null+9013fcaf
+ * @version   2.16.0-null+a1662123
  */
 
 var enifed, requireModule, Ember;
@@ -11547,19 +11547,18 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     it once the particular test run or FastBoot request has finished.
   
     @public
-    @class Ember.ApplicationInstance
-    @extends Ember.EngineInstance
+    @class ApplicationInstance
+    @extends EngineInstance
   */
 
   /**
-  @module ember
-  @submodule ember-application
+  @module @ember/application
   */
 
   var ApplicationInstance = _engineInstance.default.extend({
     /**
       The `Application` for which this is an instance.
-       @property {Ember.Application} application
+       @property {Application} application
       @private
     */
     application: null,
@@ -11755,7 +11754,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-utils
     Internal, experimental or otherwise unstable flags are marked as private.
   
     @class BootOptions
-    @namespace Ember.ApplicationInstance
+    @namespace ApplicationInstance
     @public
   */
   BootOptions = function () {
@@ -12078,8 +12077,7 @@ enifed('ember-application/system/application', ['exports', 'ember-babel', 'ember
     begins.
   
     @class Application
-    @namespace Ember
-    @extends Ember.Engine
+    @extends Engine
     @uses RegistryProxyMixin
     @public
   */
@@ -12487,8 +12485,8 @@ enifed('ember-application/system/engine-instance', ['exports', 'ember-babel', 'e
     running `Engine`.
   
     @public
-    @class Ember.EngineInstance
-    @extends Ember.Object
+    @class EngineInstance
+    @extends EmberObject
     @uses RegistryProxyMixin
     @uses ContainerProxyMixin
   */
@@ -12639,7 +12637,8 @@ enifed('ember-application/system/engine-parent', ['exports', 'ember-utils'], fun
     @method getEngineParent
     @param {EngineInstance} engine An engine instance.
     @return {EngineInstance} The parent engine instance.
-    @for Ember
+    @for @ember/engine
+    @static
     @private
   */
   function (engine) {
@@ -12687,7 +12686,6 @@ enifed('ember-application/system/engine', ['exports', 'ember-babel', 'ember-util
     Engines can spawn `EngineInstance` instances via `buildInstance()`.
   
     @class Engine
-    @namespace Ember
     @extends Ember.Namespace
     @uses RegistryProxy
     @public
@@ -13075,8 +13073,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 
   exports.Resolver = undefined;
   /**
-  @module ember
-  @submodule ember-application
+  @module @ember/application
   */
 
   exports.Resolver = _emberRuntime.Object.extend({
@@ -13142,32 +13139,25 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
   
     Some examples of how names are resolved:
   
-    ```
+    ```text
     'template:post'           //=> Ember.TEMPLATES['post']
     'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']
     'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']
-    'template:blogPost'       //=> Ember.TEMPLATES['blogPost']
-                              //   OR
-                              //   Ember.TEMPLATES['blog_post']
+    'template:blogPost'       //=> Ember.TEMPLATES['blog-post']
     'controller:post'         //=> App.PostController
     'controller:posts.index'  //=> App.PostsIndexController
     'controller:blog/post'    //=> Blog.PostController
-    'controller:basic'        //=> Ember.Controller
+    'controller:basic'        //=> Controller
     'route:post'              //=> App.PostRoute
     'route:posts.index'       //=> App.PostsIndexRoute
     'route:blog/post'         //=> Blog.PostRoute
-    'route:basic'             //=> Ember.Route
-    'view:post'               //=> App.PostView
-    'view:posts.index'        //=> App.PostsIndexView
-    'view:blog/post'          //=> Blog.PostView
-    'view:basic'              //=> Ember.View
+    'route:basic'             //=> Route
     'foo:post'                //=> App.PostFoo
     'model:post'              //=> App.Post
     ```
   
-    @class DefaultResolver
-    @namespace Ember
-    @extends Ember.Object
+    @class GlobalsResolver
+    @extends EmberObject
     @public
   */
 
@@ -13493,12 +13483,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-utils', 'ember-me
 enifed('ember-application/utils/validate-type', ['exports', 'ember-debug'], function (exports, _emberDebug) {
   'use strict';
 
-  exports.default = /**
-                    @module ember
-                    @submodule ember-application
-                    */
-
-  function (resolvedType, parsedName) {
+  exports.default = function (resolvedType, parsedName) {
     var validationAttributes = VALIDATED_TYPES[parsedName.type];
 
     if (!validationAttributes) {
@@ -13723,10 +13708,9 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
   exports.missingOptionsUntilDeprecation = exports.missingOptionsIdDeprecation = exports.missingOptionsDeprecation = exports.registerHandler = undefined;
 
   /**
-  @module ember
-  @submodule ember-debug
+   @module @ember/debug
+   @public
   */
-
   /**
     Allows for runtime registration of handler functions that override the default deprecation behavior.
     Deprecations are invoked by calls to [Ember.deprecate](https://emberjs.com/api/classes/Ember.html#method_deprecate).
@@ -13759,7 +13743,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @public
     @static
     @method registerDeprecationHandler
-    @for Ember.Debug
+    @for @ember/debug
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
@@ -13775,10 +13759,13 @@ enifed("ember-debug/error", ["exports", "ember-babel"], function (exports, _embe
   "use strict";
 
   /**
+   @module @ember/error
+  */
+
+  /**
     A subclass of the JavaScript Error object for use in Ember.
   
-    @class Error
-    @namespace Ember
+    @class EmberError
     @extends Error
     @constructor
     @public
@@ -13826,6 +13813,10 @@ enifed('ember-debug/features', ['exports', 'ember-environment', 'ember/features'
   'use strict';
 
   exports.default =
+
+  /**
+   @module ember
+  */
 
   /**
     The hash of enabled Canary features. Add to this, any canary features
@@ -13959,8 +13950,7 @@ enifed('ember-debug/warn', ['exports', 'ember-console', 'ember-debug/deprecate',
   exports.missingOptionsDeprecation = exports.missingOptionsIdDeprecation = exports.registerHandler = undefined;
 
   /**
-  @module ember
-  @submodule ember-debug
+  @module @ember/debug
   */
 
   exports.default = function () {};
@@ -15242,10 +15232,7 @@ enifed('ember-glimmer/component-managers/outlet', ['exports', 'ember-babel', 'em
         outlet = _ref$render.outlet;
 
     return { object: name + ':' + outlet };
-  } /**
-    @module ember
-    @submodule ember-glimmer
-    */
+  }
 
   function NOOP() {}
 
@@ -15572,19 +15559,18 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   var BOUNDS = exports.BOUNDS = (0, _emberUtils.symbol)('BOUNDS');
 
   /**
-  @module ember
-  @submodule ember-glimmer
+  @module @ember/component
   */
 
   /**
-    An `Ember.Component` is a view that is completely
+    A `Component` is a view that is completely
     isolated. Properties accessed in its templates go
     to the view object and actions are targeted at
     the view object. There is no access to the
     surrounding context or outer controller; all
     contextual information must be passed in.
   
-    The easiest way to create an `Ember.Component` is via
+    The easiest way to create a `Component` is via
     a template. If you name a template
     `app/components/my-foo.hbs`, you will be able to use
     `{{my-foo}}` in other templates, which will make
@@ -15620,7 +15606,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     If you want to customize the component, in order to
     handle events or actions, you implement a subclass
-    of `Ember.Component` named after the name of the
+    of `Component` named after the name of the
     component.
   
     For example, you could implement the action
@@ -15701,11 +15687,13 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     ```app/components/my-widget.js
     import Component from '@ember/component';
+    import { computed } from '@ember/object';
   
     export default Component.extend({
       classNameBindings: ['propertyA', 'propertyB'],
+  
       propertyA: 'from-a',
-      propertyB: Ember.computed(function() {
+      propertyB: computed(function() {
         if (someLogic) { return 'from-b'; }
       })
     });
@@ -15726,6 +15714,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     export default Component.extend({
       classNameBindings: ['hovered'],
+  
       hovered: true
     });
     ```
@@ -15745,6 +15734,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     export default Component.extend({
       classNameBindings: ['awesome:so-very-cool'],
+  
       awesome: true
     });
     ```
@@ -15763,6 +15753,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     export default Component.extend({
       classNameBindings: ['isUrgent'],
+  
       isUrgent: true
     });
     ```
@@ -15778,10 +15769,12 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     ```app/components/my-widget.js
     import Component from '@ember/component';
+    import EmberObject from '@ember/object';
   
     export default Component.extend({
       classNameBindings: ['messages.empty'],
-      messages: Ember.Object.create({
+  
+      messages: EmberObject.create({
         empty: true
       })
     });
@@ -15849,7 +15842,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     representation. If the value becomes `false` or `undefined` the class name
     will be removed.
     Both `classNames` and `classNameBindings` are concatenated properties. See
-    [Ember.Object](/api/classes/Ember.Object.html) documentation for more
+    [EmberObject](/api/classes/Ember.Object.html) documentation for more
     information about concatenated properties.
   
   
@@ -15866,6 +15859,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     export default Component.extend({
       tagName: 'a',
       attributeBindings: ['href'],
+  
       href: 'http://google.com'
     });
     ```
@@ -15885,6 +15879,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     export default Component.extend({
       tagName: 'a',
       attributeBindings: ['url:href'],
+  
       url: 'http://google.com'
     });
     ```
@@ -15904,6 +15899,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     export default Component.extend({
       tagName: 'use',
       attributeBindings: ['xlinkHref:xlink:href'],
+  
       xlinkHref: '#triangle'
     });
     ```
@@ -15923,6 +15919,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     export default Component.extend({
       tagName: 'input',
       attributeBindings: ['disabled'],
+  
       disabled: false
     });
     ```
@@ -15937,11 +15934,13 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     ```app/components/my-text-input.js
     import Component from '@ember/component';
+    import { computed } from '@ember/object';
   
     export default Component.extend({
       tagName: 'input',
       attributeBindings: ['disabled'],
-      disabled: Ember.computed(function() {
+  
+      disabled: computed(function() {
         if (someLogic) {
           return true;
         } else {
@@ -15966,7 +15965,7 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
   
     Updates to the property of an attribute binding will result in automatic
     update of the  HTML attribute in the component's rendered HTML representation.
-    `attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)
+    `attributeBindings` is a concatenated property. See [EmberObject](/api/classes/Ember.Object.html)
     documentation for more information about concatenated properties.
   
   
@@ -16086,7 +16085,6 @@ enifed('ember-glimmer/component', ['exports', 'ember-utils', 'ember-views', 'emb
     * `drop`
   
     @class Component
-    @namespace Ember
     @extends Ember.CoreView
     @uses Ember.TargetActionSupport
     @uses Ember.ClassNamesSupport
@@ -16210,17 +16208,19 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
   'use strict';
 
   /**
-    `Ember.LinkComponent` renders an element whose `click` event triggers a
-    transition of the application's instance of `Ember.Router` to
+    @module @ember/routing
+  */
+  /**
+    `LinkComponent` renders an element whose `click` event triggers a
+    transition of the application's instance of `Router` to
     a supplied route by name.
   
-    `Ember.LinkComponent` components are invoked with {{#link-to}}. Properties
+    `LinkComponent` components are invoked with {{#link-to}}. Properties
     of this class can be overridden with `reopen` to customize application-wide
     behavior.
   
     @class LinkComponent
-    @namespace Ember
-    @extends Ember.Component
+    @extends Component
     @see {Ember.Templates.helpers.link-to}
     @public
   **/
@@ -16665,7 +16665,6 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     }
   }); /**
       @module ember
-      @submodule ember-glimmer
       */
 
   /**
@@ -16740,11 +16739,14 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
   
     any passed value to `disabled` will disable it except `undefined`.
     to ensure that only `true` disable the `link-to` component you can
-    override the global behavior of `Ember.LinkComponent`.
+    override the global behavior of `LinkComponent`.
   
     ```javascript
-    Ember.LinkComponent.reopen({
-      disabled: Ember.computed(function(key, value) {
+    import LinkComponent from '@ember/routing/link-component';
+    import { computed } from '@ember/object';
+  
+    LinkComponent.reopen({
+      disabled: computed(function(key, value) {
         if (value !== undefined) {
           this.set('_isDisabled', value === true);
         }
@@ -16760,7 +16762,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     fill the element's `href` property with a url that
     matches the path to the supplied `routeName` for your
     router's configured `Location` scheme, which defaults
-    to Ember.HashLocation.
+    to HashLocation.
   
     ### Handling current route
     `{{link-to}}` will apply a CSS class name of 'active'
@@ -16925,7 +16927,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     ```
   
     ### Overriding attributes
-    You can override any given property of the `Ember.LinkComponent`
+    You can override any given property of the `LinkComponent`
     that is generated by the `{{link-to}}` component by passing
     key/value pairs, like so:
   
@@ -16935,18 +16937,20 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     {{/link-to}}
     ```
   
-    See [Ember.LinkComponent](/api/classes/Ember.LinkComponent.html) for a
+    See [LinkComponent](/api/classes/Ember.LinkComponent.html) for a
     complete list of overrideable properties. Be sure to also
     check out inherited properties of `LinkComponent`.
   
     ### Overriding Application-wide Defaults
-    ``{{link-to}}`` creates an instance of `Ember.LinkComponent`
+    ``{{link-to}}`` creates an instance of `LinkComponent`
     for rendering. To override options for your entire
-    application, reopen `Ember.LinkComponent` and supply the
+    application, reopen `LinkComponent` and supply the
     desired values:
   
     ``` javascript
-    Ember.LinkComponent.reopen({
+    import LinkComponent from '@ember/routing/link-component';
+  
+    LinkComponent.reopen({
       activeClass: "is-active",
       tagName: 'li'
     })
@@ -16956,18 +16960,19 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-console', 'ember-d
     this manner:
   
     ``` javascript
-    Ember.LinkComponent.reopen({
+    import LinkCompoennt from '@ember/routing/link-component';
+  
+    LinkComponent.reopen({
       eventName: 'customEventName'
     });
     ```
-  
     @method link-to
     @for Ember.Templates.helpers
     @param {String} routeName
     @param {Object} [context]*
     @param [options] {Object} Handlebars key/value pairs of options, you can override any property of Ember.LinkComponent
     @return {String} HTML string
-    @see {Ember.LinkComponent}
+    @see {LinkComponent}
     @public
   */
 
@@ -16999,8 +17004,7 @@ enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-
   'use strict';
 
   var inputTypes = Object.create(null); /**
-                                        @module ember
-                                        @submodule ember-views
+                                        @module @ember/component
                                         */
 
   function canSetTypeOfInput(type) {
@@ -17037,12 +17041,10 @@ enifed('ember-glimmer/components/text_field', ['exports', 'ember-metal', 'ember-
     ## Layout and LayoutName properties
   
     Because HTML `input` elements are self closing `layout` and `layoutName`
-    properties will not be applied. See [Ember.View](/api/classes/Ember.View.html)'s
-    layout section for more information.
+    properties will not be applied.
   
     @class TextField
-    @namespace Ember
-    @extends Ember.Component
+    @extends Component
     @uses Ember.TextSupport
     @public
   */
@@ -17434,7 +17436,7 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
   exports.helper =
 
   /**
-    In many cases, the ceremony of a full `Ember.Helper` class is not required.
+    In many cases, the ceremony of a full `Helper` class is not required.
     The `helper` method create pure-function helpers without instances. For
     example:
   
@@ -17451,6 +17453,7 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
     @static
     @param {Function} helper The helper function
     @method helper
+    @for @ember/component/helper
     @public
     @since 1.13.0
   */
@@ -17500,13 +17503,12 @@ enifed('ember-glimmer/helper', ['exports', 'ember-utils', 'ember-runtime', '@gli
   
     Additionally, class helpers can call `recompute` to force a new computation.
   
-    @class Ember.Helper
+    @class Helper
     @public
     @since 1.13.0
   */
   /**
-  @module ember
-  @submodule ember-glimmer
+  @module @ember/component
   */
 
   var Helper = _emberRuntime.FrameworkObject.extend({
@@ -17669,7 +17671,6 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
 
   var INVOKE = exports.INVOKE = (0, _emberUtils.symbol)('INVOKE'); /**
                                                                    @module ember
-                                                                   @submodule ember-glimmer
                                                                    */
   var ACTION = exports.ACTION = (0, _emberUtils.symbol)('ACTION');
 
@@ -17864,7 +17865,7 @@ enifed('ember-glimmer/helpers/action', ['exports', 'ember-utils', 'ember-metal',
     If you need the default handler to trigger you should either register your
     own event handler, or use event methods on your view class. See
     ["Responding to Browser Events"](/api/classes/Ember.Component#responding-to-browser-events)
-    in the documentation for Ember.Component for more information.
+    in the documentation for `Component` for more information.
   
     ### Specifying DOM event type
   
@@ -18067,8 +18068,8 @@ enifed('ember-glimmer/helpers/component', ['exports', 'ember-babel', 'ember-util
       this.lastName = nameOrDef;
 
       if (typeof nameOrDef === 'string') {
-        false && !(nameOrDef !== 'input') && (0, _emberDebug.assert)('You cannot use the input helper as a contextual helper. Please extend Ember.TextField or Ember.Checkbox to use it as a contextual component.', nameOrDef !== 'input');
-        false && !(nameOrDef !== 'textarea') && (0, _emberDebug.assert)('You cannot use the textarea helper as a contextual helper. Please extend Ember.TextArea to use it as a contextual component.', nameOrDef !== 'textarea');
+        false && !(nameOrDef !== 'input') && (0, _emberDebug.assert)('You cannot use the input helper as a contextual helper. Please extend TextField or Checkbox to use it as a contextual component.', nameOrDef !== 'input');
+        false && !(nameOrDef !== 'textarea') && (0, _emberDebug.assert)('You cannot use the textarea helper as a contextual helper. Please extend TextArea to use it as a contextual component.', nameOrDef !== 'textarea');
 
         definition = env.getComponentDefinition(nameOrDef, meta);
         false && !definition && (0, _emberDebug.assert)('The component helper cannot be used without a valid component name. You used "' + nameOrDef + '" via (component "' + nameOrDef + '")', definition);
@@ -18163,7 +18164,6 @@ enifed('ember-glimmer/helpers/concat', ['exports', 'ember-glimmer/utils/referenc
 
   /**
   @module ember
-  @submodule ember-glimmer
   */
 
   /**
@@ -18193,7 +18193,6 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (ex
 
   exports.isEachIn = /**
                      @module ember
-                     @submodule ember-glimmer
                      */
   function (ref) {
     return ref && ref[EACH_IN_REFERENCE];
@@ -18560,7 +18559,7 @@ enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/utils/references'
   };
 
   /**
-    Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
+    Calls [loc](/api/classes/Ember.String.html#method_loc) with the
     provided string. This is a convenient way to localize text within a template.
     For example:
   
@@ -18594,7 +18593,6 @@ enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/utils/references'
 
   /**
   @module ember
-  @submodule ember-glimmer
   */
   function locHelper(_ref) {
     var positional = _ref.positional;
@@ -18629,7 +18627,6 @@ enifed('ember-glimmer/helpers/log', ['exports', 'ember-glimmer/utils/references'
   }
   /**
   @module ember
-  @submodule ember-glimmer
   */
 });
 enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-debug', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/action'], function (exports, _emberUtils, _emberDebug, _references, _action) {
@@ -18741,7 +18738,6 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-utils', 'ember-debug', 'e
   */
   /**
   @module ember
-  @submodule ember-glimmer
   */
   var MUT_REFERENCE = (0, _emberUtils.symbol)('MUT');
   var SOURCE = (0, _emberUtils.symbol)('SOURCE');
@@ -18775,7 +18771,6 @@ enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-utils', 'ember-gl
   */
   /**
   @module ember
-  @submodule ember-glimmer
   */
   function queryParams(_ref) {
     var positional = _ref.positional,
@@ -19994,8 +19989,8 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
 
   /**
     The `{{input}}` helper lets you create an HTML `<input />` component.
-    It causes an `Ember.TextField` component to be rendered.  For more info,
-    see the [Ember.TextField](/api/classes/Ember.TextField.html) docs and
+    It causes an `TextField` component to be rendered.  For more info,
+    see the [TextField](/api/classes/Ember.TextField.html) docs and
     the [templates guide](https://emberjs.com/guides/templates/input-helpers/).
   
     ```handlebars
@@ -20065,22 +20060,23 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     ```
     See more about [Text Support Actions](/api/classes/Ember.TextField.html)
   
-    ### Extending `Ember.TextField`
+    ### Extending `TextField`
   
-    Internally, `{{input type="text"}}` creates an instance of `Ember.TextField`, passing
-    arguments from the helper to `Ember.TextField`'s `create` method. You can extend the
+    Internally, `{{input type="text"}}` creates an instance of `TextField`, passing
+    arguments from the helper to `TextField`'s `create` method. You can extend the
     capabilities of text inputs in your applications by reopening this class. For example,
     if you are building a Bootstrap project where `data-*` attributes are used, you
     can add one to the `TextField`'s `attributeBindings` property:
   
     ```javascript
-    Ember.TextField.reopen({
+    import TextField from '@ember/component/text-field';
+    TextField.reopen({
       attributeBindings: ['data-error']
     });
     ```
   
-    Keep in mind when writing `Ember.TextField` subclasses that `Ember.TextField`
-    itself extends `Ember.Component`. Expect isolated component semantics, not
+    Keep in mind when writing `TextField` subclasses that `TextField`
+    itself extends `Component`. Expect isolated component semantics, not
     legacy 1.x view semantics (like `controller` being present).
     See more about [Ember components](/api/classes/Ember.Component.html)
   
@@ -20106,15 +20102,17 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
     * `autofocus`
     * `form`
   
-    ### Extending `Ember.Checkbox`
+    ### Extending `Checkbox`
   
-    Internally, `{{input type="checkbox"}}` creates an instance of `Ember.Checkbox`, passing
-    arguments from the helper to `Ember.Checkbox`'s `create` method. You can extend the
+    Internally, `{{input type="checkbox"}}` creates an instance of `Checkbox`, passing
+    arguments from the helper to `Checkbox`'s `create` method. You can extend the
     capablilties of checkbox inputs in your applications by reopening this class. For example,
     if you wanted to add a css class to all checkboxes in your application:
   
     ```javascript
-    Ember.Checkbox.reopen({
+    import Checkbox from '@ember/component/checkbox';
+  
+    Checkbox.reopen({
       classNames: ['my-app-checkbox']
     });
     ```
@@ -20169,7 +20167,6 @@ enifed('ember-glimmer/syntax/input', ['exports', 'ember-debug', 'ember-glimmer/u
   };
   /**
   @module ember
-  @submodule ember-glimmer
   */
   function buildTextFieldSyntax(params, hash, builder) {
     var definition = builder.env.getComponentDefinition('-text-field', builder.meta.templateMeta);
@@ -20196,7 +20193,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-debug', 'ember-glimmer/s
   
     Additionally, you can also pass in a `model` argument that will be
     set as the engines model. This can be an existing object:
-    
+  
     ```
     <div>
       {{mount 'admin' model=userSettings}}
@@ -20225,7 +20222,6 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-debug', 'ember-glimmer/s
   */
   /**
   @module ember
-  @submodule ember-glimmer
   */
   function (name, params, hash, builder) {
     false && !(params.length === 1) && (0, _emberDebug.assert)('You can only pass a single positional argument to the {{mount}} helper, e.g. {{mount "chat-engine"}}.', params.length === 1);
@@ -20512,7 +20508,6 @@ enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/reference', 'ember-d
   };
   /**
   @module ember
-  @submodule ember-glimmer
   */
 
   function makeComponentDefinition(vm, args) {
@@ -20873,7 +20868,6 @@ enifed('ember-glimmer/utils/curly-component-state-bucket', ['exports'], function
 
   /**
     @module ember
-    @submodule ember-glimmer
   */
 
   /**
@@ -21697,11 +21691,13 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (expor
     ensure Ember's rendering layer does not escape the HTML.
   
     ```javascript
-    Ember.String.htmlSafe('<div>someString</div>')
+    import { htmlSafe } from '@ember/string';
+  
+    htmlSafe('<div>someString</div>')
     ```
   
     @method htmlSafe
-    @for Ember.String
+    @for @ember/string
     @static
     @return {Handlebars.SafeString} A string that will not be HTML escaped by Handlebars.
     @public
@@ -21717,18 +21713,20 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (expor
   }
 
   /**
-    Detects if a string was decorated using `Ember.String.htmlSafe`.
+    Detects if a string was decorated using `htmlSafe`.
   
     ```javascript
-    var plainString = 'plain string',
-        safeString = Ember.String.htmlSafe('<div>someValue</div>');
+    import { htmlSafe, isHTMLSafe } from '@ember/string';
   
-    Ember.String.isHTMLSafe(plainString); // false
-    Ember.String.isHTMLSafe(safeString);  // true
+    var plainString = 'plain string',
+        safeString = htmlSafe('<div>someValue</div>');
+  
+    isHTMLSafe(plainString); // false
+    isHTMLSafe(safeString);  // true
     ```
   
     @method isHTMLSafe
-    @for Ember.String
+    @for @ember/string
     @static
     @return {Boolean} `true` if the string was decorated with `htmlSafe`, `false` otherwise.
     @public
@@ -21974,7 +21972,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
   @module ember
-  @submodule ember-metal
   */
 
   /**
@@ -22175,8 +22172,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-  @module ember
-  @submodule ember-metal
+  @module @ember/object
   */
   /*
     The event system uses a series of nested hashes to store listeners on an
@@ -22200,7 +22196,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Add an event listener
   
     @method addListener
-    @for Ember
+    @static
+    @for @ember/object/events
     @param obj
     @param {String} eventName
     @param {Object|Function} target A target object or a function
@@ -22209,7 +22206,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function addListener(obj, eventName, target, method, once) {
-    false && !(!!obj && !!eventName) && emberDebug.assert('You must pass at least an object and event name to Ember.addListener', !!obj && !!eventName);
+    false && !(!!obj && !!eventName) && emberDebug.assert('You must pass at least an object and event name to addListener', !!obj && !!eventName);
     false && !(eventName !== 'didInitAttrs') && emberDebug.deprecate('didInitAttrs called in ' + (obj && obj.toString && obj.toString()) + '.', eventName !== 'didInitAttrs', {
       id: 'ember-views.did-init-attrs',
       until: '3.0.0',
@@ -22236,10 +22233,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     Remove an event listener
   
-    Arguments should match those passed to `Ember.addListener`.
+    Arguments should match those passed to `addListener`.
   
     @method removeListener
-    @for Ember
+    @static
+    @for @ember/object/events
     @param obj
     @param {String} eventName
     @param {Object|Function} target A target object or a function
@@ -22247,7 +22245,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function removeListener(obj, eventName, target, method) {
-    false && !(!!obj && !!eventName) && emberDebug.assert('You must pass at least an object and event name to Ember.removeListener', !!obj && !!eventName);
+    false && !(!!obj && !!eventName) && emberDebug.assert('You must pass at least an object and event name to removeListener', !!obj && !!eventName);
 
     if (!method && 'function' === typeof target) {
       method = target;
@@ -22267,7 +22265,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     setting that property.
   
     @method suspendListener
-    @for Ember
+    @static
+    @for @ember/object/events
   
     @private
     @param obj
@@ -22284,7 +22283,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Suspends multiple listeners during a callback.
   
     @method suspendListeners
-    @for Ember
+    @static
+    @for @ember/object/events
   
     @private
     @param obj
@@ -22306,7 +22306,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     @private
     @method watchedEvents
-    @for Ember
+    @static
+    @for @ember/object/events
     @param obj
   */
 
@@ -22318,7 +22319,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     is not passed, the actions stored on the passed object are invoked.
   
     @method sendEvent
-    @for Ember
+    @static
+    @for @ember/object/events
     @param obj
     @param {String} eventName
     @param {Array} params Optional parameters for each listener.
@@ -22379,7 +22381,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     @private
     @method hasListeners
-    @for Ember
+    @static
+    @for @ember/object/events
     @param obj
     @param {String} eventName
   */
@@ -22388,7 +22391,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     @private
     @method listenersFor
-    @for Ember
+    @static
+    @for @ember/object/events
     @param obj
     @param {String} eventName
   */
@@ -22420,19 +22424,24 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
   
     ``` javascript
-    let Job = Ember.Object.extend({
-      logCompleted: Ember.on('completed', function() {
+    import EmberObject from '@ember/object';
+    import { on } from '@ember/object/evented';
+    import { sendEvent } from '@ember/object/events';
+  
+    let Job = EmberObject.extend({
+      logCompleted: on('completed', function() {
         console.log('Job completed!');
       })
     });
   
     let job = Job.create();
   
-    Ember.sendEvent(job, 'completed'); // Logs 'Job completed!'
+    sendEvent(job, 'completed'); // Logs 'Job completed!'
    ```
   
     @method on
-    @for Ember
+    @static
+    @for @ember/object/evented
     @param {String} eventNames*
     @param {Function} func
     @return func
@@ -22578,6 +22587,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return false;
     };
   }
+
+  /**
+   @module ember
+   @private
+   */
 
   var PROPERTY_DID_CHANGE = emberUtils.symbol('PROPERTY_DID_CHANGE');
 
@@ -22890,7 +22904,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-  @module ember-metal
+  @module @ember/object
   */
 
   // ..........................................................
@@ -22932,7 +22946,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     NOTE: This is a low-level method used by other parts of the API. You almost
     never want to call this method directly. Instead you should use
-    `Ember.mixin()` to define new properties.
+    `mixin()` to define new properties.
   
     Defines a property on an object. This method works much like the ES5
     `Object.defineProperty()` method except that it can also accept computed
@@ -22946,8 +22960,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ## Examples
   
     ```javascript
+    import { defineProperty, computed } from '@ember/object';
+  
     // ES5 compatible mode
-    Ember.defineProperty(contact, 'firstName', {
+    defineProperty(contact, 'firstName', {
       writable: true,
       configurable: false,
       enumerable: true,
@@ -22955,17 +22971,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     });
   
     // define a simple property
-    Ember.defineProperty(contact, 'lastName', undefined, 'Jolley');
+    defineProperty(contact, 'lastName', undefined, 'Jolley');
   
     // define a computed property
-    Ember.defineProperty(contact, 'fullName', Ember.computed('firstName', 'lastName', function() {
+    defineProperty(contact, 'fullName', computed('firstName', 'lastName', function() {
       return this.firstName+' '+this.lastName;
     }));
     ```
   
     @private
     @method defineProperty
-    @for Ember
+    @for @ember/object
     @param {Object} obj the object to define this property on. This may be a prototype.
     @param {String} keyName the name of the property
     @param {Descriptor} [desc] an instance of `Descriptor` (typically a
@@ -23513,7 +23529,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-  @module ember-metal
+  @module ember
   */
 
   var UNDEFINED = emberUtils.symbol('undefined');
@@ -24159,7 +24175,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-  @module ember-metal
+  @module @ember/object
   */
 
   var ALLOWABLE_TYPES = {
@@ -24198,7 +24214,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     an error.
   
     @method get
-    @for Ember
+    @for @ember/object
+    @static
     @param {Object} obj The object to retrieve from.
     @param {String} keyName The property key to retrieve
     @return {Object} the property value or `null`.
@@ -24258,7 +24275,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method getWithDefault
-    @for Ember
+    @for @ember/object
+    @static
     @param {Object} obj The object to retrieve from.
     @param {String} keyName The name of the property to retrieve
     @param {Object} defaultValue The value to return if the property value is undefined
@@ -24267,6 +24285,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
 
 
+  /**
+   @module @ember/object
+  */
   /**
     Sets the value of a property on an object, respecting computed properties
     and notifying observers and other listeners of the change. If the
@@ -24278,7 +24299,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method set
-    @for Ember
+    @static
+    @for @ember/object
     @param {Object} obj The object to modify.
     @param {String} keyName The property key to set
     @param {Object} value The value to set
@@ -24346,7 +24368,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     an object has been destroyed.
   
     @method trySet
-    @for Ember
+    @static
+    @for @ember/object
     @param {Object} root The object to modify.
     @param {String} path The property path to set
     @param {Object} value The value to set
@@ -24357,8 +24380,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-  @module ember
-  @submodule ember-metal
+  @module @ember/object
   */
 
   var END_WITH_EACH_REGEX = /\.@each$/;
@@ -24372,19 +24394,22 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Example
   
     ```js
+    import { expandProperties } from '@ember/object/computed';
+  
     function echo(arg){ console.log(arg); }
   
-    Ember.expandProperties('foo.bar', echo);              //=> 'foo.bar'
-    Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
-    Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
-    Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
-    Ember.expandProperties('foo.{bar,baz}.[]', echo)      //=> 'foo.bar.[]', 'foo.baz.[]'
-    Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
-    Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
+    expandProperties('foo.bar', echo);              //=> 'foo.bar'
+    expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
+    expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
+    expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
+    expandProperties('foo.{bar,baz}.[]', echo)      //=> 'foo.bar.[]', 'foo.baz.[]'
+    expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
+    expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
   
     @method expandProperties
-    @for Ember
+    @static
+    @for @ember/object
     @public
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
@@ -24426,7 +24451,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-  @module ember-metal
+  @module ember
   */
   /**
     Starts watching a property on an object. Whenever the property changes,
@@ -24461,11 +24486,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       unwatchKey(obj, _keyPath, m);
     }
   }
-
-  /**
-  @module ember
-  @submodule ember-metal
-  */
 
   // ..........................................................
   // DEPENDENT KEYS
@@ -24512,8 +24532,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
-  @module ember
-  @submodule ember-metal
+  @module @ember/object
   */
 
   var DEEP_EACH_REGEX = /\.@each\.[^.]+\./;
@@ -24527,23 +24546,25 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     result to be recomputed if the dependencies are modified.
   
     In the following example we declare a computed property - `fullName` - by calling
-    `.Ember.computed()` with property dependencies (`firstName` and `lastName`) as leading arguments and getter accessor function. The `fullName` getter function
+    `computed` with property dependencies (`firstName` and `lastName`) as leading arguments and getter accessor function. The `fullName` getter function
     will be called once (regardless of how many times it is accessed) as long
     as its dependencies have not changed. Once `firstName` or `lastName` are updated
     any future calls (or anything bound) to `fullName` will incorporate the new
     values.
   
     ```javascript
-    let Person = Ember.Object.extend({
+    import EmberObject, { computed } from '@ember/object';
+  
+    let Person = EmberObject.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: Ember.computed('firstName', 'lastName', function() {
+      fullName: computed('firstName', 'lastName', function() {
         let firstName = this.get('firstName'),
             lastName  = this.get('lastName');
   
-        return firstName + ' ' + lastName;
+        return `${firstName} ${lastName}`;
       })
     });
   
@@ -24560,12 +24581,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     value you want to set it to as arguments.
   
     ```javascript
-    let Person = Ember.Object.extend({
+    import EmberObject, { computed } from '@ember/object';
+  
+    let Person = EmberObject.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: Ember.computed('firstName', 'lastName', {
+      fullName: computed('firstName', 'lastName', {
         get(key) {
           let firstName = this.get('firstName'),
               lastName  = this.get('lastName');
@@ -24595,12 +24618,14 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     You can also mark computed property as `.readOnly()` and block all attempts to set it.
   
     ```javascript
-    let Person = Ember.Object.extend({
+    import EmberObject, { computed } from '@ember/object';
+  
+    let Person = EmberObject.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: Ember.computed('firstName', 'lastName', {
+      fullName: computed('firstName', 'lastName', {
         get(key) {
           let firstName = this.get('firstName');
           let lastName  = this.get('lastName');
@@ -24619,7 +24644,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     - [New computed syntax explained in "Ember 1.12 released" ](https://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
   
     @class ComputedProperty
-    @namespace Ember
     @public
   */
   function ComputedProperty(config, opts) {
@@ -24628,10 +24652,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (hasGetterOnly) {
       this._getter = config;
     } else {
-      false && !(typeof config === 'object' && !Array.isArray(config)) && emberDebug.assert('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
+      false && !(typeof config === 'object' && !Array.isArray(config)) && emberDebug.assert('computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
       false && !Object.keys(config).every(function (key) {
         return key === 'get' || key === 'set';
-      }) && emberDebug.assert('Config object passed to an Ember.computed can only contain `get` or `set` keys.', Object.keys(config).every(function (key) {
+      }) && emberDebug.assert('Config object passed to computed can only contain `get` or `set` keys.', Object.keys(config).every(function (key) {
         return key === 'get' || key === 'set';
       }));
 
@@ -24664,15 +24688,19 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     invalidation and notification when cached value is invalidated.
   
     ```javascript
-    let outsideService = Ember.Object.extend({
-      value: Ember.computed(function() {
+    import EmberObject, { computed } from '@ember/object';
+  
+    let outsideService = EmberObject.extend({
+      value: computed(function() {
         return OutsideService.getValue();
       }).volatile()
     }).create();
     ```
   
     @method volatile
-    @return {Ember.ComputedProperty} this
+    @static
+    @for @ember/object/computed
+    @return {ComputedProperty} this
     @chainable
     @public
   */
@@ -24686,8 +24714,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     mode the computed property will throw an error when set.
   
     ```javascript
-    let Person = Ember.Object.extend({
-      guid: Ember.computed(function() {
+    import EmberObject, { computed } from '@ember/object';
+  
+    let Person = EmberObject.extend({
+      guid: computed(function() {
         return 'guid-guid-guid';
       }).readOnly()
     });
@@ -24698,7 +24728,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method readOnly
-    @return {Ember.ComputedProperty} this
+    @static
+    @for @ember/object/computed
+    @return {ComputedProperty} this
     @chainable
     @public
   */
@@ -24714,13 +24746,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     arguments containing key paths that this computed property depends on.
   
     ```javascript
-    let President = Ember.Object.extend({
-      fullName: Ember.computed(function() {
+    import EmberObject, { computed } from '@ember/object';
+  
+    let President = EmberObject.extend({
+      fullName: computed('firstName', 'lastName', function() {
         return this.get('firstName') + ' ' + this.get('lastName');
   
         // Tell Ember that this computed property depends on firstName
         // and lastName
-      }).property('firstName', 'lastName')
+      })
     });
   
     let president = President.create({
@@ -24732,8 +24766,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method property
+    @static
+    @for @ember/object/computed
     @param {String} path* zero or more property paths
-    @return {Ember.ComputedProperty} this
+    @return {ComputedProperty} this
     @chainable
     @public
   */
@@ -24779,6 +24815,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     via the `metaForProperty()` function.
   
     @method meta
+    @static
+    @for @ember/object/computed
     @param {Object} meta
     @chainable
     @public
@@ -24935,13 +24973,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /**
     This helper returns a new property descriptor that wraps the passed
     computed property function. You can use this helper to define properties
-    with mixins or via `Ember.defineProperty()`.
+    with mixins or via `defineProperty()`.
   
     If you pass a function as an argument, it will be used as a getter. A computed
     property defined in this way might look like this:
   
     ```js
-    let Person = Ember.Object.extend({
+    import EmberObject, { computed } from '@ember/object';
+  
+    let Person = EmberObject.extend({
       init() {
         this._super(...arguments);
   
@@ -24949,7 +24989,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         this.lastName = 'Jones';
       },
   
-      fullName: Ember.computed('firstName', 'lastName', function() {
+      fullName: computed('firstName', 'lastName', function() {
         return `${this.get('firstName')} ${this.get('lastName')}`;
       })
     });
@@ -24966,7 +25006,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     argument to provide both a getter and setter:
   
     ```js
-    let Person = Ember.Object.extend({
+    import EmberObject, { computed } from '@ember/object';
+  
+    let Person = EmberObject.extend({
       init() {
         this._super(...arguments);
   
@@ -24974,7 +25016,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         this.lastName = 'Jones';
       },
   
-      fullName: Ember.computed('firstName', 'lastName', {
+      fullName: computed('firstName', 'lastName', {
         get(key) {
           return `${this.get('firstName')} ${this.get('lastName')}`;
         },
@@ -25008,13 +25050,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }.property('firstName', 'lastName')
     ```
   
-    @class computed
-    @namespace Ember
-    @constructor
+    @method computed
+    @for @ember/object
     @static
     @param {String} [dependentKeys*] Optional dependent keys that trigger this computed property.
     @param {Function} func The computed property function.
-    @return {Ember.ComputedProperty} property descriptor instance
+    @return {ComputedProperty} property descriptor instance
     @public
   */
 
@@ -25026,7 +25067,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     it to be created.
   
     @method cacheFor
-    @for Ember
+    @static
+    @for @ember/object/internals
     @param {Object} obj the object whose property you want to check
     @param {String} key the name of the property whose cached value you want
       to return
@@ -25144,17 +25186,23 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   AliasedProperty.prototype.meta = ComputedProperty.prototype.meta;
 
   /**
+   @module @ember/polyfills
+  */
+  /**
     Merge the contents of two objects together into the first object.
   
     ```javascript
-    Ember.merge({ first: 'Tom' }, { last: 'Dale' }); // { first: 'Tom', last: 'Dale' }
+    import { merge } from '@ember/polyfills';
+  
+    merge({ first: 'Tom' }, { last: 'Dale' }); // { first: 'Tom', last: 'Dale' }
     var a = { first: 'Yehuda' };
     var b = { last: 'Katz' };
-    Ember.merge(a, b); // a == { first: 'Yehuda', last: 'Katz' }, b == { last: 'Katz' }
+    merge(a, b); // a == { first: 'Yehuda', last: 'Katz' }, b == { last: 'Katz' }
     ```
   
     @method merge
-    @for Ember
+    @static
+    @for @ember/polyfills
     @param {Object} original The object to merge into
     @param {Object} updates The object to copy properties from
     @return {Object}
@@ -25164,7 +25212,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
   @module ember
-  @submodule ember-metal
   */
 
   /**
@@ -25183,14 +25230,21 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   /* global console */
 
   /**
+  @module @ember/instrumentation
+  @private
+  */
+
+  /**
     The purpose of the Ember Instrumentation module is
     to provide efficient, general-purpose instrumentation
     for Ember.
   
-    Subscribe to a listener by using `Ember.subscribe`:
+    Subscribe to a listener by using `subscribe`:
   
     ```javascript
-    Ember.subscribe("render", {
+    import { subscribe } from '@ember/instrumentation';
+  
+    subscribe("render", {
       before(name, timestamp, payload) {
   
       },
@@ -25205,15 +25259,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     value will be passed as a fourth parameter to the `after`
     callback.
   
-    Instrument a block of code by using `Ember.instrument`:
+    Instrument a block of code by using `instrument`:
   
     ```javascript
-    Ember.instrument("render.handlebars", payload, function() {
+    import { instrument } from '@ember/instrumentation';
+  
+    instrument("render.handlebars", payload, function() {
       // rendering logic
     }, binding);
     ```
   
-    Event names passed to `Ember.instrument` are namespaced
+    Event names passed to `instrument` are namespaced
     by periods, from more general to more specific. Subscribers
     can listen for events by whatever level of granularity they
     are interested in.
@@ -25225,7 +25281,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     even `render.handlebars.layout`.
   
     @class Instrumentation
-    @namespace Ember
     @static
     @private
   */
@@ -25261,8 +25316,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Notifies event's subscribers, calls `before` and `after` hooks.
   
     @method instrument
-    @namespace Ember.Instrumentation
-  
+    @for @ember/instrumentation
+    @static
     @param {String} [name] Namespaced event name.
     @param {Object} _payload
     @param {Function} callback Function that you're instrumenting.
@@ -25347,7 +25402,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Subscribes to a particular event or instrumented block of code.
   
     @method subscribe
-    @namespace Ember.Instrumentation
+    @for @ember/instrumentation
+    @static
   
     @param {String} [pattern] Namespaced event name.
     @param {Object} [object] Before and After hooks.
@@ -25361,7 +25417,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Unsubscribes from a particular event or instrumented block of code.
   
     @method unsubscribe
-    @namespace Ember.Instrumentation
+    @for @ember/instrumentation
+    @static
   
     @param {Object} [subscriber]
     @private
@@ -25369,10 +25426,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   /**
-    Resets `Ember.Instrumentation` by flushing list of subscribers.
+    Resets `Instrumentation` by flushing list of subscribers.
   
     @method reset
-    @namespace Ember.Instrumentation
+    @for @ember/instrumentation
+    @static
     @private
   */
 
@@ -25419,6 +25477,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   }
 
+  /**
+   @module ember
+  */
   var id = 0;
 
   // Returns whether Type(value) is Object according to the terminology in the spec
@@ -25560,21 +25621,25 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
 
   /**
+   @module @ember/utils
+  */
+  /**
     Returns true if the passed value is null or undefined. This avoids errors
     from JSLint complaining about use of ==, which can be technically
     confusing.
   
     ```javascript
-    Ember.isNone();              // true
-    Ember.isNone(null);          // true
-    Ember.isNone(undefined);     // true
-    Ember.isNone('');            // false
-    Ember.isNone([]);            // false
-    Ember.isNone(function() {}); // false
+    isNone();              // true
+    isNone(null);          // true
+    isNone(undefined);     // true
+    isNone('');            // false
+    isNone([]);            // false
+    isNone(function() {}); // false
     ```
   
     @method isNone
-    @for Ember
+    @static
+    @for @ember/utils
     @param {Object} obj Value to test
     @return {Boolean}
     @public
@@ -25584,27 +25649,31 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
+   @module @ember/utils
+  */
+  /**
     Verifies that a value is `null` or `undefined`, an empty string, or an empty
     array.
   
-    Constrains the rules on `Ember.isNone` by returning true for empty strings and
+    Constrains the rules on `isNone` by returning true for empty strings and
     empty arrays.
   
     ```javascript
-    Ember.isEmpty();                // true
-    Ember.isEmpty(null);            // true
-    Ember.isEmpty(undefined);       // true
-    Ember.isEmpty('');              // true
-    Ember.isEmpty([]);              // true
-    Ember.isEmpty({});              // false
-    Ember.isEmpty('Adam Hawkins');  // false
-    Ember.isEmpty([0,1,2]);         // false
-    Ember.isEmpty('\n\t');          // false
-    Ember.isEmpty('  ');            // false
+    isEmpty();                // true
+    isEmpty(null);            // true
+    isEmpty(undefined);       // true
+    isEmpty('');              // true
+    isEmpty([]);              // true
+    isEmpty({});              // false
+    isEmpty('Adam Hawkins');  // false
+    isEmpty([0,1,2]);         // false
+    isEmpty('\n\t');          // false
+    isEmpty('  ');            // false
     ```
   
     @method isEmpty
-    @for Ember
+    @static
+    @for @ember/utils
     @param {Object} obj Value to test
     @return {Boolean}
     @public
@@ -25647,24 +25716,30 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
+   @module @ember/utils
+  */
+  /**
     A value is blank if it is empty or a whitespace string.
   
     ```javascript
-    Ember.isBlank();                // true
-    Ember.isBlank(null);            // true
-    Ember.isBlank(undefined);       // true
-    Ember.isBlank('');              // true
-    Ember.isBlank([]);              // true
-    Ember.isBlank('\n\t');          // true
-    Ember.isBlank('  ');            // true
-    Ember.isBlank({});              // false
-    Ember.isBlank('\n\t Hello');    // false
-    Ember.isBlank('Hello world');   // false
-    Ember.isBlank([1,2,3]);         // false
+    import { isBlank } from '@ember/utils';
+  
+    isBlank();                // true
+    isBlank(null);            // true
+    isBlank(undefined);       // true
+    isBlank('');              // true
+    isBlank([]);              // true
+    isBlank('\n\t');          // true
+    isBlank('  ');            // true
+    isBlank({});              // false
+    isBlank('\n\t Hello');    // false
+    isBlank('Hello world');   // false
+    isBlank([1,2,3]);         // false
     ```
   
     @method isBlank
-    @for Ember
+    @static
+    @for @ember/utils
     @param {Object} obj Value to test
     @return {Boolean}
     @since 1.5.0
@@ -25675,30 +25750,34 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   /**
+   @module @ember/utils
+  */
+  /**
     A value is present if it not `isBlank`.
   
     ```javascript
-    Ember.isPresent();                // false
-    Ember.isPresent(null);            // false
-    Ember.isPresent(undefined);       // false
-    Ember.isPresent('');              // false
-    Ember.isPresent('  ');            // false
-    Ember.isPresent('\n\t');          // false
-    Ember.isPresent([]);              // false
-    Ember.isPresent({ length: 0 })    // false
-    Ember.isPresent(false);           // true
-    Ember.isPresent(true);            // true
-    Ember.isPresent('string');        // true
-    Ember.isPresent(0);               // true
-    Ember.isPresent(function() {})    // true
-    Ember.isPresent({});              // true
-    Ember.isPresent(false);           // true
-    Ember.isPresent('\n\t Hello');    // true
-    Ember.isPresent([1,2,3]);         // true
+    isPresent();                // false
+    isPresent(null);            // false
+    isPresent(undefined);       // false
+    isPresent('');              // false
+    isPresent('  ');            // false
+    isPresent('\n\t');          // false
+    isPresent([]);              // false
+    isPresent({ length: 0 })    // false
+    isPresent(false);           // true
+    isPresent(true);            // true
+    isPresent('string');        // true
+    isPresent(0);               // true
+    isPresent(function() {})    // true
+    isPresent({});              // true
+    isPresent(false);           // true
+    isPresent('\n\t Hello');    // true
+    isPresent([1,2,3]);         // true
     ```
   
     @method isPresent
-    @for Ember
+    @static
+    @for @ember/utils
     @param {Object} obj Value to test
     @return {Boolean}
     @since 1.8.0
@@ -25723,6 +25802,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     onErrorMethod: 'onerror'
   });
 
+  /**
+   @module @ember/runloop
+  */
   // ..........................................................
   // run - this is ideally the only public API the dev sees
   //
@@ -25743,8 +25825,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     });
     ```
   
-    @class run
-    @namespace Ember
+    @class @ember/runloop
     @static
     @constructor
     @param {Object} [target] target of method to call
@@ -25787,7 +25868,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method join
-    @namespace Ember
+    @static
+    @for @ember/runloop
     @param {Object} [target] target of method to call
     @param {Function|String} method Method to invoke.
       May be a function or a string. If you pass a string
@@ -25851,7 +25933,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     method be safely handled and executed by the Ember run loop.
   
     @method bind
-    @namespace Ember
+    @static
+    @for @ember/runloop
     @param {Object} [target] target of method to call
     @param {Function|String} method Method to invoke.
       May be a function or a string. If you pass a string
@@ -25895,6 +25978,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method begin
+    @static
+    @for @ember/runloop
     @return {void}
     @public
   */
@@ -25914,6 +25999,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method end
+    @static
+    @for @ember/runloop
     @return {void}
     @public
   */
@@ -25961,6 +26048,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method schedule
+    @static
+    @for @ember/runloop
     @param {String} queue The name of the queue to schedule against.
       Default queues are 'sync' and 'actions'
     @param {Object} [target] target object to use as the context when invoking a method.
@@ -26001,6 +26090,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method sync
+    @static
+    @for @ember/runloop
     @return {void}
     @private
   */
@@ -26027,6 +26118,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method later
+    @static
+    @for @ember/runloop
     @param {Object} [target] target of method to invoke
     @param {Function|String} method The method to invoke.
       If you pass a string it will be resolved on the
@@ -26045,6 +26138,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     to calling `scheduleOnce` with the "actions" queue.
   
     @method once
+    @static
+    @for @ember/runloop
     @param {Object} [target] The target of the method to invoke.
     @param {Function|String} method The method to invoke.
       If you pass a string it will be resolved on the
@@ -26123,6 +26218,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Available queues, and their order, can be found at `run.queues`
   
     @method scheduleOnce
+    @static
+    @for @ember/runloop
     @param {String} [queue] The name of the queue to schedule against. Default queues are 'sync' and 'actions'.
     @param {Object} [target] The target of the method to invoke.
     @param {Function|String} method The method to invoke.
@@ -26195,6 +26292,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     outside of the current run loop, i.e. with `run.next`.
   
     @method next
+    @static
+    @for @ember/runloop
     @param {Object} [target] target of method to invoke
     @param {Function|String} method The method to invoke.
       If you pass a string it will be resolved on the
@@ -26265,6 +26364,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method cancel
+    @static
+    @for @ember/runloop
     @param {Object} timer Timer object to cancel
     @return {Boolean} true if canceled or false/undefined if it wasn't found
     @public
@@ -26331,6 +26432,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method debounce
+    @static
+    @for @ember/runloop
     @param {Object} [target] target of method to invoke
     @param {Function|String} method The method to invoke.
       May be a function or a string. If you pass a string
@@ -26374,6 +26477,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method throttle
+    @static
+    @for @ember/runloop
     @param {Object} [target] target of method to invoke
     @param {Function|String} method The method to invoke.
       May be a function or a string. If you pass a string
@@ -26405,6 +26510,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
   };
 
+  /**
+   @module ember
+  */
   /**
     Helper class that allows you to register your library with Ember.
   
@@ -26472,7 +26580,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
   @module ember
-  @submodule ember-metal
   */
 
   /*
@@ -26480,7 +26587,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     which are often used as dictionaries, may only have Strings as keys.
   
     Because Ember has a way to get a unique identifier for every object
-    via `Ember.guidFor`, we can implement a performant Map with arbitrary
+    via `guidFor`, we can implement a performant Map with arbitrary
     keys. Because it is commonly used in low-level bookkeeping, Map is
     implemented as a pure JavaScript object for performance.
   
@@ -26490,7 +26597,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     forEach method for iteration.
   
     Map is mocked out to look like an Ember object, so you can do
-    `Ember.Map.create()` for symmetry with other Ember classes.
+    `EmberMap.create()` for symmetry with other Ember classes.
   */
   function missingFunction(fn) {
     throw new TypeError(Object.prototype.toString.call(fn) + ' is not a function');
@@ -26702,7 +26809,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Internally, a Map has two data structures:
   
     1. `keys`: an OrderedSet of all of the existing keys
-    2. `values`: a JavaScript Object indexed by the `Ember.guidFor(key)`
+    2. `values`: a JavaScript Object indexed by the `guidFor(key)`
   
     When a key/value pair is added for the first time, we
     add the key to the `keys` OrderedSet, and create or
@@ -26907,7 +27014,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param [options]
       @param {*} [options.defaultValue]
     @return {Ember.MapWithDefault|Ember.Map} If options are passed, returns
-      `Ember.MapWithDefault` otherwise returns `Ember.Map`
+      `MapWithDefault` otherwise returns `EmberMap`
     @private
   */
   MapWithDefault.create = function (options) {
@@ -26958,23 +27065,32 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
 
   /**
-    To get multiple properties at once, call `Ember.getProperties`
+   @module @ember/object
+  */
+
+  /**
+    To get multiple properties at once, call `getProperties`
     with an object followed by a list of strings or an array:
   
     ```javascript
-    Ember.getProperties(record, 'firstName', 'lastName', 'zipCode');
+    import { getProperties } from '@ember/object';
+  
+    getProperties(record, 'firstName', 'lastName', 'zipCode');
     // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
     ```
   
     is equivalent to:
   
     ```javascript
-    Ember.getProperties(record, ['firstName', 'lastName', 'zipCode']);
+    import { getProperties } from '@ember/object';
+  
+    getProperties(record, ['firstName', 'lastName', 'zipCode']);
     // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
     ```
   
     @method getProperties
-    @for Ember
+    @static
+    @for @ember/object
     @param {Object} obj
     @param {String...|Array} list of keys to get
     @return {Object}
@@ -26982,6 +27098,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
 
 
+  /**
+   @module @ember/object
+  */
   /**
     Set a list of properties on an object. These properties are set inside
     a single `beginPropertyChanges` and `endPropertyChanges` batch, so
@@ -26998,6 +27117,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method setProperties
+    @static
+    @for @ember/object
     @param obj
     @param {Object} properties
     @return properties
@@ -27006,7 +27127,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   /**
-  @module ember-metal
+  @module @ember/object
   */
 
   function changeEvent(keyName) {
@@ -27019,7 +27140,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
     @method addObserver
-    @for Ember
+    @static
+    @for @ember/object/observers
     @param obj
     @param {String} _path
     @param {Object|Function} target
@@ -27035,7 +27157,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
     @method removeObserver
-    @for Ember
+    @static
+    @for @ember/object/observers
     @param obj
     @param {String} path
     @param {Object|Function} target
@@ -27051,7 +27174,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
     @method _addBeforeObserver
-    @for Ember
+    @static
+    @for @ember/object/observers
     @param obj
     @param {String} path
     @param {Object|Function} target
@@ -27076,7 +27200,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
     @method removeBeforeObserver
-    @for Ember
+    @static
+    @for @ember/object/observers
     @param obj
     @param {String} path
     @param {Object|Function} target
@@ -27093,7 +27218,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
   @module ember
-  @submodule ember-metal
   */
 
   // ..........................................................
@@ -27572,8 +27696,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   /**
-  @module ember
-  @submodule ember-metal
+  @module @ember/object
   */
   var a_concat = Array.prototype.concat;
   var isArray = Array.isArray;
@@ -27947,7 +28070,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   /**
     @method mixin
-    @for Ember
     @param obj
     @param mixins*
     @return obj
@@ -27956,21 +28078,28 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   /**
-    The `Ember.Mixin` class allows you to create mixins, whose properties can be
+    The `Mixin` class allows you to create mixins, whose properties can be
     added to other classes. For instance,
   
     ```javascript
-    const EditableMixin = Ember.Mixin.create({
+    import Mixin from '@ember/object/mixin';
+  
+    const EditableMixin = Mixin.create({
       edit() {
         console.log('starting to edit');
         this.set('isEditing', true);
       },
       isEditing: false
     });
+    ```
+  
+    ```javascript
+    import EmberObject from '@ember/object';
+    import EditableMixin from '../mixins/editable';
   
     // Mix mixins into classes by passing them as the first arguments to
     // `.extend.`
-    const Comment = Ember.Object.extend(EditableMixin, {
+    const Comment = EmberObject.extend(EditableMixin, {
       post: null
     });
   
@@ -27981,8 +28110,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     comment.edit(); // outputs 'starting to edit'
     ```
   
-    Note that Mixins are created with `Ember.Mixin.create`, not
-    `Ember.Mixin.extend`.
+    Note that Mixins are created with `Mixin.create`, not
+    `Mixin.extend`.
   
     Note that mixins extend a constructor's prototype so arrays and object literals
     defined as properties will be shared amongst objects that implement the mixin.
@@ -27991,28 +28120,43 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   
     ```javascript
     // filters array will be shared amongst any object implementing mixin
-    const FilterableMixin = Ember.Mixin.create({
-      filters: Ember.A()
+    import Mixin from '@ember/object/mixin';
+    import { A } from '@ember/array';
+  
+    const FilterableMixin = Mixin.create({
+      filters: A()
     });
+    ```
+  
+    ```javascript
+    import Mixin from '@ember/object/mixin';
+    import { A } from '@ember/array';
+    import { computed } from '@ember/object';
   
     // filters will be a separate array for every object implementing the mixin
-    const FilterableMixin = Ember.Mixin.create({
-      filters: Ember.computed(function() {
-        return Ember.A();
+    const FilterableMixin = Mixin.create({
+      filters: computed(function() {
+        return A();
       })
     });
+    ```
+  
+    ```javascript
+    import Mixin from '@ember/object/mixin';
+    import { A } from '@ember/array';
   
     // filters will be created as a separate array during the object's initialization
-    const Filterable = Ember.Mixin.create({
+    const Filterable = Mixin.create({
+      filters: null,
+  
       init() {
         this._super(...arguments);
-        this.set("filters", Ember.A());
+        this.set("filters", A());
       }
     });
     ```
   
     @class Mixin
-    @namespace Ember
     @public
   */
 
@@ -28063,6 +28207,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     /**
       @method create
+      @for @ember/object/mixin
       @static
       @param arguments*
       @public
@@ -28084,7 +28229,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
 
     // returns the mixins currently applied to the specified object
-    // TODO: Make Ember.mixin
+    // TODO: Make `mixin`
 
 
     Mixin.mixins = function (obj) {
@@ -28298,7 +28443,8 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     ```
   
     @method aliasMethod
-    @for Ember
+    @static
+    @for @ember/object
     @param {String} methodName name of the method to alias
     @public
   */
@@ -28312,8 +28458,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Specify a method that observes property changes.
   
     ```javascript
-    Ember.Object.extend({
-      valueObserver: Ember.observer('value', function() {
+    import EmberObject from '@ember/object';
+    import { observer } from '@ember/object';
+  
+    export default EmberObject.extend({
+      valueObserver: observer('value', function() {
         // Executes whenever the "value" property changes
       })
     });
@@ -28323,11 +28472,12 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     enabled.
   
     @method observer
-    @for Ember
+    @for @ember/object
     @param {String} propertyNames*
     @param {Function} func
     @return func
     @public
+    @static
   */
   function observer() {
     var _paths = void 0,
@@ -28343,7 +28493,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     if (typeof args[args.length - 1] !== 'function') {
       // revert to old, soft-deprecated argument ordering
-      false && !false && emberDebug.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
+      false && !false && emberDebug.deprecate('Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
 
       func = args.shift();
       _paths = args;
@@ -28352,10 +28502,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       _paths = args;
     }
 
-    false && !(typeof func === 'function') && emberDebug.assert('Ember.observer called without a function', typeof func === 'function');
+    false && !(typeof func === 'function') && emberDebug.assert('observer called without a function', typeof func === 'function');
     false && !(_paths.length > 0 && _paths.every(function (p) {
       return typeof p === 'string' && p.length;
-    })) && emberDebug.assert('Ember.observer called without valid path', _paths.length > 0 && _paths.every(function (p) {
+    })) && emberDebug.assert('observer called without valid path', _paths.length > 0 && _paths.every(function (p) {
       return typeof p === 'string' && p.length;
     }));
 
@@ -28376,15 +28526,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     Specify a method that observes property changes.
   
     ```javascript
-    Ember.Object.extend({
+    import EmberObject from '@ember/object';
+  
+    EmberObject.extend({
       valueObserver: Ember.immediateObserver('value', function() {
         // Executes whenever the "value" property changes
       })
     });
     ```
   
-    In the future, `Ember.observer` may become asynchronous. In this event,
-    `Ember.immediateObserver` will maintain the synchronous behavior.
+    In the future, `observer` may become asynchronous. In this event,
+    `immediateObserver` will maintain the synchronous behavior.
   
     Also available as `Function.prototype.observesImmediately` if prototype extensions are
     enabled.
@@ -28393,7 +28545,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @for Ember
     @param {String} propertyNames*
     @param {Function} func
-    @deprecated Use `Ember.observer` instead.
+    @deprecated Use `observer` instead.
     @return func
     @private
   */
@@ -28418,6 +28570,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   /**
+   @module ember
+   @private
+   */
+
+  /**
     Read-only property that returns the result of a container lookup.
   
     @class InjectedProperty
@@ -28440,7 +28597,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var desc = this[keyName];
     var owner = emberUtils.getOwner(this) || this.container; // fallback to `container` for backwards compat
 
-    false && !(desc && desc.isDescriptor && desc.type) && emberDebug.assert('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
+    false && !(desc && desc.isDescriptor && desc.type) && emberDebug.assert('InjectedProperties should be defined with the inject computed property macros.', desc && desc.isDescriptor && desc.type);
     false && !owner && emberDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
 
     return owner.lookup(desc.type + ':' + (desc.name || keyName));
@@ -28488,11 +28645,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     return Descriptor$$1;
   }(Descriptor);
-
-  /**
-  @module ember
-  @submodule ember-metal
-  */
 
   exports['default'] = Ember;
   exports.computed = function () {
@@ -28676,10 +28828,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         _key;
     var events = args;
 
-    false && !(typeof func === 'function') && emberDebug.assert('Ember.on expects function as last argument', typeof func === 'function');
+    false && !(typeof func === 'function') && emberDebug.assert('on expects function as last argument', typeof func === 'function');
     false && !(events.length > 0 && events.every(function (p) {
       return typeof p === 'string' && p.length;
-    })) && emberDebug.assert('Ember.on called without valid event names', events.length > 0 && events.every(function (p) {
+    })) && emberDebug.assert('on called without valid event names', events.length > 0 && events.every(function (p) {
       return typeof p === 'string' && p.length;
     }));
 
@@ -28800,7 +28952,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports._immediateObserver = function () {
     var i, arg;
 
-    false && !false && emberDebug.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
+    false && !false && emberDebug.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
 
     for (i = 0; i < arguments.length; i++) {
       arg = arguments[i];
@@ -28951,7 +29103,6 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
 
   /**
   @module ember
-  @submodule ember-routing
   */
 
   _emberRuntime.ControllerMixin.reopen({
@@ -29034,11 +29185,6 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal', 'ember-runtime
 });
 enifed('ember-routing/ext/run_loop', ['ember-metal'], function (_emberMetal) {
   'use strict';
-
-  /**
-  @module ember
-  @submodule ember-views
-  */
 
   // Add a new named queue after the 'actions' queue (where RSVP promises
   // resolve), which is used in router transitions to prevent unnecessary
@@ -29584,8 +29730,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
   'use strict';
 
   /**
-  @module ember
-  @submodule ember-routing
+  @module @ember/routing
   */
 
   var popstateFired = false;
@@ -29626,8 +29771,7 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal', 'em
     define.
   
     @class HistoryLocation
-    @namespace Ember
-    @extends Ember.Object
+    @extends EmberObject
     @protected
   */
   exports.default = _emberRuntime.Object.extend({
@@ -30082,7 +30226,6 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
    */
   /**
   @module ember
-  @submodule ember-routing
   */
 
   var RouterService = _emberRuntime.Service.extend({
@@ -30380,7 +30523,6 @@ enifed("ember-routing/system/controller_for", ["exports"], function (exports) {
   exports.default =
   /**
   @module ember
-  @submodule ember-routing
   */
 
   /**
@@ -30396,11 +30538,6 @@ enifed("ember-routing/system/controller_for", ["exports"], function (exports) {
 });
 enifed('ember-routing/system/dsl', ['exports', 'ember-utils', 'ember-debug'], function (exports, _emberUtils, _emberDebug) {
   'use strict';
-
-  /**
-  @module ember
-  @submodule ember-routing
-  */
 
   var uuid = 0;
 
@@ -30660,7 +30797,6 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal', 'e
 
   /**
   @module ember
-  @submodule ember-routing
   */
 
   /**
@@ -30702,8 +30838,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
   }
 
   /**
-  @module ember
-  @submodule ember-routing
+  @module @ember/routing
   */
 
   /**
@@ -30711,10 +30846,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     the [routing guide](https://emberjs.com/guides/routing/) for documentation.
   
     @class Route
-    @namespace Ember
-    @extends Ember.Object
+    @extends EmberObject
     @uses Ember.ActionHandler
-    @uses Ember.Evented
+    @uses Evented
     @since 1.0.0
     @public
   */
@@ -30784,7 +30918,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       }
       ```
        @property queryParams
-      @for Ember.Route
+      @for Route
       @type Object
       @since 1.6.0
       @public
@@ -31185,7 +31319,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       ```
        @event loading
       @param {Transition} transition
-      @param {Ember.Route} route The route that triggered the loading event
+      @param {Route} route The route that triggered the loading event
       @since 1.2.0
       @public
     */
@@ -31294,7 +31428,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       });
       ```
        @property controller
-      @type Ember.Controller
+      @type Controller
       @since 1.6.0
       @public
     */
@@ -32133,8 +32267,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   }
 
   /**
-  @module ember
-  @submodule ember-routing
+  @module @ember/routing
   */
 
   var slice = Array.prototype.slice;
@@ -32144,9 +32277,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     the [routing guide](https://emberjs.com/guides/routing/) for documentation.
   
     @class Router
-    @namespace Ember
-    @extends Ember.Object
-    @uses Ember.Evented
+    @extends EmberObject
+    @uses Evented
     @public
   */
   var EmberRouter = _emberRuntime.Object.extend(_emberRuntime.Evented, {
@@ -32161,7 +32293,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
        This value is defaulted to `auto` by the `locationType` setting of `/config/environment.js`
        @property location
       @default 'hash'
-      @see {Ember.Location}
+      @see {Location}
       @public
     */
     location: 'hash',
@@ -33141,7 +33273,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
   
     @private
     @param {Owner} owner
-    @param {Ember.Router} router
+    @param {Router} router
     @param {String} localName
     @param {String} fullName
     @return {Boolean}
@@ -33908,9 +34040,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
   
     @since 1.6.0
     @method empty
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which negate
+    @return {ComputedProperty} computed property which negate
     the original value for property
     @public
   */
@@ -33939,9 +34072,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method notEmpty
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which returns true if
+    @return {ComputedProperty} computed property which returns true if
     original value for property is not empty.
     @public
   */
@@ -33974,9 +34108,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method none
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which
+    @return {ComputedProperty} computed property which
     returns true if original value for property is null or undefined.
     @public
   */
@@ -34006,9 +34141,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method not
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which returns
+    @return {ComputedProperty} computed property which returns
     inverse of the original value for property
     @public
   */
@@ -34040,9 +34176,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method bool
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which converts
+    @return {ComputedProperty} computed property which converts
     to boolean the original value for property
     @public
   */
@@ -34075,10 +34212,11 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method match
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
     @param {RegExp} regexp
-    @return {Ember.ComputedProperty} computed property which match
+    @return {ComputedProperty} computed property which match
     the original value for property against a given RegExp
     @public
   */
@@ -34111,10 +34249,11 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method equal
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
     @param {String|Number|Object} value
-    @return {Ember.ComputedProperty} computed property which returns true if
+    @return {ComputedProperty} computed property which returns true if
     the original value for property is equal to the given value.
     @public
   */
@@ -34146,10 +34285,11 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method gt
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
     @param {Number} value
-    @return {Ember.ComputedProperty} computed property which returns true if
+    @return {ComputedProperty} computed property which returns true if
     the original value for property is greater than given value.
     @public
   */
@@ -34181,10 +34321,11 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method gte
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
     @param {Number} value
-    @return {Ember.ComputedProperty} computed property which returns true if
+    @return {ComputedProperty} computed property which returns true if
     the original value for property is greater or equal then given value.
     @public
   */
@@ -34216,10 +34357,11 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method lt
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
     @param {Number} value
-    @return {Ember.ComputedProperty} computed property which returns true if
+    @return {ComputedProperty} computed property which returns true if
     the original value for property is less then given value.
     @public
   */
@@ -34251,10 +34393,11 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method lte
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
     @param {Number} value
-    @return {Ember.ComputedProperty} computed property which returns true if
+    @return {ComputedProperty} computed property which returns true if
     the original value for property is less or equal than given value.
     @public
   */
@@ -34296,9 +34439,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method and
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey*
-    @return {Ember.ComputedProperty} computed property which performs
+    @return {ComputedProperty} computed property which performs
     a logical `and` on the values of all the original values for properties.
     @public
   */
@@ -34326,9 +34470,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method alias
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which creates an
+    @return {ComputedProperty} computed property which creates an
     alias to the original value for property.
     @public
   */
@@ -34360,9 +34505,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method oneWay
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which creates a
+    @return {ComputedProperty} computed property which creates a
     one way computed property to the original value for property.
     @public
   */
@@ -34375,9 +34521,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     whose name is somewhat ambiguous as to which direction the data flows.
   
     @method reads
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which creates a
+    @return {ComputedProperty} computed property which creates a
       one way computed property to the original value for property.
     @public
    */
@@ -34410,9 +34557,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method readOnly
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
-    @return {Ember.ComputedProperty} computed property which creates a
+    @return {ComputedProperty} computed property which creates a
     one way computed property to the original value for property.
     @since 1.5.0
     @public
@@ -34443,10 +34591,11 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method deprecatingAlias
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey
     @param {Object} options Options for `Ember.deprecate`.
-    @return {Ember.ComputedProperty} computed property which creates an
+    @return {ComputedProperty} computed property which creates an
     alias with a deprecation to the original value for property.
     @since 1.7.0
     @public
@@ -34469,8 +34618,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
   };
 
   /**
-  @module ember
-  @submodule ember-metal
+  @module @ember/object
   */
 
   function expandPropertiesToArray(predicateName, properties) {
@@ -34555,9 +34703,10 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
     ```
   
     @method or
-    @for Ember.computed
+    @static
+    @for @ember/object/computed
     @param {String} dependentKey*
-    @return {Ember.ComputedProperty} computed property which performs
+    @return {ComputedProperty} computed property which performs
     a logical `or` on the values of all the original values for properties.
     @public
   */
@@ -34577,7 +34726,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     in the dependent array.
   
     @method sum
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computes the sum of all values in the dependentKey's array
     @since 1.4.0
@@ -34625,7 +34775,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     This behavior is consistent with `Math.max`.
   
     @method max
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computes the largest value in the dependentKey's array
     @public
@@ -34673,7 +34824,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     This behavior is consistent with `Math.min`.
   
     @method min
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @return {Ember.ComputedProperty} computes the smallest value in the dependentKey's array
     @public
@@ -34713,7 +34865,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method map
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @param {Function} callback
     @return {Ember.ComputedProperty} an array mapped via the callback
@@ -34747,7 +34900,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method mapBy
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @param {String} propertyKey
     @return {Ember.ComputedProperty} an array mapped to the specified key
@@ -34814,7 +34968,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   
   
     @method filter
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @param {Function} callback
     @return {Ember.ComputedProperty} the filtered array
@@ -34844,7 +34999,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method filterBy
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @param {String} propertyKey
     @param {*} value
@@ -34891,7 +35047,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method uniq
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} propertyKey*
     @return {Ember.ComputedProperty} computes a new array with all the
     unique elements from the dependent array
@@ -34923,7 +35080,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method uniqBy
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey
     @param {String} propertyKey
     @return {Ember.ComputedProperty} computes a new array with all the
@@ -34980,7 +35138,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method union
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} propertyKey*
     @return {Ember.ComputedProperty} computes a new array with all the
     unique elements from the dependent array
@@ -35007,7 +35166,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method intersect
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} propertyKey*
     @return {Ember.ComputedProperty} computes a new array with all the
     duplicated elements from the dependent arrays
@@ -35078,7 +35238,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method setDiff
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} setAProperty
     @param {String} setBProperty
     @return {Ember.ComputedProperty} computes a new array with all the
@@ -35132,7 +35293,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method collect
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} dependentKey*
     @return {Ember.ComputedProperty} computed property which maps
     values of all passed in properties to an array.
@@ -35219,7 +35381,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     ```
   
     @method sort
-    @for Ember.computed
+    @for @ember/object/computed
+    @static
     @param {String} itemsKey
     @param {String or Function} sortDefinition a dependent key to an
     array of sort properties (add `:desc` to the arrays sort properties to sort descending) or a function to use when sorting
@@ -35238,8 +35401,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     }
   };
   /**
-  @module ember
-  @submodule ember-runtime
+  @module @ember/object
   */
 
   function reduceMacro(dependentKey, callback, initialValue) {
@@ -35417,14 +35579,12 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
   'use strict';
 
   /**
-  @module ember
-  @submodule ember-runtime
+  @module @ember/controller
   */
 
   /**
     @class Controller
-    @namespace Ember
-    @extends Ember.Object
+    @extends EmberObject
     @uses Ember.ControllerMixin
     @public
   */
@@ -35463,9 +35623,10 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
     });
     ```
   
-    @method controller
+    @method inject
+    @static
+    @for @ember/controller
     @since 1.10.0
-    @for Ember.inject
     @param {String} name (optional) name of the controller to inject, defaults
            to the property's name
     @return {Ember.InjectedProperty} injection descriptor instance
@@ -35494,7 +35655,8 @@ enifed('ember-runtime/copy', ['exports', 'ember-debug', 'ember-runtime/system/ob
     is simply returned.
   
     @method copy
-    @for Ember
+    @static
+    @for @ember/object/internals
     @param {Object} obj The object to clone
     @param {Boolean} [deep=false] If true, a deep copy of the object is made.
     @return {Object} The copied object
@@ -35513,6 +35675,9 @@ enifed('ember-runtime/copy', ['exports', 'ember-debug', 'ember-runtime/system/ob
     return _copy(obj, deep, deep ? [] : null, deep ? [] : null);
   };
 
+  /**
+   @module @ember/object
+  */
   function _copy(obj, deep, seen, copies) {
     var ret = void 0,
         loc = void 0,
@@ -35578,7 +35743,6 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
 
   var FunctionPrototype = Function.prototype; /**
                                               @module ember
-                                              @submodule ember-runtime
                                               */
 
   if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
@@ -35652,7 +35816,7 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       });
       ```
        In the future this method may become asynchronous.
-       See `Ember.observer`.
+       See `observer`.
        @method observes
       @for Function
       @public
@@ -35796,8 +35960,7 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
   'use strict';
 
   /**
-  @module ember
-  @submodule ember-runtime
+  @module @ember/string
   */
 
   var StringPrototype = String.prototype;
@@ -35806,7 +35969,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.fmt](/api/classes/Ember.String.html#method_fmt).
        @method fmt
-      @for String
+      @for @ember/string
+      @static
       @private
       @deprecated
     */
@@ -35823,7 +35987,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.w](/api/classes/Ember.String.html#method_w).
        @method w
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.w = function () {
@@ -35833,7 +35998,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.loc](/api/classes/Ember.String.html#method_loc).
        @method loc
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.loc = function () {
@@ -35849,7 +36015,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.camelize](/api/classes/Ember.String.html#method_camelize).
        @method camelize
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.camelize = function () {
@@ -35859,7 +36026,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.decamelize](/api/classes/Ember.String.html#method_decamelize).
        @method decamelize
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.decamelize = function () {
@@ -35869,7 +36037,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.dasherize](/api/classes/Ember.String.html#method_dasherize).
        @method dasherize
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.dasherize = function () {
@@ -35879,7 +36048,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.underscore](/api/classes/Ember.String.html#method_underscore).
        @method underscore
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.underscore = function () {
@@ -35889,7 +36059,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.classify](/api/classes/Ember.String.html#method_classify).
        @method classify
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.classify = function () {
@@ -35899,7 +36070,8 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     /**
       See [Ember.String.capitalize](/api/classes/Ember.String.html#method_capitalize).
        @method capitalize
-      @for String
+      @for @ember/string
+      @static
       @private
     */
     StringPrototype.capitalize = function () {
@@ -36532,7 +36704,6 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-babel', '@glimmer/refer
 
   /**
   @module ember
-  @submodule ember-runtime
   */
 
   function contentPropertyWillChange(content, contentKey) {
@@ -36670,7 +36841,6 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal', 'ember-
   */
   /**
   @module ember
-  @submodule ember-runtime
   */
 
   var ActionHandler = _emberMetal.Mixin.create({
@@ -36754,15 +36924,14 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-utils', 'ember-metal', '
     contents in a KVO-friendly way. You can also be notified whenever the
     membership of an array changes by using `.observes('myArray.[]')`.
   
-    To support `Ember.Array` in your own class, you must override two
+    To support `EmberArray` in your own class, you must override two
     primitives to use it: `length()` and `objectAt()`.
   
-    Note that the Ember.Array mixin also incorporates the `Ember.Enumerable`
-    mixin. All `Ember.Array`-like objects are also enumerable.
+    Note that the EmberArray mixin also incorporates the `Ember.Enumerable`
+    mixin. All `EmberArray`-like objects are also enumerable.
   
-    @class Array
-    @namespace Ember
-    @uses Ember.Enumerable
+    @class EmberArray
+    @uses Enumerable
     @since Ember 0.9.0
     @public
   */
@@ -37195,7 +37364,6 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal'], funct
 
   /**
   @module ember
-  @submodule ember-runtime
   */
   exports.default = _emberMetal.Mixin.create({
     /**
@@ -37315,8 +37483,8 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
   'use strict';
 
   var _emberA = void 0; /**
-                        @module ember
-                        @submodule ember-runtime
+                        @module @ember/enumerable
+                        @private
                         */
 
   // ..........................................................
@@ -37385,7 +37553,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
     JavaScript 1.8 API.
   
     @class Enumerable
-    @namespace Ember
     @since Ember 0.9
     @private
   */
@@ -38114,7 +38281,6 @@ enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal', 'ember-debug
   */
   /**
   @module ember
-  @submodule ember-runtime
   */
 
   exports.Freezable = _emberMetal.Mixin.create({
@@ -38156,8 +38322,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
 
   exports.removeAt = removeAt;
   /**
-  @module ember
-  @submodule ember-runtime
+  @module @ember/array
   */
 
   var OUT_OF_RANGE_EXCEPTION = 'Index out of range';
@@ -38200,8 +38365,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
     modified, but if its underlying enumerable changes, it will change also.
   
     @class MutableArray
-    @namespace Ember
-    @uses Ember.Array
+    @uses EmberArray
     @uses Ember.MutableEnumerable
     @public
   */
@@ -38217,7 +38381,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
         idx >= length, then append to the end of the array.
       @param {Number} amt Number of elements that should be removed from
         the array, starting at *idx*.
-      @param {Array} objects An array of zero or more objects that should be
+      @param {EmberArray} objects An array of zero or more objects that should be
         inserted into the array at *idx*
       @public
     */
@@ -38257,7 +38421,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
        @method insertAt
       @param {Number} idx index of insert the object at.
       @param {Object} object object to insert
-      @return {Ember.Array} receiver
+      @return {EmberArray} receiver
       @public
     */
     insertAt: function (idx, object) {
@@ -38283,7 +38447,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
        @method removeAt
       @param {Number} start index, start of range
       @param {Number} len length of passing range
-      @return {Ember.Array} receiver
+      @return {EmberArray} receiver
       @public
     */
     removeAt: function (start, len) {
@@ -38316,8 +38480,8 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
        colors.pushObjects(['yellow', 'orange']);  // ['red', 'yellow', 'orange']
       ```
        @method pushObjects
-      @param {Ember.Enumerable} objects the objects to add
-      @return {Ember.Array} receiver
+      @param {Enumerable} objects the objects to add
+      @return {EmberArray} receiver
       @public
     */
     pushObjects: function (objects) {
@@ -38400,8 +38564,8 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       colors.unshiftObjects('yellow'); // Type Error: 'undefined' is not a function
       ```
        @method unshiftObjects
-      @param {Ember.Enumerable} objects the objects to add
-      @return {Ember.Array} receiver
+      @param {Enumberable} objects the objects to add
+      @return {EmberArray} receiver
       @public
     */
     unshiftObjects: function (objects) {
@@ -38413,7 +38577,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       Reverse objects in the array. Works just like `reverse()` but it is
       KVO-compliant.
        @method reverseObjects
-      @return {Ember.Array} receiver
+      @return {EmberArray} receiver
        @public
     */
     reverseObjects: function () {
@@ -38436,9 +38600,9 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       colors.setObjects([]);                  // []
       ```
        @method setObjects
-      @param {Ember.Array} objects array whose content will be used for replacing
+      @param {EmberArray} objects array whose content will be used for replacing
           the content of the receiver
-      @return {Ember.Array} receiver with the new content
+      @return {EmberArray} receiver with the new content
       @public
     */
     setObjects: function (objects) {
@@ -38465,7 +38629,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       ```
        @method removeObject
       @param {*} obj object to remove
-      @return {Ember.Array} receiver
+      @return {EmberArray} receiver
       @public
     */
     removeObject: function (obj) {
@@ -38492,7 +38656,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-r
       ```
        @method addObject
       @param {*} obj object to add, if not already present
-      @return {Ember.Array} receiver
+      @return {EmberArray} receiver
       @public
     */
     addObject: function (obj) {
@@ -38707,7 +38871,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       `endPropertyChanges()` to deliver the deferred change notifications and end
       deferring.
        @method beginPropertyChanges
-      @return {Ember.Observable}
+      @return {Observable}
       @private
     */
     beginPropertyChanges: function () {
@@ -38724,7 +38888,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       notifications. When you are done making changes, call this method to
       deliver the deferred change notifications and end deferring.
        @method endPropertyChanges
-      @return {Ember.Observable}
+      @return {Observable}
       @private
     */
     endPropertyChanges: function () {
@@ -38745,7 +38909,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       like.
        @method propertyWillChange
       @param {String} keyName The property key that is about to change.
-      @return {Ember.Observable}
+      @return {Observable}
       @private
     */
     propertyWillChange: function (keyName) {
@@ -38766,7 +38930,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       like.
        @method propertyDidChange
       @param {String} keyName The property key that has just changed.
-      @return {Ember.Observable}
+      @return {Observable}
       @private
     */
     propertyDidChange: function (keyName) {
@@ -38779,7 +38943,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       succession.
        @method notifyPropertyChange
       @param {String} keyName The property key to be notified about.
-      @return {Ember.Observable}
+      @return {Observable}
       @public
     */
     notifyPropertyChange: function (keyName) {
@@ -38952,8 +39116,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-d
   'use strict';
 
   /**
-    @module ember
-    @submodule ember-runtime
+    @module @ember/object
   */
 
   function tap(proxy, promise) {
@@ -39036,7 +39199,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal', 'ember-d
     proxy.get('lastName')  //=> 'Penner'
     ```
   
-    @class Ember.PromiseProxyMixin
+    @class PromiseProxyMixin
     @public
   */
   exports.default = _emberMetal.Mixin.create({
@@ -39539,8 +39702,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
   'use strict';
 
   /**
-  @module ember
-  @submodule ember-runtime
+  @module @ember/array
   */
 
   var OUT_OF_RANGE_EXCEPTION = 'Index out of range';
@@ -39584,9 +39746,8 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     ```
   
     @class ArrayProxy
-    @namespace Ember
-    @extends Ember.Object
-    @uses Ember.MutableArray
+    @extends EmberObject
+    @uses MutableArray
     @public
   */
   exports.default = _object.default.extend(_mutable_array.default, {
@@ -39595,7 +39756,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
       The content array. Must be an object that implements `Ember.Array` and/or
       `Ember.MutableArray.`
        @property content
-      @type Ember.Array
+      @type EmberArray
       @private
     */
     content: null,
@@ -39631,7 +39792,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
        @method replaceContent
       @param {Number} idx The starting index
       @param {Number} amt The number of items to remove from the content.
-      @param {Array} objects Optional array of objects to insert or null if no
+      @param {EmberArray} objects Optional array of objects to insert or null if no
         objects.
       @return {void}
       @private
@@ -39664,7 +39825,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     /**
       Override to implement content array `willChange` observer.
        @method contentArrayWillChange
-       @param {Ember.Array} contentArray the content array
+       @param {EmberArray} contentArray the content array
       @param {Number} start starting index of the change
       @param {Number} removeCount count of items removed
       @param {Number} addCount count of items added
@@ -39674,7 +39835,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal', 'ember-run
     /**
       Override to implement content array `didChange` observer.
        @method contentArrayDidChange
-       @param {Ember.Array} contentArray the content array
+       @param {EmberArray} contentArray the content array
       @param {Number} start starting index of the change
       @param {Number} removeCount count of items removed
       @param {Number} addCount count of items added
@@ -40058,7 +40219,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-utils', 'ember-met
 
   /**
     @class CoreObject
-    @namespace Ember
     @public
   */
   var CoreObject = makeCtor();
@@ -40296,7 +40456,8 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-environment'], funct
     ```
   
     @method onLoad
-    @for Ember
+    @static
+    @for @ember/application
     @param name {String} name of hook
     @param callback {Function} callback to be called
     @private
@@ -40317,7 +40478,8 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-environment'], funct
     loading. Triggers any callbacks registered for this event.
   
     @method runLoadHooks
-    @for Ember
+    @static
+    @for @ember/application
     @param name {String} name of hook
     @param object {Object} object to pass to callbacks
     @private
@@ -40342,8 +40504,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-environment'], funct
   };
 
   /**
-    @module ember
-    @submodule ember-runtime
+    @module @ember/application
   */
 
   var loadHooks = _emberEnvironment.ENV.EMBER_LOAD_HOOKS || {}; /*globals CustomEvent */
@@ -40357,7 +40518,6 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-utils', 'ember-metal
   exports.isSearchDisabled = // Preloaded into namespaces
   /**
   @module ember
-  @submodule ember-runtime
   */
   function () {
     return searchDisabled;
@@ -40610,10 +40770,9 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
     false, this will be applied automatically. Otherwise you can apply the mixin
     at anytime by calling `Ember.NativeArray.apply(Array.prototype)`.
   
-    @class NativeArray
-    @namespace Ember
-    @uses Ember.MutableArray
-    @uses Ember.Observable
+    @class Ember.NativeArray
+    @uses MutableArray
+    @uses Observable
     @uses Ember.Copyable
     @public
   */
@@ -40708,8 +40867,9 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
     ```
   
     @method A
-    @for Ember
-    @return {Ember.NativeArray}
+    @static
+    @for @ember/array
+    @return {EmberArray}
     @public
   */
   var A = void 0;
@@ -40748,10 +40908,9 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
     of `Ember.CoreObject` with the `Ember.Observable` mixin applied. For details,
     see the documentation for each of these.
   
-    @class Object
-    @namespace Ember
-    @extends Ember.CoreObject
-    @uses Ember.Observable
+    @class EmberObject
+    @extends CoreObject
+    @uses Observable
     @public
   */
   var EmberObject = _core_object.default.extend(_observable.default, (_CoreObject$extend = {
@@ -40804,6 +40963,11 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
   'use strict';
 
   /**
+   @module @ember/service
+   @public
+   */
+
+  /**
     Creates a property that lazily looks up a service in the container. There
     are no restrictions as to what objects a service can be injected into.
   
@@ -40826,9 +40990,10 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
     that looks up the `auth` service in the container, making it easily
     accessible in the `model` hook.
   
-    @method service
+    @method inject
+    @static
     @since 1.10.0
-    @for Ember.inject
+    @for @ember/service
     @param {String} name (optional) name of the service to inject, defaults to
            the property's name
     @return {Ember.InjectedProperty} injection descriptor instance
@@ -40839,8 +41004,7 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
 
   /**
     @class Service
-    @namespace Ember
-    @extends Ember.Object
+  
     @since 1.10.0
     @public
   */
@@ -40858,8 +41022,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
   exports.capitalize = exports.underscore = exports.classify = exports.camelize = exports.dasherize = exports.decamelize = exports.w = exports.loc = exports.fmt = undefined;
 
   var STRING_DASHERIZE_REGEXP = /[ _]/g; /**
-                                         @module ember
-                                         @submodule ember-runtime
+                                         @module @ember/string
                                          */
 
   var STRING_DASHERIZE_CACHE = new _emberMetal.Cache(1000, function (key) {
@@ -40989,8 +41152,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal', 'ember-debug', 
     added to the `String.prototype` as well.
   
     @class String
-    @namespace Ember
-    @static
     @public
   */
   exports.default = {
@@ -41170,6 +41331,9 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
   exports.isArray =
 
   /**
+   @module @ember/array
+  */
+  /**
     Returns true if the passed object is an array or Array-like.
   
     Objects are considered Array-like if any of the following are true:
@@ -41188,7 +41352,8 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     ```
   
     @method isArray
-    @for Ember
+    @static
+    @for @ember/array
     @param {Object} obj The object to test
     @return {Boolean} true if the passed object is an array or Array-like
     @public
@@ -41214,7 +41379,9 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     }
     return false;
   }
-
+  /**
+   @module @ember/utils
+  */
   /**
     Returns a consistent type for the passed object.
   
@@ -41265,10 +41432,11 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     ```
   
     @method typeOf
-    @for Ember
+    @for @ember/utils
     @param {Object} item the item to check
     @return {String} the type
     @public
+    @static
   */
   ;
   exports.typeOf = typeOf;
@@ -41369,6 +41537,10 @@ enifed('ember-utils', ['exports'], function (exports) {
   }
 
   /**
+   @module @ember/object
+  */
+
+  /**
    Previously we used `Ember.$.uuid`, however `$.uuid` has been removed from
    jQuery master. We'll just bootstrap our own uuid now.
   
@@ -41443,7 +41615,8 @@ enifed('ember-utils', ['exports'], function (exports) {
   
     @private
     @method generateGuid
-    @for Ember
+    @static
+    @for @ember/object/internals
     @param {Object} [obj] Object the guid will be used for. If passed in, the guid will
       be saved on the object and reused whenever you pass the same object
       again.
@@ -41464,8 +41637,9 @@ enifed('ember-utils', ['exports'], function (exports) {
     You can also use this method on DOM Element objects.
   
     @public
+    @static
     @method guidFor
-    @for Ember
+    @for @ember/object/internals
     @param {Object} obj any object, string, number, Element, or primitive
     @return {String} the unique guid for this instance.
   */
@@ -41480,8 +41654,7 @@ enifed('ember-utils', ['exports'], function (exports) {
   }
 
   /**
-  @module ember
-  @submodule ember-runtime
+  @module @ember/application
   */
 
   var OWNER = symbol('OWNER');
@@ -41503,7 +41676,7 @@ enifed('ember-utils', ['exports'], function (exports) {
     import Component from '@ember/component';
     import { computed } from '@ember/object';
     import { getOwner } from '@ember/application';
-    
+  
     // Usage:
     //
     //   {{play-audio audioType=model.audioType audioFile=model.file}}
@@ -41522,7 +41695,8 @@ enifed('ember-utils', ['exports'], function (exports) {
     ```
   
     @method getOwner
-    @for Ember
+    @static
+    @for @ember/application
     @param {Object} object An object with an owner.
     @return {Object} An owner object.
     @since 2.3.0
@@ -41535,7 +41709,8 @@ enifed('ember-utils', ['exports'], function (exports) {
     useful in some testing cases.
   
     @method setOwner
-    @for Ember
+    @static
+    @for @ember/application
     @param {Object} object An object instance.
     @param {Object} object The new owner object of the object instance.
     @since 2.3.0
@@ -41543,6 +41718,9 @@ enifed('ember-utils', ['exports'], function (exports) {
   */
 
 
+  /**
+   @module @ember/polyfills
+  */
   /**
     Copy properties from a source object to a target object.
   
@@ -41554,11 +41732,12 @@ enifed('ember-utils', ['exports'], function (exports) {
     ```
   
     @method assign
-    @for Ember
+    @for @ember/polyfills
     @param {Object} original The object to assign into
     @param {Object} ...args The objects to copy properties from
     @return {Object}
     @public
+    @static
   */
   function assign(original) {
     var i, arg, updates, _i, prop;
@@ -41653,7 +41832,9 @@ enifed('ember-utils', ['exports'], function (exports) {
   }
 
   var objectToString = Object.prototype.toString;
-
+  /**
+   @module @ember/debug
+  */
   /**
     Convenience method to inspect an object. This method will attempt to
     convert the object into a useful string description.
@@ -41662,7 +41843,7 @@ enifed('ember-utils', ['exports'], function (exports) {
     use something like JSDump: https://github.com/NV/jsDump
   
     @method inspect
-    @for Ember
+    @static
     @param {Object} obj The object you want to inspect.
     @return {String} A description of the object
     @since 1.4.0
@@ -41744,6 +41925,9 @@ enifed('ember-utils', ['exports'], function (exports) {
   var isArray = Array.isArray;
 
   /**
+   @module @ember/array
+  */
+  /**
    Forces the passed object to be part of an array. If the object is already
    an array, it will return the object. Otherwise, it will add the object to
    an array. If obj is `null` or `undefined`, it will return an empty array.
@@ -41761,7 +41945,8 @@ enifed('ember-utils', ['exports'], function (exports) {
    ```
   
    @method makeArray
-   @for Ember
+   @static
+   @for @ember/array
    @param {Object} obj the object
    @return {Array}
    @private
@@ -42227,7 +42412,6 @@ enifed('ember-views/mixins/action_support', ['exports', 'ember-utils', 'ember-me
 
   /**
    @module ember
-   @submodule ember-views
   */
 
   function validateAction(component, actionName) {
@@ -42416,7 +42600,6 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal', 'emb
 
   /**
   @module ember
-  @submodule ember-views
   */
 
   var EMPTY_ARRAY = Object.freeze([]);
@@ -42490,7 +42673,6 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
 
   /**
   @module ember
-  @submodule ember-views
   */
 
   var KEY_EVENTS = {
@@ -42593,7 +42775,7 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
     @class TextSupport
     @namespace Ember
     @uses Ember.TargetActionSupport
-    @extends Ember.Mixin
+    @extends Mixin
     @private
   */
   exports.default = _emberMetal.Mixin.create(_emberRuntime.TargetActionSupport, {
@@ -43005,7 +43187,6 @@ enifed("ember-views/system/action_manager", ["exports"], function (exports) {
   exports.default = ActionManager;
   /**
   @module ember
-  @submodule ember-views
   */
 
   function ActionManager() {}
@@ -43024,7 +43205,6 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-utils', 'ember-
 
   /**
   @module ember
-  @submodule ember-views
   */
 
   var ROOT_ELEMENT_CLASS = 'ember-application';
@@ -43318,11 +43498,7 @@ enifed('ember-views/system/ext', ['ember-metal'], function (_emberMetal) {
   // after bindings have synced, and a queue for scheduling actions
   // that should occur after view rendering.
 
-  _emberMetal.run._addQueue('render', 'actions'); /**
-                                                  @module ember
-                                                  @submodule ember-views
-                                                  */
-
+  _emberMetal.run._addQueue('render', 'actions');
   _emberMetal.run._addQueue('afterRender', 'render');
 });
 enifed('ember-views/system/jquery', ['exports', 'ember-environment'], function (exports, _emberEnvironment) {
@@ -43401,7 +43577,6 @@ enifed('ember-views/system/utils', ['exports', 'ember-utils'], function (exports
 
   /**
   @module ember
-  @submodule ember-views
   */
 
   function (event) {
@@ -43765,11 +43940,6 @@ enifed('ember-views/views/states/default', ['exports', 'ember-debug'], function 
 enifed('ember-views/views/states/destroying', ['exports', 'ember-utils', 'ember-debug', 'ember-views/views/states/default'], function (exports, _emberUtils, _emberDebug, _default2) {
   'use strict';
 
-  /**
-  @module ember
-  @submodule ember-views
-  */
-
   var destroying = Object.create(_default2.default);
 
   (0, _emberUtils.assign)(destroying, {
@@ -43812,11 +43982,6 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-utils', 'ember
 });
 enifed('ember-views/views/states/in_dom', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-views/views/states/has_element'], function (exports, _emberUtils, _emberMetal, _emberDebug, _has_element) {
   'use strict';
-
-  /**
-  @module ember
-  @submodule ember-views
-  */
 
   var inDOM = Object.create(_has_element.default);
 
@@ -44289,13 +44454,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   // this is so that the global exports occur properly
 
 
-  /**
-    Alias for jQuery
-  
-    @method $
-    @for Ember
-    @public
-  */
   _emberMetal.default.$ = _emberViews.jQuery;
 
   _emberMetal.default.ViewTargetActionSupport = _emberViews.ViewTargetActionSupport;
@@ -44357,6 +44515,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 
   /**
     @module ember
+    @private
   */
   exports.default = _emberMetal.default;
 
@@ -44366,11 +44525,31 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   } else {
     _emberEnvironment.context.exports.Ember = _emberEnvironment.context.exports.Em = _emberMetal.default;
   }
+
+  /**
+   @module jquery
+   @public
+   */
+
+  /**
+   @class jquery
+   @public
+   @static
+   */
+
+  /**
+    Alias for jQuery
+  
+    @for jquery
+    @method $
+    @static
+    @public
+  */
 });
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-null+9013fcaf";
+  exports.default = "2.16.0-null+a1662123";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
