@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+fb7cf487
+ * @version   2.17.0-alpha.1-null+5f4ac602
  */
 
 var enifed, requireModule, Ember;
@@ -12287,7 +12287,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
 
       expectAssertion(function () {
         _this36.render('{{component (component "input" type="text")}}');
-      }, 'You cannot use the input helper as a contextual helper. Please extend Ember.TextField or Ember.Checkbox to use it as a contextual component.');
+      }, 'You cannot use the input helper as a contextual helper. Please extend TextField or Checkbox to use it as a contextual component.');
     };
 
     _class.prototype['@test GH#14632 give useful warning when calling contextual components with textarea as a name'] = function () {
@@ -12295,7 +12295,7 @@ enifed('ember-glimmer/tests/integration/components/contextual-components-test', 
 
       expectAssertion(function () {
         _this37.render('{{component (component "textarea" type="text")}}');
-      }, 'You cannot use the textarea helper as a contextual helper. Please extend Ember.TextArea to use it as a contextual component.');
+      }, 'You cannot use the textarea helper as a contextual helper. Please extend TextArea to use it as a contextual component.');
     };
 
     return _class;
@@ -37630,7 +37630,7 @@ enifed('ember-metal/tests/computed_test', ['ember-runtime', 'internal-test-helpe
   QUnit.test('computed properties check for the presence of a function or configuration object', function () {
     expectAssertion(function () {
       (0, _emberMetal.computed)('nolastargument');
-    }, 'Ember.computed expects a function or an object as last argument.');
+    }, 'computed expects a function or an object as last argument.');
   });
 
   QUnit.test('computed properties defined with an object only allow `get` and `set` keys', function () {
@@ -37640,7 +37640,7 @@ enifed('ember-metal/tests/computed_test', ['ember-runtime', 'internal-test-helpe
         set: function () {},
         other: function () {}
       });
-    }, 'Config object passed to an Ember.computed can only contain `get` or `set` keys.');
+    }, 'Config object passed to computed can only contain `get` or `set` keys.');
   });
 
   QUnit.test('defining computed property should invoke property on get', function () {
@@ -39124,13 +39124,13 @@ enifed('ember-metal/tests/events_test', ['ember-metal'], function (_emberMetal) 
       _emberMetal.Mixin.create({
         foo1: (0, _emberMetal.on)('bar')
       });
-    }, 'Ember.on expects function as last argument');
+    }, 'on expects function as last argument');
 
     expectAssertion(function () {
       _emberMetal.Mixin.create({
         foo1: (0, _emberMetal.on)(function () {})
       });
-    }, 'Ember.on called without valid event names');
+    }, 'on called without valid event names');
   });
 
   QUnit.test('a listener added as part of a mixin may be overridden', function () {
@@ -41543,7 +41543,7 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
   });
 
   (0, _internalTestHelpers.testBoth)('providing the arguments in reverse order is deprecated', function (get, set) {
-    expectDeprecation(/Passing the dependentKeys after the callback function in Ember\.observer is deprecated. Ensure the callback function is the last argument/);
+    expectDeprecation(/Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument/);
 
     _emberMetal.Mixin.create({
       count: 0,
@@ -41686,13 +41686,13 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
   (0, _internalTestHelpers.testBoth)('observer should assert to invalid input', function () {
     expectAssertion(function () {
       (0, _emberMetal.observer)(function () {});
-    }, 'Ember.observer called without valid path');
+    }, 'observer called without valid path');
 
-    expectDeprecation('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.');
+    expectDeprecation('Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument.');
 
     expectAssertion(function () {
       (0, _emberMetal.observer)(null);
-    }, 'Ember.observer called without a function');
+    }, 'observer called without a function');
   });
 
   (0, _internalTestHelpers.testBoth)('observer should fire when property is modified', function (get, set) {
@@ -42672,7 +42672,7 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
   QUnit.module('Ember.immediateObserver (Deprecated)');
 
   (0, _internalTestHelpers.testBoth)('immediate observers should fire synchronously', function (get, set) {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
+    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
     var obj = {};
     var observerCalled = 0;
     var mixin = void 0;
@@ -42747,7 +42747,7 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
   }
 
   (0, _internalTestHelpers.testBoth)('immediate observers watching multiple properties via brace expansion fire synchronously', function (get, set) {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
+    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
     var obj = {};
     var observerCalled = 0;
     var mixin = void 0;
@@ -42783,7 +42783,7 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
   });
 
   (0, _internalTestHelpers.testBoth)('immediate observers are for internal properties only', function () {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
+    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
     expectAssertion(function () {
       (0, _emberMetal._immediateObserver)('foo.bar', function () {
         return this;
@@ -59743,7 +59743,6 @@ enifed('ember-template-compiler/plugins/transform-action-syntax', ['exports'], f
   exports.default = transformActionSyntax;
   /**
    @module ember
-   @submodule ember-glimmer
   */
 
   /**
@@ -59825,7 +59824,6 @@ enifed('ember-template-compiler/plugins/transform-attrs-into-args', ['exports'],
   exports.default = transformAttrsIntoArgs;
   /**
    @module ember
-   @submodule ember-glimmer
   */
 
   /**
@@ -60006,7 +60004,6 @@ enifed('ember-template-compiler/plugins/transform-each-in-into-each', ['exports'
   exports.default = transformEachInIntoEach;
   /**
    @module ember
-   @submodule ember-glimmer
   */
 
   /**
@@ -60049,7 +60046,6 @@ enifed('ember-template-compiler/plugins/transform-has-block-syntax', ['exports']
   exports.default = transformHasBlockSyntax;
   /**
    @module ember
-   @submodule ember-glimmer
   */
 
   /**
@@ -60153,7 +60149,6 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
 
   /**
    @module ember
-   @submodule ember-htmlbars
   */
 
   /**
@@ -60268,7 +60263,6 @@ enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'
   exports.default = transformInputTypeSyntax;
   /**
    @module ember
-   @submodule ember-glimmer
   */
 
   /**
@@ -60649,7 +60643,6 @@ enifed('ember-template-compiler/system/bootstrap', ['exports', 'ember-debug', 'e
   */
   /**
   @module ember
-  @submodule ember-templates
   */
 
   function bootstrap(_ref) {
@@ -60801,7 +60794,6 @@ enifed('ember-template-compiler/system/compile', ['exports', 'require', 'ember-t
   exports.default = compile;
   /**
   @module ember
-  @submodule ember-template-compiler
   */
   var template = void 0;
 
@@ -60835,7 +60827,6 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-
   exports.default = precompile;
   /**
   @module ember
-  @submodule ember-template-compiler
   */
 
   var glimmerPrecompile = void 0;
