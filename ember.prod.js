@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+ef188077
+ * @version   2.17.0-alpha.1-null+3942c5a0
  */
 
 /*global process */
@@ -10428,43 +10428,102 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
    @private
    @class Container
    */
-  function Container(registry) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    this.registry = registry;
-    this.owner = options.owner || null;
-    this.cache = (0, _emberUtils.dictionary)(options.cache || null);
-    this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
-    this[CONTAINER_OVERRIDE] = undefined;
-    this.isDestroyed = false;
-  }
+  var Container = function () {
+    function Container(registry) {
+      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-  Container.prototype = {
-    lookup: function (fullName, options) {
+
+      this.registry = registry;
+      this.owner = options.owner || null;
+      this.cache = (0, _emberUtils.dictionary)(options.cache || null);
+      this.factoryManagerCache = (0, _emberUtils.dictionary)(options.factoryManagerCache || null);
+      this[CONTAINER_OVERRIDE] = undefined;
+      this.isDestroyed = false;
+    }
+
+    /**
+     @private
+     @property registry
+     @type Registry
+     @since 1.11.0
+     */
+
+    /**
+     @private
+     @property cache
+     @type InheritingDict
+     */
+
+    /**
+     @private
+     @property validationCache
+     @type InheritingDict
+     */
+
+    /**
+     Given a fullName return a corresponding instance.
+      The default behavior is for lookup to return a singleton instance.
+     The singleton is scoped to the container, allowing multiple containers
+     to all have their own locally scoped singletons.
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      registry.register('api:twitter', Twitter);
+      let twitter = container.lookup('api:twitter');
+      twitter instanceof Twitter; // => true
+      // by default the container will return singletons
+     let twitter2 = container.lookup('api:twitter');
+     twitter2 instanceof Twitter; // => true
+      twitter === twitter2; //=> true
+     ```
+      If singletons are not wanted, an optional flag can be provided at lookup.
+      ```javascript
+     let registry = new Registry();
+     let container = registry.container();
+      registry.register('api:twitter', Twitter);
+      let twitter = container.lookup('api:twitter', { singleton: false });
+     let twitter2 = container.lookup('api:twitter', { singleton: false });
+      twitter === twitter2; //=> false
+     ```
+      @private
+     @method lookup
+     @param {String} fullName
+     @param {Object} [options]
+     @param {String} [options.source] The fullname of the request source (used for local lookup)
+     @return {any}
+     */
+
+    Container.prototype.lookup = function (fullName, options) {
       false && !this.registry.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
 
-      return lookup(this, this.registry.normalize(fullName), options);
-    },
-    destroy: function () {
+      return _lookup(this, this.registry.normalize(fullName), options);
+    };
+
+    Container.prototype.destroy = function () {
       destroyDestroyables(this);
       this.isDestroyed = true;
-    },
-    reset: function (fullName) {
+    };
+
+    Container.prototype.reset = function (fullName) {
       if (fullName === undefined) {
         resetCache(this);
       } else {
         resetMember(this, this.registry.normalize(fullName));
       }
-    },
-    ownerInjection: function () {
+    };
+
+    Container.prototype.ownerInjection = function () {
       var _ref;
 
       return _ref = {}, _ref[_emberUtils.OWNER] = this.owner, _ref;
-    },
-    _resolverCacheKey: function (name, options) {
+    };
+
+    Container.prototype._resolverCacheKey = function (name, options) {
       return this.registry.resolverCacheKey(name, options);
-    },
-    factoryFor: function (fullName) {
+    };
+
+    Container.prototype.factoryFor = function (fullName) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
           expandedFullName;
 
@@ -10507,8 +10566,10 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
       this.factoryManagerCache[cacheKey] = manager;
       return manager;
-    }
-  };
+    };
+
+    return Container;
+  }();
 
   /*
    * Wrap a factory manager in a proxy which will not permit properties to be
@@ -10524,7 +10585,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     return container.registry.getOption(fullName, 'instantiate') !== false;
   }
 
-  function lookup(container, fullName) {
+  function _lookup(container, fullName) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
         expandedFullName,
         cacheKey,
@@ -10641,7 +10702,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
       for (_i = 0; _i < injections.length; _i++) {
         injection = injections[_i];
-        hash[injection.property] = lookup(container, injection.fullName);
+        hash[injection.property] = _lookup(container, injection.fullName);
         if (!isDynamic) {
           isDynamic = !isSingleton(container, injection.fullName);
         }
@@ -10776,40 +10837,39 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
    @class Registry
    @since 1.11.0
   */
-  function Registry() {
-    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    this.fallback = options.fallback || null;
+  var Registry = function () {
+    function Registry() {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    if (options.resolver) {
-      this.resolver = options.resolver;
+
+      this.fallback = options.fallback || null;
+      this.resolver = options.resolver || null;
+
       if (typeof this.resolver === 'function') {
         deprecateResolverFunction(this);
       }
+
+      this.registrations = (0, _emberUtils.dictionary)(options.registrations || null);
+
+      this._typeInjections = (0, _emberUtils.dictionary)(null);
+      this._injections = (0, _emberUtils.dictionary)(null);
+
+      this._localLookupCache = Object.create(null);
+      this._normalizeCache = (0, _emberUtils.dictionary)(null);
+      this._resolveCache = (0, _emberUtils.dictionary)(null);
+      this._failCache = (0, _emberUtils.dictionary)(null);
+
+      this._options = (0, _emberUtils.dictionary)(null);
+      this._typeOptions = (0, _emberUtils.dictionary)(null);
     }
 
-    this.registrations = (0, _emberUtils.dictionary)(options.registrations || null);
-
-    this._typeInjections = (0, _emberUtils.dictionary)(null);
-    this._injections = (0, _emberUtils.dictionary)(null);
-
-    this._localLookupCache = Object.create(null);
-    this._normalizeCache = (0, _emberUtils.dictionary)(null);
-    this._resolveCache = (0, _emberUtils.dictionary)(null);
-    this._failCache = (0, _emberUtils.dictionary)(null);
-
-    this._options = (0, _emberUtils.dictionary)(null);
-    this._typeOptions = (0, _emberUtils.dictionary)(null);
-  }
-
-  Registry.prototype = {
     /**
      A backup registry for resolving registrations when no matches can be found.
       @private
      @property fallback
      @type Registry
      */
-    fallback: null,
 
     /**
      An object that has a `resolve` method that resolves a name.
@@ -10817,61 +10877,62 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
      @property resolver
      @type Resolver
      */
-    resolver: null,
 
     /**
      @private
      @property registrations
      @type InheritingDict
      */
-    registrations: null,
 
     /**
      @private
       @property _typeInjections
      @type InheritingDict
      */
-    _typeInjections: null,
 
     /**
      @private
       @property _injections
      @type InheritingDict
      */
-    _injections: null,
 
     /**
      @private
       @property _normalizeCache
      @type InheritingDict
      */
-    _normalizeCache: null,
 
     /**
      @private
       @property _resolveCache
      @type InheritingDict
      */
-    _resolveCache: null,
 
     /**
      @private
       @property _options
      @type InheritingDict
      */
-    _options: null,
 
     /**
      @private
       @property _typeOptions
      @type InheritingDict
      */
-    _typeOptions: null,
 
-    container: function (options) {
+    /**
+     Creates a container based on this registry.
+      @private
+     @method container
+     @param {Object} options
+     @return {Container} created container
+     */
+
+    Registry.prototype.container = function (options) {
       return new Container(this, options);
-    },
-    register: function (fullName, factory) {
+    };
+
+    Registry.prototype.register = function (fullName, factory) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
@@ -10888,8 +10949,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       delete this._failCache[normalizedName];
       this.registrations[normalizedName] = factory;
       this._options[normalizedName] = options;
-    },
-    unregister: function (fullName) {
+    };
+
+    Registry.prototype.unregister = function (fullName) {
       false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
@@ -10900,19 +10962,21 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       delete this._resolveCache[normalizedName];
       delete this._failCache[normalizedName];
       delete this._options[normalizedName];
-    },
-    resolve: function (fullName, options) {
+    };
+
+    Registry.prototype.resolve = function (fullName, options) {
       false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
-      var factory = resolve(this, this.normalize(fullName), options),
+      var factory = _resolve(this, this.normalize(fullName), options),
           _fallback;
       if (factory === undefined && this.fallback) {
 
         factory = (_fallback = this.fallback).resolve.apply(_fallback, arguments);
       }
       return factory;
-    },
-    describe: function (fullName) {
+    };
+
+    Registry.prototype.describe = function (fullName) {
       if (this.resolver && this.resolver.lookupDescription) {
         return this.resolver.lookupDescription(fullName);
       } else if (this.fallback) {
@@ -10920,8 +10984,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       } else {
         return fullName;
       }
-    },
-    normalizeFullName: function (fullName) {
+    };
+
+    Registry.prototype.normalizeFullName = function (fullName) {
       if (this.resolver && this.resolver.normalize) {
         return this.resolver.normalize(fullName);
       } else if (this.fallback) {
@@ -10929,11 +10994,13 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       } else {
         return fullName;
       }
-    },
-    normalize: function (fullName) {
+    };
+
+    Registry.prototype.normalize = function (fullName) {
       return this._normalizeCache[fullName] || (this._normalizeCache[fullName] = this.normalizeFullName(fullName));
-    },
-    makeToString: function (factory, fullName) {
+    };
+
+    Registry.prototype.makeToString = function (factory, fullName) {
       if (this.resolver && this.resolver.makeToString) {
         return this.resolver.makeToString(factory, fullName);
       } else if (this.fallback) {
@@ -10941,33 +11008,38 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       } else {
         return factory.toString();
       }
-    },
-    has: function (fullName, options) {
+    };
+
+    Registry.prototype.has = function (fullName, options) {
       if (!this.isValidFullName(fullName)) {
         return false;
       }
 
       var source = options && options.source && this.normalize(options.source);
 
-      return has(this, this.normalize(fullName), source);
-    },
-    optionsForType: function (type, options) {
+      return _has(this, this.normalize(fullName), source);
+    };
+
+    Registry.prototype.optionsForType = function (type, options) {
       this._typeOptions[type] = options;
-    },
-    getOptionsForType: function (type) {
+    };
+
+    Registry.prototype.getOptionsForType = function (type) {
       var optionsForType = this._typeOptions[type];
       if (optionsForType === undefined && this.fallback) {
         optionsForType = this.fallback.getOptionsForType(type);
       }
       return optionsForType;
-    },
-    options: function (fullName) {
-      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    };
+
+    Registry.prototype.options = function (fullName) {
+      var _options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       var normalizedName = this.normalize(fullName);
-      this._options[normalizedName] = options;
-    },
-    getOptions: function (fullName) {
+      this._options[normalizedName] = _options;
+    };
+
+    Registry.prototype.getOptions = function (fullName) {
       var normalizedName = this.normalize(fullName);
       var options = this._options[normalizedName];
 
@@ -10975,8 +11047,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
         options = this.fallback.getOptions(fullName);
       }
       return options;
-    },
-    getOption: function (fullName, optionName) {
+    };
+
+    Registry.prototype.getOption = function (fullName, optionName) {
       var options = this._options[fullName];
 
       if (options && options[optionName] !== undefined) {
@@ -10991,8 +11064,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       } else if (this.fallback) {
         return this.fallback.getOption(fullName, optionName);
       }
-    },
-    typeInjection: function (type, property, fullName) {
+    };
+
+    Registry.prototype.typeInjection = function (type, property, fullName) {
       false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var fullNameType = fullName.split(':')[0];
@@ -11003,8 +11077,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
 
       injections.push({ property: property, fullName: fullName });
-    },
-    injection: function (fullName, property, injectionName) {
+    };
+
+    Registry.prototype.injection = function (fullName, property, injectionName) {
       this.validateFullName(injectionName);
       var normalizedInjectionName = this.normalize(injectionName);
 
@@ -11019,8 +11094,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       var injections = this._injections[normalizedName] || (this._injections[normalizedName] = []);
 
       injections.push({ property: property, fullName: normalizedInjectionName });
-    },
-    knownForType: function (type) {
+    };
+
+    Registry.prototype.knownForType = function (type) {
       var fallbackKnown = void 0,
           resolverKnown = void 0,
           index,
@@ -11048,39 +11124,45 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       }
 
       return (0, _emberUtils.assign)({}, fallbackKnown, localKnown, resolverKnown);
-    },
-    validateFullName: function (fullName) {
+    };
+
+    Registry.prototype.validateFullName = function (fullName) {
       if (!this.isValidFullName(fullName)) {
         throw new TypeError('Invalid Fullname, expected: \'type:name\' got: ' + fullName);
       }
 
       return true;
-    },
-    isValidFullName: function (fullName) {
+    };
+
+    Registry.prototype.isValidFullName = function (fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
-    },
-    getInjections: function (fullName) {
+    };
+
+    Registry.prototype.getInjections = function (fullName) {
       var injections = this._injections[fullName] || [];
       if (this.fallback) {
         injections = injections.concat(this.fallback.getInjections(fullName));
       }
       return injections;
-    },
-    getTypeInjections: function (type) {
+    };
+
+    Registry.prototype.getTypeInjections = function (type) {
       var injections = this._typeInjections[type] || [];
       if (this.fallback) {
         injections = injections.concat(this.fallback.getTypeInjections(type));
       }
       return injections;
-    },
-    resolverCacheKey: function (name, options) {
+    };
+
+    Registry.prototype.resolverCacheKey = function (name, options) {
       if (!_features.EMBER_MODULE_UNIFICATION) {
         return name;
       }
 
       return options && options.source ? options.source + ':' + name : name;
-    },
-    expandLocalLookup: function (fullName, options) {
+    };
+
+    Registry.prototype.expandLocalLookup = function (fullName, options) {
       var normalizedFullName, normalizedSource;
 
       if (this.resolver && this.resolver.expandLocalLookup) {
@@ -11092,24 +11174,24 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
         normalizedSource = this.normalize(options.source);
 
 
-        return expandLocalLookup(this, normalizedFullName, normalizedSource);
+        return _expandLocalLookup(this, normalizedFullName, normalizedSource);
       } else if (this.fallback) {
         return this.fallback.expandLocalLookup(fullName, options);
       } else {
         return null;
       }
-    }
-  };
+    };
+
+    return Registry;
+  }();
 
   function deprecateResolverFunction(registry) {
     false && !false && (0, _emberDebug.deprecate)('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
 
-    registry.resolver = {
-      resolve: registry.resolver
-    };
+    registry.resolver = { resolve: registry.resolver };
   }
 
-  function expandLocalLookup(registry, normalizedName, normalizedSource) {
+  function _expandLocalLookup(registry, normalizedName, normalizedSource) {
     var cache = registry._localLookupCache;
     var normalizedNameCache = cache[normalizedName];
 
@@ -11128,7 +11210,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     return normalizedNameCache[normalizedSource] = expanded;
   }
 
-  function resolve(registry, normalizedName, options) {
+  function _resolve(registry, normalizedName, options) {
     if (options && options.source) {
       // when `source` is provided expand normalizedName
       // and source into the full normalizedName
@@ -11179,7 +11261,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     return resolved;
   }
 
-  function has(registry, fullName, source) {
+  function _has(registry, fullName, source) {
     return registry.resolve(fullName, { source: source }) !== undefined;
   }
 
@@ -43948,7 +44030,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+ef188077";
+  exports.default = "2.17.0-alpha.1-null+3942c5a0";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
