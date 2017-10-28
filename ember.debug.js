@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+9763b3a1
+ * @version   2.17.0-alpha.1-null+d4870612
  */
 
 /*global process */
@@ -32246,10 +32246,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       routerMicrolib.map(dsl.generate());
     },
     _buildDSL: function () {
-      var moduleBasedResolver = this._hasModuleBasedResolver();
-      var options = {
-        enableLoadingSubstates: !!moduleBasedResolver
-      };
+      var enableLoadingSubstates = this._hasModuleBasedResolver();
+      var options = { enableLoadingSubstates: enableLoadingSubstates };
 
       var owner = (0, _emberUtils.getOwner)(this);
       var router = this;
@@ -32296,18 +32294,12 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
 
     _hasModuleBasedResolver: function () {
       var owner = (0, _emberUtils.getOwner)(this);
-
       if (!owner) {
         return false;
       }
 
-      var resolver = owner.application && owner.application.__registry__ && owner.application.__registry__.resolver;
-
-      if (!resolver) {
-        return false;
-      }
-
-      return !!resolver.moduleBasedResolver;
+      var resolver = (0, _emberMetal.get)(owner, 'application.__registry__.resolver.moduleBasedResolver');
+      return !!resolver;
     },
     startRouting: function () {
       var initialURL = (0, _emberMetal.get)(this, 'initialURL');
@@ -47420,7 +47412,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+9763b3a1";
+  exports.default = "2.17.0-alpha.1-null+d4870612";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
