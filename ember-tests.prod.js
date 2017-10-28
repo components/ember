@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+3942c5a0
+ * @version   2.17.0-alpha.1-null+9763b3a1
  */
 
 /*global process */
@@ -65703,24 +65703,14 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
     (0, _emberBabel.inherits)(_class5, _ApplicationTestCase6);
 
     function _class5() {
-
-      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase6.call(this));
-
-      _this8._oldWarn = _emberConsole.default.warn;
-      _this8.warnCalled = false;
-      _emberConsole.default.warn = function () {
-        return _this8.warnCalled = true;
-      };
-      return _this8;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase6.apply(this, arguments));
     }
 
-    _class5.prototype.teardown = function () {
-      _emberConsole.default.warn = this._oldWarn;
-      _ApplicationTestCase6.prototype.teardown.call(this);
-    };
-
     _class5.prototype['@test link-to with null/undefined dynamic parameters are put in a loading state'] = function (assert) {
+      var _this9 = this;
+
       assert.expect(19);
+      var warningMessage = 'This link-to is in an inactive loading state because at least one of its parameters presently has a null/undefined value, or the provided route name is invalid.';
 
       this.router.map(function () {
         this.route('thing', { path: '/thing/:thing_id' });
@@ -65760,9 +65750,9 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assertLinkStatus(contextLink);
       assertLinkStatus(staticLink);
 
-      this.warnCalled = false;
-      this.click(contextLink);
-      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
+      expectWarning(function () {
+        _this9.click(contextLink);
+      }, warningMessage);
 
       // Set the destinationRoute (context is still null).
       this.runTask(function () {
@@ -65794,9 +65784,9 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       });
       assertLinkStatus(contextLink);
 
-      this.warnCalled = false;
-      this.click(staticLink);
-      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
+      expectWarning(function () {
+        _this9.click(staticLink);
+      }, warningMessage);
 
       this.runTask(function () {
         return controller.set('secondRoute', 'about');
@@ -65818,23 +65808,23 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
     }
 
     _class6.prototype['@test the {{link-to}} helper throws a useful error if you invoke it wrong'] = function (assert) {
-      var _this10 = this;
+      var _this11 = this;
 
       assert.expect(1);
 
       assert.throws(function () {
-        _this10.runTask(function () {
-          _this10.createApplication();
+        _this11.runTask(function () {
+          _this11.createApplication();
 
-          _this10.add('router:main', _emberRouting.Router.extend({
+          _this11.add('router:main', _emberRouting.Router.extend({
             location: 'none'
           }));
 
-          _this10.router.map(function () {
+          _this11.router.map(function () {
             this.route('post', { path: 'post/:post_id' });
           });
 
-          _this10.addTemplate('application', '{{#link-to \'post\'}}Post{{/link-to}}');
+          _this11.addTemplate('application', '{{#link-to \'post\'}}Post{{/link-to}}');
         });
       }, /(You attempted to define a `\{\{link-to "post"\}\}` but did not pass the parameters required for generating its dynamic segments.|You must provide param `post_id` to `generate`)/);
     };
