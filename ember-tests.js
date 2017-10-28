@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+d4870612
+ * @version   2.17.0-alpha.1-null+3769623e
  */
 
 /*global process */
@@ -970,7 +970,7 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
 
     registry.register('controller:post', PostController);
 
-    throws(function () {
+    expectAssertion(function () {
       registry.typeInjection('controller', 'injected', 'controller:post');
     }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
   });
@@ -1094,7 +1094,7 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
     registry.register('controller:apple', FirstApple);
     strictEqual(registry.resolve('controller:apple'), FirstApple);
 
-    throws(function () {
+    expectAssertion(function () {
       registry.register('controller:apple', SecondApple);
     }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
 

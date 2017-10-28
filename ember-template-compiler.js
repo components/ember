@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+d4870612
+ * @version   2.17.0-alpha.1-null+3769623e
  */
 
 /*global process */
@@ -6140,16 +6140,10 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     Registry.prototype.register = function (fullName, factory) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
-
-      if (factory === undefined) {
-        throw new TypeError('Attempting to register an unknown factory: \'' + fullName + '\'');
-      }
+      true && !(factory !== undefined) && (0, _emberDebug.assert)('Attempting to register an unknown factory: \'' + fullName + '\'', factory !== undefined);
 
       var normalizedName = this.normalize(fullName);
-
-      if (this._resolveCache[normalizedName]) {
-        throw new Error('Cannot re-register: \'' + fullName + '\', as it has already been resolved.');
-      }
+      true && !!this._resolveCache[normalizedName] && (0, _emberDebug.assert)('Cannot re-register: \'' + fullName + '\', as it has already been resolved.', !this._resolveCache[normalizedName]);
 
       delete this._failCache[normalizedName];
       this.registrations[normalizedName] = factory;
@@ -6275,9 +6269,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       true && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
 
       var fullNameType = fullName.split(':')[0];
-      if (fullNameType === type) {
-        throw new Error('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).');
-      }
+      true && !(fullNameType !== type) && (0, _emberDebug.assert)('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).', fullNameType !== type);
 
       var injections = this._typeInjections[type] || (this._typeInjections[type] = []);
 
@@ -17355,7 +17347,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+d4870612";
+  exports.default = "2.17.0-alpha.1-null+3769623e";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
