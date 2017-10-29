@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+3769623e
+ * @version   2.17.0-alpha.1-null+3bee4b83
  */
 
 /*global process */
@@ -28961,7 +28961,9 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
-      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
+      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']),
+      _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    '], ['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    ']),
+      _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}'], ['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}']);
 
   (0, _testCase.moduleFor)('Helpers test: {{partial}}', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
@@ -29109,6 +29111,38 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
       });
 
       this.assertText('Nothing!');
+    };
+
+    _class.prototype['@test partials which contain contextual components'] = function () {
+      var _this6 = this;
+
+      this.registerComponent('outer-component', {
+        template: '{{yield (hash inner=(component "inner-component" name=name))}}'
+      });
+
+      this.registerComponent('inner-component', {
+        template: '{{yield (hash name=name)}}'
+      });
+
+      this.registerPartial('_some-partial', (0, _abstractTestCase.strip)(_templateObject3));
+
+      this.render((0, _abstractTestCase.strip)(_templateObject4), { name: 'Sophie' });
+
+      this.assertStableRerender();
+
+      this.assertText('inner.name: Sophie');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this6.context, 'name', 'Ben');
+      });
+
+      this.assertText('inner.name: Ben');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this6.context, 'name', 'Sophie');
+      });
+
+      this.assertText('inner.name: Sophie');
     };
 
     return _class;

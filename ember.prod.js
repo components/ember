@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+3769623e
+ * @version   2.17.0-alpha.1-null+3bee4b83
  */
 
 /*global process */
@@ -19837,7 +19837,7 @@ enifed("ember-glimmer/templates/empty", ["exports", "ember-glimmer/template"], f
 enifed("ember-glimmer/templates/link-to", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "gBnxT4WO", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[19,0,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "packages/ember-glimmer/lib/templates/link-to.hbs" } });
+  exports.default = (0, _template.default)({ "id": "VZn3uSPL", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[20,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "packages/ember-glimmer/lib/templates/link-to.hbs" } });
 });
 enifed("ember-glimmer/templates/outlet", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
@@ -19872,9 +19872,9 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
             _values$index = values[index], type = _values$index[0];
 
 
-            if (type === _wireFormat.Ops.Get) {
+            if (type === _wireFormat.Ops.Get || type === _wireFormat.Ops.MaybeLocal) {
                 getExp = values[index];
-                path = getExp[2];
+                path = getExp[getExp.length - 1];
                 propName = path[path.length - 1];
 
                 hash[1][index] = [_wireFormat.Ops.Helper, ['-class'], [getExp, propName]];
@@ -43706,7 +43706,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+3769623e";
+  exports.default = "2.17.0-alpha.1-null+3bee4b83";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
