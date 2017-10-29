@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.3-null+56afa74b
+ * @version   2.17.0-beta.3-null+38e654e5
  */
 
 var enifed, requireModule, Ember;
@@ -21078,7 +21078,7 @@ enifed("ember-glimmer/templates/empty", ["exports", "ember-glimmer/template"], f
 enifed("ember-glimmer/templates/link-to", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "+G5dMm85", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[19,0,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/link-to.hbs" } });
+  exports.default = (0, _template.default)({ "id": "Gq3gxZ6f", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[20,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/link-to.hbs" } });
 });
 enifed("ember-glimmer/templates/outlet", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
@@ -21132,9 +21132,9 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
           type = _values$index[0];
 
 
-      if (type === _wireFormat.Ops.Get) {
+      if (type === _wireFormat.Ops.Get || type === _wireFormat.Ops.MaybeLocal) {
         var getExp = values[index];
-        var path = getExp[2];
+        var path = getExp[getExp.length - 1];
         var propName = path[path.length - 1];
         hash[1][index] = [_wireFormat.Ops.Helper, ['-class'], [getExp, propName]];
       }
@@ -48394,7 +48394,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-beta.3-null+56afa74b";
+  exports.default = "2.17.0-beta.3-null+38e654e5";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
