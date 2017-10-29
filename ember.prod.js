@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-null+a1662123
+ * @version   2.16.0-null+8b678412
  */
 
 var enifed, requireModule, Ember;
@@ -18359,7 +18359,7 @@ enifed('ember-glimmer/helpers/get', ['exports', 'ember-babel', 'ember-metal', 'e
       var path = this.lastPath = this.pathReference.value();
 
       if (path !== lastPath) {
-        if (path !== undefined && path !== null) {
+        if (path !== undefined && path !== null && path !== '') {
           pathType = typeof path;
 
 
@@ -20610,7 +20610,7 @@ enifed("ember-glimmer/templates/empty", ["exports", "ember-glimmer/template"], f
 enifed("ember-glimmer/templates/link-to", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
 
-  exports.default = (0, _template.default)({ "id": "+G5dMm85", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[19,0,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/link-to.hbs" } });
+  exports.default = (0, _template.default)({ "id": "Gq3gxZ6f", "block": "{\"symbols\":[\"&default\"],\"statements\":[[4,\"if\",[[20,[\"linkTitle\"]]],null,{\"statements\":[[1,[18,\"linkTitle\"],false]],\"parameters\":[]},{\"statements\":[[11,1]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "ember-glimmer/templates/link-to.hbs" } });
 });
 enifed("ember-glimmer/templates/outlet", ["exports", "ember-glimmer/template"], function (exports, _template) {
   "use strict";
@@ -20648,9 +20648,9 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
       _values$index = values[index], type = _values$index[0];
 
 
-      if (type === _wireFormat.Ops.Get) {
+      if (type === _wireFormat.Ops.Get || type === _wireFormat.Ops.MaybeLocal) {
         getExp = values[index];
-        path = getExp[2];
+        path = getExp[getExp.length - 1];
         propName = path[path.length - 1];
 
         hash[1][index] = [_wireFormat.Ops.Helper, ['-class'], [getExp, propName]];
@@ -31499,7 +31499,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
           } else {
             if (presentKey) {
               svalue = params[presentKey];
-              value = route.deserializeQueryParam(svalue, qp.urlKey, qp.type);
+
+              if (svalue !== undefined) {
+                value = route.deserializeQueryParam(svalue, qp.urlKey, qp.type);
+              }
             } else {
               // No QP provided; use default value.
               svalue = qp.serializedDefaultValue;
@@ -32771,7 +32774,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       });
     },
     _serializeQueryParam: function (value, type) {
-      if (type === 'array') {
+      if (value === null || value === undefined) {
+        return value;
+      } else if (type === 'array') {
         return JSON.stringify(value);
       }
 
@@ -32788,7 +32793,9 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       });
     },
     _deserializeQueryParam: function (value, defaultType) {
-      if (defaultType === 'boolean') {
+      if (value === null || value === undefined) {
+        return value;
+      } else if (defaultType === 'boolean') {
         return value === 'true';
       } else if (defaultType === 'number') {
         return Number(value).valueOf();
@@ -32983,7 +32990,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
               return true;
             }
 
-            if (_fromRouterService) {
+            if (_fromRouterService && presentProp !== false) {
               return false;
             }
 
@@ -32991,7 +32998,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
           }() && (0, _emberDebug.assert)('You passed the `' + presentProp + '` query parameter during a transition into ' + qp.route.routeName + ', please update to ' + qp.urlKey, function () {
             if (qp.urlKey === presentProp) {
               return true;
-            }if (_fromRouterService) {
+            }if (_fromRouterService && presentProp !== false) {
               return false;
             }return true;
           }());
@@ -35611,17 +35618,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-debug', 'ember
   
     This example will create a `posts` property on the `post` controller that
     looks up the `posts` controller in the container, making it easy to
-    reference other controllers. This is functionally equivalent to:
-  
-    ```app/controllers/post.js
-    import Controller from '@ember/controller';
-    import { alias } from '@ember/object/computed';
-  
-    export default Controller.extend({
-      needs: 'posts',
-      posts: alias('controllers.posts')
-    });
-    ```
+    reference other controllers.
   
     @method inject
     @static
@@ -44549,7 +44546,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.16.0-null+a1662123";
+  exports.default = "2.16.0-null+8b678412";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.0-null+a1662123
+ * @version   2.16.0-null+8b678412
  */
 
 var enifed, requireModule, Ember;
@@ -29984,7 +29984,9 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
   'use strict';
 
   var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
-      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']);
+      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']),
+      _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    '], ['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    ']),
+      _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}'], ['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}']);
 
   (0, _testCase.moduleFor)('Helpers test: {{partial}}', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
@@ -30133,6 +30135,38 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
       });
 
       this.assertText('Nothing!');
+    };
+
+    _class.prototype['@test partials which contain contextual components'] = function testPartialsWhichContainContextualComponents() {
+      var _this6 = this;
+
+      this.registerComponent('outer-component', {
+        template: '{{yield (hash inner=(component "inner-component" name=name))}}'
+      });
+
+      this.registerComponent('inner-component', {
+        template: '{{yield (hash name=name)}}'
+      });
+
+      this.registerPartial('_some-partial', (0, _abstractTestCase.strip)(_templateObject3));
+
+      this.render((0, _abstractTestCase.strip)(_templateObject4), { name: 'Sophie' });
+
+      this.assertStableRerender();
+
+      this.assertText('inner.name: Sophie');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this6.context, 'name', 'Ben');
+      });
+
+      this.assertText('inner.name: Ben');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this6.context, 'name', 'Sophie');
+      });
+
+      this.assertText('inner.name: Sophie');
     };
 
     return _class;
@@ -75119,6 +75153,64 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       });
     };
 
+    _class.prototype['@test Setting bound query param property to null or undefined does not serialize to url'] = function testSettingBoundQueryParamPropertyToNullOrUndefinedDoesNotSerializeToUrl(assert) {
+      var _this36 = this;
+
+      assert.expect(9);
+
+      this.router.map(function () {
+        this.route('home');
+      });
+
+      this.setSingleQPController('home', 'foo', [1, 2]);
+
+      return this.visitAndAssert('/home').then(function () {
+        var controller = _this36.getController('home');
+
+        assert.deepEqual(controller.get('foo'), [1, 2]);
+        _this36.assertCurrentPath('/home');
+
+        _this36.setAndFlush(controller, 'foo', (0, _emberRuntime.A)([1, 3]));
+        _this36.assertCurrentPath('/home?foo=%5B1%2C3%5D');
+
+        return _this36.transitionTo('/home').then(function () {
+          assert.deepEqual(controller.get('foo'), [1, 2]);
+          _this36.assertCurrentPath('/home');
+
+          _this36.setAndFlush(controller, 'foo', null);
+          _this36.assertCurrentPath('/home', 'Setting property to null');
+
+          _this36.setAndFlush(controller, 'foo', (0, _emberRuntime.A)([1, 3]));
+          _this36.assertCurrentPath('/home?foo=%5B1%2C3%5D');
+
+          _this36.setAndFlush(controller, 'foo', undefined);
+          _this36.assertCurrentPath('/home', 'Setting property to undefined');
+        });
+      });
+    };
+
+    _class.prototype['@test {{link-to}} with null or undefined QPs does not get serialized into url'] = function testLinkToWithNullOrUndefinedQPsDoesNotGetSerializedIntoUrl(assert) {
+      var _this37 = this;
+
+      assert.expect(3);
+
+      this.addTemplate('home', '{{link-to \'Home\' \'home\' (query-params foo=nullValue) id=\'null-link\'}}{{link-to \'Home\' \'home\' (query-params foo=undefinedValue) id=\'undefined-link\'}}');
+
+      this.router.map(function () {
+        this.route('home');
+      });
+
+      this.setSingleQPController('home', 'foo', [], {
+        nullValue: null,
+        undefinedValue: undefined
+      });
+
+      return this.visitAndAssert('/home').then(function () {
+        assert.equal(_this37.$('#null-link').attr('href'), '/home');
+        assert.equal(_this37.$('#undefined-link').attr('href'), '/home');
+      });
+    };
+
     _class.prototype['@test A child of a resource route still defaults to parent route\'s model even if the child route has a query param'] = function testAChildOfAResourceRouteStillDefaultsToParentRouteSModelEvenIfTheChildRouteHasAQueryParam(assert) {
       assert.expect(2);
 
@@ -75142,7 +75234,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
     };
 
     _class.prototype['@test opting into replace does not affect transitions between routes'] = function testOptingIntoReplaceDoesNotAffectTransitionsBetweenRoutes(assert) {
-      var _this36 = this;
+      var _this38 = this;
 
       assert.expect(5);
 
@@ -75164,27 +75256,27 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       }));
 
       return this.visit('/').then(function () {
-        var controller = _this36.getController('bar');
+        var controller = _this38.getController('bar');
 
-        _this36.expectedPushURL = '/foo';
+        _this38.expectedPushURL = '/foo';
         (0, _emberMetal.run)((0, _emberViews.jQuery)('#foo-link'), 'click');
 
-        _this36.expectedPushURL = '/bar';
+        _this38.expectedPushURL = '/bar';
         (0, _emberMetal.run)((0, _emberViews.jQuery)('#bar-no-qp-link'), 'click');
 
-        _this36.expectedReplaceURL = '/bar?raytiley=woot';
-        _this36.setAndFlush(controller, 'raytiley', 'woot');
+        _this38.expectedReplaceURL = '/bar?raytiley=woot';
+        _this38.setAndFlush(controller, 'raytiley', 'woot');
 
-        _this36.expectedPushURL = '/foo';
+        _this38.expectedPushURL = '/foo';
         (0, _emberMetal.run)((0, _emberViews.jQuery)('#foo-link'), 'click');
 
-        _this36.expectedPushURL = '/bar?raytiley=isthebest';
+        _this38.expectedPushURL = '/bar?raytiley=isthebest';
         (0, _emberMetal.run)((0, _emberViews.jQuery)('#bar-link'), 'click');
       });
     };
 
     _class.prototype['@test undefined isn\'t serialized or deserialized into a string'] = function testUndefinedIsnTSerializedOrDeserializedIntoAString(assert) {
-      var _this37 = this;
+      var _this39 = this;
 
       assert.expect(4);
 
@@ -75205,10 +75297,10 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       }));
 
       return this.visitAndAssert('/').then(function () {
-        assert.equal(_this37.$('#the-link').attr('href'), '/example', 'renders without undefined qp serialized');
+        assert.equal(_this39.$('#the-link').attr('href'), '/example', 'renders without undefined qp serialized');
 
-        return _this37.transitionTo('example', { queryParams: { foo: undefined } }).then(function () {
-          _this37.assertCurrentPath('/example');
+        return _this39.transitionTo('example', { queryParams: { foo: undefined } }).then(function () {
+          _this39.assertCurrentPath('/example');
         });
       });
     };
@@ -75226,7 +75318,7 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
     };
 
     _class.prototype['@test warn user that Route\'s queryParams configuration must be an Object, not an Array'] = function testWarnUserThatRouteSQueryParamsConfigurationMustBeAnObjectNotAnArray(assert) {
-      var _this38 = this;
+      var _this40 = this;
 
       assert.expect(1);
 
@@ -75235,12 +75327,12 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       }));
 
       expectAssertion(function () {
-        _this38.visit('/');
+        _this40.visit('/');
       }, 'You passed in `[{"commitBy":{"replace":true}}]` as the value for `queryParams` but `queryParams` cannot be an Array');
     };
 
     _class.prototype['@test handle route names that clash with Object.prototype properties'] = function testHandleRouteNamesThatClashWithObjectPrototypeProperties(assert) {
-      var _this39 = this;
+      var _this41 = this;
 
       assert.expect(1);
 
@@ -75257,8 +75349,8 @@ enifed('ember/tests/routing/query_params_test', ['ember-babel', 'ember-runtime',
       }));
 
       return this.visit('/').then(function () {
-        _this39.transitionTo('constructor', { queryParams: { foo: '999' } });
-        var controller = _this39.getController('constructor');
+        _this41.transitionTo('constructor', { queryParams: { foo: '999' } });
+        var controller = _this41.getController('constructor');
         assert.equal((0, _emberMetal.get)(controller, 'foo'), '999');
       });
     };
@@ -77553,8 +77645,29 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         });
       };
 
-      _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key'] = function testRouterServiceTransitionToWithAliasedQueryParamsUsesTheOriginalProvidedKey(assert) {
+      _class.prototype['@test RouterService#transitionTo with unspecified query params'] = function testRouterServiceTransitionToWithUnspecifiedQueryParams(assert) {
         var _this10 = this;
+
+        assert.expect(1);
+
+        this.add('controller:parent.child', _emberRuntime.Controller.extend({
+          queryParams: ['sort', 'page', 'category', 'extra'],
+          sort: 'ASC',
+          page: null,
+          category: undefined
+        }));
+
+        var queryParams = this.buildQueryParams({ sort: 'ASC' });
+
+        return this.visit('/').then(function () {
+          return _this10.routerService.transitionTo('parent.child', queryParams);
+        }).then(function () {
+          assert.equal(_this10.routerService.get('currentURL'), '/child?sort=ASC');
+        });
+      };
+
+      _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key'] = function testRouterServiceTransitionToWithAliasedQueryParamsUsesTheOriginalProvidedKey(assert) {
+        var _this11 = this;
 
         assert.expect(1);
 
@@ -77568,14 +77681,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var queryParams = this.buildQueryParams({ url_sort: 'ASC' });
 
         return this.visit('/').then(function () {
-          return _this10.routerService.transitionTo('parent.child', queryParams);
+          return _this11.routerService.transitionTo('parent.child', queryParams);
         }).then(function () {
-          assert.equal(_this10.routerService.get('currentURL'), '/child?url_sort=ASC');
+          assert.equal(_this11.routerService.get('currentURL'), '/child?url_sort=ASC');
         });
       };
 
       _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key when controller property name'] = function testRouterServiceTransitionToWithAliasedQueryParamsUsesTheOriginalProvidedKeyWhenControllerPropertyName(assert) {
-        var _this11 = this;
+        var _this12 = this;
 
         assert.expect(1);
 
@@ -77590,7 +77703,7 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
 
         return this.visit('/').then(function () {
           expectAssertion(function () {
-            return _this11.routerService.transitionTo('parent.child', queryParams);
+            return _this12.routerService.transitionTo('parent.child', queryParams);
           }, 'You passed the `cont_sort` query parameter during a transition into parent.child, please update to url_sort');
         });
       };
