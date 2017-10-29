@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.16.1
+ * @version   2.16.1-null+ef999898
  */
 
 var enifed, requireModule, Ember;
@@ -52166,6 +52166,47 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['ember-metal', 'ember-r
 
     equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
     equal((0, _emberMetal.get)(proxy, 'reason'), reason, 'expects the proxy to have a reason');
+    equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
+    equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
+    equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
+    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+  });
+
+  // https://github.com/emberjs/ember.js/issues/15694
+  QUnit.test('rejection without specifying reason', function () {
+    new Error('failure');
+
+    var deferred = _rsvp2.defer();
+    var proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    var didFulfillCount = 0;
+    var didRejectCount = 0;
+
+    proxy.then(function () {
+      return didFulfillCount++;
+    }, function () {
+      return didRejectCount++;
+    });
+
+    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have no reason');
+    equal((0, _emberMetal.get)(proxy, 'isPending'), true, 'expects the proxy to indicate that it is loading');
+    equal((0, _emberMetal.get)(proxy, 'isSettled'), false, 'expects the proxy to indicate that it is not settled');
+    equal((0, _emberMetal.get)(proxy, 'isRejected'), false, 'expects the proxy to indicate that it is not rejected');
+    equal((0, _emberMetal.get)(proxy, 'isFulfilled'), false, 'expects the proxy to indicate that it is not fulfilled');
+
+    equal(didFulfillCount, 0, 'should not yet have been fulfilled');
+    equal(didRejectCount, 0, 'should not yet have been rejected');
+
+    (0, _emberMetal.run)(deferred, 'reject');
+
+    equal(didFulfillCount, 0, 'should not yet have been fulfilled');
+    equal(didRejectCount, 1, 'should have been rejected');
+
+    equal((0, _emberMetal.get)(proxy, 'content'), undefined, 'expects the proxy to have no content');
+    equal((0, _emberMetal.get)(proxy, 'reason'), undefined, 'expects the proxy to have a reason');
     equal((0, _emberMetal.get)(proxy, 'isPending'), false, 'expects the proxy to indicate that it is not longer loading');
     equal((0, _emberMetal.get)(proxy, 'isSettled'), true, 'expects the proxy to indicate that it is settled');
     equal((0, _emberMetal.get)(proxy, 'isRejected'), true, 'expects the proxy to indicate that it is  rejected');
