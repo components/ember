@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+3bee4b83
+ * @version   2.17.0-alpha.1-null+17ea95e5
  */
 
 /*global process */
@@ -25714,17 +25714,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       this._coreLibIndex = 0;
     }
 
-    Libraries.prototype.isRegistered = function (name) {
-      return !!this._getLibraryByName(name);
-    };
-
-    return Libraries;
-  }();
-
-  Libraries.prototype = {
-    constructor: Libraries,
-
-    _getLibraryByName: function (name) {
+    Libraries.prototype._getLibraryByName = function (name) {
       var libs = this._registry,
           i;
       var count = libs.length;
@@ -25734,8 +25724,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           return libs[i];
         }
       }
-    },
-    register: function (name, version, isCoreLibrary) {
+    };
+
+    Libraries.prototype.register = function (name, version, isCoreLibrary) {
       var index = this._registry.length;
 
       if (!this._getLibraryByName(name)) {
@@ -25746,11 +25737,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       } else {
         false && emberDebug.warn('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
       }
-    },
-    registerCoreLibrary: function (name, version) {
+    };
+
+    Libraries.prototype.registerCoreLibrary = function (name, version) {
       this.register(name, version, true);
-    },
-    deRegister: function (name) {
+    };
+
+    Libraries.prototype.deRegister = function (name) {
       var lib = this._getLibraryByName(name);
       var index = void 0;
 
@@ -25758,8 +25751,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         index = this._registry.indexOf(lib);
         this._registry.splice(index, 1);
       }
-    }
-  };
+    };
+
+    return Libraries;
+  }();
 
   if (ember_features.EMBER_LIBRARIES_ISREGISTERED) {
     Libraries.prototype.isRegistered = function (name) {
@@ -43706,7 +43701,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+3bee4b83";
+  exports.default = "2.17.0-alpha.1-null+17ea95e5";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
