@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.3-null+e3134091
+ * @version   2.17.0-beta.3-null+08cd782e
  */
 
 var enifed, requireModule, Ember;
@@ -30130,13 +30130,17 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-glimmer/tests/integration/helpers/mut-test.js should pass ESLint\n\n');
 });
 
-enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _testCase, _emberMetal, _abstractTestCase) {
+enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'ember-metal', 'ember-runtime', 'ember-glimmer/tests/utils/abstract-test-case'], function (_emberBabel, _testCase, _emberMetal, _emberRuntime, _abstractTestCase) {
   'use strict';
 
-  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
-      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']),
-      _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    '], ['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    ']),
-      _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}'], ['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}']);
+  var _templateObject = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#each model.items as |item|}}\n        {{item}}: {{partial \'show-item\'}} |\n      {{/each}}'], ['\n      {{#each model.items as |item|}}\n        {{item}}: {{partial \'show-item\'}} |\n      {{/each}}']),
+      _templateObject2 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with model as |item|}}\n        {{item.name}}: {{partial \'show-id\'}}\n      {{/with}}'], ['\n      {{#with model as |item|}}\n        {{item.name}}: {{partial \'show-id\'}}\n      {{/with}}']),
+      _templateObject3 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#each items as |item|}}\n        {{item.id}}: {{partial \'show-item\'}} |\n      {{/each}}'], ['\n      {{#each items as |item|}}\n        {{item.id}}: {{partial \'show-item\'}} |\n      {{/each}}']),
+      _templateObject4 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#each items as |item|}}\n        {{item}}: {{partial \'show-item\'}} |\n      {{/each}}'], ['\n      {{#each items as |item|}}\n        {{item}}: {{partial \'show-item\'}} |\n      {{/each}}']),
+      _templateObject5 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}'], ['\n      {{#each model.items as |template i|}}\n        {{model.type}}: {{partial template}}\n      {{/each}}']),
+      _templateObject6 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}'], ['\n      {{#with item.thing as |t|}}\n        {{partial t}}\n      {{else}}\n        Nothing!\n      {{/with}}']),
+      _templateObject7 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    '], ['\n      {{#outer.inner as |inner|}}\n        inner.name: {{inner.name}}\n      {{/outer.inner}}\n    ']),
+      _templateObject8 = (0, _emberBabel.taggedTemplateLiteralLoose)(['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}'], ['\n      {{#outer-component name=name as |outer|}}\n        {{partial \'some-partial\'}}\n      {{/outer-component}}']);
 
   (0, _testCase.moduleFor)('Helpers test: {{partial}}', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
@@ -30228,13 +30232,127 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
       this.assertText('This sub-template is pretty great.');
     };
 
-    _class.prototype['@test dynamic partials in {{#each}}'] = function testDynamicPartialsInEach() {
+    _class.prototype['@test partial using data from {{#each}}'] = function testPartialUsingDataFromEach() {
       var _this4 = this;
+
+      this.registerPartial('show-item', '{{item}}');
+
+      this.render((0, _abstractTestCase.strip)(_templateObject), {
+        model: {
+          items: (0, _emberRuntime.A)(['apple', 'orange', 'banana'])
+        }
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('apple: apple |orange: orange |banana: banana |');
+
+      this.runTask(function () {
+        return _this4.context.model.items.pushObject('strawberry');
+      });
+
+      this.assertText('apple: apple |orange: orange |banana: banana |strawberry: strawberry |');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this4.context, 'model', {
+          items: (0, _emberRuntime.A)(['apple', 'orange', 'banana'])
+        });
+      });
+
+      this.assertText('apple: apple |orange: orange |banana: banana |');
+    };
+
+    _class.prototype['@test partial using `{{get` on data from {{#with}}'] = function testPartialUsingGetOnDataFromWith() {
+      var _this5 = this;
+
+      this.registerPartial('show-id', '{{get item "id"}}');
+
+      this.render((0, _abstractTestCase.strip)(_templateObject2), {
+        model: { id: 1, name: 'foo' }
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('foo: 1');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this5.context, 'model.id', 2);
+      });
+
+      this.assertText('foo: 2');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this5.context, 'model.name', 'bar');
+      });
+
+      this.assertText('bar: 2');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this5.context, 'model', { id: 1, name: 'foo' });
+      });
+
+      this.assertText('foo: 1');
+    };
+
+    _class.prototype['@test partial using `{{get` on data from {{#each}}'] = function testPartialUsingGetOnDataFromEach() {
+      var _this6 = this;
+
+      this.registerPartial('show-item', '{{get item "id"}}');
+
+      this.render((0, _abstractTestCase.strip)(_templateObject3), {
+        items: (0, _emberRuntime.A)([{ id: 1 }, { id: 2 }, { id: 3 }])
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('1: 1 |2: 2 |3: 3 |');
+
+      this.runTask(function () {
+        return _this6.context.items.pushObject({ id: 4 });
+      });
+
+      this.assertText('1: 1 |2: 2 |3: 3 |4: 4 |');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this6.context, 'items', (0, _emberRuntime.A)([{ id: 1 }, { id: 2 }, { id: 3 }]));
+      });
+
+      this.assertText('1: 1 |2: 2 |3: 3 |');
+    };
+
+    _class.prototype['@test partial using conditional on data from {{#each}}'] = function testPartialUsingConditionalOnDataFromEach() {
+      var _this7 = this;
+
+      this.registerPartial('show-item', '{{#if item}}{{item}}{{/if}}');
+
+      this.render((0, _abstractTestCase.strip)(_templateObject4), {
+        items: (0, _emberRuntime.A)(['apple', null, 'orange', 'banana'])
+      });
+
+      this.assertStableRerender();
+
+      this.assertText('apple: apple |:  |orange: orange |banana: banana |');
+
+      this.runTask(function () {
+        return _this7.context.items.pushObject('strawberry');
+      });
+
+      this.assertText('apple: apple |:  |orange: orange |banana: banana |strawberry: strawberry |');
+
+      this.runTask(function () {
+        return (0, _emberMetal.set)(_this7.context, 'items', (0, _emberRuntime.A)(['apple', null, 'orange', 'banana']));
+      });
+
+      this.assertText('apple: apple |:  |orange: orange |banana: banana |');
+    };
+
+    _class.prototype['@test dynamic partials in {{#each}}'] = function testDynamicPartialsInEach() {
+      var _this8 = this;
 
       this.registerPartial('_odd', 'ODD{{i}}');
       this.registerPartial('_even', 'EVEN{{i}}');
 
-      this.render((0, _abstractTestCase.strip)(_templateObject), {
+      this.render((0, _abstractTestCase.strip)(_templateObject5), {
         model: {
           items: ['even', 'odd', 'even', 'odd'],
           type: 'number'
@@ -30246,13 +30364,13 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
       this.assertText('number: EVEN0number: ODD1number: EVEN2number: ODD3');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.context, 'model.type', 'integer');
+        return (0, _emberMetal.set)(_this8.context, 'model.type', 'integer');
       });
 
       this.assertText('integer: EVEN0integer: ODD1integer: EVEN2integer: ODD3');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this4.context, 'model', {
+        return (0, _emberMetal.set)(_this8.context, 'model', {
           items: ['even', 'odd', 'even', 'odd'],
           type: 'number'
         });
@@ -30262,11 +30380,11 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
     };
 
     _class.prototype['@test dynamic partials in {{#with}}'] = function testDynamicPartialsInWith() {
-      var _this5 = this;
+      var _this9 = this;
 
       this.registerPartial('_thing', '{{t}}');
 
-      this.render((0, _abstractTestCase.strip)(_templateObject2), {
+      this.render((0, _abstractTestCase.strip)(_templateObject6), {
         item: { thing: false }
       });
 
@@ -30275,20 +30393,20 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
       this.assertText('Nothing!');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.context, 'item.thing', 'thing');
+        return (0, _emberMetal.set)(_this9.context, 'item.thing', 'thing');
       });
 
       this.assertText('thing');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this5.context, 'item', { thing: false });
+        return (0, _emberMetal.set)(_this9.context, 'item', { thing: false });
       });
 
       this.assertText('Nothing!');
     };
 
     _class.prototype['@test partials which contain contextual components'] = function testPartialsWhichContainContextualComponents() {
-      var _this6 = this;
+      var _this10 = this;
 
       this.registerComponent('outer-component', {
         template: '{{yield (hash inner=(component "inner-component" name=name))}}'
@@ -30298,22 +30416,22 @@ enifed('ember-glimmer/tests/integration/helpers/partial-test', ['ember-babel', '
         template: '{{yield (hash name=name)}}'
       });
 
-      this.registerPartial('_some-partial', (0, _abstractTestCase.strip)(_templateObject3));
+      this.registerPartial('_some-partial', (0, _abstractTestCase.strip)(_templateObject7));
 
-      this.render((0, _abstractTestCase.strip)(_templateObject4), { name: 'Sophie' });
+      this.render((0, _abstractTestCase.strip)(_templateObject8), { name: 'Sophie' });
 
       this.assertStableRerender();
 
       this.assertText('inner.name: Sophie');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this6.context, 'name', 'Ben');
+        return (0, _emberMetal.set)(_this10.context, 'name', 'Ben');
       });
 
       this.assertText('inner.name: Ben');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this6.context, 'name', 'Sophie');
+        return (0, _emberMetal.set)(_this10.context, 'name', 'Sophie');
       });
 
       this.assertText('inner.name: Sophie');
