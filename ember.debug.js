@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+583b8094
+ * @version   2.17.0-alpha.1-null+cc9568b4
  */
 
 /*global process */
@@ -10631,7 +10631,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
 
       var factory = _resolve(this, this.normalize(fullName), options);
-      if (factory === undefined && this.fallback) {
+      if (factory === undefined && this.fallback !== null) {
         var _fallback;
 
         factory = (_fallback = this.fallback).resolve.apply(_fallback, arguments);
@@ -10640,9 +10640,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.describe = function describe(fullName) {
-      if (this.resolver && this.resolver.lookupDescription) {
+      if (this.resolver !== null && this.resolver.lookupDescription) {
         return this.resolver.lookupDescription(fullName);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.describe(fullName);
       } else {
         return fullName;
@@ -10650,9 +10650,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.normalizeFullName = function normalizeFullName(fullName) {
-      if (this.resolver && this.resolver.normalize) {
+      if (this.resolver !== null && this.resolver.normalize) {
         return this.resolver.normalize(fullName);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.normalizeFullName(fullName);
       } else {
         return fullName;
@@ -10664,9 +10664,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.makeToString = function makeToString(factory, fullName) {
-      if (this.resolver && this.resolver.makeToString) {
+      if (this.resolver !== null && this.resolver.makeToString) {
         return this.resolver.makeToString(factory, fullName);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.makeToString(factory, fullName);
       } else {
         return factory.toString();
@@ -10689,7 +10689,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.getOptionsForType = function getOptionsForType(type) {
       var optionsForType = this._typeOptions[type];
-      if (optionsForType === undefined && this.fallback) {
+      if (optionsForType === undefined && this.fallback !== null) {
         optionsForType = this.fallback.getOptionsForType(type);
       }
       return optionsForType;
@@ -10706,7 +10706,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       var normalizedName = this.normalize(fullName);
       var options = this._options[normalizedName];
 
-      if (options === undefined && this.fallback) {
+      if (options === undefined && this.fallback !== null) {
         options = this.fallback.getOptions(fullName);
       }
       return options;
@@ -10724,7 +10724,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       if (options && options[optionName] !== undefined) {
         return options[optionName];
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.getOption(fullName, optionName);
       }
     };
@@ -10774,11 +10774,11 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         }
       }
 
-      if (this.fallback) {
+      if (this.fallback !== null) {
         fallbackKnown = this.fallback.knownForType(type);
       }
 
-      if (this.resolver && this.resolver.knownForType) {
+      if (this.resolver !== null && this.resolver.knownForType) {
         resolverKnown = this.resolver.knownForType(type);
       }
 
@@ -10799,7 +10799,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.getInjections = function getInjections(fullName) {
       var injections = this._injections[fullName] || [];
-      if (this.fallback) {
+      if (this.fallback !== null) {
         injections = injections.concat(this.fallback.getInjections(fullName));
       }
       return injections;
@@ -10807,7 +10807,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.getTypeInjections = function getTypeInjections(type) {
       var injections = this._typeInjections[type] || [];
-      if (this.fallback) {
+      if (this.fallback !== null) {
         injections = injections.concat(this.fallback.getTypeInjections(type));
       }
       return injections;
@@ -10822,7 +10822,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.expandLocalLookup = function expandLocalLookup(fullName, options) {
-      if (this.resolver && this.resolver.expandLocalLookup) {
+      if (this.resolver !== null && this.resolver.expandLocalLookup) {
         (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
         (true && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source));
         (true && !(this.validateFullName(options.source)) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source)));
@@ -10832,7 +10832,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         var normalizedSource = this.normalize(options.source);
 
         return _expandLocalLookup(this, normalizedFullName, normalizedSource);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.expandLocalLookup(fullName, options);
       } else {
         return null;
@@ -30594,27 +30594,20 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
     rootURL: (0, _emberRuntime.readOnly)('_router.rootURL'),
     _router: null,
 
-    transitionTo: function () {
-      var queryParams = void 0;
-
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
+    transitionTo: function (routeNameOrUrl) {
+      if (resemblesURL(routeNameOrUrl)) {
+        return this._router._doURLTransition('transitionTo', routeNameOrUrl);
       }
 
-      var arg = args[0];
-      if (resemblesURL(arg)) {
-        return this._router._doURLTransition('transitionTo', arg);
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
       }
 
-      var possibleQueryParams = args[args.length - 1];
-      if (possibleQueryParams && possibleQueryParams.hasOwnProperty('queryParams')) {
-        queryParams = args.pop().queryParams;
-      } else {
-        queryParams = {};
-      }
+      var _extractQueryParamsAr = this._extractQueryParamsArgument(args),
+          models = _extractQueryParamsAr.models,
+          queryParams = _extractQueryParamsAr.queryParams;
 
-      var targetRouteName = args.shift();
-      var transition = this._router._doTransition(targetRouteName, args, queryParams, true);
+      var transition = this._router._doTransition(routeNameOrUrl, models, queryParams, true);
       transition._keepDefaultQueryParamValues = true;
 
       return transition;
@@ -30627,14 +30620,16 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
 
       return (_router = this._router).generate.apply(_router, arguments);
     },
-    isActive: function () /* routeName, ...models, options */{
-      var _extractArguments = this._extractArguments.apply(this, arguments),
-          routeName = _extractArguments.routeName,
-          models = _extractArguments.models,
-          queryParams = _extractArguments.queryParams;
+    isActive: function (routeName) {
+      for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
+      var _extractQueryParamsAr2 = this._extractQueryParamsArgument(args),
+          models = _extractQueryParamsAr2.models,
+          queryParams = _extractQueryParamsAr2.queryParams;
 
       var routerMicrolib = this._router._routerMicrolib;
-      var state = routerMicrolib.state;
 
       if (!routerMicrolib.isActiveIntent(routeName, models, null)) {
         return false;
@@ -30643,25 +30638,22 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
 
       if (hasQueryParams) {
         this._router._prepareQueryParams(routeName, models, queryParams, true /* fromRouterService */);
-        return (0, _utils.shallowEqual)(queryParams, state.queryParams);
+        return (0, _utils.shallowEqual)(queryParams, routerMicrolib.state.queryParams);
       }
 
       return true;
     },
-    _extractArguments: function (routeName) {
-      for (var _len2 = arguments.length, models = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-        models[_key2 - 1] = arguments[_key2];
-      }
-
+    _extractQueryParamsArgument: function (models) {
       var possibleQueryParams = models[models.length - 1];
-      var queryParams = {};
 
+      var queryParams = void 0;
       if (possibleQueryParams && possibleQueryParams.hasOwnProperty('queryParams')) {
-        var options = models.pop();
-        queryParams = options.queryParams;
+        queryParams = models.pop().queryParams;
+      } else {
+        queryParams = {};
       }
 
-      return { routeName: routeName, models: models, queryParams: queryParams };
+      return { models: models, queryParams: queryParams };
     }
   });
 
@@ -34730,7 +34722,7 @@ enifed('ember-runtime/computed/computed_macros', ['exports', 'ember-metal', 'emb
   
     let teddy = User.create({
       firstName: 'Teddy',
-      lastName:  'Zeenny'
+      lastName: 'Zeenny'
     });
   
     teddy.get('nickName');              // 'Teddy'
@@ -47709,7 +47701,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+583b8094";
+  exports.default = "2.17.0-alpha.1-null+cc9568b4";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

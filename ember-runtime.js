@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+583b8094
+ * @version   2.17.0-alpha.1-null+cc9568b4
  */
 
 /*global process */
@@ -708,7 +708,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
 
       var factory = _resolve(this, this.normalize(fullName), options);
-      if (factory === undefined && this.fallback) {
+      if (factory === undefined && this.fallback !== null) {
         var _fallback;
 
         factory = (_fallback = this.fallback).resolve.apply(_fallback, arguments);
@@ -717,9 +717,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.describe = function describe(fullName) {
-      if (this.resolver && this.resolver.lookupDescription) {
+      if (this.resolver !== null && this.resolver.lookupDescription) {
         return this.resolver.lookupDescription(fullName);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.describe(fullName);
       } else {
         return fullName;
@@ -727,9 +727,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.normalizeFullName = function normalizeFullName(fullName) {
-      if (this.resolver && this.resolver.normalize) {
+      if (this.resolver !== null && this.resolver.normalize) {
         return this.resolver.normalize(fullName);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.normalizeFullName(fullName);
       } else {
         return fullName;
@@ -741,9 +741,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.makeToString = function makeToString(factory, fullName) {
-      if (this.resolver && this.resolver.makeToString) {
+      if (this.resolver !== null && this.resolver.makeToString) {
         return this.resolver.makeToString(factory, fullName);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.makeToString(factory, fullName);
       } else {
         return factory.toString();
@@ -766,7 +766,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.getOptionsForType = function getOptionsForType(type) {
       var optionsForType = this._typeOptions[type];
-      if (optionsForType === undefined && this.fallback) {
+      if (optionsForType === undefined && this.fallback !== null) {
         optionsForType = this.fallback.getOptionsForType(type);
       }
       return optionsForType;
@@ -783,7 +783,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       var normalizedName = this.normalize(fullName);
       var options = this._options[normalizedName];
 
-      if (options === undefined && this.fallback) {
+      if (options === undefined && this.fallback !== null) {
         options = this.fallback.getOptions(fullName);
       }
       return options;
@@ -801,7 +801,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       if (options && options[optionName] !== undefined) {
         return options[optionName];
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.getOption(fullName, optionName);
       }
     };
@@ -851,11 +851,11 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         }
       }
 
-      if (this.fallback) {
+      if (this.fallback !== null) {
         fallbackKnown = this.fallback.knownForType(type);
       }
 
-      if (this.resolver && this.resolver.knownForType) {
+      if (this.resolver !== null && this.resolver.knownForType) {
         resolverKnown = this.resolver.knownForType(type);
       }
 
@@ -876,7 +876,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.getInjections = function getInjections(fullName) {
       var injections = this._injections[fullName] || [];
-      if (this.fallback) {
+      if (this.fallback !== null) {
         injections = injections.concat(this.fallback.getInjections(fullName));
       }
       return injections;
@@ -884,7 +884,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.getTypeInjections = function getTypeInjections(type) {
       var injections = this._typeInjections[type] || [];
-      if (this.fallback) {
+      if (this.fallback !== null) {
         injections = injections.concat(this.fallback.getTypeInjections(type));
       }
       return injections;
@@ -899,7 +899,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.expandLocalLookup = function expandLocalLookup(fullName, options) {
-      if (this.resolver && this.resolver.expandLocalLookup) {
+      if (this.resolver !== null && this.resolver.expandLocalLookup) {
         (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
         (true && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source));
         (true && !(this.validateFullName(options.source)) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source)));
@@ -909,7 +909,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
         var normalizedSource = this.normalize(options.source);
 
         return _expandLocalLookup(this, normalizedFullName, normalizedSource);
-      } else if (this.fallback) {
+      } else if (this.fallback !== null) {
         return this.fallback.expandLocalLookup(fullName, options);
       } else {
         return null;
