@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+53223005
+ * @version   2.17.0-alpha.1-null+41899c64
  */
 
 /*global process */
@@ -15059,7 +15059,7 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
             var component = factory.create(props);
             var finalizer = (0, _emberMetal._instrumentStart)('render.component', initialRenderInstrumentDetails, component);
             dynamicScope.view = component;
-            if (parentView !== null) {
+            if (parentView !== null && parentView !== undefined) {
                 parentView.appendChild(component);
             }
             // We usually do this in the `didCreateElement`, but that hook doesn't fire for tagless components
@@ -15088,9 +15088,7 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
         CurlyComponentManager.prototype.layoutFor = function layoutFor(definition, bucket, env) {
             var template = definition.template;
             if (!template) {
-                var component = bucket.component;
-
-                template = this.templateFor(component, env);
+                template = this.templateFor(bucket.component, env);
             }
             return env.getCompiledBlock(CurlyComponentLayoutCompiler, template);
         };
@@ -15134,7 +15132,7 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
                 _bindings.IsVisibleBinding.install(element, component, operations);
             }
             if (classRef) {
-                operations.addDynamicAttribute(element, 'class', classRef);
+                operations.addDynamicAttribute(element, 'class', classRef, false);
             }
             if (classNames && classNames.length) {
                 classNames.forEach(function (name) {
@@ -18382,9 +18380,7 @@ enifed('ember-glimmer/helpers/each-in', ['exports', 'ember-utils'], function (ex
     @public
     @since 2.1.0
   */
-  var EACH_IN_REFERENCE = (0, _emberUtils.symbol)('EACH_IN'); /**
-                                                              @module ember
-                                                              */
+  var EACH_IN_REFERENCE = (0, _emberUtils.symbol)('EACH_IN');
   function isEachIn(ref) {
     return ref && ref[EACH_IN_REFERENCE];
   }
@@ -18793,9 +18789,6 @@ enifed('ember-glimmer/helpers/mut', ['exports', 'ember-debug', 'ember-utils', 'e
     @for Ember.Templates.helpers
     @public
   */
-  /**
-  @module ember
-  */
   var MUT_REFERENCE = (0, _emberUtils.symbol)('MUT');
   var SOURCE = (0, _emberUtils.symbol)('SOURCE');
   function isMut(ref) {
@@ -18827,9 +18820,6 @@ enifed('ember-glimmer/helpers/query-param', ['exports', 'ember-debug', 'ember-ro
       @param {Object} hash takes a hash of query parameters
       @return {Object} A `QueryParams` object for `{{link-to}}`
       @public
-    */
-    /**
-    @module ember
     */
     function queryParams(_ref) {
         var positional = _ref.positional,
@@ -19909,7 +19899,7 @@ enifed('ember-glimmer/syntax/dynamic-component', ['exports', 'ember-babel', '@gl
             if (typeof nameOrDef === 'string') {
                 var definition = env.getComponentDefinition(nameOrDef, meta);
                 // tslint:disable-next-line:max-line-length
-                (true && !(definition) && (0, _emberDebug.assert)('Could not find component named "' + nameOrDef + '" (no component or template with that name was found)', definition));
+                (true && !(!!definition) && (0, _emberDebug.assert)('Could not find component named "' + nameOrDef + '" (no component or template with that name was found)', !!definition));
 
                 return definition;
             } else if ((0, _runtime.isComponentDefinition)(nameOrDef)) {
@@ -20103,9 +20093,7 @@ enifed('ember-glimmer/syntax/mount', ['exports', 'ember-babel', 'ember-debug', '
     'use strict';
 
     exports.mountMacro = mountMacro;
-    /**
-    @module ember
-    */
+
     function dynamicEngineFor(vm, args, meta) {
         var env = vm.env;
         var nameRef = args.positional.at(0);
@@ -20499,9 +20487,6 @@ enifed("ember-glimmer/template_registry", ["exports"], function (exports) {
     exports.getTemplate = getTemplate;
     exports.hasTemplate = hasTemplate;
     exports.setTemplate = setTemplate;
-    // STATE within a module is frowned upon, this exists
-    // to support Ember.TEMPLATES but shield ember internals from this legacy
-    // global API.
     var TEMPLATES = {};
     function setTemplates(templates) {
         TEMPLATES = templates;
@@ -20623,7 +20608,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
             if (attribute === 'style') {
                 reference = new StyleBindingReference(reference, referenceForKey(component, 'isVisible'));
             }
-            operations.addDynamicAttribute(element, attribute, reference);
+            operations.addDynamicAttribute(element, attribute, reference, false);
         }
     };
     var DISPLAY_NONE = 'display: none;';
@@ -20661,7 +20646,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
 
     var IsVisibleBinding = exports.IsVisibleBinding = {
         install: function (element, component, operations) {
-            operations.addDynamicAttribute(element, 'style', (0, _reference.map)(referenceForKey(component, 'isVisible'), this.mapStyleValue));
+            operations.addDynamicAttribute(element, 'style', (0, _reference.map)(referenceForKey(component, 'isVisible'), this.mapStyleValue), false);
         },
         mapStyleValue: function (isVisible) {
             return isVisible === false ? SAFE_DISPLAY_NONE : null;
@@ -20679,7 +20664,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
                 operations.addStaticAttribute(element, 'class', truthy);
             } else {
                 var isPath = prop.indexOf('.') > -1;
-                var parts = isPath && prop.split('.');
+                var parts = isPath ? prop.split('.') : [];
                 var value = isPath ? referenceForParts(component, parts) : referenceForKey(component, prop);
                 var ref = void 0;
                 if (truthy === undefined) {
@@ -20687,7 +20672,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
                 } else {
                     ref = new ColonClassNameBindingReference(value, truthy, falsy);
                 }
-                operations.addDynamicAttribute(element, 'class', ref);
+                operations.addDynamicAttribute(element, 'class', ref, false);
             }
         }
     };
@@ -30339,7 +30324,7 @@ enifed('ember-routing/location/none_location', ['exports', 'ember-metal', 'ember
       Sets the path and calls the `updateURL` callback.
        @private
       @method handleURL
-      @param callback {Function}
+      @param url {String}
     */
     handleURL: function (url) {
       (0, _emberMetal.set)(this, 'path', url);
@@ -47682,7 +47667,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+53223005";
+  exports.default = "2.17.0-alpha.1-null+41899c64";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
