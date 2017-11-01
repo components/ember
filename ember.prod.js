@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.4-null+92e6fb53
+ * @version   2.17.0-beta.4-null+ed7d7424
  */
 
 var enifed, requireModule, Ember;
@@ -5307,14 +5307,15 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
                 value;
             var partialSymbols = partial.symbolTable.symbols;
             var outerScope = vm.scope();
+            var evalScope = outerScope.getEvalScope();
             var partialScope = vm.pushRootScope(partialSymbols.length, false);
             partialScope.bindCallerScope(outerScope.getCallerScope());
-            partialScope.bindEvalScope(outerScope.getEvalScope());
+            partialScope.bindEvalScope(evalScope);
             partialScope.bindSelf(outerScope.getSelf());
             var evalInfo = this.evalInfo,
                 outerSymbols = this.outerSymbols;
 
-            var locals = (0, _util.dict)();
+            var locals = Object.create(outerScope.getPartialMap());
             for (i = 0; i < evalInfo.length; i++) {
                 slot = evalInfo[i];
                 name = outerSymbols[slot - 1];
@@ -5322,13 +5323,14 @@ enifed('@glimmer/runtime', ['exports', '@glimmer/util', '@glimmer/reference', '@
 
                 locals[name] = ref;
             }
-            var evalScope = outerScope.getEvalScope();
-            for (_i2 = 0; _i2 < partialSymbols.length; _i2++) {
-                _name = partialSymbols[_i2];
-                symbol = _i2 + 1;
-                value = evalScope[_name];
+            if (evalScope) {
+                for (_i2 = 0; _i2 < partialSymbols.length; _i2++) {
+                    _name = partialSymbols[_i2];
+                    symbol = _i2 + 1;
+                    value = evalScope[_name];
 
-                if (value !== undefined) partialScope.bind(symbol, value);
+                    if (value !== undefined) partialScope.bind(symbol, value);
+                }
             }
             partialScope.bindPartialMap(locals);
             vm.pushFrame();
@@ -44480,7 +44482,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-beta.4-null+92e6fb53";
+  exports.default = "2.17.0-beta.4-null+ed7d7424";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
