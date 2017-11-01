@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+cc9568b4
+ * @version   2.17.0-alpha.1-null+4b550353
  */
 
 /*global process */
@@ -44707,13 +44707,11 @@ enifed('ember-utils', ['exports'], function (exports) {
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  function generateGuid(obj, prefix) {
-    if (!prefix) {
-      prefix = GUID_PREFIX;
-    }
+  function generateGuid(obj) {
+    var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : GUID_PREFIX;
 
     var ret = prefix + uuid();
-    if (obj) {
+    if (obj !== undefined && obj !== null) {
       if (obj[GUID_KEY] === null) {
         obj[GUID_KEY] = ret;
       } else {
@@ -44744,14 +44742,6 @@ enifed('ember-utils', ['exports'], function (exports) {
     @return {String} the unique guid for this instance.
   */
   function guidFor(obj) {
-    var type = typeof obj;
-    var isObject = type === 'object' && obj !== null;
-    var isFunction = type === 'function';
-
-    if ((isObject || isFunction) && obj[GUID_KEY]) {
-      return obj[GUID_KEY];
-    }
-
     // special cases where we don't want to add a key to object
     if (obj === undefined) {
       return '(undefined)';
@@ -44761,8 +44751,12 @@ enifed('ember-utils', ['exports'], function (exports) {
       return '(null)';
     }
 
-    var ret = void 0;
+    var type = typeof obj;
+    if ((type === 'object' || type === 'function') && obj[GUID_KEY]) {
+      return obj[GUID_KEY];
+    }
 
+    var ret = void 0;
     // Don't allow prototype changes to String etc. to change the guidFor
     switch (type) {
       case 'number':
@@ -44795,20 +44789,7 @@ enifed('ember-utils', ['exports'], function (exports) {
           return '(Array)';
         }
 
-        ret = GUID_PREFIX + uuid();
-
-        if (obj[GUID_KEY] === null) {
-          obj[GUID_KEY] = ret;
-        } else {
-          GUID_DESC.value = ret;
-
-          if (obj.__defineNonEnumerable) {
-            obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
-          } else {
-            Object.defineProperty(obj, GUID_KEY, GUID_DESC);
-          }
-        }
-        return ret;
+        return generateGuid(obj);
     }
   }
 
@@ -47701,7 +47682,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+cc9568b4";
+  exports.default = "2.17.0-alpha.1-null+4b550353";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

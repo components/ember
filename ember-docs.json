@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.cc9568b4"
+        "version": "2.17.0-alpha.1.4b550353"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -16824,7 +16824,7 @@
         },
         {
             "file": "packages/ember-utils/lib/guid.js",
-            "line": 115,
+            "line": 111,
             "description": "Returns a unique id for the object. If the object does not yet have a guid,\none will be assigned to it. You can call this on any object,\n`Ember.Object`-based or not, but be aware that it will add a `_guid`\nproperty.\n\nYou can also use this method on DOM Element objects.",
             "access": "public",
             "tagname": "",

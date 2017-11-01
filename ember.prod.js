@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+cc9568b4
+ * @version   2.17.0-alpha.1-null+4b550353
  */
 
 /*global process */
@@ -40985,7 +40985,7 @@ enifed('ember-utils', ['exports'], function (exports) {
    @type String
    @final
    */
-  var GUID_PREFIX = 'ember';
+
 
   // Used for guid generation...
   var numberCache = [];
@@ -41042,7 +41042,24 @@ enifed('ember-utils', ['exports'], function (exports) {
       separate the guid into separate namespaces.
     @return {String} the guid
   */
+  function generateGuid(obj) {
+    var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ember';
 
+    var ret = prefix + uuid();
+    if (obj !== undefined && obj !== null) {
+      if (obj[GUID_KEY] === null) {
+        obj[GUID_KEY] = ret;
+      } else {
+        GUID_DESC.value = ret;
+        if (obj.__defineNonEnumerable) {
+          obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
+        } else {
+          Object.defineProperty(obj, GUID_KEY, GUID_DESC);
+        }
+      }
+    }
+    return ret;
+  }
 
   /**
     Returns a unique id for the object. If the object does not yet have a guid,
@@ -41459,34 +41476,8 @@ enifed('ember-utils', ['exports'], function (exports) {
   exports.GUID_KEY = GUID_KEY;
   exports.GUID_DESC = GUID_DESC;
   exports.GUID_KEY_PROPERTY = GUID_KEY_PROPERTY;
-  exports.generateGuid = function (obj, prefix) {
-    if (!prefix) {
-      prefix = GUID_PREFIX;
-    }
-
-    var ret = prefix + uuid();
-    if (obj) {
-      if (obj[GUID_KEY] === null) {
-        obj[GUID_KEY] = ret;
-      } else {
-        GUID_DESC.value = ret;
-        if (obj.__defineNonEnumerable) {
-          obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
-        } else {
-          Object.defineProperty(obj, GUID_KEY, GUID_DESC);
-        }
-      }
-    }
-    return ret;
-  };
+  exports.generateGuid = generateGuid;
   exports.guidFor = function (obj) {
-    var type = typeof obj;
-
-
-    if ((type === 'object' && obj !== null || type === 'function') && obj[GUID_KEY]) {
-      return obj[GUID_KEY];
-    }
-
     // special cases where we don't want to add a key to object
     if (obj === undefined) {
       return '(undefined)';
@@ -41496,8 +41487,12 @@ enifed('ember-utils', ['exports'], function (exports) {
       return '(null)';
     }
 
-    var ret = void 0;
+    var type = typeof obj;
+    if ((type === 'object' || type === 'function') && obj[GUID_KEY]) {
+      return obj[GUID_KEY];
+    }
 
+    var ret = void 0;
     // Don't allow prototype changes to String etc. to change the guidFor
     switch (type) {
       case 'number':
@@ -41530,20 +41525,7 @@ enifed('ember-utils', ['exports'], function (exports) {
           return '(Array)';
         }
 
-        ret = GUID_PREFIX + uuid();
-
-        if (obj[GUID_KEY] === null) {
-          obj[GUID_KEY] = ret;
-        } else {
-          GUID_DESC.value = ret;
-
-          if (obj.__defineNonEnumerable) {
-            obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
-          } else {
-            Object.defineProperty(obj, GUID_KEY, GUID_DESC);
-          }
-        }
-        return ret;
+        return generateGuid(obj);
     }
   };
   exports.intern = intern;
@@ -43999,7 +43981,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+cc9568b4";
+  exports.default = "2.17.0-alpha.1-null+4b550353";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
