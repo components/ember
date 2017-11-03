@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+21889aba
+ * @version   2.17.0-alpha.1-null+00c4c82a
  */
 
 /*global process */
@@ -14949,7 +14949,9 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
         }
     }
     function tagName(vm) {
-        var tagName = vm.dynamicScope().view.tagName;
+        var dynamicScope = vm.dynamicScope();
+        // tslint:disable-next-line:no-shadowed-variable
+        var tagName = dynamicScope.view.tagName;
 
         return _runtime.PrimitiveReference.create(tagName === '' ? null : tagName || 'div');
     }
@@ -15134,6 +15136,7 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
                 _bindings.IsVisibleBinding.install(element, component, operations);
             }
             if (classRef) {
+                // TODO should make addDynamicAttribute accept an opaque
                 operations.addDynamicAttribute(element, 'class', classRef, false);
             }
             if (classNames && classNames.length) {
@@ -15280,6 +15283,7 @@ enifed('ember-glimmer/component-managers/curly', ['exports', 'ember-babel', '@gl
     var CurlyComponentDefinition = exports.CurlyComponentDefinition = function (_ComponentDefinition) {
         (0, _emberBabel.inherits)(CurlyComponentDefinition, _ComponentDefinition);
 
+        // tslint:disable-next-line:no-shadowed-variable
         function CurlyComponentDefinition(name, ComponentClass, template, args, customManager) {
             (0, _emberBabel.classCallCheck)(this, CurlyComponentDefinition);
 
@@ -15556,7 +15560,7 @@ enifed('ember-glimmer/component-managers/outlet', ['exports', 'ember-babel', '@g
 
     OutletLayoutCompiler.id = 'outlet';
 });
-enifed('ember-glimmer/component-managers/render', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-routing', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract', 'ember-glimmer/component-managers/outlet'], function (exports, _emberBabel, _runtime, _emberRouting, _references, _abstract, _outlet) {
+enifed('ember-glimmer/component-managers/render', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-routing', 'ember-glimmer/utils/references', 'ember-glimmer/component-managers/abstract', 'ember-glimmer/component-managers/outlet'], function (exports, _emberBabel, _runtime, _emberDebug, _emberRouting, _references, _abstract, _outlet) {
     'use strict';
 
     exports.RenderDefinition = exports.NON_SINGLETON_RENDER_MANAGER = exports.SINGLETON_RENDER_MANAGER = exports.AbstractRenderManager = undefined;
@@ -15570,6 +15574,9 @@ enifed('ember-glimmer/component-managers/render', ['exports', 'ember-babel', '@g
         }
 
         AbstractRenderManager.prototype.layoutFor = function layoutFor(definition, _bucket, env) {
+            // only curly components can have lazy layout
+            (true && !(!!definition.template) && (0, _emberDebug.assert)('definition is missing a template', !!definition.template));
+
             return env.getCompiledBlock(_outlet.OutletLayoutCompiler, definition.template);
         };
 
@@ -20345,6 +20352,7 @@ enifed('ember-glimmer/syntax/render', ['exports', '@glimmer/reference', 'ember-d
             // tslint:disable-next-line:max-line-length
             (true && !((0, _reference.isConst)(controllerNameRef)) && (0, _emberDebug.assert)('The controller argument for {{render}} must be quoted, e.g. {{render "sidebar" controller="foo"}}.', (0, _reference.isConst)(controllerNameRef)));
 
+            // TODO should be ensuring this to string here
             controllerName = controllerNameRef.value();
             // tslint:disable-next-line:max-line-length
             (true && !(env.owner.hasRegistration('controller:' + controllerName)) && (0, _emberDebug.assert)('The controller name you supplied \'' + controllerName + '\' did not resolve to a controller.', env.owner.hasRegistration('controller:' + controllerName)));
@@ -20744,6 +20752,7 @@ enifed('ember-glimmer/utils/bindings', ['exports', 'ember-babel', '@glimmer/refe
 enifed('ember-glimmer/utils/curly-component-state-bucket', ['exports', 'ember-babel'], function (exports, _emberBabel) {
     'use strict';
 
+    // tslint:disable-next-line:no-empty
     function NOOP() {}
     /**
       @module ember
@@ -47669,7 +47678,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+21889aba";
+  exports.default = "2.17.0-alpha.1-null+00c4c82a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
