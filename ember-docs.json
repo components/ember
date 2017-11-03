@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.880d5ddb"
+        "version": "2.17.0-alpha.1.cb3234dc"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -10798,7 +10798,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 2074,
+            "line": 2073,
             "description": "Disconnects a view that has been rendered into an outlet.\n\nYou may pass any or all of the following options to `disconnectOutlet`:\n\n* `outlet`: the name of the outlet to clear (default: 'main')\n* `parentView`: the name of the view containing the outlet to clear\n   (default: the view rendered by the parent route)\n\nExample:\n\n```app/routes/application.js\nimport Route from '@ember/routing/route';\n\nexport default Route.extend({\n  actions: {\n    showModal(evt) {\n      this.render(evt.modalName, {\n        outlet: 'modal',\n        into: 'application'\n      });\n    },\n\n    hideModal(evt) {\n      this.disconnectOutlet({\n        outlet: 'modal',\n        parentView: 'application'\n      });\n    }\n  }\n});\n```\n\nAlternatively, you can pass the `outlet` name directly as a string.\n\nExample:\n\n```app/routes/application.js\nimport Route from '@ember/routing/route';\n\nexport default Route.extend({\n  actions: {\n    showModal(evt) {\n      // ...\n    },\n    hideModal(evt) {\n      this.disconnectOutlet('modal');\n    }\n  }\n});\n\t```",
             "itemtype": "method",
             "name": "disconnectOutlet",
@@ -10817,7 +10817,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/route.js",
-            "line": 2191,
+            "line": 2190,
             "access": "private",
             "tagname": "",
             "itemtype": "method",

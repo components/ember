@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+880d5ddb
+ * @version   2.17.0-alpha.1-null+cb3234dc
  */
 
 /*global process */
@@ -32242,15 +32242,14 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
     },
     render: function (_name, options) {
       var name = void 0;
-      var isDefaultRender = true;
-      if (arguments.length > 0) {
-        (true && !(!(0, _emberMetal.isNone)(_name)) && (0, _emberDebug.assert)('The name in the given arguments is undefined', !(0, _emberMetal.isNone)(_name)));
-
-        isDefaultRender = (0, _emberMetal.isEmpty)(_name);
+      var isDefaultRender = arguments.length === 0;
+      if (!isDefaultRender) {
         if (typeof _name === 'object' && !options) {
           name = this.templateName || this.routeName;
           options = _name;
         } else {
+          (true && !(!(0, _emberMetal.isEmpty)(_name)) && (0, _emberDebug.assert)('The name in the given arguments is undefined or empty string', !(0, _emberMetal.isEmpty)(_name)));
+
           name = _name;
         }
       }
@@ -47754,7 +47753,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+880d5ddb";
+  exports.default = "2.17.0-alpha.1-null+cb3234dc";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
