@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+00c4c82a
+ * @version   2.17.0-alpha.1-null+880d5ddb
  */
 
 /*global process */
@@ -10497,7 +10497,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
      */
 
     Container.prototype.lookup = function (fullName, options) {
-      false && !this.registry.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      false && !this.registry.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.isValidFullName(fullName));
 
       return _lookup(this, this.registry.normalize(fullName), options);
     };
@@ -10531,7 +10531,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
       var normalizedName = this.registry.normalize(fullName);
 
-      false && !this.registry.validateFullName(normalizedName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName));
+      false && !this.registry.isValidFullName(normalizedName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.isValidFullName(normalizedName));
 
       if (options.source) {
         expandedFullName = this.registry.expandLocalLookup(fullName, options);
@@ -10936,7 +10936,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
 
     Registry.prototype.register = function (fullName, factory) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      false && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
       false && !(factory !== undefined) && (0, _emberDebug.assert)('Attempting to register an unknown factory: \'' + fullName + '\'', factory !== undefined);
 
       var normalizedName = this.normalize(fullName);
@@ -10948,7 +10948,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     };
 
     Registry.prototype.unregister = function (fullName) {
-      false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      false && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
 
@@ -10961,7 +10961,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     };
 
     Registry.prototype.resolve = function (fullName, options) {
-      false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      false && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
 
       var factory = _resolve(this, this.normalize(fullName), options),
           _fallback;
@@ -11063,7 +11063,7 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     };
 
     Registry.prototype.typeInjection = function (type, property, fullName) {
-      false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      false && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
 
       var fullNameType = fullName.split(':')[0];
       false && !(fullNameType !== type) && (0, _emberDebug.assert)('Cannot inject a \'' + fullName + '\' on other ' + type + '(s).', fullNameType !== type);
@@ -11074,14 +11074,15 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
     };
 
     Registry.prototype.injection = function (fullName, property, injectionName) {
-      this.validateFullName(injectionName);
+      false && !this.isValidFullName(injectionName) && (0, _emberDebug.assert)('Invalid injectionName, expected: \'type:name\' got: ' + injectionName, this.isValidFullName(injectionName));
+
       var normalizedInjectionName = this.normalize(injectionName);
 
       if (fullName.indexOf(':') === -1) {
         return this.typeInjection(fullName, property, normalizedInjectionName);
       }
 
-      false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+      false && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
 
@@ -11120,14 +11121,6 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       return (0, _emberUtils.assign)({}, fallbackKnown, localKnown, resolverKnown);
     };
 
-    Registry.prototype.validateFullName = function (fullName) {
-      if (!this.isValidFullName(fullName)) {
-        throw new TypeError('Invalid Fullname, expected: \'type:name\' got: ' + fullName);
-      }
-
-      return true;
-    };
-
     Registry.prototype.isValidFullName = function (fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
     };
@@ -11160,9 +11153,9 @@ enifed('container', ['exports', 'ember-utils', 'ember-debug', 'ember/features'],
       var normalizedFullName, normalizedSource;
 
       if (this.resolver !== null && this.resolver.expandLocalLookup) {
-        false && !this.validateFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName));
+        false && !this.isValidFullName(fullName) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName));
         false && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source);
-        false && !this.validateFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source));
+        false && !this.isValidFullName(options.source) && (0, _emberDebug.assert)('options.source must be a proper full name', this.isValidFullName(options.source));
 
         normalizedFullName = this.normalize(fullName);
         normalizedSource = this.normalize(options.source);
@@ -22027,6 +22020,149 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return ObserverSet;
   }();
 
+  /**
+   @module ember
+  */
+  var id = 0;
+
+  // Returns whether Type(value) is Object according to the terminology in the spec
+  function isObject$1(value) {
+    return typeof value === 'object' && value !== null || typeof value === 'function';
+  }
+
+  /*
+   * @class Ember.WeakMap
+   * @public
+   * @category ember-metal-weakmap
+   *
+   * A partial polyfill for [WeakMap](http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects).
+   *
+   * There is a small but important caveat. This implementation assumes that the
+   * weak map will live longer (in the sense of garbage collection) than all of its
+   * keys, otherwise it is possible to leak the values stored in the weak map. In
+   * practice, most use cases satisfy this limitation which is why it is included
+   * in ember-metal.
+   */
+  var WeakMapPolyfill = function () {
+    function WeakMapPolyfill(iterable) {
+      var i, _iterable$i, key, value;
+
+      this._id = emberUtils.GUID_KEY + id++;
+
+      if (iterable === null || iterable === undefined) {} else if (Array.isArray(iterable)) {
+        for (i = 0; i < iterable.length; i++) {
+          _iterable$i = iterable[i], key = _iterable$i[0], value = _iterable$i[1];
+
+
+          this.set(key, value);
+        }
+      } else {
+        throw new TypeError('The weak map constructor polyfill only supports an array argument');
+      }
+    }
+
+    /*
+     * @method get
+     * @param key {Object | Function}
+     * @return {Any} stored value
+     */
+
+    WeakMapPolyfill.prototype.get = function (obj) {
+      if (!isObject$1(obj)) {
+        return undefined;
+      }
+
+      var meta$$1 = exports.peekMeta(obj),
+          map,
+          val;
+      if (meta$$1 !== undefined) {
+        map = meta$$1.readableWeak();
+
+        if (map !== undefined) {
+          val = map[this._id];
+
+          if (val === UNDEFINED) {
+            return undefined;
+          }
+          return val;
+        }
+      }
+    };
+
+    /*
+     * @method set
+     * @param key {Object | Function}
+     * @param value {Any}
+     * @return {WeakMap} the weak map
+     */
+
+    WeakMapPolyfill.prototype.set = function (obj, value) {
+      if (!isObject$1(obj)) {
+        throw new TypeError('Invalid value used as weak map key');
+      }
+
+      if (value === undefined) {
+        value = UNDEFINED;
+      }
+
+      meta(obj).writableWeak()[this._id] = value;
+
+      return this;
+    };
+
+    /*
+     * @method has
+     * @param key {Object | Function}
+     * @return {boolean} if the key exists
+     */
+
+    WeakMapPolyfill.prototype.has = function (obj) {
+      if (!isObject$1(obj)) {
+        return false;
+      }
+
+      var meta$$1 = exports.peekMeta(obj),
+          map;
+      if (meta$$1 !== undefined) {
+        map = meta$$1.readableWeak();
+
+        if (map !== undefined) {
+          return map[this._id] !== undefined;
+        }
+      }
+
+      return false;
+    };
+
+    /*
+     * @method delete
+     * @param key {Object | Function}
+     * @return {boolean} if the key was deleted
+     */
+
+    WeakMapPolyfill.prototype.delete = function (obj) {
+      if (this.has(obj)) {
+        delete exports.peekMeta(obj).writableWeak()[this._id];
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    /*
+     * @method toString
+     * @return {String}
+     */
+
+    WeakMapPolyfill.prototype.toString = function () {
+      return '[object WeakMap]';
+    };
+
+    return WeakMapPolyfill;
+  }();
+
+  var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
+
   exports.runInTransaction = void 0;
 
 
@@ -24962,149 +25098,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Logger.error(getStack(error));
     }
   }
-
-  /**
-   @module ember
-  */
-  var id = 0;
-
-  // Returns whether Type(value) is Object according to the terminology in the spec
-  function isObject$1(value) {
-    return typeof value === 'object' && value !== null || typeof value === 'function';
-  }
-
-  /*
-   * @class Ember.WeakMap
-   * @public
-   * @category ember-metal-weakmap
-   *
-   * A partial polyfill for [WeakMap](http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects).
-   *
-   * There is a small but important caveat. This implementation assumes that the
-   * weak map will live longer (in the sense of garbage collection) than all of its
-   * keys, otherwise it is possible to leak the values stored in the weak map. In
-   * practice, most use cases satisfy this limitation which is why it is included
-   * in ember-metal.
-   */
-  var WeakMapPolyfill = function () {
-    function WeakMapPolyfill(iterable) {
-      var i, _iterable$i, key, value;
-
-      this._id = emberUtils.GUID_KEY + id++;
-
-      if (iterable === null || iterable === undefined) {} else if (Array.isArray(iterable)) {
-        for (i = 0; i < iterable.length; i++) {
-          _iterable$i = iterable[i], key = _iterable$i[0], value = _iterable$i[1];
-
-
-          this.set(key, value);
-        }
-      } else {
-        throw new TypeError('The weak map constructor polyfill only supports an array argument');
-      }
-    }
-
-    /*
-     * @method get
-     * @param key {Object | Function}
-     * @return {Any} stored value
-     */
-
-    WeakMapPolyfill.prototype.get = function (obj) {
-      if (!isObject$1(obj)) {
-        return undefined;
-      }
-
-      var meta$$1 = exports.peekMeta(obj),
-          map,
-          val;
-      if (meta$$1 !== undefined) {
-        map = meta$$1.readableWeak();
-
-        if (map !== undefined) {
-          val = map[this._id];
-
-          if (val === UNDEFINED) {
-            return undefined;
-          }
-          return val;
-        }
-      }
-    };
-
-    /*
-     * @method set
-     * @param key {Object | Function}
-     * @param value {Any}
-     * @return {WeakMap} the weak map
-     */
-
-    WeakMapPolyfill.prototype.set = function (obj, value) {
-      if (!isObject$1(obj)) {
-        throw new TypeError('Invalid value used as weak map key');
-      }
-
-      if (value === undefined) {
-        value = UNDEFINED;
-      }
-
-      meta(obj).writableWeak()[this._id] = value;
-
-      return this;
-    };
-
-    /*
-     * @method has
-     * @param key {Object | Function}
-     * @return {boolean} if the key exists
-     */
-
-    WeakMapPolyfill.prototype.has = function (obj) {
-      if (!isObject$1(obj)) {
-        return false;
-      }
-
-      var meta$$1 = exports.peekMeta(obj),
-          map;
-      if (meta$$1 !== undefined) {
-        map = meta$$1.readableWeak();
-
-        if (map !== undefined) {
-          return map[this._id] !== undefined;
-        }
-      }
-
-      return false;
-    };
-
-    /*
-     * @method delete
-     * @param key {Object | Function}
-     * @return {boolean} if the key was deleted
-     */
-
-    WeakMapPolyfill.prototype.delete = function (obj) {
-      if (this.has(obj)) {
-        delete exports.peekMeta(obj).writableWeak()[this._id];
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    /*
-     * @method toString
-     * @return {String}
-     */
-
-    WeakMapPolyfill.prototype.toString = function () {
-      return '[object WeakMap]';
-    };
-
-    return WeakMapPolyfill;
-  }();
-
-  var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
 
   /**
    @module @ember/utils
@@ -29788,7 +29781,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
     _router: null,
 
     transitionTo: function (routeNameOrUrl) {
-      if (resemblesURL(routeNameOrUrl)) {
+      if ((0, _utils.resemblesURL)(routeNameOrUrl)) {
         return this._router._doURLTransition('transitionTo', routeNameOrUrl);
       }
 
@@ -29855,10 +29848,6 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
       return { models: models, queryParams: queryParams };
     }
   });
-
-  function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str[0] === '/');
-  }
 
   exports.default = RouterService;
 });
@@ -30323,10 +30312,12 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       return;
     }
 
-    var name = params[0];
-    var object = {};
+    var object = {},
+        name;
 
     if (params.length === 1) {
+      name = params[0];
+
       if (name in model) {
         object[name] = (0, _emberMetal.get)(model, name);
       } else if (/_id$/.test(name)) {
@@ -31975,7 +31966,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
 
       var arg = args[0];
-      if (resemblesURL(arg)) {
+      if ((0, _utils.resemblesURL)(arg)) {
         return this._doURLTransition('transitionTo', arg);
       }
 
@@ -32915,10 +32906,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     });
   }
 
-  function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str[0] === '/');
-  }
-
   function forEachQueryParam(router, handlerInfos, queryParams, callback) {
     var qpCache = router._queryParamsFor(handlerInfos),
         value,
@@ -33191,6 +33178,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
 
     return qpMap;
   };
+  exports.resemblesURL = resemblesURL;
   exports.prefixRouteNameArg =
 
   /*
@@ -33300,7 +33288,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
     @private
   */
   function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
+    return typeof str === 'string' && (str === '' || str[0] === '/');
   }
 });
 enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtime/mixins/comparable'], function (exports, _utils, _comparable) {
@@ -43974,7 +43962,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+00c4c82a";
+  exports.default = "2.17.0-alpha.1-null+880d5ddb";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

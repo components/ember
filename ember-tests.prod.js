@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+00c4c82a
+ * @version   2.17.0-alpha.1-null+880d5ddb
  */
 
 /*global process */
@@ -585,12 +585,12 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-metal', 'ember/f
     assert.deepEqual(factoryManager.class, Component, 'No double extend');
   });
 
-  QUnit.test('#factoryFor must supply a fullname', function (assert) {
+  QUnit.test('#factoryFor must supply a fullname', function () {
     var registry = new _container.Registry();
     var container = registry.container();
-    assert.throws(function () {
+    expectAssertion(function () {
       container.factoryFor('chad-bar');
-    }, /Invalid Fullname, expected: 'type:name' got: chad-bar/);
+    }, /fullName must be a proper full name/);
   });
 
   QUnit.test('#factoryFor returns a factory manager', function (assert) {
@@ -948,26 +948,6 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers', '
     var isPresent = registry.has('controller:normalized');
 
     equal(isPresent, true, 'Normalizes the name when checking if the factory or instance is present');
-  });
-
-  QUnit.test('validateFullName throws an error if name is incorrect', function () {
-    expect(2);
-
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalize = function () {
-      return 'controller:post';
-    };
-
-    registry.register('controller:post', PostController);
-    throws(function () {
-      registry.validateFullName('post');
-    }, /TypeError: Invalid Fullname, expected: 'type:name' got: post/);
-
-    throws(function () {
-      registry.validateFullName('route:http://foo.bar.com/baz');
-    }, /TypeError: Invalid Fullname, expected: 'type:name' got: route:http:\/\/foo.bar.com\/baz/);
   });
 
   QUnit.test('The registry normalizes names when injecting', function () {
@@ -2417,33 +2397,33 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
       assert.equal(this.applicationInstance.lookup('controller:nested-post'), this.applicationInstance.lookup('controller:nested_post'), 'looks up NestedPost controller on application');
     };
 
-    _class.prototype['@test the default resolver throws an error if the fullName to resolve is invalid'] = function (assert) {
+    _class.prototype['@test the default resolver throws an error if the fullName to resolve is invalid'] = function () {
       var _this3 = this;
 
-      assert.throws(function () {
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(undefined);
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(null);
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(':');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('model');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('model:');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(':type');
-      }, TypeError, /Invalid fullName/);
+      }, /fullName must be a proper full name/);
     };
 
     _class.prototype['@test lookup description'] = function (assert) {

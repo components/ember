@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+00c4c82a
+ * @version   2.17.0-alpha.1-null+880d5ddb
  */
 
 /*global process */
@@ -10132,7 +10132,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
 
     Container.prototype.lookup = function lookup(fullName, options) {
-      (true && !(this.registry.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(fullName)));
+      (true && !(this.registry.isValidFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.isValidFullName(fullName)));
 
       return _lookup(this, this.registry.normalize(fullName), options);
     };
@@ -10165,7 +10165,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       var normalizedName = this.registry.normalize(fullName);
 
-      (true && !(this.registry.validateFullName(normalizedName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.validateFullName(normalizedName)));
+      (true && !(this.registry.isValidFullName(normalizedName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.registry.isValidFullName(normalizedName)));
 
 
       if (options.source) {
@@ -10602,7 +10602,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.register = function register(fullName, factory) {
       var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+      (true && !(this.isValidFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName)));
       (true && !(factory !== undefined) && (0, _emberDebug.assert)('Attempting to register an unknown factory: \'' + fullName + '\'', factory !== undefined));
 
 
@@ -10616,7 +10616,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.unregister = function unregister(fullName) {
-      (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+      (true && !(this.isValidFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName)));
 
 
       var normalizedName = this.normalize(fullName);
@@ -10630,7 +10630,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.resolve = function resolve(fullName, options) {
-      (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+      (true && !(this.isValidFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName)));
 
       var factory = _resolve(this, this.normalize(fullName), options);
       if (factory === undefined && this.fallback !== null) {
@@ -10732,7 +10732,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.typeInjection = function typeInjection(type, property, fullName) {
-      (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+      (true && !(this.isValidFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName)));
 
 
       var fullNameType = fullName.split(':')[0];
@@ -10745,14 +10745,16 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     };
 
     Registry.prototype.injection = function injection(fullName, property, injectionName) {
-      this.validateFullName(injectionName);
+      (true && !(this.isValidFullName(injectionName)) && (0, _emberDebug.assert)('Invalid injectionName, expected: \'type:name\' got: ' + injectionName, this.isValidFullName(injectionName)));
+
+
       var normalizedInjectionName = this.normalize(injectionName);
 
       if (fullName.indexOf(':') === -1) {
         return this.typeInjection(fullName, property, normalizedInjectionName);
       }
 
-      (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+      (true && !(this.isValidFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName)));
 
       var normalizedName = this.normalize(fullName);
 
@@ -10787,14 +10789,6 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       return (0, _emberUtils.assign)({}, fallbackKnown, localKnown, resolverKnown);
     };
 
-    Registry.prototype.validateFullName = function validateFullName(fullName) {
-      if (!this.isValidFullName(fullName)) {
-        throw new TypeError('Invalid Fullname, expected: \'type:name\' got: ' + fullName);
-      }
-
-      return true;
-    };
-
     Registry.prototype.isValidFullName = function isValidFullName(fullName) {
       return VALID_FULL_NAME_REGEXP.test(fullName);
     };
@@ -10825,9 +10819,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
     Registry.prototype.expandLocalLookup = function expandLocalLookup(fullName, options) {
       if (this.resolver !== null && this.resolver.expandLocalLookup) {
-        (true && !(this.validateFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.validateFullName(fullName)));
+        (true && !(this.isValidFullName(fullName)) && (0, _emberDebug.assert)('fullName must be a proper full name', this.isValidFullName(fullName)));
         (true && !(options && options.source) && (0, _emberDebug.assert)('options.source must be provided to expandLocalLookup', options && options.source));
-        (true && !(this.validateFullName(options.source)) && (0, _emberDebug.assert)('options.source must be a proper full name', this.validateFullName(options.source)));
+        (true && !(this.isValidFullName(options.source)) && (0, _emberDebug.assert)('options.source must be a proper full name', this.isValidFullName(options.source)));
 
 
         var normalizedFullName = this.normalize(fullName);
@@ -10856,7 +10850,7 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
       for (var key in hash) {
         if (hash.hasOwnProperty(key)) {
-          (true && !(this.validateFullName(hash[key])) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key])));
+          (true && !(this.isValidFullName(hash[key])) && (0, _emberDebug.assert)('Expected a proper full name, given \'' + hash[key] + '\'', this.isValidFullName(hash[key])));
 
 
           injections.push({
@@ -22601,6 +22595,146 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return ObserverSet;
   }();
 
+  /**
+   @module ember
+  */
+  var id = 0;
+
+  // Returns whether Type(value) is Object according to the terminology in the spec
+  function isObject$1(value) {
+    return typeof value === 'object' && value !== null || typeof value === 'function';
+  }
+
+  /*
+   * @class Ember.WeakMap
+   * @public
+   * @category ember-metal-weakmap
+   *
+   * A partial polyfill for [WeakMap](http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects).
+   *
+   * There is a small but important caveat. This implementation assumes that the
+   * weak map will live longer (in the sense of garbage collection) than all of its
+   * keys, otherwise it is possible to leak the values stored in the weak map. In
+   * practice, most use cases satisfy this limitation which is why it is included
+   * in ember-metal.
+   */
+  var WeakMapPolyfill = function () {
+    function WeakMapPolyfill(iterable) {
+      emberBabel.classCallCheck(this, WeakMapPolyfill);
+
+      this._id = emberUtils.GUID_KEY + id++;
+
+      if (iterable === null || iterable === undefined) {
+        return;
+      } else if (Array.isArray(iterable)) {
+        for (var i = 0; i < iterable.length; i++) {
+          var _iterable$i = iterable[i],
+              key = _iterable$i[0],
+              value = _iterable$i[1];
+
+          this.set(key, value);
+        }
+      } else {
+        throw new TypeError('The weak map constructor polyfill only supports an array argument');
+      }
+    }
+
+    /*
+     * @method get
+     * @param key {Object | Function}
+     * @return {Any} stored value
+     */
+
+    WeakMapPolyfill.prototype.get = function get(obj) {
+      if (!isObject$1(obj)) {
+        return undefined;
+      }
+
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1 !== undefined) {
+        var map = meta$$1.readableWeak();
+        if (map !== undefined) {
+          var val = map[this._id];
+          if (val === UNDEFINED) {
+            return undefined;
+          }
+          return val;
+        }
+      }
+    };
+
+    /*
+     * @method set
+     * @param key {Object | Function}
+     * @param value {Any}
+     * @return {WeakMap} the weak map
+     */
+
+    WeakMapPolyfill.prototype.set = function set(obj, value) {
+      if (!isObject$1(obj)) {
+        throw new TypeError('Invalid value used as weak map key');
+      }
+
+      if (value === undefined) {
+        value = UNDEFINED;
+      }
+
+      meta(obj).writableWeak()[this._id] = value;
+
+      return this;
+    };
+
+    /*
+     * @method has
+     * @param key {Object | Function}
+     * @return {boolean} if the key exists
+     */
+
+    WeakMapPolyfill.prototype.has = function has(obj) {
+      if (!isObject$1(obj)) {
+        return false;
+      }
+
+      var meta$$1 = exports.peekMeta(obj);
+      if (meta$$1 !== undefined) {
+        var map = meta$$1.readableWeak();
+        if (map !== undefined) {
+          return map[this._id] !== undefined;
+        }
+      }
+
+      return false;
+    };
+
+    /*
+     * @method delete
+     * @param key {Object | Function}
+     * @return {boolean} if the key was deleted
+     */
+
+    WeakMapPolyfill.prototype.delete = function _delete(obj) {
+      if (this.has(obj)) {
+        delete exports.peekMeta(obj).writableWeak()[this._id];
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    /*
+     * @method toString
+     * @return {String}
+     */
+
+    WeakMapPolyfill.prototype.toString = function toString$$1() {
+      return '[object WeakMap]';
+    };
+
+    return WeakMapPolyfill;
+  }();
+
+  var WeakMap$1 = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
+
   exports.runInTransaction = void 0;
   exports.didRender = void 0;
   exports.assertNotRendered = void 0;
@@ -22608,80 +22742,200 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
   if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-    var counter = 0;
-    var inTransaction = false;
-    var shouldReflush = void 0;
-    var debugStack = void 0;
 
-    exports.runInTransaction = function (context$$1, methodName) {
-      shouldReflush = false;
-      inTransaction = true;
-      {
-        debugStack = context$$1.env.debugStack;
-      }
-      context$$1[methodName]();
-      inTransaction = false;
-      counter++;
-      return shouldReflush;
-    };
+    // there are 4 states
 
-    exports.didRender = function (object, key, reference) {
-      if (!inTransaction) {
-        return;
-      }
-      var meta$$1 = meta(object);
-      var lastRendered = meta$$1.writableLastRendered();
-      lastRendered[key] = counter;
+    // NATIVE WEAKMAP AND DEBUG
+    // tracks lastRef and lastRenderedIn per rendered object and key during a transaction
+    // release everything via normal weakmap semantics by just derefencing the weakmap
 
-      {
-        var referenceMap = meta$$1.writableLastRenderedReferenceMap();
-        referenceMap[key] = reference;
+    // NATIVE WEAKMAP AND RELEASE
+    // tracks transactionId per rendered object and key during a transaction
+    // release everything via normal weakmap semantics by just derefencing the weakmap
 
-        var templateMap = meta$$1.writableLastRenderedTemplateMap();
-        if (templateMap[key] === undefined) {
-          templateMap[key] = debugStack.peek();
+    // WEAKMAP POLYFILL AND DEBUG
+    // tracks lastRef and lastRenderedIn per rendered object and key during a transaction
+    // since lastRef retains a lot of app state (will have a ref to the Container)
+    // if the object rendered is retained (like a immutable POJO in module state)
+    // during acceptance tests this adds up and obfuscates finding other leaks.
+
+    // WEAKMAP POLYFILL AND RELEASE
+    // tracks transactionId per rendered object and key during a transaction
+    // leaks it because small and likely not worth tracking it since it will only
+    // be leaked if the object is retained
+
+    var TransactionRunner = function () {
+      function TransactionRunner() {
+        emberBabel.classCallCheck(this, TransactionRunner);
+
+        this.transactionId = 0;
+        this.inTransaction = false;
+        this.shouldReflush = false;
+        this.weakMap = new WeakMap$1();
+        {
+          // track templates
+          this.debugStack = undefined;
+
+          if (!emberUtils.HAS_NATIVE_WEAKMAP) {
+            // DEBUG AND POLYFILL
+            // needs obj tracking
+            this.objs = [];
+          }
         }
       }
-    };
 
-    exports.assertNotRendered = function (object, key, _meta) {
-      var meta$$1 = _meta || meta(object);
-      var lastRendered = meta$$1.readableLastRendered();
+      TransactionRunner.prototype.runInTransaction = function runInTransaction(context$$1, methodName) {
+        this.before(context$$1);
+        try {
+          context$$1[methodName]();
+        } finally {
+          this.after();
+        }
+        return this.shouldReflush;
+      };
 
-      if (lastRendered && lastRendered[key] === counter) {
+      TransactionRunner.prototype.didRender = function didRender(object, key, reference) {
+        if (!this.inTransaction) {
+          return;
+        }
         {
-          var templateMap = meta$$1.readableLastRenderedTemplateMap();
-          var lastRenderedIn = templateMap[key];
-          var currentlyIn = debugStack.peek();
+          this.setKey(object, key, {
+            lastRef: reference,
+            lastRenderedIn: this.debugStack.peek()
+          });
+        }
+      };
 
-          var referenceMap = meta$$1.readableLastRenderedReferenceMap();
-          var lastRef = referenceMap[key];
-          var parts = [];
-          var label = void 0;
+      TransactionRunner.prototype.assertNotRendered = function assertNotRendered(object, key) {
+        if (!this.inTransaction) {
+          return;
+        }
+        if (this.hasRendered(object, key)) {
+          {
+            var _getKey = this.getKey(object, key),
+                lastRef = _getKey.lastRef,
+                lastRenderedIn = _getKey.lastRenderedIn;
 
-          if (lastRef) {
-            while (lastRef && lastRef._propertyKey) {
-              parts.unshift(lastRef._propertyKey);
-              lastRef = lastRef._parentReference;
+            var currentlyIn = this.debugStack.peek();
+
+            var parts = [];
+            var label = void 0;
+
+            if (lastRef !== undefined) {
+              while (lastRef && lastRef._propertyKey) {
+                parts.unshift(lastRef._propertyKey);
+                lastRef = lastRef._parentReference;
+              }
+
+              label = parts.join('.');
+            } else {
+              label = 'the same value';
             }
 
-            label = parts.join('.');
-          } else {
-            label = 'the same value';
+            var message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
+
+            if (ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+              true && !false && emberDebug.deprecate(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
+            } else {
+              true && !false && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
+            }
           }
 
-          var message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
+          this.shouldReflush = true;
+        }
+      };
 
-          if (ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-            true && !false && emberDebug.deprecate(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
-          } else {
-            true && !false && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
+      TransactionRunner.prototype.hasRendered = function hasRendered(object, key) {
+        if (!this.inTransaction) {
+          return false;
+        }
+        {
+          return this.getKey(object, key) !== undefined;
+        }
+        return this.getKey(object, key) === this.transactionId;
+      };
+
+      TransactionRunner.prototype.before = function before(context$$1) {
+        this.inTransaction = true;
+        this.shouldReflush = false;
+        {
+          this.debugStack = context$$1.env.debugStack;
+        }
+      };
+
+      TransactionRunner.prototype.after = function after() {
+        this.transactionId++;
+        this.inTransaction = false;
+        {
+          this.debugStack = undefined;
+        }
+        this.clearObjectMap();
+      };
+
+      TransactionRunner.prototype.createMap = function createMap(object) {
+        var map = Object.create(null);
+        this.weakMap.set(object, map);
+        if (true && !emberUtils.HAS_NATIVE_WEAKMAP) {
+          // POLYFILL AND DEBUG
+          // requires tracking objects
+          this.objs.push(object);
+        }
+        return map;
+      };
+
+      TransactionRunner.prototype.getOrCreateMap = function getOrCreateMap(object) {
+        var map = this.weakMap.get(object);
+        if (map === undefined) {
+          map = this.createMap(object);
+        }
+        return map;
+      };
+
+      TransactionRunner.prototype.setKey = function setKey(object, key, value) {
+        var map = this.getOrCreateMap(object);
+        map[key] = value;
+      };
+
+      TransactionRunner.prototype.getKey = function getKey(object, key) {
+        var map = this.weakMap.get(object);
+        if (map !== undefined) {
+          return map[key];
+        }
+      };
+
+      TransactionRunner.prototype.clearObjectMap = function clearObjectMap() {
+        if (emberUtils.HAS_NATIVE_WEAKMAP) {
+          // NATIVE AND (DEBUG OR RELEASE)
+          // if we have a real native weakmap
+          // releasing the ref will allow the values to be GCed
+          this.weakMap = new WeakMap$1();
+        } else {
+          // POLYFILL AND DEBUG
+          // with a polyfill the weakmap keys must be cleared since
+          // they have the last reference, acceptance tests will leak
+          // the container if you render a immutable object retained
+          // in module scope.
+          var objs = this.objs,
+              weakMap = this.weakMap;
+
+          this.objs = [];
+          for (var i = 0; i < objs.length; i++) {
+            weakMap.delete(objs[i]);
           }
         }
+        // POLYFILL AND RELEASE
+        // we leak the key map if the object is retained but this is
+        // a POJO of keys to transaction ids
+      };
 
-        shouldReflush = true;
-      }
-    };
+      return TransactionRunner;
+    }();
+
+    var runner = new TransactionRunner();
+
+    exports.runInTransaction = runner.runInTransaction.bind(runner);
+    exports.didRender = runner.didRender.bind(runner);
+    exports.assertNotRendered = runner.assertNotRendered.bind(runner);
   } else {
     // in production do nothing to detect reflushes
     exports.runInTransaction = function (context$$1, methodName) {
@@ -23842,14 +24096,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       // inherited, and we can optimize it much better than JS runtimes.
       this.parent = parentMeta;
 
-      if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-        this._lastRendered = undefined;
-        {
-          this._lastRenderedReferenceMap = undefined;
-          this._lastRenderedTemplateMap = undefined;
-        }
-      }
-
       this._listeners = undefined;
       this._listenersFinalized = false;
       this._suspendedListeners = undefined;
@@ -24216,29 +24462,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     return Meta;
   }();
-
-  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-    Meta.prototype.writableLastRendered = function () {
-      return this._getOrCreateOwnMap('_lastRendered');
-    };
-    Meta.prototype.readableLastRendered = function () {
-      return this._lastRendered;
-    };
-    {
-      Meta.prototype.writableLastRenderedReferenceMap = function () {
-        return this._getOrCreateOwnMap('_lastRenderedReferenceMap');
-      };
-      Meta.prototype.readableLastRenderedReferenceMap = function () {
-        return this._lastRenderedReferenceMap;
-      };
-      Meta.prototype.writableLastRenderedTemplateMap = function () {
-        return this._getOrCreateOwnMap('_lastRenderedTemplateMap');
-      };
-      Meta.prototype.readableLastRenderedTemplateMap = function () {
-        return this._lastRenderedTemplateMap;
-      };
-    }
-  }
 
   for (var name in protoMethods) {
     Meta.prototype[name] = protoMethods[name];
@@ -25967,146 +26190,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Logger.error(getStack(error));
     }
   }
-
-  /**
-   @module ember
-  */
-  var id = 0;
-
-  // Returns whether Type(value) is Object according to the terminology in the spec
-  function isObject$1(value) {
-    return typeof value === 'object' && value !== null || typeof value === 'function';
-  }
-
-  /*
-   * @class Ember.WeakMap
-   * @public
-   * @category ember-metal-weakmap
-   *
-   * A partial polyfill for [WeakMap](http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects).
-   *
-   * There is a small but important caveat. This implementation assumes that the
-   * weak map will live longer (in the sense of garbage collection) than all of its
-   * keys, otherwise it is possible to leak the values stored in the weak map. In
-   * practice, most use cases satisfy this limitation which is why it is included
-   * in ember-metal.
-   */
-  var WeakMapPolyfill = function () {
-    function WeakMapPolyfill(iterable) {
-      emberBabel.classCallCheck(this, WeakMapPolyfill);
-
-      this._id = emberUtils.GUID_KEY + id++;
-
-      if (iterable === null || iterable === undefined) {
-        return;
-      } else if (Array.isArray(iterable)) {
-        for (var i = 0; i < iterable.length; i++) {
-          var _iterable$i = iterable[i],
-              key = _iterable$i[0],
-              value = _iterable$i[1];
-
-          this.set(key, value);
-        }
-      } else {
-        throw new TypeError('The weak map constructor polyfill only supports an array argument');
-      }
-    }
-
-    /*
-     * @method get
-     * @param key {Object | Function}
-     * @return {Any} stored value
-     */
-
-    WeakMapPolyfill.prototype.get = function get(obj) {
-      if (!isObject$1(obj)) {
-        return undefined;
-      }
-
-      var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1 !== undefined) {
-        var map = meta$$1.readableWeak();
-        if (map !== undefined) {
-          var val = map[this._id];
-          if (val === UNDEFINED) {
-            return undefined;
-          }
-          return val;
-        }
-      }
-    };
-
-    /*
-     * @method set
-     * @param key {Object | Function}
-     * @param value {Any}
-     * @return {WeakMap} the weak map
-     */
-
-    WeakMapPolyfill.prototype.set = function set(obj, value) {
-      if (!isObject$1(obj)) {
-        throw new TypeError('Invalid value used as weak map key');
-      }
-
-      if (value === undefined) {
-        value = UNDEFINED;
-      }
-
-      meta(obj).writableWeak()[this._id] = value;
-
-      return this;
-    };
-
-    /*
-     * @method has
-     * @param key {Object | Function}
-     * @return {boolean} if the key exists
-     */
-
-    WeakMapPolyfill.prototype.has = function has(obj) {
-      if (!isObject$1(obj)) {
-        return false;
-      }
-
-      var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1 !== undefined) {
-        var map = meta$$1.readableWeak();
-        if (map !== undefined) {
-          return map[this._id] !== undefined;
-        }
-      }
-
-      return false;
-    };
-
-    /*
-     * @method delete
-     * @param key {Object | Function}
-     * @return {boolean} if the key was deleted
-     */
-
-    WeakMapPolyfill.prototype.delete = function _delete(obj) {
-      if (this.has(obj)) {
-        delete exports.peekMeta(obj).writableWeak()[this._id];
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    /*
-     * @method toString
-     * @return {String}
-     */
-
-    WeakMapPolyfill.prototype.toString = function toString$$1() {
-      return '[object WeakMap]';
-    };
-
-    return WeakMapPolyfill;
-  }();
-
-  var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
 
   /**
    @module @ember/utils
@@ -29275,7 +29358,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.getWithDefault = getWithDefault;
   exports.set = set;
   exports.trySet = trySet;
-  exports.WeakMap = weak_map;
+  exports.WeakMap = WeakMap$1;
   exports.WeakMapPolyfill = WeakMapPolyfill;
   exports.addListener = addListener;
   exports.hasListeners = hasListeners;
@@ -30591,7 +30674,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
     _router: null,
 
     transitionTo: function (routeNameOrUrl) {
-      if (resemblesURL(routeNameOrUrl)) {
+      if ((0, _utils.resemblesURL)(routeNameOrUrl)) {
         return this._router._doURLTransition('transitionTo', routeNameOrUrl);
       }
 
@@ -30652,10 +30735,6 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
       return { models: models, queryParams: queryParams };
     }
   });
-
-  function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str[0] === '/');
-  }
 
   exports.default = RouterService;
 });
@@ -31097,10 +31176,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-utils', 'ember-metal', '
       return;
     }
 
-    var name = params[0];
     var object = {};
 
     if (params.length === 1) {
+      var name = params[0];
       if (name in model) {
         object[name] = (0, _emberMetal.get)(model, name);
       } else if (/_id$/.test(name)) {
@@ -32721,7 +32800,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       }
 
       var arg = args[0];
-      if (resemblesURL(arg)) {
+      if ((0, _utils.resemblesURL)(arg)) {
         return this._doURLTransition('transitionTo', arg);
       }
 
@@ -33623,10 +33702,6 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
     });
   }
 
-  function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str[0] === '/');
-  }
-
   function forEachQueryParam(router, handlerInfos, queryParams, callback) {
     var qpCache = router._queryParamsFor(handlerInfos);
 
@@ -33771,6 +33846,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
   exports.stashParamNames = stashParamNames;
   exports.calculateCacheKey = calculateCacheKey;
   exports.normalizeControllerQueryParams = normalizeControllerQueryParams;
+  exports.resemblesURL = resemblesURL;
   exports.prefixRouteNameArg = prefixRouteNameArg;
   exports.shallowEqual = shallowEqual;
 
@@ -33945,7 +34021,7 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
     @private
   */
   function resemblesURL(str) {
-    return typeof str === 'string' && (str === '' || str.charAt(0) === '/');
+    return typeof str === 'string' && (str === '' || str[0] === '/');
   }
 
   /*
@@ -47678,7 +47754,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+00c4c82a";
+  exports.default = "2.17.0-alpha.1-null+880d5ddb";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
