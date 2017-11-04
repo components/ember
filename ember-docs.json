@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.cb3234dc"
+        "version": "2.17.0-alpha.1.fd983637"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -15567,7 +15567,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/native_array.js",
-            "line": 106,
+            "line": 107,
             "description": "Creates an `Ember.NativeArray` from an Array-like object.\nDoes not modify the original object's contents. Ember.A is not needed if\n`EmberENV.EXTEND_PROTOTYPES` is `true` (the default value). However,\nit is recommended that you use Ember.A when creating addons for\nember or when you can not guarantee that `EmberENV.EXTEND_PROTOTYPES`\nwill be `true`.\n\nExample\n\n```app/components/my-component.js\nimport Component from '@ember/component';\n\nexport default Component.extend({\n  tagName: 'ul',\n  classNames: ['pagination'],\n\n  init() {\n    this._super(...arguments);\n\n    if (!this.get('content')) {\n      this.set('content', Ember.A());\n      this.set('otherContent', Ember.A([1,2,3]));\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "A",

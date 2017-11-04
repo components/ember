@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+cb3234dc
+ * @version   2.17.0-alpha.1-null+fd983637
  */
 
 /*global process */
@@ -34390,7 +34390,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
       this.assertText('Hello Planet EarthGlobe World');
 
       this.runTask(function () {
-        return _this11.replace(2, 4, { text: 'my' });
+        return _this11.replace(2, 4, [{ text: 'my' }]);
       });
 
       this.assertText('Hello my World');
@@ -35094,7 +35094,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         (0, _emberMetal.get)(_this37.context, 'first').pushObject('I');
-        (0, _emberMetal.get)(_this37.context, 'ninth').replace(0, 1, 'K');
+        (0, _emberMetal.get)(_this37.context, 'ninth').replace(0, 1, ['K']);
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
@@ -35126,7 +35126,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         var name = (0, _emberMetal.get)(_this38.context, 'name');
-        name.objectAt(0).replace(0, 1, 'lady');
+        name.objectAt(0).replace(0, 1, ['lady']);
         name.pushObject(['bird']);
       });
 
@@ -35926,7 +35926,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         var array = (0, _emberMetal.get)(_this9.context, 'arrayThing');
-        array.replace(0, 1, 'Goodbye');
+        array.replace(0, 1, ['Goodbye']);
         (0, _emberRuntime.removeAt)(array, 1);
         array.insertAt(1, ', ');
         array.pushObject('!');
@@ -50969,8 +50969,8 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
       var items = obj.get('items');
 
-      items.replace(0, 1, jaime);
-      items.replace(1, 1, jaimeInDisguise);
+      items.replace(0, 1, [jaime]);
+      items.replace(1, 1, [jaimeInDisguise]);
 
       deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
@@ -53488,7 +53488,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   });
 
   QUnit.test('should notify array observer when array changes', function () {
-    (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, 6);
+    (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, [6]);
     equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
   });
 
@@ -61124,6 +61124,27 @@ QUnit.module('ESLint | ember-runtime/tests/system/native_array/copyable_suite_te
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/system/native_array/copyable_suite_test.js should pass ESLint\n\n');
+});
+
+enifed('ember-runtime/tests/system/native_array/replace_test', ['ember-runtime/system/native_array'], function (_native_array) {
+  'use strict';
+
+  QUnit.module('NativeArray.replace');
+
+  QUnit.test('raises assertion if third argument is not an array', function () {
+    expectAssertion(function () {
+      (0, _native_array.A)([1, 2, 3]).replace(1, 1, '');
+    }, 'The third argument to replace needs to be an array.');
+  });
+
+  QUnit.test('it does not raise an assertion if third parameter is not passed', function () {
+    deepEqual((0, _native_array.A)([1, 2, 3]).replace(1, 2), (0, _native_array.A)([1]), 'no assertion raised');
+  });
+});
+QUnit.module('ESLint | ember-runtime/tests/system/native_array/replace_test.js');
+QUnit.test('should pass ESLint', function(assert) {
+  assert.expect(1);
+  assert.ok(true, 'ember-runtime/tests/system/native_array/replace_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/system/native_array/suite_test', ['ember-runtime/system/native_array', 'ember-runtime/tests/suites/mutable_array'], function (_native_array, _mutable_array) {

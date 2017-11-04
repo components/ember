@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+cb3234dc
+ * @version   2.17.0-alpha.1-null+fd983637
  */
 
 /*global process */
@@ -40964,6 +40964,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
     },
     replace: function (idx, amt, objects) {
       (true && !(!this.isFrozen) && (0, _emberDebug.assert)(_freezable.FROZEN_ERROR, !this.isFrozen));
+      (true && !(objects === null || objects === undefined || Array.isArray(objects)) && (0, _emberDebug.assert)('The third argument to replace needs to be an array.', objects === null || objects === undefined || Array.isArray(objects)));
 
 
       // if we replaced exactly the same number of items, then pass only the
@@ -47753,7 +47754,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+cb3234dc";
+  exports.default = "2.17.0-alpha.1-null+fd983637";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
