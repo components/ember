@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+fd983637
+ * @version   2.17.0-alpha.1-null+0780f0e9
  */
 
 /*global process */
@@ -78234,8 +78234,30 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         });
       };
 
-      _class.prototype['@test RouterService#transitionTo with unspecified query params'] = function testRouterServiceTransitionToWithUnspecifiedQueryParams(assert) {
+      _class.prototype['@test RouterService#transitionTo passing only queryParams works'] = function testRouterServiceTransitionToPassingOnlyQueryParamsWorks(assert) {
         var _this10 = this;
+
+        assert.expect(2);
+
+        this.add('controller:parent.child', _emberRuntime.Controller.extend({
+          queryParams: ['sort']
+        }));
+
+        var queryParams = this.buildQueryParams({ sort: 'DESC' });
+
+        return this.visit('/').then(function () {
+          return _this10.routerService.transitionTo('parent.child');
+        }).then(function () {
+          assert.equal(_this10.routerService.get('currentURL'), '/child');
+        }).then(function () {
+          return _this10.routerService.transitionTo(queryParams);
+        }).then(function () {
+          assert.equal(_this10.routerService.get('currentURL'), '/child?sort=DESC');
+        });
+      };
+
+      _class.prototype['@test RouterService#transitionTo with unspecified query params'] = function testRouterServiceTransitionToWithUnspecifiedQueryParams(assert) {
+        var _this11 = this;
 
         assert.expect(1);
 
@@ -78249,14 +78271,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var queryParams = this.buildQueryParams({ sort: 'ASC' });
 
         return this.visit('/').then(function () {
-          return _this10.routerService.transitionTo('parent.child', queryParams);
+          return _this11.routerService.transitionTo('parent.child', queryParams);
         }).then(function () {
-          assert.equal(_this10.routerService.get('currentURL'), '/child?sort=ASC');
+          assert.equal(_this11.routerService.get('currentURL'), '/child?sort=ASC');
         });
       };
 
       _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key'] = function testRouterServiceTransitionToWithAliasedQueryParamsUsesTheOriginalProvidedKey(assert) {
-        var _this11 = this;
+        var _this12 = this;
 
         assert.expect(1);
 
@@ -78270,14 +78292,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
         var queryParams = this.buildQueryParams({ url_sort: 'ASC' });
 
         return this.visit('/').then(function () {
-          return _this11.routerService.transitionTo('parent.child', queryParams);
+          return _this12.routerService.transitionTo('parent.child', queryParams);
         }).then(function () {
-          assert.equal(_this11.routerService.get('currentURL'), '/child?url_sort=ASC');
+          assert.equal(_this12.routerService.get('currentURL'), '/child?url_sort=ASC');
         });
       };
 
       _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key when controller property name'] = function testRouterServiceTransitionToWithAliasedQueryParamsUsesTheOriginalProvidedKeyWhenControllerPropertyName(assert) {
-        var _this12 = this;
+        var _this13 = this;
 
         assert.expect(1);
 
@@ -78292,7 +78314,7 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
 
         return this.visit('/').then(function () {
           expectAssertion(function () {
-            return _this12.routerService.transitionTo('parent.child', queryParams);
+            return _this13.routerService.transitionTo('parent.child', queryParams);
           }, 'You passed the `cont_sort` query parameter during a transition into parent.child, please update to url_sort');
         });
       };

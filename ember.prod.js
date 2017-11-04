@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+fd983637
+ * @version   2.17.0-alpha.1-null+0780f0e9
  */
 
 /*global process */
@@ -16350,15 +16350,18 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
     loading: (0, _emberMetal.computed)('_modelsAreLoaded', 'qualifiedRouteName', function () {
       var qualifiedRouteName = (0, _emberMetal.get)(this, 'qualifiedRouteName');
       var modelsAreLoaded = (0, _emberMetal.get)(this, '_modelsAreLoaded');
-      if (!modelsAreLoaded || qualifiedRouteName == null) {
+      if (!modelsAreLoaded || qualifiedRouteName === null || qualifiedRouteName === undefined) {
         return (0, _emberMetal.get)(this, 'loadingClass');
       }
     }),
     _modelsAreLoaded: (0, _emberMetal.computed)('models', function () {
       var models = (0, _emberMetal.get)(this, 'models'),
-          i;
+          i,
+          model;
       for (i = 0; i < models.length; i++) {
-        if (models[i] == null) {
+        model = models[i];
+
+        if (model === null || model === undefined) {
           return false;
         }
       }
@@ -18886,6 +18889,7 @@ enifed('ember-glimmer/protocol-for-url', ['exports', 'ember-environment', 'node-
             // Otherwise, we need to fall back to our own URL parsing.
             // Global `require` is shadowed by Ember's loader so we have to use the fully
             // qualified `module.require`.
+            // tslint:disable-next-line:no-require-imports
             nodeURL = (0, _nodeModule.require)('url');
             environment.protocolForURL = nodeProtocolForURL;
         } else {
@@ -21126,7 +21130,7 @@ enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (expor
             // don't escape SafeStrings, since they're already safe
             if (string && string.toHTML) {
                 return string.toHTML();
-            } else if (string == null) {
+            } else if (string === null || string === undefined) {
                 return '';
             } else if (!string) {
                 return string + '';
@@ -29780,23 +29784,24 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
     rootURL: (0, _emberRuntime.readOnly)('_router.rootURL'),
     _router: null,
 
-    transitionTo: function (routeNameOrUrl) {
-      if ((0, _utils.resemblesURL)(routeNameOrUrl)) {
-        return this._router._doURLTransition('transitionTo', routeNameOrUrl);
+    transitionTo: function () {
+      for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
       }
 
-      for (_len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
+      if ((0, _utils.resemblesURL)(args[0])) {
+        return this._router._doURLTransition('transitionTo', args[0]);
       }
 
-      var _extractQueryParamsAr = this._extractQueryParamsArgument(args),
-          models = _extractQueryParamsAr.models,
-          queryParams = _extractQueryParamsAr.queryParams,
+      var _extractRouteArgs = (0, _utils.extractRouteArgs)(args),
+          routeName = _extractRouteArgs.routeName,
+          models = _extractRouteArgs.models,
+          queryParams = _extractRouteArgs.queryParams,
           _len,
           args,
           _key;
 
-      var transition = this._router._doTransition(routeNameOrUrl, models, queryParams, true);
+      var transition = this._router._doTransition(routeName, models, queryParams, true);
       transition._keepDefaultQueryParamValues = true;
 
       return transition;
@@ -29809,14 +29814,15 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
 
       return (_router = this._router).generate.apply(_router, arguments);
     },
-    isActive: function (routeName) {
-      for (_len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-        args[_key2 - 1] = arguments[_key2];
+    isActive: function () {
+      for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
       }
 
-      var _extractQueryParamsAr2 = this._extractQueryParamsArgument(args),
-          models = _extractQueryParamsAr2.models,
-          queryParams = _extractQueryParamsAr2.queryParams,
+      var _extractRouteArgs2 = (0, _utils.extractRouteArgs)(args),
+          routeName = _extractRouteArgs2.routeName,
+          models = _extractRouteArgs2.models,
+          queryParams = _extractRouteArgs2.queryParams,
           _len2,
           args,
           _key2;
@@ -29834,18 +29840,6 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
       }
 
       return true;
-    },
-    _extractQueryParamsArgument: function (models) {
-      var possibleQueryParams = models[models.length - 1];
-
-      var queryParams = void 0;
-      if (possibleQueryParams && possibleQueryParams.hasOwnProperty('queryParams')) {
-        queryParams = models.pop().queryParams;
-      } else {
-        queryParams = {};
-      }
-
-      return { models: models, queryParams: queryParams };
     }
   });
 
@@ -31955,29 +31949,23 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       return transition;
     },
     transitionTo: function () {
-      var queryParams = void 0,
-          _len,
-          args,
-          _key;
-
       for (_len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
-      var arg = args[0];
-      if ((0, _utils.resemblesURL)(arg)) {
-        return this._doURLTransition('transitionTo', arg);
+      if ((0, _utils.resemblesURL)(args[0])) {
+        return this._doURLTransition('transitionTo', args[0]);
       }
 
-      var possibleQueryParams = args[args.length - 1];
-      if (possibleQueryParams && possibleQueryParams.hasOwnProperty('queryParams')) {
-        queryParams = args.pop().queryParams;
-      } else {
-        queryParams = {};
-      }
+      var _extractRouteArgs = (0, _utils.extractRouteArgs)(args),
+          routeName = _extractRouteArgs.routeName,
+          models = _extractRouteArgs.models,
+          queryParams = _extractRouteArgs.queryParams,
+          _len,
+          args,
+          _key;
 
-      var targetRouteName = args.shift();
-      return this._doTransition(targetRouteName, args, queryParams);
+      return this._doTransition(routeName, models, queryParams);
     },
     intermediateTransitionTo: function () {
       var _routerMicrolib;
@@ -33052,6 +33040,21 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-utils', 'ember-ro
 enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-debug'], function (exports, _emberUtils, _emberMetal, _emberDebug) {
   'use strict';
 
+  exports.extractRouteArgs = function (args) {
+    args = args.slice();
+    var possibleQueryParams = args[args.length - 1];
+
+    var queryParams = void 0;
+    if (possibleQueryParams && possibleQueryParams.hasOwnProperty('queryParams')) {
+      queryParams = args.pop().queryParams;
+    } else {
+      queryParams = {};
+    }
+
+    var routeName = args.shift();
+
+    return { routeName: routeName, models: args, queryParams: queryParams };
+  };
   exports.routeArgs = function (targetRouteName, models, queryParams) {
     var args = [];
     if (typeof targetRouteName === 'string') {
@@ -43962,7 +43965,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+fd983637";
+  exports.default = "2.17.0-alpha.1-null+0780f0e9";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
