@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+16e2aabc
+ * @version   2.17.0-alpha.1-null+8109f90b
  */
 
 /*global process */
@@ -38952,6 +38952,24 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
 
   exports.default = _emberMetal.Mixin.create({
     target: null,
+    targetObject: (0, _emberMetal.descriptor)({
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        var message = this + ' Usage of `targetObject` is deprecated. Please use `target` instead.';
+
+        false && !false && (0, _emberDebug.deprecate)(message, false, { id: 'ember-runtime.using-targetObject', until: '3.5.0' });
+
+        return this._targetObject;
+      },
+      set: function (value) {
+        var message = this + ' Usage of `targetObject` is deprecated. Please use `target` instead.';
+
+        false && !false && (0, _emberDebug.deprecate)(message, false, { id: 'ember-runtime.using-targetObject', until: '3.5.0' });
+
+        this._targetObject = value;
+      }
+    }),
     action: null,
     actionContext: null,
 
@@ -39058,21 +39076,8 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
   });
 
   function getTarget(instance) {
-    // TODO: Deprecate specifying `targetObject`
-    var target = (0, _emberMetal.get)(instance, 'targetObject'),
+    var target = (0, _emberMetal.get)(instance, 'target'),
         value;
-
-    // if a `targetObject` CP was provided, use it
-    if (target) {
-      return target;
-    }
-
-    // if _targetObject use it
-    if (instance._targetObject) {
-      return instance._targetObject;
-    }
-
-    target = (0, _emberMetal.get)(instance, 'target');
     if (target) {
       if (typeof target === 'string') {
         value = (0, _emberMetal.get)(instance, target);
@@ -39085,6 +39090,16 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-environm
       } else {
         return target;
       }
+    }
+
+    // if a `targetObject` CP was provided, use it
+    if (target) {
+      return target;
+    }
+
+    // if _targetObject use it
+    if (instance._targetObject) {
+      return instance._targetObject;
     }
 
     return null;
@@ -43955,7 +43970,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+16e2aabc";
+  exports.default = "2.17.0-alpha.1-null+8109f90b";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

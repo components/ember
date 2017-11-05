@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.16e2aabc"
+        "version": "2.17.0-alpha.1.8109f90b"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -3071,7 +3071,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/mixins/target_action_support.js",
-            "line": 12,
+            "line": 13,
             "description": "`Ember.TargetActionSupport` is a mixin that can be included in a class\nto add a `triggerAction` method with semantics similar to the Handlebars\n`{{action}}` helper. In normal Ember usage, the `{{action}}` helper is\nusually the best choice. This mixin is most often useful when you are\ndoing more complex event handling in Components.",
             "extends": "Mixin",
             "access": "private",
@@ -15077,7 +15077,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/target_action_support.js",
-            "line": 41,
+            "line": 58,
             "description": "Send an `action` with an `actionContext` to a `target`. The action, actionContext\nand target will be retrieved from properties of the object. For example:\n\n```javascript\nApp.SaveButtonView = Ember.View.extend(Ember.TargetActionSupport, {\n  target: Ember.computed.alias('controller'),\n  action: 'save',\n  actionContext: Ember.computed.alias('context'),\n  click() {\n    this.triggerAction(); // Sends the `save` action, along with the current context\n                          // to the current controller\n  }\n});\n```\n\nThe `target`, `action`, and `actionContext` can be provided as properties of\nan optional object argument to `triggerAction` as well.\n\n```javascript\nApp.SaveButtonView = Ember.View.extend(Ember.TargetActionSupport, {\n  click() {\n    this.triggerAction({\n      action: 'save',\n      target: this.get('controller'),\n      actionContext: this.get('context')\n    }); // Sends the `save` action, along with the current context\n        // to the current controller\n  }\n});\n```\n\nThe `actionContext` defaults to the object you are mixing `TargetActionSupport` into.\nBut `target` and `action` must be specified either as properties or with the argument\nto `triggerAction`, or a combination:\n\n```javascript\nApp.SaveButtonView = Ember.View.extend(Ember.TargetActionSupport, {\n  target: Ember.computed.alias('controller'),\n  click() {\n    this.triggerAction({\n      action: 'save'\n    }); // Sends the `save` action, along with a reference to `this`,\n        // to the current controller\n  }\n});\n```",
             "itemtype": "method",
             "name": "triggerAction",

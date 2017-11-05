@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+16e2aabc
+ * @version   2.17.0-alpha.1-null+8109f90b
  */
 
 /*global process */
@@ -53314,6 +53314,26 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environm
       })
     });
     ok(true === obj.triggerAction(), 'a valid target and action were specified');
+  });
+
+  QUnit.test('it should raise a deprecation warning when targetObject is specified and used', function () {
+    expect(4);
+    var obj = void 0;
+    expectDeprecation(function () {
+      obj = _object.default.extend(_target_action_support.default).create({
+        action: 'anEvent',
+        actionContext: {},
+        targetObject: _object.default.create({
+          anEvent: function (ctx) {
+            ok(obj.actionContext === ctx, 'anEvent method was called with the expected context');
+          }
+        })
+      });
+    }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
+    ok(true === obj.triggerAction(), 'a valid targetObject and action were specified');
+    expectDeprecation(function () {
+      return obj.get('targetObject');
+    }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
   });
 
   QUnit.test('it should find an actionContext specified as a property path', function () {
