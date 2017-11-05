@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+909723c0
+ * @version   2.17.0-alpha.1-null+78bb86dd
  */
 
 /*global process */
@@ -16206,11 +16206,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
          @property active
       @private
     */
-    active: (0, _emberMetal.computed)('attrs.params', '_active', function () {
-      var currentState = (0, _emberMetal.get)(this, '_routing.currentState');
-      if (!currentState) {
-        return false;
-      }
+    active: (0, _emberMetal.computed)('activeClass', '_active', function () {
       return this.get('_active') ? (0, _emberMetal.get)(this, 'activeClass') : false;
     }),
     _active: (0, _emberMetal.computed)('_routing.currentState', function () {
@@ -43968,7 +43964,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+909723c0";
+  exports.default = "2.17.0-alpha.1-null+78bb86dd";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
