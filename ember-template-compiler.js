@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+254d6f02
+ * @version   2.17.0-alpha.1-null+3831a4e7
  */
 
 /*global process */
@@ -11176,6 +11176,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     var ret = this._getter.call(obj, keyName);
+
     cache[keyName] = ret === undefined ? UNDEFINED : ret;
 
     var chainWatchers = meta$$1.readableChainWatchers();
@@ -11231,14 +11232,13 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   ComputedPropertyPrototype._set = function (obj, keyName, value) {
     var meta$$1 = meta(obj);
     var cache = meta$$1.writableCache();
-    var hadCachedValue = false;
-    var cachedValue = void 0;
+
     var val = cache[keyName];
-    if (val !== undefined) {
-      if (val !== UNDEFINED) {
-        cachedValue = val;
-      }
-      hadCachedValue = true;
+    var hadCachedValue = val !== undefined;
+
+    var cachedValue = void 0;
+    if (hadCachedValue && val !== UNDEFINED) {
+      cachedValue = val;
     }
 
     var ret = this._setter.call(obj, keyName, value, cachedValue);
@@ -11250,17 +11250,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     propertyWillChange(obj, keyName, meta$$1);
 
-    if (hadCachedValue) {
-      cache[keyName] = undefined;
-    } else {
+    if (!hadCachedValue) {
       addDependentKeys(this, obj, keyName, meta$$1);
     }
 
-    if (ret === undefined) {
-      cache[keyName] = UNDEFINED;
-    } else {
-      cache[keyName] = ret;
-    }
+    cache[keyName] = ret === undefined ? UNDEFINED : ret;
 
     propertyDidChange(obj, keyName, meta$$1);
 
@@ -17379,7 +17373,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+254d6f02";
+  exports.default = "2.17.0-alpha.1-null+3831a4e7";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
