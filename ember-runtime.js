@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+0780f0e9
+ * @version   2.17.0-alpha.1-null+16e2aabc
  */
 
 /*global process */
@@ -414,27 +414,18 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
     throw new Error('Could not create factory');
   }
 
-  function buildInjections() /* container, ...injections */{
+  function buildInjections(container, injections) {
     var hash = {};
     var isDynamic = false;
 
-    if (arguments.length > 1) {
-      var container = arguments[0];
-      var injections = [];
-      var injection = void 0;
-
-      for (var i = 1; i < arguments.length; i++) {
-        if (arguments[i]) {
-          injections = injections.concat(arguments[i]);
-        }
-      }
-
+    if (injections.length > 0) {
       if (true) {
         container.registry.validateInjections(injections);
       }
 
-      for (var _i = 0; _i < injections.length; _i++) {
-        injection = injections[_i];
+      var injection = void 0;
+      for (var i = 0; i < injections.length; i++) {
+        injection = injections[i];
         hash[injection.property] = _lookup(container, injection.fullName);
         if (!isDynamic) {
           isDynamic = !isSingleton(container, injection.fullName);
@@ -447,10 +438,12 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
 
   function injectionsFor(container, fullName) {
     var registry = container.registry;
-    var splitName = fullName.split(':');
-    var type = splitName[0];
 
-    return buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
+    var _fullName$split = fullName.split(':'),
+        type = _fullName$split[0];
+
+    var injections = registry.getTypeInjections(type).concat(registry.getInjections(fullName));
+    return buildInjections(container, injections);
   }
 
   function destroyDestroyables(container) {
@@ -1036,9 +1029,9 @@ enifed('container', ['exports', 'ember-babel', 'ember-utils', 'ember-debug', 'em
       return name;
     }
 
-    var _fullName$split = fullName.split(':'),
-        type = _fullName$split[0],
-        rawName = _fullName$split[1];
+    var _fullName$split2 = fullName.split(':'),
+        type = _fullName$split2[0],
+        rawName = _fullName$split2[1];
 
     return privateNames[fullName] = (0, _emberUtils.intern)(type + ':' + rawName + '-' + privateSuffix);
   }
