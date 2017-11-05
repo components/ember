@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+8109f90b
+ * @version   2.17.0-alpha.1-null+33402e27
  */
 
 /*global process */
@@ -38399,10 +38399,12 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       @param {String} key The key to observe
       @param {Object} target The target object to invoke
       @param {String|Function} method The method to invoke
+      @return {Ember.Observable}
       @public
     */
     addObserver: function (key, target, method) {
       (0, _emberMetal.addObserver)(this, key, target, method);
+      return this;
     },
 
     /**
@@ -38413,10 +38415,12 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal', 'ember-debu
       @param {String} key The key to observe
       @param {Object} target The target object to invoke
       @param {String|Function} method The method to invoke
+      @return {Ember.Observable}
       @public
     */
     removeObserver: function (key, target, method) {
       (0, _emberMetal.removeObserver)(this, key, target, method);
+      return this;
     },
 
     /**
@@ -43970,7 +43974,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+8109f90b";
+  exports.default = "2.17.0-alpha.1-null+33402e27";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

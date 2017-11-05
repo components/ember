@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.8109f90b"
+        "version": "2.17.0-alpha.1.33402e27"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -14521,6 +14521,10 @@
                     "type": "String|Function"
                 }
             ],
+            "return": {
+                "description": "",
+                "type": "Ember.Observable"
+            },
             "access": "public",
             "tagname": "",
             "class": "Observable",
@@ -14528,7 +14532,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 380,
+            "line": 382,
             "description": "Remove an observer you have previously registered on this object. Pass\nthe same key, target, and method you passed to `addObserver()` and your\ntarget will no longer receive notifications.",
             "itemtype": "method",
             "name": "removeObserver",
@@ -14549,6 +14553,10 @@
                     "type": "String|Function"
                 }
             ],
+            "return": {
+                "description": "",
+                "type": "Ember.Observable"
+            },
             "access": "public",
             "tagname": "",
             "class": "Observable",
@@ -14556,7 +14564,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 395,
+            "line": 399,
             "description": "Returns `true` if the object currently has observers registered for a\nparticular key. You can use this method to potentially defer performing\nan expensive action until someone begins observing a particular property\non the object.",
             "itemtype": "method",
             "name": "hasObserverFor",
@@ -14578,7 +14586,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 410,
+            "line": 414,
             "description": "Retrieves the value of a property, or a default value in the case that the\nproperty returns `undefined`.\n\n```javascript\nperson.getWithDefault('lastName', 'Doe');\n```",
             "itemtype": "method",
             "name": "getWithDefault",
@@ -14605,7 +14613,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 428,
+            "line": 432,
             "description": "Set the value of a property to the current value plus some amount.\n\n```javascript\nperson.incrementProperty('age');\nteam.incrementProperty('score', 2);\n```",
             "itemtype": "method",
             "name": "incrementProperty",
@@ -14632,7 +14640,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 448,
+            "line": 452,
             "description": "Set the value of a property to the current value minus some amount.\n\n```javascript\nplayer.decrementProperty('lives');\norc.decrementProperty('health', 5);\n```",
             "itemtype": "method",
             "name": "decrementProperty",
@@ -14659,7 +14667,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 468,
+            "line": 472,
             "description": "Set the value of a boolean property to the opposite of its\ncurrent value.\n\n```javascript\nstarship.toggleProperty('warpDriveEngaged');\n```",
             "itemtype": "method",
             "name": "toggleProperty",
@@ -14681,7 +14689,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/observable.js",
-            "line": 485,
+            "line": 489,
             "description": "Returns the cached value of a computed property, if it exists.\nThis allows you to inspect the value of a computed property\nwithout accidentally invoking it if it is intended to be\ngenerated lazily.",
             "itemtype": "method",
             "name": "cacheFor",
