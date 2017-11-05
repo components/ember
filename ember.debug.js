@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+3831a4e7
+ * @version   2.17.0-alpha.1-null+e4af430c
  */
 
 /*global process */
@@ -16530,16 +16530,16 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
             if ((0, _emberMetal.get)(this, 'loading')) {
                 return false;
             }
-            var routing = (0, _emberMetal.get)(this, '_routing');
-            var models = (0, _emberMetal.get)(this, 'models');
-            var resolvedQueryParams = (0, _emberMetal.get)(this, 'resolvedQueryParams');
             var currentWhen = (0, _emberMetal.get)(this, 'current-when');
             if (typeof currentWhen === 'boolean') {
-                return currentWhen ? (0, _emberMetal.get)(this, 'activeClass') : false;
+                return currentWhen;
             }
             var isCurrentWhenSpecified = !!currentWhen;
             currentWhen = currentWhen || (0, _emberMetal.get)(this, 'qualifiedRouteName');
             currentWhen = currentWhen.split(' ');
+            var routing = (0, _emberMetal.get)(this, '_routing');
+            var models = (0, _emberMetal.get)(this, 'models');
+            var resolvedQueryParams = (0, _emberMetal.get)(this, 'resolvedQueryParams');
             for (var i = 0; i < currentWhen.length; i++) {
                 if (routing.isActiveForRoute(models, resolvedQueryParams, currentWhen[i], routerState, isCurrentWhenSpecified)) {
                     return true;
@@ -47763,7 +47763,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+3831a4e7";
+  exports.default = "2.17.0-alpha.1-null+e4af430c";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
