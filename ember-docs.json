@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-beta.4.09a5fe32"
+        "version": "2.17.0-beta.4.ae0ffab8"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -9340,7 +9340,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 535,
+            "line": 512,
             "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
             "itemtype": "method",
             "name": "deleteMeta",
@@ -9363,7 +9363,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 556,
+            "line": 533,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",

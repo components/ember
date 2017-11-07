@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.4-null+09a5fe32
+ * @version   2.17.0-beta.4-null+ae0ffab8
  */
 
 var enifed, requireModule, Ember;
@@ -22527,6 +22527,149 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return ObserverSet;
   }();
 
+  /**
+   @module ember
+  */
+  var id = 0;
+
+  // Returns whether Type(value) is Object according to the terminology in the spec
+  function isObject$1(value) {
+    return typeof value === 'object' && value !== null || typeof value === 'function';
+  }
+
+  /*
+   * @class Ember.WeakMap
+   * @public
+   * @category ember-metal-weakmap
+   *
+   * A partial polyfill for [WeakMap](http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects).
+   *
+   * There is a small but important caveat. This implementation assumes that the
+   * weak map will live longer (in the sense of garbage collection) than all of its
+   * keys, otherwise it is possible to leak the values stored in the weak map. In
+   * practice, most use cases satisfy this limitation which is why it is included
+   * in ember-metal.
+   */
+  var WeakMapPolyfill = function () {
+    function WeakMapPolyfill(iterable) {
+      var i, _iterable$i, key, value;
+
+      this._id = emberUtils.GUID_KEY + id++;
+
+      if (iterable === null || iterable === undefined) {} else if (Array.isArray(iterable)) {
+        for (i = 0; i < iterable.length; i++) {
+          _iterable$i = iterable[i], key = _iterable$i[0], value = _iterable$i[1];
+
+
+          this.set(key, value);
+        }
+      } else {
+        throw new TypeError('The weak map constructor polyfill only supports an array argument');
+      }
+    }
+
+    /*
+     * @method get
+     * @param key {Object | Function}
+     * @return {Any} stored value
+     */
+
+    WeakMapPolyfill.prototype.get = function (obj) {
+      if (!isObject$1(obj)) {
+        return undefined;
+      }
+
+      var meta$$1 = exports.peekMeta(obj),
+          map,
+          val;
+      if (meta$$1 !== undefined) {
+        map = meta$$1.readableWeak();
+
+        if (map !== undefined) {
+          val = map[this._id];
+
+          if (val === UNDEFINED) {
+            return undefined;
+          }
+          return val;
+        }
+      }
+    };
+
+    /*
+     * @method set
+     * @param key {Object | Function}
+     * @param value {Any}
+     * @return {WeakMap} the weak map
+     */
+
+    WeakMapPolyfill.prototype.set = function (obj, value) {
+      if (!isObject$1(obj)) {
+        throw new TypeError('Invalid value used as weak map key');
+      }
+
+      if (value === undefined) {
+        value = UNDEFINED;
+      }
+
+      meta(obj).writableWeak()[this._id] = value;
+
+      return this;
+    };
+
+    /*
+     * @method has
+     * @param key {Object | Function}
+     * @return {boolean} if the key exists
+     */
+
+    WeakMapPolyfill.prototype.has = function (obj) {
+      if (!isObject$1(obj)) {
+        return false;
+      }
+
+      var meta$$1 = exports.peekMeta(obj),
+          map;
+      if (meta$$1 !== undefined) {
+        map = meta$$1.readableWeak();
+
+        if (map !== undefined) {
+          return map[this._id] !== undefined;
+        }
+      }
+
+      return false;
+    };
+
+    /*
+     * @method delete
+     * @param key {Object | Function}
+     * @return {boolean} if the key was deleted
+     */
+
+    WeakMapPolyfill.prototype.delete = function (obj) {
+      if (this.has(obj)) {
+        delete exports.peekMeta(obj).writableWeak()[this._id];
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    /*
+     * @method toString
+     * @return {String}
+     */
+
+    WeakMapPolyfill.prototype.toString = function () {
+      return '[object WeakMap]';
+    };
+
+    return WeakMapPolyfill;
+  }();
+
+  var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
+
   exports.runInTransaction = void 0;
 
 
@@ -25441,149 +25584,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       Logger.error(getStack(error));
     }
   }
-
-  /**
-   @module ember
-  */
-  var id = 0;
-
-  // Returns whether Type(value) is Object according to the terminology in the spec
-  function isObject$1(value) {
-    return typeof value === 'object' && value !== null || typeof value === 'function';
-  }
-
-  /*
-   * @class Ember.WeakMap
-   * @public
-   * @category ember-metal-weakmap
-   *
-   * A partial polyfill for [WeakMap](http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects).
-   *
-   * There is a small but important caveat. This implementation assumes that the
-   * weak map will live longer (in the sense of garbage collection) than all of its
-   * keys, otherwise it is possible to leak the values stored in the weak map. In
-   * practice, most use cases satisfy this limitation which is why it is included
-   * in ember-metal.
-   */
-  var WeakMapPolyfill = function () {
-    function WeakMapPolyfill(iterable) {
-      var i, _iterable$i, key, value;
-
-      this._id = emberUtils.GUID_KEY + id++;
-
-      if (iterable === null || iterable === undefined) {} else if (Array.isArray(iterable)) {
-        for (i = 0; i < iterable.length; i++) {
-          _iterable$i = iterable[i], key = _iterable$i[0], value = _iterable$i[1];
-
-
-          this.set(key, value);
-        }
-      } else {
-        throw new TypeError('The weak map constructor polyfill only supports an array argument');
-      }
-    }
-
-    /*
-     * @method get
-     * @param key {Object | Function}
-     * @return {Any} stored value
-     */
-
-    WeakMapPolyfill.prototype.get = function (obj) {
-      if (!isObject$1(obj)) {
-        return undefined;
-      }
-
-      var meta$$1 = exports.peekMeta(obj),
-          map,
-          val;
-      if (meta$$1 !== undefined) {
-        map = meta$$1.readableWeak();
-
-        if (map !== undefined) {
-          val = map[this._id];
-
-          if (val === UNDEFINED) {
-            return undefined;
-          }
-          return val;
-        }
-      }
-    };
-
-    /*
-     * @method set
-     * @param key {Object | Function}
-     * @param value {Any}
-     * @return {WeakMap} the weak map
-     */
-
-    WeakMapPolyfill.prototype.set = function (obj, value) {
-      if (!isObject$1(obj)) {
-        throw new TypeError('Invalid value used as weak map key');
-      }
-
-      if (value === undefined) {
-        value = UNDEFINED;
-      }
-
-      meta(obj).writableWeak()[this._id] = value;
-
-      return this;
-    };
-
-    /*
-     * @method has
-     * @param key {Object | Function}
-     * @return {boolean} if the key exists
-     */
-
-    WeakMapPolyfill.prototype.has = function (obj) {
-      if (!isObject$1(obj)) {
-        return false;
-      }
-
-      var meta$$1 = exports.peekMeta(obj),
-          map;
-      if (meta$$1 !== undefined) {
-        map = meta$$1.readableWeak();
-
-        if (map !== undefined) {
-          return map[this._id] !== undefined;
-        }
-      }
-
-      return false;
-    };
-
-    /*
-     * @method delete
-     * @param key {Object | Function}
-     * @return {boolean} if the key was deleted
-     */
-
-    WeakMapPolyfill.prototype.delete = function (obj) {
-      if (this.has(obj)) {
-        delete exports.peekMeta(obj).writableWeak()[this._id];
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    /*
-     * @method toString
-     * @return {String}
-     */
-
-    WeakMapPolyfill.prototype.toString = function () {
-      return '[object WeakMap]';
-    };
-
-    return WeakMapPolyfill;
-  }();
-
-  var weak_map = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
 
   /**
    @module @ember/utils
@@ -44482,7 +44482,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-beta.4-null+09a5fe32";
+  exports.default = "2.17.0-beta.4-null+ae0ffab8";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
