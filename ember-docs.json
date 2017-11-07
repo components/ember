@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "v2.16.2"
+        "version": "2.16.2.0f102c8b"
     },
     "files": {
         "node_modules/router_js/lib/router/router.js": {
@@ -9855,7 +9855,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 546,
+            "line": 523,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
