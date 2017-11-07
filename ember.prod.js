@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+bae456bc
+ * @version   2.17.0-alpha.1-null+8b912e6c
  */
 
 /*global process */
@@ -29825,7 +29825,7 @@ enifed('ember-routing/services/router', ['exports', 'ember-runtime', 'ember-rout
 
   exports.default = RouterService;
 });
-enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runtime', 'ember-metal', 'ember-routing/utils'], function (exports, _emberUtils, _emberRuntime, _emberMetal, _utils) {
+enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runtime', 'ember-metal'], function (exports, _emberUtils, _emberRuntime, _emberMetal) {
   'use strict';
 
   exports.default = _emberRuntime.Service.extend({
@@ -29851,22 +29851,18 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
       return transition;
     },
     normalizeQueryParams: function (routeName, models, queryParams) {
-      var router = (0, _emberMetal.get)(this, 'router');
-      router._prepareQueryParams(routeName, models, queryParams);
+      (0, _emberMetal.get)(this, 'router')._prepareQueryParams(routeName, models, queryParams);
     },
     generateURL: function (routeName, models, queryParams) {
-      var router = (0, _emberMetal.get)(this, 'router');
-      if (!router._routerMicrolib) {
-        return;
-      }
+      var _get;
 
       var visibleQueryParams = {};
-      (0, _emberUtils.assign)(visibleQueryParams, queryParams);
+      if (queryParams) {
+        (0, _emberUtils.assign)(visibleQueryParams, queryParams);
+        this.normalizeQueryParams(routeName, models, visibleQueryParams);
+      }
 
-      this.normalizeQueryParams(routeName, models, visibleQueryParams);
-
-      var args = (0, _utils.routeArgs)(routeName, models, visibleQueryParams);
-      return router.generate.apply(router, args);
+      return (_get = (0, _emberMetal.get)(this, 'router')).generate.apply(_get, [routeName].concat(models, [{ queryParams: visibleQueryParams }]));
     },
     isActiveForRoute: function (contexts, queryParams, routeName, routerState, isCurrentWhenSpecified) {
       var router = (0, _emberMetal.get)(this, 'router');
@@ -32228,8 +32224,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-utils', 'ember-console'
       (0, _emberUtils.assign)(queryParams, _queryParams);
       this._prepareQueryParams(targetRouteName, models, queryParams, _keepDefaultQueryParamValues);
 
-      var transitionArgs = (0, _utils.routeArgs)(targetRouteName, models, queryParams);
-      var transition = (_routerMicrolib5 = this._routerMicrolib).transitionTo.apply(_routerMicrolib5, transitionArgs);
+      var transition = (_routerMicrolib5 = this._routerMicrolib).transitionTo.apply(_routerMicrolib5, [targetRouteName].concat(models, [{ queryParams: queryParams }]));
 
       didBeginTransition(transition, this);
 
@@ -33034,15 +33029,6 @@ enifed('ember-routing/utils', ['exports', 'ember-utils', 'ember-metal', 'ember-d
     var routeName = args.shift();
 
     return { routeName: routeName, models: args, queryParams: queryParams };
-  };
-  exports.routeArgs = function (targetRouteName, models, queryParams) {
-    var args = [];
-    if (typeof targetRouteName === 'string') {
-      args.push('' + targetRouteName);
-    }
-    args.push.apply(args, models);
-    args.push({ queryParams: queryParams });
-    return args;
   };
   exports.getActiveTargetName = function (router) {
     var handlerInfos = router.activeTransition ? router.activeTransition.state.handlerInfos : router.state.handlerInfos;
@@ -43964,7 +43950,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+bae456bc";
+  exports.default = "2.17.0-alpha.1-null+8b912e6c";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
