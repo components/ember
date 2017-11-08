@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-beta.4.ae0ffab8"
+        "version": "2.17.0-beta.4.cad9598e"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -13311,7 +13311,7 @@
         {
             "file": "packages/ember-runtime/lib/computed/computed_macros.js",
             "line": 547,
-            "description": "Where `computed.alias` aliases `get` and `set`, and allows for bidirectional\ndata flow, `computed.oneWay` only provides an aliased `get`. The `set` will\nnot mutate the upstream property, rather causes the current property to\nbecome the value set. This causes the downstream property to permanently\ndiverge from the upstream property.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  firstName: null,\n  lastName: null,\n  nickName: Ember.computed.oneWay('firstName')\n});\n\nlet teddy = User.create({\n  firstName: 'Teddy',\n  lastName:  'Zeenny'\n});\n\nteddy.get('nickName');              // 'Teddy'\nteddy.set('nickName', 'TeddyBear'); // 'TeddyBear'\nteddy.get('firstName');             // 'Teddy'\n```",
+            "description": "Where `computed.alias` aliases `get` and `set`, and allows for bidirectional\ndata flow, `computed.oneWay` only provides an aliased `get`. The `set` will\nnot mutate the upstream property, rather causes the current property to\nbecome the value set. This causes the downstream property to permanently\ndiverge from the upstream property.\n\nExample\n\n```javascript\nlet User = Ember.Object.extend({\n  firstName: null,\n  lastName: null,\n  nickName: Ember.computed.oneWay('firstName')\n});\n\nlet teddy = User.create({\n  firstName: 'Teddy',\n  lastName: 'Zeenny'\n});\n\nteddy.get('nickName');              // 'Teddy'\nteddy.set('nickName', 'TeddyBear'); // 'TeddyBear'\nteddy.get('firstName');             // 'Teddy'\n```",
             "itemtype": "method",
             "name": "oneWay",
             "static": 1,
