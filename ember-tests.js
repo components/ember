@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+4e965f3c
+ * @version   2.17.0-alpha.1-null+112922b5
  */
 
 /*global process */
@@ -45743,9 +45743,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-utils', 'ember-metal'], 
   // run loop has to flush, it would have considered
   // the timer already expired.
   function pauseUntil(time) {
-    // jscs:disable
-    while (+new Date() < time) {} /* do nothing - sleeping */
-    // jscs:enable
+    while (+new Date() < time) {/* do nothing - sleeping */}
   }
 
   QUnit.module('run.later', {
@@ -48198,7 +48196,6 @@ enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/
     }), true, 'When in IE8+, use onhashchange existence as evidence of the feature');
   });
 
-  // jscs:disable
   QUnit.test("Feature-detecting the history API", function () {
     equal((0, _util.supportsHistory)("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
     equal((0, _util.supportsHistory)("", {}), false, "returns false if history.pushState doesn't exist");
@@ -48215,7 +48212,6 @@ enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/
     // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
     equal((0, _util.supportsHistory)("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
   });
-  // jscs:enable
 });
 QUnit.module('ESLint | ember-routing/tests/location/util_test.js');
 QUnit.test('should pass ESLint', function(assert) {
