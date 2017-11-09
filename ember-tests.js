@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c1a892dd
+ * @version   2.17.0-alpha.1-null+1fe22743
  */
 
 /*global process */
@@ -81601,11 +81601,11 @@ enifed('node-module', ['exports'], function(_exports) {
   if (IS_NODE) {
     _exports.require = module.require;
     _exports.module = module;
-    _exports.IS_NODE = IS_NODE
+    _exports.IS_NODE = IS_NODE;
   } else {
     _exports.require = null;
     _exports.module = null;
-    _exports.IS_NODE = IS_NODE
+    _exports.IS_NODE = IS_NODE;
   }
 });
 QUnit.module('ESLint | node-module/lib/node-module.js');
