@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.5
+ * @version   2.17.0-beta.5-null+0df8b30b
  */
 
 var enifed, requireModule, Ember;
@@ -57463,6 +57463,19 @@ enifed('ember-runtime/tests/system/object/computed_test', ['ember-metal', 'inter
     });
 
     ok((0, _emberMetal.get)(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+  });
+
+  QUnit.test('observing computed.reads prop and overriding it in create() works', function () {
+    var Obj = _object.default.extend({
+      name: _emberMetal.computed.reads('model.name'),
+      nameDidChange: (0, _emberMetal.observer)('name', function () {})
+    });
+
+    var obj1 = Obj.create({ name: '1' });
+    var obj2 = Obj.create({ name: '2' });
+
+    equal(obj1.get('name'), '1');
+    equal(obj2.get('name'), '2');
   });
 });
 enifed('ember-runtime/tests/system/object/create_test', ['ember-metal', 'ember-runtime/system/object'], function (_emberMetal, _object) {

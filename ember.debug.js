@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.5
+ * @version   2.17.0-beta.5-null+0df8b30b
  */
 
 var enifed, requireModule, Ember;
@@ -24567,8 +24567,11 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (paths === undefined) {
         return;
       }
+
       if (paths[path] > 0) {
         paths[path]--;
+      } else {
+        return;
       }
 
       var key = firstKey(path);
@@ -41727,12 +41730,14 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   });
 
   exports.NativeArray = NativeArray = (_NativeArray = NativeArray).without.apply(_NativeArray, ignore);
-
   /**
-    Creates an `Ember.NativeArray` from an Array like object.
-    Does not modify the original object's contents. Ember.A is not needed if
+    @module @ember/array
+  */
+  /**
+    Creates an `Ember.NativeArray` from an Array-like object.
+    Does not modify the original object's contents. `A()` is not needed if
     `EmberENV.EXTEND_PROTOTYPES` is `true` (the default value). However,
-    it is recommended that you use Ember.A when creating addons for
+    it is recommended that you use `A()` when creating addons for
     ember or when you can not guarantee that `EmberENV.EXTEND_PROTOTYPES`
     will be `true`.
   
@@ -41740,6 +41745,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
   
     ```app/components/my-component.js
     import Component from '@ember/component';
+    import { A } from '@ember/array';
   
     export default Component.extend({
       tagName: 'ul',
@@ -41749,7 +41755,8 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
         this._super(...arguments);
   
         if (!this.get('content')) {
-          this.set('content', Ember.A());
+          this.set('content', A());
+          this.set('otherContent', A([1,2,3]));
         }
       }
     });
@@ -41758,7 +41765,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
     @method A
     @static
     @for @ember/array
-    @return {EmberArray}
+    @return {Ember.NativeArray}
     @public
   */
   var A = void 0;
@@ -48485,7 +48492,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-beta.5";
+  exports.default = "2.17.0-beta.5-null+0df8b30b";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
