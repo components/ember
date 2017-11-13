@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+5b3a22c0
+ * @version   2.17.0-alpha.1-null+05a89f05
  */
 
 /*global process */
@@ -17444,17 +17444,17 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime
             var options = moduleName && { source: 'template:' + moduleName } || {};
             var helperFactory = owner.factoryFor('helper:' + name, options) || owner.factoryFor('helper:' + name);
             // TODO: try to unify this into a consistent protocol to avoid wasteful closure allocations
-            if (helperFactory.class.isHelperInstance) {
-                return function (_vm, args) {
-                    return _references.SimpleHelperReference.create(helperFactory.class.compute, args.capture());
-                };
+            var HelperReference = void 0;
+            if (helperFactory.class.isSimpleHelperFactory) {
+                HelperReference = _references.SimpleHelperReference;
             } else if (helperFactory.class.isHelperFactory) {
-                return function (vm, args) {
-                    return _references.ClassBasedHelperReference.create(helperFactory, vm, args.capture());
-                };
+                HelperReference = _references.ClassBasedHelperReference;
             } else {
                 throw new Error(name + ' is not a helper');
             }
+            return function (vm, args) {
+                return HelperReference.create(helperFactory, vm, args.capture());
+            };
         };
 
         Environment.prototype.hasModifier = function hasModifier(name) {
@@ -17560,10 +17560,10 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime
         };
     }
 });
-enifed('ember-glimmer/helper', ['exports', '@glimmer/reference', 'ember-runtime', 'ember-utils'], function (exports, _reference, _emberRuntime, _emberUtils) {
+enifed('ember-glimmer/helper', ['exports', 'ember-babel', '@glimmer/reference', 'ember-runtime', 'ember-utils'], function (exports, _emberBabel, _reference, _emberRuntime, _emberUtils) {
     'use strict';
 
-    exports.RECOMPUTE_TAG = undefined;
+    exports.SimpleHelperFactory = exports.RECOMPUTE_TAG = undefined;
     exports.helper = helper;
     var RECOMPUTE_TAG = exports.RECOMPUTE_TAG = (0, _emberUtils.symbol)('RECOMPUTE_TAG');
     /**
@@ -17624,6 +17624,26 @@ enifed('ember-glimmer/helper', ['exports', '@glimmer/reference', 'ember-runtime'
     Helper.reopenClass({
         isHelperFactory: true
     });
+
+    var SimpleHelperFactory = exports.SimpleHelperFactory = function () {
+        function SimpleHelperFactory(compute) {
+            (0, _emberBabel.classCallCheck)(this, SimpleHelperFactory);
+
+            this.isHelperFactory = true;
+            this.isSimpleHelperFactory = true;
+            this.instance = {
+                isHelperInstance: true,
+                compute: compute
+            };
+        }
+
+        SimpleHelperFactory.prototype.create = function create() {
+            return this.instance;
+        };
+
+        return SimpleHelperFactory;
+    }();
+
     /**
       In many cases, the ceremony of a full `Helper` class is not required.
       The `helper` method create pure-function helpers without instances. For
@@ -17647,10 +17667,7 @@ enifed('ember-glimmer/helper', ['exports', '@glimmer/reference', 'ember-runtime'
       @since 1.13.0
     */
     function helper(helperFn) {
-        return {
-            isHelperInstance: true,
-            compute: helperFn
-        };
+        return new SimpleHelperFactory(helperFn);
     }
     exports.default = Helper;
 });
@@ -21508,7 +21525,8 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
     var SimpleHelperReference = exports.SimpleHelperReference = function (_CachedReference2) {
         (0, _emberBabel.inherits)(SimpleHelperReference, _CachedReference2);
 
-        SimpleHelperReference.create = function create(helper, args) {
+        SimpleHelperReference.create = function create(Helper, _vm, args) {
+            var helper = Helper.create();
             if ((0, _reference.isConst)(args)) {
                 var positional = args.positional,
                     named = args.named;
@@ -21519,14 +21537,14 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
                     maybeFreeze(positionalValue);
                     maybeFreeze(namedValue);
                 }
-                var result = helper(positionalValue, namedValue);
+                var result = helper.compute(positionalValue, namedValue);
                 if (typeof result === 'object' && result !== null || typeof result === 'function') {
                     return new RootReference(result);
                 } else {
                     return _runtime.PrimitiveReference.create(result);
                 }
             } else {
-                return new SimpleHelperReference(helper, args);
+                return new SimpleHelperReference(helper.compute, args);
             }
         };
 
@@ -47747,7 +47765,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+5b3a22c0";
+  exports.default = "2.17.0-alpha.1-null+05a89f05";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+5b3a22c0
+ * @version   2.17.0-alpha.1-null+05a89f05
  */
 
 /*global process */
@@ -2352,7 +2352,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
       var lookedUpShorthandHelper = this.applicationInstance.factoryFor('helper:shorthand').class;
 
-      assert.ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+      assert.ok(lookedUpShorthandHelper.isHelperFactory, 'shorthand helper isHelper');
 
       var lookedUpHelper = this.applicationInstance.factoryFor('helper:complete').class;
 
@@ -2369,7 +2369,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
       var lookedUpShorthandHelper = this.applicationInstance.factoryFor('helper:shorthand').class;
 
-      assert.ok(lookedUpShorthandHelper.isHelperInstance, 'shorthand helper isHelper');
+      assert.ok(lookedUpShorthandHelper.isHelperFactory, 'shorthand helper isHelper');
 
       var lookedUpHelper = this.applicationInstance.factoryFor('helper:complete').class;
 
@@ -24432,6 +24432,32 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
       (0, _internalTestHelpers.runDestroy)(this.component);
 
       equal(destroyCount, 1, 'destroy is called after a view is destroyed');
+    };
+
+    _class.prototype['@test simple helper can be invoked manually via `owner.factoryFor(...).create().compute()'] = function (assert) {
+      this.registerHelper('some-helper', function () {
+        assert.ok(true, 'some-helper helper invoked');
+        return 'lolol';
+      });
+
+      var instance = this.owner.factoryFor('helper:some-helper').create();
+
+      assert.equal(typeof instance.compute, 'function', 'expected instance.compute to be present');
+      assert.equal(instance.compute(), 'lolol', 'can invoke `.compute`');
+    };
+
+    _class.prototype['@test class-based helper can be invoked manually via `owner.factoryFor(...).create().compute()'] = function () {
+      this.registerHelper('some-helper', {
+        compute: function () {
+          assert.ok(true, 'some-helper helper invoked');
+          return 'lolol';
+        }
+      });
+
+      var instance = this.owner.factoryFor('helper:some-helper').create();
+
+      assert.equal(typeof instance.compute, 'function', 'expected instance.compute to be present');
+      assert.equal(instance.compute(), 'lolol', 'can invoke `.compute`');
     };
 
     return _class;
