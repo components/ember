@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+05a89f05
+ * @version   2.17.0-alpha.1-null+81c9489e
  */
 
 /*global process */
@@ -17156,7 +17156,7 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime
 enifed('ember-glimmer/helper', ['exports', '@glimmer/reference', 'ember-runtime', 'ember-utils'], function (exports, _reference, _emberRuntime, _emberUtils) {
   'use strict';
 
-  exports.SimpleHelperFactory = exports.RECOMPUTE_TAG = undefined;
+  exports.SimpleHelper = exports.RECOMPUTE_TAG = undefined;
   exports.helper =
 
   /**
@@ -17182,7 +17182,7 @@ enifed('ember-glimmer/helper', ['exports', '@glimmer/reference', 'ember-runtime'
     @since 1.13.0
   */
   function (helperFn) {
-    return new SimpleHelperFactory(helperFn);
+    return new SimpleHelper(helperFn);
   };
   var RECOMPUTE_TAG = exports.RECOMPUTE_TAG = (0, _emberUtils.symbol)('RECOMPUTE_TAG');
   /**
@@ -17244,22 +17244,20 @@ enifed('ember-glimmer/helper', ['exports', '@glimmer/reference', 'ember-runtime'
     isHelperFactory: true
   });
 
-  var SimpleHelperFactory = exports.SimpleHelperFactory = function () {
-    function SimpleHelperFactory(compute) {
+  var SimpleHelper = exports.SimpleHelper = function () {
+    function SimpleHelper(compute) {
 
+      this.compute = compute;
       this.isHelperFactory = true;
+      this.isHelperInstance = true;
       this.isSimpleHelperFactory = true;
-      this.instance = {
-        isHelperInstance: true,
-        compute: compute
-      };
     }
 
-    SimpleHelperFactory.prototype.create = function () {
-      return this.instance;
+    SimpleHelper.prototype.create = function () {
+      return this;
     };
 
-    return SimpleHelperFactory;
+    return SimpleHelper;
   }();
   exports.default = Helper;
 });
@@ -43974,7 +43972,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+05a89f05";
+  exports.default = "2.17.0-alpha.1-null+81c9489e";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
