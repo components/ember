@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-beta.5.0df8b30b"
+        "version": "2.17.0-beta.5.19f57105"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -7973,7 +7973,7 @@
         },
         {
             "file": "packages/ember-glimmer/lib/helper.js",
-            "line": 107,
+            "line": 120,
             "description": "In many cases, the ceremony of a full `Helper` class is not required.\nThe `helper` method create pure-function helpers without instances. For\nexample:\n\n```app/helpers/format-currency.js\nimport { helper } from '@ember/component/helper';\n\nexport default helper(function(params, hash) {\n  let cents = params[0];\n  let currency = hash.currency;\n  return `${currency}${cents * 0.01}`;\n});\n```",
             "static": 1,
             "params": [
