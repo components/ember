@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "2.17.0-alpha.1.2f32bf3f"
+        "version": "2.17.0-alpha.1.cbc39f58"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -238,6 +238,19 @@
             },
             "fors": {},
             "namespaces": {}
+        },
+        "packages/ember-console/lib/index.js": {
+            "name": "packages/ember-console/lib/index.js",
+            "modules": {},
+            "classes": {
+                "Ember.Logger": 1
+            },
+            "fors": {
+                "Ember.Logger": 1
+            },
+            "namespaces": {
+                "Ember": 1
+            }
         },
         "packages/ember-debug/lib/deprecate.js": {
             "name": "packages/ember-debug/lib/deprecate.js",
@@ -1462,19 +1475,22 @@
                 "ApplicationInstance.BootOptions": 1,
                 "Application": 1,
                 "GlobalsResolver": 1,
+                "Ember.Logger": 1,
                 "@ember/application": 1
             },
             "fors": {
+                "Ember.Logger": 1,
                 "@ember/application/deprecations": 1,
                 "@ember/application": 1,
                 "Ember.Ember": 1
             },
             "namespaces": {
-                "ApplicationInstance": 1
+                "ApplicationInstance": 1,
+                "Ember": 1
             },
             "tag": "module",
-            "file": "packages/ember-application/lib/system/resolver.js",
-            "line": 34,
+            "file": "packages/ember-console/lib/index.js",
+            "line": 35,
             "access": "public",
             "tagname": ""
         },
@@ -2035,6 +2051,22 @@
             "line": 34,
             "description": "The DefaultResolver defines the default lookup rules to resolve\ncontainer lookups before consulting the container for registered\nitems:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after converting\n  the name. For example, `controller:post` looks up\n  `App.PostController` by default.\n* there are some nuances (see examples below)\n\n### How Resolving Works\n\nThe container calls this object's `resolve` method with the\n`fullName` argument.\n\nIt first parses the fullName into an object using `parseName`.\n\nThen it checks for the presence of a type-specific instance\nmethod of the form `resolve[Type]` and calls it if it exists.\nFor example if it was resolving 'template:post', it would call\nthe `resolveTemplate` method.\n\nIts last resort is to call the `resolveOther` method.\n\nThe methods of this object are designed to be easy to override\nin a subclass. For example, you could enhance how a template\nis resolved like so:\n\n```app/app.js\nimport Application from '@ember/application';\nimport GlobalsResolver from '@ember/application/globals-resolver';\n\nApp = Application.create({\n  Resolver: GlobalsResolver.extend({\n    resolveTemplate(parsedName) {\n      let resolvedTemplate = this._super(parsedName);\n      if (resolvedTemplate) { return resolvedTemplate; }\n\n      return Ember.TEMPLATES['not_found'];\n    }\n  })\n});\n```\n\nSome examples of how names are resolved:\n\n```text\n'template:post'           //=> Ember.TEMPLATES['post']\n'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']\n'template:blogPost'       //=> Ember.TEMPLATES['blog-post']\n'controller:post'         //=> App.PostController\n'controller:posts.index'  //=> App.PostsIndexController\n'controller:blog/post'    //=> Blog.PostController\n'controller:basic'        //=> Controller\n'route:post'              //=> App.PostRoute\n'route:posts.index'       //=> App.PostsIndexRoute\n'route:blog/post'         //=> Blog.PostRoute\n'route:basic'             //=> Route\n'foo:post'                //=> App.PostFoo\n'model:post'              //=> App.Post\n```",
             "extends": "EmberObject",
+            "access": "public",
+            "tagname": ""
+        },
+        "Ember.Logger": {
+            "name": "Ember.Logger",
+            "shortname": "Ember.Logger",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "@ember/application",
+            "namespace": "Ember",
+            "file": "packages/ember-console/lib/index.js",
+            "line": 35,
+            "description": "Inside Ember-Metal, simply uses the methods from `imports.console`.\nOverride this to provide more robust logging functionality.",
             "access": "public",
             "tagname": ""
         },
@@ -5765,6 +5797,125 @@
             "tagname": "",
             "class": "GlobalsResolver",
             "module": "@ember/application"
+        },
+        {
+            "file": "packages/ember-console/lib/index.js",
+            "line": 44,
+            "description": "Logs the arguments to the console.\nYou can pass as many arguments as you want and they will be joined together with a space.\n\n ```javascript\n var foo = 1;\n Ember.Logger.log('log value of foo:', foo);\n // \"log value of foo: 1\" will be printed to the console\n ```",
+            "itemtype": "method",
+            "name": "log",
+            "params": [
+                {
+                    "name": "arguments",
+                    "description": "",
+                    "type": "*"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Logger",
+            "module": "@ember/application",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-console/lib/index.js",
+            "line": 61,
+            "description": "Prints the arguments to the console with a warning icon.\nYou can pass as many arguments as you want and they will be joined together with a space.\n\n ```javascript\n Ember.Logger.warn('Something happened!');\n // \"Something happened!\" will be printed to the console with a warning icon.\n ```",
+            "itemtype": "method",
+            "name": "warn",
+            "params": [
+                {
+                    "name": "arguments",
+                    "description": "",
+                    "type": "*"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Logger",
+            "module": "@ember/application",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-console/lib/index.js",
+            "line": 77,
+            "description": "Prints the arguments to the console with an error icon, red text and a stack trace.\nYou can pass as many arguments as you want and they will be joined together with a space.\n\n ```javascript\n Ember.Logger.error('Danger! Danger!');\n // \"Danger! Danger!\" will be printed to the console in red text.\n ```",
+            "itemtype": "method",
+            "name": "error",
+            "params": [
+                {
+                    "name": "arguments",
+                    "description": "",
+                    "type": "*"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Logger",
+            "module": "@ember/application",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-console/lib/index.js",
+            "line": 93,
+            "description": "Logs the arguments to the console.\nYou can pass as many arguments as you want and they will be joined together with a space.\n\n ```javascript\n var foo = 1;\n Ember.Logger.info('log value of foo:', foo);\n // \"log value of foo: 1\" will be printed to the console\n ```",
+            "itemtype": "method",
+            "name": "info",
+            "params": [
+                {
+                    "name": "arguments",
+                    "description": "",
+                    "type": "*"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Logger",
+            "module": "@ember/application",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-console/lib/index.js",
+            "line": 110,
+            "description": "Logs the arguments to the console in blue text.\nYou can pass as many arguments as you want and they will be joined together with a space.\n\n ```javascript\n var foo = 1;\n Ember.Logger.debug('log value of foo:', foo);\n // \"log value of foo: 1\" will be printed to the console\n ```",
+            "itemtype": "method",
+            "name": "debug",
+            "params": [
+                {
+                    "name": "arguments",
+                    "description": "",
+                    "type": "*"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Logger",
+            "module": "@ember/application",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-console/lib/index.js",
+            "line": 127,
+            "description": "If the value passed into `Ember.Logger.assert` is not truthy it will throw an error with a stack trace.\n\n ```javascript\n Ember.Logger.assert(true); // undefined\n Ember.Logger.assert(true === false); // Throws an Assertion failed error.\n Ember.Logger.assert(true === false, 'Something invalid'); // Throws an Assertion failed error with message.\n ```",
+            "itemtype": "method",
+            "name": "assert",
+            "params": [
+                {
+                    "name": "bool",
+                    "description": "Value to test",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "message",
+                    "description": "Assertion message on failed",
+                    "type": "String"
+                }
+            ],
+            "access": "public",
+            "tagname": "",
+            "class": "Ember.Logger",
+            "module": "@ember/application",
+            "namespace": "Ember"
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
