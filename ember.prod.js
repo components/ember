@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+2272e0e0
+ * @version   2.17.0-alpha.1-null+b3ae3b2f
  */
 
 /*global process */
@@ -16866,7 +16866,7 @@ enifed('ember-glimmer/dom', ['exports', '@glimmer/runtime', '@glimmer/node'], fu
     }
   });
 });
-enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-views', 'ember-glimmer/component-managers/curly', 'ember-glimmer/syntax', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/loc', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/modifiers/action', 'ember-glimmer/protocol-for-url', 'ember/features'], function (exports, _emberBabel, _runtime, _emberDebug, _emberMetal, _emberUtils, _emberViews, _curly, _syntax, _debugStack, _iterable, _references, _class, _htmlSafe, _inputType, _normalizeClass, _action, _component, _concat, _eachIn, _get, _hash, _ifUnless, _loc, _log, _mut, _queryParam, _readonly, _unbound, _action2, _protocolForUrl, _features) {
+enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime', 'ember-debug', 'ember-metal', 'ember-utils', 'ember-views', 'ember-glimmer/component-managers/curly', 'ember-glimmer/syntax', 'ember-glimmer/utils/debug-stack', 'ember-glimmer/utils/iterable', 'ember-glimmer/utils/references', 'ember-glimmer/helpers/-class', 'ember-glimmer/helpers/-html-safe', 'ember-glimmer/helpers/-input-type', 'ember-glimmer/helpers/-normalize-class', 'ember-glimmer/helpers/action', 'ember-glimmer/helpers/component', 'ember-glimmer/helpers/concat', 'ember-glimmer/helpers/each-in', 'ember-glimmer/helpers/get', 'ember-glimmer/helpers/hash', 'ember-glimmer/helpers/if-unless', 'ember-glimmer/helpers/log', 'ember-glimmer/helpers/mut', 'ember-glimmer/helpers/query-param', 'ember-glimmer/helpers/readonly', 'ember-glimmer/helpers/unbound', 'ember-glimmer/modifiers/action', 'ember-glimmer/protocol-for-url', 'ember/features'], function (exports, _emberBabel, _runtime, _emberDebug, _emberMetal, _emberUtils, _emberViews, _curly, _syntax, _debugStack, _iterable, _references, _class, _htmlSafe, _inputType, _normalizeClass, _action, _component, _concat, _eachIn, _get, _hash, _ifUnless, _log, _mut, _queryParam, _readonly, _unbound, _action2, _protocolForUrl, _features) {
     'use strict';
 
     function instrumentationPayload(name) {
@@ -16961,7 +16961,6 @@ enifed('ember-glimmer/environment', ['exports', 'ember-babel', '@glimmer/runtime
                 concat: _concat.default,
                 get: _get.default,
                 hash: _hash.default,
-                loc: _loc.default,
                 log: _log.default,
                 mut: _mut.default,
                 'query-params': _queryParam.default,
@@ -18204,53 +18203,12 @@ enifed('ember-glimmer/helpers/if-unless', ['exports', 'ember-babel', '@glimmer/r
     return ConditionalHelperReference;
   }(_references.CachedReference);
 });
-enifed('ember-glimmer/helpers/loc', ['exports', 'ember-runtime', 'ember-glimmer/utils/references'], function (exports, _emberRuntime, _references) {
+enifed('ember-glimmer/helpers/loc', ['exports', 'ember-glimmer/helper', 'ember-runtime'], function (exports, _helper, _emberRuntime) {
   'use strict';
 
-  exports.default = function (_vm, args) {
-    return new _references.InternalHelperReference(locHelper, args.capture());
-  };
-
-  /**
-    Calls [loc](/api/classes/Ember.String.html#method_loc) with the
-    provided string. This is a convenient way to localize text within a template.
-    For example:
-  
-    ```javascript
-    Ember.STRINGS = {
-      '_welcome_': 'Bonjour'
-    };
-    ```
-  
-    ```handlebars
-    <div class='message'>
-      {{loc '_welcome_'}}
-    </div>
-    ```
-  
-    ```html
-    <div class='message'>
-      Bonjour
-    </div>
-    ```
-  
-    See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
-    set up localized string references.
-  
-    @method loc
-    @for Ember.Templates.helpers
-    @param {String} str The string to format.
-    @see {Ember.String#loc}
-    @public
-  */
-  /**
-  @module ember
-  */
-  function locHelper(_ref) {
-    var positional = _ref.positional;
-
-    return _emberRuntime.String.loc.apply(null, positional.value());
-  }
+  exports.default = (0, _helper.helper)(function (params) {
+    return _emberRuntime.String.loc.apply(null, params);
+  });
 });
 enifed('ember-glimmer/helpers/log', ['exports', 'ember-glimmer/utils/references', 'ember-console'], function (exports, _references, _emberConsole) {
   'use strict';
@@ -19326,7 +19284,7 @@ enifed('ember-glimmer/renderer', ['exports', 'ember-babel', '@glimmer/reference'
         return InteractiveRenderer;
     }(Renderer);
 });
-enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/link-to', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/dom', 'ember-glimmer/environment', 'ember-glimmer/renderer', 'ember-glimmer/templates/component', 'ember-glimmer/templates/outlet', 'ember-glimmer/templates/root', 'ember-glimmer/views/outlet'], function (exports, _emberBabel, _container, _emberEnvironment, _component, _checkbox, _linkTo, _text_area, _text_field, _dom, _environment, _renderer, _component2, _outlet, _root, _outlet2) {
+enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', 'ember-environment', 'ember-glimmer/component', 'ember-glimmer/components/checkbox', 'ember-glimmer/components/link-to', 'ember-glimmer/components/text_area', 'ember-glimmer/components/text_field', 'ember-glimmer/dom', 'ember-glimmer/environment', 'ember-glimmer/renderer', 'ember-glimmer/templates/component', 'ember-glimmer/templates/outlet', 'ember-glimmer/templates/root', 'ember-glimmer/views/outlet', 'ember-glimmer/helpers/loc'], function (exports, _emberBabel, _container, _emberEnvironment, _component, _checkbox, _linkTo, _text_area, _text_field, _dom, _environment, _renderer, _component2, _outlet, _root, _outlet2, _loc) {
     'use strict';
 
     exports.setupApplicationRegistry = function (registry) {
@@ -19365,6 +19323,7 @@ enifed('ember-glimmer/setup-registry', ['exports', 'ember-babel', 'container', '
         registry.register('service:-glimmer-environment', _environment.default);
         registry.injection('template', 'env', 'service:-glimmer-environment');
         registry.optionsForType('helper', { instantiate: false });
+        registry.register('helper:loc', _loc.default);
         registry.register('component:-text-field', _text_field.default);
         registry.register('component:-text-area', _text_area.default);
         registry.register('component:-checkbox', _checkbox.default);
@@ -43958,7 +43917,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+2272e0e0";
+  exports.default = "2.17.0-alpha.1-null+b3ae3b2f";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

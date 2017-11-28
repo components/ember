@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+2272e0e0
+ * @version   2.17.0-alpha.1-null+b3ae3b2f
  */
 
 /*global process */
@@ -28266,6 +28266,16 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['ember-babel', 'embe
         });
       });
       this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after replacement');
+    };
+
+    _class.prototype['@test it can be overriden'] = function () {
+      this.registerHelper('loc', function () {
+        return 'Yup';
+      });
+      this.render('{{loc greeting}}', {
+        greeting: 'Hello Friend'
+      });
+      this.assertText('Yup', 'the localized string is correct');
     };
 
     return _class;
