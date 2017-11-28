@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c099fb0f
+ * @version   2.17.0-alpha.1-null+ede4b906
  */
 
 /*global process */
@@ -9431,6 +9431,29 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
 
     var noop = function () {};
     var SET_TIMEOUT = setTimeout;
+    function parseArgs() {
+        var length = arguments.length;
+        var method = void 0;
+        var target = void 0;
+        var args = void 0;
+        if (length === 1) {
+            method = arguments[0];
+            target = null;
+        } else {
+            target = arguments[0];
+            method = arguments[1];
+            if (isString(method)) {
+                method = target[method];
+            }
+            if (length > 2) {
+                args = new Array(length - 2);
+                for (var i = 0, l = length - 2; i < l; i++) {
+                    args[i] = arguments[i + 2];
+                }
+            }
+        }
+        return [target, method, args];
+    }
 
     var Backburner = function () {
         function Backburner(queueNames) {
@@ -9569,29 +9592,17 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             }
         };
 
-        Backburner.prototype.run = function run(target, method) {
-            for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-                args[_key - 2] = arguments[_key];
-            }
+        Backburner.prototype.run = function run() {
+            var _parseArgs = parseArgs.apply(undefined, arguments),
+                target = _parseArgs[0],
+                method = _parseArgs[1],
+                args = _parseArgs[2];
 
-            var length = arguments.length;
-            var _method = void 0;
-            var _target = void 0;
-            if (length === 1) {
-                _method = target;
-                _target = null;
-            } else {
-                _method = method;
-                _target = target;
-                if (isString(_method)) {
-                    _method = _target[_method];
-                }
-            }
             var onError = getOnError(this.options);
             this.begin();
             if (onError) {
                 try {
-                    return _method.apply(_target, args);
+                    return method.apply(target, args);
                 } catch (error) {
                     onError(error);
                 } finally {
@@ -9599,7 +9610,7 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
                 }
             } else {
                 try {
-                    return _method.apply(_target, args);
+                    return method.apply(target, args);
                 } finally {
                     this.end();
                 }
@@ -9610,26 +9621,13 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             if (this.currentInstance === null) {
                 return this.run.apply(this, arguments);
             }
+
+            var _parseArgs2 = parseArgs.apply(undefined, arguments),
+                target = _parseArgs2[0],
+                method = _parseArgs2[1],
+                args = _parseArgs2[2];
+
             var length = arguments.length;
-            var method = void 0;
-            var target = void 0;
-            var args = void 0;
-            if (length === 1) {
-                method = arguments[0];
-                target = null;
-            } else {
-                target = arguments[0];
-                method = arguments[1];
-                if (isString(method)) {
-                    method = target[method];
-                }
-                if (length > 2) {
-                    args = new Array(length - 2);
-                    for (var i = 0, l = length - 2; i < l; i++) {
-                        args[i] = arguments[i + 2];
-                    }
-                }
-            }
             if (length === 1) {
                 return method();
             } else if (length === 2) {
@@ -9644,26 +9642,15 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype.schedule = function schedule(queueName) {
-            var length = arguments.length;
-            var method = void 0;
-            var target = void 0;
-            var args = void 0;
-            if (length === 2) {
-                method = arguments[1];
-                target = null;
-            } else {
-                target = arguments[1];
-                method = arguments[2];
-                if (isString(method)) {
-                    method = target[method];
-                }
-                if (length > 3) {
-                    args = new Array(length - 3);
-                    for (var i = 3; i < length; i++) {
-                        args[i - 3] = arguments[i];
-                    }
-                }
+            for (var _len = arguments.length, _args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                _args[_key - 1] = arguments[_key];
             }
+
+            var _parseArgs3 = parseArgs.apply(undefined, _args),
+                target = _parseArgs3[0],
+                method = _parseArgs3[1],
+                args = _parseArgs3[2];
+
             var stack = this.DEBUG ? new Error() : undefined;
             return this._ensureInstance().schedule(queueName, target, method, args, false, stack);
         };
@@ -9677,27 +9664,16 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
             return this.scheduleOnce.apply(this, arguments);
         };
 
-        Backburner.prototype.scheduleOnce = function scheduleOnce(queueName /* , target, method, args */) {
-            var length = arguments.length;
-            var method = void 0;
-            var target = void 0;
-            var args = void 0;
-            if (length === 2) {
-                method = arguments[1];
-                target = null;
-            } else {
-                target = arguments[1];
-                method = arguments[2];
-                if (isString(method)) {
-                    method = target[method];
-                }
-                if (length > 3) {
-                    args = new Array(length - 3);
-                    for (var i = 3; i < length; i++) {
-                        args[i - 3] = arguments[i];
-                    }
-                }
+        Backburner.prototype.scheduleOnce = function scheduleOnce(queueName) {
+            for (var _len2 = arguments.length, _args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+                _args[_key2 - 1] = arguments[_key2];
             }
+
+            var _parseArgs4 = parseArgs.apply(undefined, _args),
+                target = _parseArgs4[0],
+                method = _parseArgs4[1],
+                args = _parseArgs4[2];
+
             var stack = this.DEBUG ? new Error() : undefined;
             return this._ensureInstance().schedule(queueName, target, method, args, true, stack);
         };
@@ -9707,8 +9683,8 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         };
 
         Backburner.prototype.later = function later() {
-            for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                args[_key2] = arguments[_key2];
+            for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+                args[_key3] = arguments[_key3];
             }
 
             var length = args.length;
@@ -9776,8 +9752,8 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         Backburner.prototype.throttle = function throttle(target, method) /*, ...args, wait, [immediate] */{
             var _this2 = this;
 
-            for (var _len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
-                args[_key3 - 2] = arguments[_key3];
+            for (var _len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
+                args[_key4 - 2] = arguments[_key4];
             }
 
             var immediate = args.pop();
@@ -9818,8 +9794,8 @@ enifed('backburner', ['exports', 'ember-babel'], function (exports, _emberBabel)
         Backburner.prototype.debounce = function debounce(target, method) /* , wait, [immediate] */{
             var _this3 = this;
 
-            for (var _len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
-                args[_key4 - 2] = arguments[_key4];
+            for (var _len5 = arguments.length, args = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
+                args[_key5 - 2] = arguments[_key5];
             }
 
             var immediate = args.pop();
@@ -47696,7 +47672,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+c099fb0f";
+  exports.default = "2.17.0-alpha.1-null+ede4b906";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

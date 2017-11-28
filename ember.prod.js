@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+c099fb0f
+ * @version   2.17.0-alpha.1-null+ede4b906
  */
 
 /*global process */
@@ -9773,6 +9773,30 @@ enifed('backburner', ['exports'], function (exports) {
 
     var noop = function () {};
     var SET_TIMEOUT = setTimeout;
+    function parseArgs() {
+        var length = arguments.length,
+            i;
+        var method = void 0;
+        var target = void 0;
+        var args = void 0;
+        if (length === 1) {
+            method = arguments[0];
+            target = null;
+        } else {
+            target = arguments[0];
+            method = arguments[1];
+            if (isString(method)) {
+                method = target[method];
+            }
+            if (length > 2) {
+                args = new Array(length - 2);
+                for (i = 0; i < length - 2; i++) {
+                    args[i] = arguments[i + 2];
+                }
+            }
+        }
+        return [target, method, args];
+    }
 
     var Backburner = function () {
         function Backburner(queueNames) {
@@ -9913,32 +9937,17 @@ enifed('backburner', ['exports'], function (exports) {
             }
         };
 
-        Backburner.prototype.run = function (target, method) {
-            for (_len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-                args[_key - 2] = arguments[_key];
-            }
+        Backburner.prototype.run = function () {
+            var _parseArgs = parseArgs.apply(undefined, arguments),
+                target = _parseArgs[0],
+                method = _parseArgs[1],
+                args = _parseArgs[2];
 
-            var length = arguments.length,
-                _len,
-                args,
-                _key;
-            var _method = void 0;
-            var _target = void 0;
-            if (length === 1) {
-                _method = target;
-                _target = null;
-            } else {
-                _method = method;
-                _target = target;
-                if (isString(_method)) {
-                    _method = _target[_method];
-                }
-            }
             var onError = getOnError(this.options);
             this.begin();
             if (onError) {
                 try {
-                    return _method.apply(_target, args);
+                    return method.apply(target, args);
                 } catch (error) {
                     onError(error);
                 } finally {
@@ -9946,7 +9955,7 @@ enifed('backburner', ['exports'], function (exports) {
                 }
             } else {
                 try {
-                    return _method.apply(_target, args);
+                    return method.apply(target, args);
                 } finally {
                     this.end();
                 }
@@ -9957,27 +9966,13 @@ enifed('backburner', ['exports'], function (exports) {
             if (this.currentInstance === null) {
                 return this.run.apply(this, arguments);
             }
-            var length = arguments.length,
-                i;
-            var method = void 0;
-            var target = void 0;
-            var args = void 0;
-            if (length === 1) {
-                method = arguments[0];
-                target = null;
-            } else {
-                target = arguments[0];
-                method = arguments[1];
-                if (isString(method)) {
-                    method = target[method];
-                }
-                if (length > 2) {
-                    args = new Array(length - 2);
-                    for (i = 0; i < length - 2; i++) {
-                        args[i] = arguments[i + 2];
-                    }
-                }
-            }
+
+            var _parseArgs2 = parseArgs.apply(undefined, arguments),
+                target = _parseArgs2[0],
+                method = _parseArgs2[1],
+                args = _parseArgs2[2];
+
+            var length = arguments.length;
             if (length === 1) {
                 return method();
             } else if (length === 2) {
@@ -9992,27 +9987,18 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Backburner.prototype.schedule = function (queueName) {
-            var length = arguments.length,
-                i;
-            var method = void 0;
-            var target = void 0;
-            var args = void 0;
-            if (length === 2) {
-                method = arguments[1];
-                target = null;
-            } else {
-                target = arguments[1];
-                method = arguments[2];
-                if (isString(method)) {
-                    method = target[method];
-                }
-                if (length > 3) {
-                    args = new Array(length - 3);
-                    for (i = 3; i < length; i++) {
-                        args[i - 3] = arguments[i];
-                    }
-                }
+            for (_len = arguments.length, _args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                _args[_key - 1] = arguments[_key];
             }
+
+            var _parseArgs3 = parseArgs.apply(undefined, _args),
+                target = _parseArgs3[0],
+                method = _parseArgs3[1],
+                args = _parseArgs3[2],
+                _len,
+                _args,
+                _key;
+
             var stack = this.DEBUG ? new Error() : undefined;
             return this._ensureInstance().schedule(queueName, target, method, args, false, stack);
         };
@@ -10026,28 +10012,19 @@ enifed('backburner', ['exports'], function (exports) {
             return this.scheduleOnce.apply(this, arguments);
         };
 
-        Backburner.prototype.scheduleOnce = function (queueName /* , target, method, args */) {
-            var length = arguments.length,
-                i;
-            var method = void 0;
-            var target = void 0;
-            var args = void 0;
-            if (length === 2) {
-                method = arguments[1];
-                target = null;
-            } else {
-                target = arguments[1];
-                method = arguments[2];
-                if (isString(method)) {
-                    method = target[method];
-                }
-                if (length > 3) {
-                    args = new Array(length - 3);
-                    for (i = 3; i < length; i++) {
-                        args[i - 3] = arguments[i];
-                    }
-                }
+        Backburner.prototype.scheduleOnce = function (queueName) {
+            for (_len2 = arguments.length, _args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+                _args[_key2 - 1] = arguments[_key2];
             }
+
+            var _parseArgs4 = parseArgs.apply(undefined, _args),
+                target = _parseArgs4[0],
+                method = _parseArgs4[1],
+                args = _parseArgs4[2],
+                _len2,
+                _args,
+                _key2;
+
             var stack = this.DEBUG ? new Error() : undefined;
             return this._ensureInstance().schedule(queueName, target, method, args, true, stack);
         };
@@ -10057,14 +10034,14 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Backburner.prototype.later = function () {
-            for (_len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-                args[_key2] = arguments[_key2];
+            for (_len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+                args[_key3] = arguments[_key3];
             }
 
             var length = args.length,
-                _len2,
+                _len3,
                 args,
-                _key2,
+                _key3,
                 last;
             var wait = 0;
             var method = void 0;
@@ -10130,12 +10107,12 @@ enifed('backburner', ['exports'], function (exports) {
 
         Backburner.prototype.throttle = function (target, method) /*, ...args, wait, [immediate] */{
             var _this2 = this,
-                _len3,
+                _len4,
                 args,
-                _key3;
+                _key4;
 
-            for (_len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
-                args[_key3 - 2] = arguments[_key3];
+            for (_len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
+                args[_key4 - 2] = arguments[_key4];
             }
 
             var immediate = args.pop();
@@ -10175,13 +10152,13 @@ enifed('backburner', ['exports'], function (exports) {
 
         Backburner.prototype.debounce = function (target, method) /* , wait, [immediate] */{
             var _this3 = this,
-                _len4,
+                _len5,
                 args,
-                _key4,
+                _key5,
                 timerId;
 
-            for (_len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
-                args[_key4 - 2] = arguments[_key4];
+            for (_len5 = arguments.length, args = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
+                args[_key5 - 2] = arguments[_key5];
             }
 
             var immediate = args.pop();
@@ -43907,7 +43884,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+c099fb0f";
+  exports.default = "2.17.0-alpha.1-null+ede4b906";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
