@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "v2.17.0-beta.6"
+        "version": "2.17.0-beta.6.c641380d"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
