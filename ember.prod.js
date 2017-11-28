@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+cbc39f58
+ * @version   2.17.0-alpha.1-null+2272e0e0
  */
 
 /*global process */
@@ -9436,7 +9436,7 @@ enifed('backburner', ['exports'], function (exports) {
         var index = -1,
             i,
             l;
-        for (i = 0, l = collection.length; i < l; i += 3) {
+        for (i = 0, l = collection.length; i < l; i += 4) {
             if (collection[i] === target && collection[i + 1] === method) {
                 index = i;
                 break;
@@ -9447,9 +9447,9 @@ enifed('backburner', ['exports'], function (exports) {
     function findTimer(timer, collection) {
         var index = -1,
             i;
-        for (i = 2; i < collection.length; i += 3) {
+        for (i = 3; i < collection.length; i += 4) {
             if (collection[i] === timer) {
-                index = i - 2;
+                index = i - 3;
                 break;
             }
         }
@@ -9483,10 +9483,10 @@ enifed('backburner', ['exports'], function (exports) {
             var globalOptions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
 
-            this._queue = []; // TODO: should be private
             this._queueBeingFlushed = [];
             this.targetQueues = Object.create(null);
             this.index = 0;
+            this._queue = [];
             this.name = name;
             this.options = options;
             this.globalOptions = globalOptions;
@@ -9527,27 +9527,22 @@ enifed('backburner', ['exports'], function (exports) {
             var args = void 0;
             var errorRecordedForStack = void 0;
             this.targetQueues = Object.create(null);
-            var queueItems = void 0;
-            if (this._queueBeingFlushed.length > 0) {
-                queueItems = this._queueBeingFlushed;
-            } else {
-                queueItems = this._queueBeingFlushed = this._queue;
+            if (this._queueBeingFlushed.length === 0) {
+                this._queueBeingFlushed = this._queue;
                 this._queue = [];
             }
-            if (before) {
+            if (before !== undefined) {
                 before();
             }
             var invoke = void 0;
+            var queueItems = this._queueBeingFlushed;
             if (queueItems.length > 0) {
                 onError = getOnError(this.globalOptions);
 
                 invoke = onError ? this.invokeWithOnError : this.invoke;
                 for (i = this.index; i < queueItems.length; i += 4) {
                     this.index += 4;
-                    target = queueItems[i];
                     method = queueItems[i + 1];
-                    args = queueItems[i + 2];
-                    errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
                     // method could have been nullified / canceled during flush
                     if (method !== null) {
                         //
@@ -9565,6 +9560,9 @@ enifed('backburner', ['exports'], function (exports) {
                         //    One possible long-term solution is the following Chrome issue:
                         //       https://bugs.chromium.org/p/chromium/issues/detail?id=332624
                         //
+                        target = queueItems[i];
+                        args = queueItems[i + 2];
+                        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
                         invoke(target, method, args, onError, errorRecordedForStack);
                     }
                     if (this.index !== this._queueBeingFlushed.length && this.globalOptions.mustYield && this.globalOptions.mustYield()) {
@@ -9572,7 +9570,7 @@ enifed('backburner', ['exports'], function (exports) {
                     }
                 }
             }
-            if (after) {
+            if (after !== undefined) {
                 after();
             }
             this._queueBeingFlushed.length = 0;
@@ -9589,17 +9587,17 @@ enifed('backburner', ['exports'], function (exports) {
 
         Queue.prototype.cancel = function (_ref) {
             var target = _ref.target,
-                method = _ref.method;
+                method = _ref.method,
+                t,
+                i,
+                l;
 
             var queue = this._queue;
-            var currentTarget = void 0;
-            var currentMethod = void 0;
-            var i = void 0;
-            var l = void 0;
-            var t = void 0;
             var guid = this.guidForTarget(target);
             var targetQueue = guid ? this.targetQueues[guid] : undefined;
             if (targetQueue !== undefined) {
+                t = void 0;
+
                 for (i = 0, l = targetQueue.length; i < l; i += 2) {
                     t = targetQueue[i];
                     if (t === method) {
@@ -9607,26 +9605,18 @@ enifed('backburner', ['exports'], function (exports) {
                     }
                 }
             }
-            for (i = 0, l = queue.length; i < l; i += 4) {
-                currentTarget = queue[i];
-                currentMethod = queue[i + 1];
-                if (currentTarget === target && currentMethod === method) {
-                    queue.splice(i, 4);
-                    return true;
-                }
+            var index = findItem(target, method, queue);
+            if (index > -1) {
+                queue.splice(index, 4);
+                return true;
             }
             // if not found in current queue
             // could be in the queue that is being flushed
             queue = this._queueBeingFlushed;
-            for (i = 0, l = queue.length; i < l; i += 4) {
-                currentTarget = queue[i];
-                currentMethod = queue[i + 1];
-                if (currentTarget === target && currentMethod === method) {
-                    // don't mess with array during flush
-                    // just nullify the method
-                    queue[i + 1] = null;
-                    return true;
-                }
+            index = findItem(target, method, queue);
+            if (index > -1) {
+                queue[index + 1] = null;
+                return true;
             }
             return false;
         };
@@ -9646,22 +9636,14 @@ enifed('backburner', ['exports'], function (exports) {
         };
 
         Queue.prototype.pushUniqueWithoutGuid = function (target, method, args, stack) {
-            var queue = this._queue,
-                i,
-                l,
-                currentTarget,
-                currentMethod;
-            for (i = 0, l = queue.length; i < l; i += 4) {
-                currentTarget = queue[i];
-                currentMethod = queue[i + 1];
-
-                if (currentTarget === target && currentMethod === method) {
-                    queue[i + 2] = args; // replace args
-                    queue[i + 3] = stack; // replace stack
-                    return;
-                }
+            var queue = this._queue;
+            var index = findItem(target, method, queue);
+            if (index > -1) {
+                queue[index + 2] = args; // replace args
+                queue[index + 3] = stack; // replace stack
+            } else {
+                queue.push(target, method, args, stack);
             }
-            queue.push(target, method, args, stack);
         };
 
         Queue.prototype.targetQueue = function (_targetQueue, target, method, args, stack) {
@@ -9996,13 +9978,10 @@ enifed('backburner', ['exports'], function (exports) {
                     }
                 }
             }
-            var onError = getOnError(this.options);
-            if (onError) {
-                try {
-                    return method.apply(target, args);
-                } catch (error) {
-                    onError(error);
-                }
+            if (length === 1) {
+                return method();
+            } else if (length === 2) {
+                return method.call(target);
             } else {
                 return method.apply(target, args);
             }
@@ -10149,19 +10128,19 @@ enifed('backburner', ['exports'], function (exports) {
             return this._setTimeout(fn, executeAt);
         };
 
-        Backburner.prototype.throttle = function (target, method /*, ...args, wait, [immediate] */) {
+        Backburner.prototype.throttle = function (target, method) /*, ...args, wait, [immediate] */{
             var _this2 = this,
-                i;
+                _len3,
+                args,
+                _key3;
 
-            var args = new Array(arguments.length);
-            for (i = 0; i < arguments.length; i++) {
-                args[i] = arguments[i];
+            for (_len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
+                args[_key3 - 2] = arguments[_key3];
             }
+
             var immediate = args.pop();
             var isImmediate = void 0;
             var wait = void 0;
-            var index = void 0;
-            var timer = void 0;
             if (isCoercableNumber(immediate)) {
                 wait = immediate;
                 isImmediate = true;
@@ -10170,40 +10149,44 @@ enifed('backburner', ['exports'], function (exports) {
                 isImmediate = immediate === true;
             }
             wait = parseInt(wait, 10);
-            index = findItem(target, method, this._throttlers);
+            var index = findItem(target, method, this._throttlers);
             if (index > -1) {
-                return this._throttlers[index + 2];
+                this._throttlers[index + 2] = args;
+                return this._throttlers[index + 3];
             } // throttled
-            timer = this._platform.setTimeout(function () {
+            var timer = this._platform.setTimeout(function () {
+                var i = findTimer(timer, _this2._throttlers);
+
+                var _throttlers$splice = _this2._throttlers.splice(i, 4),
+                    context = _throttlers$splice[0],
+                    func = _throttlers$splice[1],
+                    params = _throttlers$splice[2];
+
                 if (isImmediate === false) {
-                    _this2.run.apply(_this2, args);
-                }
-                index = findTimer(timer, _this2._throttlers);
-                if (index > -1) {
-                    _this2._throttlers.splice(index, 3);
+                    _this2.run.apply(_this2, [context, func].concat(params));
                 }
             }, wait);
             if (isImmediate) {
-                this.join.apply(this, args);
+                this.join.apply(this, [target, method].concat(args));
             }
-            this._throttlers.push(target, method, timer);
+            this._throttlers.push(target, method, args, timer);
             return timer;
         };
 
-        Backburner.prototype.debounce = function (target, method /* , args, wait, [immediate] */) {
+        Backburner.prototype.debounce = function (target, method) /* , wait, [immediate] */{
             var _this3 = this,
-                i,
+                _len4,
+                args,
+                _key4,
                 timerId;
 
-            var args = new Array(arguments.length);
-            for (i = 0; i < arguments.length; i++) {
-                args[i] = arguments[i];
+            for (_len4 = arguments.length, args = Array(_len4 > 2 ? _len4 - 2 : 0), _key4 = 2; _key4 < _len4; _key4++) {
+                args[_key4 - 2] = arguments[_key4];
             }
+
             var immediate = args.pop();
             var isImmediate = void 0;
             var wait = void 0;
-            var index = void 0;
-            var timer = void 0;
             if (isCoercableNumber(immediate)) {
                 wait = immediate;
                 isImmediate = false;
@@ -10213,37 +10196,40 @@ enifed('backburner', ['exports'], function (exports) {
             }
             wait = parseInt(wait, 10);
             // Remove debouncee
-            index = findItem(target, method, this._debouncees);
+            var index = findItem(target, method, this._debouncees);
             if (index > -1) {
-                timerId = this._debouncees[index + 2];
+                timerId = this._debouncees[index + 3];
 
-                this._debouncees.splice(index, 3);
                 this._platform.clearTimeout(timerId);
+                this._debouncees.splice(index, 4);
             }
-            timer = this._platform.setTimeout(function () {
+            var timer = this._platform.setTimeout(function () {
+                var i = findTimer(timer, _this3._debouncees);
+
+                var _debouncees$splice = _this3._debouncees.splice(i, 4),
+                    context = _debouncees$splice[0],
+                    func = _debouncees$splice[1],
+                    params = _debouncees$splice[2];
+
                 if (isImmediate === false) {
-                    _this3.run.apply(_this3, args);
-                }
-                index = findTimer(timer, _this3._debouncees);
-                if (index > -1) {
-                    _this3._debouncees.splice(index, 3);
+                    _this3.run.apply(_this3, [context, func].concat(params));
                 }
             }, wait);
             if (isImmediate && index === -1) {
-                this.join.apply(this, args);
+                this.join.apply(this, [target, method].concat(args));
             }
-            this._debouncees.push(target, method, timer);
+            this._debouncees.push(target, method, args, timer);
             return timer;
         };
 
         Backburner.prototype.cancelTimers = function () {
             var i, t;
 
-            for (i = 2; i < this._throttlers.length; i += 3) {
+            for (i = 3; i < this._throttlers.length; i += 4) {
                 this._platform.clearTimeout(this._throttlers[i]);
             }
             this._throttlers = [];
-            for (t = 2; t < this._debouncees.length; t += 3) {
+            for (t = 3; t < this._debouncees.length; t += 4) {
                 this._platform.clearTimeout(this._debouncees[t]);
             }
             this._debouncees = [];
@@ -10317,8 +10303,8 @@ enifed('backburner', ['exports'], function (exports) {
         Backburner.prototype._cancelItem = function (timer, array) {
             var index = findTimer(timer, array);
             if (index > -1) {
-                array.splice(index, 3);
                 this._platform.clearTimeout(timer);
+                array.splice(index, 4);
                 return true;
             }
             return false;
@@ -43972,7 +43958,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+cbc39f58";
+  exports.default = "2.17.0-alpha.1-null+2272e0e0";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
