@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+b3ae3b2f
+ * @version   2.17.0-alpha.1-null+87efb0a1
  */
 
 /*global process */
@@ -50592,6 +50592,24 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     deepEqual(obj.get('filtered'), [20, 22, 24], 'computed array is updated when array is changed');
   });
 
+  QUnit.test('it updates properly on @each with {} dependencies', function () {
+    var item = _object.default.create({ prop: true });
+
+    obj = _object.default.extend({
+      filtered: (0, _reduce_computed_macros.filter)('items.@each.{prop}', function (item, index) {
+        return item.get('prop') === true;
+      })
+    }).create({
+      items: (0, _native_array.A)([item])
+    });
+
+    deepEqual(obj.get('filtered'), [item]);
+
+    item.set('prop', false);
+
+    deepEqual(obj.get('filtered'), []);
+  });
+
   QUnit.module('filterBy', {
     setup: function () {
       obj = _object.default.extend({
@@ -50894,7 +50912,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array: (0, _native_array.A)([1, 2, 3, 4, 5, 6, 7]),
         array2: (0, _native_array.A)([3, 4, 5])
       });
-    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /\`Ember\.computed\.setDiff\` requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
 
     expectAssertion(function () {
       _object.default.extend({
@@ -50904,7 +50922,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array2: (0, _native_array.A)([3, 4, 5]),
         array3: (0, _native_array.A)([7])
       });
-    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /\`Ember\.computed\.setDiff\` requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
   });
 
   QUnit.test('it has set-diff semantics', function () {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+b3ae3b2f
+ * @version   2.17.0-alpha.1-null+87efb0a1
  */
 
 /*global process */
@@ -34102,7 +34102,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   function (dependentKey) {
     return reduceMacro(dependentKey, function (sum, item) {
       return sum + item;
-    }, 0);
+    }, 0, 'sum');
   }
 
   /**
@@ -34151,7 +34151,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   exports.max = function (dependentKey) {
     return reduceMacro(dependentKey, function (max, item) {
       return Math.max(max, item);
-    }, -Infinity);
+    }, -Infinity, 'max');
   }
 
   /**
@@ -34200,7 +34200,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   exports.min = function (dependentKey) {
     return reduceMacro(dependentKey, function (min, item) {
       return Math.min(min, item);
-    }, Infinity);
+    }, Infinity, 'min');
   }
 
   /**
@@ -34274,7 +34274,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function (dependentKey, propertyKey) {
-    false && !(typeof propertyKey === 'string') && (0, _emberDebug.assert)('Ember.computed.mapBy expects a property string for its second argument, ' + 'perhaps you meant to use "map"', typeof propertyKey === 'string');
+    false && !(typeof propertyKey === 'string') && (0, _emberDebug.assert)('\`Ember.computed.mapBy\` expects a property string for its second argument, ' + 'perhaps you meant to use "map"', typeof propertyKey === 'string');
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.mapBy` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
 
     return map(dependentKey + '.@each.' + propertyKey, function (item) {
       return (0, _emberMetal.get)(item, propertyKey);
@@ -34374,8 +34375,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function (dependentKey, propertyKey, value) {
-    var callback = void 0;
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.filterBy` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
 
+    var callback = void 0;
     if (arguments.length === 2) {
       callback = function (item) {
         return (0, _emberMetal.get)(item, propertyKey);
@@ -34455,6 +34457,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function (dependentKey, propertyKey) {
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.uniqBy` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
+
     var cp = new _emberMetal.ComputedProperty(function () {
       var uniq = (0, _native_array.A)();
       var seen = Object.create(null);
@@ -34574,7 +34578,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
         }
 
         return true;
-      });
+      }, 'intersect');
 
       return (0, _native_array.A)(results);
     });
@@ -34615,7 +34619,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   */
   ;
   exports.setDiff = function (setAProperty, setBProperty) {
-    false && !(arguments.length === 2) && (0, _emberDebug.assert)('Ember.computed.setDiff requires exactly two dependent arrays.', arguments.length === 2);
+    false && !(arguments.length === 2) && (0, _emberDebug.assert)('\`Ember.computed.setDiff\` requires exactly two dependent arrays.', arguments.length === 2);
+    false && !(!/[\[\]\{\}]/g.test(setAProperty) && !/[\[\]\{\}]/g.test(setBProperty)) && (0, _emberDebug.assert)('Dependent keys passed to `Ember.computed.setDiff` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(setAProperty) && !/[\[\]\{\}]/g.test(setBProperty));
 
     var cp = new _emberMetal.ComputedProperty(function () {
       var setA = this.get(setAProperty);
@@ -34687,7 +34692,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
         }
       }
       return res;
-    });
+    }, 'collect');
   }
 
   /**
@@ -34758,7 +34763,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   */
   ;
   exports.sort = function (itemsKey, sortDefinition) {
-    false && !(arguments.length === 2) && (0, _emberDebug.assert)('Ember.computed.sort requires two arguments: an array key to sort and ' + 'either a sort properties key or sort function', arguments.length === 2);
+    false && !(arguments.length === 2) && (0, _emberDebug.assert)('\`Ember.computed.sort\` requires two arguments: an array key to sort and ' + 'either a sort properties key or sort function', arguments.length === 2);
 
     if (typeof sortDefinition === 'function') {
       return customSort(itemsKey, sortDefinition);
@@ -34770,7 +34775,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   @module @ember/object
   */
 
-  function reduceMacro(dependentKey, callback, initialValue) {
+  function reduceMacro(dependentKey, callback, initialValue, name) {
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.' + name + '` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
+
     var cp = new _emberMetal.ComputedProperty(function () {
       var arr = (0, _emberMetal.get)(this, dependentKey);
       if (arr === null || typeof arr !== 'object') {
@@ -34799,12 +34806,20 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       } else {
         return (0, _native_array.A)();
       }
-    }, { dependentKeys: [dependentKey], readOnly: true });
+    }, { readOnly: true });
+
+    cp.property(dependentKey); // this forces to expand properties GH #15855
 
     return cp;
   }
 
-  function multiArrayMacro(_dependentKeys, callback) {
+  function multiArrayMacro(_dependentKeys, callback, name) {
+    false && !_dependentKeys.every(function (dependentKey) {
+      return !/[\[\]\{\}]/g.test(dependentKey);
+    }) && (0, _emberDebug.assert)('Dependent keys passed to `Ember.computed.' + name + '` shouldn\'t contain brace expanding pattern.', _dependentKeys.every(function (dependentKey) {
+      return !/[\[\]\{\}]/g.test(dependentKey);
+    }));
+
     var dependentKeys = _dependentKeys.map(function (key) {
       return key + '.[]';
     });
@@ -34846,7 +34861,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       });
 
       return uniq;
-    });
+    }, 'uniq');
   }exports.union = uniq;
 
 
@@ -43917,7 +43932,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+b3ae3b2f";
+  exports.default = "2.17.0-alpha.1-null+87efb0a1";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
