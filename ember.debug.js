@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-alpha.1-null+ede4b906
+ * @version   2.17.0-alpha.1-null+e0be9dec
  */
 
 /*global process */
@@ -40337,7 +40337,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     //this[property.name] = property.descriptor.value;
   }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = (0, _emberMetal.descriptor)({
     get: function () {
-      return (0, _emberMetal.meta)(this).isSourceDestroyed();
+      return (0, _emberMetal.peekMeta)(this).isSourceDestroyed();
     },
     set: function (value) {
       // prevent setting while applying mixins
@@ -40349,7 +40349,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     }
   }), _Mixin$create.isDestroying = (0, _emberMetal.descriptor)({
     get: function () {
-      return (0, _emberMetal.meta)(this).isSourceDestroying();
+      return (0, _emberMetal.peekMeta)(this).isSourceDestroying();
     },
     set: function (value) {
       // prevent setting while applying mixins
@@ -40360,7 +40360,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
       (true && !(false) && (0, _emberDebug.assert)('You cannot set `' + this + '.isDestroying` directly, please use `.destroy()`.', false));
     }
   }), _Mixin$create.destroy = function () {
-    var m = (0, _emberMetal.meta)(this);
+    var m = (0, _emberMetal.peekMeta)(this);
     if (m.isSourceDestroying()) {
       return;
     }
@@ -40387,7 +40387,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-babel', 'ember-uti
     var hasToStringExtension = typeof this.toStringExtension === 'function';
     var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
 
-    var ret = '<' + (this[_emberUtils.NAME_KEY] || (0, _emberMetal.meta)(this).factory || this.constructor.toString()) + ':' + (0, _emberUtils.guidFor)(this) + extension + '>';
+    var ret = '<' + (this[_emberUtils.NAME_KEY] || (0, _emberMetal.peekMeta)(this).factory || this.constructor.toString()) + ':' + (0, _emberUtils.guidFor)(this) + extension + '>';
 
     return ret;
   }, _Mixin$create));
@@ -41016,7 +41016,7 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
           return this[OVERRIDE_CONTAINER_KEY];
         }
 
-        var meta = (0, _emberMetal.meta)(this);
+        var meta = (0, _emberMetal.peekMeta)(this);
         var factory = meta.factory;
 
 
@@ -41031,7 +41031,7 @@ enifed('ember-runtime/system/object', ['exports', 'ember-utils', 'ember-metal', 
         return this[OVERRIDE_OWNER];
       }
 
-      var meta = (0, _emberMetal.meta)(this);
+      var meta = (0, _emberMetal.peekMeta)(this);
       var factory = meta.factory;
 
 
@@ -47672,7 +47672,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-alpha.1-null+ede4b906";
+  exports.default = "2.17.0-alpha.1-null+e0be9dec";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
