@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.6-null+c641380d
+ * @version   2.17.0-beta.6-null+21298e96
  */
 
 var enifed, requireModule, Ember;
@@ -50642,6 +50642,24 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     deepEqual(obj.get('filtered'), [20, 22, 24], 'computed array is updated when array is changed');
   });
 
+  QUnit.test('it updates properly on @each with {} dependencies', function () {
+    var item = _object.default.create({ prop: true });
+
+    obj = _object.default.extend({
+      filtered: (0, _reduce_computed_macros.filter)('items.@each.{prop}', function (item, index) {
+        return item.get('prop') === true;
+      })
+    }).create({
+      items: (0, _native_array.A)([item])
+    });
+
+    deepEqual(obj.get('filtered'), [item]);
+
+    item.set('prop', false);
+
+    deepEqual(obj.get('filtered'), []);
+  });
+
   QUnit.module('filterBy', {
     setup: function () {
       obj = _object.default.extend({
@@ -50944,7 +50962,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array: (0, _native_array.A)([1, 2, 3, 4, 5, 6, 7]),
         array2: (0, _native_array.A)([3, 4, 5])
       });
-    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /\`Ember\.computed\.setDiff\` requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
 
     expectAssertion(function () {
       _object.default.extend({
@@ -50954,7 +50972,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
         array2: (0, _native_array.A)([3, 4, 5]),
         array3: (0, _native_array.A)([7])
       });
-    }, /Ember\.computed\.setDiff requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
+    }, /\`Ember\.computed\.setDiff\` requires exactly two dependent arrays/, 'setDiff requires two dependent arrays');
   });
 
   QUnit.test('it has set-diff semantics', function () {
@@ -52516,12 +52534,10 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['ember-metal', 'ember-runtime/ext/r
     try {
       (0, _emberMetal.run)(_rsvp.default, 'reject', 'foo');
     } catch (e) {
-      ok(false, 'should not throw');
+      equal(e, 'foo', 'should throw with rejection message');
     } finally {
       (0, _emberDebug.setTesting)(wasEmberTesting);
     }
-
-    ok(true);
   });
 
   QUnit.test('Can reject with no arguments', function (assert) {
@@ -64663,12 +64679,13 @@ QUnit.test('should pass ESLint', function(assert) {
 enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application'], function (_emberMetal, _test, _adapter, _qunit, _emberApplication) {
   'use strict';
 
-  var App, originalAdapter, originalQUnit;
+  var App, originalAdapter, originalQUnit, originalWindowOnerror;
 
   QUnit.module('ember-testing Adapters', {
     setup: function () {
       originalAdapter = _test.default.adapter;
       originalQUnit = window.QUnit;
+      originalWindowOnerror = window.onerror;
     },
     teardown: function () {
       if (App) {
@@ -64679,6 +64696,7 @@ enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test'
 
       _test.default.adapter = originalAdapter;
       window.QUnit = originalQUnit;
+      window.onerror = originalWindowOnerror;
     }
   });
 
@@ -64730,21 +64748,27 @@ enifed('ember-testing/tests/adapters_test', ['ember-metal', 'ember-testing/test'
     ok(!(_test.default.adapter instanceof _qunit.default));
   });
 
-  QUnit.test('With Ember.Test.adapter set, errors in Ember.run are caught', function () {
+  QUnit.test('With Ember.Test.adapter set, errors in synchronous Ember.run are bubbled out', function (assert) {
     var thrown = new Error('Boom!');
 
-    var caught = void 0;
+    var caughtInAdapter = void 0,
+        caughtInCatch = void 0;
     _test.default.adapter = _qunit.default.create({
       exception: function (error) {
-        caught = error;
+        caughtInAdapter = error;
       }
     });
 
-    (0, _emberMetal.run)(function () {
-      throw thrown;
-    });
+    try {
+      (0, _emberMetal.run)(function () {
+        throw thrown;
+      });
+    } catch (e) {
+      caughtInCatch = e;
+    }
 
-    deepEqual(caught, thrown);
+    assert.equal(caughtInAdapter, undefined, 'test adapter should never receive synchronous errors');
+    assert.equal(caughtInCatch, thrown, 'a "normal" try/catch should catch errors in sync run');
   });
 });
 QUnit.module('ESLint | ember-testing/tests/adapters_test.js');
@@ -67638,91 +67662,546 @@ enifed('ember/tests/error_handler_test', ['ember', 'ember-metal'], function (_em
   var ADAPTER = _ember.default.Test && _ember.default.Test.adapter;
   var TESTING = _ember.default.testing;
 
+  var WINDOW_ONERROR = void 0;
+
   QUnit.module('error_handler', {
+    setup: function () {
+      // capturing this outside of module scope to ensure we grab
+      // the test frameworks own window.onerror to reset it
+      WINDOW_ONERROR = window.onerror;
+    },
     teardown: function () {
       _ember.default.onerror = ONERROR;
       _ember.default.testing = TESTING;
+      window.onerror = WINDOW_ONERROR;
       if (_ember.default.Test) {
         _ember.default.Test.adapter = ADAPTER;
       }
     }
   });
 
-  function runThatThrows(message) {
+  function runThatThrowsSync() {
+    var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'Error for testing error handling';
+
     return (0, _emberMetal.run)(function () {
       throw new Error(message);
     });
   }
 
-  test('by default there is no onerror', function (assert) {
-    _ember.default.onerror = undefined;
-    assert.throws(runThatThrows, Error);
-    assert.equal(_ember.default.onerror, undefined);
+  function runThatThrowsAsync() {
+    var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'Error for testing error handling';
+
+    return _emberMetal.run.next(function () {
+      throw new Error(message);
+    });
+  }
+
+  test('by default there is no onerror - sync run', function (assert) {
+    assert.strictEqual(_ember.default.onerror, undefined, 'precond - there should be no Ember.onerror set by default');
+    assert.throws(runThatThrowsSync, Error, 'errors thrown sync are catchable');
   });
 
-  test('when Ember.onerror is registered', function (assert) {
+  test('when Ember.onerror (which rethrows) is registered - sync run', function (assert) {
     assert.expect(2);
     _ember.default.onerror = function (error) {
       assert.ok(true, 'onerror called');
       throw error;
     };
-    assert.throws(runThatThrows, Error);
-    // Ember.onerror = ONERROR;
+    assert.throws(runThatThrowsSync, Error, 'error is thrown');
+  });
+
+  test('when Ember.onerror (which does not rethrow) is registered - sync run', function (assert) {
+    assert.expect(2);
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'onerror called');
+    };
+    runThatThrowsSync();
+    assert.ok(true, 'no error was thrown, Ember.onerror can intercept errors');
   });
 
   if (true) {
-    test('when Ember.Test.adapter is registered', function (assert) {
-      assert.expect(2);
+    test('when Ember.Test.adapter is registered and error is thrown - sync run', function (assert) {
+      assert.expect(1);
 
       _ember.default.Test.adapter = {
         exception: function (error) {
-          assert.ok(true, 'adapter called');
-          throw error;
+          assert.notOk(true, 'adapter is not called for errors thrown in sync run loops');
         }
       };
 
-      assert.throws(runThatThrows, Error);
+      assert.throws(runThatThrowsSync, Error);
     });
 
-    test('when both Ember.onerror Ember.Test.adapter are registered', function (assert) {
+    test('when both Ember.onerror (which rethrows) and Ember.Test.adapter are registered - sync run', function (assert) {
       assert.expect(2);
 
-      // takes precedence
       _ember.default.Test.adapter = {
         exception: function (error) {
-          assert.ok(true, 'adapter called');
-          throw error;
+          assert.notOk(true, 'adapter is not called for errors thrown in sync run loops');
         }
       };
 
       _ember.default.onerror = function (error) {
-        assert.ok(false, 'onerror was NEVER called');
+        assert.ok(true, 'onerror is called for sync errors even if Ember.Test.adapter is setup');
         throw error;
       };
 
-      assert.throws(runThatThrows, Error);
+      assert.throws(runThatThrowsSync, Error, 'error is thrown');
+    });
+
+    test('when both Ember.onerror (which does not rethrow) and Ember.Test.adapter are registered - sync run', function (assert) {
+      assert.expect(2);
+
+      _ember.default.Test.adapter = {
+        exception: function (error) {
+          assert.notOk(true, 'adapter is not called for errors thrown in sync run loops');
+        }
+      };
+
+      _ember.default.onerror = function (error) {
+        assert.ok(true, 'onerror is called for sync errors even if Ember.Test.adapter is setup');
+      };
+
+      runThatThrowsSync();
+      assert.ok(true, 'no error was thrown, Ember.onerror can intercept errors');
+    });
+
+    QUnit.test('when Ember.Test.adapter is registered and error is thrown - async run', function (assert) {
+      assert.expect(3);
+      var done = assert.async();
+
+      var caughtInAdapter = void 0,
+          caughtInCatch = void 0,
+          caughtByWindowOnerror = void 0;
+      _ember.default.Test.adapter = {
+        exception: function (error) {
+          caughtInAdapter = error;
+        }
+      };
+
+      window.onerror = function (message) {
+        caughtByWindowOnerror = message;
+        // prevent "bubbling" and therefore failing the test
+        return true;
+      };
+
+      try {
+        runThatThrowsAsync();
+      } catch (e) {
+        caughtInCatch = e;
+      }
+
+      setTimeout(function () {
+        assert.equal(caughtInAdapter, undefined, 'test adapter should never catch errors in run loops');
+        assert.equal(caughtInCatch, undefined, 'a "normal" try/catch should never catch errors in an async run');
+
+        assert.pushResult({
+          result: /Error for testing error handling/.test(caughtByWindowOnerror),
+          actual: caughtByWindowOnerror,
+          expected: 'to include `Error for testing error handling`',
+          message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+        });
+
+        done();
+      }, 20);
+    });
+
+    test('when both Ember.onerror and Ember.Test.adapter are registered - async run', function (assert) {
+      assert.expect(1);
+      var done = assert.async();
+
+      _ember.default.Test.adapter = {
+        exception: function (error) {
+          assert.notOk(true, 'Adapter.exception is not called for errors thrown in run.next');
+        }
+      };
+
+      _ember.default.onerror = function (error) {
+        assert.ok(true, 'onerror is invoked for errors thrown in run.next/run.later');
+      };
+
+      runThatThrowsAsync();
+      setTimeout(done, 10);
     });
   }
 
-  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = true)', function () {
+  QUnit.test('does not swallow exceptions by default (Ember.testing = true, no Ember.onerror) - sync run', function (assert) {
     _ember.default.testing = true;
+
     var error = new Error('the error');
-    throws(function () {
+    assert.throws(function () {
       _ember.default.run(function () {
         throw error;
       });
     }, error);
   });
 
-  QUnit.test('Ember.run does not swallow exceptions by default (Ember.testing = false)', function () {
+  QUnit.test('does not swallow exceptions by default (Ember.testing = false, no Ember.onerror) - sync run', function (assert) {
     _ember.default.testing = false;
     var error = new Error('the error');
-    throws(function () {
+    assert.throws(function () {
       _ember.default.run(function () {
         throw error;
       });
     }, error);
   });
+
+  QUnit.test('does not swallow exceptions (Ember.testing = false, Ember.onerror which rethrows) - sync run', function (assert) {
+    assert.expect(2);
+    _ember.default.testing = false;
+
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'Ember.onerror was called');
+      throw error;
+    };
+
+    var error = new Error('the error');
+    assert.throws(function () {
+      _ember.default.run(function () {
+        throw error;
+      });
+    }, error);
+  });
+
+  QUnit.test('Ember.onerror can intercept errors (aka swallow) by not rethrowing (Ember.testing = false) - sync run', function (assert) {
+    assert.expect(1);
+    _ember.default.testing = false;
+
+    _ember.default.onerror = function (error) {
+      assert.ok(true, 'Ember.onerror was called');
+    };
+
+    var error = new Error('the error');
+    try {
+      _ember.default.run(function () {
+        throw error;
+      });
+    } catch (e) {
+      assert.notOk(true, 'Ember.onerror that does not rethrow is intentionally swallowing errors, try / catch wrapping does not see error');
+    }
+  });
+
+  QUnit.test('does not swallow exceptions by default (Ember.testing = true, no Ember.onerror) - async run', function (assert) {
+    var done = assert.async();
+    var caughtByWindowOnerror = void 0;
+
+    _ember.default.testing = true;
+
+    window.onerror = function (message) {
+      caughtByWindowOnerror = message;
+      // prevent "bubbling" and therefore failing the test
+      return true;
+    };
+
+    _ember.default.run.later(function () {
+      throw new Error('the error');
+    }, 10);
+
+    setTimeout(function () {
+      assert.pushResult({
+        result: /the error/.test(caughtByWindowOnerror),
+        actual: caughtByWindowOnerror,
+        expected: 'to include `the error`',
+        message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+      });
+
+      done();
+    }, 20);
+  });
+
+  QUnit.test('does not swallow exceptions by default (Ember.testing = false, no Ember.onerror) - async run', function (assert) {
+    var done = assert.async();
+    var caughtByWindowOnerror = void 0;
+
+    _ember.default.testing = false;
+
+    window.onerror = function (message) {
+      caughtByWindowOnerror = message;
+      // prevent "bubbling" and therefore failing the test
+      return true;
+    };
+
+    _ember.default.run.later(function () {
+      throw new Error('the error');
+    }, 10);
+
+    setTimeout(function () {
+      assert.pushResult({
+        result: /the error/.test(caughtByWindowOnerror),
+        actual: caughtByWindowOnerror,
+        expected: 'to include `the error`',
+        message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+      });
+
+      done();
+    }, 20);
+  });
+
+  QUnit.test('Ember.onerror can intercept errors (aka swallow) by not rethrowing (Ember.testing = false) - async run', function (assert) {
+    var done = assert.async();
+
+    _ember.default.testing = false;
+
+    window.onerror = function (message) {
+      assert.notOk(true, 'window.onerror is never invoked when Ember.onerror intentionally swallows errors');
+      // prevent "bubbling" and therefore failing the test
+      return true;
+    };
+
+    var thrown = new Error('the error');
+    _ember.default.onerror = function (error) {
+      assert.strictEqual(error, thrown, 'Ember.onerror is called with the error');
+    };
+
+    _ember.default.run.later(function () {
+      throw thrown;
+    }, 10);
+
+    setTimeout(done, 20);
+  });
+
+  function generateRSVPErrorHandlingTests(message, generatePromise) {
+    var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+
+    test(message + ' when Ember.onerror which does not rethrow is present - rsvp', function (assert) {
+      assert.expect(1);
+
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    test(message + ' when Ember.onerror which does rethrow is present - rsvp', function (assert) {
+      assert.expect(2);
+
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+        throw error;
+      };
+
+      window.onerror = function (message) {
+        assert.pushResult({
+          result: /the error/.test(message),
+          actual: message,
+          expected: 'to include `the error`',
+          message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+        });
+
+        // prevent "bubbling" and therefore failing the test
+        return true;
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    test(message + ' when Ember.onerror which does not rethrow is present (Ember.testing = false) - rsvp', function (assert) {
+      assert.expect(1);
+
+      _ember.default.testing = false;
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    test(message + ' when Ember.onerror which does rethrow is present (Ember.testing = false) - rsvp', function (assert) {
+      assert.expect(2);
+
+      _ember.default.testing = false;
+      var thrown = new Error('the error');
+      _ember.default.onerror = function (error) {
+        assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises');
+        throw error;
+      };
+
+      window.onerror = function (message) {
+        assert.pushResult({
+          result: /the error/.test(message),
+          actual: message,
+          expected: 'to include `the error`',
+          message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+        });
+
+        // prevent "bubbling" and therefore failing the test
+        return true;
+      };
+
+      generatePromise(thrown);
+
+      // RSVP.Promise's are configured to settle within the run loop, this
+      // ensures that run loop has completed
+      return new _ember.default.RSVP.Promise(function (resolve) {
+        return setTimeout(resolve, timeout);
+      });
+    });
+
+    if (true) {
+      test(message + ' when Ember.Test.adapter without `exception` method is present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: undefined
+        });
+
+        window.onerror = function (message) {
+          assert.pushResult({
+            result: /the error/.test(message),
+            actual: message,
+            expected: 'to include `the error`',
+            message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+          });
+
+          // prevent "bubbling" and therefore failing the test
+          return true;
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when both Ember.onerror and Ember.Test.adapter without `exception` method are present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: undefined
+        });
+
+        _ember.default.onerror = function (error) {
+          assert.pushResult({
+            result: /the error/.test(error.message),
+            actual: error.message,
+            expected: 'to include `the error`',
+            message: 'error should bubble out to window.onerror, and therefore fail tests (due to QUnit implementing window.onerror)'
+          });
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when Ember.Test.adapter is present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: function (error) {
+            assert.strictEqual(error, thrown, 'Adapter.exception is called for errors thrown in RSVP promises');
+          }
+        });
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
+        assert.expect(1);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: function (error) {
+            assert.strictEqual(error, thrown, 'Adapter.exception is called for errors thrown in RSVP promises');
+          }
+        });
+
+        _ember.default.onerror = function (error) {
+          assert.notOk(true, 'Ember.onerror is not called if Test.adapter does not rethrow');
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+
+      test(message + ' when both Ember.onerror and Ember.Test.adapter are present - rsvp', function (assert) {
+        assert.expect(2);
+
+        var thrown = new Error('the error');
+        _ember.default.Test.adapter = _ember.default.Test.QUnitAdapter.create({
+          exception: function (error) {
+            assert.strictEqual(error, thrown, 'Adapter.exception is called for errors thrown in RSVP promises');
+            throw error;
+          }
+        });
+
+        _ember.default.onerror = function (error) {
+          assert.strictEqual(error, thrown, 'Ember.onerror is called for errors thrown in RSVP promises if Test.adapter rethrows');
+        };
+
+        generatePromise(thrown);
+
+        // RSVP.Promise's are configured to settle within the run loop, this
+        // ensures that run loop has completed
+        return new _ember.default.RSVP.Promise(function (resolve) {
+          return setTimeout(resolve, timeout);
+        });
+      });
+    }
+  }
+
+  generateRSVPErrorHandlingTests('errors in promise constructor', function (error) {
+    new _ember.default.RSVP.Promise(function () {
+      throw error;
+    });
+  });
+
+  generateRSVPErrorHandlingTests('errors in promise .then callback', function (error) {
+    _ember.default.RSVP.resolve().then(function () {
+      throw error;
+    });
+  });
+
+  generateRSVPErrorHandlingTests('errors in async promise .then callback', function (error) {
+    new _ember.default.RSVP.Promise(function (resolve) {
+      return setTimeout(resolve, 10);
+    }).then(function () {
+      throw error;
+    });
+  }, 20);
 });
 QUnit.module('ESLint | ember/tests/error_handler_test.js');
 QUnit.test('should pass ESLint', function(assert) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.6-null+c641380d
+ * @version   2.17.0-beta.6-null+21298e96
  */
 
 var enifed, requireModule, Ember;
@@ -25562,22 +25562,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
 
 
-  // To maintain stacktrace consistency across browsers
-  var getStack = function (error) {
-    var stack = error.stack;
-    var message = error.message;
-
-    if (stack && stack.indexOf(message) === -1) {
-      stack = message + '\n' + stack;
-    }
-
-    return stack;
-  };
-
   var onerror = void 0;
   var onErrorTarget = {
     get onerror() {
-      return dispatchOverride || onerror;
+      return onerror;
     }
   };
 
@@ -25587,22 +25575,9 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
   var dispatchOverride = void 0;
-  // dispatch error
-
 
   // allows testing adapter to override dispatch
 
-
-  function defaultDispatch(error) {
-    if (emberDebug.isTesting()) {
-      throw error;
-    }
-    if (onerror) {
-      onerror(error);
-    } else {
-      Logger.error(getStack(error));
-    }
-  }
 
   /**
    @module @ember/utils
@@ -28762,13 +28737,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   };
   exports.setOnerror = function (handler) {
     onerror = handler;
-  };
-  exports.dispatchError = function (error) {
-    if (dispatchOverride) {
-      dispatchOverride(error);
-    } else {
-      defaultDispatch(error);
-    }
   };
   exports.setDispatchOverride = function (handler) {
     dispatchOverride = handler;
@@ -34726,7 +34694,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   function (dependentKey) {
     return reduceMacro(dependentKey, function (sum, item) {
       return sum + item;
-    }, 0);
+    }, 0, 'sum');
   }
 
   /**
@@ -34775,7 +34743,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   exports.max = function (dependentKey) {
     return reduceMacro(dependentKey, function (max, item) {
       return Math.max(max, item);
-    }, -Infinity);
+    }, -Infinity, 'max');
   }
 
   /**
@@ -34824,7 +34792,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   exports.min = function (dependentKey) {
     return reduceMacro(dependentKey, function (min, item) {
       return Math.min(min, item);
-    }, Infinity);
+    }, Infinity, 'min');
   }
 
   /**
@@ -34898,7 +34866,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function (dependentKey, propertyKey) {
-    false && !(typeof propertyKey === 'string') && (0, _emberDebug.assert)('Ember.computed.mapBy expects a property string for its second argument, ' + 'perhaps you meant to use "map"', typeof propertyKey === 'string');
+    false && !(typeof propertyKey === 'string') && (0, _emberDebug.assert)('\`Ember.computed.mapBy\` expects a property string for its second argument, ' + 'perhaps you meant to use "map"', typeof propertyKey === 'string');
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.mapBy` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
 
     return map(dependentKey + '.@each.' + propertyKey, function (item) {
       return (0, _emberMetal.get)(item, propertyKey);
@@ -34998,8 +34967,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function (dependentKey, propertyKey, value) {
-    var callback = void 0;
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.filterBy` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
 
+    var callback = void 0;
     if (arguments.length === 2) {
       callback = function (item) {
         return (0, _emberMetal.get)(item, propertyKey);
@@ -35079,6 +35049,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
     @public
   */
   function (dependentKey, propertyKey) {
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.uniqBy` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
+
     var cp = new _emberMetal.ComputedProperty(function () {
       var uniq = (0, _native_array.A)();
       var seen = Object.create(null);
@@ -35198,7 +35170,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
         }
 
         return true;
-      });
+      }, 'intersect');
 
       return (0, _native_array.A)(results);
     });
@@ -35239,7 +35211,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   */
   ;
   exports.setDiff = function (setAProperty, setBProperty) {
-    false && !(arguments.length === 2) && (0, _emberDebug.assert)('Ember.computed.setDiff requires exactly two dependent arrays.', arguments.length === 2);
+    false && !(arguments.length === 2) && (0, _emberDebug.assert)('\`Ember.computed.setDiff\` requires exactly two dependent arrays.', arguments.length === 2);
+    false && !(!/[\[\]\{\}]/g.test(setAProperty) && !/[\[\]\{\}]/g.test(setBProperty)) && (0, _emberDebug.assert)('Dependent keys passed to `Ember.computed.setDiff` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(setAProperty) && !/[\[\]\{\}]/g.test(setBProperty));
 
     var cp = new _emberMetal.ComputedProperty(function () {
       var setA = this.get(setAProperty);
@@ -35311,7 +35284,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
         }
       }
       return res;
-    });
+    }, 'collect');
   }
 
   /**
@@ -35382,7 +35355,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   */
   ;
   exports.sort = function (itemsKey, sortDefinition) {
-    false && !(arguments.length === 2) && (0, _emberDebug.assert)('Ember.computed.sort requires two arguments: an array key to sort and ' + 'either a sort properties key or sort function', arguments.length === 2);
+    false && !(arguments.length === 2) && (0, _emberDebug.assert)('\`Ember.computed.sort\` requires two arguments: an array key to sort and ' + 'either a sort properties key or sort function', arguments.length === 2);
 
     if (typeof sortDefinition === 'function') {
       return customSort(itemsKey, sortDefinition);
@@ -35394,7 +35367,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
   @module @ember/object
   */
 
-  function reduceMacro(dependentKey, callback, initialValue) {
+  function reduceMacro(dependentKey, callback, initialValue, name) {
+    false && !!/[\[\]\{\}]/g.test(dependentKey) && (0, _emberDebug.assert)('Dependent key passed to `Ember.computed.' + name + '` shouldn\'t contain brace expanding pattern.', !/[\[\]\{\}]/g.test(dependentKey));
+
     var cp = new _emberMetal.ComputedProperty(function () {
       var arr = (0, _emberMetal.get)(this, dependentKey);
       if (arr === null || typeof arr !== 'object') {
@@ -35423,12 +35398,20 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       } else {
         return (0, _native_array.A)();
       }
-    }, { dependentKeys: [dependentKey], readOnly: true });
+    }, { readOnly: true });
+
+    cp.property(dependentKey); // this forces to expand properties GH #15855
 
     return cp;
   }
 
-  function multiArrayMacro(_dependentKeys, callback) {
+  function multiArrayMacro(_dependentKeys, callback, name) {
+    false && !_dependentKeys.every(function (dependentKey) {
+      return !/[\[\]\{\}]/g.test(dependentKey);
+    }) && (0, _emberDebug.assert)('Dependent keys passed to `Ember.computed.' + name + '` shouldn\'t contain brace expanding pattern.', _dependentKeys.every(function (dependentKey) {
+      return !/[\[\]\{\}]/g.test(dependentKey);
+    }));
+
     var dependentKeys = _dependentKeys.map(function (key) {
       return key + '.[]';
     });
@@ -35470,7 +35453,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
       });
 
       return uniq;
-    });
+    }, 'uniq');
   }exports.union = uniq;
 
 
@@ -35896,9 +35879,16 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'rsvp', 'ember-metal', 'ember-debug
   _rsvp.on('error', onerrorDefault);
 
   function onerrorDefault(reason) {
-    var error = errorFor(reason);
+    var error = errorFor(reason),
+        overrideDispatch;
     if (error) {
-      (0, _emberMetal.dispatchError)(error);
+      overrideDispatch = (0, _emberMetal.getDispatchOverride)();
+
+      if (overrideDispatch) {
+        overrideDispatch(error);
+      } else {
+        throw error;
+      }
     }
   }
 
@@ -44505,7 +44495,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "2.17.0-beta.6-null+c641380d";
+  exports.default = "2.17.0-beta.6-null+21298e96";
 });
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
