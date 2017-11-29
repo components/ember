@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.b7acc909"
+        "version": "3.0.0-alpha.1.b19c4f72"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -589,13 +589,6 @@
             "fors": {
                 "Ember.Ember": 1
             },
-            "namespaces": {}
-        },
-        "packages/ember-metal/lib/weak_map.js": {
-            "name": "packages/ember-metal/lib/weak_map.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
             "namespaces": {}
         },
         "packages/ember-routing/lib/ext/controller.js": {
@@ -1596,7 +1589,7 @@
             },
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 52,
+            "line": 51,
             "access": "private",
             "tagname": ""
         },
@@ -1847,7 +1840,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 621,
+            "line": 617,
             "access": "public",
             "tagname": ""
         }
@@ -3479,7 +3472,7 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember/lib/index.js",
-            "line": 52,
+            "line": 51,
             "access": "public",
             "tagname": ""
         },
@@ -3494,7 +3487,7 @@
             "module": "jquery",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 621,
+            "line": 617,
             "access": "public",
             "tagname": "",
             "static": 1
@@ -7918,7 +7911,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 512,
+            "line": 493,
             "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
             "itemtype": "method",
             "name": "deleteMeta",
@@ -7941,7 +7934,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 533,
+            "line": 514,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -11987,7 +11980,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 73,
+            "line": 72,
             "description": "A computed property that returns the sum of the values\nin the dependent array.",
             "itemtype": "method",
             "name": "sum",
@@ -12011,7 +12004,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 89,
+            "line": 88,
             "description": "A computed property that calculates the maximum value in the\ndependent array. This will return `-Infinity` when the dependent\narray is empty.\n\n```javascript\nlet Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age'),\n  maxChildAge: Ember.computed.max('childAges')\n});\n\nlet lordByron = Person.create({ children: [] });\n\nlordByron.get('maxChildAge'); // -Infinity\nlordByron.get('children').pushObject({\n  name: 'Augusta Ada Byron', age: 7\n});\nlordByron.get('maxChildAge'); // 7\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('maxChildAge'); // 8\n```\n\nIf the types of the arguments are not numbers,\nthey will be converted to numbers and the type\nof the return value will always be `Number`.\nFor example, the max of a list of Date objects will be\nthe highest timestamp as a `Number`.\nThis behavior is consistent with `Math.max`.",
             "itemtype": "method",
             "name": "max",
@@ -12034,7 +12027,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 135,
+            "line": 134,
             "description": "A computed property that calculates the minimum value in the\ndependent array. This will return `Infinity` when the dependent\narray is empty.\n\n```javascript\nlet Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age'),\n  minChildAge: Ember.computed.min('childAges')\n});\n\nlet lordByron = Person.create({ children: [] });\n\nlordByron.get('minChildAge'); // Infinity\nlordByron.get('children').pushObject({\n  name: 'Augusta Ada Byron', age: 7\n});\nlordByron.get('minChildAge'); // 7\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('minChildAge'); // 5\n```\n\nIf the types of the arguments are not numbers,\nthey will be converted to numbers and the type\nof the return value will always be `Number`.\nFor example, the min of a list of Date objects will be\nthe lowest timestamp as a `Number`.\nThis behavior is consistent with `Math.min`.",
             "itemtype": "method",
             "name": "min",
@@ -12057,7 +12050,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 181,
+            "line": 180,
             "description": "Returns an array mapped via the callback\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n\n```javascript\nfunction(item, index);\n```\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  excitingChores: Ember.computed.map('chores', function(chore, index) {\n    return chore.toUpperCase() + '!';\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: ['clean', 'write more unit tests']\n});\n\nhamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']\n```",
             "itemtype": "method",
             "name": "map",
@@ -12085,7 +12078,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 222,
+            "line": 221,
             "description": "Returns an array mapped to the specified key.\n\n```javascript\nlet Person = Ember.Object.extend({\n  childAges: Ember.computed.mapBy('children', 'age')\n});\n\nlet lordByron = Person.create({ children: [] });\n\nlordByron.get('childAges'); // []\nlordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });\nlordByron.get('childAges'); // [7]\nlordByron.get('children').pushObjects([{\n  name: 'Allegra Byron',\n  age: 5\n}, {\n  name: 'Elizabeth Medora Leigh',\n  age: 8\n}]);\nlordByron.get('childAges'); // [7, 5, 8]\n```",
             "itemtype": "method",
             "name": "mapBy",
@@ -12113,7 +12106,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 267,
+            "line": 266,
             "description": "Filters the array by the callback.\n\nThe callback method you provide should have the following signature.\n`item` is the current item in the iteration.\n`index` is the integer index of the current item in the iteration.\n`array` is the dependant array itself.\n\n```javascript\nfunction(item, index, array);\n```\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores', function(chore, index, array) {\n    return !chore.done;\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\n```\n\nYou can also use `@each.property` in your dependent key, the callback will still use the underlying array:\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filter('chores.@each.done', function(chore, index, array) {\n    return !chore.get('done');\n  })\n});\n\nlet hamster = Hamster.create({\n  chores: Ember.A([\n    Ember.Object.create({ name: 'cook', done: true }),\n    Ember.Object.create({ name: 'clean', done: true }),\n    Ember.Object.create({ name: 'write more unit tests', done: false })\n  ])\n});\nhamster.get('remainingChores'); // [{name: 'write more unit tests', done: false}]\nhamster.get('chores').objectAt(2).set('done', true);\nhamster.get('remainingChores'); // []\n```",
             "itemtype": "method",
             "name": "filter",
@@ -12141,7 +12134,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 333,
+            "line": 332,
             "description": "Filters the array by the property and value\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  remainingChores: Ember.computed.filterBy('chores', 'done', false)\n});\n\nlet hamster = Hamster.create({\n  chores: [\n    { name: 'cook', done: true },\n    { name: 'clean', done: true },\n    { name: 'write more unit tests', done: false }\n  ]\n});\n\nhamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]\n```",
             "itemtype": "method",
             "name": "filterBy",
@@ -12174,7 +12167,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 377,
+            "line": 376,
             "description": "A computed property which returns a new array with all the unique\nelements from one or more dependent arrays.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.uniq('fruits')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'banana',\n    'grape',\n    'kale',\n    'banana'\n  ]\n});\n\nhamster.get('uniqueFruits'); // ['banana', 'grape', 'kale']\n```",
             "itemtype": "method",
             "name": "uniq",
@@ -12198,7 +12191,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 427,
+            "line": 426,
             "description": "A computed property which returns a new array with all the unique\nelements from an array, with uniqueness determined by specific key.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.uniqBy('fruits', 'id')\n});\nlet hamster = Hamster.create({\n  fruits: [\n    { id: 1, 'banana' },\n    { id: 2, 'grape' },\n    { id: 3, 'peach' },\n    { id: 1, 'banana' }\n  ]\n});\nhamster.get('uniqueFruits'); // [ { id: 1, 'banana' }, { id: 2, 'grape' }, { id: 3, 'peach' }]\n```",
             "itemtype": "method",
             "name": "uniqBy",
@@ -12226,7 +12219,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 482,
+            "line": 481,
             "description": "A computed property which returns a new array with all the unique\nelements from one or more dependent arrays.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  uniqueFruits: Ember.computed.union('fruits', 'vegetables')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'banana',\n    'grape',\n    'kale',\n    'banana',\n    'tomato'\n  ],\n  vegetables: [\n    'tomato',\n    'carrot',\n    'lettuce'\n  ]\n});\n\nhamster.get('uniqueFruits'); // ['banana', 'grape', 'kale', 'tomato', 'carrot', 'lettuce']\n```",
             "itemtype": "method",
             "name": "union",
@@ -12250,7 +12243,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 521,
+            "line": 520,
             "description": "A computed property which returns a new array with all the elements\ntwo or more dependent arrays have in common.\n\nExample\n\n```javascript\nlet obj = Ember.Object.extend({\n  friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')\n}).create({\n  adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],\n  charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']\n});\n\nobj.get('friendsInCommon'); // ['William King', 'Mary Somerville']\n```",
             "itemtype": "method",
             "name": "intersect",
@@ -12274,7 +12267,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 575,
+            "line": 574,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array that are not in the second\ndependent array.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  likes: ['banana', 'grape', 'kale'],\n  wants: Ember.computed.setDiff('likes', 'fruits')\n});\n\nlet hamster = Hamster.create({\n  fruits: [\n    'grape',\n    'kale',\n  ]\n});\n\nhamster.get('wants'); // ['banana']\n```",
             "itemtype": "method",
             "name": "setDiff",
@@ -12302,7 +12295,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 633,
+            "line": 632,
             "description": "A computed property that returns the array of values\nfor the provided dependent properties.\n\nExample\n\n```javascript\nlet Hamster = Ember.Object.extend({\n  clothes: Ember.computed.collect('hat', 'shirt')\n});\n\nlet hamster = Hamster.create();\n\nhamster.get('clothes'); // [null, null]\nhamster.set('hat', 'Camp Hat');\nhamster.set('shirt', 'Camp Shirt');\nhamster.get('clothes'); // ['Camp Hat', 'Camp Shirt']\n```",
             "itemtype": "method",
             "name": "collect",
@@ -12326,7 +12319,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/computed/reduce_computed_macros.js",
-            "line": 677,
+            "line": 676,
             "description": "A computed property which returns a new array with all the\nproperties from the first dependent array sorted based on a property\nor sort function.\n\nThe callback method you provide should have the following signature:\n\n```javascript\nfunction(itemA, itemB);\n```\n\n- `itemA` the first item to compare.\n- `itemB` the second item to compare.\n\nThis function should return negative number (e.g. `-1`) when `itemA` should come before\n`itemB`. It should return positive number (e.g. `1`) when `itemA` should come after\n`itemB`. If the `itemA` and `itemB` are equal this function should return `0`.\n\nTherefore, if this function is comparing some numeric values, simple `itemA - itemB` or\n`itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.\n\nExample\n\n```javascript\nlet ToDoList = Ember.Object.extend({\n  // using standard ascending sort\n  todosSorting: ['name'],\n  sortedTodos: Ember.computed.sort('todos', 'todosSorting'),\n\n  // using descending sort\n  todosSortingDesc: ['name:desc'],\n  sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),\n\n  // using a custom sort function\n  priorityTodos: Ember.computed.sort('todos', function(a, b){\n    if (a.priority > b.priority) {\n      return 1;\n    } else if (a.priority < b.priority) {\n      return -1;\n    }\n\n    return 0;\n  })\n});\n\nlet todoList = ToDoList.create({todos: [\n  { name: 'Unit Test', priority: 2 },\n  { name: 'Documentation', priority: 3 },\n  { name: 'Release', priority: 1 }\n]});\n\ntodoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]\ntodoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]\ntodoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]\n```",
             "itemtype": "method",
             "name": "sort",
@@ -18056,7 +18049,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 151,
+            "line": 147,
             "description": "The context that Ember searches for namespace instances on.",
             "access": "private",
             "tagname": "",
@@ -18066,7 +18059,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 201,
+            "line": 197,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -18085,7 +18078,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 228,
+            "line": 224,
             "description": "An empty function useful for some operations. Always returns `this`.",
             "itemtype": "method",
             "name": "K",
@@ -18102,7 +18095,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 420,
+            "line": 416,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -18115,7 +18108,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 436,
+            "line": 432,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -18128,7 +18121,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 502,
+            "line": 498,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -18141,7 +18134,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 522,
+            "line": 518,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -18154,7 +18147,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 627,
+            "line": 623,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
@@ -18276,7 +18269,7 @@
         },
         {
             "message": "Missing item type\nThe context that Ember searches for namespace instances on.",
-            "line": " packages/ember/lib/index.js:151"
+            "line": " packages/ember/lib/index.js:147"
         }
     ]
 }

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+b7acc909
+ * @version   3.0.0-alpha.1-null+b19c4f72
  */
 
 /*global process */
@@ -23765,13 +23765,11 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['ember-babel', 'e
     return _class;
   }(_testCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-metal', 'ember-utils'], function (_emberBabel, _testCase, _internalTestHelpers, _emberMetal, _emberUtils) {
+enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-babel', 'ember-glimmer/tests/utils/test-case', 'internal-test-helpers', 'ember-metal'], function (_emberBabel, _testCase, _internalTestHelpers, _emberMetal) {
   'use strict';
 
-  /* globals EmberDev */
-
   var assert = QUnit.assert,
-      HelperMutatingArgsTests;
+      HelperMutatingArgsTests; /* globals EmberDev */
 
   (0, _testCase.moduleFor)('Helpers test: custom helpers', function (_RenderingTest) {
     (0, _emberBabel.inherits)(_class, _RenderingTest);
@@ -24505,7 +24503,7 @@ enifed('ember-glimmer/tests/integration/helpers/custom-helper-test', ['ember-bab
     }
   }();
 
-  if (!EmberDev.runningProdBuild && _emberUtils.HAS_NATIVE_WEAKMAP && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
+  if (!EmberDev.runningProdBuild && (pushingIntoFrozenArrayThrows || assigningExistingFrozenPropertyThrows || addingPropertyToFrozenObjectThrows)) {
     HelperMutatingArgsTests = function (_RenderingTest2) {
       (0, _emberBabel.inherits)(HelperMutatingArgsTests, _RenderingTest2);
 
@@ -44578,123 +44576,6 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-environment', 'ember-met
 
     equal(child.b, 1, 'child.b (after watch)');
     equal(get(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
-  });
-});
-enifed('ember-metal/tests/weak_map_test', ['ember-metal'], function (_emberMetal) {
-  'use strict';
-
-  QUnit.module('Ember.WeakMap');
-
-  QUnit.test('has weakMap like qualities', function (assert) {
-    var map = new _emberMetal.WeakMapPolyfill();
-    var map2 = new _emberMetal.WeakMapPolyfill();
-
-    var a = {};
-    var b = {};
-    var c = {};
-
-    assert.strictEqual(map.get(a), undefined);
-    assert.strictEqual(map.get(b), undefined);
-    assert.strictEqual(map.get(c), undefined);
-
-    assert.strictEqual(map2.get(a), undefined);
-    assert.strictEqual(map2.get(b), undefined);
-    assert.strictEqual(map2.get(c), undefined);
-
-    assert.strictEqual(map.set(a, 1), map, 'map.set should return itself');
-    assert.strictEqual(map.get(a), 1);
-    assert.strictEqual(map.set(b, undefined), map);
-    assert.strictEqual(map.set(a, 2), map);
-    assert.strictEqual(map.get(a), 2);
-    assert.strictEqual(map.set(b, undefined), map);
-
-    assert.strictEqual(map2.get(a), undefined);
-    assert.strictEqual(map2.get(b), undefined);
-    assert.strictEqual(map2.get(c), undefined);
-
-    assert.strictEqual(map.set(c, 1), map);
-    assert.strictEqual(map.get(c), 1);
-    assert.strictEqual(map.get(a), 2);
-    assert.strictEqual(map.get(b), undefined);
-
-    assert.strictEqual(map2.set(a, 3), map2);
-    assert.strictEqual(map2.set(b, 4), map2);
-    assert.strictEqual(map2.set(c, 5), map2);
-
-    assert.strictEqual(map2.get(a), 3);
-    assert.strictEqual(map2.get(b), 4);
-    assert.strictEqual(map2.get(c), 5);
-
-    assert.strictEqual(map.get(c), 1);
-    assert.strictEqual(map.get(a), 2);
-    assert.strictEqual(map.get(b), undefined);
-  });
-
-  QUnit.test('constructing a WeakMap with an invalid iterator throws an error', function (assert) {
-    var expectedError = new TypeError('The weak map constructor polyfill only supports an array argument');
-
-    assert.throws(function () {
-      new _emberMetal.WeakMapPolyfill({ a: 1 });
-    }, expectedError);
-  });
-
-  QUnit.test('constructing a WeakMap with a valid iterator inserts the entries', function (assert) {
-    var a = {};
-    var b = {};
-    var c = {};
-
-    var map = new _emberMetal.WeakMapPolyfill([[a, 1], [b, 2], [c, 3]]);
-
-    assert.strictEqual(map.get(a), 1);
-    assert.strictEqual(map.get(b), 2);
-    assert.strictEqual(map.get(c), 3);
-  });
-
-  QUnit.test('that error is thrown when using a primitive key', function (assert) {
-    var expectedError = new TypeError('Invalid value used as weak map key');
-    var map = new _emberMetal.WeakMapPolyfill();
-
-    assert.throws(function () {
-      return map.set('a', 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(1, 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(true, 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(null, 1);
-    }, expectedError);
-    assert.throws(function () {
-      return map.set(undefined, 1);
-    }, expectedError);
-  });
-
-  QUnit.test('that .has and .delete work as expected', function (assert) {
-    var map = new _emberMetal.WeakMapPolyfill();
-    var a = {};
-
-    var foo = { id: 1, name: 'My file', progress: 0 };
-
-    assert.strictEqual(map.set(a, foo), map);
-    assert.strictEqual(map.get(a), foo);
-    assert.strictEqual(map.has(a), true);
-    assert.strictEqual(map.has({}), false);
-    assert.strictEqual(map.delete(a), true);
-    assert.strictEqual(map.has(a), false);
-    assert.strictEqual(map.delete(a), false);
-    assert.strictEqual(map.set(a, undefined), map);
-    assert.strictEqual(map.has(a), true);
-    assert.strictEqual(map.delete(a), true);
-    assert.strictEqual(map.delete(a), false);
-    assert.strictEqual(map.has(a), false);
-  });
-
-  QUnit.test('that .toString works as expected', function (assert) {
-    var map = new _emberMetal.WeakMapPolyfill();
-
-    assert.strictEqual(map.toString(), '[object WeakMap]');
   });
 });
 enifed('ember-routing/tests/ext/controller_test', ['ember-utils', 'internal-test-helpers', 'ember-runtime'], function (_emberUtils, _internalTestHelpers, _emberRuntime) {
@@ -67412,7 +67293,7 @@ enifed('ember/tests/production_build_test', ['ember-debug'], function (_emberDeb
     assert.equal(fired, false, 'runInDebug callback should not be ran');
   });
 });
-enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers', 'ember/features'], function (_index, _internalTestHelpers, _features) {
+enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], function (_index, _internalTestHelpers) {
   'use strict';
 
   QUnit.module('ember reexports');
@@ -67470,12 +67351,6 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers', 'e
   QUnit.test('Ember.String.isHTMLSafe exports correctly', function (assert) {
     (0, _internalTestHelpers.confirmExport)(_index.default, assert, 'String.isHTMLSafe', 'ember-glimmer', 'isHTMLSafe');
   });
-
-  if (_features.EMBER_METAL_WEAKMAP) {
-    QUnit.test('Ember.WeakMap exports correctly', function (assert) {
-      (0, _internalTestHelpers.confirmExport)(_index.default, assert, 'WeakMap', 'ember-metal', 'WeakMap');
-    });
-  }
 });
 enifed('ember/tests/routing/basic_test', ['ember-utils', 'ember-console', 'ember-runtime', 'ember-routing', 'ember-metal', 'ember-glimmer', 'ember-views', 'ember-template-compiler', 'ember-application', 'router'], function (_emberUtils, _emberConsole, _emberRuntime, _emberRouting, _emberMetal, _emberGlimmer, _emberViews, _emberTemplateCompiler, _emberApplication, _router) {
   'use strict';

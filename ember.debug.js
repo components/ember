@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+b7acc909
+ * @version   3.0.0-alpha.1-null+b19c4f72
  */
 
 /*global process */
@@ -21134,7 +21134,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
             // performance penalty on Chrome (tested through 59).
             //
             // See: https://bugs.chromium.org/p/v8/issues/detail?id=6450
-            if (!Object.isFrozen(obj) && _emberUtils.HAS_NATIVE_WEAKMAP) {
+            if (!Object.isFrozen(obj)) {
                 Object.freeze(obj);
             }
         };
@@ -22213,7 +22213,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param obj
   */
   function watchedEvents(obj) {
-    var meta$$1 = exports.peekMeta(obj);
+    var meta$$1 = peekMeta(obj);
     return meta$$1 !== undefined ? meta$$1.watchedEvents() : [];
   }
 
@@ -22236,7 +22236,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function sendEvent(obj, eventName, params, actions, _meta) {
     if (actions === undefined) {
-      var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+      var meta$$1 = _meta === undefined ? peekMeta(obj) : _meta;
       actions = typeof meta$$1 === 'object' && meta$$1 !== null && meta$$1.matchingListeners(eventName);
     }
 
@@ -22288,7 +22288,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {String} eventName
   */
   function hasListeners(obj, eventName) {
-    var meta$$1 = exports.peekMeta(obj);
+    var meta$$1 = peekMeta(obj);
     if (meta$$1 === undefined) {
       return false;
     }
@@ -22306,7 +22306,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   */
   function listenersFor(obj, eventName) {
     var ret = [];
-    var meta$$1 = exports.peekMeta(obj);
+    var meta$$1 = peekMeta(obj);
     var actions = meta$$1 !== undefined ? meta$$1.matchingListeners(eventName) : undefined;
 
     if (actions === undefined) {
@@ -22516,146 +22516,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     return ObserverSet;
   }();
 
-  /**
-   @module ember
-  */
-  var id = 0;
-
-  // Returns whether Type(value) is Object according to the terminology in the spec
-  function isObject$1(value) {
-    return typeof value === 'object' && value !== null || typeof value === 'function';
-  }
-
-  /*
-   * @class Ember.WeakMap
-   * @public
-   * @category ember-metal-weakmap
-   *
-   * A partial polyfill for [WeakMap](http://www.ecma-international.org/ecma-262/6.0/#sec-weakmap-objects).
-   *
-   * There is a small but important caveat. This implementation assumes that the
-   * weak map will live longer (in the sense of garbage collection) than all of its
-   * keys, otherwise it is possible to leak the values stored in the weak map. In
-   * practice, most use cases satisfy this limitation which is why it is included
-   * in ember-metal.
-   */
-  var WeakMapPolyfill = function () {
-    function WeakMapPolyfill(iterable) {
-      emberBabel.classCallCheck(this, WeakMapPolyfill);
-
-      this._id = emberUtils.GUID_KEY + id++;
-
-      if (iterable === null || iterable === undefined) {
-        return;
-      } else if (Array.isArray(iterable)) {
-        for (var i = 0; i < iterable.length; i++) {
-          var _iterable$i = iterable[i],
-              key = _iterable$i[0],
-              value = _iterable$i[1];
-
-          this.set(key, value);
-        }
-      } else {
-        throw new TypeError('The weak map constructor polyfill only supports an array argument');
-      }
-    }
-
-    /*
-     * @method get
-     * @param key {Object | Function}
-     * @return {Any} stored value
-     */
-
-    WeakMapPolyfill.prototype.get = function get(obj) {
-      if (!isObject$1(obj)) {
-        return undefined;
-      }
-
-      var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1 !== undefined) {
-        var map = meta$$1.readableWeak();
-        if (map !== undefined) {
-          var val = map[this._id];
-          if (val === UNDEFINED) {
-            return undefined;
-          }
-          return val;
-        }
-      }
-    };
-
-    /*
-     * @method set
-     * @param key {Object | Function}
-     * @param value {Any}
-     * @return {WeakMap} the weak map
-     */
-
-    WeakMapPolyfill.prototype.set = function set(obj, value) {
-      if (!isObject$1(obj)) {
-        throw new TypeError('Invalid value used as weak map key');
-      }
-
-      if (value === undefined) {
-        value = UNDEFINED;
-      }
-
-      meta(obj).writableWeak()[this._id] = value;
-
-      return this;
-    };
-
-    /*
-     * @method has
-     * @param key {Object | Function}
-     * @return {boolean} if the key exists
-     */
-
-    WeakMapPolyfill.prototype.has = function has(obj) {
-      if (!isObject$1(obj)) {
-        return false;
-      }
-
-      var meta$$1 = exports.peekMeta(obj);
-      if (meta$$1 !== undefined) {
-        var map = meta$$1.readableWeak();
-        if (map !== undefined) {
-          return map[this._id] !== undefined;
-        }
-      }
-
-      return false;
-    };
-
-    /*
-     * @method delete
-     * @param key {Object | Function}
-     * @return {boolean} if the key was deleted
-     */
-
-    WeakMapPolyfill.prototype.delete = function _delete(obj) {
-      if (this.has(obj)) {
-        delete exports.peekMeta(obj).writableWeak()[this._id];
-        return true;
-      } else {
-        return false;
-      }
-    };
-
-    /*
-     * @method toString
-     * @return {String}
-     */
-
-    WeakMapPolyfill.prototype.toString = function toString$$1() {
-      return '[object WeakMap]';
-    };
-
-    return WeakMapPolyfill;
-  }();
-
-  var WeakMap$1 = emberUtils.HAS_NATIVE_WEAKMAP ? WeakMap : WeakMapPolyfill;
-
   exports.runInTransaction = void 0;
   exports.didRender = void 0;
   exports.assertNotRendered = void 0;
@@ -22664,26 +22524,15 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
   if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
 
-    // there are 4 states
+    // there are 2 states
 
-    // NATIVE WEAKMAP AND DEBUG
+    // DEBUG
     // tracks lastRef and lastRenderedIn per rendered object and key during a transaction
     // release everything via normal weakmap semantics by just derefencing the weakmap
 
-    // NATIVE WEAKMAP AND RELEASE
+    // RELEASE
     // tracks transactionId per rendered object and key during a transaction
     // release everything via normal weakmap semantics by just derefencing the weakmap
-
-    // WEAKMAP POLYFILL AND DEBUG
-    // tracks lastRef and lastRenderedIn per rendered object and key during a transaction
-    // since lastRef retains a lot of app state (will have a ref to the Container)
-    // if the object rendered is retained (like a immutable POJO in module state)
-    // during acceptance tests this adds up and obfuscates finding other leaks.
-
-    // WEAKMAP POLYFILL AND RELEASE
-    // tracks transactionId per rendered object and key during a transaction
-    // leaks it because small and likely not worth tracking it since it will only
-    // be leaked if the object is retained
 
     var TransactionRunner = function () {
       function TransactionRunner() {
@@ -22692,16 +22541,10 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         this.transactionId = 0;
         this.inTransaction = false;
         this.shouldReflush = false;
-        this.weakMap = new WeakMap$1();
+        this.weakMap = new WeakMap();
         {
           // track templates
           this.debugStack = undefined;
-
-          if (!emberUtils.HAS_NATIVE_WEAKMAP) {
-            // DEBUG AND POLYFILL
-            // needs obj tracking
-            this.objs = [];
-          }
         }
       }
 
@@ -22796,11 +22639,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       TransactionRunner.prototype.createMap = function createMap(object) {
         var map = Object.create(null);
         this.weakMap.set(object, map);
-        if (true && !emberUtils.HAS_NATIVE_WEAKMAP) {
-          // POLYFILL AND DEBUG
-          // requires tracking objects
-          this.objs.push(object);
-        }
         return map;
       };
 
@@ -22825,28 +22663,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       };
 
       TransactionRunner.prototype.clearObjectMap = function clearObjectMap() {
-        if (emberUtils.HAS_NATIVE_WEAKMAP) {
-          // NATIVE AND (DEBUG OR RELEASE)
-          // if we have a real native weakmap
-          // releasing the ref will allow the values to be GCed
-          this.weakMap = new WeakMap$1();
-        } else {
-          // POLYFILL AND DEBUG
-          // with a polyfill the weakmap keys must be cleared since
-          // they have the last reference, acceptance tests will leak
-          // the container if you render a immutable object retained
-          // in module scope.
-          var objs = this.objs,
-              weakMap = this.weakMap;
-
-          this.objs = [];
-          for (var i = 0; i < objs.length; i++) {
-            weakMap.delete(objs[i]);
-          }
-        }
-        // POLYFILL AND RELEASE
-        // we leak the key map if the object is retained but this is
-        // a POJO of keys to transaction ids
+        this.weakMap = new WeakMap();
       };
 
       return TransactionRunner;
@@ -22897,7 +22714,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function propertyWillChange(obj, keyName, _meta) {
-    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    var meta$$1 = _meta === undefined ? peekMeta(obj) : _meta;
     if (meta$$1 !== undefined && !meta$$1.isInitialized(obj)) {
       return;
     }
@@ -22935,7 +22752,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @private
   */
   function propertyDidChange(obj, keyName, _meta) {
-    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    var meta$$1 = _meta === undefined ? peekMeta(obj) : _meta;
     var hasMeta = meta$$1 !== undefined;
 
     if (hasMeta && !meta$$1.isInitialized(obj)) {
@@ -23202,7 +23019,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function MANDATORY_SETTER_FUNCTION(name) {
     function SETTER_FUNCTION(value) {
-      var m = exports.peekMeta(this);
+      var m = peekMeta(this);
       if (!m.isInitialized(this)) {
         m.writeValues(name, value);
       } else {
@@ -23216,7 +23033,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function DEFAULT_GETTER_FUNCTION(name) {
     return function GETTER_FUNCTION() {
-      var meta$$1 = exports.peekMeta(this);
+      var meta$$1 = peekMeta(this);
       if (meta$$1 !== undefined) {
         return meta$$1.peekValues(name);
       }
@@ -23225,7 +23042,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function INHERITING_GETTER_FUNCTION(name) {
     function IGETTER_FUNCTION() {
-      var meta$$1 = exports.peekMeta(this);
+      var meta$$1 = peekMeta(this);
       var val = void 0;
       if (meta$$1 !== undefined) {
         val = meta$$1.readInheritedValue('values', name);
@@ -23465,7 +23282,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    var meta$$1 = _meta === undefined ? peekMeta(obj) : _meta;
 
     // do nothing of this object has already been destroyed
     if (meta$$1 === undefined || meta$$1.isSourceDestroyed()) {
@@ -23545,7 +23362,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     if (typeof obj !== 'object' || obj === null) {
       return;
     }
-    var m = meta$$1 === undefined ? exports.peekMeta(obj) : meta$$1;
+    var m = meta$$1 === undefined ? peekMeta(obj) : meta$$1;
 
     if (m === undefined) {
       return;
@@ -23680,7 +23497,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
 
-    var meta$$1 = _meta === undefined ? exports.peekMeta(obj) : _meta;
+    var meta$$1 = _meta === undefined ? peekMeta(obj) : _meta;
 
     if (meta$$1 === undefined || meta$$1.readableChainWatchers() === undefined) {
       return;
@@ -23896,7 +23713,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       return;
     }
 
-    var meta$$1 = exports.peekMeta(obj);
+    var meta$$1 = peekMeta(obj);
 
     // check if object meant only to be a prototype
     if (meta$$1 !== undefined && meta$$1.proto === obj) {
@@ -23953,7 +23770,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   var META_DESTROYED = 1 << 3;
   var IS_PROXY = 1 << 4;
 
-  var META_FIELD = '__ember_meta__';
   var NODE_STACK = [];
 
   var Meta = function () {
@@ -24032,7 +23848,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
           if (node._watching) {
             nodeObject = node._object;
             if (nodeObject !== undefined) {
-              var foreignMeta = exports.peekMeta(nodeObject);
+              var foreignMeta = peekMeta(nodeObject);
               // avoid cleaning up chain watchers when both current and
               // foreign objects are being destroyed
               // if both are being destroyed manual cleanup is not needed
@@ -24372,11 +24188,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     value: null
   };
 
-  var EMBER_META_PROPERTY = {
-    name: META_FIELD,
-    descriptor: META_DESC
-  };
-
   if (ember_features.MANDATORY_SETTER) {
     Meta.prototype.readInheritedValue = function (key, subkey) {
       var internalKey = '_' + key;
@@ -24409,54 +24220,34 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     };
   }
 
-  var setMeta = void 0;
-  exports.peekMeta = void 0;
+  var getPrototypeOf = Object.getPrototypeOf;
+  var metaStore = new WeakMap();
 
-  // choose the one appropriate for given platform
-  if (emberUtils.HAS_NATIVE_WEAKMAP) {
-    var getPrototypeOf = Object.getPrototypeOf;
-    var metaStore = new WeakMap();
+  function setMeta(obj, meta) {
+    {
+      counters.setCalls++;
+    }
+    metaStore.set(obj, meta);
+  }
 
-    setMeta = function WeakMap_setMeta(obj, meta) {
+  function peekMeta(obj) {
+    var pointer = obj;
+    var meta = void 0;
+    while (pointer !== undefined && pointer !== null) {
+      meta = metaStore.get(pointer);
+      // jshint loopfunc:true
       {
-        counters.setCalls++;
+        counters.peekCalls++;
       }
-      metaStore.set(obj, meta);
-    };
-
-    exports.peekMeta = function WeakMap_peekParentMeta(obj) {
-      var pointer = obj;
-      var meta = void 0;
-      while (pointer !== undefined && pointer !== null) {
-        meta = metaStore.get(pointer);
-        // jshint loopfunc:true
-        {
-          counters.peekCalls++;
-        }
-        if (meta !== undefined) {
-          return meta;
-        }
-
-        pointer = getPrototypeOf(pointer);
-        {
-          counters.peekPrototypeWalks++;
-        }
-      }
-    };
-  } else {
-    setMeta = function Fallback_setMeta(obj, meta) {
-      if (obj.__defineNonEnumerable) {
-        obj.__defineNonEnumerable(EMBER_META_PROPERTY);
-      } else {
-        Object.defineProperty(obj, META_FIELD, META_DESC);
+      if (meta !== undefined) {
+        return meta;
       }
 
-      obj[META_FIELD] = meta;
-    };
-
-    exports.peekMeta = function Fallback_peekMeta(obj) {
-      return obj[META_FIELD];
-    };
+      pointer = getPrototypeOf(pointer);
+      {
+        counters.peekPrototypeWalks++;
+      }
+    }
   }
 
   /**
@@ -24474,7 +24265,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       counters.deleteCalls++;
     }
 
-    var meta = exports.peekMeta(obj);
+    var meta = peekMeta(obj);
     if (meta !== undefined) {
       meta.destroy();
     }
@@ -24503,7 +24294,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       counters.metaCalls++;
     }
 
-    var maybeMeta = exports.peekMeta(obj);
+    var maybeMeta = peekMeta(obj);
     var parent = void 0;
 
     // remove this code, in-favor of explicit parent
@@ -24795,7 +24586,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       obj.setUnknownProperty(keyName, value);
     } else if (currentValue === value) {/* no change */
     } else {
-      var meta$$1 = exports.peekMeta(obj);
+      var meta$$1 = peekMeta(obj);
       propertyWillChange(obj, keyName, meta$$1);
 
       if (ember_features.MANDATORY_SETTER) {
@@ -24966,7 +24757,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   }
 
   function watcherCount(obj, key) {
-    var meta$$1 = exports.peekMeta(obj);
+    var meta$$1 = peekMeta(obj);
     return meta$$1 !== undefined && meta$$1.peekWatching(key) || 0;
   }
 
@@ -25323,7 +25114,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     }
 
     // don't create objects just to invalidate
-    var meta$$1 = exports.peekMeta(obj);
+    var meta$$1 = peekMeta(obj);
     if (meta$$1 === undefined || meta$$1.source !== obj) {
       return;
     }
@@ -25568,7 +25359,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
   */
   function cacheFor(obj, key) {
-    var meta$$1 = exports.peekMeta(obj);
+    var meta$$1 = peekMeta(obj);
     var cache = meta$$1 !== undefined ? meta$$1.source === obj && meta$$1.readableCache() : undefined;
     var ret = cache !== undefined ? cache[key] : undefined;
 
@@ -28693,7 +28484,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
 
     Mixin.mixins = function mixins(obj) {
-      var meta$$1 = exports.peekMeta(obj);
+      var meta$$1 = peekMeta(obj);
       var ret = [];
       if (meta$$1 === undefined) {
         return ret;
@@ -28772,7 +28563,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       if (obj instanceof Mixin) {
         return _detect(obj, this, {});
       }
-      var meta$$1 = exports.peekMeta(obj);
+      var meta$$1 = peekMeta(obj);
       if (meta$$1 === undefined) {
         return false;
       }
@@ -29152,7 +28943,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   function isProxy(value) {
     if (typeof value === 'object' && value !== null) {
-      var meta$$1 = exports.peekMeta(value);
+      var meta$$1 = peekMeta(value);
       return meta$$1 === undefined ? false : meta$$1.isProxy();
     }
 
@@ -29211,6 +29002,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.getDispatchOverride = getDispatchOverride;
   exports.META_DESC = META_DESC;
   exports.meta = meta;
+  exports.peekMeta = peekMeta;
   exports.deleteMeta = deleteMeta;
   exports.Cache = Cache;
   exports._getPath = _getPath;
@@ -29218,8 +29010,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.getWithDefault = getWithDefault;
   exports.set = set;
   exports.trySet = trySet;
-  exports.WeakMap = WeakMap$1;
-  exports.WeakMapPolyfill = WeakMapPolyfill;
   exports.addListener = addListener;
   exports.hasListeners = hasListeners;
   exports.listenersFor = listenersFor;
@@ -35563,7 +35353,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-utils
 
 
       // Add/remove property observers as required.
-      var activeObserversMap = cp._activeObserverMap || (cp._activeObserverMap = new _emberMetal.WeakMap());
+      var activeObserversMap = cp._activeObserverMap || (cp._activeObserverMap = new WeakMap());
       var activeObservers = activeObserversMap.get(this);
 
       if (activeObservers !== undefined) {
@@ -45184,19 +44974,6 @@ enifed('ember-utils', ['exports'], function (exports) {
     }
   }
 
-  var HAS_NATIVE_WEAKMAP = function () {
-    // detect if `WeakMap` is even present
-    var hasWeakMap = typeof WeakMap === 'function';
-    if (!hasWeakMap) {
-      return false;
-    }
-
-    var instance = new WeakMap();
-    // use `Object`'s `.toString` directly to prevent us from detecting
-    // polyfills as native weakmaps
-    return Object.prototype.toString.call(instance) === '[object WeakMap]';
-  }();
-
   var HAS_NATIVE_PROXY = typeof Proxy === 'function';
 
   /*
@@ -45235,7 +45012,6 @@ enifed('ember-utils', ['exports'], function (exports) {
   exports.applyStr = applyStr;
   exports.NAME_KEY = name;
   exports.toString = toString;
-  exports.HAS_NATIVE_WEAKMAP = HAS_NATIVE_WEAKMAP;
   exports.HAS_NATIVE_PROXY = HAS_NATIVE_PROXY;
 });
 enifed('ember-views/compat/attrs', ['exports', 'ember-utils'], function (exports, _emberUtils) {
@@ -47078,14 +46854,13 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
 enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], function (exports, _emberEnvironment, _emberUtils) {
     'use strict';
 
-    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_METAL_WEAKMAP = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
-    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-metal-weakmap": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
+    exports.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER = exports.MANDATORY_SETTER = exports.GLIMMER_CUSTOM_COMPONENT_MANAGER = exports.EMBER_MODULE_UNIFICATION = exports.EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_LIBRARIES_ISREGISTERED = exports.FEATURES_STRIPPED_TEST = exports.FEATURES = exports.DEFAULT_FEATURES = undefined;
+    var DEFAULT_FEATURES = exports.DEFAULT_FEATURES = { "features-stripped-test": null, "ember-libraries-isregistered": null, "ember-improved-instrumentation": null, "ember-glimmer-allow-backtracking-rerender": false, "ember-routing-router-service": true, "ember-engines-mount-params": true, "ember-module-unification": null, "glimmer-custom-component-manager": null, "mandatory-setter": true, "ember-glimmer-detect-backtracking-rerender": true };
     var FEATURES = exports.FEATURES = (0, _emberUtils.assign)(DEFAULT_FEATURES, _emberEnvironment.ENV.FEATURES);
 
     var FEATURES_STRIPPED_TEST = exports.FEATURES_STRIPPED_TEST = FEATURES["features-stripped-test"];
     var EMBER_LIBRARIES_ISREGISTERED = exports.EMBER_LIBRARIES_ISREGISTERED = FEATURES["ember-libraries-isregistered"];
     var EMBER_IMPROVED_INSTRUMENTATION = exports.EMBER_IMPROVED_INSTRUMENTATION = FEATURES["ember-improved-instrumentation"];
-    var EMBER_METAL_WEAKMAP = exports.EMBER_METAL_WEAKMAP = FEATURES["ember-metal-weakmap"];
     var EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = exports.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER = FEATURES["ember-glimmer-allow-backtracking-rerender"];
     var EMBER_ROUTING_ROUTER_SERVICE = exports.EMBER_ROUTING_ROUTER_SERVICE = FEATURES["ember-routing-router-service"];
     var EMBER_ENGINES_MOUNT_PARAMS = exports.EMBER_ENGINES_MOUNT_PARAMS = FEATURES["ember-engines-mount-params"];
@@ -47101,13 +46876,13 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 
 
   // ember-utils exports
-  _emberMetal.default.getOwner = _emberUtils.getOwner;
+
 
   // ****ember-metal****
 
 
   // ****ember-environment****
-
+  _emberMetal.default.getOwner = _emberUtils.getOwner;
   _emberMetal.default.setOwner = _emberUtils.setOwner;
   _emberMetal.default.generateGuid = _emberUtils.generateGuid;
   _emberMetal.default.GUID_KEY = _emberUtils.GUID_KEY;
@@ -47230,10 +47005,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.bind = _emberMetal.bind;
   _emberMetal.default.Binding = _emberMetal.Binding;
   _emberMetal.default.isGlobalPath = _emberMetal.isGlobalPath;
-
-  if (_features.EMBER_METAL_WEAKMAP) {
-    _emberMetal.default.WeakMap = _emberMetal.WeakMap;
-  }
 
   Object.defineProperty(_emberMetal.default, 'ENV', {
     get: function () {
@@ -47644,7 +47415,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+b7acc909";
+  exports.default = "3.0.0-alpha.1-null+b19c4f72";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";
