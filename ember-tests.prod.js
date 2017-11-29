@@ -6,51 +6,14 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.17.0-beta.6-null+21298e96
+ * @version   2.17.0-alpha.1-null+af0b11ff
  */
 
+/*global process */
 var enifed, requireModule, Ember;
 var mainContext = this; // Used in ember-environment/lib/global.js
 
 (function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
-
-  if (typeof Ember === 'undefined') { Ember = {}; }
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
-      }
-
-      registry[name] = value;
-    };
-
-    requireModule = function(name) {
-      return internalRequire(name, null);
-    };
-
-    // setup `require` module
-    requireModule['default'] = requireModule;
-
-    requireModule.has = function registryHas(moduleName) {
-      return !!registry[moduleName] || !!registry[moduleName + '/index'];
-    };
-
     function missingModule(name, referrerName) {
       if (referrerName) {
         throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
@@ -98,6 +61,44 @@ var mainContext = this; // Used in ember-environment/lib/global.js
 
       return exports;
     }
+
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
+  if (typeof Ember === 'undefined') { Ember = {}; }
+
+  if (typeof Ember.__loader === 'undefined') {
+    var registry = {};
+    var seen = {};
+
+    enifed = function(name, deps, callback) {
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+      registry[name] = value;
+    };
+
+    requireModule = function(name) {
+      return internalRequire(name, null);
+    };
+
+    // setup `require` module
+    requireModule['default'] = requireModule;
+
+    requireModule.has = function registryHas(moduleName) {
+      return !!registry[moduleName] || !!registry[moduleName + '/index'];
+    };
 
     requireModule._eak_seen = registry;
 
@@ -584,12 +585,12 @@ enifed('container/tests/container_test', ['ember-utils', 'ember-metal', 'contain
     assert.deepEqual(factoryManager.class, Component, 'No double extend');
   });
 
-  QUnit.test('#factoryFor must supply a fullname', function (assert) {
+  QUnit.test('#factoryFor must supply a fullname', function () {
     var registry = new _container.Registry();
     var container = registry.container();
-    assert.throws(function () {
+    expectAssertion(function () {
       container.factoryFor('chad-bar');
-    }, /Invalid Fullname, expected: 'type:name' got: chad-bar/);
+    }, /fullName must be a proper full name/);
   });
 
   QUnit.test('#factoryFor returns a factory manager', function (assert) {
@@ -841,7 +842,7 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers'], 
 
     registry.register('controller:post', PostController);
 
-    throws(function () {
+    expectAssertion(function () {
       registry.typeInjection('controller', 'injected', 'controller:post');
     }, /Cannot inject a 'controller:post' on other controller\(s\)\./);
   });
@@ -902,26 +903,6 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers'], 
     equal(isPresent, true, 'Normalizes the name when checking if the factory or instance is present');
   });
 
-  QUnit.test('validateFullName throws an error if name is incorrect', function () {
-    expect(2);
-
-    var registry = new _container.Registry();
-    var PostController = (0, _internalTestHelpers.factory)();
-
-    registry.normalize = function () {
-      return 'controller:post';
-    };
-
-    registry.register('controller:post', PostController);
-    throws(function () {
-      registry.validateFullName('post');
-    }, /TypeError: Invalid Fullname, expected: 'type:name' got: post/);
-
-    throws(function () {
-      registry.validateFullName('route:http://foo.bar.com/baz');
-    }, /TypeError: Invalid Fullname, expected: 'type:name' got: route:http:\/\/foo.bar.com\/baz/);
-  });
-
   QUnit.test('The registry normalizes names when injecting', function () {
     var registry = new _container.Registry();
     var PostController = (0, _internalTestHelpers.factory)();
@@ -965,7 +946,7 @@ enifed('container/tests/registry_test', ['container', 'internal-test-helpers'], 
     registry.register('controller:apple', FirstApple);
     strictEqual(registry.resolve('controller:apple'), FirstApple);
 
-    throws(function () {
+    expectAssertion(function () {
       registry.register('controller:apple', SecondApple);
     }, /Cannot re-register: 'controller:apple', as it has already been resolved\./);
 
@@ -2339,33 +2320,33 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
       assert.equal(this.applicationInstance.lookup('controller:nested-post'), this.applicationInstance.lookup('controller:nested_post'), 'looks up NestedPost controller on application');
     };
 
-    _class.prototype['@test the default resolver throws an error if the fullName to resolve is invalid'] = function (assert) {
+    _class.prototype['@test the default resolver throws an error if the fullName to resolve is invalid'] = function () {
       var _this3 = this;
 
-      assert.throws(function () {
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(undefined);
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(null);
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(':');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('model');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration('model:');
-      }, TypeError, /Invalid fullName/);
-      assert.throws(function () {
+      }, /fullName must be a proper full name/);
+      expectAssertion(function () {
         _this3.applicationInstance.resolveRegistration(':type');
-      }, TypeError, /Invalid fullName/);
+      }, /fullName must be a proper full name/);
     };
 
     _class.prototype['@test lookup description'] = function (assert) {
@@ -27735,6 +27716,16 @@ enifed('ember-glimmer/tests/integration/helpers/loc-test', ['ember-babel', 'embe
       this.assertText('Hallo Freund - Hallo, Mr. Pitkin', 'the bound value is correct after replacement');
     };
 
+    _class.prototype['@test it can be overriden'] = function () {
+      this.registerHelper('loc', function () {
+        return 'Yup';
+      });
+      this.render('{{loc greeting}}', {
+        greeting: 'Hello Friend'
+      });
+      this.assertText('Yup', 'the localized string is correct');
+    };
+
     return _class;
   }(_testCase.RenderingTest));
 });
@@ -31406,7 +31397,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: undefined,
-          ViewClass: undefined,
           template: undefined
         },
 
@@ -31432,7 +31422,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: undefined,
-          ViewClass: undefined,
           template: undefined
         },
 
@@ -31455,7 +31444,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31477,7 +31465,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'index',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
@@ -31501,7 +31488,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31525,7 +31511,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'index',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:index')
         },
         outlets: Object.create(null)
@@ -31549,7 +31534,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31573,7 +31557,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'special',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:special')
         },
         outlets: Object.create(null)
@@ -31597,7 +31580,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31621,7 +31603,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'special',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:special')
         },
         outlets: Object.create(null)
@@ -31646,7 +31627,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'application',
           controller: controller,
-          ViewClass: undefined,
           template: this.owner.lookup('template:application')
         },
         outlets: Object.create(null)
@@ -31670,7 +31650,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'foo',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:foo')
         },
         outlets: Object.create(null)
@@ -31684,7 +31663,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'bar',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:bar')
         },
         outlets: Object.create(null)
@@ -31725,7 +31703,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
           outlet: 'main',
           name: 'outer',
           controller: {},
-          ViewClass: undefined,
           template: this.owner.lookup('template:outer')
         },
         outlets: {
@@ -31736,7 +31713,6 @@ enifed('ember-glimmer/tests/integration/outlet-test', ['ember-babel', 'ember-gli
               outlet: 'main',
               name: 'inner',
               controller: {},
-              ViewClass: undefined,
               template: this.owner.lookup('template:inner')
             },
             outlets: Object.create(null)
@@ -32781,7 +32757,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
       this.assertText('Hello Planet EarthGlobe World');
 
       this.runTask(function () {
-        return _this11.replace(2, 4, { text: 'my' });
+        return _this11.replace(2, 4, [{ text: 'my' }]);
       });
 
       this.assertText('Hello my World');
@@ -33480,7 +33456,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         (0, _emberMetal.get)(_this37.context, 'first').pushObject('I');
-        (0, _emberMetal.get)(_this37.context, 'ninth').replace(0, 1, 'K');
+        (0, _emberMetal.get)(_this37.context, 'ninth').replace(0, 1, ['K']);
       });
 
       this.assertText('O-Limbo-D-K-D-Wrath-K-Wrath-Limbo-I-D-K-D-Wrath-K-Wrath-I-O');
@@ -33512,7 +33488,7 @@ enifed('ember-glimmer/tests/integration/syntax/each-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         var name = (0, _emberMetal.get)(_this38.context, 'name');
-        name.objectAt(0).replace(0, 1, 'lady');
+        name.objectAt(0).replace(0, 1, ['lady']);
         name.pushObject(['bird']);
       });
 
@@ -34266,7 +34242,7 @@ enifed('ember-glimmer/tests/integration/syntax/with-test', ['ember-babel', 'embe
 
       this.runTask(function () {
         var array = (0, _emberMetal.get)(_this9.context, 'arrayThing');
-        array.replace(0, 1, 'Goodbye');
+        array.replace(0, 1, ['Goodbye']);
         (0, _emberRuntime.removeAt)(array, 1);
         array.insertAt(1, ', ');
         array.pushObject('!');
@@ -42956,9 +42932,7 @@ enifed('ember-metal/tests/run_loop/later_test', ['ember-utils', 'ember-metal'], 
   // run loop has to flush, it would have considered
   // the timer already expired.
   function pauseUntil(time) {
-    // jscs:disable
-    while (+new Date() < time) {} /* do nothing - sleeping */
-    // jscs:enable
+    while (+new Date() < time) {/* do nothing - sleeping */}
   }
 
   QUnit.module('run.later', {
@@ -45163,7 +45137,6 @@ enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/
     }), true, 'When in IE8+, use onhashchange existence as evidence of the feature');
   });
 
-  // jscs:disable
   QUnit.test("Feature-detecting the history API", function () {
     equal((0, _util.supportsHistory)("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
     equal((0, _util.supportsHistory)("", {}), false, "returns false if history.pushState doesn't exist");
@@ -45180,7 +45153,6 @@ enifed('ember-routing/tests/location/util_test', ['ember-utils', 'ember-routing/
     // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
     equal((0, _util.supportsHistory)("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
   });
-  // jscs:enable
 });
 enifed('ember-routing/tests/system/cache_test', ['ember-routing/system/cache'], function (_cache) {
   'use strict';
@@ -46397,24 +46369,6 @@ enifed('ember-routing/tests/system/router_test', ['ember-utils', 'ember-routing/
     }];
 
     (0, _router.triggerEvent)(handlerInfos, false, ['loading']);
-  });
-
-  QUnit.test('Router#router deprecates when called', function (assert) {
-    assert.expect(2);
-
-    var router = createRouter();
-
-    expectDeprecation(function () {
-      assert.equal(router.router, router._routerMicrolib);
-    }, 'Usage of `router` is deprecated, use `_routerMicrolib` instead.');
-  });
-
-  QUnit.test('Router#_routerMicrolib can be used without deprecation', function (assert) {
-    assert.expect(1);
-
-    var router = createRouter();
-
-    assert.ok(router._routerMicrolib, 'Router._routerMicrolib can be used without deprecation');
   });
 });
 enifed('ember-routing/tests/utils_test', ['ember-routing/utils'], function (_utils) {
@@ -47664,12 +47618,12 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
       var items = obj.get('items');
 
-      items.replace(0, 1, {
+      items.replace(0, 1, [{
         fname: 'Jaime',
         lname: 'Lannister',
         age: 34
-      });
-      items.replace(1, 1, jaimeInDisguise);
+      }]);
+      items.replace(1, 1, [jaimeInDisguise]);
 
       deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
@@ -50086,7 +50040,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   });
 
   QUnit.test('should notify array observer when array changes', function () {
-    (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, 6);
+    (0, _emberMetal.get)(object, 'normalArray').replace(0, 0, [6]);
     equal(object.abnormal, 'notifiedObserver', 'observer should be notified');
   });
 
@@ -52843,6 +52797,26 @@ enifed('ember-runtime/tests/mixins/target_action_support_test', ['ember-environm
       })
     });
     ok(true === obj.triggerAction(), 'a valid target and action were specified');
+  });
+
+  QUnit.test('it should raise a deprecation warning when targetObject is specified and used', function () {
+    expect(4);
+    var obj = void 0;
+    expectDeprecation(function () {
+      obj = _object.default.extend(_target_action_support.default).create({
+        action: 'anEvent',
+        actionContext: {},
+        targetObject: _object.default.create({
+          anEvent: function (ctx) {
+            ok(obj.actionContext === ctx, 'anEvent method was called with the expected context');
+          }
+        })
+      });
+    }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
+    ok(true === obj.triggerAction(), 'a valid targetObject and action were specified');
+    expectDeprecation(function () {
+      return obj.get('targetObject');
+    }, /Usage of `targetObject` is deprecated. Please use `target` instead./);
   });
 
   QUnit.test('it should find an actionContext specified as a property path', function () {
@@ -57224,6 +57198,21 @@ enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['ember-ut
     ok(copiedArray[0] !== array[0], 'objects inside should be unique');
   });
 });
+enifed('ember-runtime/tests/system/native_array/replace_test', ['ember-runtime/system/native_array'], function (_native_array) {
+  'use strict';
+
+  QUnit.module('NativeArray.replace');
+
+  QUnit.test('raises assertion if third argument is not an array', function () {
+    expectAssertion(function () {
+      (0, _native_array.A)([1, 2, 3]).replace(1, 1, '');
+    }, 'The third argument to replace needs to be an array.');
+  });
+
+  QUnit.test('it does not raise an assertion if third parameter is not passed', function () {
+    deepEqual((0, _native_array.A)([1, 2, 3]).replace(1, 2), (0, _native_array.A)([1]), 'no assertion raised');
+  });
+});
 enifed('ember-runtime/tests/system/native_array/suite_test', ['ember-runtime/system/native_array', 'ember-runtime/tests/suites/mutable_array'], function (_native_array, _mutable_array) {
   'use strict';
 
@@ -59749,7 +59738,7 @@ enifed('ember-template-compiler/plugins/transform-dot-component-invocation', ['e
   }
 
   function isMultipartPath(path) {
-    return path.parts.length > 1;
+    return path.parts && path.parts.length > 1;
   }
 
   function isInlineInvocation(path, params, hash) {
@@ -60704,7 +60693,9 @@ enifed('ember-template-compiler/tests/plugins/transform-dot-component-invocation
   QUnit.test('Does not throw a compiler error for path components', function (assert) {
     assert.expect(1);
 
-    ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}'].forEach(function (layout, i) {
+    ['{{this.modal open}}', '{{this.modal isOpen=true}}', '{{#this.modal}}Woot{{/this.modal}}', '{{c.modal open}}', '{{c.modal isOpen=true}}', '{{#c.modal}}Woot{{/c.modal}}', '{{#my-component as |c|}}{{c.a name="Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{c.a "Chad"}}{{/my-component}}', '{{#my-component as |c|}}{{#c.a}}{{/c.a}}{{/my-component}}', '<input disabled={{true}}>', // GH#15740
+    '<td colspan={{3}}></td>' // GH#15217
+    ].forEach(function (layout, i) {
       (0, _index.compile)(layout, { moduleName: 'example-' + i });
     });
 
@@ -62567,6 +62558,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helper
         _this31.router.map(function () {
           this.route('posts', { resetNamespace: true }, function () {
             this.route('new');
+            this.route('edit', { resetNamespace: true });
           });
         });
       });
@@ -62609,6 +62601,18 @@ enifed('ember-testing/tests/helpers_test', ['ember-babel', 'internal-test-helper
         assert.equal(testHelpers.currentRouteName(), 'posts.new', 'should equal \'posts.new\'.');
         assert.equal(testHelpers.currentPath(), 'posts.new', 'should equal \'posts.new\'.');
         assert.equal(testHelpers.currentURL(), '/posts/new', 'should equal \'/posts/new\'.');
+      });
+    };
+
+    _class4.prototype['@test currentRouteName for \'/posts/edit\''] = function (assert) {
+      assert.expect(3);
+
+      var testHelpers = this.application.testHelpers;
+
+      return testHelpers.visit('/posts/edit').then(function () {
+        assert.equal(testHelpers.currentRouteName(), 'edit', 'should equal \'edit\'.');
+        assert.equal(testHelpers.currentPath(), 'posts.edit', 'should equal \'posts.edit\'.');
+        assert.equal(testHelpers.currentURL(), '/posts/edit', 'should equal \'/posts/edit\'.');
       });
     };
 
@@ -65655,24 +65659,14 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
     (0, _emberBabel.inherits)(_class5, _ApplicationTestCase6);
 
     function _class5() {
-
-      var _this8 = (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase6.call(this));
-
-      _this8._oldWarn = _emberConsole.default.warn;
-      _this8.warnCalled = false;
-      _emberConsole.default.warn = function () {
-        return _this8.warnCalled = true;
-      };
-      return _this8;
+      return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase6.apply(this, arguments));
     }
 
-    _class5.prototype.teardown = function () {
-      _emberConsole.default.warn = this._oldWarn;
-      _ApplicationTestCase6.prototype.teardown.call(this);
-    };
-
     _class5.prototype['@test link-to with null/undefined dynamic parameters are put in a loading state'] = function (assert) {
+      var _this9 = this;
+
       assert.expect(19);
+      var warningMessage = 'This link-to is in an inactive loading state because at least one of its parameters presently has a null/undefined value, or the provided route name is invalid.';
 
       this.router.map(function () {
         this.route('thing', { path: '/thing/:thing_id' });
@@ -65712,9 +65706,9 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       assertLinkStatus(contextLink);
       assertLinkStatus(staticLink);
 
-      this.warnCalled = false;
-      this.click(contextLink);
-      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
+      expectWarning(function () {
+        _this9.click(contextLink);
+      }, warningMessage);
 
       // Set the destinationRoute (context is still null).
       this.runTask(function () {
@@ -65746,9 +65740,9 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       });
       assertLinkStatus(contextLink);
 
-      this.warnCalled = false;
-      this.click(staticLink);
-      assert.ok(this.warnCalled, 'Logger.warn was called from clicking loading link');
+      expectWarning(function () {
+        _this9.click(staticLink);
+      }, warningMessage);
 
       this.runTask(function () {
         return controller.set('secondRoute', 'about');
@@ -65770,23 +65764,23 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
     }
 
     _class6.prototype['@test the {{link-to}} helper throws a useful error if you invoke it wrong'] = function (assert) {
-      var _this10 = this;
+      var _this11 = this;
 
       assert.expect(1);
 
       assert.throws(function () {
-        _this10.runTask(function () {
-          _this10.createApplication();
+        _this11.runTask(function () {
+          _this11.createApplication();
 
-          _this10.add('router:main', _emberRouting.Router.extend({
+          _this11.add('router:main', _emberRouting.Router.extend({
             location: 'none'
           }));
 
-          _this10.router.map(function () {
+          _this11.router.map(function () {
             this.route('post', { path: 'post/:post_id' });
           });
 
-          _this10.addTemplate('application', '{{#link-to \'post\'}}Post{{/link-to}}');
+          _this11.addTemplate('application', '{{#link-to \'post\'}}Post{{/link-to}}');
         });
       }, /(You attempted to define a `\{\{link-to "post"\}\}` but did not pass the parameters required for generating its dynamic segments.|You must provide param `post_id` to `generate`)/);
     };
@@ -74232,8 +74226,30 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
       });
     };
 
-    _class.prototype['@test RouterService#transitionTo with unspecified query params'] = function (assert) {
+    _class.prototype['@test RouterService#transitionTo passing only queryParams works'] = function (assert) {
       var _this10 = this;
+
+      assert.expect(2);
+
+      this.add('controller:parent.child', _emberRuntime.Controller.extend({
+        queryParams: ['sort']
+      }));
+
+      var queryParams = this.buildQueryParams({ sort: 'DESC' });
+
+      return this.visit('/').then(function () {
+        return _this10.routerService.transitionTo('parent.child');
+      }).then(function () {
+        assert.equal(_this10.routerService.get('currentURL'), '/child');
+      }).then(function () {
+        return _this10.routerService.transitionTo(queryParams);
+      }).then(function () {
+        assert.equal(_this10.routerService.get('currentURL'), '/child?sort=DESC');
+      });
+    };
+
+    _class.prototype['@test RouterService#transitionTo with unspecified query params'] = function (assert) {
+      var _this11 = this;
 
       assert.expect(1);
 
@@ -74247,14 +74263,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
       var queryParams = this.buildQueryParams({ sort: 'ASC' });
 
       return this.visit('/').then(function () {
-        return _this10.routerService.transitionTo('parent.child', queryParams);
+        return _this11.routerService.transitionTo('parent.child', queryParams);
       }).then(function () {
-        assert.equal(_this10.routerService.get('currentURL'), '/child?sort=ASC');
+        assert.equal(_this11.routerService.get('currentURL'), '/child?sort=ASC');
       });
     };
 
     _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key'] = function (assert) {
-      var _this11 = this;
+      var _this12 = this;
 
       assert.expect(1);
 
@@ -74268,14 +74284,14 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
       var queryParams = this.buildQueryParams({ url_sort: 'ASC' });
 
       return this.visit('/').then(function () {
-        return _this11.routerService.transitionTo('parent.child', queryParams);
+        return _this12.routerService.transitionTo('parent.child', queryParams);
       }).then(function () {
-        assert.equal(_this11.routerService.get('currentURL'), '/child?url_sort=ASC');
+        assert.equal(_this12.routerService.get('currentURL'), '/child?url_sort=ASC');
       });
     };
 
     _class.prototype['@test RouterService#transitionTo with aliased query params uses the original provided key when controller property name'] = function (assert) {
-      var _this12 = this;
+      var _this13 = this;
 
       assert.expect(1);
 
@@ -74290,7 +74306,7 @@ enifed('ember/tests/routing/router_service_test/transitionTo_test', ['ember-babe
 
       return this.visit('/').then(function () {
         expectAssertion(function () {
-          return _this12.routerService.transitionTo('parent.child', queryParams);
+          return _this13.routerService.transitionTo('parent.child', queryParams);
         }, 'You passed the `cont_sort` query parameter during a transition into parent.child, please update to url_sort');
       });
     };
@@ -77223,16 +77239,17 @@ enifed('internal-test-helpers/tests/index-test', [], function () {
     assert.ok(true, 'each package needs at least one test to be able to run through `npm test`');
   });
 });
+/*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
   var IS_NODE = typeof module === 'object' && typeof module.require === 'function';
   if (IS_NODE) {
     _exports.require = module.require;
     _exports.module = module;
-    _exports.IS_NODE = IS_NODE
+    _exports.IS_NODE = IS_NODE;
   } else {
     _exports.require = null;
     _exports.module = null;
-    _exports.IS_NODE = IS_NODE
+    _exports.IS_NODE = IS_NODE;
   }
 });
 enifed("simple-html-tokenizer", ["exports"], function (exports) {
