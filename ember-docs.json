@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.78cb0488"
+        "version": "3.0.0-alpha.1.b7acc909"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -8321,7 +8321,7 @@
         },
         {
             "file": "packages/ember-metal/lib/properties.js",
-            "line": 87,
+            "line": 71,
             "description": "NOTE: This is a low-level method used by other parts of the API. You almost\nnever want to call this method directly. Instead you should use\n`mixin()` to define new properties.\n\nDefines a property on an object. This method works much like the ES5\n`Object.defineProperty()` method except that it can also accept computed\nproperties and other special descriptors.\n\nNormally this method takes only three parameters. However if you pass an\ninstance of `Descriptor` as the third param then you can pass an\noptional value as the fourth parameter. This is often more efficient than\ncreating new descriptor hashes for each property.\n\n## Examples\n\n```javascript\nimport { defineProperty, computed } from '@ember/object';\n\n// ES5 compatible mode\ndefineProperty(contact, 'firstName', {\n  writable: true,\n  configurable: false,\n  enumerable: true,\n  value: 'Charles'\n});\n\n// define a simple property\ndefineProperty(contact, 'lastName', undefined, 'Jolley');\n\n// define a computed property\ndefineProperty(contact, 'fullName', computed('firstName', 'lastName', function() {\n  return this.firstName+' '+this.lastName;\n}));\n```",
             "access": "private",
             "tagname": "",

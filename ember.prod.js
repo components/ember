@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+78cb0488
+ * @version   3.0.0-alpha.1-null+b7acc909
  */
 
 /*global process */
@@ -13962,7 +13962,6 @@ enifed('ember-environment', ['exports'], function (exports) {
     hasDOM: true,
     isChrome: !!window.chrome && !window.opera,
     isFirefox: typeof InstallTrigger !== 'undefined',
-    isPhantom: !!window.callPhantom,
     location: window.location,
     history: window.history,
     userAgent: window.navigator.userAgent,
@@ -13971,7 +13970,6 @@ enifed('ember-environment', ['exports'], function (exports) {
     hasDOM: false,
     isChrome: false,
     isFirefox: false,
-    isPhantom: false,
     location: null,
     history: null,
     userAgent: 'Lynx (textmode)',
@@ -22438,22 +22436,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     this.isDescriptor = true;
   }
 
-  (function () {
-    // https://github.com/spalger/kibana/commit/b7e35e6737df585585332857a4c397dc206e7ff9
-    var a = Object.create(Object.prototype, {
-      prop: {
-        configurable: true,
-        value: 1
-      }
-    });
-
-    Object.defineProperty(a, 'prop', {
-      configurable: true,
-      value: 2
-    });
-
-    return a.prop === 2;
-  })();
   // ..........................................................
   // DEFINING PROPERTIES API
   //
@@ -22506,8 +22488,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @param {*} [data] something other than a descriptor, that will
       become the explicit value of this property.
   */
-
-
   function defineProperty(obj, keyName, desc, data, meta$$1) {
     if (meta$$1 === undefined) {
       meta$$1 = meta(obj);
@@ -43884,7 +43864,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+78cb0488";
+  exports.default = "3.0.0-alpha.1-null+b7acc909";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+78cb0488
+ * @version   3.0.0-alpha.1-null+b7acc909
  */
 
 /*global process */
@@ -63723,7 +63723,7 @@ enifed('ember-utils/tests/checkHasSuper_test', ['ember-environment', 'ember-util
   // Only run this test on browsers that we are certain should have function
   // source available.  This allows the test suite to continue to pass on other
   // platforms that correctly (for them) fall back to the "always wrap" code.
-  if (_emberEnvironment.environment.isPhantom || _emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
+  if (_emberEnvironment.environment.isChrome || _emberEnvironment.environment.isFirefox) {
     QUnit.test('does not super wrap needlessly [GH #12462]', function (assert) {
       assert.notOk((0, _emberUtils.checkHasSuper)(function () {}), 'empty function does not have super');
     });
