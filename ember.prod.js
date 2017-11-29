@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+b19c4f72
+ * @version   3.0.0-alpha.1-null+d074b822
  */
 
 /*global process */
@@ -16006,7 +16006,7 @@ enifed('ember-glimmer/components/link-to', ['exports', 'ember-debug', 'ember-met
     currentWhen: (0, _emberRuntime.deprecatingAlias)('current-when', { id: 'ember-routing-view.deprecated-current-when', until: '3.0.0' }),
     /**
       Used to determine when this `LinkComponent` is active.
-         @property currentWhen
+         @property current-when
       @public
     */
     'current-when': null,
@@ -43670,7 +43670,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+b19c4f72";
+  exports.default = "3.0.0-alpha.1-null+d074b822";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
