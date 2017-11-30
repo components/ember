@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f1850bce
+ * @version   3.0.0-alpha.1-null+c27cd04e
  */
 
 /*global process */
@@ -53611,7 +53611,7 @@ enifed('ember-runtime/tests/suites/copyable/frozenCopy', ['exports', 'ember-runt
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberUtils, _suite, _object, _emberMetal, _any, _is_any, _compact, _contains, _includes, _every, _filter, _find, _firstObject, _forEach, _mapBy, _invoke, _lastObject, _map, _reduce, _reject, _sortBy, _toArray, _uniq, _uniqBy, _without) {
+enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberUtils, _suite, _object, _emberMetal, _any, _is_any, _compact, _includes, _every, _filter, _find, _firstObject, _forEach, _mapBy, _invoke, _lastObject, _map, _reduce, _reject, _sortBy, _toArray, _uniq, _uniqBy, _without) {
   'use strict';
 
   exports.ObserverClass = exports.EnumerableTests = undefined;
@@ -53787,7 +53787,6 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'embe
   EnumerableTests.importModuleTests(_any.default);
   EnumerableTests.importModuleTests(_is_any.default);
   EnumerableTests.importModuleTests(_compact.default);
-  EnumerableTests.importModuleTests(_contains.default);
   EnumerableTests.importModuleTests(_every.default);
   EnumerableTests.importModuleTests(_filter.default);
   EnumerableTests.importModuleTests(_find.default);
@@ -53898,31 +53897,6 @@ enifed('ember-runtime/tests/suites/enumerable/compact', ['exports', 'ember-runti
     var obj = this.newObject([null, 1, false, '', undefined, 0, null]);
     var ary = obj.compact();
     deepEqual(ary, [1, false, '', 0]);
-  });
-
-  exports.default = suite;
-});
-enifed('ember-runtime/tests/suites/enumerable/contains', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _suite) {
-  'use strict';
-
-  var suite = _suite.SuiteModuleBuilder.create();
-
-  suite.module('contains');
-
-  suite.test('contains returns true if item is in enumerable', function () {
-    var data = this.newFixture(3);
-    var obj = this.newObject(data);
-
-    expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
-    equal(obj.contains(data[1]), true, 'should return true if contained');
-  });
-
-  suite.test('contains returns false if item is not in enumerable', function () {
-    var data = this.newFixture(1);
-    var obj = this.newObject(this.newFixture(3));
-
-    expectDeprecation('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.');
-    equal(obj.contains(data[0]), false, 'should return false if not contained');
   });
 
   exports.default = suite;

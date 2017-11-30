@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+f1850bce
+ * @version   3.0.0-alpha.1-null+c27cd04e
  */
 
 /*global process */
@@ -28127,29 +28127,22 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
         args,
         _key6,
         i;
-    var paths = void 0;
-
-    var addWatchedProperty = function (path) {
-      paths.push(path);
-    };
 
     var _paths = args.slice(0, -1);
-
     if (typeof func !== 'function') {
       // revert to old, soft-deprecated argument ordering
-
       func = args[0];
       _paths = args.slice(1);
     }
 
-    paths = [];
+    false && !(typeof func === 'function') && emberDebug.assert('_beforeObserver called without a function', typeof func === 'function');
 
+    var paths = [];
+    var addWatchedProperty = function (path) {
+      paths.push(path);
+    };
     for (i = 0; i < _paths.length; ++i) {
       expandProperties(_paths[i], addWatchedProperty);
-    }
-
-    if (typeof func !== 'function') {
-      throw new emberDebug.EmberError('_beforeObserver called without a function');
     }
 
     func.__ember_observesBefore__ = paths;
@@ -36779,15 +36772,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-meta
       return last;
     }).readOnly(),
 
-    contains: function (obj) {
-      false && !false && (0, _emberDebug.deprecate)('`Enumerable#contains` is deprecated, use `Enumerable#includes` instead.', false, { id: 'ember-runtime.enumerable-contains', until: '3.0.0', url: 'https://emberjs.com/deprecations/v2.x#toc_enumerable-contains' });
-
-      var found = this.find(function (item) {
-        return item === obj;
-      });
-
-      return found !== undefined;
-    },
     forEach: function (callback, target) {
       false && !(typeof callback === 'function') && (0, _emberDebug.assert)('Enumerable#forEach expects a function as first argument.', typeof callback === 'function');
 
@@ -43640,7 +43624,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+f1850bce";
+  exports.default = "3.0.0-alpha.1-null+c27cd04e";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
