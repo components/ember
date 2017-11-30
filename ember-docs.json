@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.c27cd04e"
+        "version": "3.0.0-alpha.1.e7513896"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -6128,7 +6128,7 @@
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 16,
+            "line": 18,
             "description": "Allows for runtime registration of handler functions that override the default warning behavior.\nWarnings are invoked by calls made to [warn](https://emberjs.com/api/classes/Ember.html#method_warn).\nThe following example demonstrates its usage by registering a handler that does nothing overriding Ember's\ndefault warning behavior.\n\n```javascript\nimport { registerWarnHandler } from '@ember/debug';\n\n// next is not called, so no warnings get the default behavior\nregisterWarnHandler(() => {});\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the warn call. </li>\n  <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -6148,7 +6148,7 @@
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 63,
+            "line": 65,
             "description": "Display a warning with the provided message.\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "warn",
