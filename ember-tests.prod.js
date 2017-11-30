@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+23c3bac7
+ * @version   3.0.0-alpha.1-null+f1850bce
  */
 
 /*global process */
@@ -18412,26 +18412,6 @@ enifed('ember-glimmer/tests/integration/components/link-to-test', ['ember-babel'
       }, deprecation);
 
       return p;
-    };
-
-    _class.prototype['@test accessing `currentWhen` triggers a deprecation'] = function () {
-      var component = void 0;
-      this.addComponent('link-to', {
-        ComponentClass: _helpers.LinkComponent.extend({
-          init: function () {
-            this._super.apply(this, arguments);
-            component = this;
-          }
-        })
-      });
-
-      this.addTemplate('application', '{{link-to \'Index\' \'index\'}}');
-
-      return this.visit('/').then(function () {
-        expectDeprecation(function () {
-          component.get('currentWhen');
-        }, /Usage of `currentWhen` is deprecated, use `current-when` instead/);
-      });
     };
 
     _class.prototype['@test should be able to be inserted in DOM when the router is not present'] = function () {
@@ -65290,24 +65270,6 @@ enifed('ember/tests/helpers/link_to_test', ['ember-babel', 'ember-console', 'int
       this.visit('/about/item');
 
       assert.equal(normalizeUrl(this.$('#item a').attr('href')), '/about');
-    };
-
-    _class4.prototype['@test The {{link-to}} helper supports currentWhen (DEPRECATED)'] = function (assert) {
-      expectDeprecation('Usage of `currentWhen` is deprecated, use `current-when` instead.');
-
-      this.router.map(function () {
-        this.route('index', { path: '/' }, function () {
-          this.route('about');
-        });
-        this.route('item');
-      });
-
-      this.addTemplate('index', '<h3>Home</h3>{{outlet}}');
-      this.addTemplate('index.about', '\n      {{#link-to \'item\' id=\'other-link\' currentWhen=\'index\'}}ITEM{{/link-to}}\n    ');
-
-      this.visit('/about');
-
-      assert.equal(this.$('#other-link.active').length, 1, 'The link is active since current-when is a parent route');
     };
 
     _class4.prototype['@test The {{link-to}} helper supports custom, nested, current-when'] = function () {
