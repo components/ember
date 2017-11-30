@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.d074b822"
+        "version": "3.0.0-alpha.1.d4c569c5"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -1840,7 +1840,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 617,
+            "line": 591,
             "access": "public",
             "tagname": ""
         }
@@ -3487,7 +3487,7 @@
             "module": "jquery",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 617,
+            "line": 591,
             "access": "public",
             "tagname": "",
             "static": 1
@@ -18078,24 +18078,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 224,
-            "description": "An empty function useful for some operations. Always returns `this`.",
-            "itemtype": "method",
-            "name": "K",
-            "return": {
-                "description": "",
-                "type": "Object"
-            },
-            "access": "public",
-            "tagname": "",
-            "deprecated": true,
-            "class": "Ember.Ember",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember/lib/index.js",
-            "line": 416,
+            "line": 390,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -18108,7 +18091,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 432,
+            "line": 406,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -18121,7 +18104,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 498,
+            "line": 472,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -18134,7 +18117,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 518,
+            "line": 492,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -18147,7 +18130,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 623,
+            "line": 597,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",

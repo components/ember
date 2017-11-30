@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+d074b822
+ * @version   3.0.0-alpha.1-null+d4c569c5
  */
 
 /*global process */
@@ -39991,16 +39991,6 @@ enifed('ember-metal/tests/main_test', ['ember-metal'], function (_emberMetal) {
     // Negative test cases
     validateVersionString('1.11.3.aba18a', false);
     validateVersionString('1.11', false);
-  });
-
-  QUnit.test('Ember.K is deprecated', function (assert) {
-    expectDeprecation(function () {
-      var obj = {
-        noop: _emberMetal.default.K
-      };
-
-      assert.equal(obj, obj.noop());
-    }, 'Ember.K is deprecated in favor of defining a function inline.');
   });
 });
 enifed('ember-metal/tests/map_test', ['ember-metal'], function (_emberMetal) {
