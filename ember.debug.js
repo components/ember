@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+d4c569c5
+ * @version   3.0.0-alpha.1-null+23c3bac7
  */
 
 /*global process */
@@ -21208,7 +21208,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
     }(_reference.ConstReference);
 
     var TwoWayFlushDetectionTag = void 0;
-    if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+    if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
         TwoWayFlushDetectionTag = function () {
             function TwoWayFlushDetectionTag(tag, key, ref) {
                 (0, _emberBabel.classCallCheck)(this, TwoWayFlushDetectionTag);
@@ -21276,7 +21276,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
 
             _this4._parentValue = parentValue;
             _this4._propertyKey = propertyKey;
-            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
                 _this4.tag = new TwoWayFlushDetectionTag((0, _emberMetal.tagForProperty)(parentValue, propertyKey), propertyKey, _this4);
             } else {
                 _this4.tag = (0, _emberMetal.tagForProperty)(parentValue, propertyKey);
@@ -21291,7 +21291,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
             var _parentValue = this._parentValue,
                 _propertyKey = this._propertyKey;
 
-            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
                 this.tag.didCompute(_parentValue);
             }
             return (0, _emberMetal.get)(_parentValue, _propertyKey);
@@ -21317,7 +21317,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
             _this5._parentReference = parentReference;
             _this5._parentObjectTag = parentObjectTag;
             _this5._propertyKey = propertyKey;
-            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+            if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
                 var tag = (0, _reference.combine)([parentReferenceTag, parentObjectTag]);
                 _this5.tag = new TwoWayFlushDetectionTag(tag, propertyKey, _this5);
             } else {
@@ -21341,7 +21341,7 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
                 if (_features.MANDATORY_SETTER) {
                     (0, _emberMetal.watchKey)(parentValue, _propertyKey);
                 }
-                if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || _features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+                if (_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
                     this.tag.didCompute(parentValue);
                 }
                 return (0, _emberMetal.get)(parentValue, _propertyKey);
@@ -22522,7 +22522,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
 
     // there are 2 states
 
@@ -22596,13 +22596,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
               label = 'the same value';
             }
 
-            var message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
-
-            if (ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-              true && !false && emberDebug.deprecate(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
-            } else {
-              true && !false && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
-            }
+            true && !false && emberDebug.assert('You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
           }
 
           this.shouldReflush = true;
@@ -22784,7 +22778,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       markObjectAsDirty(meta$$1, keyName);
     }
 
-    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
       exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
@@ -47390,7 +47384,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+d4c569c5";
+  exports.default = "3.0.0-alpha.1-null+23c3bac7";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

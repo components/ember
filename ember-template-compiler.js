@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+d4c569c5
+ * @version   3.0.0-alpha.1-null+23c3bac7
  */
 
 /*global process */
@@ -8235,7 +8235,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
   // detect-backtracking-rerender by default is debug build only
   // detect-glimmer-allow-backtracking-rerender can be enabled in custom builds
-  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+  if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
 
     // there are 2 states
 
@@ -8283,7 +8283,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       };
 
       TransactionRunner.prototype.assertNotRendered = function (object, key) {
-        var _getKey, lastRef, lastRenderedIn, currentlyIn, parts, label, message;
+        var _getKey, lastRef, lastRenderedIn, currentlyIn, parts, label;
 
         if (!this.inTransaction) {
           return;
@@ -8307,14 +8307,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
               label = 'the same value';
             }
 
-            message = 'You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and';
-
-
-            if (ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
-              true && !false && emberDebug.deprecate(message + ' will be removed in Ember 3.0.', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
-            } else {
-              true && !false && emberDebug.assert(message + ' is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
-            }
+            true && !false && emberDebug.assert('You modified "' + label + '" twice on ' + object + ' in a single render. It was rendered in ' + lastRenderedIn + ' and modified in ' + currentlyIn + '. This was unreliable and slow in Ember 1.x and is no longer supported. See https://github.com/emberjs/ember.js/issues/13948 for more details.', false);
           }
 
           this.shouldReflush = true;
@@ -8496,7 +8489,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       markObjectAsDirty(meta$$1, keyName);
     }
 
-    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER || ember_features.EMBER_GLIMMER_ALLOW_BACKTRACKING_RERENDER) {
+    if (ember_features.EMBER_GLIMMER_DETECT_BACKTRACKING_RERENDER) {
       exports.assertNotRendered(obj, keyName, meta$$1);
     }
   }
@@ -17044,7 +17037,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+d4c569c5";
+  exports.default = "3.0.0-alpha.1-null+23c3bac7";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

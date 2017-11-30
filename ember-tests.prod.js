@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+d4c569c5
+ * @version   3.0.0-alpha.1-null+23c3bac7
  */
 
 /*global process */
@@ -14732,16 +14732,14 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       }, expectedBacktrackingMessage);
     };
 
-    _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function (assert) {
+    _class.prototype['@test when a shared dependency is changed during children\'s rendering'] = function () {
       var _this63 = this;
-
-      var outer = void 0;
 
       this.registerComponent('x-outer', {
         ComponentClass: _helpers.Component.extend({
           init: function () {
             this._super.apply(this, arguments);
-            outer = this;
+            this;
           },
 
           value: 1,

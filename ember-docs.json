@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.d4c569c5"
+        "version": "3.0.0-alpha.1.23c3bac7"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -8349,7 +8349,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 33,
+            "line": 32,
             "description": "This function is called just before an object property is about to change.\nIt will notify any before observers and prepare caches among other things.\n\nNormally you will not need to call this method directly but if for some\nreason you can't directly watch a property you can invoke this method\nmanually along with `Ember.propertyDidChange()` which you should call just\nafter the property value changes.",
             "itemtype": "method",
             "name": "propertyWillChange",
@@ -8377,7 +8377,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 68,
+            "line": 67,
             "description": "This function is called just after an object property has changed.\nIt will notify any observers and clear caches among other things.\n\nNormally you will not need to call this method directly but if for some\nreason you can't directly watch a property you can invoke this method\nmanually along with `Ember.propertyWillChange()` which you should call just\nbefore the property value changes.",
             "itemtype": "method",
             "name": "propertyDidChange",
@@ -8410,7 +8410,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 204,
+            "line": 203,
             "itemtype": "method",
             "name": "beginPropertyChanges",
             "chainable": 1,
@@ -8422,7 +8422,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 213,
+            "line": 212,
             "itemtype": "method",
             "name": "endPropertyChanges",
             "access": "private",
@@ -8433,7 +8433,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_events.js",
-            "line": 225,
+            "line": 224,
             "description": "Make a series of property changes together in an\nexception-safe way.\n\n```javascript\nEmber.changeProperties(function() {\n  obj1.set('foo', mayBlowUpWhenSet);\n  obj2.set('bar', baz);\n});\n```",
             "itemtype": "method",
             "name": "changeProperties",
