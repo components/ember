@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+a42f278c
+ * @version   3.0.0-alpha.1-null+12fc1e5a
  */
 
 /*global process */
@@ -15118,10 +15118,10 @@ enifed('ember-template-compiler/plugins/extract-pragma-tag', ['exports'], functi
   };
   var PRAGMA_TAG = 'use-component-manager';
 });
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember-template-compiler/plugins/assert-input-helper-without-block', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformAngleBracketComponents, _transformInputOnToOnEvent, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _assertInputHelperWithoutBlock, _features) {
+enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember-template-compiler/plugins/assert-input-helper-without-block', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformAngleBracketComponents, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _assertInputHelperWithoutBlock, _features) {
   'use strict';
 
-  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformAngleBracketComponents.default, _transformInputOnToOnEvent.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default, _assertInputHelperWithoutBlock.default];
+  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformAngleBracketComponents.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default, _assertInputHelperWithoutBlock.default];
 
   if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
     transforms.push(_extractPragmaTag.default);
@@ -15526,124 +15526,6 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
 
   function unsafeHtml(b, expr) {
     return b.sexpr('-html-safe', [expr]);
-  }
-});
-enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
-  'use strict';
-
-  exports.default =
-
-  /**
-   @module ember
-  */
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{input on="enter" action="doStuff"}}
-   {{input on="key-press" action="doStuff"}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{input enter="doStuff"}}
-   {{input key-press="doStuff"}}
-    ```
-  
-    @private
-    @class TransformInputOnToOnEvent
-  */
-  function (env) {
-    var b = env.syntax.builders;
-    var moduleName = env.meta.moduleName;
-
-    return {
-      name: 'transform-input-on-to-onEvent',
-
-      visitors: {
-        MustacheStatement: function (node) {
-          if (node.path.original !== 'input') {
-            return;
-          }
-
-          var action = hashPairForKey(node.hash, 'action');
-          var on = hashPairForKey(node.hash, 'on');
-          var onEvent = hashPairForKey(node.hash, 'onEvent');
-
-          if (!action && !on && !onEvent) {
-            return;
-          }
-
-          var normalizedOn = on || onEvent;
-          var moduleInfo = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
-
-          if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
-            true && !false && (0, _emberDebug.deprecate)('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' });
-
-            normalizedOn.key = 'onEvent';
-            return; // exit early, as we cannot transform further
-          }
-
-          removeFromHash(node.hash, normalizedOn);
-          removeFromHash(node.hash, action);
-
-          if (!action) {
-            true && !false && (0, _emberDebug.deprecate)('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' });
-
-            return; // exit early, if no action was available there is nothing to do
-          }
-
-          var specifiedOn = normalizedOn ? normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
-          if (normalizedOn && normalizedOn.value.value === 'keyPress') {
-            // using `keyPress` in the root of the component will
-            // clobber the keyPress event handler
-            normalizedOn.value.value = 'key-press';
-          }
-
-          var expected = (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
-
-          true && !false && (0, _emberDebug.deprecate)('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' });
-
-          if (!normalizedOn) {
-            normalizedOn = b.pair('onEvent', b.string('enter'));
-          }
-
-          node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
-        }
-      }
-    };
-  };
-
-  function hashPairForKey(hash, key) {
-    var i, pair;
-
-    for (i = 0; i < hash.pairs.length; i++) {
-      pair = hash.pairs[i];
-
-      if (pair.key === key) {
-        return pair;
-      }
-    }
-
-    return false;
-  }
-
-  function removeFromHash(hash, pairToRemove) {
-    var newPairs = [],
-        i,
-        pair;
-    for (i = 0; i < hash.pairs.length; i++) {
-      pair = hash.pairs[i];
-
-
-      if (pair !== pairToRemove) {
-        newPairs.push(pair);
-      }
-    }
-
-    hash.pairs = newPairs;
   }
 });
 enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'], function (exports) {
@@ -16975,7 +16857,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+a42f278c";
+  exports.default = "3.0.0-alpha.1-null+12fc1e5a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+a42f278c
+ * @version   3.0.0-alpha.1-null+12fc1e5a
  */
 
 /*global process */
@@ -41416,30 +41416,6 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
     },
 
     /**
-      The action to be sent when the user presses the return key.
-       This is similar to the `{{action}}` helper, but is fired when
-      the user presses the return key when editing a text field, and sends
-      the value of the field as the context.
-       @property action
-      @type String
-      @default null
-      @private
-    */
-    action: null,
-
-    /**
-      The event that should send the action.
-       Options are:
-       * `enter`: the user pressed enter
-      * `keyPress`: the user pressed a key
-       @property onEvent
-      @type String
-      @default enter
-      @private
-    */
-    onEvent: 'enter',
-
-    /**
       Whether the `keyUp` event that triggers an `action` to be sent continues
       propagating to other views.
        By default, when the user presses the return key on their keyboard and
@@ -41585,22 +41561,12 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal', 'ember-runt
   // the component semantics so this method normalizes them.
   function sendAction(eventName, view, event) {
     var action = (0, _emberMetal.get)(view, 'attrs.' + eventName) || (0, _emberMetal.get)(view, eventName);
-    var on = (0, _emberMetal.get)(view, 'onEvent');
     var value = (0, _emberMetal.get)(view, 'value');
-
-    // back-compat support for keyPress as an event name even though
-    // it's also a method name that consumes the event (and therefore
-    // incompatible with sendAction semantics).
-    if (on === eventName || on === 'keyPress' && eventName === 'key-press') {
-      view.sendAction('action', value);
-    }
 
     view.sendAction(eventName, value);
 
-    if (action || on === eventName) {
-      if (!(0, _emberMetal.get)(view, 'bubbles')) {
-        event.stopPropagation();
-      }
+    if (action && !(0, _emberMetal.get)(view, 'bubbles')) {
+      event.stopPropagation();
     }
   }
 });
@@ -43169,7 +43135,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+a42f278c";
+  exports.default = "3.0.0-alpha.1-null+12fc1e5a";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

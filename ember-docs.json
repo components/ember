@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.a42f278c"
+        "version": "3.0.0-alpha.1.12fc1e5a"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -17121,34 +17121,6 @@
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
             "line": 145,
-            "description": "The action to be sent when the user presses the return key.\n\nThis is similar to the `{{action}}` helper, but is fired when\nthe user presses the return key when editing a text field, and sends\nthe value of the field as the context.",
-            "itemtype": "property",
-            "name": "action",
-            "type": "String",
-            "default": "null",
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.TextSupport",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 159,
-            "description": "The event that should send the action.\n\nOptions are:\n\n* `enter`: the user pressed enter\n* `keyPress`: the user pressed a key",
-            "itemtype": "property",
-            "name": "onEvent",
-            "type": "String",
-            "default": "enter",
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.TextSupport",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 174,
             "description": "Whether the `keyUp` event that triggers an `action` to be sent continues\npropagating to other views.\n\nBy default, when the user presses the return key on their keyboard and\nthe text field has an `action` set, the action will be sent to the view's\ncontroller and the key event will stop propagating.\n\nIf you would like parent views to receive the `keyUp` event even after an\naction has been dispatched, set `bubbles` to true.",
             "itemtype": "property",
             "name": "bubbles",
@@ -17162,7 +17134,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 208,
+            "line": 179,
             "description": "Allows you to specify a controller action to invoke when either the `enter`\nkey is pressed or, in the case of the field being a textarea, when a newline\nis inserted. To use this method, give your field an `insert-newline`\nattribute. The value of that attribute should be the name of the action\nin your controller that you wish to invoke.\n\nFor an example on how to use the `insert-newline` attribute, please\nreference the example near the top of this file.",
             "itemtype": "method",
             "name": "insertNewline",
@@ -17181,7 +17153,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 227,
+            "line": 198,
             "description": "Allows you to specify a controller action to invoke when the escape button\nis pressed. To use this method, give your field an `escape-press`\nattribute. The value of that attribute should be the name of the action\nin your controller that you wish to invoke.\n\nFor an example on how to use the `escape-press` attribute, please reference\nthe example near the top of this file.",
             "itemtype": "method",
             "name": "cancel",
@@ -17200,7 +17172,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 244,
+            "line": 215,
             "description": "Allows you to specify a controller action to invoke when a field receives\nfocus. To use this method, give your field a `focus-in` attribute. The value\nof that attribute should be the name of the action in your controller\nthat you wish to invoke.\n\nFor an example on how to use the `focus-in` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "focusIn",
@@ -17219,7 +17191,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 261,
+            "line": 232,
             "description": "Allows you to specify a controller action to invoke when a field loses\nfocus. To use this method, give your field a `focus-out` attribute. The value\nof that attribute should be the name of the action in your controller\nthat you wish to invoke.\n\nFor an example on how to use the `focus-out` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "focusOut",
@@ -17238,7 +17210,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 279,
+            "line": 250,
             "description": "Allows you to specify a controller action to invoke when a key is pressed.\nTo use this method, give your field a `key-press` attribute. The value of\nthat attribute should be the name of the action in your controller you\nthat wish to invoke.\n\nFor an example on how to use the `key-press` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "keyPress",
@@ -17257,7 +17229,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 296,
+            "line": 267,
             "description": "Allows you to specify a controller action to invoke when a key-up event is\nfired. To use this method, give your field a `key-up` attribute. The value\nof that attribute should be the name of the action in your controller\nthat you wish to invoke.\n\nFor an example on how to use the `key-up` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "keyUp",
@@ -17276,7 +17248,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 315,
+            "line": 286,
             "description": "Allows you to specify a controller action to invoke when a key-down event is\nfired. To use this method, give your field a `key-down` attribute. The value\nof that attribute should be the name of the action in your controller that\nyou wish to invoke.\n\nFor an example on how to use the `key-down` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "keyDown",

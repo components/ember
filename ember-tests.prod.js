@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+a42f278c
+ * @version   3.0.0-alpha.1-null+12fc1e5a
  */
 
 /*global process */
@@ -27646,34 +27646,6 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       // this.assertSelectionRange(8, 8); //NOTE: this fails in IE, the range is 0 -> 0 (TEST_SUITE=sauce)
     };
 
-    _class.prototype['@test specifying `on="someevent" action="foo"` results in a deprecation warning'] = function () {
-      var _this9 = this;
-
-      expectDeprecation(function () {
-        _this9.render('{{input on="focus-in" action="doFoo" value="hello"}}');
-      }, 'Using \'{{input on="focus-in" action="doFoo"}}\' (\'-top-level\' @ L1:C0) is deprecated. Please use \'{{input focus-in="doFoo"}}\' instead.');
-    };
-
-    _class.prototype['@test sends an action with `{{input action="foo"}}` when <enter> is pressed [DEPRECATED]'] = function (assert) {
-      var _this10 = this;
-
-      assert.expect(2);
-
-      expectDeprecation(function () {
-        _this10.render('{{input action=\'foo\'}}', {
-          actions: {
-            foo: function () {
-              assert.ok(true, 'action was triggered');
-            }
-          }
-        });
-      }, /Please use '{{input enter="foo"}}' instead/);
-
-      this.triggerEvent('keyup', {
-        keyCode: 13
-      });
-    };
-
     _class.prototype['@test sends an action with `{{input enter="foo"}}` when <enter> is pressed'] = function (assert) {
       assert.expect(1);
 
@@ -27727,7 +27699,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     };
 
     _class.prototype['@test triggers `focus-in` when focused'] = function (assert) {
-      var _this11 = this;
+      var _this9 = this;
 
       assert.expect(1);
 
@@ -27740,7 +27712,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       });
 
       this.runTask(function () {
-        _this11.$input().trigger('focusin');
+        _this9.$input().trigger('focusin');
       });
     };
 
@@ -27826,33 +27798,33 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     }
 
     _class2.prototype['@test a bound property can be used to determine type'] = function () {
-      var _this13 = this;
+      var _this11 = this;
 
       this.render('{{input type=type}}', { type: 'password' });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return _this13.rerender();
+        return _this11.rerender();
       });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this13.context, 'type', 'text');
+        return (0, _emberMetal.set)(_this11.context, 'type', 'text');
       });
 
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this13.context, 'type', 'password');
+        return (0, _emberMetal.set)(_this11.context, 'type', 'password');
       });
 
       this.assertAttr('type', 'password');
     };
 
     _class2.prototype['@test a subexpression can be used to determine type'] = function () {
-      var _this14 = this;
+      var _this12 = this;
 
       this.render('{{input type=(if isTruthy trueType falseType)}}', {
         isTruthy: true,
@@ -27863,19 +27835,19 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return _this14.rerender();
+        return _this12.rerender();
       });
 
       this.assertAttr('type', 'text');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this14.context, 'isTruthy', false);
+        return (0, _emberMetal.set)(_this12.context, 'isTruthy', false);
       });
 
       this.assertAttr('type', 'password');
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this14.context, 'isTruthy', true);
+        return (0, _emberMetal.set)(_this12.context, 'isTruthy', true);
       });
 
       this.assertAttr('type', 'text');
@@ -27892,7 +27864,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     }
 
     _class3.prototype['@test dynamic attributes'] = function () {
-      var _this16 = this;
+      var _this14 = this;
 
       this.render('{{input\n      type=\'checkbox\'\n      disabled=disabled\n      name=name\n      checked=checked\n      tabindex=tabindex\n    }}', {
         disabled: false,
@@ -27907,7 +27879,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        return _this16.rerender();
+        return _this14.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -27916,9 +27888,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '10');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this16.context, 'disabled', true);
-        (0, _emberMetal.set)(_this16.context, 'name', 'updated-name');
-        (0, _emberMetal.set)(_this16.context, 'tabindex', 11);
+        (0, _emberMetal.set)(_this14.context, 'disabled', true);
+        (0, _emberMetal.set)(_this14.context, 'name', 'updated-name');
+        (0, _emberMetal.set)(_this14.context, 'tabindex', 11);
       });
 
       this.assertSingleCheckbox();
@@ -27927,9 +27899,9 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '11');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this16.context, 'disabled', false);
-        (0, _emberMetal.set)(_this16.context, 'name', 'original-name');
-        (0, _emberMetal.set)(_this16.context, 'tabindex', 10);
+        (0, _emberMetal.set)(_this14.context, 'disabled', false);
+        (0, _emberMetal.set)(_this14.context, 'name', 'original-name');
+        (0, _emberMetal.set)(_this14.context, 'tabindex', 10);
       });
 
       this.assertSingleCheckbox();
@@ -27939,15 +27911,15 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     };
 
     _class3.prototype['@test `value` property assertion'] = function () {
-      var _this17 = this;
+      var _this15 = this;
 
       expectAssertion(function () {
-        _this17.render('{{input type="checkbox" value=value}}', { value: 'value' });
+        _this15.render('{{input type="checkbox" value=value}}', { value: 'value' });
       }, /you must use `checked=/);
     };
 
     _class3.prototype['@test with a bound type'] = function () {
-      var _this18 = this;
+      var _this16 = this;
 
       this.render('{{input type=inputType checked=isChecked}}', { inputType: 'checkbox', isChecked: true });
 
@@ -27955,19 +27927,19 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return _this18.rerender();
+        return _this16.rerender();
       });
 
       this.assertCheckboxIsChecked();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this18.context, 'isChecked', false);
+        return (0, _emberMetal.set)(_this16.context, 'isChecked', false);
       });
 
       this.assertCheckboxIsNotChecked();
 
       this.runTask(function () {
-        return (0, _emberMetal.set)(_this18.context, 'isChecked', true);
+        return (0, _emberMetal.set)(_this16.context, 'isChecked', true);
       });
 
       this.assertCheckboxIsChecked();
@@ -27985,7 +27957,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     };
 
     _class3.prototype['@test with static values'] = function () {
-      var _this19 = this;
+      var _this17 = this;
 
       this.render('{{input type="checkbox" disabled=false tabindex=10 name="original-name" checked=false}}');
 
@@ -27996,7 +27968,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('name', 'original-name');
 
       this.runTask(function () {
-        return _this19.rerender();
+        return _this17.rerender();
       });
 
       this.assertSingleCheckbox();
@@ -28017,7 +27989,7 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
     }
 
     _class4.prototype['@test null values'] = function () {
-      var _this21 = this;
+      var _this19 = this;
 
       var attributes = ['disabled', 'placeholder', 'name', 'maxlength', 'size', 'tabindex'];
 
@@ -28035,20 +28007,20 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        return _this21.rerender();
+        return _this19.rerender();
       });
 
       this.assertValue('');
       this.assertAllAttrs(attributes, undefined);
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this21.context, 'disabled', true);
-        (0, _emberMetal.set)(_this21.context, 'value', 'Updated value');
-        (0, _emberMetal.set)(_this21.context, 'placeholder', 'Updated placeholder');
-        (0, _emberMetal.set)(_this21.context, 'name', 'updated-name');
-        (0, _emberMetal.set)(_this21.context, 'maxlength', 11);
-        (0, _emberMetal.set)(_this21.context, 'size', 21);
-        (0, _emberMetal.set)(_this21.context, 'tabindex', 31);
+        (0, _emberMetal.set)(_this19.context, 'disabled', true);
+        (0, _emberMetal.set)(_this19.context, 'value', 'Updated value');
+        (0, _emberMetal.set)(_this19.context, 'placeholder', 'Updated placeholder');
+        (0, _emberMetal.set)(_this19.context, 'name', 'updated-name');
+        (0, _emberMetal.set)(_this19.context, 'maxlength', 11);
+        (0, _emberMetal.set)(_this19.context, 'size', 21);
+        (0, _emberMetal.set)(_this19.context, 'tabindex', 31);
       });
 
       this.assertDisabled();
@@ -28060,13 +28032,13 @@ enifed('ember-glimmer/tests/integration/helpers/input-test', ['ember-babel', 'em
       this.assertAttr('tabindex', '31');
 
       this.runTask(function () {
-        (0, _emberMetal.set)(_this21.context, 'disabled', null);
-        (0, _emberMetal.set)(_this21.context, 'value', null);
-        (0, _emberMetal.set)(_this21.context, 'placeholder', null);
-        (0, _emberMetal.set)(_this21.context, 'name', null);
-        (0, _emberMetal.set)(_this21.context, 'maxlength', null);
+        (0, _emberMetal.set)(_this19.context, 'disabled', null);
+        (0, _emberMetal.set)(_this19.context, 'value', null);
+        (0, _emberMetal.set)(_this19.context, 'placeholder', null);
+        (0, _emberMetal.set)(_this19.context, 'name', null);
+        (0, _emberMetal.set)(_this19.context, 'maxlength', null);
         // set(this.context, 'size', null); //NOTE: this fails with `Error: Failed to set the 'size' property on 'HTMLInputElement': The value provided is 0, which is an invalid size.` (TEST_SUITE=sauce)
-        (0, _emberMetal.set)(_this21.context, 'tabindex', null);
+        (0, _emberMetal.set)(_this19.context, 'tabindex', null);
       });
 
       this.assertAttr('disabled', undefined);
@@ -59678,10 +59650,10 @@ enifed('ember-template-compiler/plugins/extract-pragma-tag', ['exports'], functi
     };
   }
 });
-enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember-template-compiler/plugins/assert-input-helper-without-block', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformAngleBracketComponents, _transformInputOnToOnEvent, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _assertInputHelperWithoutBlock, _features) {
+enifed('ember-template-compiler/plugins/index', ['exports', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-inline-link-to', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-quoted-bindings-into-just-bindings', 'ember-template-compiler/plugins/deprecate-render-model', 'ember-template-compiler/plugins/deprecate-render', 'ember-template-compiler/plugins/assert-reserved-named-arguments', 'ember-template-compiler/plugins/transform-action-syntax', 'ember-template-compiler/plugins/transform-input-type-syntax', 'ember-template-compiler/plugins/transform-attrs-into-args', 'ember-template-compiler/plugins/transform-each-in-into-each', 'ember-template-compiler/plugins/transform-has-block-syntax', 'ember-template-compiler/plugins/transform-dot-component-invocation', 'ember-template-compiler/plugins/extract-pragma-tag', 'ember-template-compiler/plugins/assert-input-helper-without-block', 'ember/features'], function (exports, _transformOldBindingSyntax, _transformAngleBracketComponents, _transformTopLevelComponents, _transformInlineLinkTo, _transformOldClassBindingSyntax, _transformQuotedBindingsIntoJustBindings, _deprecateRenderModel, _deprecateRender, _assertReservedNamedArguments, _transformActionSyntax, _transformInputTypeSyntax, _transformAttrsIntoArgs, _transformEachInIntoEach, _transformHasBlockSyntax, _transformDotComponentInvocation, _extractPragmaTag, _assertInputHelperWithoutBlock, _features) {
   'use strict';
 
-  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformAngleBracketComponents.default, _transformInputOnToOnEvent.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default, _assertInputHelperWithoutBlock.default];
+  var transforms = [_transformDotComponentInvocation.default, _transformOldBindingSyntax.default, _transformAngleBracketComponents.default, _transformTopLevelComponents.default, _transformInlineLinkTo.default, _transformOldClassBindingSyntax.default, _transformQuotedBindingsIntoJustBindings.default, _deprecateRenderModel.default, _deprecateRender.default, _assertReservedNamedArguments.default, _transformActionSyntax.default, _transformInputTypeSyntax.default, _transformAttrsIntoArgs.default, _transformEachInIntoEach.default, _transformHasBlockSyntax.default, _assertInputHelperWithoutBlock.default];
 
   if (_features.GLIMMER_CUSTOM_COMPONENT_MANAGER) {
     transforms.push(_extractPragmaTag.default);
@@ -60091,122 +60063,6 @@ enifed('ember-template-compiler/plugins/transform-inline-link-to', ['exports'], 
         }
       }
     };
-  }
-});
-enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberDebug, _calculateLocationDisplay) {
-  'use strict';
-
-  exports.default = transformInputOnToOnEvent;
-
-
-  /**
-   @module ember
-  */
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-  
-    ```handlebars
-   {{input on="enter" action="doStuff"}}
-   {{input on="key-press" action="doStuff"}}
-    ```
-  
-    with
-  
-    ```handlebars
-   {{input enter="doStuff"}}
-   {{input key-press="doStuff"}}
-    ```
-  
-    @private
-    @class TransformInputOnToOnEvent
-  */
-  function transformInputOnToOnEvent(env) {
-    var b = env.syntax.builders;
-    var moduleName = env.meta.moduleName;
-
-
-    return {
-      name: 'transform-input-on-to-onEvent',
-
-      visitors: {
-        MustacheStatement: function (node) {
-          if (node.path.original !== 'input') {
-            return;
-          }
-
-          var action = hashPairForKey(node.hash, 'action');
-          var on = hashPairForKey(node.hash, 'on');
-          var onEvent = hashPairForKey(node.hash, 'onEvent');
-
-          if (!action && !on && !onEvent) {
-            return;
-          }
-
-          var normalizedOn = on || onEvent;
-          var moduleInfo = (0, _calculateLocationDisplay.default)(moduleName, node.loc);
-
-          if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
-            (true && !(false) && (0, _emberDebug.deprecate)('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' }));
-
-
-            normalizedOn.key = 'onEvent';
-            return; // exit early, as we cannot transform further
-          }
-
-          removeFromHash(node.hash, normalizedOn);
-          removeFromHash(node.hash, action);
-
-          if (!action) {
-            (true && !(false) && (0, _emberDebug.deprecate)('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' }));
-
-
-            return; // exit early, if no action was available there is nothing to do
-          }
-
-          var specifiedOn = normalizedOn ? normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
-          if (normalizedOn && normalizedOn.value.value === 'keyPress') {
-            // using `keyPress` in the root of the component will
-            // clobber the keyPress event handler
-            normalizedOn.value.value = 'key-press';
-          }
-
-          var expected = (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
-
-          (true && !(false) && (0, _emberDebug.deprecate)('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' }));
-
-          if (!normalizedOn) {
-            normalizedOn = b.pair('onEvent', b.string('enter'));
-          }
-
-          node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
-        }
-      }
-    };
-  }
-
-  function hashPairForKey(hash, key) {
-    for (var i = 0; i < hash.pairs.length; i++) {
-      var pair = hash.pairs[i];
-      if (pair.key === key) {
-        return pair;
-      }
-    }
-
-    return false;
-  }
-
-  function removeFromHash(hash, pairToRemove) {
-    var newPairs = [];
-    for (var i = 0; i < hash.pairs.length; i++) {
-      var pair = hash.pairs[i];
-
-      if (pair !== pairToRemove) {
-        newPairs.push(pair);
-      }
-    }
-
-    hash.pairs = newPairs;
   }
 });
 enifed('ember-template-compiler/plugins/transform-input-type-syntax', ['exports'], function (exports) {
@@ -60905,51 +60761,6 @@ enifed('ember-template-compiler/tests/plugins/transform-inline-link-to-test', ['
     (0, _index.compile)('{{link-to \'foo\' \'index\'}}', {
       moduleName: 'foo/bar/baz'
     });
-  });
-});
-enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-template-compiler/index'], function (_index) {
-  'use strict';
-
-  QUnit.module('ember-template-compiler: transform-input-on');
-
-  QUnit.test('Using `action` without `on` provides a deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input action="foo"}}', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'Using \'{{input action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input enter="foo"}}\' instead.');
-  });
-
-  QUnit.test('Using `action` with `on` provides a deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input on="focus-in" action="foo"}}', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'Using \'{{input on="focus-in" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input focus-in="foo"}}\' instead.');
-  });
-
-  QUnit.test('Using `on=\'keyPress\'` does not clobber `keyPress`', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input on="keyPress" action="foo"}}', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'Using \'{{input on="keyPress" action="foo"}}\' (\'foo/bar/baz\' @ L1:C0) is deprecated. Please use \'{{input key-press="foo"}}\' instead.');
-  });
-
-  QUnit.test('Using `on=\'foo\'` without `action=\'asdf\'` raises specific deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      (0, _index.compile)('{{input on="asdf"}}', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'Using \'{{input on="asdf" ...}}\' without specifying an action (\'foo/bar/baz\' @ L1:C0) will do nothing.');
   });
 });
 enifed('ember-template-compiler/tests/plugins/transform-input-type-syntax-test', ['ember-template-compiler/index'], function (_index) {
