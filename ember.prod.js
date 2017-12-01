@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c55c345e
+ * @version   3.0.0-alpha.1-null+1723b73a
  */
 
 /*global process */
@@ -13567,7 +13567,7 @@ enifed('ember-console', ['exports', 'ember-environment'], function (exports, _em
 
   exports.default = index;
 });
-enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports) {
+enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/index', 'ember-debug/handlers'], function (exports) {
   'use strict';
 
   exports.missingOptionsUntilDeprecation = exports.missingOptionsIdDeprecation = exports.missingOptionsDeprecation = exports.registerHandler = undefined;
@@ -13613,6 +13613,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @since 2.1.0
   */
   /*global __fail__*/
+
 
   exports.default = void 0;
   exports.registerHandler = function () {};
@@ -15885,18 +15886,6 @@ enifed('ember-glimmer/component', ['exports', '@glimmer/reference', '@glimmer/ru
       this[DIRTY_TAG] = new _reference.DirtyableTag();
       this[ROOT_REF] = new _references.RootReference(this);
       this[BOUNDS] = null;
-      // If a `defaultLayout` was specified move it to the `layout` prop.
-      // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
-      // logic is supported with a deprecation
-      if (this.defaultLayout && !this.layout) {
-        false && !false && (0, _emberDebug.deprecate)('Specifying `defaultLayout` to ' + this + ' is deprecated. Please use `layout` instead.', false, {
-          id: 'ember-views.component.defaultLayout',
-          until: '3.0.0',
-          url: 'https://emberjs.com/deprecations/v2.x/#toc_ember-component-defaultlayout'
-        });
-
-        this.layout = this.defaultLayout;
-      }
       // If in a tagless component, assert that no event handlers are defined
       false && !(this.tagName !== '' || !this.renderer._destinedForDOM || !function () {
         var eventDispatcher = (0, _emberUtils.getOwner)(_this).lookup('event_dispatcher:main'),
@@ -18462,12 +18451,6 @@ enifed('ember-glimmer/index', ['exports', 'ember-glimmer/helpers/action', 'ember
       return _string.isHTMLSafe;
     }
   });
-  Object.defineProperty(exports, '_getSafeString', {
-    enumerable: true,
-    get: function () {
-      return _string.getSafeString;
-    }
-  });
   Object.defineProperty(exports, 'Renderer', {
     enumerable: true,
     get: function () {
@@ -21030,19 +21013,10 @@ enifed('ember-glimmer/utils/references', ['exports', 'ember-babel', '@glimmer/re
         return UnboundReference;
     }(_reference.ConstReference);
 });
-enifed('ember-glimmer/utils/string', ['exports', 'ember-debug'], function (exports, _emberDebug) {
+enifed('ember-glimmer/utils/string', ['exports'], function (exports) {
     'use strict';
 
     exports.SafeString = undefined;
-    exports.getSafeString = function () {
-        false && !false && (0, _emberDebug.deprecate)('Ember.Handlebars.SafeString is deprecated in favor of Ember.String.htmlSafe', false, {
-            id: 'ember-htmlbars.ember-handlebars-safestring',
-            until: '3.0.0',
-            url: 'https://emberjs.com/deprecations/v2.x#toc_use-ember-string-htmlsafe-over-ember-handlebars-safestring'
-        });
-
-        return SafeString;
-    };
     exports.escapeExpression = function (string) {
         if (typeof string !== 'string') {
             // don't escape SafeStrings, since they're already safe
@@ -22886,7 +22860,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     function Meta(obj, parentMeta) {
 
       this._cache = undefined;
-      this._weak = undefined;
       this._watching = undefined;
       this._mixins = undefined;
       this._bindings = undefined;
@@ -23133,14 +23106,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     Meta.prototype.readableCache = function () {
       return this._cache;
-    };
-
-    Meta.prototype.writableWeak = function () {
-      return this._getOrCreateOwnMap('_weak');
-    };
-
-    Meta.prototype.readableWeak = function () {
-      return this._weak;
     };
 
     Meta.prototype.writableTags = function () {
@@ -27545,67 +27510,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
     @static
   */
-  function observer() {
-    var _paths = void 0,
-        func = void 0,
-        _len5,
-        args,
-        _key5,
-        i;
-
-    for (_len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-      args[_key5] = arguments[_key5];
-    }
-
-    if (typeof args[args.length - 1] !== 'function') {
-      // revert to old, soft-deprecated argument ordering
-      func = args.shift();
-      _paths = args;
-    } else {
-      func = args.pop();
-      _paths = args;
-    }
-
-    var paths = [];
-    var addWatchedProperty = function (path) {
-      return paths.push(path);
-    };
-
-    for (i = 0; i < _paths.length; ++i) {
-      expandProperties(_paths[i], addWatchedProperty);
-    }
-
-    func.__ember_observes__ = paths;
-    return func;
-  }
-
-  /**
-    Specify a method that observes property changes.
-  
-    ```javascript
-    import EmberObject from '@ember/object';
-  
-    EmberObject.extend({
-      valueObserver: Ember.immediateObserver('value', function() {
-        // Executes whenever the "value" property changes
-      })
-    });
-    ```
-  
-    In the future, `observer` may become asynchronous. In this event,
-    `immediateObserver` will maintain the synchronous behavior.
-  
-    Also available as `Function.prototype.observesImmediately` if prototype extensions are
-    enabled.
-  
-    @method _immediateObserver
-    @for Ember
-    @param {String} propertyNames*
-    @param {Function} func
-    @deprecated Use `observer` instead.
-    @return func
-    @private
-  */
 
 
   /**
@@ -27968,31 +27872,23 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.aliasMethod = function (methodName) {
     return new Alias(methodName);
   };
-  exports._immediateObserver = function () {
-    return observer.apply(this, arguments);
-  };
   exports._beforeObserver = function () {
     for (_len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
       args[_key6] = arguments[_key6];
     }
 
-    var func = args[args.length - 1],
+    var func = args.pop(),
         _len6,
         args,
         _key6,
         i;
-
-    var _paths = args.slice(0, -1);
-    if (typeof func !== 'function') {
-      // revert to old, soft-deprecated argument ordering
-      func = args[0];
-      _paths = args.slice(1);
-    }
+    var _paths = args;
 
     var paths = [];
     var addWatchedProperty = function (path) {
       paths.push(path);
     };
+
     for (i = 0; i < _paths.length; ++i) {
       expandProperties(_paths[i], addWatchedProperty);
     }
@@ -28010,7 +27906,30 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     applyMixin(obj, args, false);
     return obj;
   };
-  exports.observer = observer;
+  exports.observer = function () {
+    for (_len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
+    }
+
+    var func = args.pop(),
+        _len5,
+        args,
+        _key5,
+        i;
+    var _paths = args;
+
+    var paths = [];
+    var addWatchedProperty = function (path) {
+      return paths.push(path);
+    };
+
+    for (i = 0; i < _paths.length; ++i) {
+      expandProperties(_paths[i], addWatchedProperty);
+    }
+
+    func.__ember_observes__ = paths;
+    return func;
+  };
   exports.required = function () {
     return REQUIRED;
   };
@@ -34810,30 +34729,6 @@ enifed('ember-runtime/ext/function', ['ember-environment', 'ember-metal', 'ember
       // observes handles property expansion
       return this.observes.apply(this, arguments);
     };
-    /**
-      The `observesImmediately` extension of Javascript's Function prototype is
-      available when `EmberENV.EXTEND_PROTOTYPES` or
-      `EmberENV.EXTEND_PROTOTYPES.Function` is true, which is the default.
-       You can observe property changes simply by adding the `observesImmediately`
-      call to the end of your method declarations in classes that you write.
-      For example:
-       ```javascript
-      import EmberObject from '@ember/object';
-       EmberObject.extend({
-        valueObserver: function() {
-          // Executes immediately after the "value" property changes
-        }.observesImmediately('value')
-      });
-      ```
-       In the future, `observes` may become asynchronous. In this event,
-      `observesImmediately` will maintain the synchronous behavior.
-       See `Ember.immediateObserver`.
-       @method observesImmediately
-      @for Function
-      @deprecated
-      @private
-    */
-    FunctionPrototype.observesImmediately = (0, _emberDebug.deprecateFunc)('Function#observesImmediately is deprecated. Use Function#observes instead', { id: 'ember-runtime.ext-function', until: '3.0.0' }, FunctionPrototype._observesImmediately);
 
     /**
       The `on` extension of Javascript's Function prototype is available
@@ -35048,10 +34943,10 @@ enifed('ember-runtime/ext/string', ['ember-environment', 'ember-runtime/system/s
     };
   }
 });
-enifed('ember-runtime/index', ['exports', 'ember-runtime/system/object', 'ember-runtime/system/string', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/compare', 'ember-runtime/is-equal', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/system/namespace', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/utils', 'ember-runtime/string_registry', 'ember-runtime/ext/string', 'ember-runtime/ext/function'], function (exports, _object, _string, _registry_proxy, _container_proxy, _copy, _inject, _compare, _isEqual, _array, _comparable, _namespace, _array_proxy, _object_proxy, _core_object, _native_array, _action_handler, _copyable, _enumerable, _freezable, _proxy, _lazy_load, _observable, _mutable_enumerable, _mutable_array, _target_action_support, _evented, _promise_proxy, _computed_macros, _reduce_computed_macros, _controller, _controller2, _service, _rsvp, _utils, _string_registry) {
+enifed('ember-runtime/index', ['exports', 'ember-runtime/system/object', 'ember-runtime/system/string', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/compare', 'ember-runtime/is-equal', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/system/namespace', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/-proxy', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/utils', 'ember-runtime/string_registry', 'ember-runtime/ext/string', 'ember-runtime/ext/function'], function (exports, _object, _string, _registry_proxy, _container_proxy, _copy, _inject, _compare, _isEqual, _array, _comparable, _namespace, _array_proxy, _object_proxy, _core_object, _native_array, _action_handler, _copyable, _enumerable, _proxy, _lazy_load, _observable, _mutable_enumerable, _mutable_array, _target_action_support, _evented, _promise_proxy, _computed_macros, _reduce_computed_macros, _controller, _controller2, _service, _rsvp, _utils, _string_registry) {
   'use strict';
 
-  exports.setStrings = exports.getStrings = exports.typeOf = exports.isArray = exports.onerrorDefault = exports.RSVP = exports.Service = exports.ControllerMixin = exports.Controller = exports.collect = exports.intersect = exports.union = exports.uniqBy = exports.uniq = exports.filterBy = exports.filter = exports.mapBy = exports.setDiff = exports.sort = exports.map = exports.max = exports.min = exports.sum = exports.or = exports.and = exports.deprecatingAlias = exports.readOnly = exports.oneWay = exports.lte = exports.lt = exports.gte = exports.gt = exports.equal = exports.match = exports.bool = exports.not = exports.none = exports.notEmpty = exports.empty = exports.PromiseProxyMixin = exports.Evented = exports.TargetActionSupport = exports.removeAt = exports.MutableArray = exports.MutableEnumerable = exports.Observable = exports._loaded = exports.runLoadHooks = exports.onLoad = exports._ProxyMixin = exports.FROZEN_ERROR = exports.Freezable = exports.Enumerable = exports.Copyable = exports.deprecateUnderscoreActions = exports.ActionHandler = exports.A = exports.NativeArray = exports.CoreObject = exports.ObjectProxy = exports.ArrayProxy = exports.setNamespaceSearchDisabled = exports.isNamespaceSearchDisabled = exports.Namespace = exports.Comparable = exports.removeArrayObserver = exports.addArrayObserver = exports.isEmberArray = exports.objectAt = exports.Array = exports.isEqual = exports.compare = exports.inject = exports.copy = exports.ContainerProxyMixin = exports.buildFakeRegistryWithDeprecations = exports.RegistryProxyMixin = exports.String = exports.FrameworkObject = exports.Object = undefined;
+  exports.setStrings = exports.getStrings = exports.typeOf = exports.isArray = exports.onerrorDefault = exports.RSVP = exports.Service = exports.ControllerMixin = exports.Controller = exports.collect = exports.intersect = exports.union = exports.uniqBy = exports.uniq = exports.filterBy = exports.filter = exports.mapBy = exports.setDiff = exports.sort = exports.map = exports.max = exports.min = exports.sum = exports.or = exports.and = exports.deprecatingAlias = exports.readOnly = exports.oneWay = exports.lte = exports.lt = exports.gte = exports.gt = exports.equal = exports.match = exports.bool = exports.not = exports.none = exports.notEmpty = exports.empty = exports.PromiseProxyMixin = exports.Evented = exports.TargetActionSupport = exports.removeAt = exports.MutableArray = exports.MutableEnumerable = exports.Observable = exports._loaded = exports.runLoadHooks = exports.onLoad = exports._ProxyMixin = exports.Enumerable = exports.Copyable = exports.deprecateUnderscoreActions = exports.ActionHandler = exports.A = exports.NativeArray = exports.CoreObject = exports.ObjectProxy = exports.ArrayProxy = exports.setNamespaceSearchDisabled = exports.isNamespaceSearchDisabled = exports.Namespace = exports.Comparable = exports.removeArrayObserver = exports.addArrayObserver = exports.isEmberArray = exports.objectAt = exports.Array = exports.isEqual = exports.compare = exports.inject = exports.copy = exports.ContainerProxyMixin = exports.buildFakeRegistryWithDeprecations = exports.RegistryProxyMixin = exports.String = exports.FrameworkObject = exports.Object = undefined;
   Object.defineProperty(exports, 'Object', {
     enumerable: true,
     get: function () {
@@ -35218,18 +35113,6 @@ enifed('ember-runtime/index', ['exports', 'ember-runtime/system/object', 'ember-
     enumerable: true,
     get: function () {
       return _enumerable.default;
-    }
-  });
-  Object.defineProperty(exports, 'Freezable', {
-    enumerable: true,
-    get: function () {
-      return _freezable.Freezable;
-    }
-  });
-  Object.defineProperty(exports, 'FROZEN_ERROR', {
-    enumerable: true,
-    get: function () {
-      return _freezable.FROZEN_ERROR;
     }
   });
   Object.defineProperty(exports, '_ProxyMixin', {
@@ -36407,7 +36290,7 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal', 'ember-runt
     })
   });
 });
-enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-debug', 'ember-runtime/mixins/freezable'], function (exports, _emberMetal, _emberDebug, _freezable) {
+enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal) {
   'use strict';
 
   exports.default = _emberMetal.Mixin.create({
@@ -36420,30 +36303,7 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal', 'ember-debug'
       @return {Object} copy of receiver
       @private
     */
-    copy: null,
-
-    /**
-      If the object implements `Ember.Freezable`, then this will return a new
-      copy if the object is not frozen and the receiver if the object is frozen.
-       Raises an exception if you try to call this method on a object that does
-      not support freezing.
-       You should use this method whenever you want a copy of a freezable object
-      since a freezable object can simply return itself without actually
-      consuming more memory.
-       @method frozenCopy
-      @return {Object} copy of receiver or receiver
-      @deprecated Use `Object.freeze` instead.
-      @private
-    */
-    frozenCopy: function () {
-      false && !false && (0, _emberDebug.deprecate)('`frozenCopy` is deprecated, use `Object.freeze` instead.', false, { id: 'ember-runtime.frozen-copy', until: '3.0.0' });
-
-      if (_freezable.Freezable && _freezable.Freezable.detect(this)) {
-        return (0, _emberMetal.get)(this, 'isFrozen') ? this : this.copy().freeze();
-      } else {
-        throw new _emberDebug.Error(this + ' does not support freezing');
-      }
-    }
+    copy: null
   });
 });
 enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-utils', 'ember-metal', 'ember-debug', 'ember-runtime/compare', 'require'], function (exports, _emberUtils, _emberMetal, _emberDebug, _compare, _require2) {
@@ -37173,107 +37033,6 @@ enifed('ember-runtime/mixins/evented', ['exports', 'ember-metal'], function (exp
       return (0, _emberMetal.hasListeners)(this, name);
     }
   });
-});
-enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal', 'ember-debug'], function (exports, _emberMetal, _emberDebug) {
-  'use strict';
-
-  exports.FROZEN_ERROR = exports.Freezable = undefined;
-
-  /**
-    The `Ember.Freezable` mixin implements some basic methods for marking an
-    object as frozen. Once an object is frozen it should be read only. No changes
-    may be made the internal state of the object.
-  
-    ## Enforcement
-  
-    To fully support freezing in your subclass, you must include this mixin and
-    override any method that might alter any property on the object to instead
-    raise an exception. You can check the state of an object by checking the
-    `isFrozen` property.
-  
-    Although future versions of JavaScript may support language-level freezing
-    object objects, that is not the case today. Even if an object is freezable,
-    it is still technically possible to modify the object, even though it could
-    break other parts of your application that do not expect a frozen object to
-    change. It is, therefore, very important that you always respect the
-    `isFrozen` property on all freezable objects.
-  
-    ## Example Usage
-  
-    The example below shows a simple object that implement the `Ember.Freezable`
-    protocol.
-  
-    ```javascript
-    Contact = Ember.Object.extend(Ember.Freezable, {
-      firstName: null,
-      lastName: null,
-  
-      // swaps the names
-      swapNames: function() {
-        if (this.get('isFrozen')) throw Ember.FROZEN_ERROR;
-        var tmp = this.get('firstName');
-        this.set('firstName', this.get('lastName'));
-        this.set('lastName', tmp);
-        return this;
-      }
-  
-    });
-  
-    c = Contact.create({ firstName: "John", lastName: "Doe" });
-    c.swapNames();  // returns c
-    c.freeze();
-    c.swapNames();  // EXCEPTION
-    ```
-  
-    ## Copying
-  
-    Usually the `Ember.Freezable` protocol is implemented in cooperation with the
-    `Ember.Copyable` protocol, which defines a `frozenCopy()` method that will
-    return a frozen object, if the object implements this method as well.
-  
-    @class Freezable
-    @namespace Ember
-    @since Ember 0.9
-    @deprecated Use `Object.freeze` instead.
-    @private
-  */
-  /**
-  @module ember
-  */
-
-  exports.Freezable = _emberMetal.Mixin.create({
-    init: function () {
-      false && !false && (0, _emberDebug.deprecate)('`Ember.Freezable` is deprecated, use `Object.freeze` instead.', false, { id: 'ember-runtime.freezable-init', until: '3.0.0' });
-
-      this._super.apply(this, arguments);
-    },
-
-    /**
-      Set to `true` when the object is frozen. Use this property to detect
-      whether your object is frozen or not.
-       @property isFrozen
-      @type Boolean
-      @private
-    */
-    isFrozen: false,
-
-    /**
-      Freezes the object. Once this method has been called the object should
-      no longer allow any properties to be edited.
-       @method freeze
-      @return {Object} receiver
-      @private
-    */
-    freeze: function () {
-      if ((0, _emberMetal.get)(this, 'isFrozen')) {
-        return this;
-      }
-
-      (0, _emberMetal.set)(this, 'isFrozen', true);
-      return this;
-    }
-  });
-  exports.FROZEN_ERROR = 'Frozen object cannot be modified.';
 });
 enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/enumerable', 'ember-debug'], function (exports, _emberMetal, _array, _mutable_enumerable, _enumerable, _emberDebug) {
   'use strict';
@@ -39705,7 +39464,7 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-utils', 'ember-metal
 
   exports.default = Namespace;
 });
-enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-environment', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/copyable', 'ember-debug', 'ember-runtime/mixins/freezable', 'ember-runtime/copy'], function (exports, _emberMetal, _emberEnvironment, _array, _mutable_array, _observable, _copyable, _emberDebug, _freezable, _copy) {
+enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-environment', 'ember-runtime/mixins/array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/copyable', 'ember-debug', 'ember-runtime/copy'], function (exports, _emberMetal, _emberEnvironment, _array, _mutable_array, _observable, _copyable, _emberDebug, _copy) {
   'use strict';
 
   exports.NativeArray = exports.A = undefined;
@@ -39741,7 +39500,6 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal', 'ember-en
       return this[idx];
     },
     replace: function (idx, amt, objects) {
-      false && !!this.isFrozen && (0, _emberDebug.assert)(_freezable.FROZEN_ERROR, !this.isFrozen);
       false && !(objects === null || objects === undefined || Array.isArray(objects)) && (0, _emberDebug.assert)('The third argument to replace needs to be an array.', objects === null || objects === undefined || Array.isArray(objects));
 
       // if we replaced exactly the same number of items, then pass only the
@@ -43105,7 +42863,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.required = _emberMetal.required;
   _emberMetal.default.aliasMethod = _emberMetal.aliasMethod;
   _emberMetal.default.observer = _emberMetal.observer;
-  _emberMetal.default.immediateObserver = _emberMetal._immediateObserver;
   _emberMetal.default.mixin = _emberMetal.mixin;
   _emberMetal.default.Mixin = _emberMetal.Mixin;
   _emberMetal.default.bind = _emberMetal.bind;
@@ -43228,8 +42985,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   _emberMetal.default.CoreObject = _emberRuntime.CoreObject;
   _emberMetal.default.NativeArray = _emberRuntime.NativeArray;
   _emberMetal.default.Copyable = _emberRuntime.Copyable;
-  _emberMetal.default.Freezable = _emberRuntime.Freezable;
-  _emberMetal.default.FROZEN_ERROR = _emberRuntime.FROZEN_ERROR;
   _emberMetal.default.MutableEnumerable = _emberRuntime.MutableEnumerable;
   _emberMetal.default.MutableArray = _emberRuntime.MutableArray;
   _emberMetal.default.TargetActionSupport = _emberRuntime.TargetActionSupport;
@@ -43338,10 +43093,6 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
   var EmberHandlebars = _emberMetal.default.Handlebars = _emberMetal.default.Handlebars || {};
   var EmberHTMLBars = _emberMetal.default.HTMLBars = _emberMetal.default.HTMLBars || {};
   var EmberHandleBarsUtils = EmberHandlebars.Utils = EmberHandlebars.Utils || {};
-
-  Object.defineProperty(EmberHandlebars, 'SafeString', {
-    get: _emberGlimmer._getSafeString
-  });
 
   EmberHTMLBars.template = EmberHandlebars.template = _emberGlimmer.template;
   EmberHandleBarsUtils.escapeExpression = _emberGlimmer.escapeExpression;
@@ -43478,7 +43229,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+c55c345e";
+  exports.default = "3.0.0-alpha.1-null+1723b73a";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {

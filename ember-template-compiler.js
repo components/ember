@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c55c345e
+ * @version   3.0.0-alpha.1-null+1723b73a
  */
 
 /*global process */
@@ -6662,7 +6662,7 @@ enifed('ember-console', ['exports', 'ember-environment'], function (exports, _em
 
   exports.default = index;
 });
-enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/handlers'], function (exports, _error, _emberConsole, _emberEnvironment, _handlers) {
+enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console', 'ember-environment', 'ember-debug/index', 'ember-debug/handlers'], function (exports, _error, _emberConsole, _emberEnvironment, _index, _handlers) {
   'use strict';
 
   exports.missingOptionsUntilDeprecation = exports.missingOptionsIdDeprecation = exports.missingOptionsDeprecation = exports.registerHandler = undefined;
@@ -6707,8 +6707,8 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
-  var registerHandler = function () {}; /*global __fail__*/
-
+  /*global __fail__*/
+  var registerHandler = function () {};
   var missingOptionsDeprecation = void 0,
       missingOptionsIdDeprecation = void 0,
       missingOptionsUntilDeprecation = void 0,
@@ -6828,7 +6828,13 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
     @since 1.0.0
   */
   deprecate = function deprecate(message, test, options) {
-    if (!options || !options.id && !options.until) {
+    if (_emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT !== true) {
+      (0, _index.assert)(missingOptionsDeprecation, options && (options.id || options.until));
+      (0, _index.assert)(missingOptionsIdDeprecation, options.id);
+      (0, _index.assert)(missingOptionsUntilDeprecation, options.until);
+    }
+
+    if ((!options || !options.id && !options.until) && _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT === true) {
       deprecate(missingOptionsDeprecation, false, {
         id: 'ember-debug.deprecate-options-missing',
         until: '3.0.0',
@@ -6836,7 +6842,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
       });
     }
 
-    if (options && !options.id) {
+    if (options && !options.id && _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT === true) {
       deprecate(missingOptionsIdDeprecation, false, {
         id: 'ember-debug.deprecate-id-missing',
         until: '3.0.0',
@@ -6844,7 +6850,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-debug/error', 'ember-console'
       });
     }
 
-    if (options && !options.until) {
+    if (options && !options.until && _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT === true) {
       deprecate(missingOptionsUntilDeprecation, options && options.until, {
         id: 'ember-debug.deprecate-until-missing',
         until: '3.0.0',
@@ -9521,7 +9527,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
       }
 
       this._cache = undefined;
-      this._weak = undefined;
       this._watching = undefined;
       this._mixins = undefined;
       this._bindings = undefined;
@@ -9770,14 +9775,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
 
     Meta.prototype.readableCache = function () {
       return this._cache;
-    };
-
-    Meta.prototype.writableWeak = function () {
-      return this._getOrCreateOwnMap('_weak');
-    };
-
-    Meta.prototype.readableWeak = function () {
-      return this._weak;
     };
 
     Meta.prototype.writableTags = function () {
@@ -14360,76 +14357,6 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     @public
     @static
   */
-  function observer() {
-    var _paths = void 0,
-        func = void 0,
-        _len5,
-        args,
-        _key5,
-        i;
-
-    for (_len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-      args[_key5] = arguments[_key5];
-    }
-
-    if (typeof args[args.length - 1] !== 'function') {
-      // revert to old, soft-deprecated argument ordering
-      true && !false && emberDebug.deprecate('Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
-
-      func = args.shift();
-      _paths = args;
-    } else {
-      func = args.pop();
-      _paths = args;
-    }
-
-    true && !(typeof func === 'function') && emberDebug.assert('observer called without a function', typeof func === 'function');
-    true && !(_paths.length > 0 && _paths.every(function (p) {
-      return typeof p === 'string' && p.length;
-    })) && emberDebug.assert('observer called without valid path', _paths.length > 0 && _paths.every(function (p) {
-      return typeof p === 'string' && p.length;
-    }));
-
-    var paths = [];
-    var addWatchedProperty = function (path) {
-      return paths.push(path);
-    };
-
-    for (i = 0; i < _paths.length; ++i) {
-      expandProperties(_paths[i], addWatchedProperty);
-    }
-
-    func.__ember_observes__ = paths;
-    return func;
-  }
-
-  /**
-    Specify a method that observes property changes.
-  
-    ```javascript
-    import EmberObject from '@ember/object';
-  
-    EmberObject.extend({
-      valueObserver: Ember.immediateObserver('value', function() {
-        // Executes whenever the "value" property changes
-      })
-    });
-    ```
-  
-    In the future, `observer` may become asynchronous. In this event,
-    `immediateObserver` will maintain the synchronous behavior.
-  
-    Also available as `Function.prototype.observesImmediately` if prototype extensions are
-    enabled.
-  
-    @method _immediateObserver
-    @for Ember
-    @param {String} propertyNames*
-    @param {Function} func
-    @deprecated Use `observer` instead.
-    @return func
-    @private
-  */
 
 
   /**
@@ -14812,36 +14739,17 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
   exports.aliasMethod = function (methodName) {
     return new Alias(methodName);
   };
-  exports._immediateObserver = function () {
-    var i, arg;
-
-    true && !false && emberDebug.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
-
-    for (i = 0; i < arguments.length; i++) {
-      arg = arguments[i];
-
-      true && !(typeof arg !== 'string' || arg.indexOf('.') === -1) && emberDebug.assert('Immediate observers must observe internal properties only, not properties on other objects.', typeof arg !== 'string' || arg.indexOf('.') === -1);
-    }
-
-    return observer.apply(this, arguments);
-  };
   exports._beforeObserver = function () {
     for (_len6 = arguments.length, args = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
       args[_key6] = arguments[_key6];
     }
 
-    var func = args[args.length - 1],
+    var func = args.pop(),
         _len6,
         args,
         _key6,
         i;
-
-    var _paths = args.slice(0, -1);
-    if (typeof func !== 'function') {
-      // revert to old, soft-deprecated argument ordering
-      func = args[0];
-      _paths = args.slice(1);
-    }
+    var _paths = args;
 
     true && !(typeof func === 'function') && emberDebug.assert('_beforeObserver called without a function', typeof func === 'function');
 
@@ -14849,6 +14757,7 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     var addWatchedProperty = function (path) {
       paths.push(path);
     };
+
     for (i = 0; i < _paths.length; ++i) {
       expandProperties(_paths[i], addWatchedProperty);
     }
@@ -14866,7 +14775,37 @@ enifed('ember-metal', ['exports', 'ember-environment', 'ember-utils', 'ember-deb
     applyMixin(obj, args, false);
     return obj;
   };
-  exports.observer = observer;
+  exports.observer = function () {
+    for (_len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
+    }
+
+    var func = args.pop(),
+        _len5,
+        args,
+        _key5,
+        i;
+    var _paths = args;
+
+    true && !(typeof func === 'function') && emberDebug.assert('observer called without a function', typeof func === 'function');
+    true && !(_paths.length > 0 && _paths.every(function (p) {
+      return typeof p === 'string' && p.length;
+    })) && emberDebug.assert('observer called without valid path', _paths.length > 0 && _paths.every(function (p) {
+      return typeof p === 'string' && p.length;
+    }));
+
+    var paths = [];
+    var addWatchedProperty = function (path) {
+      return paths.push(path);
+    };
+
+    for (i = 0; i < _paths.length; ++i) {
+      expandProperties(_paths[i], addWatchedProperty);
+    }
+
+    func.__ember_observes__ = paths;
+    return func;
+  };
   exports.required = function () {
     true && !false && emberDebug.deprecate('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false, { id: 'ember-metal.required', until: '3.0.0' });
 
@@ -17036,7 +16975,7 @@ enifed('ember/features', ['exports', 'ember-environment', 'ember-utils'], functi
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+c55c345e";
+  exports.default = "3.0.0-alpha.1-null+1723b73a";
 });
 enifed("handlebars", ["exports"], function (exports) {
   "use strict";

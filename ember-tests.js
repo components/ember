@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+c55c345e
+ * @version   3.0.0-alpha.1-null+1723b73a
  */
 
 /*global process */
@@ -6427,20 +6427,24 @@ enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'em
   var originalEnvValue = void 0;
   var originalDeprecateHandler = void 0;
   var originalWarnOptions = void 0;
+  var originalDeprecationOptions = void 0;
 
   QUnit.module('ember-debug', {
     setup: function () {
       originalEnvValue = _emberEnvironment.ENV.RAISE_ON_DEPRECATION;
       originalDeprecateHandler = _handlers.HANDLERS.deprecate;
       originalWarnOptions = _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT;
+      originalDeprecationOptions = _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT;
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = true;
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = true;
     },
     teardown: function () {
       _handlers.HANDLERS.deprecate = originalDeprecateHandler;
 
       _emberEnvironment.ENV.RAISE_ON_DEPRECATION = originalEnvValue;
       _emberEnvironment.ENV._ENABLE_WARN_OPTIONS_SUPPORT = originalWarnOptions;
+      _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = originalDeprecationOptions;
     }
   });
 
@@ -6634,6 +6638,19 @@ enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'em
     (0, _index.deprecate)('foo', false, {});
   });
 
+  QUnit.test('Ember.deprecate without options triggers an assertion', function (assert) {
+    expect(2);
+    _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
+
+    assert.throws(function () {
+      return (0, _index.deprecate)('foo');
+    }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
+
+    assert.throws(function () {
+      return (0, _index.deprecate)('foo', false, {});
+    }, new RegExp(_deprecate.missingOptionsDeprecation), 'proper assertion is triggered when options is missing');
+  });
+
   QUnit.test('Ember.deprecate without options.id triggers a deprecation', function (assert) {
     assert.expect(2);
 
@@ -6648,6 +6665,15 @@ enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'em
     (0, _index.deprecate)('foo', false, { until: 'forever' });
   });
 
+  QUnit.test('Ember.deprecate without options.id triggers an assertion', function (assert) {
+    expect(1);
+    _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
+
+    assert.throws(function () {
+      return (0, _index.deprecate)('foo', false, { until: 'forever' });
+    }, new RegExp(_deprecate.missingOptionsIdDeprecation), 'proper assertion is triggered when options.id is missing');
+  });
+
   QUnit.test('Ember.deprecate without options.until triggers a deprecation', function (assert) {
     assert.expect(2);
 
@@ -6660,6 +6686,15 @@ enifed('ember-debug/tests/main_test', ['ember-environment', 'ember-runtime', 'em
     });
 
     (0, _index.deprecate)('foo', false, { id: 'test' });
+  });
+
+  QUnit.test('Ember.deprecate without options.until triggers an assertion', function (assert) {
+    expect(1);
+    _emberEnvironment.ENV._ENABLE_DEPRECATION_OPTIONS_SUPPORT = false;
+
+    assert.throws(function () {
+      return (0, _index.deprecate)('foo', false, { id: 'test' });
+    }, new RegExp(_deprecate.missingOptionsUntilDeprecation), 'proper assertion is triggered when options.until is missing');
   });
 
   QUnit.test('warn without options triggers a deprecation', function (assert) {
@@ -13209,42 +13244,6 @@ enifed('ember-glimmer/tests/integration/components/curly-components-test', ['emb
       this.render('{{foo-bar}}');
 
       this.assertText('FIZZ BAR hey');
-    };
-
-    _class.prototype['@test can specify template with `defaultLayout` property [DEPRECATED]'] = function testCanSpecifyTemplateWithDefaultLayoutPropertyDEPRECATED() {
-      expectDeprecation(/Specifying `defaultLayout` to .* is deprecated. Please use `layout` instead/);
-      var FooBarComponent = _helpers.Component.extend({
-        elementId: 'blahzorz',
-        defaultLayout: (0, _helpers.compile)('much wat {{lulz}}'),
-        init: function () {
-          this._super.apply(this, arguments);
-          this.lulz = 'hey';
-        }
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
-
-      this.render('{{foo-bar}}');
-
-      this.assertText('much wat hey');
-    };
-
-    _class.prototype['@test layout takes precedence over defaultLayout'] = function testLayoutTakesPrecedenceOverDefaultLayout() {
-      var FooBarComponent = _helpers.Component.extend({
-        elementId: 'blahzorz',
-        layout: (0, _helpers.compile)('so much layout wat {{lulz}}'),
-        defaultLayout: (0, _helpers.compile)('much wat {{lulz}}'),
-        init: function () {
-          this._super.apply(this, arguments);
-          this.lulz = 'hey';
-        }
-      });
-
-      this.registerComponent('foo-bar', { ComponentClass: FooBarComponent });
-
-      this.render('{{foo-bar}}');
-
-      this.assertText('so much layout wat hey');
     };
 
     _class.prototype['@test layout supports computed property'] = function testLayoutSupportsComputedProperty() {
@@ -43922,17 +43921,6 @@ enifed('ember-metal/tests/mixin/observer_test', ['internal-test-helpers', 'ember
     set(obj3, 'baz', 'BEAR');
     equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
-
-  (0, _internalTestHelpers.testBoth)('providing the arguments in reverse order is deprecated', function (get, set) {
-    expectDeprecation(/Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument/);
-
-    _emberMetal.Mixin.create({
-      count: 0,
-      foo: (0, _emberMetal.observer)(function () {
-        set(this, 'count', get(this, 'count') + 1);
-      }, 'bar.baz')
-    });
-  });
 });
 QUnit.module('ESLint | ember-metal/tests/mixin/observer_test.js');
 QUnit.test('should pass ESLint', function(assert) {
@@ -44092,8 +44080,6 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     expectAssertion(function () {
       (0, _emberMetal.observer)(function () {});
     }, 'observer called without valid path');
-
-    expectDeprecation('Passing the dependentKeys after the callback function in observer is deprecated. Ensure the callback function is the last argument.');
 
     expectAssertion(function () {
       (0, _emberMetal.observer)(null);
@@ -45079,128 +45065,6 @@ enifed('ember-metal/tests/observer_test', ['ember-environment', 'internal-test-h
     set(obj, 'foo', 'bar');
     equal(count, 3);
     equal(get(obj, 'foo'), 'bar');
-  });
-
-  QUnit.module('Ember.immediateObserver (Deprecated)');
-
-  (0, _internalTestHelpers.testBoth)('immediate observers should fire synchronously', function (get, set) {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
-    var obj = {};
-    var observerCalled = 0;
-    var mixin = void 0;
-
-    // explicitly create a run loop so we do not inadvertently
-    // trigger deferred behavior
-    (0, _emberMetal.run)(function () {
-      mixin = _emberMetal.Mixin.create({
-        fooDidChange: (0, _emberMetal._immediateObserver)('foo', function () {
-          observerCalled++;
-          equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-        })
-      });
-
-      mixin.apply(obj);
-
-      (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-        get: function () {
-          return 'yes hello this is foo';
-        },
-        set: function (key, value) {
-          return value;
-        }
-      }));
-
-      equal(get(obj, 'foo'), 'yes hello this is foo', 'precond - computed property returns a value');
-      equal(observerCalled, 0, 'observer has not yet been called');
-
-      set(obj, 'foo', 'barbaz');
-
-      equal(observerCalled, 1, 'observer was called once');
-    });
-  });
-
-  if (_emberEnvironment.ENV.EXTEND_PROTOTYPES.Function) {
-    (0, _internalTestHelpers.testBoth)('immediate observers added declaratively via brace expansion fire synchronously', function (get, set) {
-      var obj = {};
-      var observerCalled = 0;
-      var mixin = void 0;
-
-      // explicitly create a run loop so we do not inadvertently
-      // trigger deferred behavior
-      (0, _emberMetal.run)(function () {
-        expectDeprecation(function () {
-          mixin = _emberMetal.Mixin.create({
-            fooDidChange: function () {
-              observerCalled++;
-              equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-            }.observesImmediately('{foo,bar}')
-          });
-        }, /Function#observesImmediately is deprecated. Use Function#observes instead/);
-
-        mixin.apply(obj);
-
-        (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-          get: function (key) {
-            return 'yes hello this is foo';
-          },
-          set: function (key, value) {
-            return value;
-          }
-        }));
-
-        equal(get(obj, 'foo'), 'yes hello this is foo', 'precond - computed property returns a value');
-        equal(observerCalled, 0, 'observer has not yet been called');
-
-        set(obj, 'foo', 'barbaz');
-
-        equal(observerCalled, 1, 'observer was called once');
-      });
-    });
-  }
-
-  (0, _internalTestHelpers.testBoth)('immediate observers watching multiple properties via brace expansion fire synchronously', function (get, set) {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
-    var obj = {};
-    var observerCalled = 0;
-    var mixin = void 0;
-
-    // explicitly create a run loop so we do not inadvertently
-    // trigger deferred behavior
-    (0, _emberMetal.run)(function () {
-      mixin = _emberMetal.Mixin.create({
-        fooDidChange: (0, _emberMetal._immediateObserver)('{foo,bar}', function () {
-          observerCalled++;
-          equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-        })
-      });
-
-      mixin.apply(obj);
-
-      (0, _emberMetal.defineProperty)(obj, 'foo', (0, _emberMetal.computed)({
-        get: function () {
-          return 'yes hello this is foo';
-        },
-        set: function (key, value) {
-          return value;
-        }
-      }));
-
-      equal(get(obj, 'foo'), 'yes hello this is foo', 'precond - computed property returns a value');
-      equal(observerCalled, 0, 'observer has not yet been called');
-
-      set(obj, 'foo', 'barbaz');
-
-      equal(observerCalled, 1, 'observer was called once');
-    });
-  });
-
-  (0, _internalTestHelpers.testBoth)('immediate observers are for internal properties only', function (get, set) {
-    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `observer` instead./);
-    expectAssertion(function () {
-      (0, _emberMetal._immediateObserver)('foo.bar', function () {
-        return this;
-      });
-    }, 'Immediate observers must observe internal properties only, not properties on other objects.');
   });
 
   QUnit.module('changeProperties');
@@ -49502,12 +49366,6 @@ QUnit.module('ESLint | ember-runtime/lib/mixins/evented.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/lib/mixins/evented.js should pass ESLint\n\n');
-});
-
-QUnit.module('ESLint | ember-runtime/lib/mixins/freezable.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/lib/mixins/freezable.js should pass ESLint\n\n');
 });
 
 QUnit.module('ESLint | ember-runtime/lib/mixins/mutable_array.js');
@@ -55086,22 +54944,10 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/mixins/container_proxy_test.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/mixins/copyable_test', ['ember-utils', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/system/object', 'ember-metal'], function (_emberUtils, _copyable, _copyable2, _freezable, _object, _emberMetal) {
+enifed('ember-runtime/tests/mixins/copyable_test', ['ember-utils', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/system/object', 'ember-metal'], function (_emberUtils, _copyable, _copyable2, _object, _emberMetal) {
   'use strict';
 
-  QUnit.module('Ember.Copyable.frozenCopy');
-
-  QUnit.test('should be deprecated', function () {
-    expectDeprecation('`frozenCopy` is deprecated, use `Object.freeze` instead.');
-
-    var Obj = _object.default.extend(_freezable.Freezable, _copyable2.default, {
-      copy: function () {
-        return Obj.create();
-      }
-    });
-
-    Obj.create().frozenCopy();
-  });
+  QUnit.module('Ember.Copyable');
 
   var CopyableObject = _object.default.extend(_copyable2.default, {
     id: null,
@@ -55498,22 +55344,6 @@ QUnit.module('ESLint | ember-runtime/tests/mixins/enumerable_test.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/mixins/enumerable_test.js should pass ESLint\n\n');
-});
-
-enifed('ember-runtime/tests/mixins/freezable_test', ['ember-runtime/system/object', 'ember-runtime/mixins/freezable'], function (_object, _freezable) {
-  'use strict';
-
-  QUnit.module('Ember.Freezable');
-
-  QUnit.test('should be deprecated', function () {
-    expectDeprecation('`Ember.Freezable` is deprecated, use `Object.freeze` instead.');
-    _object.default.extend(_freezable.Freezable).create();
-  });
-});
-QUnit.module('ESLint | ember-runtime/tests/mixins/freezable_test.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/mixins/freezable_test.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/mixins/mutable_array_test', ['ember-metal', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/array'], function (_emberMetal, _mutable_array, _mutable_array2, _object, _native_array, _array) {
@@ -56582,7 +56412,7 @@ QUnit.test('should pass ESLint', function(assert) {
   assert.ok(true, 'ember-runtime/tests/suites/array/objectAt.js should pass ESLint\n\n');
 });
 
-enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/tests/suites/copyable/copy', 'ember-runtime/tests/suites/copyable/frozenCopy'], function (exports, _suite, _copy, _frozenCopy) {
+enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/tests/suites/copyable/copy'], function (exports, _suite, _copy) {
   'use strict';
 
   var CopyableTests = _suite.Suite.extend({
@@ -56604,21 +56434,11 @@ enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/s
         Second object
        @returns {Boolean}
     */
-    isEqual: null,
-
-    /*
-      Set this to true if you expect the objects you test to be freezable.
-      The suite will verify that your objects actually match this.  (i.e. if
-      you say you can't test freezable it will verify that your objects really
-      aren't freezable.)
-       @type Boolean
-    */
-    shouldBeFreezable: false
+    isEqual: null
 
   });
 
   CopyableTests.importModuleTests(_copy.default);
-  CopyableTests.importModuleTests(_frozenCopy.default);
 
   exports.default = CopyableTests;
 });
@@ -56647,43 +56467,6 @@ QUnit.module('ESLint | ember-runtime/tests/suites/copyable/copy.js');
 QUnit.test('should pass ESLint', function(assert) {
   assert.expect(1);
   assert.ok(true, 'ember-runtime/tests/suites/copyable/copy.js should pass ESLint\n\n');
-});
-
-enifed('ember-runtime/tests/suites/copyable/frozenCopy', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/mixins/freezable', 'ember-metal'], function (exports, _suite, _freezable, _emberMetal) {
-  'use strict';
-
-  var suite = _suite.SuiteModuleBuilder.create();
-
-  suite.module('frozenCopy');
-
-  suite.test('frozen objects should return same instance', function () {
-    var obj = void 0,
-        copy = void 0;
-
-    obj = this.newObject();
-    if ((0, _emberMetal.get)(this, 'shouldBeFreezable')) {
-      expectDeprecation('`frozenCopy` is deprecated, use Object.freeze instead.');
-
-      ok(!_freezable.Freezable || _freezable.Freezable.detect(obj), 'object should be freezable');
-
-      copy = obj.frozenCopy();
-      ok(this.isEqual(obj, copy), 'new copy should be equal');
-      ok((0, _emberMetal.get)(copy, 'isFrozen'), 'returned value should be frozen');
-
-      copy = obj.freeze().frozenCopy();
-      equal(copy, obj, 'returns frozen object should be same');
-      ok((0, _emberMetal.get)(copy, 'isFrozen'), 'returned object should be frozen');
-    } else {
-      ok(!_freezable.Freezable || !_freezable.Freezable.detect(obj), 'object should not be freezable');
-    }
-  });
-
-  exports.default = suite;
-});
-QUnit.module('ESLint | ember-runtime/tests/suites/copyable/frozenCopy.js');
-QUnit.test('should pass ESLint', function(assert) {
-  assert.expect(1);
-  assert.ok(true, 'ember-runtime/tests/suites/copyable/frozenCopy.js should pass ESLint\n\n');
 });
 
 enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-utils', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/includes', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/uniqBy', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberUtils, _suite, _object, _emberMetal, _any, _is_any, _compact, _includes, _every, _filter, _find, _firstObject, _forEach, _mapBy, _invoke, _lastObject, _map, _reduce, _reject, _sortBy, _toArray, _uniq, _uniqBy, _without) {
@@ -60964,10 +60747,7 @@ enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['ember-ut
       }
 
       return a[0] === b[0];
-    },
-
-
-    shouldBeFreezable: false
+    }
   }).run();
 
   QUnit.module('NativeArray Copyable');
@@ -67757,65 +67537,14 @@ enifed('ember/tests/component_registration_test', ['ember-babel', 'ember-runtime
       assert.equal(text, 'inner-outer', 'The component is composed correctly');
     };
 
-    _class.prototype['@test Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]'] = function testAssigningDefaultLayoutToAComponentShouldSetItUpAsALayoutIfNoLayoutWasFoundDEPRECATED(assert) {
+    _class.prototype['@test Using name of component that does not exist'] = function testUsingNameOfComponentThatDoesNotExist() {
       var _this9 = this;
 
-      assert.expect(2);
-
-      expectDeprecation(function () {
+      expectAssertion(function () {
         _this9.runTask(function () {
           _this9.createApplication();
 
-          _this9.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-
-          _this9.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
-            text: 'outer'
-          }));
-          _this9.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
-            text: 'inner',
-            defaultLayout: _this9.compile('{{text}}-{{yield}}')
-          }));
-        });
-      });
-
-      var text = this.$('#wrapper').text().trim();
-      assert.equal(text, 'inner-outer', 'The component is composed correctly');
-    };
-
-    _class.prototype['@test Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]'] = function testAssigningDefaultLayoutToAComponentShouldSetItUpAsALayoutIfLayoutWasFoundDEPRECATED(assert) {
-      var _this10 = this;
-
-      assert.expect(2);
-
-      expectDeprecation(function () {
-        _this10.runTask(function () {
-          _this10.createApplication();
-
-          _this10.addTemplate('application', '<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-          _this10.addTemplate('components/my-component', '{{text}}-{{yield}}');
-
-          _this10.applicationInstance.register('controller:application', _emberRuntime.Controller.extend({
-            text: 'outer'
-          }));
-          _this10.applicationInstance.register('component:my-component', _emberGlimmer.Component.extend({
-            text: 'inner',
-            defaultLayout: _this10.compile('should not see this!')
-          }));
-        });
-      }, /Specifying `defaultLayout` to .+ is deprecated\./);
-
-      var text = this.$('#wrapper').text().trim();
-      assert.equal(text, 'inner-outer', 'The component is composed correctly');
-    };
-
-    _class.prototype['@test Using name of component that does not exist'] = function testUsingNameOfComponentThatDoesNotExist() {
-      var _this11 = this;
-
-      expectAssertion(function () {
-        _this11.runTask(function () {
-          _this11.createApplication();
-
-          _this11.addTemplate('application', '<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>');
+          _this9.addTemplate('application', '<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>');
         });
       }, /.* named "no-good" .*/);
     };
@@ -70966,16 +70695,16 @@ enifed('ember/tests/reexports_test', ['ember/index', 'internal-test-helpers'], f
   ['computed', 'ember-metal'], ['computed.alias', 'ember-metal', 'alias'], ['ComputedProperty', 'ember-metal'], ['cacheFor', 'ember-metal'], ['merge', 'ember-metal'], ['instrument', 'ember-metal'], ['Instrumentation.instrument', 'ember-metal', 'instrument'], ['Instrumentation.subscribe', 'ember-metal', 'instrumentationSubscribe'], ['Instrumentation.unsubscribe', 'ember-metal', 'instrumentationUnsubscribe'], ['Instrumentation.reset', 'ember-metal', 'instrumentationReset'], ['testing', 'ember-debug', { get: 'isTesting', set: 'setTesting' }], ['onerror', 'ember-metal', { get: 'getOnerror', set: 'setOnerror' }],
   // ['create'], TODO: figure out what to do here
   // ['keys'], TODO: figure out what to do here
-  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['immediateObserver', 'ember-metal', '_immediateObserver'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
+  ['FEATURES', 'ember/features'], ['FEATURES.isEnabled', 'ember-debug', 'isFeatureEnabled'], ['Error', 'ember-debug'], ['META_DESC', 'ember-metal'], ['meta', 'ember-metal'], ['get', 'ember-metal'], ['set', 'ember-metal'], ['_getPath', 'ember-metal'], ['getWithDefault', 'ember-metal'], ['trySet', 'ember-metal'], ['_Cache', 'ember-metal', 'Cache'], ['on', 'ember-metal'], ['addListener', 'ember-metal'], ['removeListener', 'ember-metal'], ['_suspendListener', 'ember-metal', 'suspendListener'], ['_suspendListeners', 'ember-metal', 'suspendListeners'], ['sendEvent', 'ember-metal'], ['hasListeners', 'ember-metal'], ['watchedEvents', 'ember-metal'], ['listenersFor', 'ember-metal'], ['isNone', 'ember-metal'], ['isEmpty', 'ember-metal'], ['isBlank', 'ember-metal'], ['isPresent', 'ember-metal'], ['_Backburner', 'backburner', 'default'], ['run', 'ember-metal'], ['_ObserverSet', 'ember-metal', 'ObserverSet'], ['propertyWillChange', 'ember-metal'], ['propertyDidChange', 'ember-metal'], ['overrideChains', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['beginPropertyChanges', 'ember-metal'], ['endPropertyChanges', 'ember-metal'], ['changeProperties', 'ember-metal'], ['defineProperty', 'ember-metal'], ['watchKey', 'ember-metal'], ['unwatchKey', 'ember-metal'], ['removeChainWatcher', 'ember-metal'], ['_ChainNode', 'ember-metal', 'ChainNode'], ['finishChains', 'ember-metal'], ['watchPath', 'ember-metal'], ['unwatchPath', 'ember-metal'], ['watch', 'ember-metal'], ['isWatching', 'ember-metal'], ['unwatch', 'ember-metal'], ['destroy', 'ember-metal', 'deleteMeta'], ['libraries', 'ember-metal'], ['OrderedSet', 'ember-metal'], ['Map', 'ember-metal'], ['MapWithDefault', 'ember-metal'], ['getProperties', 'ember-metal'], ['setProperties', 'ember-metal'], ['expandProperties', 'ember-metal'], ['NAME_KEY', 'ember-utils'], ['addObserver', 'ember-metal'], ['observersFor', 'ember-metal'], ['removeObserver', 'ember-metal'], ['_suspendObserver', 'ember-metal'], ['_suspendObservers', 'ember-metal'], ['required', 'ember-metal'], ['aliasMethod', 'ember-metal'], ['observer', 'ember-metal'], ['mixin', 'ember-metal'], ['Mixin', 'ember-metal'], ['bind', 'ember-metal'], ['Binding', 'ember-metal'], ['isGlobalPath', 'ember-metal'],
 
   // ember-views
   ['$', 'ember-views', 'jQuery'], ['ViewUtils.isSimpleClick', 'ember-views', 'isSimpleClick'], ['ViewUtils.getViewElement', 'ember-views', 'getViewElement'], ['ViewUtils.getViewBounds', 'ember-views', 'getViewBounds'], ['ViewUtils.getViewClientRects', 'ember-views', 'getViewClientRects'], ['ViewUtils.getViewBoundingClientRect', 'ember-views', 'getViewBoundingClientRect'], ['ViewUtils.getRootViews', 'ember-views', 'getRootViews'], ['ViewUtils.getChildViews', 'ember-views', 'getChildViews'], ['TextSupport', 'ember-views'], ['ComponentLookup', 'ember-views'], ['EventDispatcher', 'ember-views'],
 
   // ember-glimmer
-  ['Component', 'ember-glimmer', 'Component'], ['Helper', 'ember-glimmer', 'Helper'], ['Helper.helper', 'ember-glimmer', 'helper'], ['Checkbox', 'ember-glimmer', 'Checkbox'], ['LinkComponent', 'ember-glimmer', 'LinkComponent'], ['TextArea', 'ember-glimmer', 'TextArea'], ['TextField', 'ember-glimmer', 'TextField'], ['TEMPLATES', 'ember-glimmer', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-glimmer', 'template'], ['Handlebars.SafeString', 'ember-glimmer', { get: '_getSafeString' }], ['Handlebars.Utils.escapeExpression', 'ember-glimmer', 'escapeExpression'], ['String.htmlSafe', 'ember-glimmer', 'htmlSafe'],
+  ['Component', 'ember-glimmer', 'Component'], ['Helper', 'ember-glimmer', 'Helper'], ['Helper.helper', 'ember-glimmer', 'helper'], ['Checkbox', 'ember-glimmer', 'Checkbox'], ['LinkComponent', 'ember-glimmer', 'LinkComponent'], ['TextArea', 'ember-glimmer', 'TextArea'], ['TextField', 'ember-glimmer', 'TextField'], ['TEMPLATES', 'ember-glimmer', { get: 'getTemplates', set: 'setTemplates' }], ['Handlebars.template', 'ember-glimmer', 'template'], ['Handlebars.Utils.escapeExpression', 'ember-glimmer', 'escapeExpression'], ['String.htmlSafe', 'ember-glimmer', 'htmlSafe'],
 
   // ember-runtime
-  ['_RegistryProxyMixin', 'ember-runtime', 'RegistryProxyMixin'], ['_ContainerProxyMixin', 'ember-runtime', 'ContainerProxyMixin'], ['Object', 'ember-runtime'], ['String', 'ember-runtime'], ['compare', 'ember-runtime'], ['copy', 'ember-runtime'], ['isEqual', 'ember-runtime'], ['inject', 'ember-runtime'], ['Array', 'ember-runtime'], ['Comparable', 'ember-runtime'], ['Namespace', 'ember-runtime'], ['Enumerable', 'ember-runtime'], ['ArrayProxy', 'ember-runtime'], ['ObjectProxy', 'ember-runtime'], ['ActionHandler', 'ember-runtime'], ['CoreObject', 'ember-runtime'], ['NativeArray', 'ember-runtime'], ['Copyable', 'ember-runtime'], ['Freezable', 'ember-runtime'], ['FROZEN_ERROR', 'ember-runtime'], ['MutableEnumerable', 'ember-runtime'], ['MutableArray', 'ember-runtime'], ['TargetActionSupport', 'ember-runtime'], ['Evented', 'ember-runtime'], ['PromiseProxyMixin', 'ember-runtime'], ['Observable', 'ember-runtime'], ['typeOf', 'ember-runtime'], ['isArray', 'ember-runtime'], ['Object', 'ember-runtime'], ['onLoad', 'ember-runtime'], ['runLoadHooks', 'ember-runtime'], ['Controller', 'ember-runtime'], ['ControllerMixin', 'ember-runtime'], ['Service', 'ember-runtime'], ['_ProxyMixin', 'ember-runtime'], ['RSVP', 'ember-runtime'], ['STRINGS', 'ember-runtime', { get: 'getStrings', set: 'setStrings' }], ['BOOTED', 'ember-runtime', { get: 'isNamespaceSearchDisabled', set: 'setNamespaceSearchDisabled' }],
+  ['_RegistryProxyMixin', 'ember-runtime', 'RegistryProxyMixin'], ['_ContainerProxyMixin', 'ember-runtime', 'ContainerProxyMixin'], ['Object', 'ember-runtime'], ['String', 'ember-runtime'], ['compare', 'ember-runtime'], ['copy', 'ember-runtime'], ['isEqual', 'ember-runtime'], ['inject', 'ember-runtime'], ['Array', 'ember-runtime'], ['Comparable', 'ember-runtime'], ['Namespace', 'ember-runtime'], ['Enumerable', 'ember-runtime'], ['ArrayProxy', 'ember-runtime'], ['ObjectProxy', 'ember-runtime'], ['ActionHandler', 'ember-runtime'], ['CoreObject', 'ember-runtime'], ['NativeArray', 'ember-runtime'], ['Copyable', 'ember-runtime'], ['MutableEnumerable', 'ember-runtime'], ['MutableArray', 'ember-runtime'], ['TargetActionSupport', 'ember-runtime'], ['Evented', 'ember-runtime'], ['PromiseProxyMixin', 'ember-runtime'], ['Observable', 'ember-runtime'], ['typeOf', 'ember-runtime'], ['isArray', 'ember-runtime'], ['Object', 'ember-runtime'], ['onLoad', 'ember-runtime'], ['runLoadHooks', 'ember-runtime'], ['Controller', 'ember-runtime'], ['ControllerMixin', 'ember-runtime'], ['Service', 'ember-runtime'], ['_ProxyMixin', 'ember-runtime'], ['RSVP', 'ember-runtime'], ['STRINGS', 'ember-runtime', { get: 'getStrings', set: 'setStrings' }], ['BOOTED', 'ember-runtime', { get: 'isNamespaceSearchDisabled', set: 'setNamespaceSearchDisabled' }],
 
   // ember-routing
   ['Location', 'ember-routing'], ['AutoLocation', 'ember-routing'], ['HashLocation', 'ember-routing'], ['HistoryLocation', 'ember-routing'], ['NoneLocation', 'ember-routing'], ['controllerFor', 'ember-routing'], ['generateControllerFactory', 'ember-routing'], ['generateController', 'ember-routing'], ['RouterDSL', 'ember-routing'], ['Router', 'ember-routing'], ['Route', 'ember-routing'],

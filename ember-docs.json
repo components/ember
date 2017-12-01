@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "https://emberjs.com/",
-        "version": "3.0.0-alpha.1.c55c345e"
+        "version": "3.0.0-alpha.1.1723b73a"
     },
     "files": {
         "node_modules/rsvp/lib/rsvp/promise/all.js": {
@@ -862,17 +862,6 @@
             "fors": {},
             "namespaces": {}
         },
-        "packages/ember-runtime/lib/mixins/freezable.js": {
-            "name": "packages/ember-runtime/lib/mixins/freezable.js",
-            "modules": {},
-            "classes": {
-                "Ember.Freezable": 1
-            },
-            "fors": {},
-            "namespaces": {
-                "Ember": 1
-            }
-        },
         "packages/ember-runtime/lib/mixins/mutable_array.js": {
             "name": "packages/ember-runtime/lib/mixins/mutable_array.js",
             "modules": {},
@@ -1562,7 +1551,6 @@
                 "Ember.Comparable": 1,
                 "ContainerProxyMixin": 1,
                 "Ember.Copyable": 1,
-                "Ember.Freezable": 1,
                 "Ember.MutableEnumerable": 1,
                 "RegistryProxyMixin": 1,
                 "Ember.TargetActionSupport": 1,
@@ -1770,7 +1758,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "packages/ember-runtime/lib/system/native_array.js",
-            "line": 25
+            "line": 24
         },
         "@ember/enumerable": {
             "name": "@ember/enumerable",
@@ -1840,7 +1828,7 @@
             "namespaces": {},
             "tag": "module",
             "file": "packages/ember/lib/index.js",
-            "line": 591,
+            "line": 581,
             "access": "public",
             "tagname": ""
         }
@@ -2921,8 +2909,8 @@
             "module": "ember",
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/mixins/copyable.js",
-            "line": 12,
-            "description": "Implements some standard methods for copying an object. Add this mixin to\nany object you create that can create a copy of itself. This mixin is\nadded automatically to the built-in array.\n\nYou should generally implement the `copy()` method to return a copy of the\nreceiver.\n\nNote that `frozenCopy()` will only work if you also implement\n`Ember.Freezable`.",
+            "line": 11,
+            "description": "Implements some standard methods for copying an object. Add this mixin to\nany object you create that can create a copy of itself. This mixin is\nadded automatically to the built-in array.\n\nYou should generally implement the `copy()` method to return a copy of the\nreceiver.",
             "since": "Ember 0.9",
             "access": "private",
             "tagname": ""
@@ -2963,25 +2951,6 @@
             "line": 13,
             "description": "This mixin allows for Ember objects to subscribe to and emit events.\n\n```app/utils/person.js\nimport EmberObject from '@ember/object';\nimport Evented from '@ember/object/evented';\n\nexport default EmberObject.extend(Evented, {\n  greet() {\n    // ...\n    this.trigger('greet');\n  }\n});\n```\n\n```javascript\nvar person = Person.create();\n\nperson.on('greet', function() {\n  console.log('Our person has greeted');\n});\n\nperson.greet();\n\n// outputs: 'Our person has greeted'\n```\n\nYou can also chain multiple event subscriptions:\n\n```javascript\nperson.on('greet', function() {\n  console.log('Our person has greeted');\n}).one('greet', function() {\n  console.log('Offer one-time special');\n}).off('event', this, forgetThis);\n```",
             "access": "public",
-            "tagname": ""
-        },
-        "Ember.Freezable": {
-            "name": "Ember.Freezable",
-            "shortname": "Ember.Freezable",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember",
-            "namespace": "Ember",
-            "file": "packages/ember-runtime/lib/mixins/freezable.js",
-            "line": 12,
-            "description": "The `Ember.Freezable` mixin implements some basic methods for marking an\nobject as frozen. Once an object is frozen it should be read only. No changes\nmay be made the internal state of the object.\n\n## Enforcement\n\nTo fully support freezing in your subclass, you must include this mixin and\noverride any method that might alter any property on the object to instead\nraise an exception. You can check the state of an object by checking the\n`isFrozen` property.\n\nAlthough future versions of JavaScript may support language-level freezing\nobject objects, that is not the case today. Even if an object is freezable,\nit is still technically possible to modify the object, even though it could\nbreak other parts of your application that do not expect a frozen object to\nchange. It is, therefore, very important that you always respect the\n`isFrozen` property on all freezable objects.\n\n## Example Usage\n\nThe example below shows a simple object that implement the `Ember.Freezable`\nprotocol.\n\n```javascript\nContact = Ember.Object.extend(Ember.Freezable, {\n  firstName: null,\n  lastName: null,\n\n  // swaps the names\n  swapNames: function() {\n    if (this.get('isFrozen')) throw Ember.FROZEN_ERROR;\n    var tmp = this.get('firstName');\n    this.set('firstName', this.get('lastName'));\n    this.set('lastName', tmp);\n    return this;\n  }\n\n});\n\nc = Contact.create({ firstName: \"John\", lastName: \"Doe\" });\nc.swapNames();  // returns c\nc.freeze();\nc.swapNames();  // EXCEPTION\n```\n\n## Copying\n\nUsually the `Ember.Freezable` protocol is implemented in cooperation with the\n`Ember.Copyable` protocol, which defines a `frozenCopy()` method that will\nreturn a frozen object, if the object implements this method as well.",
-            "since": "Ember 0.9",
-            "deprecated": true,
-            "deprecationMessage": "Use `Object.freeze` instead.",
-            "access": "private",
             "tagname": ""
         },
         "MutableArray": {
@@ -3175,7 +3144,7 @@
             "module": "@ember/array",
             "namespace": "",
             "file": "packages/ember-runtime/lib/system/native_array.js",
-            "line": 25,
+            "line": 24,
             "description": "The NativeArray mixin contains the properties needed to make the native\nArray support Ember.MutableArray and all of its dependent APIs. Unless you\nhave `EmberENV.EXTEND_PROTOTYPES` or `EmberENV.EXTEND_PROTOTYPES.Array` set to\nfalse, this will be applied automatically. Otherwise you can apply the mixin\nat anytime by calling `Ember.NativeArray.apply(Array.prototype)`.",
             "uses": [
                 "MutableArray",
@@ -3487,7 +3456,7 @@
             "module": "jquery",
             "namespace": "",
             "file": "packages/ember/lib/index.js",
-            "line": 591,
+            "line": 581,
             "access": "public",
             "tagname": "",
             "static": 1
@@ -5912,7 +5881,7 @@
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 14,
+            "line": 15,
             "description": "Allows for runtime registration of handler functions that override the default deprecation behavior.\nDeprecations are invoked by calls to [Ember.deprecate](https://emberjs.com/api/classes/Ember.html#method_deprecate).\nThe following example demonstrates its usage by registering a handler that throws an error if the\nmessage contains the word \"should\", otherwise defers to the default handler.\n\n```javascript\nEmber.Debug.registerDeprecationHandler((message, options, next) => {\n  if (message.indexOf('should') !== -1) {\n    throw new Error(`Deprecation message with should: ${message}`);\n  } else {\n    // defer to whatever handler was registered before this one\n    next(message, options);\n  }\n});\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the deprecation call.</li>\n  <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>\n      <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>\n    </ul>\n  <li> <code>next</code> - A function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -5932,7 +5901,7 @@
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 137,
+            "line": 138,
             "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only).\n\n* In a production build, this method is defined as an empty function (NOP).\nUses of this method in Ember itself are stripped from the ember.prod.js build.",
             "itemtype": "method",
             "name": "deprecate",
@@ -7911,7 +7880,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 493,
+            "line": 489,
             "description": "Tears down the meta on an object so that it can be garbage collected.\nMultiple calls will have no effect.",
             "itemtype": "method",
             "name": "deleteMeta",
@@ -7934,7 +7903,7 @@
         },
         {
             "file": "packages/ember-metal/lib/meta.js",
-            "line": 514,
+            "line": 510,
             "description": "Retrieves the meta hash for an object. If `writable` is true ensures the\nhash is writable for this object as well.\n\nThe meta object contains information about computed property descriptors as\nwell as any watched properties and other information. You generally will\nnot access this information directly but instead work with higher level\nmethods that manipulate this hash indirectly.",
             "itemtype": "method",
             "name": "meta",
@@ -8121,37 +8090,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 786,
-            "description": "Specify a method that observes property changes.\n\n```javascript\nimport EmberObject from '@ember/object';\n\nEmberObject.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `observer` may become asynchronous. In this event,\n`immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
-            "itemtype": "method",
-            "name": "_immediateObserver",
-            "params": [
-                {
-                    "name": "propertyNames",
-                    "description": "",
-                    "type": "String",
-                    "multiple": true
-                },
-                {
-                    "name": "func",
-                    "description": "",
-                    "type": "Function"
-                }
-            ],
-            "deprecated": true,
-            "deprecationMessage": "Use `observer` instead.",
-            "return": {
-                "description": "func"
-            },
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.Ember",
-            "module": "@ember/object",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-metal/lib/mixin.js",
-            "line": 827,
+            "line": 777,
             "description": "When observers fire, they are called with the arguments `obj`, `keyName`.\n\nNote, `@each.property` observer is called per each add or replace of an element\nand it's not called with a specific enumeration item.\n\nA `_beforeObserver` fires before a property changes.",
             "itemtype": "method",
             "name": "beforeObserver",
@@ -12393,19 +12332,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/ext/function.js",
-            "line": 134,
-            "description": "The `observesImmediately` extension of Javascript's Function prototype is\navailable when `EmberENV.EXTEND_PROTOTYPES` or\n`EmberENV.EXTEND_PROTOTYPES.Function` is true, which is the default.\n\nYou can observe property changes simply by adding the `observesImmediately`\ncall to the end of your method declarations in classes that you write.\nFor example:\n\n```javascript\nimport EmberObject from '@ember/object';\n\nEmberObject.extend({\n  valueObserver: function() {\n    // Executes immediately after the \"value\" property changes\n  }.observesImmediately('value')\n});\n```\n\nIn the future, `observes` may become asynchronous. In this event,\n`observesImmediately` will maintain the synchronous behavior.\n\nSee `Ember.immediateObserver`.",
-            "itemtype": "method",
-            "name": "observesImmediately",
-            "deprecated": true,
-            "access": "private",
-            "tagname": "",
-            "class": "Function",
-            "module": "ember"
-        },
-        {
-            "file": "packages/ember-runtime/lib/ext/function.js",
-            "line": 169,
+            "line": 135,
             "description": "The `on` extension of Javascript's Function prototype is available\nwhen `EmberENV.EXTEND_PROTOTYPES` or `EmberENV.EXTEND_PROTOTYPES.Function` is\ntrue, which is the default.\n\nYou can listen for events simply by adding the `on` call to the end of\nyour method declarations in classes or mixins that you write. For example:\n\n```javascript\nimport Mixin from '@ember/mixin';\n\nMixin.create({\n  doSomethingWithElement: function() {\n    // Executes whenever the \"didInsertElement\" event fires\n  }.on('didInsertElement')\n});\n```\n\nSee `Ember.on`.",
             "itemtype": "method",
             "name": "on",
@@ -13048,7 +12975,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/copyable.js",
-            "line": 29,
+            "line": 25,
             "description": "__Required.__ You must implement this method to apply this mixin.\n\nOverride to return a copy of the receiver. Default implementation raises\nan exception.",
             "itemtype": "method",
             "name": "copy",
@@ -13063,24 +12990,6 @@
                 "description": "copy of receiver",
                 "type": "Object"
             },
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.Copyable",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-runtime/lib/mixins/copyable.js",
-            "line": 42,
-            "description": "If the object implements `Ember.Freezable`, then this will return a new\ncopy if the object is not frozen and the receiver if the object is frozen.\n\nRaises an exception if you try to call this method on a object that does\nnot support freezing.\n\nYou should use this method whenever you want a copy of a freezable object\nsince a freezable object can simply return itself without actually\nconsuming more memory.",
-            "itemtype": "method",
-            "name": "frozenCopy",
-            "return": {
-                "description": "copy of receiver or receiver",
-                "type": "Object"
-            },
-            "deprecated": true,
-            "deprecationMessage": "Use `Object.freeze` instead.",
             "access": "private",
             "tagname": "",
             "class": "Ember.Copyable",
@@ -14014,35 +13923,6 @@
             "tagname": "",
             "class": "Evented",
             "module": "@ember/object"
-        },
-        {
-            "file": "packages/ember-runtime/lib/mixins/freezable.js",
-            "line": 81,
-            "description": "Set to `true` when the object is frozen. Use this property to detect\nwhether your object is frozen or not.",
-            "itemtype": "property",
-            "name": "isFrozen",
-            "type": "Boolean",
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.Freezable",
-            "module": "ember",
-            "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-runtime/lib/mixins/freezable.js",
-            "line": 91,
-            "description": "Freezes the object. Once this method has been called the object should\nno longer allow any properties to be edited.",
-            "itemtype": "method",
-            "name": "freeze",
-            "return": {
-                "description": "receiver",
-                "type": "Object"
-            },
-            "access": "private",
-            "tagname": "",
-            "class": "Ember.Freezable",
-            "module": "ember",
-            "namespace": "Ember"
         },
         {
             "file": "packages/ember-runtime/lib/mixins/mutable_array.js",
@@ -15694,7 +15574,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/native_array.js",
-            "line": 109,
+            "line": 107,
             "description": "Creates an `Ember.NativeArray` from an Array-like object.\nDoes not modify the original object's contents. `A()` is not needed if\n`EmberENV.EXTEND_PROTOTYPES` is `true` (the default value). However,\nit is recommended that you use `A()` when creating addons for\nember or when you can not guarantee that `EmberENV.EXTEND_PROTOTYPES`\nwill be `true`.\n\nExample\n\n```app/components/my-component.js\nimport Component from '@ember/component';\nimport { A } from '@ember/array';\n\nexport default Component.extend({\n  tagName: 'ul',\n  classNames: ['pagination'],\n\n  init() {\n    this._super(...arguments);\n\n    if (!this.get('content')) {\n      this.set('content', A());\n      this.set('otherContent', A([1,2,3]));\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "A",
@@ -18025,7 +17905,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 147,
+            "line": 146,
             "description": "The context that Ember searches for namespace instances on.",
             "access": "private",
             "tagname": "",
@@ -18035,7 +17915,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 197,
+            "line": 196,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -18054,7 +17934,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 390,
+            "line": 385,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -18067,7 +17947,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 406,
+            "line": 401,
             "description": "Whether searching on the global for new Namespace instances is enabled.\n\nThis is only exported here as to not break any addons.  Given the new\nvisit API, you will have issues if you treat this as a indicator of\nbooted.\n\nInternally this is only exposing a flag in Namespace.",
             "itemtype": "property",
             "name": "BOOTED",
@@ -18080,7 +17960,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 472,
+            "line": 462,
             "description": "Global hash of shared templates. This will automatically be populated\nby the build tools so that you can store your Handlebars templates in\nseparate files that get loaded into JavaScript at buildtime.",
             "itemtype": "property",
             "name": "TEMPLATES",
@@ -18093,7 +17973,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 492,
+            "line": 482,
             "description": "The semantic version",
             "itemtype": "property",
             "name": "VERSION",
@@ -18106,7 +17986,7 @@
         },
         {
             "file": "packages/ember/lib/index.js",
-            "line": 597,
+            "line": 587,
             "description": "Alias for jQuery",
             "itemtype": "method",
             "name": "$",
@@ -18228,7 +18108,7 @@
         },
         {
             "message": "Missing item type\nThe context that Ember searches for namespace instances on.",
-            "line": " packages/ember/lib/index.js:147"
+            "line": " packages/ember/lib/index.js:146"
         }
     ]
 }
