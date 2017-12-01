@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+b4614b76
+ * @version   3.0.0-alpha.1-null+a42f278c
  */
 
 /*global process */
@@ -1777,32 +1777,6 @@ enifed('ember-application/tests/system/application_instance_test', ['ember-babel
     equal(appInstance.application, application, 'application should be set to parent');
   });
 
-  QUnit.test('properties (and aliases) are correctly assigned for accessing the container and registry', function () {
-    expect(6);
-
-    appInstance = (0, _emberMetal.run)(function () {
-      return _applicationInstance.default.create({ application: application });
-    });
-
-    ok(appInstance, 'instance should be created');
-    ok(appInstance.__container__, '#__container__ is accessible');
-    ok(appInstance.__registry__, '#__registry__ is accessible');
-
-    // stub with a no-op to keep deprecation test simple
-    appInstance.__container__.lookup = function () {
-      ok(true, '#loookup alias is called correctly');
-    };
-
-    ok(typeof appInstance.registry.register === 'function', '#registry.register is available as a function');
-    appInstance.__registry__.register = function () {
-      ok(true, '#register alias is called correctly');
-    };
-
-    expectDeprecation(function () {
-      appInstance.registry.register();
-    }, /Using `ApplicationInstance.registry.register` is deprecated. Please use `ApplicationInstance.register` instead./);
-  });
-
   QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
     assert.expect(1);
 
@@ -2060,22 +2034,6 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       return (0, _emberBabel.possibleConstructorReturn)(this, _ApplicationTestCase2.apply(this, arguments));
     }
 
-    _class2.prototype['@test includes deprecated access to `application.registry`'] = function testIncludesDeprecatedAccessToApplicationRegistry(assert) {
-      var _this9 = this;
-
-      assert.expect(3);
-
-      assert.ok(typeof this.application.registry.register === 'function', '#registry.register is available as a function');
-
-      this.application.__registry__.register = function () {
-        assert.ok(true, '#register alias is called correctly');
-      };
-
-      expectDeprecation(function () {
-        _this9.application.registry.register();
-      }, /Using `Application.registry.register` is deprecated. Please use `Application.register` instead./);
-    };
-
     _class2.prototype['@test builds a registry'] = function (assert) {
       var application = this.application;
 
@@ -2145,10 +2103,10 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     function _class3() {
       (0, _emberBabel.classCallCheck)(this, _class3);
 
-      var _this10 = (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
+      var _this9 = (0, _emberBabel.possibleConstructorReturn)(this, _DefaultResolverAppli.call(this));
 
-      _this10.originalLookup = _emberEnvironment.context.lookup;
-      return _this10;
+      _this9.originalLookup = _emberEnvironment.context.lookup;
+      return _this9;
     }
 
     _class3.prototype.teardown = function teardown() {
@@ -2158,12 +2116,12 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class3.prototype['@test acts like a namespace'] = function (assert) {
-      var _this11 = this;
+      var _this10 = this;
 
       var lookup = _emberEnvironment.context.lookup = {};
 
       lookup.TestApp = this.runTask(function () {
-        return _this11.createApplication();
+        return _this10.createApplication();
       });
 
       (0, _emberRuntime.setNamespaceSearchDisabled)(false);
@@ -2172,23 +2130,23 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class3.prototype['@test can specify custom router'] = function (assert) {
-      var _this12 = this;
+      var _this11 = this;
 
       var MyRouter = _emberRouting.Router.extend();
       this.runTask(function () {
-        _this12.createApplication();
-        _this12.application.Router = MyRouter;
+        _this11.createApplication();
+        _this11.application.Router = MyRouter;
       });
 
       assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof MyRouter, 'application resolved the correct router');
     };
 
     _class3.prototype['@test Minimal Application initialized with just an application template'] = function (assert) {
-      var _this13 = this;
+      var _this12 = this;
 
       this.$().html('<script type="text/x-handlebars">Hello World</script>');
       this.runTask(function () {
-        return _this13.createApplication();
+        return _this12.createApplication();
       });
 
       assert.equal(this.$().text().trim(), 'Hello World');
@@ -2211,12 +2169,12 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     function _class4() {
       (0, _emberBabel.classCallCheck)(this, _class4);
 
-      var _this14 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
+      var _this13 = (0, _emberBabel.possibleConstructorReturn)(this, _AutobootApplicationT.call(this));
 
-      _this14.originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
-      _this14.originalDebug = (0, _emberDebug.getDebugFunction)('debug');
-      _this14.originalWarn = (0, _emberDebug.getDebugFunction)('warn');
-      return _this14;
+      _this13.originalLogVersion = _emberEnvironment.ENV.LOG_VERSION;
+      _this13.originalDebug = (0, _emberDebug.getDebugFunction)('debug');
+      _this13.originalWarn = (0, _emberDebug.getDebugFunction)('warn');
+      return _this13;
     }
 
     _class4.prototype.teardown = function teardown() {
@@ -2227,19 +2185,19 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test initialized application goes to initial route'] = function (assert) {
-      var _this15 = this;
+      var _this14 = this;
 
       this.runTask(function () {
-        _this15.createApplication();
-        _this15.addTemplate('application', '{{outlet}}');
-        _this15.addTemplate('index', '<h1>Hi from index</h1>');
+        _this14.createApplication();
+        _this14.addTemplate('application', '{{outlet}}');
+        _this14.addTemplate('index', '<h1>Hi from index</h1>');
       });
 
       assert.equal(this.$('h1').text(), 'Hi from index');
     };
 
     _class4.prototype['@test ready hook is called before routing begins'] = function (assert) {
-      var _this16 = this;
+      var _this15 = this;
 
       assert.expect(2);
 
@@ -2260,7 +2218,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
           }
         });
 
-        var app = _this16.createApplication({}, MyApplication);
+        var app = _this15.createApplication({}, MyApplication);
 
         registerRoute(app, 'application', function () {
           return ok(true, 'normal route is activated');
@@ -2269,10 +2227,10 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test initialize application via initialize call'] = function (assert) {
-      var _this17 = this;
+      var _this16 = this;
 
       this.runTask(function () {
-        return _this17.createApplication();
+        return _this16.createApplication();
       });
       // This is not a public way to access the container; we just
       // need to make some assertions about the created router
@@ -2282,11 +2240,11 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test initialize application with stateManager via initialize call from Router class'] = function (assert) {
-      var _this18 = this;
+      var _this17 = this;
 
       this.runTask(function () {
-        _this18.createApplication();
-        _this18.addTemplate('application', '<h1>Hello!</h1>');
+        _this17.createApplication();
+        _this17.addTemplate('application', '<h1>Hello!</h1>');
       });
       // This is not a public way to access the container; we just
       // need to make some assertions about the created router
@@ -2296,12 +2254,12 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test Application Controller backs the appplication template'] = function (assert) {
-      var _this19 = this;
+      var _this18 = this;
 
       this.runTask(function () {
-        _this19.createApplication();
-        _this19.addTemplate('application', '<h1>{{greeting}}</h1>');
-        _this19.add('controller:application', _emberRuntime.Controller.extend({
+        _this18.createApplication();
+        _this18.addTemplate('application', '<h1>{{greeting}}</h1>');
+        _this18.add('controller:application', _emberRuntime.Controller.extend({
           greeting: 'Hello!'
         }));
       });
@@ -2309,7 +2267,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test enable log of libraries with an ENV var'] = function (assert) {
-      var _this20 = this;
+      var _this19 = this;
 
       if (EmberDev && EmberDev.runningProdBuild) {
         assert.ok(true, 'Logging does not occur in production builds');
@@ -2327,7 +2285,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       _emberMetal.libraries.register('my-lib', '2.0.0a');
 
       this.runTask(function () {
-        return _this20.createApplication();
+        return _this19.createApplication();
       });
 
       assert.equal(messages[1], 'Ember  : ' + _ember.VERSION);
@@ -2338,7 +2296,7 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
     };
 
     _class4.prototype['@test disable log of version of libraries with an ENV var'] = function (assert) {
-      var _this21 = this;
+      var _this20 = this;
 
       var logged = false;
 
@@ -2349,35 +2307,35 @@ enifed('ember-application/tests/system/application_test', ['ember-babel', 'ember
       });
 
       this.runTask(function () {
-        return _this21.createApplication();
+        return _this20.createApplication();
       });
 
       assert.ok(!logged, 'library version logging skipped');
     };
 
     _class4.prototype['@test can resolve custom router'] = function (assert) {
-      var _this22 = this;
+      var _this21 = this;
 
       var CustomRouter = _emberRouting.Router.extend();
 
       this.runTask(function () {
-        _this22.createApplication();
-        _this22.add('router:main', CustomRouter);
+        _this21.createApplication();
+        _this21.add('router:main', CustomRouter);
       });
 
       assert.ok(this.application.__deprecatedInstance__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
     };
 
     _class4.prototype['@test does not leak itself in onLoad._loaded'] = function (assert) {
-      var _this23 = this;
+      var _this22 = this;
 
       assert.equal(_emberRuntime._loaded.application, undefined);
       this.runTask(function () {
-        return _this23.createApplication();
+        return _this22.createApplication();
       });
       assert.equal(_emberRuntime._loaded.application, this.application);
       this.runTask(function () {
-        return _this23.application.destroy();
+        return _this22.application.destroy();
       });
       assert.equal(_emberRuntime._loaded.application, undefined);
     };
