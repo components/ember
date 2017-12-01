@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   3.0.0-alpha.1-null+e7513896
+ * @version   3.0.0-alpha.1-null+a7518b94
  */
 
 /*global process */
@@ -29555,7 +29555,11 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
       (0, _emberMetal.get)(this, 'router')._prepareQueryParams(routeName, models, queryParams);
     },
     generateURL: function (routeName, models, queryParams) {
-      var _get;
+      var router = (0, _emberMetal.get)(this, 'router');
+      // return early when the router microlib is not present, which is the case for {{link-to}} in integration tests
+      if (!router._routerMicrolib) {
+        return;
+      }
 
       var visibleQueryParams = {};
       if (queryParams) {
@@ -29563,7 +29567,7 @@ enifed('ember-routing/services/routing', ['exports', 'ember-utils', 'ember-runti
         this.normalizeQueryParams(routeName, models, visibleQueryParams);
       }
 
-      return (_get = (0, _emberMetal.get)(this, 'router')).generate.apply(_get, [routeName].concat(models, [{ queryParams: visibleQueryParams }]));
+      return router.generate.apply(router, [routeName].concat(models, [{ queryParams: visibleQueryParams }]));
     },
     isActiveForRoute: function (contexts, queryParams, routeName, routerState, isCurrentWhenSpecified) {
       var router = (0, _emberMetal.get)(this, 'router');
@@ -43624,7 +43628,7 @@ enifed('ember/index', ['exports', 'require', 'ember-environment', 'node-module',
 enifed("ember/version", ["exports"], function (exports) {
   "use strict";
 
-  exports.default = "3.0.0-alpha.1-null+e7513896";
+  exports.default = "3.0.0-alpha.1-null+a7518b94";
 });
 /*global enifed */
 enifed('node-module', ['exports'], function(_exports) {
